@@ -1,0 +1,1154 @@
+package com.smile.colorballs;
+
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.Point;
+import android.graphics.Typeface;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.StrictMode;
+import android.os.SystemClock;
+import android.provider.CalendarContract;
+import android.provider.Settings;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Display;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewConfiguration;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.GridLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.purplebrain.adbuddiz.sdk.AdBuddiz;
+// import com.purplebrain.adbuddiz.sdk.AdBuddizRewardedVideoDelegate;
+// import com.purplebrain.adbuddiz.sdk.AdBuddizRewardedVideoError;
+// import com.smile.dao.ScoreMySQL; // removed on 2017-10-18
+import com.smile.dao.ScoreSQLite;
+import com.smile.draw.ImageDraw;
+import com.smile.model.GridData;
+import com.smile.utility.SoundUtl;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
+import static android.view.View.OnClickListener;
+
+// public class MyActivity extends ActionBarActivity { // ActionBarActivity is deprecated
+public class MyActivity extends AppCompatActivity {
+
+    private int screenWidth = 0;
+    private int screenHeight = 0;
+
+    // private FrameLayout frameLayout0 = null; // removed on 2017-10-21
+
+    private GridLayout gridLayout1 = null;
+    private TextView tView0 = null;
+    private TextView tView1 = null;
+
+    private ImageView imageView0 = null;
+    private ImageDraw imageDraw0 = null;
+    private int scoreBoardWidth = 0;
+    private int scoreBoardHeight = 0;
+    private int image0Rows = 1;
+    private int image0Cols = 4;
+    private int image0IdStart = 100;
+    private int insideColor0 = 0xFFA4FF13;
+    private int lineColor0 = 0xFFFF1627;
+
+    private ImageView imageView1 = null;
+    private int gridWidth = 760;
+    private int gridHeight = 800;
+    private int rowCounts = 9;
+    private int colCounts = 9;
+    private int MINB = 3, MAXB = 4;
+    private int minBalls = MINB, maxBalls = MINB;
+    MenuItem registerMenuItemEasy = null;
+    MenuItem registerMenuItemDifficult = null;
+
+    private int highestScore = 0;
+    private int currentScore = 0;
+    private int undoScore = 0;
+
+    private GridData gridData;
+    private ScoreSQLite scoreSQLite = null;
+    // private ScoreMySQL scoreMySQL = null;    // removed on 2017-10-18
+
+    private Runnable bouncyRunnable = null;
+    private Handler bouncyHandler = null;
+
+    private boolean[] threadCompleted =  {true,true,true,true,true,true,true,true,true,true};
+
+    private int autoRotate = 1;
+
+    private int indexI = -1, indexJ = -1;   // the array index that the ball has been selected
+    private int status = 0; //  no cell selected
+    //  one cell with a ball selected
+
+    private boolean undoEnable = false;
+
+    private String yesStr = new String("");
+    private String noStr = new String("");
+    private String nameStr = new String("");
+    private String submitStr = new String("");
+    private String cancelStr = new String("");
+    private String gameOverStr = new String("");
+    private String undoStr = new String("");
+    private String historyStr = new String("");
+
+    final private String packageName = new String("package:com.smile.colorballs");
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_my);
+
+        autoRotate = android.provider.Settings.System.getInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
+        // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        try {
+            ViewConfiguration config = ViewConfiguration.get(this);
+            Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
+            if (menuKeyField != null) {
+                menuKeyField.setAccessible(true);
+                menuKeyField.setBoolean(config, false);
+            }
+        } catch (Exception ex) {
+            // Ignore
+        }
+
+        // the following is very important for JDBC connector
+        if (android.os.Build.VERSION.SDK_INT > 9) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
+
+        // string constant
+        yesStr = getResources().getString(R.string.yesStr);
+        noStr = getResources().getString(R.string.noStr);
+        nameStr = getResources().getString(R.string.nameStr);
+        submitStr = getResources().getString(R.string.submitStr);
+        cancelStr = getResources().getString(R.string.cancelStr);
+        gameOverStr = getResources().getString(R.string.gameOverStr);
+        undoStr = getResources().getString(R.string.undoStr);
+        historyStr = getResources().getString(R.string.historyStr);
+
+        scoreSQLite = new ScoreSQLite(MyActivity.this);
+        scoreSQLite.openScoreDatabase();
+        highestScore = scoreSQLite.readHighestScore();
+
+        // scoreMySQL = new ScoreMySQL(MyActivity.this);    // removed on 2017-10-18
+
+        indexI = -1;
+        indexJ = -1;
+        status = 0;
+
+        // frameLayout0 = (FrameLayout) findViewById(R.id.frameLayout0);    // removed on 2017-10-21
+
+        // Display d = ((WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+
+        int buttonAreaHeight = 60;
+
+        screenWidth = size.x;
+        screenHeight = size.y;
+
+        gridWidth = screenWidth;
+        gridHeight = gridWidth;
+
+        float nextBallPart = 2.0f / 3.0f;  // 3.0f / 4.0f
+        float scoreTextPart = 1.0f - nextBallPart;
+
+        scoreBoardWidth = (int) (((float) gridWidth * nextBallPart));
+        scoreBoardHeight = (int) ((float) scoreBoardWidth / 4.0);
+
+        int tempHeight = gridHeight + scoreBoardHeight + buttonAreaHeight;
+        if (tempHeight > screenHeight) {
+            // width of used screen is greater than height of used screen
+            gridHeight = screenHeight - scoreBoardHeight - buttonAreaHeight;
+            gridWidth = gridHeight;
+            scoreBoardWidth = (int) (((float) gridWidth * nextBallPart));
+            scoreBoardHeight = scoreBoardWidth / 4;
+        }
+
+        if (gridHeight < (10 * 9)) {
+            return;
+        }
+
+        tView0 = (TextView) findViewById(R.id.textView0);
+
+        ViewGroup.LayoutParams textLP = tView0.getLayoutParams();
+        tView0.setWidth((int) ((float) gridWidth * scoreTextPart));
+        tView0.setHeight(scoreBoardHeight / 2);
+
+        tView1 = (TextView) findViewById(R.id.textView1);
+        tView1.setWidth((int) ((float) gridWidth * scoreTextPart));
+        tView1.setHeight(scoreBoardHeight / 2);
+
+        imageView0 = (ImageView) findViewById(R.id.imageView0);
+        ViewGroup.LayoutParams imageView0Lp = imageView0.getLayoutParams();
+        imageView0Lp.width = (scoreBoardWidth / image0Cols) * image0Cols;
+        imageView0Lp.height = scoreBoardHeight;
+
+        GridLayout gridLayout0 = (GridLayout) findViewById(R.id.gridLayout0);
+        ViewGroup.LayoutParams gridLp0 = gridLayout0.getLayoutParams();
+        gridLp0.width = (scoreBoardWidth / image0Cols) * image0Cols;
+        gridLp0.height = scoreBoardHeight;
+        gridLayout0.setRowCount(image0Rows);
+        gridLayout0.setColumnCount(image0Cols);
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.width = gridLp0.width / image0Cols;
+        lp.height = gridLp0.height / image0Rows;
+        lp.gravity = Gravity.CENTER;
+
+        ImageView imageView = null;
+
+        imageDraw0 = new ImageDraw(imageView0, image0Rows, image0Cols, insideColor0, lineColor0);
+        imageDraw0.drawBase();
+
+        for (int i = 0; i < image0Rows; i++) {
+            for (int j = 0; j < image0Cols; j++) {
+                imageView = new ImageView(this);
+                imageView.setId(image0IdStart + (image0Cols * i + j));
+                imageView.setClickable(false);
+                imageView.setAdjustViewBounds(true);
+                imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+                gridLayout0.addView(imageView, lp);
+            }
+        }
+
+        int cellWidth = gridWidth / colCounts;
+        int cellHeight = gridHeight / rowCounts;
+
+        gridData = new GridData(rowCounts, colCounts, minBalls, maxBalls);
+
+        imageView1 = (ImageView) findViewById(R.id.imageView1);
+        ViewGroup.LayoutParams imageView1Lp = imageView1.getLayoutParams();
+        imageView1Lp.width = cellWidth * colCounts;
+        imageView1Lp.height = cellHeight * rowCounts;
+
+        gridLayout1 = (GridLayout) findViewById(R.id.gridLayout1);
+        ViewGroup.LayoutParams gridLp1 = gridLayout1.getLayoutParams();
+        gridLp1.width = cellWidth * colCounts;
+        gridLp1.height = cellHeight * rowCounts;
+        gridLayout1.setRowCount(rowCounts);
+        gridLayout1.setColumnCount(colCounts);
+
+        lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.width = cellWidth;
+        lp.height = cellHeight;
+        lp.gravity = Gravity.CENTER;
+
+        tView0.setText(String.format("%9d", highestScore));
+        tView1.setText(String.format("%9d", currentScore));
+
+        Button undoButton = (Button) findViewById(R.id.undoButton);
+        undoButton.setTextColor(Color.RED);
+        undoButton.setTypeface(undoButton.getTypeface(),Typeface.BOLD_ITALIC);
+        undoButton.setTextSize(20);
+        undoButton.setText(undoStr);
+        undoButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                undoTheLast();
+            }
+        });
+
+        Button historyButton = (Button) findViewById(R.id.historyButton);
+        historyButton.setTextColor(Color.RED);
+        historyButton.setTypeface(historyButton.getTypeface(), Typeface.BOLD_ITALIC);
+        historyButton.setTextSize(20);
+        historyButton.setText(historyStr);
+        historyButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                String[] resultStr = scoreSQLite.read10HighestScore();
+
+                Intent i = new Intent(MyActivity.this, HistoryActivity.class);
+                Bundle extras = new Bundle();
+                extras.putStringArray("resultStr", resultStr);
+                i.putExtras(extras);
+
+                startActivity(i);
+            }
+        });
+
+        // removed globalButton on 2017-10-18 at 00:54 am by Chao Lee
+        /*
+        Button globalButton = (Button) findViewById(R.id.globalButton);
+        globalButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                threadCompleted[7] = false;
+
+                new startGlobalRanking().execute();
+
+                threadCompleted[7] = true;
+            }
+        });
+        */
+
+
+        for (int i = 0; i < rowCounts; i++) {
+            for (int j = 0; j < colCounts; j++) {
+                imageView = new ImageView(this);
+                imageView.setId((i * colCounts + j));
+                imageView.setClickable(true);
+
+                imageView.setAdjustViewBounds(true);
+                imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+
+                imageView.setBackgroundResource(R.drawable.boximage);
+                imageView.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(completedAll()) {
+                            doDrawBallsAndCheckListener(v);
+                        }
+                    }
+                });
+                gridLayout1.addView(imageView, lp);
+            }
+        }
+
+        displayGridDataNextCells();
+
+        // for AdBuddiz ads
+        AdBuddiz.setPublisherKey("57c7153c-35dd-488a-beaa-3cae8b3ab668");
+        AdBuddiz.cacheAds(this); // this = current Activity
+        // AdBuddiz.RewardedVideo.fetch(this); // this = current Activity
+    }
+
+    private boolean completedAll() {
+        for (int i=0 ; i <threadCompleted.length;i++) {
+            if (!threadCompleted[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /*
+    class delegate implements AdBuddizRewardedVideoDelegate {
+        @Override
+        public void didComplete() {
+        }
+
+        // optional
+        public void didFetch() {       // a video is ready to be displayed
+        }
+        public void didFail(AdBuddizRewardedVideoError error) { // SDK was unable to fetch or show a video
+        }
+        public void didNotComplete() { // an error happened during video playback
+        }
+    }
+    */
+
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        Context ctx = MyActivity.this;
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        if (android.os.Build.VERSION.SDK_INT >=23) {
+            if (!Settings.System.canWrite(this)) {
+                final Object lock = new Object();
+                Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+                intent.setData(Uri.parse("package:" + ctx.getPackageName()));
+                startActivity(intent);
+            }
+        }
+
+        try {
+            android.provider.Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, autoRotate);
+            System.out.println("onResume --> Succeeded to set screen rotation setting.");
+        } catch (Exception e) {
+            System.out.println("onResume --> Failed to set screen rotation setting.");
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    public void onRestart() {
+        super.onRestart();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= 23) {
+                if (Settings.System.canWrite(MyActivity.this)) {
+                    android.provider.Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, autoRotate);
+                }
+            } else {
+                // under Api Level 23, no need to ask permission
+                android.provider.Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, autoRotate);
+            }
+            System.out.println("onDestroy()--> Succeeded to set screen rotation setting.");
+        } catch (Exception e) {
+            System.out.println("onDestroy()--> Failed to set screen rotation setting.");
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        // capture the event of back button when it is pressed
+        // change back button behavior
+        finish();
+    }
+
+    private void setScreenOrientation(int ot) {
+        switch (ot) {
+            case Configuration.ORIENTATION_LANDSCAPE:
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                break;
+            case Configuration.ORIENTATION_PORTRAIT:
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.my, menu);
+        MenuItem registerMenuItemEndGame = menu.findItem(R.id.quitGame);
+        registerMenuItemEndGame.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        MenuItem registerMenuItemNewGame = menu.findItem(R.id.newGame);
+        registerMenuItemNewGame.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        MenuItem registerMenuItemOption = menu.findItem(R.id.option);
+        registerMenuItemOption.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+        registerMenuItemEasy = menu.findItem(R.id.easyLevel);
+        registerMenuItemDifficult = menu.findItem(R.id.difficultLevel);
+
+        if (maxBalls == MAXB) {
+            registerMenuItemDifficult.setChecked(true);
+            registerMenuItemEasy.setChecked(false);
+        }
+        else {
+            registerMenuItemDifficult.setChecked(false);
+            registerMenuItemEasy.setChecked(true);
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == R.id.quitGame) {
+            Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, autoRotate);
+
+            recordHighestScore(0);   //   from   END PROGRAM
+
+            AdBuddiz.showAd(this);
+            // AdBuddiz.RewardedVideo.show(this); // this = current Activity
+
+            return true;
+        }
+        if (id == R.id.newGame) {
+            newGame();
+            return true;
+        }
+        if (id == R.id.easyLevel) {
+            minBalls = MINB;
+            maxBalls = MINB;
+            item.setChecked(true);
+            registerMenuItemDifficult.setChecked(false);
+            gridData.setMinBallsOneTime(minBalls);
+            gridData.setMaxBallsOneTime(maxBalls);
+            displayNextColorBalls();
+
+            // AdBuddiz.showAd(this);
+            // AdBuddiz.RewardedVideo.show(this); // this = current Activity
+
+            return true;
+        }
+        if (id == R.id.difficultLevel) {
+            minBalls = MINB;
+            maxBalls = MAXB;
+            item.setChecked(true);
+            registerMenuItemEasy.setChecked(false);
+            gridData.setMinBallsOneTime(minBalls);
+            gridData.setMaxBallsOneTime(maxBalls);
+            displayNextColorBalls();
+
+            // AdBuddiz.showAd(this);
+            // AdBuddiz.RewardedVideo.show(this); // this = current Activity
+
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void displayGridDataNextCells() {
+        ImageView imageView = null;
+        ImageDraw imageDraw = null;
+
+        int numOneTime = gridData.getBallNumOneTime();
+
+        int[] indexi, indexj;
+        indexi = new int[numOneTime];
+        indexj = new int[numOneTime];
+        indexi = gridData.getNextCellIndexI();
+        indexj = gridData.getNextCellIndexJ();
+
+        int id, n1, n2;
+        for (int i = 0; i < numOneTime; i++) {
+            n1 = indexi[i];
+            n2 = indexj[i];
+            if ((n1 >= 0) && (n2 >= 0)) {
+                id = n1 * colCounts + n2;
+                imageView = (ImageView) findViewById(id);
+                drawBall(imageView,gridData.getCellValue(n1, n2));
+            }
+        }
+
+        for (int i = 0; i < numOneTime; i++) {
+            n1 = indexi[i];
+            n2 = indexj[i];
+            if ((n1 >= 0) && (n2 >= 0)) {
+                if (gridData.getCellValue(n1, n2) != 0) {
+                    //   has  color in this cell
+                    if (gridData.check_moreFive(n1, n2) == 1) {
+                        int numBalls = gridData.getLight_line().size();
+                        scoreCalculate(numBalls);
+                        twinkleLineBallsAndClearCell(gridData.getLight_line(),i+2);
+                    }
+                }
+            }
+        }
+
+        displayNextColorBalls();
+    }
+
+    private void displayNextColorBalls() {
+
+        ImageView imageView = null;
+        ImageDraw imageDraw = null;
+
+        // completedPath = false;
+
+        gridData.randColors();  //   next  balls
+        //   display the balls on the image0View
+        int numOneTime = gridData.getBallNumOneTime();
+        for (int i = 0 ; i < numOneTime ; i++) {
+            imageView = (ImageView) findViewById(image0IdStart + i);
+            imageDraw = new ImageDraw(imageView, 1, 1 , insideColor0 , lineColor0);
+            imageDraw.drawBall(gridData.getNextBalls()[i]);
+        }
+        for (int i = numOneTime ; i<image0Cols ; i++) {
+            imageView = (ImageView) findViewById(image0IdStart + i);
+            imageDraw = new ImageDraw(imageView, 1, 1 , insideColor0 , lineColor0);
+            // imageDraw.clearCellImage();
+            imageDraw.circleInsideSquare(insideColor0);
+        }
+
+        // completedPath = true;
+    }
+
+    private void undoTheLast() {
+
+        if (!undoEnable) {
+            return;
+        }
+
+        ImageView imageView = null;
+        ImageDraw imageDraw = null;
+        int id, n1, n2 , color;
+
+        // completedPath = false;
+
+        gridData.undoTheLast();
+
+        int numOneTime = gridData.getBallNumOneTime();
+        for (int i = 0; i < numOneTime; i++) {
+            imageView = (ImageView) findViewById(image0IdStart + i);
+            imageDraw = new ImageDraw(imageView, 1, 1, insideColor0, lineColor0);
+            imageDraw.drawBall(gridData.getNextBalls()[i]);
+        }
+        for (int i = numOneTime; i < image0Cols; i++) {
+            imageView = (ImageView) findViewById(image0IdStart + i);
+            imageDraw = new ImageDraw(imageView, 1, 1, insideColor0, lineColor0);
+            imageDraw.circleInsideSquare(insideColor0);
+        }
+
+        // restore the screen
+        for (int i = 0; i<rowCounts ; i++) {
+            for (int j=0 ; j<colCounts ; j++ ) {
+                id = i * rowCounts + j;
+                imageView = (ImageView)findViewById(id);
+                color = gridData.getCellValue(i,j);
+                if (color == 0) {
+                    imageView.setImageResource(R.drawable.boximage);
+                } else {
+                    drawBall(imageView , color);
+                }
+            }
+        }
+
+        status = 0;
+        indexI = -1;
+        indexJ = -1;
+
+        /*  removed on 2017-10-21
+        undoindexI = -1;
+        undoindexJ = -1;
+        */
+
+        currentScore = undoScore;
+        tView1.setText( String.format("%9d",currentScore));
+
+        // completedPath = true;
+        undoEnable = false;
+    }
+
+    public void clearCell(int i, int j) {
+        int id = i * colCounts + j;
+        ImageView imageView = (ImageView) findViewById(id);
+        imageView.setImageResource(R.drawable.boximage);
+        gridData.setCellValue(i, j, 0);
+    }
+
+    /** removed at 00:54 on 2017-10-20
+    public void clearAllCell() {
+
+        cancelBouncyTimer();
+        cancelTwinkleTimer();
+
+        status = 0;
+        indexI = -1;
+        indexJ = -1;
+
+        for (int i = 0; i < rowCounts; i++) {
+            for (int j = 0; j < colCounts; j++) {
+                clearCell(i, j);
+            }
+        }
+
+        for (int k=0;k<threadCompleted.length;k++) {
+            threadCompleted[k] = true;
+        }
+
+        undoScore = currentScore;
+        currentScore = 0;
+
+        tView1.setText(String.format("%9d", currentScore));
+    }
+    */
+
+
+    public void doDrawBallsAndCheckListener(View v) {
+
+        int i, j, id;
+        id = v.getId();
+        i = id / rowCounts;
+        j = id % rowCounts;
+        ImageView imageView = null;
+        ImageDraw imageDraw = null;
+        if (status == 0) {
+            if (gridData.getCellValue(i, j) != 0) {
+                if ((indexI == -1) && (indexJ == -1)) {
+                    status = 1;
+                    drawBouncyBall((ImageView) v, gridData.getCellValue(i, j));
+                    indexI = i;
+                    indexJ = j;
+                }
+            }
+        } else {
+            // cancel the timer
+            if (gridData.getCellValue(i, j) == 0) {
+                //   blank cell
+                if ((indexI >= 0) && (indexJ >= 0)) {
+                    if (gridData.moveCellToCell(new Point(indexI, indexJ), new Point(i, j))) {
+                        // cancel the timer
+                        status = 0;
+                        cancelBouncyTimer();
+                        int color = gridData.getCellValue(indexI, indexJ);
+                        gridData.setCellValue(i, j, color);
+                        clearCell(indexI, indexJ);
+
+                        indexI = -1;
+                        indexJ = -1;
+
+                        drawBallAlongPath(i,j,color);
+
+                        undoEnable = true;
+                    } else {
+                        //    make a sound
+                        // removed for testing on 2017-10-18. the following sound maker would crash the app
+                        /*
+                        ToneGenerator tone = new ToneGenerator(AudioManager.STREAM_ALARM, ToneGenerator.MAX_VOLUME);
+                        tone.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD);
+                        tone.release();
+                        */
+
+                        // SoundUtl.playUhOhSound(MyActivity.this);
+                        SoundUtl.playTone();
+                        // SoundUtl.playTone1();
+                    }
+                }
+            } else {
+                //  cell is not blank
+                if ((indexI >= 0) && (indexJ >= 0)) {
+                    status = 0;
+                    cancelBouncyTimer();
+                    status = 1;
+                    imageView = (ImageView) findViewById(indexI * colCounts + indexJ);
+                    drawBall(imageView , gridData.getCellValue(indexI, indexJ));
+                    drawBouncyBall((ImageView) v, gridData.getCellValue(i, j));
+                    indexI = i;
+                    indexJ = j;
+                }
+            }
+        }
+    }
+
+    private void drawBouncyBall(final ImageView v, final int color) {
+        bouncyHandler = new Handler();
+        bouncyRunnable = new Runnable() {
+            boolean ballYN = false;
+            @Override
+            public void run() {
+                if (status == 1) {
+                    if (color != 0) {
+                        if (ballYN) {
+                            drawBall(v , color);
+                        } else {
+                            drawOval(v , color);
+                        }
+                        ballYN = !ballYN;
+                        bouncyHandler.postDelayed(this, 200);
+                    } else {
+                        v.setImageResource(R.drawable.boximage);
+                    }
+                } else {
+                    cancelBouncyTimer();
+                }
+            }
+        };
+        bouncyHandler.post(bouncyRunnable);
+    }
+
+    private void cancelBouncyTimer() {
+        if (bouncyHandler != null) {
+            bouncyHandler.removeCallbacksAndMessages(null);
+            // bouncyHandler.removeCallbacks(bouncyRunnable);
+            bouncyRunnable = null;
+            bouncyHandler = null;
+        }
+        SystemClock.sleep(20);
+    }
+
+    private void twinkleLineBallsAndClearCell(final List<Point> Light_line,final int arrIndex) {
+        if (Light_line.size()<=0) {
+            return;
+        }
+
+        final int color = gridData.getCellValue(Light_line.get(0).x, Light_line.get(0).y);
+
+        final List<Point> listTemp = new ArrayList<Point>();
+        for (Point temp : Light_line) {
+            gridData.setCellValue(temp.x , temp.y , 0);  // set no ball in the cells, to prevent
+            listTemp.add(temp);                          // used by others before finish this method
+        }
+
+        final Handler twinkleHandler = new Handler();
+        Runnable twinkleRunnable = new Runnable() {
+            boolean ballYN = false;
+            int twinkleCountDown = 5;
+            boolean twinkleBallYN = false;
+            @Override
+            public void run() {
+                threadCompleted[arrIndex] = false;
+                if (twinkleCountDown >= 0) {
+                    if (twinkleCountDown > 0) {
+                        if (twinkleBallYN) {
+                            for (Point item : listTemp) {
+                                ImageView v = (ImageView) findViewById(item.x * colCounts + item.y);
+                                drawBall(v, color);
+                            }
+                        } else {
+                            for (Point item : listTemp) {
+                                ImageView v = (ImageView) findViewById(item.x * colCounts + item.y);
+                                drawOval(v, color);
+                            }
+                        }
+                    } else {
+                        for (Point item : listTemp) {
+                            clearCell(item.x, item.y);
+                        }
+                    }
+                    twinkleHandler.postDelayed(this, 200);
+                    twinkleBallYN = !twinkleBallYN;
+                    twinkleCountDown--;
+                } else {
+                    twinkleHandler.removeCallbacksAndMessages(null);
+                    threadCompleted[arrIndex] = true;
+                }
+            }
+        };
+        twinkleHandler.post(twinkleRunnable);
+    }
+
+    private void drawBallAlongPath(final int ii , final int jj,final int color) {
+        if (gridData.getPathPoint().size()<=0) {
+            return;
+        }
+
+        final List<Point> tempList = new ArrayList<Point>(gridData.getPathPoint());
+        final Handler drawHandler = new Handler();
+        Runnable runnablePath = new Runnable() {
+            boolean ballYN = true;
+            ImageView imageView = null;
+            int countDown = tempList.size()*2 - 1;
+            @Override
+            public void run() {
+                threadCompleted[0] = false;
+                // System.out.println("outside run, countDown = " + countDown);
+                if (countDown >= 2) {   // eliminate start point
+                    int i = (int) (countDown / 2);
+                    // System.out.println("inside run, countDown = " + countDown);
+                    // System.out.println("inside run, i = " + i);
+                    imageView = (ImageView) findViewById(tempList.get(i).x * colCounts + tempList.get(i).y);
+                    if (ballYN) {
+                        drawBall(imageView, color);
+                    } else {
+                        imageView.setImageResource(R.drawable.boximage);
+                    }
+                    ballYN = !ballYN;
+                    countDown--;
+                    drawHandler.postDelayed(this,20);
+                } else {
+                    drawHandler.removeCallbacksAndMessages(null);
+                    //   do the next
+                    threadCompleted[0] = true;
+                    doNextAction(ii,jj);
+                }
+            }
+        };
+        drawHandler.post(runnablePath);
+    }
+
+    private void doNextAction(final int i,final int j) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ImageView v = (ImageView) findViewById(i * colCounts + j);
+                drawBall(v, gridData.getCellValue(i, j));
+                if (gridData.check_moreFive(i, j) == 1) {
+                    //  check if there are more than five balls with same color connected together
+                    int numBalls = gridData.getLight_line().size();
+                    scoreCalculate(numBalls);
+                    twinkleLineBallsAndClearCell(gridData.getLight_line(), 1);
+                } else {
+                    gridData.randCells();
+                    displayGridDataNextCells();   // has a problem
+                    if (gridData.getGameOver()) {
+                        //  game over
+                        final TextView tv = new TextView(MyActivity.this);
+                        tv.setTextSize(48);
+                        tv.setWidth(400);
+                        tv.setHeight(300);
+                        tv.setTextColor(Color.WHITE);
+                        tv.setBackgroundColor(Color.BLACK);
+                        tv.setText(gameOverStr);
+                        tv.setGravity(Gravity.CENTER);
+                        AlertDialog alertDialog = new AlertDialog.Builder(MyActivity.this, AlertDialog.BUTTON_NEUTRAL).create();
+                        alertDialog.setTitle(null);
+                        alertDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                        alertDialog.setInverseBackgroundForced(false);
+                        // alertDialog.setMessage("Game over,  continue?");
+                        alertDialog.setCancelable(false);
+                        alertDialog.setView(tv);
+                        alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, noStr, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                recordHighestScore(0);   //   Endding the game
+
+                                AdBuddiz.showAd(MyActivity.this);
+                                // AdBuddiz.RewardedVideo.show(MyActivity.this); // this = current Activity
+                            }
+                        });
+                        alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, yesStr, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                newGame();
+
+                                AdBuddiz.showAd(MyActivity.this);
+                                // AdBuddiz.RewardedVideo.show(MyActivity.this); // this = current Activity
+                            }
+                        });
+                        alertDialog.show();
+                    }
+                }
+            }
+        });
+    }
+
+    private void scoreCalculate(int numBalls) {
+        int minScore = 5;
+        int score = 0;
+        if (numBalls <= minScore) {
+            score = minScore;
+        } else {
+            score = 0;
+            int rate  = 1;
+            for (int i=1 ; i<=Math.abs(numBalls-minScore) ; i++) {
+                rate = rate * 2;
+                score = score + i*rate ;
+            }
+            score = score + minScore;
+        }
+
+        if (maxBalls == MAXB) {
+            // difficult level
+            score = score * 2;   // double of easy level
+        }
+
+        undoScore = currentScore;
+        currentScore = currentScore + score;
+
+        tView1.setText(String.format("%9d", currentScore));
+    }
+
+    private void newGame() {
+        recordHighestScore(1);   //   START A NEW GAME
+    }
+
+    private void flushALLandBegin() {
+
+        // added at 00:41 on 2017-10-20
+        if (Build.VERSION.SDK_INT >= 11) {
+            recreate(); // recreate the original activity
+        } else {
+            Intent intent = getIntent();
+            finish();
+            startActivity(intent);
+        }
+    }
+
+    private void recordHighestScore(final int entryPoint) {
+        // if (currentScore > highestScore) {
+        if (currentScore >= 500) {
+            //    record currentScore as a highestScore in database
+            final EditText et = new EditText(MyActivity.this);
+            et.setTextSize(24);
+            et.setWidth(400);
+            et.setHeight(300);
+            et.setTextColor(Color.RED);
+            et.setBackgroundColor(Color.CYAN);
+            et.setHint(nameStr);
+            et.setGravity(Gravity.CENTER);
+            AlertDialog alertD = new AlertDialog.Builder(MyActivity.this, AlertDialog.THEME_TRADITIONAL).create();
+            alertD.setTitle(null);
+            alertD.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            alertD.setCancelable(false);
+            alertD.setView(et);
+            alertD.setButton(DialogInterface.BUTTON_NEGATIVE, cancelStr, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    if (entryPoint==0) {
+                        //  END PROGRAM
+                        scoreSQLite.closeScoreDatabase();
+                        finish();
+                    } else if (entryPoint==1) {
+                        //  NEW GAME
+                        flushALLandBegin();
+                    }
+                }
+            });
+            alertD.setButton(DialogInterface.BUTTON_POSITIVE, submitStr, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+
+                    // removed on 2017-10-18 at 01:02 am, no global ranking any more
+                    /*
+                    // create a thread for MySQL process to add score into Table
+                    Thread threadMySQL = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            scoreMySQL.addHighestScore(et.getText().toString(), currentScore);
+                        }
+                    });
+                    threadMySQL.start();
+                    */
+
+                    scoreSQLite.addHighestScore(et.getText().toString(),currentScore);
+                    if (entryPoint==0) {
+                        scoreSQLite.closeScoreDatabase();
+                        finish();
+                    } else if (entryPoint==1) {
+                        //  NEW GAME
+                        flushALLandBegin();
+                    }
+                }
+            });
+            alertD.show();
+        } else
+        if (entryPoint==0) {
+            finish();
+        } else if (entryPoint==1) {
+            //  NEW GAME
+            flushALLandBegin();
+        }
+    }
+
+    private void drawBall(ImageView imageView,int color) {
+        switch (color) {
+            case Color.RED:
+                imageView.setImageResource(R.drawable.redball);
+                break;
+            case Color.GREEN:
+                imageView.setImageResource(R.drawable.greenball);
+                break;
+            case Color.BLUE:
+                imageView.setImageResource(R.drawable.blueball);
+                break;
+            case Color.MAGENTA:
+                imageView.setImageResource(R.drawable.magentaball);
+                break;
+            case Color.YELLOW:
+                imageView.setImageResource(R.drawable.yellowball);
+                break;
+            default:
+                imageView.setImageResource(R.drawable.ic_launcher);
+                break;
+        }
+    }
+
+    public void drawOval(ImageView imageView,int color) {
+        switch (color) {
+            case Color.RED:
+                imageView.setImageResource(R.drawable.redball_o);
+                break;
+            case Color.GREEN:
+                imageView.setImageResource(R.drawable.greenball_o);
+                break;
+            case Color.BLUE:
+                imageView.setImageResource(R.drawable.blueball_o);
+                break;
+            case Color.MAGENTA:
+                imageView.setImageResource(R.drawable.magentaball_o);
+                break;
+            case Color.YELLOW:
+                imageView.setImageResource(R.drawable.yellowball_o);
+                break;
+            default:
+                imageView.setImageResource(R.drawable.ic_launcher);
+                break;
+        }
+    }
+
+    private class startGlobalRanking extends AsyncTask<Void,Integer,String[]> {
+
+        private Animation animationText = null;
+
+        @Override
+        protected void onPreExecute() {
+            animationText = new AlphaAnimation(0.0f,1.0f);
+            animationText.setDuration(100);
+            animationText.setStartOffset(0);
+            animationText.setRepeatMode(Animation.REVERSE);
+            animationText.setRepeatCount(Animation.INFINITE);
+        }
+
+        @Override
+        protected String[] doInBackground(Void... params) {
+            int i = 0;
+            publishProgress(i);
+            // String[] result = scoreMySQL.read10HighestScore();   // removed on 2017-10-18
+            String[] result = {"0"};    // added on 2017-10-18 for no result
+            i = 1;
+            publishProgress(i);
+            return result;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+            if (!isCancelled()) {
+                TextView textLoad = (TextView) findViewById(R.id.textLoad);
+                if (progress[0] == 0) {
+                    textLoad.setText(getResources().getString(R.string.loadScore));
+                    if (animationText != null) {
+                        textLoad.startAnimation(animationText);
+                    }
+                } else {
+                    if (animationText != null) {
+                        textLoad.clearAnimation();
+                        animationText = null;
+                    }
+                    textLoad.setText("");
+                }
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String[] result) {
+            if (!isCancelled()) {
+                Intent i = new Intent(getApplicationContext(), GlobalActivity.class);
+                Bundle extras = new Bundle();
+                extras.putStringArray("resultStr", result);
+                i.putExtras(extras);
+                startActivity(i);
+            }
+        }
+
+    }
+}
+
+
+
+

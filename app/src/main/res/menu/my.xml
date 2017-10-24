@@ -1,0 +1,28 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ColorBalls="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MyActivity" >
+    <item android:id="@+id/quitGame"
+        android:title="@string/quitGame"
+        android:orderInCategory="1"
+        ColorBalls:showAsAction="always"/>
+    <item android:id="@+id/newGame"
+        android:title="@string/newGame"
+        android:orderInCategory="2"
+        ColorBalls:showAsAction="always"/>
+    <item android:id="@+id/option"
+        android:title="@string/optionButton"
+        android:orderInCategory="3"
+        ColorBalls:showAsAction="always">
+        <menu>
+            <item android:id="@+id/easyLevel"
+                android:title="@string/easyLevel"
+                android:checkable="true"/>
+
+            <item android:id="@+id/difficultLevel"
+                android:title="@string/difficultLevel"
+                android:checkable="true"/>
+        </menu>
+    </item>
+
+</menu>
