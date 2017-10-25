@@ -18,7 +18,7 @@
             android:layout_weight="1">
 
             <TextView
-                android:id="@+id/textView0"
+                android:id="@+id/highestScoreTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="24sp"
@@ -28,7 +28,7 @@
                 android:text="" />
 
             <TextView
-                android:id="@+id/textView1"
+                android:id="@+id/currentScoreTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="24sp"
@@ -46,7 +46,7 @@
             android:gravity="center_vertical" >
 
             <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/imageView0"
+                android:id="@+id/nextBallsView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
@@ -54,7 +54,7 @@
                 android:layout_centerHorizontal="true" />
 
             <GridLayout
-                android:id="@+id/gridLayout0"
+                android:id="@+id/nextBallsLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
@@ -74,7 +74,7 @@
         android:gravity="center_vertical" >
 
         <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/imageView1"
+            android:id="@+id/gridCellsView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
@@ -82,7 +82,7 @@
             android:layout_centerHorizontal="true" />
 
         <GridLayout
-            android:id="@+id/gridLayout1"
+            android:id="@+id/gridCellsLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
@@ -93,6 +93,7 @@
     </FrameLayout>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/buttonsLayout"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -100,7 +101,7 @@
         <Button
             android:id="@+id/undoButton"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
             android:background="@drawable/undo_button"
@@ -110,7 +111,7 @@
         <Button
             android:id="@+id/historyButton"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
             android:background="@drawable/history_button"
@@ -120,7 +121,7 @@
         <TextView
             android:id="@+id/textLoad"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:textScaleX="1.0"
             android:textSize="22sp"
             android:textStyle="bold"
@@ -128,7 +129,7 @@
             android:layout_marginTop="10dp"
             android:textColor="#ffff0000"
             android:text=""
-            android:layout_weight="0"
+            android:layout_weight="1"
             />
 
     </LinearLayout>

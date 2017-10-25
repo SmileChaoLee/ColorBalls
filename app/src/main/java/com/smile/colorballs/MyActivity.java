@@ -8,6 +8,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -27,6 +28,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.Button;
@@ -44,6 +46,7 @@ import com.purplebrain.adbuddiz.sdk.AdBuddiz;
 import com.smile.dao.ScoreSQLite;
 import com.smile.draw.ImageDraw;
 import com.smile.model.GridData;
+import com.smile.utility.ScreenUtl;
 import com.smile.utility.SoundUtl;
 
 import java.lang.reflect.Field;
@@ -60,21 +63,21 @@ public class MyActivity extends AppCompatActivity {
 
     // private FrameLayout frameLayout0 = null; // removed on 2017-10-21
 
-    private GridLayout gridLayout1 = null;
-    private TextView tView0 = null;
-    private TextView tView1 = null;
+    private TextView highestScoreView = null;
+    private TextView currentScoreView = null;
 
-    private ImageView imageView0 = null;
-    private ImageDraw imageDraw0 = null;
-    private int scoreBoardWidth = 0;
-    private int scoreBoardHeight = 0;
-    private int image0Rows = 1;
-    private int image0Cols = 4;
-    private int image0IdStart = 100;
+    private ImageView nextBallsView = null;
+    private ImageDraw nextBallsImageDraw = null;
+    private int nextBallsViewWidth = 0;
+    private int nextBallsViewHeight = 0;
+    private int nextBallsRow = 1;
+    private int nextBallsNumber = 4;
+    private int nextBallsViewIdStart = 100;
     private int insideColor0 = 0xFFA4FF13;
     private int lineColor0 = 0xFFFF1627;
 
-    private ImageView imageView1 = null;
+    private ImageView gridCellsView = null;
+    private GridLayout gridCellsLayout = null;
     private int gridWidth = 760;
     private int gridHeight = 800;
     private int rowCounts = 9;
@@ -97,7 +100,7 @@ public class MyActivity extends AppCompatActivity {
 
     private boolean[] threadCompleted =  {true,true,true,true,true,true,true,true,true,true};
 
-    private int autoRotate = 1;
+    // private int autoRotate = 1;
 
     private int indexI = -1, indexJ = -1;   // the array index that the ball has been selected
     private int status = 0; //  no cell selected
@@ -122,8 +125,10 @@ public class MyActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_my);
 
-        autoRotate = android.provider.Settings.System.getInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
+        // removed on 2017-10-24
+        // autoRotate = android.provider.Settings.System.getInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
         // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         try {
@@ -164,108 +169,152 @@ public class MyActivity extends AppCompatActivity {
         status = 0;
 
         // frameLayout0 = (FrameLayout) findViewById(R.id.frameLayout0);    // removed on 2017-10-21
+        Point size = new Point();
 
         // Display d = ((WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-
-        int buttonAreaHeight = 60;
-
+        // Display display = getWindowManager().getDefaultDisplay();
+        // display.getSize(size);
+        ScreenUtl.getScreenSize(MyActivity.this,size);
         screenWidth = size.x;
         screenHeight = size.y;
+
+        // following are for testing
+
+        int statusBarHeight = ScreenUtl.getStatusBarHeight(MyActivity.this);
+        int actionBarHeight = ScreenUtl.getActionBarHeight(MyActivity.this);
+
+        // keep navigation bar
+        screenHeight = screenHeight - statusBarHeight - actionBarHeight;
 
         gridWidth = screenWidth;
         gridHeight = gridWidth;
 
+        int minButtonHeight = 30;
         float nextBallPart = 2.0f / 3.0f;  // 3.0f / 4.0f
         float scoreTextPart = 1.0f - nextBallPart;
 
-        scoreBoardWidth = (int) (((float) gridWidth * nextBallPart));
-        scoreBoardHeight = (int) ((float) scoreBoardWidth / 4.0);
+        nextBallsViewWidth = (int) (((float) gridWidth * nextBallPart));
+        nextBallsViewHeight = (int) ((float) nextBallsViewWidth / 4.0);
 
-        int tempHeight = gridHeight + scoreBoardHeight + buttonAreaHeight;
+        // int buttonAreaHeight = 60;
+        int buttonAreaHeight = screenHeight - gridHeight - nextBallsViewHeight;
+        if (buttonAreaHeight < minButtonHeight) {
+            // if the height of button area is less than 30 pixels
+            // then set it to 30
+            buttonAreaHeight = minButtonHeight;
+            // shrink the height of next balls view
+            nextBallsViewHeight = screenHeight - gridHeight - buttonAreaHeight;
+        }
+        if (nextBallsViewHeight < minButtonHeight) {
+            // min height is 30
+            // adjust the gridHeight
+            gridHeight = gridHeight - (minButtonHeight - nextBallsViewHeight);
+            nextBallsViewHeight = minButtonHeight;
+        }
+
+        System.out.println("onCreate() --> screenWidth = " + screenWidth);
+        System.out.println("onCreate() --> screenHeight = " + screenHeight);
+        System.out.println("onCreate() --> nextBallsViewHeight = " + nextBallsViewHeight);
+        System.out.println("onCreate() --> gridHeight = " + gridHeight);
+        System.out.println("onCreate() --> buttonAreaHeight = " + buttonAreaHeight);
+
+        /*  removed on 2017-10-24
+        int tempHeight = gridHeight + nextBallsViewHeight + buttonAreaHeight;
         if (tempHeight > screenHeight) {
             // width of used screen is greater than height of used screen
-            gridHeight = screenHeight - scoreBoardHeight - buttonAreaHeight;
+            gridHeight = screenHeight - nextBallsViewHeight - buttonAreaHeight;
             gridWidth = gridHeight;
-            scoreBoardWidth = (int) (((float) gridWidth * nextBallPart));
-            scoreBoardHeight = scoreBoardWidth / 4;
+            nextBallsViewWidth = (int) (((float) gridWidth * nextBallPart));
+            nextBallsViewHeight = nextBallsViewWidth / 4;
         }
+        */
 
         if (gridHeight < (10 * 9)) {
             return;
         }
 
-        tView0 = (TextView) findViewById(R.id.textView0);
+        highestScoreView = (TextView) findViewById(R.id.highestScoreTextView);
 
-        ViewGroup.LayoutParams textLP = tView0.getLayoutParams();
-        tView0.setWidth((int) ((float) gridWidth * scoreTextPart));
-        tView0.setHeight(scoreBoardHeight / 2);
+        ViewGroup.LayoutParams textLP = highestScoreView.getLayoutParams();
+        highestScoreView.setWidth((int) ((float) gridWidth * scoreTextPart));
+        highestScoreView.setHeight(nextBallsViewHeight / 2);
 
-        tView1 = (TextView) findViewById(R.id.textView1);
-        tView1.setWidth((int) ((float) gridWidth * scoreTextPart));
-        tView1.setHeight(scoreBoardHeight / 2);
+        currentScoreView = (TextView) findViewById(R.id.currentScoreTextView);
+        currentScoreView.setWidth((int) ((float) gridWidth * scoreTextPart));
+        currentScoreView.setHeight(nextBallsViewHeight / 2);
 
-        imageView0 = (ImageView) findViewById(R.id.imageView0);
-        ViewGroup.LayoutParams imageView0Lp = imageView0.getLayoutParams();
-        imageView0Lp.width = (scoreBoardWidth / image0Cols) * image0Cols;
-        imageView0Lp.height = scoreBoardHeight;
+        nextBallsView = (ImageView) findViewById(R.id.nextBallsView);
+        ViewGroup.LayoutParams nextBallsViewLp = nextBallsView.getLayoutParams();
+        nextBallsViewLp.width = (nextBallsViewWidth / nextBallsNumber) * nextBallsNumber;
+        nextBallsViewLp.height = nextBallsViewHeight;
 
-        GridLayout gridLayout0 = (GridLayout) findViewById(R.id.gridLayout0);
-        ViewGroup.LayoutParams gridLp0 = gridLayout0.getLayoutParams();
-        gridLp0.width = (scoreBoardWidth / image0Cols) * image0Cols;
-        gridLp0.height = scoreBoardHeight;
-        gridLayout0.setRowCount(image0Rows);
-        gridLayout0.setColumnCount(image0Cols);
+        GridLayout nextBallsLayout = (GridLayout) findViewById(R.id.nextBallsLayout);
+        ViewGroup.LayoutParams nextBallsLp = nextBallsLayout.getLayoutParams();
+        nextBallsLp.width = nextBallsViewLp.width;
+        nextBallsLp.height = nextBallsViewLp.height;
+        nextBallsLayout.setRowCount(nextBallsRow);
+        nextBallsLayout.setColumnCount(nextBallsNumber);
 
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+        LinearLayout.LayoutParams oneNextBallLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        lp.width = gridLp0.width / image0Cols;
-        lp.height = gridLp0.height / image0Rows;
-        lp.gravity = Gravity.CENTER;
+        oneNextBallLp.width = nextBallsLp.width / nextBallsNumber;
+        oneNextBallLp.height = nextBallsLp.height / nextBallsRow;
+        oneNextBallLp.gravity = Gravity.CENTER;
 
         ImageView imageView = null;
 
-        imageDraw0 = new ImageDraw(imageView0, image0Rows, image0Cols, insideColor0, lineColor0);
-        imageDraw0.drawBase();
+        nextBallsImageDraw = new ImageDraw(nextBallsView, nextBallsRow, nextBallsNumber, insideColor0, lineColor0);
+        nextBallsImageDraw.drawBase();
 
-        for (int i = 0; i < image0Rows; i++) {
-            for (int j = 0; j < image0Cols; j++) {
+        for (int i = 0; i < nextBallsRow; i++) {
+            for (int j = 0; j < nextBallsNumber; j++) {
                 imageView = new ImageView(this);
-                imageView.setId(image0IdStart + (image0Cols * i + j));
+                imageView.setId(nextBallsViewIdStart + (nextBallsNumber * i + j));
                 imageView.setClickable(false);
                 imageView.setAdjustViewBounds(true);
                 imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-                gridLayout0.addView(imageView, lp);
+                nextBallsLayout.addView(imageView, oneNextBallLp);
             }
         }
+
+        highestScoreView.setText(String.format("%9d", highestScore));
+        currentScoreView.setText(String.format("%9d", currentScore));
 
         int cellWidth = gridWidth / colCounts;
         int cellHeight = gridHeight / rowCounts;
 
         gridData = new GridData(rowCounts, colCounts, minBalls, maxBalls);
 
-        imageView1 = (ImageView) findViewById(R.id.imageView1);
-        ViewGroup.LayoutParams imageView1Lp = imageView1.getLayoutParams();
-        imageView1Lp.width = cellWidth * colCounts;
-        imageView1Lp.height = cellHeight * rowCounts;
+        gridCellsView = (ImageView) findViewById(R.id.gridCellsView);
+        ViewGroup.LayoutParams gridCellsViewLp = gridCellsView.getLayoutParams();
+        gridCellsViewLp.width = cellWidth * colCounts;      // gridWidth
+        gridCellsViewLp.height = cellHeight * rowCounts;    // gridHeight
 
-        gridLayout1 = (GridLayout) findViewById(R.id.gridLayout1);
-        ViewGroup.LayoutParams gridLp1 = gridLayout1.getLayoutParams();
-        gridLp1.width = cellWidth * colCounts;
-        gridLp1.height = cellHeight * rowCounts;
-        gridLayout1.setRowCount(rowCounts);
-        gridLayout1.setColumnCount(colCounts);
+        gridCellsLayout = (GridLayout) findViewById(R.id.gridCellsLayout);
+        ViewGroup.LayoutParams gridCellsLp = gridCellsLayout.getLayoutParams();
+        gridCellsLp.width = gridCellsViewLp.width;
+        gridCellsLp.height = gridCellsViewLp.height;
+        gridCellsLayout.setRowCount(rowCounts);
+        gridCellsLayout.setColumnCount(colCounts);
 
-        lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+        LinearLayout.LayoutParams oneBallLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        lp.width = cellWidth;
-        lp.height = cellHeight;
-        lp.gravity = Gravity.CENTER;
+        oneBallLp.width = cellWidth;
+        oneBallLp.height = cellHeight;
+        oneBallLp.gravity = Gravity.CENTER;
 
-        tView0.setText(String.format("%9d", highestScore));
-        tView1.setText(String.format("%9d", currentScore));
+        // set LinearLayout for buttons
+        LinearLayout buttonsLayout = (LinearLayout) findViewById(R.id.buttonsLayout);
+        ViewGroup.LayoutParams buttonsLp = buttonsLayout.getLayoutParams();
+        buttonsLp.width = gridWidth;
+        int areaHeight = buttonAreaHeight - 20;   // not too close to navigation bar
+        buttonsLp.height = areaHeight;
+
+        if (areaHeight > 200) {
+            // if the height of this area more than 150 * 2 pixels
+            // then divide it to tw part, 1st part for buttons, 2nd part for ads or others
+            buttonsLp.height = 200;
+        }
 
         Button undoButton = (Button) findViewById(R.id.undoButton);
         undoButton.setTextColor(Color.RED);
@@ -296,6 +345,8 @@ public class MyActivity extends AppCompatActivity {
                 i.putExtras(extras);
 
                 startActivity(i);
+
+                AdBuddiz.showAd(MyActivity.this);
             }
         });
 
@@ -334,7 +385,7 @@ public class MyActivity extends AppCompatActivity {
                         }
                     }
                 });
-                gridLayout1.addView(imageView, lp);
+                gridCellsLayout.addView(imageView, oneBallLp);
             }
         }
 
@@ -380,6 +431,8 @@ public class MyActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
 
+        // removed on 2017-10-24
+        /*
         Context ctx = MyActivity.this;
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         if (android.os.Build.VERSION.SDK_INT >=23) {
@@ -398,6 +451,7 @@ public class MyActivity extends AppCompatActivity {
             System.out.println("onResume --> Failed to set screen rotation setting.");
             e.printStackTrace();
         }
+        */
 
     }
 
@@ -419,6 +473,9 @@ public class MyActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        // removeed on 2017-10-24
+        /*
         try {
             if (android.os.Build.VERSION.SDK_INT >= 23) {
                 if (Settings.System.canWrite(MyActivity.this)) {
@@ -433,6 +490,7 @@ public class MyActivity extends AppCompatActivity {
             System.out.println("onDestroy()--> Failed to set screen rotation setting.");
             e.printStackTrace();
         }
+        */
     }
 
     @Override
@@ -485,7 +543,9 @@ public class MyActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.quitGame) {
-            Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, autoRotate);
+
+            // removed on 2017-10-24
+            // Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, autoRotate);
 
             recordHighestScore(0);   //   from   END PROGRAM
 
@@ -496,6 +556,7 @@ public class MyActivity extends AppCompatActivity {
         }
         if (id == R.id.newGame) {
             newGame();
+            AdBuddiz.showAd(this);
             return true;
         }
         if (id == R.id.easyLevel) {
@@ -507,6 +568,7 @@ public class MyActivity extends AppCompatActivity {
             gridData.setMaxBallsOneTime(maxBalls);
             displayNextColorBalls();
 
+            AdBuddiz.showAd(this);
             // AdBuddiz.showAd(this);
             // AdBuddiz.RewardedVideo.show(this); // this = current Activity
 
@@ -521,6 +583,7 @@ public class MyActivity extends AppCompatActivity {
             gridData.setMaxBallsOneTime(maxBalls);
             displayNextColorBalls();
 
+            AdBuddiz.showAd(this);
             // AdBuddiz.showAd(this);
             // AdBuddiz.RewardedVideo.show(this); // this = current Activity
 
@@ -578,15 +641,15 @@ public class MyActivity extends AppCompatActivity {
         // completedPath = false;
 
         gridData.randColors();  //   next  balls
-        //   display the balls on the image0View
+        //   display the balls on the nextBallsView
         int numOneTime = gridData.getBallNumOneTime();
         for (int i = 0 ; i < numOneTime ; i++) {
-            imageView = (ImageView) findViewById(image0IdStart + i);
+            imageView = (ImageView) findViewById(nextBallsViewIdStart + i);
             imageDraw = new ImageDraw(imageView, 1, 1 , insideColor0 , lineColor0);
             imageDraw.drawBall(gridData.getNextBalls()[i]);
         }
-        for (int i = numOneTime ; i<image0Cols ; i++) {
-            imageView = (ImageView) findViewById(image0IdStart + i);
+        for (int i = numOneTime ; i<nextBallsNumber ; i++) {
+            imageView = (ImageView) findViewById(nextBallsViewIdStart + i);
             imageDraw = new ImageDraw(imageView, 1, 1 , insideColor0 , lineColor0);
             // imageDraw.clearCellImage();
             imageDraw.circleInsideSquare(insideColor0);
@@ -611,12 +674,12 @@ public class MyActivity extends AppCompatActivity {
 
         int numOneTime = gridData.getBallNumOneTime();
         for (int i = 0; i < numOneTime; i++) {
-            imageView = (ImageView) findViewById(image0IdStart + i);
+            imageView = (ImageView) findViewById(nextBallsViewIdStart + i);
             imageDraw = new ImageDraw(imageView, 1, 1, insideColor0, lineColor0);
             imageDraw.drawBall(gridData.getNextBalls()[i]);
         }
-        for (int i = numOneTime; i < image0Cols; i++) {
-            imageView = (ImageView) findViewById(image0IdStart + i);
+        for (int i = numOneTime; i < nextBallsNumber; i++) {
+            imageView = (ImageView) findViewById(nextBallsViewIdStart + i);
             imageDraw = new ImageDraw(imageView, 1, 1, insideColor0, lineColor0);
             imageDraw.circleInsideSquare(insideColor0);
         }
@@ -645,7 +708,7 @@ public class MyActivity extends AppCompatActivity {
         */
 
         currentScore = undoScore;
-        tView1.setText( String.format("%9d",currentScore));
+        currentScoreView.setText( String.format("%9d",currentScore));
 
         // completedPath = true;
         undoEnable = false;
@@ -681,7 +744,7 @@ public class MyActivity extends AppCompatActivity {
         undoScore = currentScore;
         currentScore = 0;
 
-        tView1.setText(String.format("%9d", currentScore));
+        currentScoreView.setText(String.format("%9d", currentScore));
     }
     */
 
@@ -731,8 +794,8 @@ public class MyActivity extends AppCompatActivity {
                         tone.release();
                         */
 
-                        // SoundUtl.playUhOhSound(MyActivity.this);
-                        SoundUtl.playTone();
+                        SoundUtl.playUhOhSound(MyActivity.this);
+                        // SoundUtl.playTone();
                         // SoundUtl.playTone1();
                     }
                 }
@@ -959,7 +1022,7 @@ public class MyActivity extends AppCompatActivity {
         undoScore = currentScore;
         currentScore = currentScore + score;
 
-        tView1.setText(String.format("%9d", currentScore));
+        currentScoreView.setText(String.format("%9d", currentScore));
     }
 
     private void newGame() {
@@ -1143,6 +1206,8 @@ public class MyActivity extends AppCompatActivity {
                 extras.putStringArray("resultStr", result);
                 i.putExtras(extras);
                 startActivity(i);
+
+                AdBuddiz.showAd(MyActivity.this);   // added on 2017-10-24
             }
         }
 
