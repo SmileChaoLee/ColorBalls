@@ -2,29 +2,48 @@ package com.smile.colorballs;
 
 import android.app.ListActivity;
 import android.content.Intent;
+import android.graphics.Point;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.smile.dao.ScoreSQLite;
+import com.smile.utility.ScreenUtl;
 
 
 public class HistoryActivity extends ListActivity {
 
     private static final String TAG = "HistoryActivity";
+    private String[] queryResult = new String[] {"","","","","","","","","",""};
+    private float listViewHeight = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
 
+        // View historyView = getLayoutInflater().inflate(R.layout.activity_history,null);
+        // final ListView listView = findViewById(android.R.id.list);
+
+        Button okButton = (Button)findViewById(R.id.historyOkButton);
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
         String[] itemNo = new String[] {"1 ","2 ","3 ","4 ","5 ","6 ","7 ","8 ","9 ","10"};
-        String[] queryResult = new String[] {"","","","","","","","","",""};
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -34,17 +53,9 @@ public class HistoryActivity extends ListActivity {
         for (int i=0 ; i<queryResult.length ; i++) {
             queryResult[i] = itemNo[i] + " " + queryResult[i];
         }
+
         setListAdapter(new mListAdapter(queryResult));
 
-        queryResult = null;
-
-        Button okButton = (Button)findViewById(R.id.historyOkButton);
-        okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
     }
 
 
@@ -81,9 +92,18 @@ public class HistoryActivity extends ListActivity {
                 convertView = getLayoutInflater().inflate(R.layout.history_list_items, container, false);
             }
 
+            // int listViewHeight = getListView().getHeight();
+            int listViewHeight = container.getHeight();
+            int itemHeight = listViewHeight / (getCount()+1);
+
             TextView vText1;
             vText1 = (TextView) convertView.findViewById(R.id.text1);
             vText1.setText(this.text1[position]);
+            vText1.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
+            vText1.setHeight(itemHeight);
+            // or
+            // ViewGroup.LayoutParams params = convertView.getLayoutParams();
+            // params.height = itemHeight; // set height for height
 
             // Because the list item contains multiple touch targets, you should not override
             // onListItemClick. Instead, set a click listener for each target individually.

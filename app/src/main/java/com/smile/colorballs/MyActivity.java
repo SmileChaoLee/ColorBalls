@@ -314,6 +314,7 @@ public class MyActivity extends AppCompatActivity {
             // if the height of this area more than 150 * 2 pixels
             // then divide it to tw part, 1st part for buttons, 2nd part for ads or others
             buttonsLp.height = 200;
+            System.out.println("the height of button area is 200 pixels.");
         }
 
         Button undoButton = (Button) findViewById(R.id.undoButton);
