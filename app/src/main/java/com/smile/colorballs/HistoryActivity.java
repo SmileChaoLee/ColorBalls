@@ -25,7 +25,7 @@ public class HistoryActivity extends ListActivity {
 
     private static final String TAG = "HistoryActivity";
     private String[] queryResult = new String[] {"","","","","","","","","",""};
-    private float listViewHeight = 0;
+    private int total = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +55,39 @@ public class HistoryActivity extends ListActivity {
         }
 
         setListAdapter(new mListAdapter(queryResult));
+
+        // the following is about synchronize two threads. added on 2017-11-11
+        final Handler handler = new Handler(Looper.getMainLooper());
+        final Thread a = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (handler) {
+                    for (int i=0; i<=10; i++) {
+                        total += i;
+                    }
+                    System.out.println("a-> total = " + total);
+                    handler.notify();
+                }
+            }
+        });
+
+        Thread b = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                a.start();
+                synchronized (handler) {
+                    try {
+                        handler.wait();
+                        System.out.println("b-> total = " + total);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        b.start();
+        //
 
     }
 
