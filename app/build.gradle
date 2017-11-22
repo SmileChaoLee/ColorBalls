@@ -8,8 +8,8 @@ android {
         applicationId "com.smile.colorballs"
         minSdkVersion 15
         targetSdkVersion 26
-        versionCode 36
-        versionName "2.36"
+        versionCode 38
+        versionName "2.38"
     }
     buildTypes {
         release {

@@ -133,7 +133,7 @@ public class HistoryActivity extends ListActivity {
             vText1 = (TextView) convertView.findViewById(R.id.text1);
             vText1.setText(this.text1[position]);
             vText1.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
-            vText1.setHeight(itemHeight);
+            // vText1.setHeight(itemHeight);
             // or
             // ViewGroup.LayoutParams params = convertView.getLayoutParams();
             // params.height = itemHeight; // set height for height

@@ -326,6 +326,7 @@ public class MyActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 undoTheLast();
+                AdBuddiz.showAd(MyActivity.this);   // added on 2017-11-11
             }
         });
 

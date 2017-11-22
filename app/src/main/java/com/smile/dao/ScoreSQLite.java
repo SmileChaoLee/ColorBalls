@@ -77,7 +77,7 @@ public class ScoreSQLite extends SQLiteOpenHelper {
         String[] resultStr  = new String[] {"","","","","","","","","",""};
         String temp = new String("");
         String space = new String(new char[1]).replace("\0"," ");
-        int strLen = 18;
+        int strLen = 14;
 
         String sql = "select playerName,playerScore from " + tableName + " order by playerScore desc";
         Cursor cur = scoreDatabase.rawQuery(sql,new String[]{});
