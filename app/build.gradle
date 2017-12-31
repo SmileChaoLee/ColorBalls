@@ -6,10 +6,10 @@ android {
 
     defaultConfig {
         applicationId "com.smile.colorballs"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 26
-        versionCode 38
-        versionName "2.38"
+        versionCode 39
+        versionName "2.39"
     }
     buildTypes {
         release {

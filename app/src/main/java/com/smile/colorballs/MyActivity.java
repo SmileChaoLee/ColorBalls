@@ -1,8 +1,8 @@
 package com.smile.colorballs;
 
-import android.app.AlertDialog;
-// import android.app.Dialog;
-// import android.app.DialogFragment;
+// import android.app.AlertDialog;
+import android.graphics.drawable.ColorDrawable;
+import android.support.v7.app.AlertDialog;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.Button;
@@ -156,7 +157,6 @@ public class MyActivity extends AppCompatActivity {
         historyStr = getResources().getString(R.string.historyStr);
 
         scoreSQLite = new ScoreSQLite(MyActivity.this);
-        scoreSQLite.openScoreDatabase();
         highestScore = scoreSQLite.readHighestScore();
 
         // scoreMySQL = new ScoreMySQL(MyActivity.this);    // removed on 2017-10-18
@@ -337,19 +337,6 @@ public class MyActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 new startHistoryScore().execute();
-
-                /*
-                String[] resultStr = scoreSQLite.read10HighestScore();
-
-                Intent i = new Intent(MyActivity.this, HistoryActivity.class);
-                Bundle extras = new Bundle();
-                extras.putStringArray("resultStr", resultStr);
-                i.putExtras(extras);
-
-                startActivity(i);
-
-                AdBuddiz.showAd(MyActivity.this);
-                */
             }
         });
 
@@ -550,7 +537,7 @@ public class MyActivity extends AppCompatActivity {
             // removed on 2017-10-24
             // Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, autoRotate);
 
-            recordHighestScore(0);   //   from   END PROGRAM
+            recordScore(0);   //   from   END PROGRAM
 
             AdBuddiz.showAd(this);
             // AdBuddiz.RewardedVideo.show(this); // this = current Activity
@@ -961,25 +948,21 @@ public class MyActivity extends AppCompatActivity {
                     if (gridData.getGameOver()) {
                         //  game over
                         final TextView tv = new TextView(MyActivity.this);
-                        tv.setTextSize(48);
-                        tv.setWidth(400);
-                        tv.setHeight(300);
-                        tv.setTextColor(Color.WHITE);
-                        tv.setBackgroundColor(Color.BLACK);
+                        tv.setTextSize(40);
+                        tv.setTypeface(Typeface.DEFAULT);
+                        tv.setTextColor(Color.BLUE);
                         tv.setText(gameOverStr);
                         tv.setGravity(Gravity.CENTER);
-                        AlertDialog alertDialog = new AlertDialog.Builder(MyActivity.this, AlertDialog.BUTTON_NEUTRAL).create();
+                        AlertDialog alertDialog = new AlertDialog.Builder(MyActivity.this).create();
                         alertDialog.setTitle(null);
                         alertDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                        alertDialog.setInverseBackgroundForced(false);
-                        // alertDialog.setMessage("Game over,  continue?");
                         alertDialog.setCancelable(false);
                         alertDialog.setView(tv);
                         alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, noStr, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
-                                recordHighestScore(0);   //   Ending the game
+                                recordScore(0);   //   Ending the game
 
                                 AdBuddiz.showAd(MyActivity.this);
                                 // AdBuddiz.RewardedVideo.show(MyActivity.this); // this = current Activity
@@ -995,6 +978,14 @@ public class MyActivity extends AppCompatActivity {
                                 // AdBuddiz.RewardedVideo.show(MyActivity.this); // this = current Activity
                             }
                         });
+
+                        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                            @Override
+                            public void onShow(DialogInterface dialog) {
+                                setDialogStyle(dialog);
+                            }
+                        });
+
                         alertDialog.show();
                     }
                 }
@@ -1029,7 +1020,7 @@ public class MyActivity extends AppCompatActivity {
     }
 
     private void newGame() {
-        recordHighestScore(1);   //   START A NEW GAME
+        recordScore(1);   //   START A NEW GAME
     }
 
     private void flushALLandBegin() {
@@ -1044,72 +1035,90 @@ public class MyActivity extends AppCompatActivity {
         }
     }
 
-    private void recordHighestScore(final int entryPoint) {
-        // if (currentScore > highestScore) {
-        if (currentScore >= 500) {
-            //    record currentScore as a highestScore in database
-            final EditText et = new EditText(MyActivity.this);
-            et.setTextSize(24);
-            et.setWidth(400);
-            et.setHeight(300);
-            et.setTextColor(Color.RED);
-            et.setBackgroundColor(Color.CYAN);
-            et.setHint(nameStr);
-            et.setGravity(Gravity.CENTER);
-            AlertDialog alertD = new AlertDialog.Builder(MyActivity.this, AlertDialog.THEME_TRADITIONAL).create();
-            alertD.setTitle(null);
-            alertD.requestWindowFeature(Window.FEATURE_NO_TITLE);
-            alertD.setCancelable(false);
-            alertD.setView(et);
-            alertD.setButton(DialogInterface.BUTTON_NEGATIVE, cancelStr, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                    if (entryPoint==0) {
-                        //  END PROGRAM
-                        scoreSQLite.closeScoreDatabase();
-                        finish();
-                    } else if (entryPoint==1) {
-                        //  NEW GAME
-                        flushALLandBegin();
-                    }
-                }
-            });
-            alertD.setButton(DialogInterface.BUTTON_POSITIVE, submitStr, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
 
-                    // removed on 2017-10-18 at 01:02 am, no global ranking any more
-                    /*
-                    // create a thread for MySQL process to add score into Table
-                    Thread threadMySQL = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            scoreMySQL.addHighestScore(et.getText().toString(), currentScore);
-                        }
-                    });
-                    threadMySQL.start();
-                    */
+    private void setDialogStyle(DialogInterface dialog) {
+        AlertDialog dlg = (AlertDialog)dialog;
+        dlg.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT,WindowManager.LayoutParams.WRAP_CONTENT);
+        dlg.getWindow().setBackgroundDrawableResource(R.drawable.dialogbackground);
 
-                    scoreSQLite.addHighestScore(et.getText().toString(),currentScore);
-                    if (entryPoint==0) {
-                        scoreSQLite.closeScoreDatabase();
-                        finish();
-                    } else if (entryPoint==1) {
-                        //  NEW GAME
-                        flushALLandBegin();
-                    }
+        float fontSize = 20;
+        Button nBtn = dlg.getButton(DialogInterface.BUTTON_NEGATIVE);
+        nBtn.setTextSize(fontSize);
+        nBtn.setTypeface(Typeface.DEFAULT_BOLD);
+        nBtn.setTextColor(Color.RED);
+
+        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams)nBtn.getLayoutParams();
+        layoutParams.weight = 10;
+        nBtn.setLayoutParams(layoutParams);
+
+        Button pBtn = dlg.getButton(DialogInterface.BUTTON_POSITIVE);
+        pBtn.setTextSize(fontSize);
+        pBtn.setTypeface(Typeface.DEFAULT_BOLD);
+        pBtn.setTextColor(Color.rgb(0x00,0x64,0x00));
+        pBtn.setLayoutParams(layoutParams);
+    }
+
+    private void recordScore(final int entryPoint) {
+        final EditText et = new EditText(MyActivity.this);
+        et.setTextSize(24);
+        // et.setHeight(200);
+        et.setTextColor(Color.BLUE);
+        et.setBackground(new ColorDrawable(Color.TRANSPARENT));
+        et.setHint(nameStr);
+        et.setGravity(Gravity.CENTER);
+        AlertDialog alertD = new AlertDialog.Builder(MyActivity.this).create();
+        alertD.setTitle(null);
+        alertD.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        alertD.setCancelable(false);
+        alertD.setView(et);
+        alertD.setButton(DialogInterface.BUTTON_NEGATIVE, cancelStr, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                if (entryPoint==0) {
+                    //  END PROGRAM
+                    finish();
+                } else if (entryPoint==1) {
+                    //  NEW GAME
+                    flushALLandBegin();
                 }
-            });
-            alertD.show();
-        } else
-        if (entryPoint==0) {
-            finish();
-        } else if (entryPoint==1) {
-            //  NEW GAME
-            flushALLandBegin();
-        }
+            }
+        });
+        alertD.setButton(DialogInterface.BUTTON_POSITIVE, submitStr, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+
+                // removed on 2017-10-18 at 01:02 am, no global ranking any more
+                /*
+                // create a thread for MySQL process to add score into Table
+                Thread threadMySQL = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        scoreMySQL.addHighestScore(et.getText().toString(), currentScore);
+                    }
+                });
+                threadMySQL.start();
+                */
+
+                scoreSQLite.addScore(et.getText().toString(),currentScore);
+                if (entryPoint==0) {
+                    finish();
+                } else if (entryPoint==1) {
+                    //  NEW GAME
+                    flushALLandBegin();
+                }
+            }
+        });
+
+        alertD.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                setDialogStyle(dialog);
+            }
+        });
+
+        alertD.show();
     }
 
     private void drawBall(ImageView imageView,int color) {
@@ -1166,8 +1175,6 @@ public class MyActivity extends AppCompatActivity {
         public startHistoryScore() {
             fmManager = getFragmentManager();
             loadingDialog = new LoadHistoryDialogFragment();
-            // loadingDialog.setStyle(DialogFragment.STYLE_NO_INPUT,0);
-            // loadingDialog.setCancelable(false);
         }
 
         @Override
@@ -1232,64 +1239,6 @@ public class MyActivity extends AppCompatActivity {
                 AdBuddiz.showAd(MyActivity.this);   // added on 2017-10-24
             }
         }
-    }
-
-    private class startGlobalRanking extends AsyncTask<Void,Integer,String[]> {
-
-        private Animation animationText = null;
-
-        @Override
-        protected void onPreExecute() {
-            animationText = new AlphaAnimation(0.0f,1.0f);
-            animationText.setDuration(100);
-            animationText.setStartOffset(0);
-            animationText.setRepeatMode(Animation.REVERSE);
-            animationText.setRepeatCount(Animation.INFINITE);
-        }
-
-        @Override
-        protected String[] doInBackground(Void... params) {
-            int i = 0;
-            publishProgress(i);
-            String[] result = {"0"};    // added on 2017-10-18 for no result
-            // String[] result = scoreMySQL.read10HighestScore();   // removed on 2017-10-18
-            i = 1;
-            publishProgress(i);
-            return result;
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... progress) {
-            if (!isCancelled()) {
-                TextView textLoad = (TextView) findViewById(R.id.textLoad);
-                if (progress[0] == 0) {
-                    textLoad.setText(getResources().getString(R.string.loadScore));
-                    if (animationText != null) {
-                        textLoad.startAnimation(animationText);
-                    }
-                } else {
-                    if (animationText != null) {
-                        textLoad.clearAnimation();
-                        animationText = null;
-                    }
-                    textLoad.setText("");
-                }
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String[] result) {
-            if (!isCancelled()) {
-                Intent i = new Intent(getApplicationContext(), GlobalActivity.class);
-                Bundle extras = new Bundle();
-                extras.putStringArray("resultStr", result);
-                i.putExtras(extras);
-                startActivity(i);
-
-                AdBuddiz.showAd(MyActivity.this);   // added on 2017-10-24
-            }
-        }
-
     }
 }
 
