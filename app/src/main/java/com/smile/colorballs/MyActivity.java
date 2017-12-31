@@ -3,28 +3,21 @@ package com.smile.colorballs;
 import android.app.AlertDialog;
 // import android.app.Dialog;
 // import android.app.DialogFragment;
-import android.app.DialogFragment;
 import android.app.FragmentManager;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
 import android.os.SystemClock;
-import android.provider.CalendarContract;
-import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,12 +25,10 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -1170,11 +1161,11 @@ public class MyActivity extends AppCompatActivity {
     private class startHistoryScore extends AsyncTask<Void,Integer,String[]> {
         private Animation animationText = null;
         private FragmentManager fmManager = null;
-        private LoadingDialogFragment loadingDialog = null;
+        private LoadHistoryDialogFragment loadingDialog = null;
 
         public startHistoryScore() {
             fmManager = getFragmentManager();
-            loadingDialog = new LoadingDialogFragment();
+            loadingDialog = new LoadHistoryDialogFragment();
             // loadingDialog.setStyle(DialogFragment.STYLE_NO_INPUT,0);
             // loadingDialog.setCancelable(false);
         }

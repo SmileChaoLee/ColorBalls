@@ -18,11 +18,11 @@ import org.w3c.dom.Text;
  * Created by chaolee on 2017-12-30.
  */
 
-public class LoadingDialogFragment extends DialogFragment {
+public class LoadHistoryDialogFragment extends DialogFragment {
 
     private TextView textLoad = null;
 
-    public LoadingDialogFragment() {
+    public LoadHistoryDialogFragment() {
         setStyle(DialogFragment.STYLE_NORMAL,R.style.MyDialogFragmentStyle);
         // setStyle(DialogFragment.STYLE_NO_INPUT,,R.style.MyDialogFragmentStyle);   // make dialog a modal
         // setStyle(DialogFragment.STYLE_NO_FRAME, R.style.MyDialogFragmentStyle);  // make dialog a modal
@@ -35,7 +35,7 @@ public class LoadingDialogFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         getDialog().setTitle("Loading Score History");
         // View view = inflater.inflate(R.layout.loading_dialogfragment,container,false);
-        View view = inflater.inflate(R.layout.loading_dialogfragment,container);
+        View view = inflater.inflate(R.layout.load_history_dialogfragment,container);
 
         return view;
         // return super.onCreateView(inflater, container, savedInstanceState);
