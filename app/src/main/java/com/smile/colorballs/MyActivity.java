@@ -1,6 +1,10 @@
 package com.smile.colorballs;
 
 import android.app.AlertDialog;
+// import android.app.Dialog;
+// import android.app.DialogFragment;
+import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -118,6 +122,8 @@ public class MyActivity extends AppCompatActivity {
     private String historyStr = new String("");
 
     final private String packageName = new String("package:com.smile.colorballs");
+
+    FragmentManager fmManager = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -339,6 +345,9 @@ public class MyActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                new startHistoryScore().execute();
+
+                /*
                 String[] resultStr = scoreSQLite.read10HighestScore();
 
                 Intent i = new Intent(MyActivity.this, HistoryActivity.class);
@@ -349,6 +358,7 @@ public class MyActivity extends AppCompatActivity {
                 startActivity(i);
 
                 AdBuddiz.showAd(MyActivity.this);
+                */
             }
         });
 
@@ -978,7 +988,7 @@ public class MyActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
-                                recordHighestScore(0);   //   Endding the game
+                                recordHighestScore(0);   //   Ending the game
 
                                 AdBuddiz.showAd(MyActivity.this);
                                 // AdBuddiz.RewardedVideo.show(MyActivity.this); // this = current Activity
@@ -1157,6 +1167,82 @@ public class MyActivity extends AppCompatActivity {
         }
     }
 
+    private class startHistoryScore extends AsyncTask<Void,Integer,String[]> {
+        private Animation animationText = null;
+        private FragmentManager fmManager = null;
+        private LoadingDialogFragment loadingDialog = null;
+
+        public startHistoryScore() {
+            fmManager = getFragmentManager();
+            loadingDialog = new LoadingDialogFragment();
+            // loadingDialog.setStyle(DialogFragment.STYLE_NO_INPUT,0);
+            // loadingDialog.setCancelable(false);
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            animationText = new AlphaAnimation(0.0f,1.0f);
+            animationText.setDuration(100);
+            animationText.setStartOffset(0);
+            animationText.setRepeatMode(Animation.REVERSE);
+            animationText.setRepeatCount(Animation.INFINITE);
+
+            loadingDialog.show(fmManager,"History");
+        }
+
+        @Override
+        protected String[] doInBackground(Void... params) {
+            int i = 0;
+            publishProgress(i);
+            String[] result = scoreSQLite.read10HighestScore();
+
+            // wait for one second
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {ex.printStackTrace();}
+
+            i = 1;
+            publishProgress(i);
+
+            return result;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+            if (!isCancelled()) {
+                TextView textLoad = loadingDialog.getTextLoad();
+                if (progress[0] == 0) {
+                    if (animationText != null) {
+                        textLoad.startAnimation(animationText);
+                    }
+                } else {
+                    if (animationText != null) {
+                        textLoad.clearAnimation();
+                        animationText = null;
+                    }
+                    textLoad.setText("");
+                }
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String[] result) {
+            if (!isCancelled()) {
+
+                loadingDialog.dismiss();
+
+                Intent i = new Intent(getApplicationContext(), HistoryActivity.class);
+                Bundle extras = new Bundle();
+                extras.putStringArray("resultStr", result);
+                i.putExtras(extras);
+                startActivity(i);
+
+                AdBuddiz.showAd(MyActivity.this);   // added on 2017-10-24
+            }
+        }
+    }
+
     private class startGlobalRanking extends AsyncTask<Void,Integer,String[]> {
 
         private Animation animationText = null;
@@ -1174,8 +1260,8 @@ public class MyActivity extends AppCompatActivity {
         protected String[] doInBackground(Void... params) {
             int i = 0;
             publishProgress(i);
-            // String[] result = scoreMySQL.read10HighestScore();   // removed on 2017-10-18
             String[] result = {"0"};    // added on 2017-10-18 for no result
+            // String[] result = scoreMySQL.read10HighestScore();   // removed on 2017-10-18
             i = 1;
             publishProgress(i);
             return result;
