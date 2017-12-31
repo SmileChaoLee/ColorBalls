@@ -17,14 +17,14 @@
             android:layout_centerHorizontal="true" />
 
         <TextView
-            android:id="@+id/textLoad"
+            android:id="@+id/text_shown"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:textSize="40sp"
             android:textStyle="bold"
             android:gravity="center"
             android:textColor="#ffff0000"
-            android:text="@string/loadScore"
+            android:text=""
             />
 
     </FrameLayout>

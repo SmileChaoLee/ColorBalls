@@ -1170,11 +1170,11 @@ public class MyActivity extends AppCompatActivity {
     private class startHistoryScore extends AsyncTask<Void,Integer,String[]> {
         private Animation animationText = null;
         private FragmentManager fmManager = null;
-        private LoadHistoryDialogFragment loadingDialog = null;
+        private ModalDialogFragment loadingDialog = null;
 
         public startHistoryScore() {
             fmManager = getFragmentManager();
-            loadingDialog = new LoadHistoryDialogFragment();
+            loadingDialog = ModalDialogFragment.newInstance(getResources().getString(R.string.loadScore));
         }
 
         @Override
@@ -1209,7 +1209,7 @@ public class MyActivity extends AppCompatActivity {
         @Override
         protected void onProgressUpdate(Integer... progress) {
             if (!isCancelled()) {
-                TextView textLoad = loadingDialog.getTextLoad();
+                TextView textLoad = loadingDialog.getText_shown();
                 if (progress[0] == 0) {
                     if (animationText != null) {
                         textLoad.startAnimation(animationText);
@@ -1235,9 +1235,8 @@ public class MyActivity extends AppCompatActivity {
                 extras.putStringArray("resultStr", result);
                 i.putExtras(extras);
                 startActivity(i);
-
-                AdBuddiz.showAd(MyActivity.this);   // added on 2017-10-24
             }
+            AdBuddiz.showAd(MyActivity.this);   // added on 2017-10-24
         }
     }
 }
