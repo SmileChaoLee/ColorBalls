@@ -93,7 +93,7 @@
     </FrameLayout>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/buttonsLayout"
+        android:id="@+id/linearlayout_for_buttons_in_mainactivity"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">

@@ -47,7 +47,6 @@ import com.smile.utility.SoundUtl;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -306,8 +305,8 @@ public class MyActivity extends AppCompatActivity {
         oneBallLp.gravity = Gravity.CENTER;
 
         // set LinearLayout for buttons
-        LinearLayout buttonsLayout = (LinearLayout) findViewById(R.id.buttonsLayout);
-        ViewGroup.LayoutParams buttonsLp = buttonsLayout.getLayoutParams();
+        LinearLayout bLayout = (LinearLayout) findViewById(R.id.linearlayout_for_buttons_in_mainactivity);
+        ViewGroup.LayoutParams buttonsLp = bLayout.getLayoutParams();
         buttonsLp.width = gridWidth;
         int areaHeight = buttonAreaHeight - 20;   // not too close to navigation bar
         buttonsLp.height = areaHeight;
@@ -1036,8 +1035,10 @@ public class MyActivity extends AppCompatActivity {
 
     private void setDialogStyle(DialogInterface dialog) {
         AlertDialog dlg = (AlertDialog)dialog;
+        dlg.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        dlg.getWindow().setDimAmount(0.0f); // no dim for background screen
         dlg.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT,WindowManager.LayoutParams.WRAP_CONTENT);
-        dlg.getWindow().setBackgroundDrawableResource(R.drawable.dialogbackground);
+        dlg.getWindow().setBackgroundDrawableResource(R.drawable.dialog_background);
 
         float fontSize = 20;
         Button nBtn = dlg.getButton(DialogInterface.BUTTON_NEGATIVE);
@@ -1170,14 +1171,14 @@ public class MyActivity extends AppCompatActivity {
         private ModalDialogFragment loadingDialog = null;
 
         public StartHistoryScore() {
-            loadingDialog = ModalDialogFragment.newInstance(getResources().getString(R.string.loadScore),Color.RED,300,200);
+            loadingDialog = ModalDialogFragment.newInstance(getResources().getString(R.string.loadScore),Color.RED,300,200,false);
         }
 
         @Override
         protected void onPreExecute() {
 
             animationText = new AlphaAnimation(0.0f,1.0f);
-            animationText.setDuration(100);
+            animationText.setDuration(300);
             animationText.setStartOffset(0);
             animationText.setRepeatMode(Animation.REVERSE);
             animationText.setRepeatCount(Animation.INFINITE);
@@ -1266,7 +1267,7 @@ public class MyActivity extends AppCompatActivity {
             threadCompleted[1] = false;
 
             score = scoreCalculate(numBalls);
-            scoreDialog = ModalDialogFragment.newInstance(""+score, Color.BLUE,300,100);
+            scoreDialog = ModalDialogFragment.newInstance(""+score, Color.BLUE,300,100, false);
 
             int twinkleCountDown = 5;
             for (int i=1; i<=twinkleCountDown; i++) {

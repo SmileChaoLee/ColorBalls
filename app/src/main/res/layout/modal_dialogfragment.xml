@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <FrameLayout
+    <RelativeLayout
         android:id="@+id/dialog_layout"
         android:layout_width="300dp"
         android:layout_height="200dp"
@@ -12,23 +12,70 @@
         <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignParentTop="true"
             android:gravity="center"
-            android:background="@drawable/dialogbackground"
+            android:background="@drawable/dialog_background"
             android:layout_centerHorizontal="true" />
 
-        <TextView
-            android:id="@+id/text_shown"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:textSize="40sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:textColor="#ffff0000"
-            android:text=""
-            />
+            android:orientation="vertical"
+            android:weightSum="3">
+            <TextView
+                android:id="@+id/text_shown"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:gravity="center"
+                android:text="Loading"
+                android:textColor="#ffff0000"
+                android:textSize="40sp"
+                android:textStyle="bold"
+                android:layout_weight="2"/>
 
-    </FrameLayout>
+            <LinearLayout
+                android:id="@+id/linearlayout_for_buttons_in_modalfragment"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:orientation="horizontal"
+                android:layout_weight="1"
+                android:weightSum="2">
+
+                <Button
+                    android:id="@+id/negative_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginBottom="20dp"
+                    android:gravity="center"
+                    android:textColor="#ffff0000"
+                    android:background="#ffd3d3d3"
+                    android:textStyle="bold"
+                    android:textSize="20dp"
+                    android:text="No"
+                    android:layout_weight="1" />
+
+                <Button
+                    android:id="@+id/positive_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:gravity="center"
+                    android:textColor="#ff006400"
+                    android:background="#ffd3d3d3"
+                    android:textStyle="bold"
+                    android:textSize="20dp"
+                    android:text="Yes"
+                    android:layout_weight="1" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </RelativeLayout>
 
 
 </RelativeLayout>
