@@ -4,6 +4,7 @@
     android:layout_height="match_parent">
 
     <FrameLayout
+        android:id="@+id/dialog_layout"
         android:layout_width="300dp"
         android:layout_height="200dp"
         android:gravity="center">

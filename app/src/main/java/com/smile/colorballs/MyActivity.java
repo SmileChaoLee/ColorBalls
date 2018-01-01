@@ -1,8 +1,8 @@
 package com.smile.colorballs;
 
 // import android.app.AlertDialog;
-import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AlertDialog;
+import android.graphics.drawable.ColorDrawable;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -47,6 +47,9 @@ import com.smile.utility.SoundUtl;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import static android.view.View.OnClickListener;
@@ -115,7 +118,7 @@ public class MyActivity extends AppCompatActivity {
 
     final private String packageName = new String("package:com.smile.colorballs");
 
-    FragmentManager fmManager = null;
+    private FragmentManager fmManager = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,6 +148,8 @@ public class MyActivity extends AppCompatActivity {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
+
+        fmManager = getFragmentManager();
 
         // string constant
         yesStr = getResources().getString(R.string.yesStr);
@@ -336,7 +341,7 @@ public class MyActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                new startHistoryScore().execute();
+                new StartHistoryScore().execute();
             }
         });
 
@@ -583,14 +588,15 @@ public class MyActivity extends AppCompatActivity {
     }
 
     public void displayGridDataNextCells() {
+
         ImageView imageView = null;
         ImageDraw imageDraw = null;
 
         int numOneTime = gridData.getBallNumOneTime();
 
         int[] indexi, indexj;
-        indexi = new int[numOneTime];
-        indexj = new int[numOneTime];
+        // indexi = new int[numOneTime];
+        // indexj = new int[numOneTime];
         indexi = gridData.getNextCellIndexI();
         indexj = gridData.getNextCellIndexJ();
 
@@ -605,6 +611,8 @@ public class MyActivity extends AppCompatActivity {
             }
         }
 
+        HashSet<Point> hashPoint = new HashSet<Point>();
+        boolean hasMoreFive = false;
         for (int i = 0; i < numOneTime; i++) {
             n1 = indexi[i];
             n2 = indexj[i];
@@ -612,12 +620,22 @@ public class MyActivity extends AppCompatActivity {
                 if (gridData.getCellValue(n1, n2) != 0) {
                     //   has  color in this cell
                     if (gridData.check_moreFive(n1, n2) == 1) {
-                        int numBalls = gridData.getLight_line().size();
-                        scoreCalculate(numBalls);
-                        twinkleLineBallsAndClearCell(gridData.getLight_line(),i+2);
+                        hasMoreFive = true;
+                        for (Point item : gridData.getLight_line()) {
+                            if (!hashPoint.contains(item)) {
+                                // does not contains then add into
+                                hashPoint.add(item);
+                            }
+                        }
                     }
                 }
             }
+        }
+
+        if (hasMoreFive) {
+            threadCompleted[1] = false;
+            CalculateScore calculateScore = new CalculateScore();
+            calculateScore.execute(hashPoint);
         }
 
         displayNextColorBalls();
@@ -627,8 +645,6 @@ public class MyActivity extends AppCompatActivity {
 
         ImageView imageView = null;
         ImageDraw imageDraw = null;
-
-        // completedPath = false;
 
         gridData.randColors();  //   next  balls
         //   display the balls on the nextBallsView
@@ -644,8 +660,6 @@ public class MyActivity extends AppCompatActivity {
             // imageDraw.clearCellImage();
             imageDraw.circleInsideSquare(insideColor0);
         }
-
-        // completedPath = true;
     }
 
     private void undoTheLast() {
@@ -710,34 +724,6 @@ public class MyActivity extends AppCompatActivity {
         imageView.setImageResource(R.drawable.boximage);
         gridData.setCellValue(i, j, 0);
     }
-
-    /** removed at 00:54 on 2017-10-20
-    public void clearAllCell() {
-
-        cancelBouncyTimer();
-        cancelTwinkleTimer();
-
-        status = 0;
-        indexI = -1;
-        indexJ = -1;
-
-        for (int i = 0; i < rowCounts; i++) {
-            for (int j = 0; j < colCounts; j++) {
-                clearCell(i, j);
-            }
-        }
-
-        for (int k=0;k<threadCompleted.length;k++) {
-            threadCompleted[k] = true;
-        }
-
-        undoScore = currentScore;
-        currentScore = 0;
-
-        currentScoreView.setText(String.format("%9d", currentScore));
-    }
-    */
-
 
     public void doDrawBallsAndCheckListener(View v) {
 
@@ -841,6 +827,8 @@ public class MyActivity extends AppCompatActivity {
         SystemClock.sleep(20);
     }
 
+    // removed at 16:56 on 2017-12-31
+    /*
     private void twinkleLineBallsAndClearCell(final List<Point> Light_line,final int arrIndex) {
         if (Light_line.size()<=0) {
             return;
@@ -891,6 +879,7 @@ public class MyActivity extends AppCompatActivity {
         };
         twinkleHandler.post(twinkleRunnable);
     }
+    */
 
     private void drawBallAlongPath(final int ii , final int jj,final int color) {
         if (gridData.getPathPoint().size()<=0) {
@@ -935,13 +924,21 @@ public class MyActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+
                 ImageView v = (ImageView) findViewById(i * colCounts + j);
                 drawBall(v, gridData.getCellValue(i, j));
                 if (gridData.check_moreFive(i, j) == 1) {
                     //  check if there are more than five balls with same color connected together
-                    int numBalls = gridData.getLight_line().size();
-                    scoreCalculate(numBalls);
-                    twinkleLineBallsAndClearCell(gridData.getLight_line(), 1);
+                    // int numBalls = gridData.getLight_line().size();
+                    // scoreCalculate(numBalls);
+                    // twinkleLineBallsAndClearCell(gridData.getLight_line(), 1);
+                    HashSet<Point> hashPoint = new HashSet<Point>();
+                    for (Point item : gridData.getLight_line()) {
+                        hashPoint.add(item);
+                    }
+                    threadCompleted[1] = false;
+                    CalculateScore calculateScore = new CalculateScore();
+                    calculateScore.execute(hashPoint);
                 } else {
                     gridData.randCells();
                     displayGridDataNextCells();   // has a problem
@@ -993,7 +990,7 @@ public class MyActivity extends AppCompatActivity {
         });
     }
 
-    private void scoreCalculate(int numBalls) {
+    private int scoreCalculate(int numBalls) {
         int minScore = 5;
         int score = 0;
         if (numBalls <= minScore) {
@@ -1013,10 +1010,11 @@ public class MyActivity extends AppCompatActivity {
             score = score * 2;   // double of easy level
         }
 
-        undoScore = currentScore;
-        currentScore = currentScore + score;
+        // undoScore = currentScore;
+        // currentScore = currentScore + score;
+        // currentScoreView.setText(String.format("%9d", currentScore));
 
-        currentScoreView.setText(String.format("%9d", currentScore));
+        return score;
     }
 
     private void newGame() {
@@ -1167,14 +1165,12 @@ public class MyActivity extends AppCompatActivity {
         }
     }
 
-    private class startHistoryScore extends AsyncTask<Void,Integer,String[]> {
+    private class StartHistoryScore extends AsyncTask<Void,Integer,String[]> {
         private Animation animationText = null;
-        private FragmentManager fmManager = null;
         private ModalDialogFragment loadingDialog = null;
 
-        public startHistoryScore() {
-            fmManager = getFragmentManager();
-            loadingDialog = ModalDialogFragment.newInstance(getResources().getString(R.string.loadScore));
+        public StartHistoryScore() {
+            loadingDialog = ModalDialogFragment.newInstance(getResources().getString(R.string.loadScore),Color.RED,300,200);
         }
 
         @Override
@@ -1196,9 +1192,7 @@ public class MyActivity extends AppCompatActivity {
             String[] result = scoreSQLite.read10HighestScore();
 
             // wait for one second
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {ex.printStackTrace();}
+            try { Thread.sleep(1000); } catch (InterruptedException ex) { ex.printStackTrace(); }
 
             i = 1;
             publishProgress(i);
@@ -1237,6 +1231,98 @@ public class MyActivity extends AppCompatActivity {
                 startActivity(i);
             }
             AdBuddiz.showAd(MyActivity.this);   // added on 2017-10-24
+        }
+    }
+
+    private class CalculateScore extends AsyncTask<HashSet<Point>,Integer,String[]> {
+
+        private int numBalls = 0;
+        private int color = 0;
+        private HashSet<Point> hashPoint = null;
+        private int score = 0;
+        private ModalDialogFragment scoreDialog = null;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected String[] doInBackground(HashSet<Point>... args) {
+
+            hashPoint = args[0];
+            if (hashPoint == null) {
+                return null;
+            }
+
+            numBalls = hashPoint.size();
+
+            Iterator<Point> itr = hashPoint.iterator();
+            if (itr.hasNext()) {
+                Point point = itr.next();
+                color = gridData.getCellValue(point.x, point.y);
+            }
+
+            threadCompleted[1] = false;
+
+            score = scoreCalculate(numBalls);
+            scoreDialog = ModalDialogFragment.newInstance(""+score, Color.BLUE,300,100);
+
+            int twinkleCountDown = 5;
+            for (int i=1; i<=twinkleCountDown; i++) {
+                int md = i % 2; // modulus
+                publishProgress(md);
+                try { Thread.sleep(100); } catch (InterruptedException ex) { ex.printStackTrace(); }
+            }
+            publishProgress(2);
+            try { Thread.sleep(500); } catch (InterruptedException ex) { ex.printStackTrace(); }
+
+            publishProgress(3);
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... status) {
+            switch (status[0]) {
+                case 0:
+                    for (Point item : hashPoint) {
+                        ImageView v = (ImageView) findViewById(item.x * colCounts + item.y);
+                        drawBall(v, color);
+                    }
+                    break;
+                case 1:
+                    for (Point item : hashPoint) {
+                        ImageView v = (ImageView) findViewById(item.x * colCounts + item.y);
+                        drawOval(v, color);
+                    }
+                    break;
+                case 2:
+                    scoreDialog.show(fmManager, "score");
+                    break;
+                case 3:
+                    scoreDialog.dismiss();
+                    break;
+            }
+
+            return ;
+        }
+
+        @Override
+        protected void onPostExecute(String[] result) {
+            super.onPostExecute(result);
+
+            // clear values of cells
+            for (Point item : hashPoint) {
+                clearCell(item.x, item.y);
+            }
+
+            // update the UI
+            undoScore = currentScore;
+            currentScore = currentScore + score;
+            currentScoreView.setText(String.format("%9d", currentScore));
+
+            threadCompleted[1] = true;
         }
     }
 }
