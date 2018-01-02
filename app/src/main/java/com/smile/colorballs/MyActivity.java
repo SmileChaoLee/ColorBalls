@@ -1171,7 +1171,7 @@ public class MyActivity extends AppCompatActivity {
         private ModalDialogFragment loadingDialog = null;
 
         public StartHistoryScore() {
-            loadingDialog = ModalDialogFragment.newInstance(getResources().getString(R.string.loadScore),Color.RED,300,200,false);
+            loadingDialog = ModalDialogFragment.newInstance(getResources().getString(R.string.loadScore),Color.RED,300,200,0);
         }
 
         @Override
@@ -1267,7 +1267,7 @@ public class MyActivity extends AppCompatActivity {
             threadCompleted[1] = false;
 
             score = scoreCalculate(numBalls);
-            scoreDialog = ModalDialogFragment.newInstance(""+score, Color.BLUE,300,100, false);
+            scoreDialog = ModalDialogFragment.newInstance(""+score, Color.BLUE,300,100, 0);
 
             int twinkleCountDown = 5;
             for (int i=1; i<=twinkleCountDown; i++) {

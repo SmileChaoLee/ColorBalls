@@ -21,13 +21,14 @@ import android.widget.TextView;
 public class ModalDialogFragment extends DialogFragment {
 
     private TextView text_shown = null;
-    private Button negativeButton = null;
-    private Button positiveButton = null;
+    private Button button1 = null;
+    private Button button2 = null;
+
     private String textContext = "";
     private int textColor = 0;
     private int dialogWidth = 0;
     private int dialogHeight = 0;
-    private boolean hasButton = false;
+    private int numButtons = 0; // default is no buttons
 
     public ModalDialogFragment() {
         setStyle(DialogFragment.STYLE_NORMAL,R.style.MyDialogFragmentStyle);
@@ -47,17 +48,17 @@ public class ModalDialogFragment extends DialogFragment {
         float factor =  getActivity().getResources().getDisplayMetrics().density;
         dialogWidth = (int)((float)dialogWidth * factor);
         dialogHeight = (int)((float)dialogHeight * factor);
-        hasButton = getArguments().getBoolean("hasButton");
+        numButtons = getArguments().getInt("numButtons");
     }
 
-    public static ModalDialogFragment newInstance(String text_shown, int color, int width, int height, boolean hasButton) {
+    public static ModalDialogFragment newInstance(String text_shown, int color, int width, int height, int numButtons) {
         ModalDialogFragment modalDialog = new ModalDialogFragment();
         Bundle args = new Bundle();
         args.putString("text_shown", text_shown);
         args.putInt("color", color);
         args.putInt("width", width);
         args.putInt("height", height);
-        args.putBoolean("hasButton", hasButton);
+        args.putInt("numButtons", numButtons);
         modalDialog.setArguments(args);
 
         return modalDialog;
@@ -98,29 +99,54 @@ public class ModalDialogFragment extends DialogFragment {
         text_shown = view.findViewById(R.id.text_shown);
         text_shown.setText(textContext);
         text_shown.setTextColor(textColor);
-        negativeButton = view.findViewById(R.id.negative_button);
-        positiveButton = view.findViewById(R.id.positive_button);
+        button1 = view.findViewById(R.id.dialogfragment_button1);
+        button2 = view.findViewById(R.id.dialogfragment_button2);
 
-        if (!hasButton) {
-            // no buttons
+        LinearLayout.LayoutParams lp = null;
+        switch (numButtons) {
+            case 2:
+                // buttons. nothing has to be changed
+                break;
+            case 1:
+                // only 1 button, then disable button2 and make it invisible
+                button2.setVisibility(View.GONE);
+                button2.setEnabled(false);
+                 lp = (LinearLayout.LayoutParams)button2.getLayoutParams();
+                lp.weight = 0.0f;
 
-            // TextView
-            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams)text_shown.getLayoutParams();
-            lp.weight = 3.0f;
+                lp = (LinearLayout.LayoutParams)button1.getLayoutParams();
+                lp.weight = 2.0f;
 
-            // buttons
-            negativeButton.setVisibility(View.GONE);
-            negativeButton.setEnabled(false);
-            positiveButton.setVisibility(View.GONE);
-            positiveButton.setEnabled(false);
-            LinearLayout linearLayout = view.findViewById(R.id.linearlayout_for_buttons_in_modalfragment);
-            lp = (LinearLayout.LayoutParams)linearLayout.getLayoutParams();
-            lp.weight = 0.0f;
+                break;
+            case 0:
+                // no buttons
+            default:
+                // no buttons
+                // TextView
+                lp = (LinearLayout.LayoutParams)text_shown.getLayoutParams();
+                lp.weight = 3.0f;
 
+                // buttons
+                button1.setVisibility(View.GONE);
+                button1.setEnabled(false);
+                button2.setVisibility(View.GONE);
+                button2.setEnabled(false);
+                LinearLayout linearLayout = view.findViewById(R.id.linearlayout_for_buttons_in_modalfragment);
+                lp = (LinearLayout.LayoutParams)linearLayout.getLayoutParams();
+                lp.weight = 0.0f;
+
+                break;
         }
+
     }
 
     public TextView getText_shown() {
         return this.text_shown;
+    }
+    public Button getButton1() {
+        return this.button1;
+    }
+    public Button getButton2() {
+        return this.button2;
     }
 }
