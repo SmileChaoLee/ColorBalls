@@ -40,8 +40,6 @@ public class ModalDialogFragment extends DialogFragment {
     private int numButtons = 0; // default is no buttons
     private DialogButtonListener ndl;
 
-    private boolean finished = false;
-
     public interface DialogButtonListener {
         public void button1OnClick(ModalDialogFragment dialogFragment);
         public void button2OnClick(ModalDialogFragment dialogFragment);
@@ -65,11 +63,17 @@ public class ModalDialogFragment extends DialogFragment {
         dialogHeight = getArguments().getInt("height");
 
         float factor =  getActivity().getResources().getDisplayMetrics().density;
-        dialogWidth = (int)((float)dialogWidth * factor);
-        dialogHeight = (int)((float)dialogHeight * factor);
+        if (dialogWidth == 0) {
+            dialogWidth = ViewGroup.LayoutParams.WRAP_CONTENT;
+        } else {
+            dialogWidth = (int) ((float) dialogWidth * factor);
+        }
+        if (dialogHeight == 0) {
+            dialogHeight = ViewGroup.LayoutParams.WRAP_CONTENT;
+        } else {
+            dialogHeight = (int) ((float) dialogHeight * factor);
+        }
         numButtons = getArguments().getInt("numButtons");
-
-        finished = false;
     }
 
     public static ModalDialogFragment newInstance(String textContent, int color, int width, int height, int numButtons) {
@@ -175,9 +179,6 @@ public class ModalDialogFragment extends DialogFragment {
 
                 break;
         }
-
-        finished = true;
-
     }
 
     public void showDialogFragment(Activity activity) {

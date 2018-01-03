@@ -657,8 +657,8 @@ public class MyActivity extends AppCompatActivity {
                 Bundle args = new Bundle();
                 args.putString("textContent", gameOverStr);
                 args.putInt("color", Color.BLUE);
-                args.putInt("width", 300);
-                args.putInt("height", 200);
+                args.putInt("width", 0);    // wrap_content
+                args.putInt("height", 0);   // wrap_content
                 args.putInt("numButtons", 2);
                 mDialogFragment.setArguments(args);
                 mDialogFragment.showDialogFragment(MyActivity.this);
@@ -1252,8 +1252,8 @@ public class MyActivity extends AppCompatActivity {
             Bundle args = new Bundle();
             args.putString("textContent", getResources().getString(R.string.loadScore));
             args.putInt("color", Color.RED);
-            args.putInt("width", 300);
-            args.putInt("height", 200);
+            args.putInt("width", 0);    // wrap_content
+            args.putInt("height", 0);   // wrap_content
             args.putInt("numButtons", 0);
             loadingDialog.setArguments(args);
         }
@@ -1358,8 +1358,8 @@ public class MyActivity extends AppCompatActivity {
             Bundle args = new Bundle();
             args.putString("textContent", ""+score);
             args.putInt("color", Color.BLUE);
-            args.putInt("width", 300);
-            args.putInt("height", 100);
+            args.putInt("width", 0);    // wrap_content
+            args.putInt("height", 0);   // wrap_content
             args.putInt("numButtons", 0);
             scoreDialog.setArguments(args);
 

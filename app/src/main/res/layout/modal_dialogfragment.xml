@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout
+    <FrameLayout
         android:id="@+id/dialog_layout"
         android:layout_width="300dp"
         android:layout_height="200dp"
@@ -30,6 +30,7 @@
                 android:textColor="#ffff0000"
                 android:textSize="40sp"
                 android:textStyle="bold"
+                android:layout_margin="15dp"
                 android:layout_weight="2"/>
 
             <LinearLayout
@@ -75,7 +76,7 @@
 
         </LinearLayout>
 
-    </RelativeLayout>
+    </FrameLayout>
 
 
 </RelativeLayout>
