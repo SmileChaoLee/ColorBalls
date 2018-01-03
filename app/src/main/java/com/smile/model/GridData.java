@@ -121,7 +121,7 @@ public class GridData {
         random = new Random(now.toMillis(false));
 
         randColors();
-        randCells();
+        // randCells(); // removed on 2018-01-02
     }
 
     public void randColors() {

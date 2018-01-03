@@ -1,6 +1,11 @@
 package com.smile.colorballs;
 
 // import android.app.AlertDialog;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.DialogFragment;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.graphics.drawable.ColorDrawable;
 import android.app.FragmentManager;
@@ -212,12 +217,6 @@ public class MyActivity extends AppCompatActivity {
             gridHeight = gridHeight - (minButtonHeight - nextBallsViewHeight);
             nextBallsViewHeight = minButtonHeight;
         }
-
-        System.out.println("onCreate() --> screenWidth = " + screenWidth);
-        System.out.println("onCreate() --> screenHeight = " + screenHeight);
-        System.out.println("onCreate() --> nextBallsViewHeight = " + nextBallsViewHeight);
-        System.out.println("onCreate() --> gridHeight = " + gridHeight);
-        System.out.println("onCreate() --> buttonAreaHeight = " + buttonAreaHeight);
 
         /*  removed on 2017-10-24
         int tempHeight = gridHeight + nextBallsViewHeight + buttonAreaHeight;
@@ -588,16 +587,15 @@ public class MyActivity extends AppCompatActivity {
 
     public void displayGridDataNextCells() {
 
+        gridData.randCells();
+
         ImageView imageView = null;
-        ImageDraw imageDraw = null;
+        // ImageDraw imageDraw = null;  // removed on 2018-01-02
 
         int numOneTime = gridData.getBallNumOneTime();
 
-        int[] indexi, indexj;
-        // indexi = new int[numOneTime];
-        // indexj = new int[numOneTime];
-        indexi = gridData.getNextCellIndexI();
-        indexj = gridData.getNextCellIndexJ();
+        int[] indexi = gridData.getNextCellIndexI();
+        int[] indexj = gridData.getNextCellIndexJ();
 
         int id, n1, n2;
         for (int i = 0; i < numOneTime; i++) {
@@ -635,6 +633,80 @@ public class MyActivity extends AppCompatActivity {
             threadCompleted[1] = false;
             CalculateScore calculateScore = new CalculateScore();
             calculateScore.execute(hashPoint);
+        } else {
+            // check if game over
+            if (gridData.getGameOver()) {
+                //  game over
+                final ModalDialogFragment mDialogFragment = new ModalDialogFragment(new ModalDialogFragment.DialogButtonListener() {
+                    @Override
+                    public void button1OnClick(ModalDialogFragment dialogFragment) {
+                        dialogFragment.dismiss();
+                        recordScore(0);   //   Ending the game
+                        AdBuddiz.showAd(MyActivity.this);
+                        // AdBuddiz.RewardedVideo.show(MyActivity.this); // this = current Activity
+                    }
+
+                    @Override
+                    public void button2OnClick(ModalDialogFragment dialogFragment) {
+                        dialogFragment.dismiss();
+                        newGame();
+                        AdBuddiz.showAd(MyActivity.this);
+                        // AdBuddiz.RewardedVideo.show(MyActivity.this); // this = current Activity
+                    }
+                });
+                Bundle args = new Bundle();
+                args.putString("textContent", gameOverStr);
+                args.putInt("color", Color.BLUE);
+                args.putInt("width", 300);
+                args.putInt("height", 200);
+                args.putInt("numButtons", 2);
+                mDialogFragment.setArguments(args);
+                mDialogFragment.showDialogFragment(MyActivity.this);
+
+                // removed on 2018-01-02 for testing
+                /*
+                final TextView tv = new TextView(MyActivity.this);
+                tv.setTextSize(40);
+                tv.setTypeface(Typeface.DEFAULT);
+                tv.setTextColor(Color.BLUE);
+                tv.setText(gameOverStr);
+                tv.setGravity(Gravity.CENTER);
+                AlertDialog alertDialog = new AlertDialog.Builder(MyActivity.this).create();
+                alertDialog.setTitle(null);
+                alertDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                alertDialog.setCancelable(false);
+                alertDialog.setView(tv);
+                alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, noStr, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        recordScore(0);   //   Ending the game
+
+                        AdBuddiz.showAd(MyActivity.this);
+                        // AdBuddiz.RewardedVideo.show(MyActivity.this); // this = current Activity
+                    }
+                });
+                alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, yesStr, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        newGame();
+
+                        AdBuddiz.showAd(MyActivity.this);
+                        // AdBuddiz.RewardedVideo.show(MyActivity.this); // this = current Activity
+                    }
+                });
+
+                alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        setDialogStyle(dialog);
+                    }
+                });
+
+                alertDialog.show();
+                */
+            }
         }
 
         displayNextColorBalls();
@@ -939,8 +1011,11 @@ public class MyActivity extends AppCompatActivity {
                     CalculateScore calculateScore = new CalculateScore();
                     calculateScore.execute(hashPoint);
                 } else {
-                    gridData.randCells();
+                    // gridData.randCells();    // moved to displayGridDataNextCells() on 2018-01-02
                     displayGridDataNextCells();   // has a problem
+
+                    // moved to displayGridDataNextCells() on 2018-01-02
+                    /*
                     if (gridData.getGameOver()) {
                         //  game over
                         final TextView tv = new TextView(MyActivity.this);
@@ -984,6 +1059,8 @@ public class MyActivity extends AppCompatActivity {
 
                         alertDialog.show();
                     }
+                    */
+
                 }
             }
         });
@@ -1143,7 +1220,7 @@ public class MyActivity extends AppCompatActivity {
         }
     }
 
-    public void drawOval(ImageView imageView,int color) {
+    private void drawOval(ImageView imageView,int color) {
         switch (color) {
             case Color.RED:
                 imageView.setImageResource(R.drawable.redball_o);
@@ -1171,7 +1248,14 @@ public class MyActivity extends AppCompatActivity {
         private ModalDialogFragment loadingDialog = null;
 
         public StartHistoryScore() {
-            loadingDialog = ModalDialogFragment.newInstance(getResources().getString(R.string.loadScore),Color.RED,300,200,0);
+            loadingDialog = new ModalDialogFragment();
+            Bundle args = new Bundle();
+            args.putString("textContent", getResources().getString(R.string.loadScore));
+            args.putInt("color", Color.RED);
+            args.putInt("width", 300);
+            args.putInt("height", 200);
+            args.putInt("numButtons", 0);
+            loadingDialog.setArguments(args);
         }
 
         @Override
@@ -1183,7 +1267,8 @@ public class MyActivity extends AppCompatActivity {
             animationText.setRepeatMode(Animation.REVERSE);
             animationText.setRepeatCount(Animation.INFINITE);
 
-            loadingDialog.show(fmManager,"History");
+            // loadingDialog.show(fmManager,"History");
+            loadingDialog.showDialogFragment(MyActivity.this);
         }
 
         @Override
@@ -1241,6 +1326,7 @@ public class MyActivity extends AppCompatActivity {
         private int color = 0;
         private HashSet<Point> hashPoint = null;
         private int score = 0;
+
         private ModalDialogFragment scoreDialog = null;
 
         @Override
@@ -1249,9 +1335,9 @@ public class MyActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String[] doInBackground(HashSet<Point>... args) {
+        protected String[] doInBackground(HashSet<Point>... params) {
 
-            hashPoint = args[0];
+            hashPoint = params[0];
             if (hashPoint == null) {
                 return null;
             }
@@ -1267,7 +1353,15 @@ public class MyActivity extends AppCompatActivity {
             threadCompleted[1] = false;
 
             score = scoreCalculate(numBalls);
-            scoreDialog = ModalDialogFragment.newInstance(""+score, Color.BLUE,300,100, 0);
+
+            scoreDialog = new ModalDialogFragment();
+            Bundle args = new Bundle();
+            args.putString("textContent", ""+score);
+            args.putInt("color", Color.BLUE);
+            args.putInt("width", 300);
+            args.putInt("height", 100);
+            args.putInt("numButtons", 0);
+            scoreDialog.setArguments(args);
 
             int twinkleCountDown = 5;
             for (int i=1; i<=twinkleCountDown; i++) {
@@ -1299,7 +1393,7 @@ public class MyActivity extends AppCompatActivity {
                     }
                     break;
                 case 2:
-                    scoreDialog.show(fmManager, "score");
+                    scoreDialog.showDialogFragment(MyActivity.this);
                     break;
                 case 3:
                     scoreDialog.dismiss();

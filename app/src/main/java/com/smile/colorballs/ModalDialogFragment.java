@@ -1,9 +1,18 @@
 package com.smile.colorballs;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.DialogFragment;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,18 +38,28 @@ public class ModalDialogFragment extends DialogFragment {
     private int dialogWidth = 0;
     private int dialogHeight = 0;
     private int numButtons = 0; // default is no buttons
+    private DialogButtonListener ndl;
+
+    private boolean finished = false;
+
+    public interface DialogButtonListener {
+        public void button1OnClick(ModalDialogFragment dialogFragment);
+        public void button2OnClick(ModalDialogFragment dialogFragment);
+    }
 
     public ModalDialogFragment() {
-        setStyle(DialogFragment.STYLE_NORMAL,R.style.MyDialogFragmentStyle);
-        // setStyle(DialogFragment.STYLE_NO_INPUT,,R.style.MyDialogFragmentStyle);   // make dialog a modal
-        // setStyle(DialogFragment.STYLE_NO_FRAME, R.style.MyDialogFragmentStyle);  // make dialog a modal
-        setCancelable(false);   // make dialog a modal
+    }
+
+    @SuppressLint("ValidFragment")
+    public ModalDialogFragment(DialogButtonListener ndl) {
+        super();
+        this.ndl = ndl;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        textContext = getArguments().getString("text_shown");
+        textContext = getArguments().getString("textContent");
         textColor = getArguments().getInt("color");
         dialogWidth = getArguments().getInt("width");
         dialogHeight = getArguments().getInt("height");
@@ -49,12 +68,14 @@ public class ModalDialogFragment extends DialogFragment {
         dialogWidth = (int)((float)dialogWidth * factor);
         dialogHeight = (int)((float)dialogHeight * factor);
         numButtons = getArguments().getInt("numButtons");
+
+        finished = false;
     }
 
-    public static ModalDialogFragment newInstance(String text_shown, int color, int width, int height, int numButtons) {
+    public static ModalDialogFragment newInstance(String textContent, int color, int width, int height, int numButtons) {
         ModalDialogFragment modalDialog = new ModalDialogFragment();
         Bundle args = new Bundle();
-        args.putString("text_shown", text_shown);
+        args.putString("textContent", textContent);
         args.putInt("color", color);
         args.putInt("width", width);
         args.putInt("height", height);
@@ -67,6 +88,7 @@ public class ModalDialogFragment extends DialogFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+
         // View view = inflater.inflate(R.layout.loading_dialogfragment,container,false);
         View view = inflater.inflate(R.layout.modal_dialogfragment,container);
 
@@ -77,6 +99,11 @@ public class ModalDialogFragment extends DialogFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        setStyle(DialogFragment.STYLE_NORMAL,R.style.MyDialogFragmentStyle);
+        // setStyle(DialogFragment.STYLE_NO_INPUT,,R.style.MyDialogFragmentStyle);   // make dialog a modal
+        // setStyle(DialogFragment.STYLE_NO_FRAME, R.style.MyDialogFragmentStyle);  // make dialog a modal
+        setCancelable(false);   // make dialog a modal
 
         // for background window
         // WindowManager.LayoutParams lp = getDialog().getWindow().getAttributes();
@@ -100,8 +127,19 @@ public class ModalDialogFragment extends DialogFragment {
         text_shown.setText(textContext);
         text_shown.setTextColor(textColor);
         button1 = view.findViewById(R.id.dialogfragment_button1);
+        button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ndl.button1OnClick(ModalDialogFragment.this);
+            }
+        });
         button2 = view.findViewById(R.id.dialogfragment_button2);
-
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ndl.button2OnClick(ModalDialogFragment.this);
+            }
+        });
         LinearLayout.LayoutParams lp = null;
         switch (numButtons) {
             case 2:
@@ -138,10 +176,26 @@ public class ModalDialogFragment extends DialogFragment {
                 break;
         }
 
+        finished = true;
+
+    }
+
+    public void showDialogFragment(Activity activity) {
+        FragmentManager fmManager = activity.getFragmentManager();
+        Fragment prev = fmManager.findFragmentByTag("dialog");
+        FragmentTransaction ft = fmManager.beginTransaction();
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+        this.show(ft,"dialog");
     }
 
     public TextView getText_shown() {
         return this.text_shown;
+    }
+    public void setText_shown(TextView text_shown) {
+        this.text_shown = text_shown;
     }
     public Button getButton1() {
         return this.button1;
