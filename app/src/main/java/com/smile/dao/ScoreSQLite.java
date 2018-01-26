@@ -1,9 +1,11 @@
 package com.smile.dao;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDatabaseLockedException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
@@ -14,22 +16,20 @@ public class ScoreSQLite extends SQLiteOpenHelper {
     private Context myContext = null;
     private static final String playerName = new String("playerName");
     private static final String playerScore = new String("playerScore");
+    private static final String[] columns = {"playerName", "playerScore"};
 
     private static final String dbName = new String("colorBallDatabase.db");
     private static final String tableName = new String("score");
     private static final String createTable = "create table if not exists " + tableName + " ("
             + playerName + " text not null ,  " + playerScore + " integer );";
     private static final String upDateTable = new String("update");
-    private SQLiteDatabase scoreDatabase = null;
+    // private SQLiteDatabase scoreDatabase = null;
     private static final int dbVersion = 1;
-
-    private boolean readFinished = true;
 
     public ScoreSQLite(Context context) {
         super(context,dbName,null,dbVersion);
         myContext = context;
-        scoreDatabase = null;
-        readFinished = true;
+        // scoreDatabase = null;
     }
 
     @Override
@@ -46,18 +46,27 @@ public class ScoreSQLite extends SQLiteOpenHelper {
     public void openScoreDatabase() {
 
         try {
-            scoreDatabase = getWritableDatabase();
-            if (scoreDatabase != null) {
-                scoreDatabase.execSQL(createTable);
+            SQLiteDatabase database = getWritableDatabase();
+            if (database != null) {
+                database.execSQL(createTable);
                 String sql = "select count(*) as totalRec from " + tableName + ";";
-                Cursor cur = scoreDatabase.rawQuery(sql, new String[]{});
+                Cursor cur = database.rawQuery(sql, new String[]{});
                 if (cur.moveToFirst()) {
                     if (cur.getInt(0) == 0) {
-                        sql = "insert into " + tableName + " ( playerName , playerScore) values ( 'ChaoLee',100);";
-                        scoreDatabase.execSQL(sql);
+
+                        // insert one new record for starting
+                        // sql = "insert into " + tableName + " ( playerName , playerScore) values ( 'ChaoLee',100);";
+                        // scoreDatabase.execSQL(sql);
+
+                        // insert one new record for starting
+                        ContentValues values = new ContentValues();
+                        values.put(playerName,"ChaoLee");
+                        values.put(playerScore,100);
+                        database.insert(tableName, null, values);
                     }
                 }
                 cur.close();
+                database.close();
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -67,27 +76,35 @@ public class ScoreSQLite extends SQLiteOpenHelper {
     public int readHighestScore() {
         int highestScore = 0;
 
-        while (!readFinished) {
-            System.out.println("readFinished = " + readFinished);
-        }    // wait for other operations finish
-        readFinished = false;
-
-        openScoreDatabase();
-        if (scoreDatabase != null) {
-            try {
+        try {
+            SQLiteDatabase database = getReadableDatabase();
+            if (database != null) {
+                /*
+                // use rawQuery
                 String sql = "select playerScore from " + tableName + " order by playerScore desc";
-                Cursor cur = scoreDatabase.rawQuery(sql, new String[]{});
-                if (cur.moveToFirst()) {
-                    highestScore = cur.getInt(0);
+                Cursor cur = database.rawQuery(sql, new String[]{});
+                if (cur != null) {
+                    if (cur.moveToFirst()) {
+                        highestScore = cur.getInt(0);
+                    }
+                    cur.close();
                 }
-                cur.close();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-            closeScoreDatabase();
-        }
+                */
 
-        readFinished = true;
+                // use query
+                Cursor cur = database.query(tableName, columns, null, new String[]{}, null, null, playerScore + " desc");
+                if (cur != null) {
+                    if (cur.moveToFirst()) {
+                        highestScore = cur.getInt(1);   // for playerScore
+                    }
+                    cur.close();
+                }
+
+                database.close();
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
 
         return highestScore;
     }
@@ -99,14 +116,11 @@ public class ScoreSQLite extends SQLiteOpenHelper {
         String space = new String(new char[1]).replace("\0"," ");
         int strLen = 14;
 
-        while (!readFinished) {}    // wait for other operations finish
-        readFinished = false;
-
-        openScoreDatabase();
-        if (scoreDatabase != null) {
+        SQLiteDatabase database = getReadableDatabase();
+        if (database != null) {
             try {
                 String sql = "select playerName,playerScore from " + tableName + " order by playerScore desc";
-                Cursor cur = scoreDatabase.rawQuery(sql, new String[]{});
+                Cursor cur = database.rawQuery(sql, new String[]{});
                 int i = 0;
                 while (cur.moveToNext() && (i < 10)) {
                     temp = cur.getString(0);
@@ -119,10 +133,9 @@ public class ScoreSQLite extends SQLiteOpenHelper {
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
-            closeScoreDatabase();
-        }
 
-        readFinished = true;
+            database.close();
+        }
 
         return resultStr;
     }
@@ -136,47 +149,40 @@ public class ScoreSQLite extends SQLiteOpenHelper {
         Thread thread = new Thread() {
             @Override
             public void run() {
-                while (!readFinished) {}    // wait for other operations finish
-                readFinished = false;
 
-                openScoreDatabase();
-                if (scoreDatabase != null) {
+                SQLiteDatabase database = getWritableDatabase();
+                if (database != null) {
                     try {
                         String sql = "select count(*) as totalRec from " + tableName + ";";
-                        Cursor cur = scoreDatabase.rawQuery(sql, new String[]{});
+                        Cursor cur = database.rawQuery(sql, new String[]{});
                         if (cur.moveToFirst()) {
                             if (cur.getInt(0) >= 100) {
                                 //   Over 100 records,   delete one record
                                 sql = "delete from " + tableName + " where playerScore in ( select playerScore from " + tableName + " order by playerScore limit 1);";
-                                scoreDatabase.execSQL(sql);
+                                database.execSQL(sql);
                             }
                         }
                         cur.close();
                         //  insert one record into table    SCORE
-                        sql = "insert into " + tableName + " ( playerName , playerScore) values ("
-                                + "'" + name + "'," + String.valueOf(score) + ");";
-                        scoreDatabase.execSQL(sql);
+                        // sql = "insert into " + tableName + " ( playerName , playerScore) values ("
+                        //         + "'" + name + "'," + String.valueOf(score) + ");";
+                        // database.execSQL(sql);
+
+                        //  insert one record into table    SCORE
+                        ContentValues values = new ContentValues();
+                        values.put(playerName, name);
+                        values.put(playerScore,score);
+                        database.insert(tableName, null, values);
+
                     } catch (SQLException ex) {
                         ex.printStackTrace();
                     }
-                    closeScoreDatabase();
-                }
 
-                readFinished = true;
+                    database.close();
+                }
             }
         };
 
         thread.start();
-    }
-
-    public void closeScoreDatabase() {
-        if (scoreDatabase != null) {
-            try {
-                scoreDatabase.close();
-                scoreDatabase = null;
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-        }
     }
 }

@@ -467,7 +467,7 @@ public class MyActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
 
-        // removeed on 2017-10-24
+        // removed on 2017-10-24
         /*
         try {
             if (android.os.Build.VERSION.SDK_INT >= 23) {
@@ -898,60 +898,6 @@ public class MyActivity extends AppCompatActivity {
         SystemClock.sleep(20);
     }
 
-    // removed at 16:56 on 2017-12-31
-    /*
-    private void twinkleLineBallsAndClearCell(final List<Point> Light_line,final int arrIndex) {
-        if (Light_line.size()<=0) {
-            return;
-        }
-
-        final int color = gridData.getCellValue(Light_line.get(0).x, Light_line.get(0).y);
-
-        final List<Point> listTemp = new ArrayList<Point>();
-        for (Point temp : Light_line) {
-            gridData.setCellValue(temp.x , temp.y , 0);  // set no ball in the cells, to prevent
-            listTemp.add(temp);                          // used by others before finish this method
-        }
-
-        final Handler twinkleHandler = new Handler();
-        Runnable twinkleRunnable = new Runnable() {
-            boolean ballYN = false;
-            int twinkleCountDown = 5;
-            boolean twinkleBallYN = false;
-            @Override
-            public void run() {
-                threadCompleted[arrIndex] = false;
-                if (twinkleCountDown >= 0) {
-                    if (twinkleCountDown > 0) {
-                        if (twinkleBallYN) {
-                            for (Point item : listTemp) {
-                                ImageView v = (ImageView) findViewById(item.x * colCounts + item.y);
-                                drawBall(v, color);
-                            }
-                        } else {
-                            for (Point item : listTemp) {
-                                ImageView v = (ImageView) findViewById(item.x * colCounts + item.y);
-                                drawOval(v, color);
-                            }
-                        }
-                    } else {
-                        for (Point item : listTemp) {
-                            clearCell(item.x, item.y);
-                        }
-                    }
-                    twinkleHandler.postDelayed(this, 200);
-                    twinkleBallYN = !twinkleBallYN;
-                    twinkleCountDown--;
-                } else {
-                    twinkleHandler.removeCallbacksAndMessages(null);
-                    threadCompleted[arrIndex] = true;
-                }
-            }
-        };
-        twinkleHandler.post(twinkleRunnable);
-    }
-    */
-
     private void drawBallAlongPath(final int ii , final int jj,final int color) {
         if (gridData.getPathPoint().size()<=0) {
             return;
@@ -1003,10 +949,11 @@ public class MyActivity extends AppCompatActivity {
                     // int numBalls = gridData.getLight_line().size();
                     // scoreCalculate(numBalls);
                     // twinkleLineBallsAndClearCell(gridData.getLight_line(), 1);
-                    HashSet<Point> hashPoint = new HashSet<Point>();
-                    for (Point item : gridData.getLight_line()) {
-                        hashPoint.add(item);
-                    }
+                    HashSet<Point> hashPoint = new HashSet<>(gridData.getLight_line());
+                    // HashSet<Point> hashPoint = new HashSet<Point>();
+                    // for (Point item : gridData.getLight_line()) {
+                    //     hashPoint.add(item);
+                    // }
                     threadCompleted[1] = false;
                     CalculateScore calculateScore = new CalculateScore();
                     calculateScore.execute(hashPoint);
