@@ -14,12 +14,14 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -64,12 +66,12 @@ public class ModalDialogFragment extends DialogFragment {
 
         float factor =  getActivity().getResources().getDisplayMetrics().density;
         if (dialogWidth == 0) {
-            dialogWidth = ViewGroup.LayoutParams.WRAP_CONTENT;
+            dialogWidth = FrameLayout.LayoutParams.WRAP_CONTENT;
         } else {
             dialogWidth = (int) ((float) dialogWidth * factor);
         }
         if (dialogHeight == 0) {
-            dialogHeight = ViewGroup.LayoutParams.WRAP_CONTENT;
+            dialogHeight = FrameLayout.LayoutParams.WRAP_CONTENT;
         } else {
             dialogHeight = (int) ((float) dialogHeight * factor);
         }
@@ -121,11 +123,18 @@ public class ModalDialogFragment extends DialogFragment {
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         // getDialog().requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        ViewGroup dialogView = view.findViewById(R.id.dialog_layout);
-        ViewGroup.LayoutParams layoutParams = dialogView.getLayoutParams();
-        layoutParams.width = dialogWidth;
-        layoutParams.height = dialogHeight;
-        dialogView.setLayoutParams(layoutParams);
+        FrameLayout dialogView = (FrameLayout)view.findViewById(R.id.dialog_layout);
+        // FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams)dialogView.getLayoutParams();
+        FrameLayout.LayoutParams ll = new FrameLayout.LayoutParams(dialogWidth, dialogHeight, Gravity.CENTER);
+        // ll.width = dialogWidth;
+        // ll.height = dialogHeight;
+        // ll.gravity = Gravity.CENTER;
+        dialogView.setLayoutParams(ll);
+        // layoutParams.width = dialogWidth;
+        // layoutParams.height = dialogHeight;
+        // dialogView.setLayoutParams(layoutParams);
+
+
 
         text_shown = view.findViewById(R.id.text_shown);
         text_shown.setText(textContext);
@@ -153,7 +162,7 @@ public class ModalDialogFragment extends DialogFragment {
                 // only 1 button, then disable button2 and make it invisible
                 button2.setVisibility(View.GONE);
                 button2.setEnabled(false);
-                 lp = (LinearLayout.LayoutParams)button2.getLayoutParams();
+                lp = (LinearLayout.LayoutParams)button2.getLayoutParams();
                 lp.weight = 0.0f;
 
                 lp = (LinearLayout.LayoutParams)button1.getLayoutParams();
