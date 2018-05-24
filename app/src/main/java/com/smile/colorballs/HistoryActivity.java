@@ -94,19 +94,19 @@ public class HistoryActivity extends ListActivity {
 
     private class mListAdapter extends BaseAdapter {
 
-        private String text1[] ;  // or private String[] text1,text2;
+        private String textShowing[] ;  // or private String[] text1,text2;
 
         public mListAdapter() {
-            this.text1 = new String[] {"No initialization"};
+            this.textShowing = new String[] {"No initialization"};
         }
 
-        public mListAdapter(String[] text1) {
-            this.text1 = text1;
+        public mListAdapter(String[] textShowing) {
+            this.textShowing = textShowing;
         }
 
         @Override
         public int getCount() {
-            return this.text1.length;
+            return this.textShowing.length;
         }
 
         @Override
@@ -131,7 +131,7 @@ public class HistoryActivity extends ListActivity {
 
             TextView vText1;
             vText1 = (TextView) convertView.findViewById(R.id.text1);
-            vText1.setText(this.text1[position]);
+            vText1.setText(this.textShowing[position]);
             vText1.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
             // vText1.setHeight(itemHeight);
             // or

@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -32,6 +33,7 @@ import android.widget.TextView;
 public class ModalDialogFragment extends DialogFragment {
 
     private TextView text_shown = null;
+    private EditText text_edit = null;
     private Button button1 = null;
     private Button button2 = null;
 

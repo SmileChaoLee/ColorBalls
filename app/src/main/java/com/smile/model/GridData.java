@@ -9,6 +9,7 @@ import android.graphics.Point;
 import android.text.format.Time;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Vector;
@@ -500,9 +501,10 @@ public class GridData {
 
         result = findPath(sourcePoint,targetPoint);
 
-        for (Point temp : noColorList) {
-            cellValue[temp.x][temp.y] = 0;
-        }
+        // removed on 2018-05-01
+        // for (Point temp : noColorList) {
+        //     cellValue[temp.x][temp.y] = 0;
+        // }
 
         return result;
     }
@@ -511,31 +513,33 @@ public class GridData {
 
         boolean found = false;
 
+        HashSet<Point> traversed = new HashSet<Point>();
+
         Vector<Vector> vPath  = new Vector();
-        Vector<CellOfMatrix> parent  = new Vector();
-        parent.addElement(new CellOfMatrix(source,null));
-        vPath.addElement(parent);
+        Vector<Cell> cellVector0  = new Vector();
+        cellVector0.addElement(new Cell(source,null));
+        vPath.addElement(cellVector0);
 
-        CellOfMatrix cell = new CellOfMatrix(new Point(0,0),null);
+        // Cell cell = new Cell(new Point(0,0),null);
 
-        while(!found && (parent.size()!=0)) {
-            Vector<CellOfMatrix> vTemp = new Vector();
-            for(int i=0; i<parent.size(); i++) {
-                cell = (CellOfMatrix)parent.elementAt(i);
-                found = addCell(vTemp, cell,  0,  1,target);
+        while(!found && (cellVector0.size()!=0)) {
+            Vector<Cell> vTemp = new Vector();
+            for(int i=0; i<cellVector0.size(); i++) {
+                Cell cell = (Cell)cellVector0.elementAt(i);
+                found = addCell(vTemp, cell,  0,  1,target, traversed);
                 if (found) break;
-                found = addCell(vTemp, cell,  0, -1,target);
+                found = addCell(vTemp, cell,  0, -1,target, traversed);
                 if (found) break;
-                found = addCell(vTemp, cell,  1,  0,target);
+                found = addCell(vTemp, cell,  1,  0,target, traversed);
                 if (found) break;
-                found = addCell(vTemp, cell, -1,  0,target);
+                found = addCell(vTemp, cell, -1,  0,target, traversed);
                 if (found) break;
             }
 
             vPath.addElement(vTemp);
 
-            // parent = new Vector<CellOfMatrix>(vTemp);
-            parent = vTemp;
+            // parent = new Vector<Cell>(vTemp);
+            cellVector0 = vTemp;
 
             // System.out.println("vp size = "+vp.size());
             // System.out.println("parent size = " + parent.size());
@@ -544,15 +548,15 @@ public class GridData {
         pathPoint.clear();  // added at 10:43 pm on 2017-10-19
         if (found) {
             int vLength = vPath.size();
-            Vector v = (Vector)vPath.elementAt(vLength-1);
-            CellOfMatrix c = (CellOfMatrix)((v.elementAt(v.size()-1)));
+            Vector<Cell> v = (Vector)vPath.elementAt(vLength-1);
+            Cell c = (Cell)((v.elementAt(v.size()-1)));
             if (c!=null) {
                 for (int i = vLength-1 ; i>=0; i--) {
                     pathPoint.add(c.getCoordinate());
                     c = c.getParentCell();
                 }
             } else {
-                // System.out.println("CellOfMatrix c is null");
+                // System.out.println("Cell c is null");
             }
 
         }
@@ -565,30 +569,30 @@ public class GridData {
 	postcond: new constructed level and updated matrix
     */
 
-    private boolean addCell(Vector vector, CellOfMatrix parent, int dx, int dy,Point target) {
+    private boolean addCell(Vector vector, Cell parent, int dx, int dy, Point target, HashSet<Point> traversed) {
         Point pTemp = new Point(parent.getCoordinate());
         pTemp.set(pTemp.x+dx,pTemp.y+dy);
 
-        if ( (pTemp.x>=0&&pTemp.x<rowCounts)&&(pTemp.y>=0&&pTemp.y<colCounts) && (cellValue[pTemp.x][pTemp.y]==0) ) {
-
-            // System.out.println("pTemp.x and rowCounts = "+pTemp.x+"  "+rowCounts);
-            // System.out.println("pTemp.y and colCounts = "+pTemp.y+"  "+colCounts);
-            // System.out.println("cellValue = "+cellValue[pTemp.x][pTemp.y]);
-
-            CellOfMatrix temp = new CellOfMatrix(pTemp,parent);
-            vector.addElement(temp);
-            cellValue[pTemp.x][pTemp.y] = -1;
+        if (!traversed.contains(pTemp)) {
+            // has not been checked
+            if ((pTemp.x >= 0 && pTemp.x < rowCounts) && (pTemp.y >= 0 && pTemp.y < colCounts) && (cellValue[pTemp.x][pTemp.y] == 0)) {
+                Cell temp = new Cell(pTemp, parent);
+                vector.addElement(temp);
+                // cellValue[pTemp.x][pTemp.y] = -1;    // removed on 2018-05-01
+                traversed.add(pTemp);
+            }
         }
+
         return (pTemp.equals(target));
     }
 }
 
 
-class CellOfMatrix {
+class Cell {
     private Point coordinate = new Point(0,0);
-    private CellOfMatrix parentCell = null;
+    private Cell parentCell = null;
 
-    CellOfMatrix(Point coordinate,CellOfMatrix parentCell) {
+    Cell(Point coordinate,Cell parentCell) {
         this.coordinate.set(coordinate.x,coordinate.y);
         this.parentCell = parentCell;
     }
@@ -597,7 +601,7 @@ class CellOfMatrix {
         return this.coordinate;
     }
 
-    public CellOfMatrix getParentCell() {
+    public Cell getParentCell() {
         return this.parentCell;
     }
 }

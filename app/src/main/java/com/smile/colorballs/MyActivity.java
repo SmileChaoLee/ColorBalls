@@ -484,6 +484,9 @@ public class MyActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         */
+
+        // added on 2018-05-24
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);    // restore the orientation configuration
     }
 
     @Override
@@ -491,16 +494,6 @@ public class MyActivity extends AppCompatActivity {
         // capture the event of back button when it is pressed
         // change back button behavior
         finish();
-    }
-
-    private void setScreenOrientation(int ot) {
-        switch (ot) {
-            case Configuration.ORIENTATION_LANDSCAPE:
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                break;
-            case Configuration.ORIENTATION_PORTRAIT:
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
     }
 
     @Override
