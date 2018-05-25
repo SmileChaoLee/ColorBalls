@@ -44,7 +44,11 @@ import com.purplebrain.adbuddiz.sdk.AdBuddiz;
 // import com.purplebrain.adbuddiz.sdk.AdBuddizRewardedVideoDelegate;
 // import com.purplebrain.adbuddiz.sdk.AdBuddizRewardedVideoError;
 // import com.smile.dao.ScoreMySQL; // removed on 2017-10-18
-import com.smile.dao.ScoreSQLite;
+
+// import com.smile.dao.ScoreSQLite;
+import com.smile.scoresqlite.*;
+
+
 import com.smile.draw.ImageDraw;
 import com.smile.model.GridData;
 import com.smile.utility.ScreenUtl;

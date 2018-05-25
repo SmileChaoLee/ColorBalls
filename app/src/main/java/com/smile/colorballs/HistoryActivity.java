@@ -1,12 +1,9 @@
 package com.smile.colorballs;
 
 import android.app.ListActivity;
-import android.content.Intent;
-import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,11 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
-
-import com.smile.dao.ScoreSQLite;
-import com.smile.utility.ScreenUtl;
 
 
 public class HistoryActivity extends ListActivity {
