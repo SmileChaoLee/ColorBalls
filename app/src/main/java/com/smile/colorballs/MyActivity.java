@@ -23,9 +23,11 @@ import android.os.Handler;
 import android.os.StrictMode;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
@@ -36,6 +38,7 @@ import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -73,8 +76,8 @@ public class MyActivity extends AppCompatActivity {
     private TextView highestScoreView = null;
     private TextView currentScoreView = null;
 
-    private ImageView nextBallsView = null;
-    private ImageDraw nextBallsImageDraw = null;
+    // private ImageView nextBallsView = null;
+    // private ImageDraw nextBallsImageDraw = null;
     private int nextBallsViewWidth = 0;
     private int nextBallsViewHeight = 0;
     private int nextBallsRow = 1;
@@ -123,8 +126,6 @@ public class MyActivity extends AppCompatActivity {
     private String gameOverStr = new String("");
     private String undoStr = new String("");
     private String historyStr = new String("");
-
-    final private String packageName = new String("package:com.smile.colorballs");
 
     private FragmentManager fmManager = null;
 
@@ -222,17 +223,6 @@ public class MyActivity extends AppCompatActivity {
             nextBallsViewHeight = minButtonHeight;
         }
 
-        /*  removed on 2017-10-24
-        int tempHeight = gridHeight + nextBallsViewHeight + buttonAreaHeight;
-        if (tempHeight > screenHeight) {
-            // width of used screen is greater than height of used screen
-            gridHeight = screenHeight - nextBallsViewHeight - buttonAreaHeight;
-            gridWidth = gridHeight;
-            nextBallsViewWidth = (int) (((float) gridWidth * nextBallPart));
-            nextBallsViewHeight = nextBallsViewWidth / 4;
-        }
-        */
-
         if (gridHeight < (10 * 9)) {
             return;
         }
@@ -247,15 +237,18 @@ public class MyActivity extends AppCompatActivity {
         currentScoreView.setWidth((int) ((float) gridWidth * scoreTextPart));
         currentScoreView.setHeight(nextBallsViewHeight / 2);
 
-        nextBallsView = (ImageView) findViewById(R.id.nextBallsView);
+        ImageView nextBallsView = (ImageView) findViewById(R.id.nextBallsView);
         ViewGroup.LayoutParams nextBallsViewLp = nextBallsView.getLayoutParams();
         nextBallsViewLp.width = (nextBallsViewWidth / nextBallsNumber) * nextBallsNumber;
         nextBallsViewLp.height = nextBallsViewHeight;
 
+        ImageDraw nextBallsImageDraw = new ImageDraw(nextBallsView, nextBallsRow, nextBallsNumber, insideColor0, lineColor0);
+        nextBallsImageDraw.drawBase();
+
         GridLayout nextBallsLayout = (GridLayout) findViewById(R.id.nextBallsLayout);
         ViewGroup.LayoutParams nextBallsLp = nextBallsLayout.getLayoutParams();
-        nextBallsLp.width = nextBallsViewLp.width;
-        nextBallsLp.height = nextBallsViewLp.height;
+        nextBallsLp.width = nextBallsViewWidth;
+        nextBallsLp.height = nextBallsViewHeight;
         nextBallsLayout.setRowCount(nextBallsRow);
         nextBallsLayout.setColumnCount(nextBallsNumber);
 
@@ -266,9 +259,6 @@ public class MyActivity extends AppCompatActivity {
         oneNextBallLp.gravity = Gravity.CENTER;
 
         ImageView imageView = null;
-
-        nextBallsImageDraw = new ImageDraw(nextBallsView, nextBallsRow, nextBallsNumber, insideColor0, lineColor0);
-        nextBallsImageDraw.drawBase();
 
         for (int i = 0; i < nextBallsRow; i++) {
             for (int j = 0; j < nextBallsNumber; j++) {
@@ -289,15 +279,29 @@ public class MyActivity extends AppCompatActivity {
 
         gridData = new GridData(rowCounts, colCounts, minBalls, maxBalls);
 
+        /*
         gridCellsView = (ImageView) findViewById(R.id.gridCellsView);
+        // added on 2018-05-28 for testing
+        gridCellsView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                Log.d("MainActivity", "----> mainView onTouch()");
+                System.out.println("mainView ---> onTouch()");
+                return true;
+            }
+        });
+        //
         ViewGroup.LayoutParams gridCellsViewLp = gridCellsView.getLayoutParams();
         gridCellsViewLp.width = cellWidth * colCounts;      // gridWidth
         gridCellsViewLp.height = cellHeight * rowCounts;    // gridHeight
+        */
 
         gridCellsLayout = (GridLayout) findViewById(R.id.gridCellsLayout);
         ViewGroup.LayoutParams gridCellsLp = gridCellsLayout.getLayoutParams();
-        gridCellsLp.width = gridCellsViewLp.width;
-        gridCellsLp.height = gridCellsViewLp.height;
+        // gridCellsLp.width = gridCellsViewLp.width;
+        gridCellsLp.width = gridWidth;
+        // gridCellsLp.height = gridCellsViewLp.height;
+        gridCellsLp.height = gridHeight;
         gridCellsLayout.setRowCount(rowCounts);
         gridCellsLayout.setColumnCount(colCounts);
 
@@ -364,6 +368,7 @@ public class MyActivity extends AppCompatActivity {
         */
 
 
+        // set listener for each ImageView
         for (int i = 0; i < rowCounts; i++) {
             for (int j = 0; j < colCounts; j++) {
                 imageView = new ImageView(this);
@@ -372,8 +377,8 @@ public class MyActivity extends AppCompatActivity {
 
                 imageView.setAdjustViewBounds(true);
                 imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-
                 imageView.setBackgroundResource(R.drawable.boximage);
+
                 imageView.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -382,6 +387,7 @@ public class MyActivity extends AppCompatActivity {
                         }
                     }
                 });
+
                 gridCellsLayout.addView(imageView, oneBallLp);
             }
         }
@@ -587,7 +593,6 @@ public class MyActivity extends AppCompatActivity {
         gridData.randCells();
 
         ImageView imageView = null;
-        // ImageDraw imageDraw = null;  // removed on 2018-01-02
 
         int numOneTime = gridData.getBallNumOneTime();
 
@@ -800,7 +805,7 @@ public class MyActivity extends AppCompatActivity {
         i = id / rowCounts;
         j = id % rowCounts;
         ImageView imageView = null;
-        ImageDraw imageDraw = null;
+        // ImageDraw imageDraw = null;
         if (status == 0) {
             if (gridData.getCellValue(i, j) != 0) {
                 if ((indexI == -1) && (indexJ == -1)) {
@@ -1365,7 +1370,3 @@ public class MyActivity extends AppCompatActivity {
         }
     }
 }
-
-
-
-

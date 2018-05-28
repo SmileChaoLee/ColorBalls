@@ -68,31 +68,13 @@
     </LinearLayout>
 
     <!-- Main part of the game (9 x 9) Grid -->
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/frameLayout1"
-        android:orientation="vertical"
+    <GridLayout
+        android:id="@+id/gridCellsLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical" >
-
-        <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/gridCellsView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_gravity="center"
-            android:layout_centerHorizontal="true" />
-
-        <GridLayout
-            android:id="@+id/gridCellsLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_gravity="center"
-            android:layout_centerHorizontal="true">
-        </GridLayout>
-
-    </FrameLayout>
+        android:layout_gravity="center"
+        android:layout_centerHorizontal="true">
+    </GridLayout>
 
     <!-- the undo button and history button -->
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"

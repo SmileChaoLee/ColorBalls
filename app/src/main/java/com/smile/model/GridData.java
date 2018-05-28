@@ -34,7 +34,7 @@ public class GridData {
     private int ballNumCompleted = 5;
 
     private List<Point> Light_line;
-    private List<Point> noColorList;
+    // private List<Point> noColorList;
     private List<Point> pathPoint;
 
     private Random random = null;
@@ -104,7 +104,7 @@ public class GridData {
         cellValue = new int[rowCounts][colCounts];
         backupCell = new int[rowCounts][colCounts];
         Light_line = new ArrayList<Point>();
-        noColorList = new ArrayList<Point>();
+        // noColorList = new ArrayList<Point>();
         pathPoint   = new ArrayList<Point>();
 
         for (int i=0 ; i<rowCounts ; i++) {
@@ -186,13 +186,13 @@ public class GridData {
 
     public int getTotalBalls() {
         int nb=0;
-        noColorList.clear();
+        // noColorList.clear();
         for (int i=0 ; i<rowCounts ; i++) {
             for (int j=0 ; j<colCounts; j++) {
                 if (cellValue[i][j] != 0) {
                     nb++;
                 } else {
-                    noColorList.add(new Point(i,j));
+                    // noColorList.add(new Point(i,j));
                 }
             }
         }
@@ -464,6 +464,7 @@ public class GridData {
         }
     }
 
+    /* removed on 2018-05-28
     private void getNoColorList() {
         noColorList.clear();
         for (int i=0 ; i<rowCounts ; i++) {
@@ -474,6 +475,7 @@ public class GridData {
             }
         }
     }
+    */
 
     private void setStartCell(Point startCell) {
         this.startCell = startCell;
@@ -495,7 +497,7 @@ public class GridData {
 
         backupNextBalls();
         backupCellValue();
-        getNoColorList();
+        // getNoColorList();
 
         // pathPoint.clear();   // removed at 11:43 pm on 2017-10-19
 
