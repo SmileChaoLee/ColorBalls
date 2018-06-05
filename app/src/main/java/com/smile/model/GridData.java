@@ -566,11 +566,6 @@ public class GridData {
         return found;
     }
 
-    /*
-	precond:  level number
-	postcond: new constructed level and updated matrix
-    */
-
     private boolean addCell(Vector vector, Cell parent, int dx, int dy, Point target, HashSet<Point> traversed) {
         Point pTemp = new Point(parent.getCoordinate());
         pTemp.set(pTemp.x+dx,pTemp.y+dy);

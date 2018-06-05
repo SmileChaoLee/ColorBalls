@@ -392,6 +392,14 @@ public class MyActivity extends AppCompatActivity {
             }
         }
 
+        gridCellsLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                Log.d("MainActivity", "gridCellsLayout ---> onTouch()");
+                return false;
+            }
+        });
+
         displayGridDataNextCells();
 
         // for AdBuddiz ads
