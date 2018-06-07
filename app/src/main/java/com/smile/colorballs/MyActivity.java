@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.graphics.drawable.ColorDrawable;
 import android.app.FragmentManager;
@@ -24,6 +25,7 @@ import android.os.StrictMode;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -57,6 +59,7 @@ import com.smile.model.GridData;
 import com.smile.utility.ScreenUtl;
 import com.smile.utility.SoundUtl;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -67,6 +70,8 @@ import static android.view.View.OnClickListener;
 
 // public class MyActivity extends ActionBarActivity { // ActionBarActivity is deprecated
 public class MyActivity extends AppCompatActivity {
+
+    private String TAG = "com.smile.colorballs.MyActivity";
 
     private int screenWidth = 0;
     private int screenHeight = 0;
@@ -139,7 +144,8 @@ public class MyActivity extends AppCompatActivity {
         // autoRotate = android.provider.Settings.System.getInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
         // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);   // removed on 2018-06-07
+
 
         try {
             ViewConfiguration config = ViewConfiguration.get(this);
@@ -150,12 +156,6 @@ public class MyActivity extends AppCompatActivity {
             }
         } catch (Exception ex) {
             // Ignore
-        }
-
-        // the following is very important for JDBC connector
-        if (android.os.Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
         }
 
         fmManager = getFragmentManager();
@@ -173,18 +173,11 @@ public class MyActivity extends AppCompatActivity {
         scoreSQLite = new ScoreSQLite(MyActivity.this);
         highestScore = scoreSQLite.readHighestScore();
 
-        // scoreMySQL = new ScoreMySQL(MyActivity.this);    // removed on 2017-10-18
-
         indexI = -1;
         indexJ = -1;
         status = 0;
 
-        // frameLayout0 = (FrameLayout) findViewById(R.id.frameLayout0);    // removed on 2017-10-21
         Point size = new Point();
-
-        // Display d = ((WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        // Display display = getWindowManager().getDefaultDisplay();
-        // display.getSize(size);
         ScreenUtl.getScreenSize(MyActivity.this,size);
         screenWidth = size.x;
         screenHeight = size.y;
@@ -197,8 +190,21 @@ public class MyActivity extends AppCompatActivity {
         // keep navigation bar
         screenHeight = screenHeight - statusBarHeight - actionBarHeight;
 
-        gridWidth = screenWidth;
-        gridHeight = gridWidth;
+        try {
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                // Landscape
+                gridHeight = screenHeight;
+                gridWidth = gridHeight;
+            } else {
+                // Portrait
+                gridWidth = screenWidth;
+                gridHeight = gridWidth;
+            }
+        } catch (Exception ex) {
+            // exit application
+            ex.printStackTrace();
+            finish();
+        }
 
         int minButtonHeight = 30;
         float nextBallPart = 2.0f / 3.0f;  // 3.0f / 4.0f
@@ -278,23 +284,6 @@ public class MyActivity extends AppCompatActivity {
         int cellHeight = gridHeight / rowCounts;
 
         gridData = new GridData(rowCounts, colCounts, minBalls, maxBalls);
-
-        /*
-        gridCellsView = (ImageView) findViewById(R.id.gridCellsView);
-        // added on 2018-05-28 for testing
-        gridCellsView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                Log.d("MainActivity", "----> mainView onTouch()");
-                System.out.println("mainView ---> onTouch()");
-                return true;
-            }
-        });
-        //
-        ViewGroup.LayoutParams gridCellsViewLp = gridCellsView.getLayoutParams();
-        gridCellsViewLp.width = cellWidth * colCounts;      // gridWidth
-        gridCellsViewLp.height = cellHeight * rowCounts;    // gridHeight
-        */
 
         gridCellsLayout = (GridLayout) findViewById(R.id.gridCellsLayout);
         ViewGroup.LayoutParams gridCellsLp = gridCellsLayout.getLayoutParams();
@@ -504,7 +493,8 @@ public class MyActivity extends AppCompatActivity {
         */
 
         // added on 2018-05-24
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);    // restore the orientation configuration
+        // and removed on 2018-06-07
+        // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);    // restore the orientation configuration
     }
 
     @Override
@@ -970,54 +960,6 @@ public class MyActivity extends AppCompatActivity {
                 } else {
                     // gridData.randCells();    // moved to displayGridDataNextCells() on 2018-01-02
                     displayGridDataNextCells();   // has a problem
-
-                    // moved to displayGridDataNextCells() on 2018-01-02
-                    /*
-                    if (gridData.getGameOver()) {
-                        //  game over
-                        final TextView tv = new TextView(MyActivity.this);
-                        tv.setTextSize(40);
-                        tv.setTypeface(Typeface.DEFAULT);
-                        tv.setTextColor(Color.BLUE);
-                        tv.setText(gameOverStr);
-                        tv.setGravity(Gravity.CENTER);
-                        AlertDialog alertDialog = new AlertDialog.Builder(MyActivity.this).create();
-                        alertDialog.setTitle(null);
-                        alertDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                        alertDialog.setCancelable(false);
-                        alertDialog.setView(tv);
-                        alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, noStr, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                                recordScore(0);   //   Ending the game
-
-                                AdBuddiz.showAd(MyActivity.this);
-                                // AdBuddiz.RewardedVideo.show(MyActivity.this); // this = current Activity
-                            }
-                        });
-                        alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, yesStr, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                                newGame();
-
-                                AdBuddiz.showAd(MyActivity.this);
-                                // AdBuddiz.RewardedVideo.show(MyActivity.this); // this = current Activity
-                            }
-                        });
-
-                        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                            @Override
-                            public void onShow(DialogInterface dialog) {
-                                setDialogStyle(dialog);
-                            }
-                        });
-
-                        alertDialog.show();
-                    }
-                    */
-
                 }
             }
         });
@@ -1200,7 +1142,7 @@ public class MyActivity extends AppCompatActivity {
         }
     }
 
-    private class StartHistoryScore extends AsyncTask<Void,Integer,String[]> {
+    private class StartHistoryScore extends AsyncTask<Void,Integer,ArrayList<Pair<String, Integer>>> {
         private Animation animationText = null;
         private ModalDialogFragment loadingDialog = null;
 
@@ -1224,15 +1166,15 @@ public class MyActivity extends AppCompatActivity {
             animationText.setRepeatMode(Animation.REVERSE);
             animationText.setRepeatCount(Animation.INFINITE);
 
-            // loadingDialog.show(fmManager,"History");
             loadingDialog.showDialogFragment(MyActivity.this);
         }
 
         @Override
-        protected String[] doInBackground(Void... params) {
+        protected ArrayList<Pair<String, Integer>> doInBackground(Void... params) {
             int i = 0;
             publishProgress(i);
-            String[] result = scoreSQLite.read10HighestScore();
+            // String[] result = scoreSQLite.read10HighestScore();
+            ArrayList<Pair<String, Integer>> resultList = scoreSQLite.readTop10ScoreList();
 
             // wait for one second
             try { Thread.sleep(1000); } catch (InterruptedException ex) { ex.printStackTrace(); }
@@ -1240,7 +1182,8 @@ public class MyActivity extends AppCompatActivity {
             i = 1;
             publishProgress(i);
 
-            return result;
+            // return result;
+            return resultList;
         }
 
         @Override
@@ -1262,16 +1205,25 @@ public class MyActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(String[] result) {
+        protected void onPostExecute(ArrayList<Pair<String, Integer>> resultList) {
             if (!isCancelled()) {
-
                 loadingDialog.dismiss();
 
-                Intent i = new Intent(getApplicationContext(), HistoryActivity.class);
+                ArrayList<Pair<String, Integer>> top10 = scoreSQLite.readTop10ScoreList();
+                ArrayList<String> playerNames = new ArrayList<String>();
+                ArrayList<Integer> playerScores = new ArrayList<Integer>();
+                for (Pair pair : top10) {
+                    playerNames.add((String)pair.first);
+                    playerScores.add((Integer)pair.second);
+                }
+
+                Intent intent = new Intent(getApplicationContext(), HistoryActivity.class);
                 Bundle extras = new Bundle();
-                extras.putStringArray("resultStr", result);
-                i.putExtras(extras);
-                startActivity(i);
+                extras.putStringArrayList("Top10Players", playerNames);
+                extras.putIntegerArrayList("Top10Scores", playerScores);
+                intent.putExtras(extras);
+
+                startActivity(intent);
             }
             AdBuddiz.showAd(MyActivity.this);   // added on 2017-10-24
         }

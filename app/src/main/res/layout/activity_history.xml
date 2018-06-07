@@ -17,7 +17,7 @@
         android:text="@string/highScore" />
 
     <ListView
-        android:id="@android:id/list"
+        android:id="@+id/top10ListView"
         android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
