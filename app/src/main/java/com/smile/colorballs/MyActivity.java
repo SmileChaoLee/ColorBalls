@@ -144,8 +144,7 @@ public class MyActivity extends AppCompatActivity {
         // autoRotate = android.provider.Settings.System.getInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
         // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
-        // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);   // removed on 2018-06-07
-
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);   // removed on 2018-06-07
 
         try {
             ViewConfiguration config = ViewConfiguration.get(this);
@@ -189,22 +188,9 @@ public class MyActivity extends AppCompatActivity {
 
         // keep navigation bar
         screenHeight = screenHeight - statusBarHeight - actionBarHeight;
-
-        try {
-            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                // Landscape
-                gridHeight = screenHeight;
-                gridWidth = gridHeight;
-            } else {
-                // Portrait
-                gridWidth = screenWidth;
-                gridHeight = gridWidth;
-            }
-        } catch (Exception ex) {
-            // exit application
-            ex.printStackTrace();
-            finish();
-        }
+        // Portrait
+        gridWidth = screenWidth;
+        gridHeight = gridWidth;
 
         int minButtonHeight = 30;
         float nextBallPart = 2.0f / 3.0f;  // 3.0f / 4.0f
@@ -494,7 +480,7 @@ public class MyActivity extends AppCompatActivity {
 
         // added on 2018-05-24
         // and removed on 2018-06-07
-        // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);    // restore the orientation configuration
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);    // restore the orientation configuration
     }
 
     @Override
