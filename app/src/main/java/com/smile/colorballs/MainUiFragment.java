@@ -1,37 +1,29 @@
 package com.smile.colorballs;
 
-// import android.app.AlertDialog;
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.graphics.drawable.ColorDrawable;
-import android.app.FragmentManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.StrictMode;
 import android.os.SystemClock;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.util.Pair;
 import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
@@ -40,88 +32,70 @@ import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.purplebrain.adbuddiz.sdk.AdBuddiz;
-// import com.purplebrain.adbuddiz.sdk.AdBuddizRewardedVideoDelegate;
-// import com.purplebrain.adbuddiz.sdk.AdBuddizRewardedVideoError;
-// import com.smile.dao.ScoreMySQL; // removed on 2017-10-18
-
-// import com.smile.dao.ScoreSQLite;
-import com.smile.scoresqlite.*;
-
-
 import com.smile.draw.ImageDraw;
 import com.smile.model.GridData;
+import com.smile.scoresqlite.ScoreSQLite;
 import com.smile.utility.ScreenUtl;
 import com.smile.utility.SoundUtl;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import static android.view.View.OnClickListener;
 
-// public class MyActivity extends ActionBarActivity { // ActionBarActivity is deprecated
-public class MyActivity extends AppCompatActivity {
+/**
+ * A simple {@link Fragment} subclass.
+ * Activities that contain this fragment must implement the
+ * {@link MainUiFragment.OnFragmentInteractionListener} interface
+ * to handle interaction events.
+ * Use the {@link MainUiFragment#newInstance} factory method to
+ * create an instance of this fragment.
+ */
+public class MainUiFragment extends Fragment {
 
-    private String TAG = "com.smile.colorballs.MyActivity";
+    // public properties
+    public final static int MINB = 3;
+    public final static int MAXB = 4;
 
-    private int screenWidth = 0;
-    private int screenHeight = 0;
+    // private properties for this color balls game
+    private OnFragmentInteractionListener mListener;
 
-    // private FrameLayout frameLayout0 = null; // removed on 2017-10-21
+    private String TAG = "com.smile.colorballs.MainUiFragment";
+    private final int nextBallsNumber = 4;
+    private final int nextBallsViewIdStart = 100;
+    private final int insideColor0 = 0xFFA4FF13;
+    private final int lineColor0 = 0xFFFF1627;
+
+    private ScoreSQLite scoreSQLite = null;
+    private Context context = null;
+    private MainActivity mainActivity = null;
+    private View uiFragmentView = null;
 
     private TextView highestScoreView = null;
     private TextView currentScoreView = null;
 
-    // private ImageView nextBallsView = null;
-    // private ImageDraw nextBallsImageDraw = null;
-    private int nextBallsViewWidth = 0;
-    private int nextBallsViewHeight = 0;
-    private int nextBallsRow = 1;
-    private int nextBallsNumber = 4;
-    private int nextBallsViewIdStart = 100;
-    private int insideColor0 = 0xFFA4FF13;
-    private int lineColor0 = 0xFFFF1627;
-
-    private ImageView gridCellsView = null;
-    private GridLayout gridCellsLayout = null;
-    private int gridWidth = 760;
-    private int gridHeight = 800;
+    private GridData gridData;
     private int rowCounts = 9;
     private int colCounts = 9;
-    private int MINB = 3, MAXB = 4;
-    private int minBalls = MINB, maxBalls = MINB;
-    private MenuItem registerMenuItemEasy = null;
-    private MenuItem registerMenuItemDifficult = null;
-
-    private int highestScore = 0;
-    private int currentScore = 0;
-    private int undoScore = 0;
-
-    private GridData gridData;
-    private ScoreSQLite scoreSQLite = null;
-    // private ScoreMySQL scoreMySQL = null;    // removed on 2017-10-18
-
-    private Runnable bouncyRunnable = null;
-    private Handler bouncyHandler = null;
-
     private boolean[] threadCompleted =  {true,true,true,true,true,true,true,true,true,true};
-
-    // private int autoRotate = 1;
 
     private int indexI = -1, indexJ = -1;   // the array index that the ball has been selected
     private int status = 0; //  no cell selected
     //  one cell with a ball selected
-
     private boolean undoEnable = false;
+    private int highestScore = 0;
+    private int currentScore = 0;
+    private int undoScore = 0;
+    private boolean easyLevel = true;
+
+    private Runnable bouncyRunnable = null; // needed to be tested 2018-0609
+    private Handler bouncyHandler = null;   // needed to be tested
 
     private String yesStr = new String("");
     private String noStr = new String("");
@@ -129,35 +103,29 @@ public class MyActivity extends AppCompatActivity {
     private String submitStr = new String("");
     private String cancelStr = new String("");
     private String gameOverStr = new String("");
-    private String undoStr = new String("");
-    private String historyStr = new String("");
 
-    private FragmentManager fmManager = null;
+    public MainUiFragment() {
+        // Required empty public constructor
+    }
+
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @return A new instance of fragment MainUiFragment.
+     */
+    // TODO: Rename and change types and number of parameters
+    public static MainUiFragment newInstance() {
+        MainUiFragment fragment = new MainUiFragment();
+        return fragment;
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_my);
-
-        // removed on 2017-10-24
-        // autoRotate = android.provider.Settings.System.getInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
-        // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);   // removed on 2018-06-07
-
-        try {
-            ViewConfiguration config = ViewConfiguration.get(this);
-            Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
-            if (menuKeyField != null) {
-                menuKeyField.setAccessible(true);
-                menuKeyField.setBoolean(config, false);
-            }
-        } catch (Exception ex) {
-            // Ignore
-        }
-
-        fmManager = getFragmentManager();
+        context = getActivity();
+        mainActivity = (MainActivity)context;
 
         // string constant
         yesStr = getResources().getString(R.string.yesStr);
@@ -166,119 +134,58 @@ public class MyActivity extends AppCompatActivity {
         submitStr = getResources().getString(R.string.submitStr);
         cancelStr = getResources().getString(R.string.cancelStr);
         gameOverStr = getResources().getString(R.string.gameOverStr);
-        undoStr = getResources().getString(R.string.undoStr);
-        historyStr = getResources().getString(R.string.historyStr);
+    }
 
-        scoreSQLite = new ScoreSQLite(MyActivity.this);
-        highestScore = scoreSQLite.readHighestScore();
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
 
-        indexI = -1;
-        indexJ = -1;
-        status = 0;
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.layout_for_main_ui_fragment, container, false);
+
+        highestScoreView = (TextView) view.findViewById(R.id.highestScoreTextView);
+        currentScoreView = (TextView) view.findViewById(R.id.currentScoreTextView);
 
         Point size = new Point();
-        ScreenUtl.getScreenSize(MyActivity.this,size);
-        screenWidth = size.x;
-        screenHeight = size.y;
-
-        // following are for testing
-
-        int statusBarHeight = ScreenUtl.getStatusBarHeight(MyActivity.this);
-        int actionBarHeight = ScreenUtl.getActionBarHeight(MyActivity.this);
+        ScreenUtl.getScreenSize(context, size);
+        int screenWidth = size.x;
+        int screenHeight = size.y;
+        int statusBarHeight = ScreenUtl.getStatusBarHeight(context);
+        int actionBarHeight = ScreenUtl.getActionBarHeight(context);
 
         // keep navigation bar
         screenHeight = screenHeight - statusBarHeight - actionBarHeight;
-        // Portrait
-        gridWidth = screenWidth;
-        gridHeight = gridWidth;
 
-        int minButtonHeight = 30;
-        float nextBallPart = 2.0f / 3.0f;  // 3.0f / 4.0f
-        float scoreTextPart = 1.0f - nextBallPart;
-
-        nextBallsViewWidth = (int) (((float) gridWidth * nextBallPart));
-        nextBallsViewHeight = (int) ((float) nextBallsViewWidth / 4.0);
-
-        // int buttonAreaHeight = 60;
-        int buttonAreaHeight = screenHeight - gridHeight - nextBallsViewHeight;
-        if (buttonAreaHeight < minButtonHeight) {
-            // if the height of button area is less than 30 pixels
-            // then set it to 30
-            buttonAreaHeight = minButtonHeight;
-            // shrink the height of next balls view
-            nextBallsViewHeight = screenHeight - gridHeight - buttonAreaHeight;
-        }
-        if (nextBallsViewHeight < minButtonHeight) {
-            // min height is 30
-            // adjust the gridHeight
-            gridHeight = gridHeight - (minButtonHeight - nextBallsViewHeight);
-            nextBallsViewHeight = minButtonHeight;
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // Landscape
+            screenWidth = screenWidth / 2;  // for this fragment is half a screenWidth
         }
 
-        if (gridHeight < (10 * 9)) {
-            return;
+        LinearLayout.LayoutParams vLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.MATCH_PARENT);
+        vLP.width = screenWidth;
+        vLP.height = screenHeight;
+        view.setLayoutParams(vLP);
+
+        GridLayout gridCellsLayout = (GridLayout) view.findViewById(R.id.gridCellsLayout);
+        rowCounts = gridCellsLayout.getRowCount();
+        colCounts = gridCellsLayout.getColumnCount();
+
+        easyLevel = true;   // start with easy level
+        gridData = new GridData(rowCounts, colCounts, MINB, MINB);  // easy level (3 balls for next balls)
+
+        int cellWidth = screenWidth / colCounts;
+        int eight10thOfHeight = ((int)(screenHeight/10)) * 8;
+        if ( screenWidth >  eight10thOfHeight) {
+            // if screen width greater than 8-10th of screen height
+            cellWidth = eight10thOfHeight / rowCounts;
         }
+        int cellHeight = cellWidth;
 
-        highestScoreView = (TextView) findViewById(R.id.highestScoreTextView);
-
-        ViewGroup.LayoutParams textLP = highestScoreView.getLayoutParams();
-        highestScoreView.setWidth((int) ((float) gridWidth * scoreTextPart));
-        highestScoreView.setHeight(nextBallsViewHeight / 2);
-
-        currentScoreView = (TextView) findViewById(R.id.currentScoreTextView);
-        currentScoreView.setWidth((int) ((float) gridWidth * scoreTextPart));
-        currentScoreView.setHeight(nextBallsViewHeight / 2);
-
-        ImageView nextBallsView = (ImageView) findViewById(R.id.nextBallsView);
-        ViewGroup.LayoutParams nextBallsViewLp = nextBallsView.getLayoutParams();
-        nextBallsViewLp.width = (nextBallsViewWidth / nextBallsNumber) * nextBallsNumber;
-        nextBallsViewLp.height = nextBallsViewHeight;
-
-        ImageDraw nextBallsImageDraw = new ImageDraw(nextBallsView, nextBallsRow, nextBallsNumber, insideColor0, lineColor0);
-        nextBallsImageDraw.drawBase();
-
-        GridLayout nextBallsLayout = (GridLayout) findViewById(R.id.nextBallsLayout);
-        ViewGroup.LayoutParams nextBallsLp = nextBallsLayout.getLayoutParams();
-        nextBallsLp.width = nextBallsViewWidth;
-        nextBallsLp.height = nextBallsViewHeight;
-        nextBallsLayout.setRowCount(nextBallsRow);
-        nextBallsLayout.setColumnCount(nextBallsNumber);
-
-        LinearLayout.LayoutParams oneNextBallLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        oneNextBallLp.width = nextBallsLp.width / nextBallsNumber;
-        oneNextBallLp.height = nextBallsLp.height / nextBallsRow;
-        oneNextBallLp.gravity = Gravity.CENTER;
-
-        ImageView imageView = null;
-
-        for (int i = 0; i < nextBallsRow; i++) {
-            for (int j = 0; j < nextBallsNumber; j++) {
-                imageView = new ImageView(this);
-                imageView.setId(nextBallsViewIdStart + (nextBallsNumber * i + j));
-                imageView.setClickable(false);
-                imageView.setAdjustViewBounds(true);
-                imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-                nextBallsLayout.addView(imageView, oneNextBallLp);
-            }
-        }
-
-        highestScoreView.setText(String.format("%9d", highestScore));
-        currentScoreView.setText(String.format("%9d", currentScore));
-
-        int cellWidth = gridWidth / colCounts;
-        int cellHeight = gridHeight / rowCounts;
-
-        gridData = new GridData(rowCounts, colCounts, minBalls, maxBalls);
-
-        gridCellsLayout = (GridLayout) findViewById(R.id.gridCellsLayout);
-        ViewGroup.LayoutParams gridCellsLp = gridCellsLayout.getLayoutParams();
-        // gridCellsLp.width = gridCellsViewLp.width;
-        gridCellsLp.width = gridWidth;
-        // gridCellsLp.height = gridCellsViewLp.height;
-        gridCellsLp.height = gridHeight;
-        gridCellsLayout.setRowCount(rowCounts);
-        gridCellsLayout.setColumnCount(colCounts);
+        LinearLayout.LayoutParams gridLp = (LinearLayout.LayoutParams) gridCellsLayout.getLayoutParams();
+        gridLp.width = cellWidth * colCounts;
+        // gridLp.height = cellHeight * rowCounts;  // violates the layout_weight for (layout_height = 0dp)
+        gridLp.gravity = Gravity.CENTER;
+        // gridCellsLayout.setLayoutParams(gridLp); // no needed
 
         LinearLayout.LayoutParams oneBallLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -286,75 +193,19 @@ public class MyActivity extends AppCompatActivity {
         oneBallLp.height = cellHeight;
         oneBallLp.gravity = Gravity.CENTER;
 
-        // set LinearLayout for buttons
-        LinearLayout bLayout = (LinearLayout) findViewById(R.id.linearlayout_for_buttons_in_mainactivity);
-        ViewGroup.LayoutParams buttonsLp = bLayout.getLayoutParams();
-        buttonsLp.width = gridWidth;
-        int areaHeight = buttonAreaHeight - 20;   // not too close to navigation bar
-        buttonsLp.height = areaHeight;
-
-        if (areaHeight > 200) {
-            // if the height of this area more than 150 * 2 pixels
-            // then divide it to tw part, 1st part for buttons, 2nd part for ads or others
-            buttonsLp.height = 200;
-            System.out.println("the height of button area is 200 pixels.");
-        }
-
-        Button undoButton = (Button) findViewById(R.id.undoButton);
-        undoButton.setTextColor(Color.RED);
-        undoButton.setTypeface(undoButton.getTypeface(),Typeface.BOLD_ITALIC);
-        undoButton.setTextSize(20);
-        undoButton.setText(undoStr);
-        undoButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                undoTheLast();
-                AdBuddiz.showAd(MyActivity.this);   // added on 2017-11-11
-            }
-        });
-
-        Button historyButton = (Button) findViewById(R.id.historyButton);
-        historyButton.setTextColor(Color.RED);
-        historyButton.setTypeface(historyButton.getTypeface(), Typeface.BOLD_ITALIC);
-        historyButton.setTextSize(20);
-        historyButton.setText(historyStr);
-        historyButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                new StartHistoryScore().execute();
-            }
-        });
-
-        // removed globalButton on 2017-10-18 at 00:54 am by Chao Lee
-        /*
-        Button globalButton = (Button) findViewById(R.id.globalButton);
-        globalButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                threadCompleted[7] = false;
-
-                new startGlobalRanking().execute();
-
-                threadCompleted[7] = true;
-            }
-        });
-        */
-
-
         // set listener for each ImageView
+        ImageView imageView;
+        int imId = 0;
         for (int i = 0; i < rowCounts; i++) {
             for (int j = 0; j < colCounts; j++) {
-                imageView = new ImageView(this);
-                imageView.setId((i * colCounts + j));
-                imageView.setClickable(true);
-
+                imId = i * colCounts + j;
+                imageView = new ImageView(context);
+                imageView.setId(imId);
                 imageView.setAdjustViewBounds(true);
                 imageView.setScaleType(ImageView.ScaleType.FIT_XY);
                 imageView.setBackgroundResource(R.drawable.boximage);
-
-                imageView.setOnClickListener(new OnClickListener() {
+                imageView.setClickable(true);
+                imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         if(completedAll()) {
@@ -362,17 +213,77 @@ public class MyActivity extends AppCompatActivity {
                         }
                     }
                 });
+                gridCellsLayout.addView(imageView, imId, oneBallLp);
 
-                gridCellsLayout.addView(imageView, oneBallLp);
             }
         }
 
-        displayGridDataNextCells();
+        Button undoButton = (Button) view.findViewById(R.id.undoButton);
+        undoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                undoTheLast();
+            }
+        });
 
-        // for AdBuddiz ads
-        AdBuddiz.setPublisherKey("57c7153c-35dd-488a-beaa-3cae8b3ab668");
-        AdBuddiz.cacheAds(this); // this = current Activity
-        // AdBuddiz.RewardedVideo.fetch(this); // this = current Activity
+        Button historyButton = (Button) view.findViewById(R.id.historyButton);
+        historyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // new StartHistoryScore().execute();
+            }
+        });
+
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        uiFragmentView = view;
+    }
+
+    // TODO: Rename method, update argument and hook method into UI event
+    public void onButtonPressed(Uri uri) {
+        if (mListener != null) {
+            mListener.onFragmentInteraction(uri);
+        }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            mListener = new OnFragmentInteractionListener() {
+                @Override
+                public void onFragmentInteraction(Uri uri) {
+                    System.out.println("must implement OnFragmentInteractionListener --> Uri = " + uri);
+                }
+            };
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    /**
+     * This interface must be implemented by activities that contain this
+     * fragment to allow an interaction in this fragment to be communicated
+     * to the activity and potentially other fragments contained in that
+     * activity.
+     * <p>
+     * See the Android Training lesson <a href=
+     * "http://developer.android.com/training/basics/fragments/communicating.html"
+     * >Communicating with Other Fragments</a> for more information.
+     */
+    public interface OnFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onFragmentInteraction(Uri uri);
     }
 
     private boolean completedAll() {
@@ -382,186 +293,6 @@ public class MyActivity extends AppCompatActivity {
             }
         }
         return true;
-    }
-
-    /*
-    class delegate implements AdBuddizRewardedVideoDelegate {
-        @Override
-        public void didComplete() {
-        }
-
-        // optional
-        public void didFetch() {       // a video is ready to be displayed
-        }
-        public void didFail(AdBuddizRewardedVideoError error) { // SDK was unable to fetch or show a video
-        }
-        public void didNotComplete() { // an error happened during video playback
-        }
-    }
-    */
-
-    @Override
-    public void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        // removed on 2017-10-24
-        /*
-        Context ctx = MyActivity.this;
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        if (android.os.Build.VERSION.SDK_INT >=23) {
-            if (!Settings.System.canWrite(this)) {
-                final Object lock = new Object();
-                Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
-                intent.setData(Uri.parse("package:" + ctx.getPackageName()));
-                startActivity(intent);
-            }
-        }
-
-        try {
-            android.provider.Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, autoRotate);
-            System.out.println("onResume --> Succeeded to set screen rotation setting.");
-        } catch (Exception e) {
-            System.out.println("onResume --> Failed to set screen rotation setting.");
-            e.printStackTrace();
-        }
-        */
-
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    public void onRestart() {
-        super.onRestart();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        // removed on 2017-10-24
-        /*
-        try {
-            if (android.os.Build.VERSION.SDK_INT >= 23) {
-                if (Settings.System.canWrite(MyActivity.this)) {
-                    android.provider.Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, autoRotate);
-                }
-            } else {
-                // under Api Level 23, no need to ask permission
-                android.provider.Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, autoRotate);
-            }
-            System.out.println("onDestroy()--> Succeeded to set screen rotation setting.");
-        } catch (Exception e) {
-            System.out.println("onDestroy()--> Failed to set screen rotation setting.");
-            e.printStackTrace();
-        }
-        */
-
-        // added on 2018-05-24
-        // and removed on 2018-06-07
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);    // restore the orientation configuration
-    }
-
-    @Override
-    public void onBackPressed() {
-        // capture the event of back button when it is pressed
-        // change back button behavior
-        finish();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.my, menu);
-        MenuItem registerMenuItemEndGame = menu.findItem(R.id.quitGame);
-        registerMenuItemEndGame.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        MenuItem registerMenuItemNewGame = menu.findItem(R.id.newGame);
-        registerMenuItemNewGame.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        MenuItem registerMenuItemOption = menu.findItem(R.id.option);
-        registerMenuItemOption.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-
-        registerMenuItemEasy = menu.findItem(R.id.easyLevel);
-        registerMenuItemDifficult = menu.findItem(R.id.difficultLevel);
-
-        if (maxBalls == MAXB) {
-            registerMenuItemDifficult.setChecked(true);
-            registerMenuItemEasy.setChecked(false);
-        }
-        else {
-            registerMenuItemDifficult.setChecked(false);
-            registerMenuItemEasy.setChecked(true);
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.quitGame) {
-
-            // removed on 2017-10-24
-            // Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, autoRotate);
-
-            recordScore(0);   //   from   END PROGRAM
-
-            AdBuddiz.showAd(this);
-            // AdBuddiz.RewardedVideo.show(this); // this = current Activity
-
-            return true;
-        }
-        if (id == R.id.newGame) {
-            newGame();
-            AdBuddiz.showAd(this);
-            return true;
-        }
-        if (id == R.id.easyLevel) {
-            minBalls = MINB;
-            maxBalls = MINB;
-            item.setChecked(true);
-            registerMenuItemDifficult.setChecked(false);
-            gridData.setMinBallsOneTime(minBalls);
-            gridData.setMaxBallsOneTime(maxBalls);
-            displayNextColorBalls();
-
-            AdBuddiz.showAd(this);
-            // AdBuddiz.showAd(this);
-            // AdBuddiz.RewardedVideo.show(this); // this = current Activity
-
-            return true;
-        }
-        if (id == R.id.difficultLevel) {
-            minBalls = MINB;
-            maxBalls = MAXB;
-            item.setChecked(true);
-            registerMenuItemEasy.setChecked(false);
-            gridData.setMinBallsOneTime(minBalls);
-            gridData.setMaxBallsOneTime(maxBalls);
-            displayNextColorBalls();
-
-            AdBuddiz.showAd(this);
-            // AdBuddiz.showAd(this);
-            // AdBuddiz.RewardedVideo.show(this); // this = current Activity
-
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     private void displayGridDataNextCells() {
@@ -581,7 +312,7 @@ public class MyActivity extends AppCompatActivity {
             n2 = indexj[i];
             if ((n1 >= 0) && (n2 >= 0)) {
                 id = n1 * colCounts + n2;
-                imageView = (ImageView) findViewById(id);
+                imageView = (ImageView) uiFragmentView.findViewById(id);
                 drawBall(imageView,gridData.getCellValue(n1, n2));
             }
         }
@@ -620,7 +351,7 @@ public class MyActivity extends AppCompatActivity {
                     public void button1OnClick(ModalDialogFragment dialogFragment) {
                         dialogFragment.dismiss();
                         recordScore(0);   //   Ending the game
-                        AdBuddiz.showAd(MyActivity.this);
+                        AdBuddiz.showAd(mainActivity);
                         // AdBuddiz.RewardedVideo.show(MyActivity.this); // this = current Activity
                     }
 
@@ -628,7 +359,7 @@ public class MyActivity extends AppCompatActivity {
                     public void button2OnClick(ModalDialogFragment dialogFragment) {
                         dialogFragment.dismiss();
                         newGame();
-                        AdBuddiz.showAd(MyActivity.this);
+                        AdBuddiz.showAd(mainActivity);
                         // AdBuddiz.RewardedVideo.show(MyActivity.this); // this = current Activity
                     }
                 });
@@ -639,51 +370,7 @@ public class MyActivity extends AppCompatActivity {
                 args.putInt("height", 0);   // wrap_content
                 args.putInt("numButtons", 2);
                 mDialogFragment.setArguments(args);
-                mDialogFragment.showDialogFragment(MyActivity.this);
-
-                // removed on 2018-01-02 for testing
-                /*
-                final TextView tv = new TextView(MyActivity.this);
-                tv.setTextSize(40);
-                tv.setTypeface(Typeface.DEFAULT);
-                tv.setTextColor(Color.BLUE);
-                tv.setText(gameOverStr);
-                tv.setGravity(Gravity.CENTER);
-                AlertDialog alertDialog = new AlertDialog.Builder(MyActivity.this).create();
-                alertDialog.setTitle(null);
-                alertDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                alertDialog.setCancelable(false);
-                alertDialog.setView(tv);
-                alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, noStr, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        recordScore(0);   //   Ending the game
-
-                        AdBuddiz.showAd(MyActivity.this);
-                        // AdBuddiz.RewardedVideo.show(MyActivity.this); // this = current Activity
-                    }
-                });
-                alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, yesStr, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        newGame();
-
-                        AdBuddiz.showAd(MyActivity.this);
-                        // AdBuddiz.RewardedVideo.show(MyActivity.this); // this = current Activity
-                    }
-                });
-
-                alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(DialogInterface dialog) {
-                        setDialogStyle(dialog);
-                    }
-                });
-
-                alertDialog.show();
-                */
+                mDialogFragment.showDialogFragment(mainActivity);
             }
         }
 
@@ -699,12 +386,12 @@ public class MyActivity extends AppCompatActivity {
         //   display the balls on the nextBallsView
         int numOneTime = gridData.getBallNumOneTime();
         for (int i = 0 ; i < numOneTime ; i++) {
-            imageView = (ImageView) findViewById(nextBallsViewIdStart + i);
+            imageView = (ImageView) uiFragmentView.findViewById(nextBallsViewIdStart + i);
             imageDraw = new ImageDraw(imageView, 1, 1 , insideColor0 , lineColor0);
             imageDraw.drawBall(gridData.getNextBalls()[i]);
         }
         for (int i = numOneTime ; i<nextBallsNumber ; i++) {
-            imageView = (ImageView) findViewById(nextBallsViewIdStart + i);
+            imageView = (ImageView) uiFragmentView.findViewById(nextBallsViewIdStart + i);
             imageDraw = new ImageDraw(imageView, 1, 1 , insideColor0 , lineColor0);
             // imageDraw.clearCellImage();
             imageDraw.circleInsideSquare(insideColor0);
@@ -727,12 +414,12 @@ public class MyActivity extends AppCompatActivity {
 
         int numOneTime = gridData.getBallNumOneTime();
         for (int i = 0; i < numOneTime; i++) {
-            imageView = (ImageView) findViewById(nextBallsViewIdStart + i);
+            imageView = (ImageView) uiFragmentView.findViewById(nextBallsViewIdStart + i);
             imageDraw = new ImageDraw(imageView, 1, 1, insideColor0, lineColor0);
             imageDraw.drawBall(gridData.getNextBalls()[i]);
         }
         for (int i = numOneTime; i < nextBallsNumber; i++) {
-            imageView = (ImageView) findViewById(nextBallsViewIdStart + i);
+            imageView = (ImageView) uiFragmentView.findViewById(nextBallsViewIdStart + i);
             imageDraw = new ImageDraw(imageView, 1, 1, insideColor0, lineColor0);
             imageDraw.circleInsideSquare(insideColor0);
         }
@@ -741,7 +428,7 @@ public class MyActivity extends AppCompatActivity {
         for (int i = 0; i<rowCounts ; i++) {
             for (int j=0 ; j<colCounts ; j++ ) {
                 id = i * rowCounts + j;
-                imageView = (ImageView)findViewById(id);
+                imageView = (ImageView) uiFragmentView.findViewById(id);
                 color = gridData.getCellValue(i,j);
                 if (color == 0) {
                     imageView.setImageResource(R.drawable.boximage);
@@ -769,7 +456,7 @@ public class MyActivity extends AppCompatActivity {
 
     public void clearCell(int i, int j) {
         int id = i * colCounts + j;
-        ImageView imageView = (ImageView) findViewById(id);
+        ImageView imageView = (ImageView) uiFragmentView.findViewById(id);
         imageView.setImageResource(R.drawable.boximage);
         gridData.setCellValue(i, j, 0);
     }
@@ -819,7 +506,7 @@ public class MyActivity extends AppCompatActivity {
                         tone.release();
                         */
 
-                        SoundUtl.playUhOhSound(MyActivity.this);
+                        SoundUtl.playUhOhSound(context);
                         // SoundUtl.playTone();
                         // SoundUtl.playTone1();
                     }
@@ -830,7 +517,7 @@ public class MyActivity extends AppCompatActivity {
                     status = 0;
                     cancelBouncyTimer();
                     status = 1;
-                    imageView = (ImageView) findViewById(indexI * colCounts + indexJ);
+                    imageView = (ImageView) uiFragmentView.findViewById(indexI * colCounts + indexJ);
                     drawBall(imageView , gridData.getCellValue(indexI, indexJ));
                     drawBouncyBall((ImageView) v, gridData.getCellValue(i, j));
                     indexI = i;
@@ -890,12 +577,9 @@ public class MyActivity extends AppCompatActivity {
             @Override
             public void run() {
                 threadCompleted[0] = false;
-                // System.out.println("outside run, countDown = " + countDown);
                 if (countDown >= 2) {   // eliminate start point
                     int i = (int) (countDown / 2);
-                    // System.out.println("inside run, countDown = " + countDown);
-                    // System.out.println("inside run, i = " + i);
-                    imageView = (ImageView) findViewById(tempList.get(i).x * colCounts + tempList.get(i).y);
+                    imageView = (ImageView) uiFragmentView.findViewById(tempList.get(i).x * colCounts + tempList.get(i).y);
                     if (ballYN) {
                         drawBall(imageView, color);
                     } else {
@@ -916,31 +600,25 @@ public class MyActivity extends AppCompatActivity {
     }
 
     private void doNextAction(final int i,final int j) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-
-                ImageView v = (ImageView) findViewById(i * colCounts + j);
-                drawBall(v, gridData.getCellValue(i, j));
-                if (gridData.check_moreFive(i, j) == 1) {
-                    //  check if there are more than five balls with same color connected together
-                    // int numBalls = gridData.getLight_line().size();
-                    // scoreCalculate(numBalls);
-                    // twinkleLineBallsAndClearCell(gridData.getLight_line(), 1);
-                    HashSet<Point> hashPoint = new HashSet<>(gridData.getLight_line());
-                    // HashSet<Point> hashPoint = new HashSet<Point>();
-                    // for (Point item : gridData.getLight_line()) {
-                    //     hashPoint.add(item);
-                    // }
-                    threadCompleted[1] = false;
-                    CalculateScore calculateScore = new CalculateScore();
-                    calculateScore.execute(hashPoint);
-                } else {
-                    // gridData.randCells();    // moved to displayGridDataNextCells() on 2018-01-02
-                    displayGridDataNextCells();   // has a problem
-                }
-            }
-        });
+        // may need to run runOnUiThread()
+        ImageView v = (ImageView) uiFragmentView.findViewById(i * colCounts + j);
+        drawBall(v, gridData.getCellValue(i, j));
+        if (gridData.check_moreFive(i, j) == 1) {
+            //  check if there are more than five balls with same color connected together
+            // int numBalls = gridData.getLight_line().size();
+            // scoreCalculate(numBalls);
+            // twinkleLineBallsAndClearCell(gridData.getLight_line(), 1);
+            HashSet<Point> hashPoint = new HashSet<>(gridData.getLight_line());
+            // HashSet<Point> hashPoint = new HashSet<Point>();
+            // for (Point item : gridData.getLight_line()) {
+            //     hashPoint.add(item);
+            // }
+            threadCompleted[1] = false;
+            CalculateScore calculateScore = new CalculateScore();
+            calculateScore.execute(hashPoint);
+        } else {
+            displayGridDataNextCells();   // has a problem
+        }
     }
 
     private int scoreCalculate(int numBalls) {
@@ -958,14 +636,10 @@ public class MyActivity extends AppCompatActivity {
             score = score + minScore;
         }
 
-        if (maxBalls == MAXB) {
+        if (!easyLevel) {
             // difficult level
             score = score * 2;   // double of easy level
         }
-
-        // undoScore = currentScore;
-        // currentScore = currentScore + score;
-        // currentScoreView.setText(String.format("%9d", currentScore));
 
         return score;
     }
@@ -975,17 +649,12 @@ public class MyActivity extends AppCompatActivity {
     }
 
     private void flushALLandBegin() {
-
-        // added at 00:41 on 2017-10-20
-        if (Build.VERSION.SDK_INT >= 11) {
-            recreate(); // recreate the original activity
-        } else {
-            Intent intent = getIntent();
-            finish();
-            startActivity(intent);
-        }
+        // recreate this Fragment without recreating MainActivity
+        FragmentManager fm = mainActivity.getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.replace(mainActivity.getMainUiLayoutId(),newInstance(), MainActivity.uiFragmentTag);
+        ft.commit();
     }
-
 
     private void setDialogStyle(DialogInterface dialog) {
         AlertDialog dlg = (AlertDialog)dialog;
@@ -1012,14 +681,14 @@ public class MyActivity extends AppCompatActivity {
     }
 
     private void recordScore(final int entryPoint) {
-        final EditText et = new EditText(MyActivity.this);
+        final EditText et = new EditText(mainActivity);
         et.setTextSize(24);
         // et.setHeight(200);
         et.setTextColor(Color.BLUE);
         et.setBackground(new ColorDrawable(Color.TRANSPARENT));
         et.setHint(nameStr);
         et.setGravity(Gravity.CENTER);
-        AlertDialog alertD = new AlertDialog.Builder(MyActivity.this).create();
+        AlertDialog alertD = new AlertDialog.Builder(mainActivity).create();
         alertD.setTitle(null);
         alertD.requestWindowFeature(Window.FEATURE_NO_TITLE);
         alertD.setCancelable(false);
@@ -1030,7 +699,7 @@ public class MyActivity extends AppCompatActivity {
                 dialog.dismiss();
                 if (entryPoint==0) {
                     //  END PROGRAM
-                    finish();
+                    mainActivity.finish();
                 } else if (entryPoint==1) {
                     //  NEW GAME
                     flushALLandBegin();
@@ -1042,21 +711,9 @@ public class MyActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
 
-                // removed on 2017-10-18 at 01:02 am, no global ranking any more
-                /*
-                // create a thread for MySQL process to add score into Table
-                Thread threadMySQL = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        scoreMySQL.addHighestScore(et.getText().toString(), currentScore);
-                    }
-                });
-                threadMySQL.start();
-                */
-
                 scoreSQLite.addScore(et.getText().toString(),currentScore);
                 if (entryPoint==0) {
-                    finish();
+                    mainActivity.finish();
                 } else if (entryPoint==1) {
                     //  NEW GAME
                     flushALLandBegin();
@@ -1144,7 +801,7 @@ public class MyActivity extends AppCompatActivity {
             animationText.setRepeatMode(Animation.REVERSE);
             animationText.setRepeatCount(Animation.INFINITE);
 
-            loadingDialog.showDialogFragment(MyActivity.this);
+            loadingDialog.showDialogFragment(mainActivity);
         }
 
         @Override
@@ -1195,7 +852,7 @@ public class MyActivity extends AppCompatActivity {
                     playerScores.add((Integer)pair.second);
                 }
 
-                Intent intent = new Intent(getApplicationContext(), HistoryActivity.class);
+                Intent intent = new Intent(context, HistoryActivity.class);
                 Bundle extras = new Bundle();
                 extras.putStringArrayList("Top10Players", playerNames);
                 extras.putIntegerArrayList("Top10Scores", playerScores);
@@ -1203,7 +860,7 @@ public class MyActivity extends AppCompatActivity {
 
                 startActivity(intent);
             }
-            AdBuddiz.showAd(MyActivity.this);   // added on 2017-10-24
+            AdBuddiz.showAd(mainActivity);   // added on 2017-10-24
         }
     }
 
@@ -1269,18 +926,18 @@ public class MyActivity extends AppCompatActivity {
             switch (status[0]) {
                 case 0:
                     for (Point item : hashPoint) {
-                        ImageView v = (ImageView) findViewById(item.x * colCounts + item.y);
+                        ImageView v = (ImageView) uiFragmentView.findViewById(item.x * colCounts + item.y);
                         drawBall(v, color);
                     }
                     break;
                 case 1:
                     for (Point item : hashPoint) {
-                        ImageView v = (ImageView) findViewById(item.x * colCounts + item.y);
+                        ImageView v = (ImageView) uiFragmentView.findViewById(item.x * colCounts + item.y);
                         drawOval(v, color);
                     }
                     break;
                 case 2:
-                    scoreDialog.showDialogFragment(MyActivity.this);
+                    scoreDialog.showDialogFragment(mainActivity);
                     break;
                 case 3:
                     scoreDialog.dismiss();
@@ -1306,5 +963,13 @@ public class MyActivity extends AppCompatActivity {
 
             threadCompleted[1] = true;
         }
+    }
+
+    // public methods
+    public boolean getEasyLevel() {
+        return this.easyLevel;
+    }
+    public void setEasyLevel(boolean yn) {
+        this.easyLevel = yn;
     }
 }
