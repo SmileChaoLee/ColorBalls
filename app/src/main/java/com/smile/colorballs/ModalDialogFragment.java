@@ -2,10 +2,8 @@ package com.smile.colorballs;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.content.Context;
+import android.support.v4.app.DialogFragment;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -14,6 +12,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -192,8 +193,8 @@ public class ModalDialogFragment extends DialogFragment {
         }
     }
 
-    public void showDialogFragment(Activity activity) {
-        FragmentManager fmManager = activity.getFragmentManager();
+    public void showDialogFragment() {
+        FragmentManager fmManager = getActivity().getSupportFragmentManager();
         Fragment prev = fmManager.findFragmentByTag("dialog");
         FragmentTransaction ft = fmManager.beginTransaction();
         if (prev != null) {

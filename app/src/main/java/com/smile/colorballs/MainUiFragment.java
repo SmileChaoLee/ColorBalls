@@ -48,15 +48,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link MainUiFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link MainUiFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class MainUiFragment extends Fragment {
 
     // public properties
@@ -417,7 +408,7 @@ public class MainUiFragment extends Fragment {
                 args.putInt("height", 0);   // wrap_content
                 args.putInt("numButtons", 2);
                 mDialogFragment.setArguments(args);
-                mDialogFragment.showDialogFragment(mainActivity);
+                mDialogFragment.showDialogFragment();
             }
         }
 
@@ -772,7 +763,7 @@ public class MainUiFragment extends Fragment {
             animationText.setRepeatMode(Animation.REVERSE);
             animationText.setRepeatCount(Animation.INFINITE);
 
-            loadingDialog.showDialogFragment(mainActivity);
+            loadingDialog.showDialogFragment();
         }
 
         @Override
@@ -908,7 +899,7 @@ public class MainUiFragment extends Fragment {
                     }
                     break;
                 case 2:
-                    scoreDialog.showDialogFragment(mainActivity);
+                    scoreDialog.showDialogFragment();
                     break;
                 case 3:
                     scoreDialog.dismiss();

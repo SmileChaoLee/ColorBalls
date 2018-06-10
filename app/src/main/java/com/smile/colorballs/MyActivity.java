@@ -639,7 +639,7 @@ public class MyActivity extends AppCompatActivity {
                 args.putInt("height", 0);   // wrap_content
                 args.putInt("numButtons", 2);
                 mDialogFragment.setArguments(args);
-                mDialogFragment.showDialogFragment(MyActivity.this);
+                mDialogFragment.showDialogFragment();
 
                 // removed on 2018-01-02 for testing
                 /*
@@ -1144,7 +1144,7 @@ public class MyActivity extends AppCompatActivity {
             animationText.setRepeatMode(Animation.REVERSE);
             animationText.setRepeatCount(Animation.INFINITE);
 
-            loadingDialog.showDialogFragment(MyActivity.this);
+            loadingDialog.showDialogFragment();
         }
 
         @Override
@@ -1280,7 +1280,7 @@ public class MyActivity extends AppCompatActivity {
                     }
                     break;
                 case 2:
-                    scoreDialog.showDialogFragment(MyActivity.this);
+                    scoreDialog.showDialogFragment();
                     break;
                 case 3:
                     scoreDialog.dismiss();
