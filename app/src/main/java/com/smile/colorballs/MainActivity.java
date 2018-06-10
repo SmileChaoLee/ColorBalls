@@ -29,7 +29,7 @@ import com.smile.scoresqlite.ScoreSQLite;
 public class MainActivity extends AppCompatActivity {
 
     // public properties
-    public static final String uiFragmentTag = "UiFragmentForMainActivity";
+    public static final String MainUiFragmentTag = "MainUiFragmentForMainActivity";
 
     // private properties
     private String TAG = "com.smile.colorballs.MainActivity";
@@ -37,13 +37,16 @@ public class MainActivity extends AppCompatActivity {
     private int mainUiLayoutId;
     private MenuItem registerMenuItemEasy = null;
     private MenuItem registerMenuItemDifficult = null;
-    private MainUiFragment uiFragment = null;
+    private MainUiFragment mainUiFragment = null;
+
+    public MainActivity() {
+        System.out.println("MainActivity ---> Constructor");
+        scoreSQLite = new ScoreSQLite(MainActivity.this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        scoreSQLite = new ScoreSQLite(MainActivity.this);
 
         try {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -59,17 +62,13 @@ public class MainActivity extends AppCompatActivity {
         mainUiLayoutId = R.id.mainUiLayout;
 
         FragmentManager fmManager = getSupportFragmentManager();
-
-        MainUiFragment uiFragment = MainUiFragment.newInstance();
-
-        FragmentTransaction ft = fmManager.beginTransaction();
-        Fragment currentFragment = fmManager.findFragmentByTag(uiFragmentTag);
-        if (currentFragment == null) {
-            ft.add(mainUiLayoutId, uiFragment, uiFragmentTag);
-        } else {
-            ft.replace(mainUiLayoutId, uiFragment, uiFragmentTag);
+        mainUiFragment = (MainUiFragment) fmManager.findFragmentByTag(MainUiFragmentTag);
+        if (mainUiFragment == null) {
+            mainUiFragment = MainUiFragment.newInstance();
+            FragmentTransaction ft = fmManager.beginTransaction();
+            ft.add(mainUiLayoutId, mainUiFragment, MainUiFragmentTag);
+            ft.commit();
         }
-        ft.commit();
 
         // for AdBuddiz ads
         AdBuddiz.setPublisherKey("57c7153c-35dd-488a-beaa-3cae8b3ab668");
@@ -91,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         registerMenuItemEasy = menu.findItem(R.id.easyLevel);
         registerMenuItemDifficult = menu.findItem(R.id.difficultLevel);
 
-        if (uiFragment.getEasyLevel()) {
+        if (mainUiFragment.getEasyLevel()) {
             // easy level
             registerMenuItemDifficult.setChecked(false);
             registerMenuItemEasy.setChecked(true);
@@ -106,7 +105,54 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        return true;
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == R.id.quitGame) {
+
+            // removed on 2017-10-24
+            // Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, autoRotate);
+
+            mainUiFragment.recordScore(0);   //   from   END PROGRAM
+
+            AdBuddiz.showAd(this);
+            // AdBuddiz.RewardedVideo.show(this); // this = current Activity
+
+            return true;
+        }
+        if (id == R.id.newGame) {
+            mainUiFragment.newGame();
+            AdBuddiz.showAd(this);
+            return true;
+        }
+        if (id == R.id.easyLevel) {
+            item.setChecked(true);
+            registerMenuItemDifficult.setChecked(false);
+            mainUiFragment.getGridData().setMinBallsOneTime(MainUiFragment.MINB);
+            mainUiFragment.getGridData().setMaxBallsOneTime(MainUiFragment.MINB);
+            mainUiFragment.displayNextColorBalls();
+
+            AdBuddiz.showAd(this);
+            // AdBuddiz.showAd(this);
+            // AdBuddiz.RewardedVideo.show(this); // this = current Activity
+
+            return true;
+        }
+        if (id == R.id.difficultLevel) {
+            item.setChecked(true);
+            registerMenuItemEasy.setChecked(false);
+            mainUiFragment.getGridData().setMinBallsOneTime(MainUiFragment.MINB);
+            mainUiFragment.getGridData().setMaxBallsOneTime(MainUiFragment.MAXB);
+            mainUiFragment.displayNextColorBalls();
+
+            AdBuddiz.showAd(this);
+            // AdBuddiz.showAd(this);
+            // AdBuddiz.RewardedVideo.show(this); // this = current Activity
+
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

@@ -34,7 +34,7 @@
                 android:textColor="#ffff2dee"
                 android:background="#ff00ff00"
                 android:gravity="right|center_vertical"
-                android:text="100"
+                android:text=""
                 android:layout_margin="0dp"
                 android:padding="5dp"/>
 
@@ -47,36 +47,22 @@
                 android:textColor="#ffff2dee"
                 android:background="#ff00ff00"
                 android:gravity="right|center_vertical"
-                android:text="0"
+                android:text=""
                 android:layout_margin="0dp"
                 android:padding="5dp"/>
         </LinearLayout>
 
-        <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/frameLayout0"
-            android:orientation="horizontal"
+        <GridLayout
+            android:id="@+id/nextBallsLayout"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:layout_weight="2" >
+            android:layout_weight="2"
+            android:layout_alignParentTop="true"
+            android:gravity="center"
+            android:columnCount="4"
+            android:rowCount="1">
+        </GridLayout>
 
-            <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/nextBallsView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_alignParentTop="true"
-                android:layout_gravity="center"
-                android:layout_centerHorizontal="true" />
-
-            <GridLayout
-                android:id="@+id/nextBallsLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_gravity="left|center_vertical" >
-            </GridLayout>
-
-        </FrameLayout>
 
     </LinearLayout>
 
