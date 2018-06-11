@@ -477,14 +477,6 @@ public class GridData {
     }
     */
 
-    private void setStartCell(Point startCell) {
-        this.startCell = startCell;
-    }
-
-    private void setEndCell(Point endCell) {
-        this.endCell = endCell;
-    }
-
     public boolean moveCellToCell(Point sourcePoint, Point targetPoint) {
         boolean result = false;
 
@@ -509,6 +501,14 @@ public class GridData {
         // }
 
         return result;
+    }
+
+    private void setStartCell(Point startCell) {
+        this.startCell = startCell;
+    }
+
+    private void setEndCell(Point endCell) {
+        this.endCell = endCell;
     }
 
     private boolean findPath(Point source,Point target) {
