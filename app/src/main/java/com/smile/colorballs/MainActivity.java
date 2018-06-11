@@ -1,43 +1,44 @@
 package com.smile.colorballs;
 
-import android.content.pm.ActivityInfo;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.GridLayout;
-import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.TextView;
 
 import com.purplebrain.adbuddiz.sdk.AdBuddiz;
 import com.smile.scoresqlite.ScoreSQLite;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.ArrayList;
 
-    // public properties
-    public static final String MainUiFragmentTag = "MainUiFragmentForMainActivity";
+public class MainActivity extends AppCompatActivity {
 
     // private properties
     private String TAG = "com.smile.colorballs.MainActivity";
     private ScoreSQLite scoreSQLite = null;
-    private int mainUiLayoutId;
+    private int mainUiLayoutId = -1;
+    private int scoreHistoryLayoutId = -1;
     private MenuItem registerMenuItemEasy = null;
     private MenuItem registerMenuItemDifficult = null;
+
+    private FragmentManager fmManager = null;
     private MainUiFragment mainUiFragment = null;
+    private Top10ScoreFragment top10ScoreFragment = null;
 
     public MainActivity() {
         System.out.println("MainActivity ---> Constructor");
@@ -59,15 +60,21 @@ public class MainActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_main);
-        mainUiLayoutId = R.id.mainUiLayout;
 
-        FragmentManager fmManager = getSupportFragmentManager();
-        mainUiFragment = (MainUiFragment) fmManager.findFragmentByTag(MainUiFragmentTag);
-        if (mainUiFragment == null) {
-            mainUiFragment = MainUiFragment.newInstance();
-            FragmentTransaction ft = fmManager.beginTransaction();
-            ft.add(mainUiLayoutId, mainUiFragment, MainUiFragmentTag);
-            ft.commit();
+        mainUiLayoutId = R.id.mainUiLayout;
+        scoreHistoryLayoutId = R.id.scoreHistoryLayout;
+
+        fmManager = getSupportFragmentManager();
+        mainUiFragment = (MainUiFragment) fmManager.findFragmentByTag(MainUiFragment.MainUiFragmentTag);
+        View gameView = findViewById(mainUiLayoutId);
+        if (gameView != null) {
+            if (mainUiFragment == null) {
+                mainUiFragment = MainUiFragment.newInstance();
+                FragmentTransaction ft = fmManager.beginTransaction();
+                ft.add(mainUiLayoutId, mainUiFragment, MainUiFragment.MainUiFragmentTag);
+                ft.commit();
+                System.out.println("MainActivity -----> mainUiFragment is created.");
+            }
         }
 
         // for AdBuddiz ads
@@ -156,6 +163,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (top10ScoreFragment != null) {
+            // remove historyFragment
+            FragmentTransaction ft = fmManager.beginTransaction();
+            ft.remove(top10ScoreFragment);
+            ft.commit();
+            System.out.println("MainActivity.onSaveInstanceState() ---> removed top10ScoreFragment");
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
     }
@@ -173,5 +192,127 @@ public class MainActivity extends AppCompatActivity {
 
     public int getMainUiLayoutId() {
         return this.mainUiLayoutId;
+    }
+
+    public int getScoreHistoryLayoutId() {
+        return this.scoreHistoryLayoutId;
+    }
+
+    public void showScoreHistory() {
+        new ShowTop10Scores().execute();
+    }
+
+    private class ShowTop10Scores extends AsyncTask<Void,Integer,ArrayList<Pair<String, Integer>>> {
+        private Animation animationText = null;
+        private ModalDialogFragment loadingDialog = null;
+
+        public ShowTop10Scores() {
+            loadingDialog = new ModalDialogFragment();
+            Bundle args = new Bundle();
+            args.putString("textContent", getResources().getString(R.string.loadScore));
+            args.putInt("color", Color.RED);
+            args.putInt("width", 0);    // wrap_content
+            args.putInt("height", 0);   // wrap_content
+            args.putInt("numButtons", 0);
+            loadingDialog.setArguments(args);
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            animationText = new AlphaAnimation(0.0f,1.0f);
+            animationText.setDuration(300);
+            animationText.setStartOffset(0);
+            animationText.setRepeatMode(Animation.REVERSE);
+            animationText.setRepeatCount(Animation.INFINITE);
+
+            loadingDialog.showDialogFragment(getSupportFragmentManager());
+        }
+
+        @Override
+        protected ArrayList<Pair<String, Integer>> doInBackground(Void... params) {
+            int i = 0;
+            publishProgress(i);
+            // String[] result = scoreSQLite.read10HighestScore();
+            ArrayList<Pair<String, Integer>> resultList = scoreSQLite.readTop10ScoreList();
+
+            // wait for one second
+            try { Thread.sleep(1000); } catch (InterruptedException ex) { ex.printStackTrace(); }
+
+            i = 1;
+            publishProgress(i);
+
+            // return result;
+            return resultList;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+            if (!isCancelled()) {
+                TextView textLoad = loadingDialog.getText_shown();
+                if (progress[0] == 0) {
+                    if (animationText != null) {
+                        textLoad.startAnimation(animationText);
+                    }
+                } else {
+                    if (animationText != null) {
+                        textLoad.clearAnimation();
+                        animationText = null;
+                    }
+                    textLoad.setText("");
+                }
+            }
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Pair<String, Integer>> resultList) {
+            if (!isCancelled()) {
+                loadingDialog.dismiss();
+
+                ArrayList<Pair<String, Integer>> top10 = scoreSQLite.readTop10ScoreList();
+                ArrayList<String> playerNames = new ArrayList<String>();
+                ArrayList<Integer> playerScores = new ArrayList<Integer>();
+                for (Pair pair : top10) {
+                    playerNames.add((String)pair.first);
+                    playerScores.add((Integer)pair.second);
+                }
+
+                View historyView = findViewById(scoreHistoryLayoutId);
+                if (historyView != null) {
+                    if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        top10ScoreFragment = Top10ScoreFragment.newInstance(playerNames, playerScores, new Top10ScoreFragment.Top10OkButtonListener() {
+                            @Override
+                            public void buttonOkClick(Activity activity) {
+                                if (top10ScoreFragment != null) {
+                                    // remove top10ScoreFragment to dismiss the top 10 score screen
+                                    FragmentTransaction ft = fmManager.beginTransaction();
+                                    ft.remove(top10ScoreFragment);
+                                    ft.commit();
+                                }
+                            }
+                        });
+                        FragmentTransaction ft = fmManager.beginTransaction();
+                        Fragment currentTop10ScroeFragment = (Top10ScoreFragment) fmManager.findFragmentByTag(Top10ScoreFragment.Top10ScoreFragmentTag);
+                        if (currentTop10ScroeFragment == null) {
+                            ft.add(scoreHistoryLayoutId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
+                        } else {
+                            ft.replace(scoreHistoryLayoutId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
+                        }
+                        ft.commit();
+                        System.out.println("MainActivity.ShowTop10Scores() -----> top10ScoreFragment is created.");
+                    }
+                } else {
+                    // for Portrait
+                    top10ScoreFragment = null;
+                    Intent intent = new Intent(getApplicationContext(), Top10ScoreActivity.class);
+                    Bundle extras = new Bundle();
+                    extras.putStringArrayList("Top10Players", playerNames);
+                    extras.putIntegerArrayList("Top10Scores", playerScores);
+                    intent.putExtras(extras);
+                    startActivity(intent);
+                }
+            }
+            AdBuddiz.showAd(MainActivity.this);   // added on 2017-10-24
+        }
     }
 }

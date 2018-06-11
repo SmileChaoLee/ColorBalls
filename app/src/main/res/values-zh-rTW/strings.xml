@@ -6,8 +6,8 @@
     <string name="quitGame">結束</string>
     <string name="newGame">新遊戲</string>
     <string name="optionButton">選項</string>
-    <string name="title_activity_history">歷史紀錄</string>
-    <string name="highScore">最高分</string>
+    <string name="title_activity_history">前10名高分</string>
+    <string name="highScore">前10名高分</string>
 
     <string name="title_activity_global"></string>
     <string name="globalRank">全球排名</string>
@@ -22,5 +22,5 @@
     <string name="nameStr">輸入你的名字</string>
     <string name="loadScore">下載中</string>
     <string name="undoStr">還 原</string>
-    <string name="historyStr">歷史紀錄</string>
+    <string name="historyStr">前10名高分</string>
 </resources>

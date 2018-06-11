@@ -7,8 +7,8 @@
     <string name="quitGame">QUIT</string>
     <string name="newGame">NEW</string>
     <string name="optionButton">OPTION</string>
-    <string name="title_activity_history">HistoryActivity</string>
-    <string name="highScore">High Score History</string>
+    <string name="title_activity_history">Top10ScoreActivity</string>
+    <string name="highScore">Top 10 Scores</string>
 
     <string name="title_activity_global">GlobalActivity</string>
     <string name="globalRank">Global Ranking</string>
@@ -23,13 +23,6 @@
     <string name="nameStr">Input your name</string>
     <string name="loadScore">Loading</string>
     <string name="undoStr">Undo</string>
-    <string name="historyStr">History</string>
-
-    <string name="title_activity_fullscreen">FullscreenActivity</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="historyStr">Top 10</string>
 
 </resources>

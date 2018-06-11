@@ -1,19 +1,12 @@
 package com.smile.colorballs;
 
 // import android.app.AlertDialog;
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.graphics.drawable.ColorDrawable;
-import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
@@ -21,15 +14,12 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.StrictMode;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
@@ -40,7 +30,6 @@ import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -59,7 +48,6 @@ import com.smile.model.GridData;
 import com.smile.utility.ScreenUtl;
 import com.smile.utility.SoundUtl;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -132,13 +120,15 @@ public class MyActivity extends AppCompatActivity {
     private String undoStr = new String("");
     private String historyStr = new String("");
 
-    private FragmentManager fmManager = null;
+    FragmentManager fmManager = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_my);
+
+        fmManager = getSupportFragmentManager();
 
         // removed on 2017-10-24
         // autoRotate = android.provider.Settings.System.getInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
@@ -156,8 +146,6 @@ public class MyActivity extends AppCompatActivity {
         } catch (Exception ex) {
             // Ignore
         }
-
-        fmManager = getFragmentManager();
 
         // string constant
         yesStr = getResources().getString(R.string.yesStr);
@@ -639,7 +627,7 @@ public class MyActivity extends AppCompatActivity {
                 args.putInt("height", 0);   // wrap_content
                 args.putInt("numButtons", 2);
                 mDialogFragment.setArguments(args);
-                mDialogFragment.showDialogFragment();
+                mDialogFragment.showDialogFragment(fmManager);
 
                 // removed on 2018-01-02 for testing
                 /*
@@ -1144,7 +1132,7 @@ public class MyActivity extends AppCompatActivity {
             animationText.setRepeatMode(Animation.REVERSE);
             animationText.setRepeatCount(Animation.INFINITE);
 
-            loadingDialog.showDialogFragment();
+            loadingDialog.showDialogFragment(fmManager);
         }
 
         @Override
@@ -1195,7 +1183,7 @@ public class MyActivity extends AppCompatActivity {
                     playerScores.add((Integer)pair.second);
                 }
 
-                Intent intent = new Intent(getApplicationContext(), HistoryActivity.class);
+                Intent intent = new Intent(getApplicationContext(), Top10ScoreActivity.class);
                 Bundle extras = new Bundle();
                 extras.putStringArrayList("Top10Players", playerNames);
                 extras.putIntegerArrayList("Top10Scores", playerScores);
@@ -1280,7 +1268,7 @@ public class MyActivity extends AppCompatActivity {
                     }
                     break;
                 case 2:
-                    scoreDialog.showDialogFragment();
+                    scoreDialog.showDialogFragment(fmManager);
                     break;
                 case 3:
                     scoreDialog.dismiss();

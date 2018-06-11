@@ -13,6 +13,7 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Gravity;
@@ -44,6 +45,8 @@ public class ModalDialogFragment extends DialogFragment {
     private int dialogHeight = 0;
     private int numButtons = 0; // default is no buttons
     private DialogButtonListener ndl;
+    private Context context = null;
+    private Activity activity = null;
 
     public interface DialogButtonListener {
         public void button1OnClick(ModalDialogFragment dialogFragment);
@@ -137,8 +140,6 @@ public class ModalDialogFragment extends DialogFragment {
         // layoutParams.height = dialogHeight;
         // dialogView.setLayoutParams(layoutParams);
 
-
-
         text_shown = view.findViewById(R.id.text_shown);
         text_shown.setText(textContext);
         text_shown.setTextColor(textColor);
@@ -193,15 +194,19 @@ public class ModalDialogFragment extends DialogFragment {
         }
     }
 
-    public void showDialogFragment() {
-        FragmentManager fmManager = getActivity().getSupportFragmentManager();
-        Fragment prev = fmManager.findFragmentByTag("dialog");
-        FragmentTransaction ft = fmManager.beginTransaction();
-        if (prev != null) {
-            ft.remove(prev);
+    public void showDialogFragment(FragmentManager fmManager) {
+        try {
+            Fragment prev = fmManager.findFragmentByTag("dialog");
+            FragmentTransaction ft = fmManager.beginTransaction();
+            if (prev != null) {
+                ft.remove(prev);
+            }
+            ft.addToBackStack(null);
+            this.show(ft, "dialog");
+        } catch (Exception ex) {
+            System.out.println("DialogFragment.ShowDialogFragment() failed.");
+            ex.printStackTrace();
         }
-        ft.addToBackStack(null);
-        this.show(ft,"dialog");
     }
 
     public TextView getText_shown() {

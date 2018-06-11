@@ -57,8 +57,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="2"
-            android:layout_alignParentTop="true"
-            android:gravity="center"
+            android:layout_gravity="center"
             android:columnCount="4"
             android:rowCount="1">
         </GridLayout>
@@ -73,6 +72,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="8"
+        android:layout_gravity="center"
         android:columnCount="9"
         android:rowCount="9">
     </GridLayout>

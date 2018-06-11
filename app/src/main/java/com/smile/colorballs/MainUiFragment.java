@@ -10,7 +10,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -51,6 +50,7 @@ import java.util.List;
 public class MainUiFragment extends Fragment {
 
     // public properties
+    public static final String MainUiFragmentTag = "MainUiFragmentTag";
     public final static int MINB = 3;
     public final static int MAXB = 4;
 
@@ -66,6 +66,7 @@ public class MainUiFragment extends Fragment {
     private Context context = null;
     private MainActivity mainActivity = null;
     private View uiFragmentView = null;
+    private FragmentManager fmManager = null;
 
     private TextView highestScoreView = null;
     private TextView currentScoreView = null;
@@ -124,6 +125,7 @@ public class MainUiFragment extends Fragment {
                 }
             };
         }
+
         System.out.println("MainUiFragment onAttach() is called.");
     }
 
@@ -132,16 +134,6 @@ public class MainUiFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);    // retain install of fragment when recreate
 
-        System.out.println("MainUiFragment onCreate() is called.");
-
-        context = getActivity();
-        mainActivity = (MainActivity) context;
-
-        scoreSQLite = mainActivity.getScoreSQLite();
-        if (scoreSQLite != null) {
-            highestScore = scoreSQLite.readHighestScore();
-        }
-
         // string constant
         yesStr = getResources().getString(R.string.yesStr);
         noStr = getResources().getString(R.string.noStr);
@@ -149,6 +141,8 @@ public class MainUiFragment extends Fragment {
         submitStr = getResources().getString(R.string.submitStr);
         cancelStr = getResources().getString(R.string.cancelStr);
         gameOverStr = getResources().getString(R.string.gameOverStr);
+
+        System.out.println("MainUiFragment onCreate() is called.");
     }
 
     @Override
@@ -158,6 +152,30 @@ public class MainUiFragment extends Fragment {
         System.out.println("MainUiFragment onCreateView() is called.");
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.layout_for_main_ui_fragment, container, false);
+
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        System.out.println("MainUiFragment onViewCreated() is called.");
+        uiFragmentView = view;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        // starting the game
+        // the object gotten from getActivity() in onActivityCreated() is different from gotten in onCreate()
+        // this context should be used in all scope, especially in AsyncTask
+        context = getActivity();
+        mainActivity = (MainActivity)context;
+        fmManager = mainActivity.getSupportFragmentManager();
+
+        scoreSQLite = mainActivity.getScoreSQLite();
+        highestScore = scoreSQLite.readHighestScore();
 
         Point size = new Point();
         ScreenUtl.getScreenSize(context, size);
@@ -176,20 +194,24 @@ public class MainUiFragment extends Fragment {
             screenWidth = screenWidth / 2;  // for this fragment is half a screenWidth
         }
 
+        /*
         // set the screen size
         LinearLayout.LayoutParams vLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.MATCH_PARENT);
         vLP.width = screenWidth;
         vLP.height = screenHeight;
-        view.setLayoutParams(vLP);
+        uiFragmentView.setLayoutParams(vLP);
+        */
 
         // display the highest score and current score
-        highestScoreView = (TextView) view.findViewById(R.id.highestScoreTextView);
-        currentScoreView = (TextView) view.findViewById(R.id.currentScoreTextView);
+        highestScoreView = (TextView) uiFragmentView.findViewById(R.id.highestScoreTextView);
+        highestScoreView.setWidth(screenHeight/20);
+        currentScoreView = (TextView) uiFragmentView.findViewById(R.id.currentScoreTextView);
+        currentScoreView.setWidth(screenHeight/20);
         highestScoreView.setText(String.format("%9d", highestScore));
         currentScoreView.setText(String.format("%9d", currentScore));
 
         // display the view of next balls
-        GridLayout nextBallsLayout = (GridLayout) view.findViewById(R.id.nextBallsLayout);
+        GridLayout nextBallsLayout = (GridLayout) uiFragmentView.findViewById(R.id.nextBallsLayout);
         int nextBallsRow = nextBallsLayout.getRowCount();
         nextBallsNumber = nextBallsLayout.getColumnCount();
 
@@ -198,7 +220,7 @@ public class MainUiFragment extends Fragment {
         LinearLayout.LayoutParams oneNextBallLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         oneNextBallLp.width = nextBallsViewWidth / nextBallsNumber;
-        oneNextBallLp.height = screenHeight / 10;  // the layout_weight is 1
+        oneNextBallLp.height = screenHeight / 10;  // the layout_weight for height is 1
         oneNextBallLp.gravity = Gravity.CENTER;
 
         ImageView imageView = null;
@@ -216,7 +238,7 @@ public class MainUiFragment extends Fragment {
         }
 
         // for 9 x 9 grid: main part of this game
-        GridLayout gridCellsLayout = (GridLayout) view.findViewById(R.id.gridCellsLayout);
+        GridLayout gridCellsLayout = (GridLayout) uiFragmentView.findViewById(R.id.gridCellsLayout);
         rowCounts = gridCellsLayout.getRowCount();
         colCounts = gridCellsLayout.getColumnCount();
 
@@ -231,6 +253,11 @@ public class MainUiFragment extends Fragment {
         }
         int cellHeight = cellWidth;
 
+        LinearLayout.LayoutParams gridLp = (LinearLayout.LayoutParams) gridCellsLayout.getLayoutParams();
+        gridLp.width = cellWidth * colCounts;
+        gridLp.topMargin = 20;
+        gridLp.gravity = Gravity.CENTER;
+
         LinearLayout.LayoutParams oneBallLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         oneBallLp.width = cellWidth;
@@ -243,7 +270,7 @@ public class MainUiFragment extends Fragment {
         for (int i = 0; i < rowCounts; i++) {
             for (int j = 0; j < colCounts; j++) {
                 imId = i * colCounts + j;
-                imageView = new ImageView(context);
+                imageView = new ImageView(mainActivity);
                 imageView.setId(imId);
                 imageView.setAdjustViewBounds(true);
                 imageView.setScaleType(ImageView.ScaleType.FIT_XY);
@@ -262,7 +289,7 @@ public class MainUiFragment extends Fragment {
             }
         }
 
-        Button undoButton = (Button) view.findViewById(R.id.undoButton);
+        Button undoButton = (Button) uiFragmentView.findViewById(R.id.undoButton);
         undoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -270,30 +297,32 @@ public class MainUiFragment extends Fragment {
             }
         });
 
-        Button historyButton = (Button) view.findViewById(R.id.historyButton);
+        Button historyButton = (Button) uiFragmentView.findViewById(R.id.historyButton);
         historyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new StartHistoryScore().execute();
+                // new StartHistoryScore().execute();   // removed on 2018-06-11 at 11:40am
+                mainActivity.showScoreHistory();   // added on 2018-06-11
             }
         });
 
-        return view;
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        System.out.println("MainUiFragment onViewCreated() is called.");
-        uiFragmentView = view;
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        // starting the game
         displayGridDataNextCells();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        /*
+        Fragment historyFragment = fmManager.findFragmentByTag(ScoreHistoryFragment.ScoreHistoryFragmentTag);
+        if (historyFragment != null) {
+            // remove historyFragment
+            FragmentManager fmManager = getActivity().getSupportFragmentManager();
+            FragmentTransaction ft = fmManager.beginTransaction();
+            ft.remove(historyFragment);
+            ft.commit();
+            System.out.println("MainUiFragment.onDetach() ---> removed historyFragment");
+        }
+        */
+        super.onSaveInstanceState(outState);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -408,7 +437,7 @@ public class MainUiFragment extends Fragment {
                 args.putInt("height", 0);   // wrap_content
                 args.putInt("numButtons", 2);
                 mDialogFragment.setArguments(args);
-                mDialogFragment.showDialogFragment();
+                mDialogFragment.showDialogFragment(fmManager);
             }
         }
 
@@ -663,9 +692,8 @@ public class MainUiFragment extends Fragment {
 
     private void flushALLandBegin() {
         // recreate this Fragment without recreating MainActivity
-        FragmentManager fm = mainActivity.getSupportFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(mainActivity.getMainUiLayoutId(), newInstance(), MainActivity.MainUiFragmentTag);
+        FragmentTransaction ft = fmManager.beginTransaction();
+        ft.replace(mainActivity.getMainUiLayoutId(), newInstance(), MainUiFragmentTag);
         ft.commit();
     }
 
@@ -763,7 +791,7 @@ public class MainUiFragment extends Fragment {
             animationText.setRepeatMode(Animation.REVERSE);
             animationText.setRepeatCount(Animation.INFINITE);
 
-            loadingDialog.showDialogFragment();
+            loadingDialog.showDialogFragment(fmManager);
         }
 
         @Override
@@ -814,7 +842,7 @@ public class MainUiFragment extends Fragment {
                     playerScores.add((Integer)pair.second);
                 }
 
-                Intent intent = new Intent(context, HistoryActivity.class);
+                Intent intent = new Intent(context, Top10ScoreActivity.class);
                 Bundle extras = new Bundle();
                 extras.putStringArrayList("Top10Players", playerNames);
                 extras.putIntegerArrayList("Top10Scores", playerScores);
@@ -899,7 +927,7 @@ public class MainUiFragment extends Fragment {
                     }
                     break;
                 case 2:
-                    scoreDialog.showDialogFragment();
+                    scoreDialog.showDialogFragment(fmManager);
                     break;
                 case 3:
                     scoreDialog.dismiss();
