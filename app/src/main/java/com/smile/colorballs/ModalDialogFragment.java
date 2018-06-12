@@ -86,6 +86,15 @@ public class ModalDialogFragment extends DialogFragment {
         numButtons = getArguments().getInt("numButtons");
     }
 
+    @Override
+    public void onDestroyView() {
+        if ( (getDialog()!=null) && getRetainInstance() ) {
+            // getDialog().dismiss();
+            getDialog().setDismissMessage(null);
+        }
+        super.onDestroyView();
+    }
+
     public static ModalDialogFragment newInstance(String textContent, int color, int width, int height, int numButtons) {
         ModalDialogFragment modalDialog = new ModalDialogFragment();
         Bundle args = new Bundle();
