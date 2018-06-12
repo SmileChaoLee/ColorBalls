@@ -78,8 +78,8 @@ public class MainUiFragment extends Fragment {
     private int colCounts = 9;
     private boolean[] threadCompleted =  {true,true,true,true,true,true,true,true,true,true};
 
-    private int indexI = -1, indexJ = -1;   // the array index that the ball has been selected
-    private int status = 0; //  no cell selected
+    private int bouncyBallIndexI = -1, bouncyBallIndexJ = -1;   // the array index that the ball has been selected
+    private int bouncingStatus = 0; //  no cell selected
     //  one cell with a ball selected
     private boolean undoEnable = false;
     private int currentScore = 0;
@@ -309,7 +309,10 @@ public class MainUiFragment extends Fragment {
         } else {
             // display the original state before changing configuration
             displayGameView();
-
+            if (bouncingStatus == 1) {
+                ImageView v = uiFragmentView.findViewById(bouncyBallIndexI * colCounts + bouncyBallIndexJ);
+                drawBouncyBall(v, gridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
+            }
         }
 
     }
@@ -452,14 +455,9 @@ public class MainUiFragment extends Fragment {
         // restore the screen
         displayGameView();;
 
-        status = 0;
-        indexI = -1;
-        indexJ = -1;
-
-        /*  removed on 2017-10-21
-        undoindexI = -1;
-        undoindexJ = -1;
-        */
+        bouncingStatus = 0;
+        bouncyBallIndexI = -1;
+        bouncyBallIndexJ = -1;
 
         currentScore = undoScore;
         currentScoreView.setText( String.format("%9d",currentScore));
@@ -482,30 +480,30 @@ public class MainUiFragment extends Fragment {
         i = id / rowCounts;
         j = id % rowCounts;
         ImageView imageView = null;
-        if (status == 0) {
+        if (bouncingStatus == 0) {
             if (gridData.getCellValue(i, j) != 0) {
-                if ((indexI == -1) && (indexJ == -1)) {
-                    status = 1;
+                if ((bouncyBallIndexI == -1) && (bouncyBallIndexJ == -1)) {
+                    bouncingStatus = 1;
                     drawBouncyBall((ImageView) v, gridData.getCellValue(i, j));
-                    indexI = i;
-                    indexJ = j;
+                    bouncyBallIndexI = i;
+                    bouncyBallIndexJ = j;
                 }
             }
         } else {
             // cancel the timer
             if (gridData.getCellValue(i, j) == 0) {
                 //   blank cell
-                if ((indexI >= 0) && (indexJ >= 0)) {
-                    if (gridData.moveCellToCell(new Point(indexI, indexJ), new Point(i, j))) {
+                if ((bouncyBallIndexI >= 0) && (bouncyBallIndexJ >= 0)) {
+                    if (gridData.moveCellToCell(new Point(bouncyBallIndexI, bouncyBallIndexJ), new Point(i, j))) {
                         // cancel the timer
-                        status = 0;
+                        bouncingStatus = 0;
                         cancelBouncyTimer();
-                        int color = gridData.getCellValue(indexI, indexJ);
+                        int color = gridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ);
                         gridData.setCellValue(i, j, color);
-                        clearCell(indexI, indexJ);
+                        clearCell(bouncyBallIndexI, bouncyBallIndexJ);
 
-                        indexI = -1;
-                        indexJ = -1;
+                        bouncyBallIndexI = -1;
+                        bouncyBallIndexJ = -1;
 
                         drawBallAlongPath(i,j,color);
 
@@ -526,15 +524,15 @@ public class MainUiFragment extends Fragment {
                 }
             } else {
                 //  cell is not blank
-                if ((indexI >= 0) && (indexJ >= 0)) {
-                    status = 0;
+                if ((bouncyBallIndexI >= 0) && (bouncyBallIndexJ >= 0)) {
+                    bouncingStatus = 0;
                     cancelBouncyTimer();
-                    status = 1;
-                    imageView = (ImageView) uiFragmentView.findViewById(indexI * colCounts + indexJ);
-                    drawBall(imageView , gridData.getCellValue(indexI, indexJ));
+                    bouncingStatus = 1;
+                    imageView = (ImageView) uiFragmentView.findViewById(bouncyBallIndexI * colCounts + bouncyBallIndexJ);
+                    drawBall(imageView , gridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
                     drawBouncyBall((ImageView) v, gridData.getCellValue(i, j));
-                    indexI = i;
-                    indexJ = j;
+                    bouncyBallIndexI = i;
+                    bouncyBallIndexJ = j;
                 }
             }
         }
@@ -546,7 +544,7 @@ public class MainUiFragment extends Fragment {
             boolean ballYN = false;
             @Override
             public void run() {
-                if (status == 1) {
+                if (bouncingStatus == 1) {
                     if (color != 0) {
                         if (ballYN) {
                             drawBall(v , color);
