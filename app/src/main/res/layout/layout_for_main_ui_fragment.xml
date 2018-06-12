@@ -17,40 +17,18 @@
         android:layout_weight="1"
         android:weightSum="3">
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/linearLayout0"
-            android:orientation="vertical"
+        <TextView
+            android:id="@+id/currentScoreTextView"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:weightSum="2">
-
-            <TextView
-                android:id="@+id/highestScoreTextView"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:typeface="monospace"
-                android:textColor="#ffff2dee"
-                android:background="#ff00ff00"
-                android:gravity="right|center_vertical"
-                android:text=""
-                android:layout_margin="0dp"
-                android:padding="5dp"/>
-
-            <TextView
-                android:id="@+id/currentScoreTextView"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:typeface="monospace"
-                android:textColor="#ffff2dee"
-                android:background="#ff00ff00"
-                android:gravity="right|center_vertical"
-                android:text=""
-                android:layout_margin="0dp"
-                android:padding="5dp"/>
-        </LinearLayout>
+            android:typeface="monospace"
+            android:textColor="#ffff2dee"
+            android:background="#ff00ff00"
+            android:gravity="right|center_vertical"
+            android:text=""
+            android:layout_margin="0dp"
+            android:padding="5dp"/>
 
         <GridLayout
             android:id="@+id/nextBallsLayout"

@@ -67,7 +67,6 @@ public class MainUiFragment extends Fragment {
     private View uiFragmentView = null;
     private FragmentManager fmManager = null;
 
-    private TextView highestScoreView = null;
     private TextView currentScoreView = null;
 
     private GridData gridData;
@@ -80,7 +79,6 @@ public class MainUiFragment extends Fragment {
     private int status = 0; //  no cell selected
     //  one cell with a ball selected
     private boolean undoEnable = false;
-    private int highestScore = 0;
     private int currentScore = 0;
     private int undoScore = 0;
     private boolean easyLevel = true;
@@ -174,7 +172,6 @@ public class MainUiFragment extends Fragment {
         fmManager = mainActivity.getSupportFragmentManager();
 
         scoreSQLite = mainActivity.getScoreSQLite();
-        highestScore = scoreSQLite.readHighestScore();
 
         Point size = new Point();
         ScreenUtl.getScreenSize(context, size);
@@ -202,12 +199,9 @@ public class MainUiFragment extends Fragment {
         */
 
         // display the highest score and current score
-        highestScoreView = (TextView) uiFragmentView.findViewById(R.id.highestScoreTextView);
-        highestScoreView.setWidth(screenHeight/20);
         currentScoreView = (TextView) uiFragmentView.findViewById(R.id.currentScoreTextView);
-        currentScoreView.setWidth(screenHeight/20);
-        highestScoreView.setText(String.format("%9d", highestScore));
-        currentScoreView.setText(String.format("%9d", currentScore));
+        currentScoreView.setWidth(screenHeight/10);
+        currentScoreView.setText(String.format("%10d", currentScore));
 
         // display the view of next balls
         GridLayout nextBallsLayout = (GridLayout) uiFragmentView.findViewById(R.id.nextBallsLayout);

@@ -61,6 +61,9 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
+        int highestScore = scoreSQLite.readHighestScore();
+        setTitle(String.format("%10d", highestScore));
+
         mainUiLayoutId = R.id.mainUiLayout;
         scoreHistoryLayoutId = R.id.scoreHistoryLayout;
 

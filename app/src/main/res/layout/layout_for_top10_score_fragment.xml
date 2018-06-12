@@ -9,7 +9,6 @@
         android:id="@+id/highScoreHistory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="40sp"
         android:textScaleX="1.0"
         android:textColor="#ff0000ff"
         android:layout_gravity="center_horizontal"
