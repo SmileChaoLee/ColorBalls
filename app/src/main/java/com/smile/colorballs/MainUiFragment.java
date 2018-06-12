@@ -36,7 +36,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.purplebrain.adbuddiz.sdk.AdBuddiz;
-import com.smile.draw.ImageDraw;
 import com.smile.model.GridData;
 import com.smile.scoresqlite.ScoreSQLite;
 import com.smile.utility.ScreenUtl;
@@ -315,7 +314,7 @@ public class MainUiFragment extends Fragment {
             displayGridDataNextCells();
         } else {
             // display the original state before changing configuration
-            restoreGameView();
+            displayGameView();
 
         }
 
@@ -452,46 +451,12 @@ public class MainUiFragment extends Fragment {
         }
 
         ImageView imageView = null;
-        // ImageDraw imageDraw = null;
         int id, n1, n2 , color;
-
-        // completedPath = false;
 
         gridData.undoTheLast();
 
-        // restore the view of next balls
-        /*
-        int numOneTime = gridData.getBallNumOneTime();
-        for (int i = 0; i < numOneTime; i++) {
-            imageView = (ImageView) uiFragmentView.findViewById(nextBallsViewIdStart + i);
-            imageDraw = new ImageDraw(imageView, 1, 1, insideColor0, lineColor0);
-            imageDraw.drawBall(gridData.getNextBalls()[i]);
-        }
-        for (int i = numOneTime; i < nextBallsNumber; i++) {
-            imageView = (ImageView) uiFragmentView.findViewById(nextBallsViewIdStart + i);
-            imageDraw = new ImageDraw(imageView, 1, 1, insideColor0, lineColor0);
-            imageDraw.circleInsideSquare(insideColor0);
-        }
-        */
-
         // restore the screen
-        /*
-        for (int i = 0; i<rowCounts ; i++) {
-            for (int j=0 ; j<colCounts ; j++ ) {
-                id = i * rowCounts + j;
-                imageView = (ImageView) uiFragmentView.findViewById(id);
-                color = gridData.getCellValue(i,j);
-                if (color == 0) {
-                    imageView.setImageResource(R.drawable.boximage);
-                } else {
-                    drawBall(imageView , color);
-                }
-            }
-        }
-        */
-
-        // restore the screen
-        restoreGameView();
+        displayGameView();;
 
         status = 0;
         indexI = -1;
@@ -523,7 +488,6 @@ public class MainUiFragment extends Fragment {
         i = id / rowCounts;
         j = id % rowCounts;
         ImageView imageView = null;
-        // ImageDraw imageDraw = null;
         if (status == 0) {
             if (gridData.getCellValue(i, j) != 0) {
                 if ((indexI == -1) && (indexJ == -1)) {
@@ -777,7 +741,7 @@ public class MainUiFragment extends Fragment {
     }
 
     private void displayNextBallsView() {
-        // restore the view of next balls
+        // display the view of next balls
         ImageView imageView = null;
         int numOneTime = gridData.getBallNumOneTime();
         for (int i = 0; i < numOneTime; i++) {
@@ -790,12 +754,8 @@ public class MainUiFragment extends Fragment {
         }
     }
 
-    private void restoreGameView() {
-
-        // restore the view of next balls
-        displayNextBallsView();
-
-        // restore the 9 x 9 game view
+    private void displayGameGridView() {
+        // display the 9 x 9 game view
         ImageView imageView = null;
         for (int i = 0; i < rowCounts; i++) {
             for (int j = 0; j < colCounts; j++) {
@@ -809,6 +769,15 @@ public class MainUiFragment extends Fragment {
                 }
             }
         }
+    }
+
+    private void displayGameView() {
+
+        // display the view of next balls
+        displayNextBallsView();
+
+        // display the 9 x 9 game view
+        displayGameGridView();
     }
 
     private class StartHistoryScore extends AsyncTask<Void,Integer,ArrayList<Pair<String, Integer>>> {
@@ -1007,27 +976,10 @@ public class MainUiFragment extends Fragment {
     public void displayNextColorBalls() {
 
         ImageView imageView = null;
-        // ImageDraw imageDraw = null;
 
         gridData.randColors();  //   next  balls
         //   display the balls on the nextBallsView
         displayNextBallsView();
-        /*
-        int numOneTime = gridData.getBallNumOneTime();
-        for (int i = 0 ; i < numOneTime ; i++) {
-            imageView = (ImageView) uiFragmentView.findViewById(nextBallsViewIdStart + i);
-            drawBall(imageView, gridData.getNextBalls()[i]);
-            // imageDraw = new ImageDraw(imageView, 1, 1 , insideColor0 , lineColor0);
-            // imageDraw.drawBall(gridData.getNextBalls()[i]);
-        }
-        for (int i = numOneTime ; i<nextBallsNumber ; i++) {
-            imageView = (ImageView) uiFragmentView.findViewById(nextBallsViewIdStart + i);
-            imageView.setImageResource(R.drawable.next_ball_background_image);
-            // imageDraw = new ImageDraw(imageView, 1, 1 , insideColor0 , lineColor0);
-            // imageDraw.clearCellImage();
-            // imageDraw.circleInsideSquare(insideColor0);
-        }
-        */
     }
 
     public void newGame() {
