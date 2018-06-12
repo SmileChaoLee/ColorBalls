@@ -67,9 +67,12 @@ public class MainUiFragment extends Fragment {
     private View uiFragmentView = null;
     private FragmentManager fmManager = null;
 
-    private TextView currentScoreView = null;
-
+    private Runnable bouncyRunnable; // needed to be tested 2018-0609
+    private Handler bouncyHandler;   // needed to be tested
     private GridData gridData;
+
+    private TextView currentScoreView;
+
     private int nextBallsNumber = 4;
     private int rowCounts = 9;
     private int colCounts = 9;
@@ -82,9 +85,6 @@ public class MainUiFragment extends Fragment {
     private int currentScore = 0;
     private int undoScore = 0;
     private boolean easyLevel = true;
-
-    private Runnable bouncyRunnable = null; // needed to be tested 2018-0609
-    private Handler bouncyHandler = null;   // needed to be tested
 
     private String yesStr = new String("");
     private String noStr = new String("");
@@ -865,10 +865,9 @@ public class MainUiFragment extends Fragment {
 
         private int numBalls = 0;
         private int color = 0;
-        private HashSet<Point> hashPoint = null;
+        private HashSet<Point> hashPoint;
         private int score = 0;
-
-        private ModalDialogFragment scoreDialog = null;
+        private ModalDialogFragment scoreDialog;
 
         @Override
         protected void onPreExecute() {

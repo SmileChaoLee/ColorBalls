@@ -65,6 +65,8 @@ public class ModalDialogFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+
         textContext = getArguments().getString("textContent");
         textColor = getArguments().getInt("color");
         dialogWidth = getArguments().getInt("width");
