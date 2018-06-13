@@ -235,11 +235,6 @@ public class MainUiFragment extends Fragment {
         rowCounts = gridCellsLayout.getRowCount();
         colCounts = gridCellsLayout.getColumnCount();
 
-        /*
-        easyLevel = true;   // start with easy level
-        gridData = new GridData(rowCounts, colCounts, MINB, MINB);  // easy level (3 balls for next balls)
-        */
-
         int cellWidth = screenWidth / colCounts;
         int eight10thOfHeight = ((int)(screenHeight/10)) * 8;
         if ( screenWidth >  eight10thOfHeight) {
@@ -301,8 +296,9 @@ public class MainUiFragment extends Fragment {
             }
         });
 
-        if (savedInstanceState == null) {
-            // start a new game
+        if ( (savedInstanceState == null) || (gridData == null) ) {
+            // start a new game (no savedInstanceState)
+            // or gridData is null (for some unknown reason)
             easyLevel = true;   // start with easy level
             gridData = new GridData(rowCounts, colCounts, MINB, MINB);  // easy level (3 balls for next balls)
             displayGridDataNextCells();
