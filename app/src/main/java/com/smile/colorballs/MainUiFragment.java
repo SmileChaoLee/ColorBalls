@@ -930,7 +930,10 @@ public class MainUiFragment extends Fragment {
                     scoreDialog.showDialogFragment(fmManager);
                     break;
                 case 3:
-                    scoreDialog.dismiss();
+                    System.out.println("MainUiFragment.Calculation is calling scoreDialog.dismiss()");
+                    // scoreDialog.dismiss();
+                    // fmManager.beginTransaction().remove(scoreDialog).commitAllowingStateLoss();
+                    getActivity().getSupportFragmentManager().beginTransaction().remove(scoreDialog).commitAllowingStateLoss();
                     break;
             }
 

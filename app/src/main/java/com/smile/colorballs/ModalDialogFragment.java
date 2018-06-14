@@ -86,15 +86,6 @@ public class ModalDialogFragment extends DialogFragment {
         numButtons = getArguments().getInt("numButtons");
     }
 
-    @Override
-    public void onDestroyView() {
-        if ( (getDialog()!=null) && getRetainInstance() ) {
-            // getDialog().dismiss();
-            getDialog().setDismissMessage(null);
-        }
-        super.onDestroyView();
-    }
-
     public static ModalDialogFragment newInstance(String textContent, int color, int width, int height, int numButtons) {
         ModalDialogFragment modalDialog = new ModalDialogFragment();
         Bundle args = new Bundle();
@@ -205,17 +196,37 @@ public class ModalDialogFragment extends DialogFragment {
         }
     }
 
+    @Override
+    public void onDestroyView() {
+        if ( (getDialog()!=null) && getRetainInstance() ) {
+            // getDialog().dismiss();
+            // getDialog().setDismissMessage(null);
+            System.out.println("ModalDialogFragment.onDestroyView() is called");
+            SystemClock.sleep(50);
+        }
+        super.onDestroyView();
+    }
+
     public void showDialogFragment(FragmentManager fmManager) {
         try {
             Fragment prev = fmManager.findFragmentByTag("dialog");
             FragmentTransaction ft = fmManager.beginTransaction();
+            /*
             if (prev != null) {
                 ft.remove(prev);
             }
             ft.addToBackStack(null);
             this.show(ft, "dialog");
+            */
+            if (prev != null) {
+                ft.replace(getId(), this, "dialog");
+            } else {
+                ft.add(getId(), this, "dialog");
+            }
+            ft.commit();
+            System.out.println("ModalDialogFragment.ShowDialogFragment() is called.");
         } catch (Exception ex) {
-            System.out.println("DialogFragment.ShowDialogFragment() failed.");
+            System.out.println("ModalDialogFragment.ShowDialogFragment() failed.");
             ex.printStackTrace();
         }
     }
