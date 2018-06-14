@@ -48,7 +48,9 @@ public class Top10ScoreFragment extends Fragment {
     private ArrayList<Integer> top10Scores = new ArrayList<Integer>();
     private ArrayList<Integer> medalImageIds = new ArrayList<Integer>();
     private ListView top10ListView = null;
+    private myListAdapter mListAdapter = null;
     private Top10OkButtonListener top10OkButtonListener = null;
+
 
     private OnFragmentInteractionListener mListener;
 
@@ -85,12 +87,16 @@ public class Top10ScoreFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(false);
+        // setRetainInstance(false);    // removed on 2018-06-14
+        setRetainInstance(true);    // added on 2018-06-14
 
-        Bundle args = getArguments();
-        if (args != null) {
-            top10Players = args.getStringArrayList("Top10Players");
-            top10Scores = args.getIntegerArrayList("Top10Scores");
+        // if statement was added on 2018-06-14
+        if (savedInstanceState == null) {   // if new Fragment instance
+            Bundle args = getArguments();
+            if (args != null) {
+                top10Players = args.getStringArrayList("Top10Players");
+                top10Scores = args.getIntegerArrayList("Top10Scores");
+            }
         }
     }
 
@@ -116,33 +122,40 @@ public class Top10ScoreFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        Button okButton = (Button)top10ScoreFragmentView.findViewById(R.id.top10OkButton);
-        okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                top10OkButtonListener.buttonOkClick(getActivity());
-            }
-        });
+        if (savedInstanceState == null) {   // new Fragment instance
+            Button okButton = (Button) top10ScoreFragmentView.findViewById(R.id.top10OkButton);
+            okButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    top10OkButtonListener.buttonOkClick(getActivity());
+                }
+            });
 
-        medalImageIds.add(R.drawable.gold_medal);
-        medalImageIds.add(R.drawable.silver_medal);
-        medalImageIds.add(R.drawable.bronze_medal);
-        medalImageIds.add(R.drawable.copper_medal);
-        medalImageIds.add(R.drawable.olympics_image);
-        medalImageIds.add(R.drawable.olympics_image);
-        medalImageIds.add(R.drawable.olympics_image);
-        medalImageIds.add(R.drawable.olympics_image);
-        medalImageIds.add(R.drawable.olympics_image);
-        medalImageIds.add(R.drawable.olympics_image);
+            medalImageIds.add(R.drawable.gold_medal);
+            medalImageIds.add(R.drawable.silver_medal);
+            medalImageIds.add(R.drawable.bronze_medal);
+            medalImageIds.add(R.drawable.copper_medal);
+            medalImageIds.add(R.drawable.olympics_image);
+            medalImageIds.add(R.drawable.olympics_image);
+            medalImageIds.add(R.drawable.olympics_image);
+            medalImageIds.add(R.drawable.olympics_image);
+            medalImageIds.add(R.drawable.olympics_image);
+            medalImageIds.add(R.drawable.olympics_image);
 
-        top10ListView = top10ScoreFragmentView.findViewById(R.id.top10ListView);
-        top10ListView.setAdapter(new myListAdapter(getActivity(), R.layout.top10_score_list_items, top10Players, top10Scores, medalImageIds));
-        top10ListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            // the following statement was added on 2018-06-14
+            mListAdapter = new myListAdapter(getActivity(), R.layout.top10_score_list_items, top10Players, top10Scores, medalImageIds);
 
-            }
-        });
+            top10ListView = top10ScoreFragmentView.findViewById(R.id.top10ListView);
+            // this following statement was removed on 2018-06-14
+            // top10ListView.setAdapter(new myListAdapter(getActivity(), R.layout.top10_score_list_items, top10Players, top10Scores, medalImageIds));
+            top10ListView.setAdapter(mListAdapter);    // added on 2018-06-14
+            top10ListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                }
+            });
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -188,7 +201,7 @@ public class Top10ScoreFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    private class myListAdapter extends ArrayAdapter {
+    private class myListAdapter extends ArrayAdapter {  // changed name to MyListAdapter from myListAdapter
 
         private int layoutId;
         private ArrayList<String> players;

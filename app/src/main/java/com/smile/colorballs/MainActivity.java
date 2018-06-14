@@ -253,16 +253,22 @@ public class MainActivity extends AppCompatActivity {
         protected void onProgressUpdate(Integer... progress) {
             if (!isCancelled()) {
                 TextView textLoad = loadingDialog.getText_shown();
-                if (progress[0] == 0) {
-                    if (animationText != null) {
-                        textLoad.startAnimation(animationText);
+                // if statement was added on 2018-06-14
+                try {
+                    if (progress[0] == 0) {
+                        if (animationText != null) {
+                            textLoad.startAnimation(animationText);
+                        }
+                    } else {
+                        if (animationText != null) {
+                            textLoad.clearAnimation();
+                            animationText = null;
+                        }
+                        textLoad.setText("");
                     }
-                } else {
-                    if (animationText != null) {
-                        textLoad.clearAnimation();
-                        animationText = null;
-                    }
-                    textLoad.setText("");
+                } catch (Exception ex) {
+                    System.out.println("MainActivity.ShowTop10Scores.onProgressUpdate() failed --> textLoad animation");
+                    ex.printStackTrace();
                 }
             }
         }
@@ -270,7 +276,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(ArrayList<Pair<String, Integer>> resultList) {
             if (!isCancelled()) {
-                loadingDialog.dismiss();
+                // loadingDialog.dismiss(); // removed on 2018-08-14
+                getSupportFragmentManager().beginTransaction().remove(loadingDialog).commitAllowingStateLoss();
 
                 ArrayList<Pair<String, Integer>> top10 = scoreSQLite.readTop10ScoreList();
                 ArrayList<String> playerNames = new ArrayList<String>();
@@ -295,8 +302,8 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
                         FragmentTransaction ft = fmManager.beginTransaction();
-                        Fragment currentTop10ScroeFragment = (Top10ScoreFragment) fmManager.findFragmentByTag(Top10ScoreFragment.Top10ScoreFragmentTag);
-                        if (currentTop10ScroeFragment == null) {
+                        Fragment currentTop10SocreFragment = (Top10ScoreFragment) fmManager.findFragmentByTag(Top10ScoreFragment.Top10ScoreFragmentTag);
+                        if (currentTop10SocreFragment == null) {
                             ft.add(scoreHistoryLayoutId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
                         } else {
                             ft.replace(scoreHistoryLayoutId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);

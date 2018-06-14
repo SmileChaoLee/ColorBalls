@@ -67,23 +67,27 @@ public class ModalDialogFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
 
-        textContext = getArguments().getString("textContent");
-        textColor = getArguments().getInt("color");
-        dialogWidth = getArguments().getInt("width");
-        dialogHeight = getArguments().getInt("height");
+        // if statement was added on 2018-06-14 for avoiding to reset the parameters and values of
+        // properties because of configuration changing
+        if (savedInstanceState == null) {
+            textContext = getArguments().getString("textContent");
+            textColor = getArguments().getInt("color");
+            dialogWidth = getArguments().getInt("width");
+            dialogHeight = getArguments().getInt("height");
 
-        float factor =  getActivity().getResources().getDisplayMetrics().density;
-        if (dialogWidth == 0) {
-            dialogWidth = FrameLayout.LayoutParams.WRAP_CONTENT;
-        } else {
-            dialogWidth = (int) ((float) dialogWidth * factor);
+            float factor = getActivity().getResources().getDisplayMetrics().density;
+            if (dialogWidth == 0) {
+                dialogWidth = FrameLayout.LayoutParams.WRAP_CONTENT;
+            } else {
+                dialogWidth = (int) ((float) dialogWidth * factor);
+            }
+            if (dialogHeight == 0) {
+                dialogHeight = FrameLayout.LayoutParams.WRAP_CONTENT;
+            } else {
+                dialogHeight = (int) ((float) dialogHeight * factor);
+            }
+            numButtons = getArguments().getInt("numButtons");
         }
-        if (dialogHeight == 0) {
-            dialogHeight = FrameLayout.LayoutParams.WRAP_CONTENT;
-        } else {
-            dialogHeight = (int) ((float) dialogHeight * factor);
-        }
-        numButtons = getArguments().getInt("numButtons");
     }
 
     public static ModalDialogFragment newInstance(String textContent, int color, int width, int height, int numButtons) {
