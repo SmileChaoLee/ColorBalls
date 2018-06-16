@@ -46,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
     private Top10ScoreFragment top10ScoreFragment = null;
 
     private int fontSizeForText = 24;
+    private float dialog_widthFactor = 1.0f;
+    private float Dialog_heightFactor = 1.0f;
 
     public MainActivity() {
         System.out.println("MainActivity ---> Constructor");
@@ -71,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
         int screenWidth = size.x;
         int screenHeight = size.y;
 
+        float baseWidth = 1080.0f;
+        float baseHeight = 1776.0f;
         fontSizeForText = 24;   // default for portrait of cell phone
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // Landscape
@@ -82,6 +86,8 @@ public class MainActivity extends AppCompatActivity {
                 fontSizeForText = 16;
 
             }
+            dialog_widthFactor = screenWidth / baseHeight;
+            Dialog_heightFactor = screenHeight / baseWidth;
         } else {
             // portrait
             if (screenWidth >= 1300) {
@@ -90,14 +96,15 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 // cell phone
                 fontSizeForText = 24;
-
             }
+            dialog_widthFactor = screenWidth / baseWidth;
+            Dialog_heightFactor = screenHeight / baseHeight;
         }
 
         setContentView(R.layout.activity_main);
 
         int highestScore = scoreSQLite.readHighestScore();
-        setTitle(String.format("%10d", highestScore));
+        setTitle(String.format("%9d", highestScore));
 
         // setting the font size for activity label
         ActionBar actionBar = getSupportActionBar();
@@ -239,6 +246,7 @@ public class MainActivity extends AppCompatActivity {
         return this.scoreSQLite;
     }
 
+    /*
     public int getMainUiLayoutId() {
         return this.mainUiLayoutId;
     }
@@ -246,9 +254,18 @@ public class MainActivity extends AppCompatActivity {
     public int getScoreHistoryLayoutId() {
         return this.scoreHistoryLayoutId;
     }
+    */
 
     public int getFontSizeForText() {
         return fontSizeForText;
+    }
+
+    public float getDialog_widthFactor() {
+        return dialog_widthFactor;
+    }
+
+    public float getDialog_heightFactor() {
+        return Dialog_heightFactor;
     }
 
     public void showScoreHistory() {
@@ -263,6 +280,7 @@ public class MainActivity extends AppCompatActivity {
             loadingDialog = new ModalDialogFragment();
             Bundle args = new Bundle();
             args.putString("textContent", getResources().getString(R.string.loadScore));
+            args.putFloat("textSize", fontSizeForText * dialog_widthFactor);
             args.putInt("color", Color.RED);
             args.putInt("width", 0);    // wrap_content
             args.putInt("height", 0);   // wrap_content

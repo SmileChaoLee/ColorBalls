@@ -95,6 +95,8 @@ public class MainUiFragment extends Fragment {
     private String gameOverStr = new String("");
 
     private int fontSizeForText = 24;   // default
+    private float dialog_widthFactor = 1.0f;
+    private float dialog_heightFactor = 1.0f;
 
     public MainUiFragment() {
         // Required empty public constructor
@@ -178,6 +180,8 @@ public class MainUiFragment extends Fragment {
 
         scoreSQLite = mainActivity.getScoreSQLite();
         fontSizeForText = mainActivity.getFontSizeForText();
+        dialog_widthFactor = mainActivity.getDialog_widthFactor();
+        dialog_heightFactor = mainActivity.getDialog_heightFactor();
 
         Point size = new Point();
         ScreenUtl.getScreenSize(context, size);
@@ -463,6 +467,7 @@ public class MainUiFragment extends Fragment {
                 });
                 Bundle args = new Bundle();
                 args.putString("textContent", gameOverStr);
+                args.putFloat("textSize", fontSizeForText * dialog_widthFactor);
                 args.putInt("color", Color.BLUE);
                 args.putInt("width", 0);    // wrap_content
                 args.putInt("height", 0);   // wrap_content
@@ -721,7 +726,7 @@ public class MainUiFragment extends Fragment {
         dlg.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT,WindowManager.LayoutParams.WRAP_CONTENT);
         dlg.getWindow().setBackgroundDrawableResource(R.drawable.dialog_background);
 
-        float fontSize = 20;
+        float fontSize = fontSizeForText * dialog_widthFactor;
         Button nBtn = dlg.getButton(DialogInterface.BUTTON_NEGATIVE);
         nBtn.setTextSize(fontSize);
         nBtn.setTypeface(Typeface.DEFAULT_BOLD);
@@ -860,6 +865,7 @@ public class MainUiFragment extends Fragment {
             scoreDialog = new ModalDialogFragment();
             Bundle args = new Bundle();
             args.putString("textContent", ""+score);
+            args.putFloat("textSize", fontSizeForText * dialog_widthFactor);
             args.putInt("color", Color.BLUE);
             args.putInt("width", 0);    // wrap_content
             args.putInt("height", 0);   // wrap_content
@@ -922,7 +928,6 @@ public class MainUiFragment extends Fragment {
             undoScore = currentScore;
             currentScore = currentScore + score;
             currentScoreView.setText(String.format("%9d", currentScore));
-            System.out.println("currentScore = " + currentScore);
 
             threadCompleted[1] = true;
         }
@@ -943,14 +948,12 @@ public class MainUiFragment extends Fragment {
     }
 
     public void newGame() {
-        System.out.println("public void newGame() --> currentScore = " + currentScore);
         recordScore(1);   //   START A NEW GAME
     }
 
     public void recordScore(final int entryPoint) {
-        System.out.println("public void recordScore() --> currentScore = " + currentScore);
         final EditText et = new EditText(mainActivity);
-        et.setTextSize(24);
+        et.setTextSize(fontSizeForText);
         // et.setHeight(200);
         et.setTextColor(Color.BLUE);
         et.setBackground(new ColorDrawable(Color.TRANSPARENT));
@@ -979,7 +982,6 @@ public class MainUiFragment extends Fragment {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
 
-                System.out.println("scoreSQLite.addScore(), currentScore = " + currentScore);
                 scoreSQLite.addScore(et.getText().toString(),currentScore);
                 if (entryPoint==0) {
                     mainActivity.finish();

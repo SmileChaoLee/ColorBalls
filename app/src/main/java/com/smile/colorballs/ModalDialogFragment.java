@@ -40,6 +40,7 @@ public class ModalDialogFragment extends DialogFragment {
     private Button button2 = null;
 
     private String textContext = "";
+    private float textSize = 24;
     private int textColor = 0;
     private int dialogWidth = 0;
     private int dialogHeight = 0;
@@ -71,6 +72,7 @@ public class ModalDialogFragment extends DialogFragment {
         // properties because of configuration changing
         if (savedInstanceState == null) {
             textContext = getArguments().getString("textContent");
+            textSize = getArguments().getFloat("textSize");
             textColor = getArguments().getInt("color");
             dialogWidth = getArguments().getInt("width");
             dialogHeight = getArguments().getInt("height");
@@ -90,10 +92,11 @@ public class ModalDialogFragment extends DialogFragment {
         }
     }
 
-    public static ModalDialogFragment newInstance(String textContent, int color, int width, int height, int numButtons) {
+    public static ModalDialogFragment newInstance(String textContent,float textSize, int color, int width, int height, int numButtons) {
         ModalDialogFragment modalDialog = new ModalDialogFragment();
         Bundle args = new Bundle();
         args.putString("textContent", textContent);
+        args.putFloat("textSize", textSize);
         args.putInt("color", color);
         args.putInt("width", width);
         args.putInt("height", height);
@@ -148,6 +151,7 @@ public class ModalDialogFragment extends DialogFragment {
 
         text_shown = view.findViewById(R.id.text_shown);
         text_shown.setText(textContext);
+        text_shown.setTextSize(textSize);
         text_shown.setTextColor(textColor);
         button1 = view.findViewById(R.id.dialogfragment_button1);
         button1.setOnClickListener(new View.OnClickListener() {
