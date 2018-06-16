@@ -1175,10 +1175,9 @@ public class MyActivity extends AppCompatActivity {
             if (!isCancelled()) {
                 loadingDialog.dismiss();
 
-                ArrayList<Pair<String, Integer>> top10 = scoreSQLite.readTop10ScoreList();
                 ArrayList<String> playerNames = new ArrayList<String>();
                 ArrayList<Integer> playerScores = new ArrayList<Integer>();
-                for (Pair pair : top10) {
+                for (Pair pair : resultList) {
                     playerNames.add((String)pair.first);
                     playerScores.add((Integer)pair.second);
                 }

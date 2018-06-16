@@ -3,6 +3,7 @@ package com.smile.colorballs;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -49,8 +50,11 @@ public class Top10ScoreFragment extends Fragment {
     private ArrayList<Integer> medalImageIds = new ArrayList<Integer>();
     private ListView top10ListView = null;
     private myListAdapter mListAdapter = null;
+    private Button okButton = null;
     private Top10OkButtonListener top10OkButtonListener = null;
+    private TextView titleForTop10ListView = null;
 
+    private int fontSizeForText = 24;
 
     private OnFragmentInteractionListener mListener;
 
@@ -68,7 +72,7 @@ public class Top10ScoreFragment extends Fragment {
         this.top10OkButtonListener = listener;
     }
 
-    public static Top10ScoreFragment newInstance(ArrayList<String> playerNames, ArrayList<Integer> playerScores, Top10OkButtonListener listener) {
+    public static Top10ScoreFragment newInstance(ArrayList<String> playerNames, ArrayList<Integer> playerScores, int fontSize, Top10OkButtonListener listener) {
         Top10ScoreFragment fragment;
         if (listener == null) {
             fragment = new Top10ScoreFragment();
@@ -79,6 +83,7 @@ public class Top10ScoreFragment extends Fragment {
         Bundle args = new Bundle();
         args.putStringArrayList("Top10Players", playerNames);
         args.putIntegerArrayList("Top10Scores", playerScores);
+        args.putInt("FontSizeForText", fontSize);
         fragment.setArguments(args);
 
         return fragment;
@@ -96,6 +101,7 @@ public class Top10ScoreFragment extends Fragment {
             if (args != null) {
                 top10Players = args.getStringArrayList("Top10Players");
                 top10Scores = args.getIntegerArrayList("Top10Scores");
+                fontSizeForText = args.getInt("FontSizeForText");
             }
         }
     }
@@ -123,7 +129,8 @@ public class Top10ScoreFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         if (savedInstanceState == null) {   // new Fragment instance
-            Button okButton = (Button) top10ScoreFragmentView.findViewById(R.id.top10OkButton);
+            titleForTop10ListView = top10ScoreFragmentView.findViewById(R.id.top10ScoreTitle);
+            okButton = (Button) top10ScoreFragmentView.findViewById(R.id.top10OkButton);
             okButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -155,6 +162,13 @@ public class Top10ScoreFragment extends Fragment {
 
                 }
             });
+        }
+        if (okButton != null) {
+            // set text size for okButton
+            okButton.setTextSize(fontSizeForText);
+        }
+        if (titleForTop10ListView != null) {
+            titleForTop10ListView.setTextSize(fontSizeForText);
         }
     }
 
@@ -254,13 +268,19 @@ public class Top10ScoreFragment extends Fragment {
             }
 
             int listViewHeight = parent.getHeight();
-            int itemHeight = listViewHeight / 4;    // 4 items for one screen
+            int itemNum = 4;
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                itemNum = 3;
+            }
+            int itemHeight = listViewHeight / itemNum;    // items for one screen
             ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
             layoutParams.height = itemHeight;
             // view.setLayoutParams(layoutParams);  // no needed
 
             TextView pTextView = view.findViewById(R.id.playerTextView);
+            pTextView.setTextSize(fontSizeForText);
             TextView sTextView = view.findViewById(R.id.scoreTextView);
+            sTextView.setTextSize(fontSizeForText);
             ImageView medalImage = view.findViewById(R.id.medalImage);
 
             pTextView.setText(players.get(position));

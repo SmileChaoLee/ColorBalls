@@ -36,6 +36,8 @@ public class Top10ScoreActivity extends AppCompatActivity {
     private FragmentManager fmManager = null;
     private Fragment top10ScoreFragment = null;
 
+    private int fontSizeForText = 24;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,15 +56,16 @@ public class Top10ScoreActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_top10_score);
-        int top10ViewId = R.id.top10_score_view;
+        int top10LayoutId = R.id.top10_score_linear_layout;
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             top10Players = extras.getStringArrayList("Top10Players");
             top10Scores = extras.getIntegerArrayList("Top10Scores");
+            fontSizeForText = extras.getInt("FontSizeForText");
         }
 
-        top10ScoreFragment = Top10ScoreFragment.newInstance(top10Players, top10Scores, new Top10ScoreFragment.Top10OkButtonListener() {
+        top10ScoreFragment = Top10ScoreFragment.newInstance(top10Players, top10Scores, fontSizeForText, new Top10ScoreFragment.Top10OkButtonListener() {
             @Override
             public void buttonOkClick(Activity activity) {
                 activity.finish();
@@ -73,9 +76,9 @@ public class Top10ScoreActivity extends AppCompatActivity {
         FragmentTransaction ft = fmManager.beginTransaction();
         Fragment currentTop10ScoreFragment = fmManager.findFragmentByTag(Top10ScoreFragment.Top10ScoreFragmentTag);
         if (currentTop10ScoreFragment == null) {
-            ft.add(top10ViewId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
+            ft.add(top10LayoutId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
         } else {
-            ft.replace(top10ViewId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
+            ft.replace(top10LayoutId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
         }
         ft.commit();
         System.out.println("Top10ScoreActivity.onCreate() -----> top10ScoreFragment is created.");

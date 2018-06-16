@@ -1,14 +1,17 @@
 package com.smile.colorballs;
 
+// import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.ActionBar;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
@@ -19,10 +22,12 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.purplebrain.adbuddiz.sdk.AdBuddiz;
 import com.smile.scoresqlite.ScoreSQLite;
+import com.smile.utility.ScreenUtl;
 
 import java.util.ArrayList;
 
@@ -39,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
     private FragmentManager fmManager = null;
     private MainUiFragment mainUiFragment = null;
     private Top10ScoreFragment top10ScoreFragment = null;
+
+    private int fontSizeForText = 24;
 
     public MainActivity() {
         System.out.println("MainActivity ---> Constructor");
@@ -59,10 +66,49 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
 
+        Point size = new Point();
+        ScreenUtl.getScreenSize(this, size);
+        int screenWidth = size.x;
+        int screenHeight = size.y;
+
+        fontSizeForText = 24;   // default for portrait of cell phone
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // Landscape
+            if (screenWidth >= 2000) {
+                // assume Tablet
+                fontSizeForText = 32;
+            } else {
+                // cell phone
+                fontSizeForText = 16;
+
+            }
+        } else {
+            // portrait
+            if (screenWidth >= 1300) {
+                // assume Tablet
+                fontSizeForText = 48;
+            } else {
+                // cell phone
+                fontSizeForText = 24;
+
+            }
+        }
+
         setContentView(R.layout.activity_main);
 
         int highestScore = scoreSQLite.readHighestScore();
         setTitle(String.format("%10d", highestScore));
+
+        // setting the font size for activity label
+        ActionBar actionBar = getSupportActionBar();
+
+        TextView titleView = new TextView(this);
+        titleView.setText(actionBar.getTitle());
+        titleView.setTextColor(Color.WHITE);
+        titleView.setTextSize(fontSizeForText);
+        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        actionBar.setCustomView(titleView);
+        //
 
         mainUiLayoutId = R.id.mainUiLayout;
         scoreHistoryLayoutId = R.id.scoreHistoryLayout;
@@ -201,6 +247,10 @@ public class MainActivity extends AppCompatActivity {
         return this.scoreHistoryLayoutId;
     }
 
+    public int getFontSizeForText() {
+        return fontSizeForText;
+    }
+
     public void showScoreHistory() {
         new ShowTop10Scores().execute();
     }
@@ -279,10 +329,9 @@ public class MainActivity extends AppCompatActivity {
                 // loadingDialog.dismiss(); // removed on 2018-08-14
                 getSupportFragmentManager().beginTransaction().remove(loadingDialog).commitAllowingStateLoss();
 
-                ArrayList<Pair<String, Integer>> top10 = scoreSQLite.readTop10ScoreList();
                 ArrayList<String> playerNames = new ArrayList<String>();
                 ArrayList<Integer> playerScores = new ArrayList<Integer>();
-                for (Pair pair : top10) {
+                for (Pair pair : resultList) {
                     playerNames.add((String)pair.first);
                     playerScores.add((Integer)pair.second);
                 }
@@ -290,7 +339,7 @@ public class MainActivity extends AppCompatActivity {
                 View historyView = findViewById(scoreHistoryLayoutId);
                 if (historyView != null) {
                     if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                        top10ScoreFragment = Top10ScoreFragment.newInstance(playerNames, playerScores, new Top10ScoreFragment.Top10OkButtonListener() {
+                        top10ScoreFragment = Top10ScoreFragment.newInstance(playerNames, playerScores, fontSizeForText, new Top10ScoreFragment.Top10OkButtonListener() {
                             @Override
                             public void buttonOkClick(Activity activity) {
                                 if (top10ScoreFragment != null) {
@@ -318,6 +367,7 @@ public class MainActivity extends AppCompatActivity {
                     Bundle extras = new Bundle();
                     extras.putStringArrayList("Top10Players", playerNames);
                     extras.putIntegerArrayList("Top10Scores", playerScores);
+                    extras.putInt("FontSizeForText", fontSizeForText);
                     intent.putExtras(extras);
                     startActivity(intent);
                 }

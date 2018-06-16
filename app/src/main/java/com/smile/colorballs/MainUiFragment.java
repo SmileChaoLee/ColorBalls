@@ -10,6 +10,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -93,6 +94,8 @@ public class MainUiFragment extends Fragment {
     private String cancelStr = new String("");
     private String gameOverStr = new String("");
 
+    private int fontSizeForText = 24;   // default
+
     public MainUiFragment() {
         // Required empty public constructor
     }
@@ -164,6 +167,8 @@ public class MainUiFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        System.out.println("MainUiFragment onActivityCreated() is called.");
+
         // starting the game
         // the object gotten from getActivity() in onActivityCreated() is different from gotten in onCreate()
         // this context should be used in all scope, especially in AsyncTask
@@ -172,6 +177,7 @@ public class MainUiFragment extends Fragment {
         fmManager = mainActivity.getSupportFragmentManager();
 
         scoreSQLite = mainActivity.getScoreSQLite();
+        fontSizeForText = mainActivity.getFontSizeForText();
 
         Point size = new Point();
         ScreenUtl.getScreenSize(context, size);
@@ -198,22 +204,48 @@ public class MainUiFragment extends Fragment {
         uiFragmentView.setLayoutParams(vLP);
         */
 
+        float height_weightSum_uiFragmentView = 10;    // default
+        try {
+            LinearLayout linearLay = (LinearLayout) uiFragmentView;
+            float temp = linearLay.getWeightSum();
+            if (temp != 0) {
+                height_weightSum_uiFragmentView = temp;
+            }
+        } catch (Exception ex) {
+            System.out.println("Getting weightSum of Layout for uiFragmentView was failed.");
+            ex.printStackTrace();
+        }
+
+        LinearLayout scoreNextBallsLayout = (LinearLayout) uiFragmentView.findViewById(R.id.score_next_balls_layout);
+        float width_weightSum_scoreNextBallsLayout = scoreNextBallsLayout.getWeightSum();
+        if (width_weightSum_scoreNextBallsLayout == 0) {
+            width_weightSum_scoreNextBallsLayout = 5;   // default
+        }
+        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) scoreNextBallsLayout.getLayoutParams();
+        float height_weight_scoreNextBallsLayout = layoutParams.weight;
+        if (height_weight_scoreNextBallsLayout == 0) {
+            height_weight_scoreNextBallsLayout = 1; //default
+        }
+
         // display the highest score and current score
         currentScoreView = (TextView) uiFragmentView.findViewById(R.id.currentScoreTextView);
-        currentScoreView.setWidth(screenHeight/10);
+        currentScoreView.setTextSize(fontSizeForText);
         currentScoreView.setText(String.format("%10d", currentScore));
 
         // display the view of next balls
         GridLayout nextBallsLayout = (GridLayout) uiFragmentView.findViewById(R.id.nextBallsLayout);
         int nextBallsRow = nextBallsLayout.getRowCount();
         nextBallsNumber = nextBallsLayout.getColumnCount();
+        layoutParams = (LinearLayout.LayoutParams)nextBallsLayout.getLayoutParams();
+        float width_weight_nextBalls = layoutParams.weight;
 
-        int nextBallsViewWidth = screenWidth * 2 / 3;   // 2-3th of screen width
+        int nextBallsViewWidth = (int)((float)screenWidth * width_weight_nextBalls / width_weightSum_scoreNextBallsLayout);   // 3-5th of screen width
 
         LinearLayout.LayoutParams oneNextBallLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         oneNextBallLp.width = nextBallsViewWidth / nextBallsNumber;
-        oneNextBallLp.height = screenHeight / 10;  // the layout_weight for height is 1
+        // the layout_weight for height is 1
+        oneNextBallLp.height = (int)((float)screenHeight * height_weight_scoreNextBallsLayout / height_weightSum_uiFragmentView);
         oneNextBallLp.gravity = Gravity.CENTER;
 
         ImageView imageView = null;
@@ -234,16 +266,20 @@ public class MainUiFragment extends Fragment {
         GridLayout gridCellsLayout = (GridLayout) uiFragmentView.findViewById(R.id.gridCellsLayout);
         rowCounts = gridCellsLayout.getRowCount();
         colCounts = gridCellsLayout.getColumnCount();
+        LinearLayout.LayoutParams gridLp = (LinearLayout.LayoutParams) gridCellsLayout.getLayoutParams();
+        float height_weight_gridCellsLayout = gridLp.weight;
+        if (height_weight_gridCellsLayout == 0) {
+            height_weight_gridCellsLayout = 8;  // default
+        }
 
-        int cellWidth = screenWidth / colCounts;
-        int eight10thOfHeight = ((int)(screenHeight/10)) * 8;
+        int cellWidth = (int)(screenWidth / colCounts);
+        int eight10thOfHeight = (int)( (float)screenHeight / height_weightSum_uiFragmentView * height_weight_gridCellsLayout);
         if ( screenWidth >  eight10thOfHeight) {
             // if screen width greater than 8-10th of screen height
             cellWidth = eight10thOfHeight / rowCounts;
         }
         int cellHeight = cellWidth;
 
-        LinearLayout.LayoutParams gridLp = (LinearLayout.LayoutParams) gridCellsLayout.getLayoutParams();
         gridLp.width = cellWidth * colCounts;
         gridLp.topMargin = 20;
         gridLp.gravity = Gravity.CENTER;
@@ -280,6 +316,7 @@ public class MainUiFragment extends Fragment {
         }
 
         Button undoButton = (Button) uiFragmentView.findViewById(R.id.undoButton);
+        undoButton.setTextSize(fontSizeForText);
         undoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -288,6 +325,7 @@ public class MainUiFragment extends Fragment {
         });
 
         Button historyButton = (Button) uiFragmentView.findViewById(R.id.historyButton);
+        historyButton.setTextSize(fontSizeForText);
         historyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -652,10 +690,28 @@ public class MainUiFragment extends Fragment {
     }
 
     private void flushALLandBegin() {
+        /* cannot use FragmentManager to recreate Fragment because MainActivity will not have new instance of Fragment
         // recreate this Fragment without recreating MainActivity
         FragmentTransaction ft = fmManager.beginTransaction();
         ft.replace(mainActivity.getMainUiLayoutId(), newInstance(), MainUiFragmentTag);
         ft.commit();
+        */
+
+        // must use the following to let MainActivity have new instance of Fragment
+
+        // remove this fragment
+        FragmentTransaction ft = fmManager.beginTransaction();
+        ft.remove(this);
+        ft.commit();
+
+        // recreate MainActivity (set savedInstanceState to null)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {   // api 11
+            mainActivity.recreate(); // recreate the original activity
+        } else {
+            Intent intent = mainActivity.getIntent();
+            mainActivity.finish();
+            startActivity(intent);
+        }
     }
 
     private void setDialogStyle(DialogInterface dialog) {
@@ -768,93 +824,6 @@ public class MainUiFragment extends Fragment {
         displayGameGridView();
     }
 
-    private class StartHistoryScore extends AsyncTask<Void,Integer,ArrayList<Pair<String, Integer>>> {
-        private Animation animationText = null;
-        private ModalDialogFragment loadingDialog = null;
-
-        public StartHistoryScore() {
-            loadingDialog = new ModalDialogFragment();
-            Bundle args = new Bundle();
-            args.putString("textContent", getResources().getString(R.string.loadScore));
-            args.putInt("color", Color.RED);
-            args.putInt("width", 0);    // wrap_content
-            args.putInt("height", 0);   // wrap_content
-            args.putInt("numButtons", 0);
-            loadingDialog.setArguments(args);
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-            animationText = new AlphaAnimation(0.0f,1.0f);
-            animationText.setDuration(300);
-            animationText.setStartOffset(0);
-            animationText.setRepeatMode(Animation.REVERSE);
-            animationText.setRepeatCount(Animation.INFINITE);
-
-            loadingDialog.showDialogFragment(fmManager);
-        }
-
-        @Override
-        protected ArrayList<Pair<String, Integer>> doInBackground(Void... params) {
-            int i = 0;
-            publishProgress(i);
-            // String[] result = scoreSQLite.read10HighestScore();
-            ArrayList<Pair<String, Integer>> resultList = scoreSQLite.readTop10ScoreList();
-
-            // wait for one second
-            try { Thread.sleep(1000); } catch (InterruptedException ex) { ex.printStackTrace(); }
-
-            i = 1;
-            publishProgress(i);
-
-            // return result;
-            return resultList;
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... progress) {
-            if (!isCancelled()) {
-                TextView textLoad = loadingDialog.getText_shown();
-                if (progress[0] == 0) {
-                    if (animationText != null) {
-                        textLoad.startAnimation(animationText);
-                    }
-                } else {
-                    if (animationText != null) {
-                        textLoad.clearAnimation();
-                        animationText = null;
-                    }
-                    textLoad.setText("");
-                }
-            }
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<Pair<String, Integer>> resultList) {
-            if (!isCancelled()) {
-                loadingDialog.dismiss();
-
-                ArrayList<Pair<String, Integer>> top10 = scoreSQLite.readTop10ScoreList();
-                ArrayList<String> playerNames = new ArrayList<String>();
-                ArrayList<Integer> playerScores = new ArrayList<Integer>();
-                for (Pair pair : top10) {
-                    playerNames.add((String)pair.first);
-                    playerScores.add((Integer)pair.second);
-                }
-
-                Intent intent = new Intent(context, Top10ScoreActivity.class);
-                Bundle extras = new Bundle();
-                extras.putStringArrayList("Top10Players", playerNames);
-                extras.putIntegerArrayList("Top10Scores", playerScores);
-                intent.putExtras(extras);
-
-                startActivity(intent);
-            }
-            AdBuddiz.showAd(mainActivity);   // added on 2017-10-24
-        }
-    }
-
     private class CalculateScore extends AsyncTask<HashSet<Point>,Integer,String[]> {
 
         private int numBalls = 0;
@@ -953,6 +922,7 @@ public class MainUiFragment extends Fragment {
             undoScore = currentScore;
             currentScore = currentScore + score;
             currentScoreView.setText(String.format("%9d", currentScore));
+            System.out.println("currentScore = " + currentScore);
 
             threadCompleted[1] = true;
         }
@@ -973,10 +943,12 @@ public class MainUiFragment extends Fragment {
     }
 
     public void newGame() {
+        System.out.println("public void newGame() --> currentScore = " + currentScore);
         recordScore(1);   //   START A NEW GAME
     }
 
     public void recordScore(final int entryPoint) {
+        System.out.println("public void recordScore() --> currentScore = " + currentScore);
         final EditText et = new EditText(mainActivity);
         et.setTextSize(24);
         // et.setHeight(200);
@@ -1007,6 +979,7 @@ public class MainUiFragment extends Fragment {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
 
+                System.out.println("scoreSQLite.addScore(), currentScore = " + currentScore);
                 scoreSQLite.addScore(et.getText().toString(),currentScore);
                 if (entryPoint==0) {
                     mainActivity.finish();
