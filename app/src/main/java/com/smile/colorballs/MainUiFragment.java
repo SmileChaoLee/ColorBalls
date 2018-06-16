@@ -703,20 +703,10 @@ public class MainUiFragment extends Fragment {
         */
 
         // must use the following to let MainActivity have new instance of Fragment
-
-        // remove this fragment
-        FragmentTransaction ft = fmManager.beginTransaction();
-        ft.remove(this);
-        ft.commit();
-
-        // recreate MainActivity (set savedInstanceState to null)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {   // api 11
-            mainActivity.recreate(); // recreate the original activity
-        } else {
-            Intent intent = mainActivity.getIntent();
-            mainActivity.finish();
-            startActivity(intent);
-        }
+        // recreate MainActivity like new start (no savedInstanceState)
+        Intent intent = mainActivity.getIntent();
+        mainActivity.finish();
+        startActivity(intent);
     }
 
     private void setDialogStyle(DialogInterface dialog) {
