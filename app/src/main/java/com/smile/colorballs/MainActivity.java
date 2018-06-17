@@ -173,45 +173,44 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.quitGame) {
-
-            // removed on 2017-10-24
-            // Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, autoRotate);
-
-            mainUiFragment.recordScore(0);   //   from   END PROGRAM
-
             AdBuddiz.showAd(this);
             // AdBuddiz.RewardedVideo.show(this); // this = current Activity
 
+            // removed on 2017-10-24
+            // Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, autoRotate);
+            mainUiFragment.recordScore(0);   //   from   END PROGRAM
             return true;
         }
         if (id == R.id.newGame) {
-            mainUiFragment.newGame();
             AdBuddiz.showAd(this);
+            mainUiFragment.newGame();
             return true;
         }
         if (id == R.id.easyLevel) {
+
+            AdBuddiz.showAd(this);
+            // AdBuddiz.showAd(this);
+            // AdBuddiz.RewardedVideo.show(this); // this = current Activity
+
             item.setChecked(true);
             registerMenuItemDifficult.setChecked(false);
             mainUiFragment.getGridData().setMinBallsOneTime(MainUiFragment.MINB);
             mainUiFragment.getGridData().setMaxBallsOneTime(MainUiFragment.MINB);
             mainUiFragment.displayNextColorBalls();
 
-            AdBuddiz.showAd(this);
-            // AdBuddiz.showAd(this);
-            // AdBuddiz.RewardedVideo.show(this); // this = current Activity
-
             return true;
         }
         if (id == R.id.difficultLevel) {
+
+            AdBuddiz.showAd(this);
+            // AdBuddiz.showAd(this);
+            // AdBuddiz.RewardedVideo.show(this); // this = current Activity
             item.setChecked(true);
+
             registerMenuItemEasy.setChecked(false);
             mainUiFragment.getGridData().setMinBallsOneTime(MainUiFragment.MINB);
             mainUiFragment.getGridData().setMaxBallsOneTime(MainUiFragment.MAXB);
             mainUiFragment.displayNextColorBalls();
-
-            AdBuddiz.showAd(this);
-            // AdBuddiz.showAd(this);
-            // AdBuddiz.RewardedVideo.show(this); // this = current Activity
 
             return true;
         }
@@ -232,6 +231,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onDestroy() {
+        AdBuddiz.showAd(MainActivity.this);   // added on 2018-06-17
         super.onDestroy();
     }
 
@@ -246,16 +246,6 @@ public class MainActivity extends AppCompatActivity {
         return this.scoreSQLite;
     }
 
-    /*
-    public int getMainUiLayoutId() {
-        return this.mainUiLayoutId;
-    }
-
-    public int getScoreHistoryLayoutId() {
-        return this.scoreHistoryLayoutId;
-    }
-    */
-
     public int getFontSizeForText() {
         return fontSizeForText;
     }
@@ -269,6 +259,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showScoreHistory() {
+        AdBuddiz.showAd(MainActivity.this);   // added on 2017-10-24
         new ShowTop10Scores().execute();
     }
 
@@ -390,7 +381,6 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
             }
-            AdBuddiz.showAd(MainActivity.this);   // added on 2017-10-24
         }
     }
 }

@@ -234,7 +234,7 @@ public class MainUiFragment extends Fragment {
         // display the highest score and current score
         currentScoreView = (TextView) uiFragmentView.findViewById(R.id.currentScoreTextView);
         currentScoreView.setTextSize(fontSizeForText);
-        currentScoreView.setText(String.format("%10d", currentScore));
+        currentScoreView.setText(String.format("%9d", currentScore));
 
         // display the view of next balls
         GridLayout nextBallsLayout = (GridLayout) uiFragmentView.findViewById(R.id.nextBallsLayout);
@@ -447,22 +447,20 @@ public class MainUiFragment extends Fragment {
         } else {
             // check if game over
             if (gridData.getGameOver()) {
+                AdBuddiz.showAd(mainActivity);
+                // AdBuddiz.RewardedVideo.show(MyActivity.this); // this = current Activity
                 //  game over
                 final ModalDialogFragment mDialogFragment = new ModalDialogFragment(new ModalDialogFragment.DialogButtonListener() {
                     @Override
                     public void button1OnClick(ModalDialogFragment dialogFragment) {
                         dialogFragment.dismiss();
                         recordScore(0);   //   Ending the game
-                        AdBuddiz.showAd(mainActivity);
-                        // AdBuddiz.RewardedVideo.show(MyActivity.this); // this = current Activity
                     }
 
                     @Override
                     public void button2OnClick(ModalDialogFragment dialogFragment) {
                         dialogFragment.dismiss();
                         newGame();
-                        AdBuddiz.showAd(mainActivity);
-                        // AdBuddiz.RewardedVideo.show(MyActivity.this); // this = current Activity
                     }
                 });
                 Bundle args = new Bundle();
