@@ -90,8 +90,15 @@ public class MainActivity extends AppCompatActivity {
 
             }
             dialog_widthFactor = screenWidth / baseHeight;
+            if (dialog_widthFactor < 1.0f) {
+                dialog_widthFactor = 1.0f;
+            }
             dialogFragment_widthFactor = dialog_widthFactor * 2.0f;
+
             dialog_heightFactor = screenHeight / baseWidth;
+            if (dialog_heightFactor < 1.0f) {
+                dialog_heightFactor = 1.0f;
+            }
             dialogFragment_heightFactor = dialog_heightFactor * 2.0f;
         } else {
             // portrait
@@ -103,8 +110,15 @@ public class MainActivity extends AppCompatActivity {
                 fontSizeForText = 24;
             }
             dialog_widthFactor = screenWidth / baseWidth;
+            if (dialog_widthFactor < 1.0f) {
+                dialog_widthFactor = 1.0f;
+            }
             dialogFragment_widthFactor = dialog_widthFactor;
+
             dialog_heightFactor = screenHeight / baseHeight;
+            if (dialog_heightFactor < 1.0f) {
+                dialog_heightFactor = 1.0f;
+            }
             dialogFragment_heightFactor = dialog_heightFactor;
         }
 
