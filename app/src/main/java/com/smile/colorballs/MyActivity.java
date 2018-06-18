@@ -627,7 +627,8 @@ public class MyActivity extends AppCompatActivity {
                 args.putInt("height", 0);   // wrap_content
                 args.putInt("numButtons", 2);
                 mDialogFragment.setArguments(args);
-                mDialogFragment.showDialogFragment(fmManager);
+                // mDialogFragment.showDialogFragment(fmManager, "GameOverDialogFragment");
+                mDialogFragment.show(fmManager, "GameOverDialogFragment");
 
                 // removed on 2018-01-02 for testing
                 /*
@@ -1109,6 +1110,7 @@ public class MyActivity extends AppCompatActivity {
     }
 
     private class StartHistoryScore extends AsyncTask<Void,Integer,ArrayList<Pair<String, Integer>>> {
+        public static final String Top10LoadingDialog = "Top10LoadingDialogFragment";
         private Animation animationText = null;
         private ModalDialogFragment loadingDialog = null;
 
@@ -1132,7 +1134,8 @@ public class MyActivity extends AppCompatActivity {
             animationText.setRepeatMode(Animation.REVERSE);
             animationText.setRepeatCount(Animation.INFINITE);
 
-            loadingDialog.showDialogFragment(fmManager);
+            // loadingDialog.showDialogFragment(fmManager, Top10LoadingDialog);
+            loadingDialog.show(fmManager, Top10LoadingDialog);
         }
 
         @Override
@@ -1195,7 +1198,7 @@ public class MyActivity extends AppCompatActivity {
     }
 
     private class CalculateScore extends AsyncTask<HashSet<Point>,Integer,String[]> {
-
+        public static final String ScoreDialog = "ScoreDialogFragment";
         private int numBalls = 0;
         private int color = 0;
         private HashSet<Point> hashPoint = null;
@@ -1267,7 +1270,8 @@ public class MyActivity extends AppCompatActivity {
                     }
                     break;
                 case 2:
-                    scoreDialog.showDialogFragment(fmManager);
+                    // scoreDialog.showDialogFragment(fmManager, ScoreDialog);
+                    scoreDialog.show(fmManager, ScoreDialog);
                     break;
                 case 3:
                     scoreDialog.dismiss();

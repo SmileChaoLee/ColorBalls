@@ -35,13 +35,13 @@ public class Top10ScoreActivity extends AppCompatActivity {
 
     private FragmentManager fmManager = null;
     private Fragment top10ScoreFragment = null;
+    private int top10LayoutId;
 
     private int fontSizeForText = 24;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         try {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -54,9 +54,14 @@ public class Top10ScoreActivity extends AppCompatActivity {
             Log.d(TAG, "Unable to start this Activity.");
             ex.printStackTrace();
         }
-
         setContentView(R.layout.activity_top10_score);
-        int top10LayoutId = R.id.top10_score_linear_layout;
+        top10LayoutId = R.id.top10_score_linear_layout;
+        System.out.println("Top10ScoreActivity.onCreate().");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -81,7 +86,7 @@ public class Top10ScoreActivity extends AppCompatActivity {
             ft.replace(top10LayoutId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
         }
         ft.commit();
-        System.out.println("Top10ScoreActivity.onCreate() -----> top10ScoreFragment is created.");
+        System.out.println("Top10ScoreActivity.onResume() -----> top10ScoreFragment is created.");
 
     }
 

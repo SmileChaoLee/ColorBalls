@@ -66,7 +66,6 @@ public class MainUiFragment extends Fragment {
     private Context context = null;
     private MainActivity mainActivity = null;
     private View uiFragmentView = null;
-    private FragmentManager fmManager = null;
 
     private Runnable bouncyRunnable; // needed to be tested 2018-0609
     private Handler bouncyHandler;   // needed to be tested
@@ -97,7 +96,10 @@ public class MainUiFragment extends Fragment {
     private int fontSizeForText = 24;   // default
     private float dialog_widthFactor = 1.0f;
     private float dialog_heightFactor = 1.0f;
+    private float dialogFragment_widthFactor = dialog_widthFactor;
+    private float dialogFragment_heightFactor = dialog_heightFactor;
 
+    // private ModalDialogFragment gameOverDialog = null;
     public MainUiFragment() {
         // Required empty public constructor
     }
@@ -176,12 +178,13 @@ public class MainUiFragment extends Fragment {
         // this context should be used in all scope, especially in AsyncTask
         context = getActivity();
         mainActivity = (MainActivity)context;
-        fmManager = mainActivity.getSupportFragmentManager();
 
         scoreSQLite = mainActivity.getScoreSQLite();
         fontSizeForText = mainActivity.getFontSizeForText();
         dialog_widthFactor = mainActivity.getDialog_widthFactor();
         dialog_heightFactor = mainActivity.getDialog_heightFactor();
+        dialogFragment_widthFactor = mainActivity.getDialogFragment_widthFactor();
+        dialogFragment_heightFactor = mainActivity.getDialogFragment_heightFactor();
 
         Point size = new Point();
         ScreenUtl.getScreenSize(context, size);
@@ -450,7 +453,7 @@ public class MainUiFragment extends Fragment {
                 AdBuddiz.showAd(mainActivity);
                 // AdBuddiz.RewardedVideo.show(MyActivity.this); // this = current Activity
                 //  game over
-                final ModalDialogFragment mDialogFragment = new ModalDialogFragment(new ModalDialogFragment.DialogButtonListener() {
+                final ModalDialogFragment gameOverDialog = new ModalDialogFragment(new ModalDialogFragment.DialogButtonListener() {
                     @Override
                     public void button1OnClick(ModalDialogFragment dialogFragment) {
                         dialogFragment.dismiss();
@@ -465,13 +468,40 @@ public class MainUiFragment extends Fragment {
                 });
                 Bundle args = new Bundle();
                 args.putString("textContent", gameOverStr);
-                args.putFloat("textSize", fontSizeForText * dialog_widthFactor);
+                args.putFloat("textSize", fontSizeForText * dialogFragment_widthFactor);
                 args.putInt("color", Color.BLUE);
                 args.putInt("width", 0);    // wrap_content
                 args.putInt("height", 0);   // wrap_content
                 args.putInt("numButtons", 2);
-                mDialogFragment.setArguments(args);
-                mDialogFragment.showDialogFragment(fmManager);
+                gameOverDialog.setArguments(args);
+                gameOverDialog.show(getActivity().getSupportFragmentManager(),"GmeOverDialog");
+                gameOverDialog.showDialogFragment(getActivity().getSupportFragmentManager(), "GmeOverDialog");
+                // do not use gameOverDialog.show(getActivity().getSupportFragmentManager(), "GmeOverDialog");
+
+                /*
+                final ModalTest mDialogFragment = new ModalTest(new ModalTest.DialogButtonListener() {
+                    @Override
+                    public void button1OnClick(ModalTest dialogFragment) {
+                        dialogFragment.dismiss();
+                        recordScore(0);   //   Ending the game
+                    }
+
+                    @Override
+                    public void button2OnClick(ModalTest dialogFragment) {
+                        dialogFragment.dismiss();
+                        newGame();
+                    }
+                });
+                Bundle argss = new Bundle();
+                argss.putString("textContent", gameOverStr);
+                argss.putFloat("textSize", fontSizeForText * dialogFragment_widthFactor);
+                argss.putInt("color", Color.BLUE);
+                argss.putInt("width", 0);    // wrap_content
+                argss.putInt("height", 0);   // wrap_content
+                argss.putInt("numButtons", 2);
+                mDialogFragment.setArguments(argss);
+                mDialogFragment.showDialogFragment(getActivity().getSupportFragmentManager());
+                */
             }
         }
 
@@ -695,7 +725,7 @@ public class MainUiFragment extends Fragment {
     private void flushALLandBegin() {
         /* cannot use FragmentManager to recreate Fragment because MainActivity will not have new instance of Fragment
         // recreate this Fragment without recreating MainActivity
-        FragmentTransaction ft = fmManager.beginTransaction();
+        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
         ft.replace(mainActivity.getMainUiLayoutId(), newInstance(), MainUiFragmentTag);
         ft.commit();
         */
@@ -819,6 +849,7 @@ public class MainUiFragment extends Fragment {
 
     private class CalculateScore extends AsyncTask<HashSet<Point>,Integer,String[]> {
 
+        public static final String ScoreDialog = "ScoreDialogFragment";
         private int numBalls = 0;
         private int color = 0;
         private HashSet<Point> hashPoint;
@@ -852,8 +883,8 @@ public class MainUiFragment extends Fragment {
 
             scoreDialog = new ModalDialogFragment();
             Bundle args = new Bundle();
-            args.putString("textContent", ""+score);
-            args.putFloat("textSize", fontSizeForText * dialog_widthFactor);
+            args.putString("textContent", "" + score);
+            args.putFloat("textSize", fontSizeForText * dialog_widthFactor * 2.0f);
             args.putInt("color", Color.BLUE);
             args.putInt("width", 0);    // wrap_content
             args.putInt("height", 0);   // wrap_content
@@ -890,13 +921,13 @@ public class MainUiFragment extends Fragment {
                     }
                     break;
                 case 2:
-                    scoreDialog.showDialogFragment(fmManager);
+                    scoreDialog.show(getActivity().getSupportFragmentManager(), ScoreDialog);
+                    // do not use scoreDialog.showDialogFragment(getSupportFragmentManager(), Top10LoadingDialog);
                     break;
                 case 3:
-                    System.out.println("MainUiFragment.Calculation is calling scoreDialog.dismiss()");
-                    // scoreDialog.dismiss();
-                    // fmManager.beginTransaction().remove(scoreDialog).commitAllowingStateLoss();
-                    getActivity().getSupportFragmentManager().beginTransaction().remove(scoreDialog).commitAllowingStateLoss();
+                    System.out.println("MainUiFragment.Calculation is calling scoreDialog.dismissAllowingStateLoss()");
+                    // scoreDialog.dismiss();  // removed on 2018-06-18
+                    scoreDialog.dismissAllowingStateLoss(); // added on 2018-06-18
                     break;
             }
 

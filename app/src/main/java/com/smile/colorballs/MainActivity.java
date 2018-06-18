@@ -7,6 +7,8 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.AsyncTask;
+import android.os.PersistableBundle;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -41,13 +43,14 @@ public class MainActivity extends AppCompatActivity {
     private MenuItem registerMenuItemEasy = null;
     private MenuItem registerMenuItemDifficult = null;
 
-    private FragmentManager fmManager = null;
     private MainUiFragment mainUiFragment = null;
     private Top10ScoreFragment top10ScoreFragment = null;
 
     private int fontSizeForText = 24;
     private float dialog_widthFactor = 1.0f;
-    private float Dialog_heightFactor = 1.0f;
+    private float dialog_heightFactor = 1.0f;
+    private float dialogFragment_widthFactor = dialog_widthFactor;
+    private float dialogFragment_heightFactor = dialog_heightFactor;
 
     public MainActivity() {
         System.out.println("MainActivity ---> Constructor");
@@ -87,7 +90,9 @@ public class MainActivity extends AppCompatActivity {
 
             }
             dialog_widthFactor = screenWidth / baseHeight;
-            Dialog_heightFactor = screenHeight / baseWidth;
+            dialogFragment_widthFactor = dialog_widthFactor * 2.0f;
+            dialog_heightFactor = screenHeight / baseWidth;
+            dialogFragment_heightFactor = dialog_heightFactor * 2.0f;
         } else {
             // portrait
             if (screenWidth >= 1300) {
@@ -98,7 +103,9 @@ public class MainActivity extends AppCompatActivity {
                 fontSizeForText = 24;
             }
             dialog_widthFactor = screenWidth / baseWidth;
-            Dialog_heightFactor = screenHeight / baseHeight;
+            dialogFragment_widthFactor = dialog_widthFactor;
+            dialog_heightFactor = screenHeight / baseHeight;
+            dialogFragment_heightFactor = dialog_heightFactor;
         }
 
         setContentView(R.layout.activity_main);
@@ -120,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
         mainUiLayoutId = R.id.mainUiLayout;
         scoreHistoryLayoutId = R.id.scoreHistoryLayout;
 
-        fmManager = getSupportFragmentManager();
+        FragmentManager fmManager = getSupportFragmentManager();
         mainUiFragment = (MainUiFragment) fmManager.findFragmentByTag(MainUiFragment.MainUiFragmentTag);
         View gameView = findViewById(mainUiLayoutId);
         if (gameView != null) {
@@ -221,11 +228,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         if (top10ScoreFragment != null) {
             // remove historyFragment
+            FragmentManager fmManager = getSupportFragmentManager();
             FragmentTransaction ft = fmManager.beginTransaction();
             ft.remove(top10ScoreFragment);
             ft.commit();
-            System.out.println("MainActivity.onSaveInstanceState() ---> removed top10ScoreFragment");
+            System.out.println("MainActivity.onSaveInstanceState() is called. ---> removed top10ScoreFragment");
         }
+        System.out.println("MainActivity.onSaveInstanceState() is called");
         super.onSaveInstanceState(outState);
     }
 
@@ -255,7 +264,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public float getDialog_heightFactor() {
-        return Dialog_heightFactor;
+        return dialog_heightFactor;
+    }
+
+    public float getDialogFragment_widthFactor() {
+        return dialogFragment_widthFactor;
+    }
+
+    public float getDialogFragment_heightFactor() {
+        return dialogFragment_heightFactor;
     }
 
     public void showScoreHistory() {
@@ -264,14 +281,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class ShowTop10Scores extends AsyncTask<Void,Integer,ArrayList<Pair<String, Integer>>> {
+
+        public static final String Top10LoadingDialog = "Top10LoadingDialogFragment";
         private Animation animationText = null;
         private ModalDialogFragment loadingDialog = null;
+        private ModalDialogFragment gameOverDialog = null;
 
         public ShowTop10Scores() {
             loadingDialog = new ModalDialogFragment();
             Bundle args = new Bundle();
             args.putString("textContent", getResources().getString(R.string.loadScore));
-            args.putFloat("textSize", fontSizeForText * dialog_widthFactor);
+            args.putFloat("textSize", fontSizeForText * dialogFragment_widthFactor);
             args.putInt("color", Color.RED);
             args.putInt("width", 0);    // wrap_content
             args.putInt("height", 0);   // wrap_content
@@ -287,8 +307,8 @@ public class MainActivity extends AppCompatActivity {
             animationText.setStartOffset(0);
             animationText.setRepeatMode(Animation.REVERSE);
             animationText.setRepeatCount(Animation.INFINITE);
-
-            loadingDialog.showDialogFragment(getSupportFragmentManager());
+            loadingDialog.show(getSupportFragmentManager(), Top10LoadingDialog);
+            // do not use loadingDialog.showDialogFragment(getSupportFragmentManager(), Top10LoadingDialog);
         }
 
         @Override
@@ -297,11 +317,16 @@ public class MainActivity extends AppCompatActivity {
             publishProgress(i);
             // String[] result = scoreSQLite.read10HighestScore();
             ArrayList<Pair<String, Integer>> resultList = scoreSQLite.readTop10ScoreList();
-
             // wait for one second
             try { Thread.sleep(1000); } catch (InterruptedException ex) { ex.printStackTrace(); }
 
             i = 1;
+            TextView textLoad = loadingDialog.getText_shown();
+            while (textLoad == null) {
+                textLoad = loadingDialog.getText_shown();
+                SystemClock.sleep(20);
+            }
+
             publishProgress(i);
 
             // return result;
@@ -312,7 +337,6 @@ public class MainActivity extends AppCompatActivity {
         protected void onProgressUpdate(Integer... progress) {
             if (!isCancelled()) {
                 TextView textLoad = loadingDialog.getText_shown();
-                // if statement was added on 2018-06-14
                 try {
                     if (progress[0] == 0) {
                         if (animationText != null) {
@@ -334,10 +358,11 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(ArrayList<Pair<String, Integer>> resultList) {
-            if (!isCancelled()) {
-                // loadingDialog.dismiss(); // removed on 2018-08-14
-                getSupportFragmentManager().beginTransaction().remove(loadingDialog).commitAllowingStateLoss();
 
+            if (!isCancelled()) {
+                System.out.println("MainActivity.ShowTop10Scores() ---> calling loadingDialog.dismissAllowingStateLoss()");
+                // loadingDialog.dismiss(); // removed on 2018-06-18
+                loadingDialog.dismissAllowingStateLoss();   // added on 2018-06-18
                 ArrayList<String> playerNames = new ArrayList<String>();
                 ArrayList<Integer> playerScores = new ArrayList<Integer>();
                 for (Pair pair : resultList) {
@@ -353,13 +378,16 @@ public class MainActivity extends AppCompatActivity {
                             public void buttonOkClick(Activity activity) {
                                 if (top10ScoreFragment != null) {
                                     // remove top10ScoreFragment to dismiss the top 10 score screen
+                                    FragmentManager fmManager = getSupportFragmentManager();
                                     FragmentTransaction ft = fmManager.beginTransaction();
                                     ft.remove(top10ScoreFragment);
                                     ft.commit();
                                 }
                             }
                         });
+                        FragmentManager fmManager = getSupportFragmentManager();
                         FragmentTransaction ft = fmManager.beginTransaction();
+                        ft = fmManager.beginTransaction();
                         Fragment currentTop10SocreFragment = (Top10ScoreFragment) fmManager.findFragmentByTag(Top10ScoreFragment.Top10ScoreFragmentTag);
                         if (currentTop10SocreFragment == null) {
                             ft.add(scoreHistoryLayoutId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
