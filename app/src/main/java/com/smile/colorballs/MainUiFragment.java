@@ -66,6 +66,7 @@ public class MainUiFragment extends Fragment {
     private Context context = null;
     private MainActivity mainActivity = null;
     private View uiFragmentView = null;
+    private FragmentManager fmManager = null;
 
     private Runnable bouncyRunnable; // needed to be tested 2018-0609
     private Handler bouncyHandler;   // needed to be tested
@@ -178,6 +179,7 @@ public class MainUiFragment extends Fragment {
         // this context should be used in all scope, especially in AsyncTask
         context = getActivity();
         mainActivity = (MainActivity)context;
+        fmManager = mainActivity.getSupportFragmentManager();
 
         scoreSQLite = mainActivity.getScoreSQLite();
         fontSizeForText = mainActivity.getFontSizeForText();
@@ -474,7 +476,6 @@ public class MainUiFragment extends Fragment {
                 args.putInt("height", 0);   // wrap_content
                 args.putInt("numButtons", 2);
                 gameOverDialog.setArguments(args);
-                gameOverDialog.show(getActivity().getSupportFragmentManager(),"GmeOverDialog");
                 gameOverDialog.showDialogFragment(getActivity().getSupportFragmentManager(), "GmeOverDialog");
                 // do not use gameOverDialog.show(getActivity().getSupportFragmentManager(), "GmeOverDialog");
 

@@ -222,9 +222,11 @@ public class ModalDialogFragment extends DialogFragment {
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
             if ( (isDialogShown) && (!isDismissed) ) {
-                FragmentManager manager = getActivity().getSupportFragmentManager();
-                System.out.println("ModalDialogFragment.onActivityCreated() ---> showDialogFragment() is called");
-                showDialogFragment(manager, modalDialogTag);
+                FragmentManager fmManager = getActivity().getSupportFragmentManager();
+                if (fmManager != null) {
+                    System.out.println("ModalDialogFragment.onActivityCreated() ---> showDialogFragment() is called");
+                    showDialogFragment(fmManager, modalDialogTag);
+                }
             }
         }
         System.out.println("ModalDialogFragment.onActivityCreated() is called");
@@ -254,16 +256,6 @@ public class ModalDialogFragment extends DialogFragment {
         ft.addToBackStack(null);    // has to be here
         show(ft, modalDialogTag);
 
-        /*
-        Fragment prev = manager.findFragmentByTag(modalDialogTag);
-        FragmentTransaction ft = manager.beginTransaction();
-        if (prev != null) {
-            ft.replace(getId(), this, modalDialogTag);
-        } else {
-            ft.add(getId(), this, modalDialogTag);
-        }
-        ft.commit();
-        */
         isDialogShown = true;
     }
 

@@ -302,6 +302,8 @@ public class MainActivity extends AppCompatActivity {
         private ModalDialogFragment gameOverDialog = null;
 
         public ShowTop10Scores() {
+            System.out.println("ShowTop10Scores()->fontSizeForText = " + fontSizeForText);
+            System.out.println("ShowTop10Scores()->dialogFragment_widthFactor = " + dialogFragment_widthFactor);
             loadingDialog = new ModalDialogFragment();
             Bundle args = new Bundle();
             args.putString("textContent", getResources().getString(R.string.loadScore));
