@@ -2,23 +2,17 @@ package com.smile.colorballs;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.SystemClock;
+import android.provider.CalendarContract;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AlertDialog;
+import android.support.v4.app.DialogFragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,11 +25,8 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-/**
- * Created by chaolee on 2017-12-30.
- */
+public class AlertDialogFragment extends DialogFragment {
 
-public class ModalDialogFragment extends DialogFragment {
     private TextView text_shown = null;
     private EditText text_edit = null;
     private Button button1 = null;
@@ -52,53 +43,46 @@ public class ModalDialogFragment extends DialogFragment {
     private boolean isDialogShown = false;
     private boolean isDismissed = false;
     private View modalDialogView = null;
+    private AlertDialogFragment alertDialog = null;
 
     private DialogButtonListener ndl;
     private Context context = null;
     private Activity activity = null;
 
     public interface DialogButtonListener {
-        void button1OnClick(ModalDialogFragment dialogFragment);
-        void button2OnClick(ModalDialogFragment dialogFragment);
+        void button1OnClick(AlertDialogFragment dialogFragment);
+        void button2OnClick(AlertDialogFragment dialogFragment);
     }
 
-    public ModalDialogFragment() {
-    }
-
-    @SuppressLint("ValidFragment")
-    public ModalDialogFragment(DialogButtonListener ndl) {
-        super();
-        this.ndl = ndl;
-    }
-
-    public static ModalDialogFragment newInstance(String textContent,float textSize, int color, int width, int height, int numButtons) {
-        ModalDialogFragment modalDialog = new ModalDialogFragment();
-        Bundle args = new Bundle();
-        args.putString("textContent", textContent);
-        args.putFloat("textSize", textSize);
-        args.putInt("color", color);
-        args.putInt("width", width);
-        args.putInt("height", height);
-        args.putInt("numButtons", numButtons);
-        modalDialog.setArguments(args);
-
-        return modalDialog;
+    public AlertDialogFragment() {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        System.out.println("ModalDialogFragment.onCreate() is called");
+        System.out.println("AlertDialogFragment.onCreate() is called");
 
         // if statement was added on 2018-06-14 for avoiding to reset the parameters and values of
         // properties because of configuration changing
         if (savedInstanceState == null) {
-            textContext = getArguments().getString("textContent");
-            textSize = getArguments().getFloat("textSize");
-            textColor = getArguments().getInt("color");
-            dialogWidth = getArguments().getInt("width");
-            dialogHeight = getArguments().getInt("height");
+            // initialize variables
+            textContext = "No content";
+            textSize = 24;  // default font size
+            textColor = Color.BLUE;
+            dialogWidth = 0;    // wrap_content
+            dialogHeight = 0;   // wrap_content
+            numButtons = 0;     // default is no buttons
+
+            Bundle args = getArguments();
+            if (args != null) {
+                textContext = args.getString("textContent");
+                textSize = args.getFloat("textSize");
+                textColor = args.getInt("color");
+                dialogWidth = args.getInt("width");
+                dialogHeight = args.getInt("height");
+                numButtons = getArguments().getInt("numButtons");
+            }
 
             float factor = getActivity().getResources().getDisplayMetrics().density;
             if (dialogWidth == 0) {
@@ -111,50 +95,52 @@ public class ModalDialogFragment extends DialogFragment {
             } else {
                 dialogHeight = (int) ((float) dialogHeight * factor);
             }
-            numButtons = getArguments().getInt("numButtons");
         }
     }
 
-    @Override
-    public void onDismiss(DialogInterface dialog) {
-        System.out.println("ModalDialogFragment.onDismiss() is called");
-        isDialogShown = false;
-        isDismissed = true;
-        super.onDismiss(dialog);
+    @SuppressLint("ValidFragment")
+    public AlertDialogFragment(AlertDialogFragment.DialogButtonListener ndl) {
+        super();
+        this.ndl = ndl;
+    }
+
+    public static AlertDialogFragment newInstance(String textContent, float textSize, int color, int width, int height, int numButtons) {
+        AlertDialogFragment modalDialog = new AlertDialogFragment();
+        Bundle args = new Bundle();
+        args.putString("textContent", textContent);
+        args.putFloat("textSize", textSize);
+        args.putInt("color", color);
+        args.putInt("width", width);
+        args.putInt("height", height);
+        args.putInt("numButtons", numButtons);
+        modalDialog.setArguments(args);
+
+        return modalDialog;
     }
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        // return super.onCreateView(inflater, container, savedInstanceState);
-
-        System.out.println("ModalDialogFragment.onCreateView() is called");
-        setShowsDialog(true);
-        // View view = inflater.inflate(R.layout.modal_dialogfragment,container);   // removed on 2018-06-17
-        View view = inflater.inflate(R.layout.modal_dialogfragment,container, false);
-        return view;
-    }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        System.out.println("ModalDialogFragment.onViewCreated() is called");
-
-        setStyle(DialogFragment.STYLE_NORMAL,R.style.MyDialogFragmentStyle);
-        // setStyle(DialogFragment.STYLE_NO_INPUT,,R.style.MyDialogFragmentStyle);   // make dialog a modal
-        // setStyle(DialogFragment.STYLE_NO_FRAME, R.style.MyDialogFragmentStyle);  // make dialog a modal
-        setCancelable(false);   // make dialog a modal
-
-        // for background window
-        // WindowManager.LayoutParams lp = getDialog().getWindow().getAttributes();
-        // lp.dimAmount = 0.0f; // no dim
-        // getDialog().getWindow().setAttributes(lp);
-        // the three statements above are useless
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        System.out.println("AlertDialogFragment.onCreateView() is called.");
 
         Window window = getDialog().getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         window.setDimAmount(0.0f);
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        setCancelable(false);   // make dialog a modal
+
+        View view = inflater.inflate(R.layout.modal_dialogfragment, container, false);
+
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        System.out.println("AlertDialogFragment.onViewCreated() is called.");
+
+        modalDialogView = view;
+        alertDialog = this;
 
         FrameLayout fLayout = (FrameLayout) view.findViewById(R.id.dialog_fragment_body_layout);
         FrameLayout.LayoutParams ll = new FrameLayout.LayoutParams(dialogWidth, dialogHeight, Gravity.CENTER);
@@ -165,17 +151,19 @@ public class ModalDialogFragment extends DialogFragment {
         text_shown.setTextSize(textSize);
         text_shown.setTextColor(textColor);
         button1 = view.findViewById(R.id.dialogfragment_button1);
+        button1.setTextSize(textSize);
         button1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ndl.button1OnClick(ModalDialogFragment.this);
+                ndl.button1OnClick(alertDialog);
             }
         });
         button2 = view.findViewById(R.id.dialogfragment_button2);
+        button2.setTextSize(textSize);
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ndl.button2OnClick(ModalDialogFragment.this);
+                ndl.button2OnClick(alertDialog);
             }
         });
         LinearLayout.LayoutParams lp = null;
@@ -199,6 +187,7 @@ public class ModalDialogFragment extends DialogFragment {
             default:
                 // no buttons
                 // TextView
+                text_shown.setPadding(20,20,20,20);
                 lp = (LinearLayout.LayoutParams)text_shown.getLayoutParams();
                 lp.weight = 3.0f;
 
@@ -213,50 +202,17 @@ public class ModalDialogFragment extends DialogFragment {
 
                 break;
         }
-
-        modalDialogView = view;
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null) {
-            if ( (isDialogShown) && (!isDismissed) ) {
-                FragmentManager fmManager = getActivity().getSupportFragmentManager();
-                if (fmManager != null) {
-                    System.out.println("ModalDialogFragment.onActivityCreated() ---> showDialogFragment() is called");
-                    showDialogFragment(fmManager, modalDialogTag);
-                }
-            }
-        }
-        System.out.println("ModalDialogFragment.onActivityCreated() is called");
-    }
-
+    // due to the bus of Android SDK, this override to onDestroyView() has to be done. Added on 2018-06-19 11:50pm
     @Override
     public void onDestroyView() {
-        if ( (getDialog()!=null) && getRetainInstance() ) {
-            // getDialog().dismiss();
-            // getDialog().setDismissMessage(null);
-            System.out.println("ModalDialogFragment.onDestroyView() is called");
-            // SystemClock.sleep(50);
+        Dialog dialog = getDialog();
+        // handles https://code.google.com/p/android/issues/detail?id=17423
+        if ( (dialog != null) && getRetainInstance()) {
+            dialog.setDismissMessage(null);
         }
-
         super.onDestroyView();
-    }
-
-    public void showDialogFragment(FragmentManager manager, String tag) {
-
-        modalDialogTag = tag;
-
-        Fragment prev = manager.findFragmentByTag(modalDialogTag);
-        FragmentTransaction ft = manager.beginTransaction();
-        if (prev != null) {
-            ft.remove(prev);
-        }
-        ft.addToBackStack(null);    // has to be here
-        show(ft, modalDialogTag);
-
-        isDialogShown = true;
     }
 
     public TextView getText_shown() {
@@ -271,4 +227,5 @@ public class ModalDialogFragment extends DialogFragment {
     public Button getButton2() {
         return this.button2;
     }
+
 }

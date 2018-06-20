@@ -10,7 +10,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -18,17 +17,13 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
-import android.util.Pair;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
@@ -57,7 +52,8 @@ public class MainUiFragment extends Fragment {
     // private properties for this color balls game
     private OnFragmentInteractionListener mListener;
 
-    private String TAG = "com.smile.colorballs.MainUiFragment";
+    private final String TAG = "com.smile.colorballs.MainUiFragment";
+    private final String GameOverDialogTag = "GameOverDialogFragment";
     private final int nextBallsViewIdStart = 100;
     private final int insideColor0 = 0xFFA4FF13;
     private final int lineColor0 = 0xFFFF1627;
@@ -66,7 +62,6 @@ public class MainUiFragment extends Fragment {
     private Context context = null;
     private MainActivity mainActivity = null;
     private View uiFragmentView = null;
-    private FragmentManager fmManager = null;
 
     private Runnable bouncyRunnable; // needed to be tested 2018-0609
     private Handler bouncyHandler;   // needed to be tested
@@ -179,7 +174,6 @@ public class MainUiFragment extends Fragment {
         // this context should be used in all scope, especially in AsyncTask
         context = getActivity();
         mainActivity = (MainActivity)context;
-        fmManager = mainActivity.getSupportFragmentManager();
 
         scoreSQLite = mainActivity.getScoreSQLite();
         fontSizeForText = mainActivity.getFontSizeForText();
@@ -204,14 +198,6 @@ public class MainUiFragment extends Fragment {
             // Landscape
             screenWidth = screenWidth / 2;  // for this fragment is half a screenWidth
         }
-
-        /*
-        // set the screen size
-        LinearLayout.LayoutParams vLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.MATCH_PARENT);
-        vLP.width = screenWidth;
-        vLP.height = screenHeight;
-        uiFragmentView.setLayoutParams(vLP);
-        */
 
         float height_weightSum_uiFragmentView = 10;    // default
         try {
@@ -349,6 +335,34 @@ public class MainUiFragment extends Fragment {
             easyLevel = true;   // start with easy level
             gridData = new GridData(rowCounts, colCounts, MINB, MINB);  // easy level (3 balls for next balls)
             displayGridDataNextCells();
+
+            /*
+            // for testing
+            AlertDialogFragment gameOverDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
+                @Override
+                public void button1OnClick(AlertDialogFragment dialogFragment) {
+                    dialogFragment.dismiss();
+                    recordScore(0);   //   Ending the game
+                }
+
+                @Override
+                public void button2OnClick(AlertDialogFragment dialogFragment) {
+                    dialogFragment.dismiss();
+                    newGame();
+                }
+            });
+            Bundle args = new Bundle();
+            args.putString("textContent", gameOverStr);
+            args.putFloat("textSize", fontSizeForText * dialogFragment_widthFactor);
+            args.putInt("color", Color.BLUE);
+            args.putInt("width", 0);    // wrap_content
+            args.putInt("height", 0);   // wrap_content
+            args.putInt("numButtons", 2);
+            gameOverDialog.setArguments(args);
+            gameOverDialog.show(getActivity().getSupportFragmentManager(), GameOverDialogTag);
+            // end of testing
+            */
+
         } else {
             // display the original state before changing configuration
             displayGameView();
@@ -357,7 +371,6 @@ public class MainUiFragment extends Fragment {
                 drawBouncyBall(v, gridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
             }
         }
-
     }
 
     @Override
@@ -405,15 +418,13 @@ public class MainUiFragment extends Fragment {
     private void displayGridDataNextCells() {
 
         gridData.randCells();
-
-        ImageView imageView = null;
-
         int numOneTime = gridData.getBallNumOneTime();
 
         int[] indexi = gridData.getNextCellIndexI();
         int[] indexj = gridData.getNextCellIndexJ();
 
         int id, n1, n2;
+        ImageView imageView = null;
         for (int i = 0; i < numOneTime; i++) {
             n1 = indexi[i];
             n2 = indexj[i];
@@ -445,27 +456,30 @@ public class MainUiFragment extends Fragment {
             }
         }
 
+        boolean gameOverYn = false;
         if (hasMoreFive) {
             threadCompleted[1] = false;
             CalculateScore calculateScore = new CalculateScore();
             calculateScore.execute(hashPoint);
         } else {
             // check if game over
-            if (gridData.getGameOver()) {
-                AdBuddiz.showAd(mainActivity);
-                // AdBuddiz.RewardedVideo.show(MyActivity.this); // this = current Activity
+            gameOverYn = gridData.getGameOver();
+            // if (gridData.getGameOver()) {
+            if (gameOverYn) {
                 //  game over
-                final ModalDialogFragment gameOverDialog = new ModalDialogFragment(new ModalDialogFragment.DialogButtonListener() {
+                AlertDialogFragment gameOverDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
                     @Override
-                    public void button1OnClick(ModalDialogFragment dialogFragment) {
+                    public void button1OnClick(AlertDialogFragment dialogFragment) {
                         dialogFragment.dismiss();
                         recordScore(0);   //   Ending the game
+                        AdBuddiz.showAd(mainActivity);
                     }
 
                     @Override
-                    public void button2OnClick(ModalDialogFragment dialogFragment) {
+                    public void button2OnClick(AlertDialogFragment dialogFragment) {
                         dialogFragment.dismiss();
                         newGame();
+                        AdBuddiz.showAd(mainActivity);
                     }
                 });
                 Bundle args = new Bundle();
@@ -476,37 +490,16 @@ public class MainUiFragment extends Fragment {
                 args.putInt("height", 0);   // wrap_content
                 args.putInt("numButtons", 2);
                 gameOverDialog.setArguments(args);
-                gameOverDialog.showDialogFragment(getActivity().getSupportFragmentManager(), "GmeOverDialog");
-                // do not use gameOverDialog.show(getActivity().getSupportFragmentManager(), "GmeOverDialog");
+                gameOverDialog.show(getActivity().getSupportFragmentManager(), GameOverDialogTag);
 
-                /*
-                final ModalTest mDialogFragment = new ModalTest(new ModalTest.DialogButtonListener() {
-                    @Override
-                    public void button1OnClick(ModalTest dialogFragment) {
-                        dialogFragment.dismiss();
-                        recordScore(0);   //   Ending the game
-                    }
-
-                    @Override
-                    public void button2OnClick(ModalTest dialogFragment) {
-                        dialogFragment.dismiss();
-                        newGame();
-                    }
-                });
-                Bundle argss = new Bundle();
-                argss.putString("textContent", gameOverStr);
-                argss.putFloat("textSize", fontSizeForText * dialogFragment_widthFactor);
-                argss.putInt("color", Color.BLUE);
-                argss.putInt("width", 0);    // wrap_content
-                argss.putInt("height", 0);   // wrap_content
-                argss.putInt("numButtons", 2);
-                mDialogFragment.setArguments(argss);
-                mDialogFragment.showDialogFragment(getActivity().getSupportFragmentManager());
-                */
+                System.out.println("gameOverDialog.show() has been called.");
             }
         }
 
-        displayNextColorBalls();
+        if (!gameOverYn) {
+            // game has not been over yet
+            displayNextColorBalls();
+        }
     }
 
     private void undoTheLast() {
@@ -850,12 +843,12 @@ public class MainUiFragment extends Fragment {
 
     private class CalculateScore extends AsyncTask<HashSet<Point>,Integer,String[]> {
 
-        public static final String ScoreDialog = "ScoreDialogFragment";
+        private final String ScoreDialog = "ScoreDialogFragment";
         private int numBalls = 0;
         private int color = 0;
         private HashSet<Point> hashPoint;
         private int score = 0;
-        private ModalDialogFragment scoreDialog;
+        private AlertDialogFragment scoreDialog;
 
         @Override
         protected void onPreExecute() {
@@ -882,7 +875,7 @@ public class MainUiFragment extends Fragment {
 
             score = scoreCalculate(numBalls);
 
-            scoreDialog = new ModalDialogFragment();
+            scoreDialog = new AlertDialogFragment();
             Bundle args = new Bundle();
             args.putString("textContent", "" + score);
             args.putFloat("textSize", fontSizeForText * dialog_widthFactor * 2.0f);

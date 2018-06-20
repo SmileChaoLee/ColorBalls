@@ -30,9 +30,7 @@
                 android:gravity="center"
                 android:text=""
                 android:textColor="#ffff0000"
-                android:textSize="24dp"
                 android:textStyle="bold"
-                android:layout_margin="15dp"
                 android:layout_weight="2"/>
 
             <LinearLayout
@@ -47,15 +45,14 @@
                     android:id="@+id/dialogfragment_button1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
                     android:layout_marginTop="0dp"
+                    android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginBottom="20dp"
+                    android:layout_marginBottom="10dp"
                     android:gravity="center"
                     android:textColor="#ffff0000"
                     android:background="#ffd3d3d3"
                     android:textStyle="bold"
-                    android:textSize="20dp"
                     android:text="No"
                     android:layout_weight="1" />
 
@@ -63,16 +60,15 @@
                     android:id="@+id/dialogfragment_button2"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
                     android:layout_marginTop="0dp"
-                    android:layout_marginRight="20dp"
-                    android:layout_marginBottom="20dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginBottom="10dp"
                     android:gravity="center"
                     android:textColor="#ff006400"
                     android:background="#ffd3d3d3"
                     android:textStyle="bold"
-                    android:textSize="20dp"
-                    android:text="Yes"
+                    android:text="Ok"
                     android:layout_weight="1" />
             </LinearLayout>
 

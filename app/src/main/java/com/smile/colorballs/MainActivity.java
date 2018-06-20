@@ -7,7 +7,6 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.AsyncTask;
-import android.os.PersistableBundle;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -24,7 +23,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.purplebrain.adbuddiz.sdk.AdBuddiz;
@@ -194,44 +192,37 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.quitGame) {
-            AdBuddiz.showAd(this);
-            // AdBuddiz.RewardedVideo.show(this); // this = current Activity
-
             // removed on 2017-10-24
             // Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, autoRotate);
             mainUiFragment.recordScore(0);   //   from   END PROGRAM
+
+            AdBuddiz.showAd(this);
             return true;
         }
         if (id == R.id.newGame) {
-            AdBuddiz.showAd(this);
             mainUiFragment.newGame();
+            AdBuddiz.showAd(this);
             return true;
         }
         if (id == R.id.easyLevel) {
-
-            AdBuddiz.showAd(this);
-            // AdBuddiz.showAd(this);
-            // AdBuddiz.RewardedVideo.show(this); // this = current Activity
-
             item.setChecked(true);
             registerMenuItemDifficult.setChecked(false);
             mainUiFragment.getGridData().setMinBallsOneTime(MainUiFragment.MINB);
             mainUiFragment.getGridData().setMaxBallsOneTime(MainUiFragment.MINB);
             mainUiFragment.displayNextColorBalls();
 
+            AdBuddiz.showAd(this);
+
             return true;
         }
         if (id == R.id.difficultLevel) {
-
-            AdBuddiz.showAd(this);
-            // AdBuddiz.showAd(this);
-            // AdBuddiz.RewardedVideo.show(this); // this = current Activity
             item.setChecked(true);
-
             registerMenuItemEasy.setChecked(false);
             mainUiFragment.getGridData().setMinBallsOneTime(MainUiFragment.MINB);
             mainUiFragment.getGridData().setMaxBallsOneTime(MainUiFragment.MAXB);
             mainUiFragment.displayNextColorBalls();
+
+            AdBuddiz.showAd(this);
 
             return true;
         }
@@ -290,21 +281,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showScoreHistory() {
-        AdBuddiz.showAd(MainActivity.this);   // added on 2017-10-24
         new ShowTop10Scores().execute();
+        AdBuddiz.showAd(MainActivity.this);   // added on 2017-10-24
     }
 
     private class ShowTop10Scores extends AsyncTask<Void,Integer,ArrayList<Pair<String, Integer>>> {
 
         public static final String Top10LoadingDialog = "Top10LoadingDialogFragment";
         private Animation animationText = null;
-        private ModalDialogFragment loadingDialog = null;
-        private ModalDialogFragment gameOverDialog = null;
+        private AlertDialogFragment loadingDialog = null;
 
         public ShowTop10Scores() {
             System.out.println("ShowTop10Scores()->fontSizeForText = " + fontSizeForText);
             System.out.println("ShowTop10Scores()->dialogFragment_widthFactor = " + dialogFragment_widthFactor);
-            loadingDialog = new ModalDialogFragment();
+            loadingDialog = new AlertDialogFragment();
             Bundle args = new Bundle();
             args.putString("textContent", getResources().getString(R.string.loadScore));
             args.putFloat("textSize", fontSizeForText * dialogFragment_widthFactor);
@@ -324,7 +314,6 @@ public class MainActivity extends AppCompatActivity {
             animationText.setRepeatMode(Animation.REVERSE);
             animationText.setRepeatCount(Animation.INFINITE);
             loadingDialog.show(getSupportFragmentManager(), Top10LoadingDialog);
-            // do not use loadingDialog.showDialogFragment(getSupportFragmentManager(), Top10LoadingDialog);
         }
 
         @Override

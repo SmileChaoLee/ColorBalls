@@ -603,9 +603,9 @@ public class MyActivity extends AppCompatActivity {
             // check if game over
             if (gridData.getGameOver()) {
                 //  game over
-                final ModalDialogFragment mDialogFragment = new ModalDialogFragment(new ModalDialogFragment.DialogButtonListener() {
+                final AlertDialogFragment mDialogFragment = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
                     @Override
-                    public void button1OnClick(ModalDialogFragment dialogFragment) {
+                    public void button1OnClick(AlertDialogFragment dialogFragment) {
                         dialogFragment.dismiss();
                         recordScore(0);   //   Ending the game
                         AdBuddiz.showAd(MyActivity.this);
@@ -613,7 +613,7 @@ public class MyActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void button2OnClick(ModalDialogFragment dialogFragment) {
+                    public void button2OnClick(AlertDialogFragment dialogFragment) {
                         dialogFragment.dismiss();
                         newGame();
                         AdBuddiz.showAd(MyActivity.this);
@@ -1112,10 +1112,10 @@ public class MyActivity extends AppCompatActivity {
     private class StartHistoryScore extends AsyncTask<Void,Integer,ArrayList<Pair<String, Integer>>> {
         public static final String Top10LoadingDialog = "Top10LoadingDialogFragment";
         private Animation animationText = null;
-        private ModalDialogFragment loadingDialog = null;
+        private AlertDialogFragment loadingDialog = null;
 
         public StartHistoryScore() {
-            loadingDialog = new ModalDialogFragment();
+            loadingDialog = new AlertDialogFragment();
             Bundle args = new Bundle();
             args.putString("textContent", getResources().getString(R.string.loadScore));
             args.putInt("color", Color.RED);
@@ -1204,7 +1204,7 @@ public class MyActivity extends AppCompatActivity {
         private HashSet<Point> hashPoint = null;
         private int score = 0;
 
-        private ModalDialogFragment scoreDialog = null;
+        private AlertDialogFragment scoreDialog = null;
 
         @Override
         protected void onPreExecute() {
@@ -1231,7 +1231,7 @@ public class MyActivity extends AppCompatActivity {
 
             score = scoreCalculate(numBalls);
 
-            scoreDialog = new ModalDialogFragment();
+            scoreDialog = new AlertDialogFragment();
             Bundle args = new Bundle();
             args.putString("textContent", ""+score);
             args.putInt("color", Color.BLUE);
