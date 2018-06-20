@@ -1,17 +1,13 @@
 package com.smile.utility;
 
-import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.ToneGenerator;
 import android.os.Handler;
 import android.os.Looper;
-import android.provider.MediaStore;
 import android.util.Log;
 
-import com.smile.colorballs.MyActivity;
 import com.smile.colorballs.R;
 
 import static android.content.ContentValues.TAG;

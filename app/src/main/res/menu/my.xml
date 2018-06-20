@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:ColorBalls="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".MyActivity" >
+    tools:context=".MyActivity_OLD" >
     <item android:id="@+id/quitGame"
         android:title="@string/quitGame"
         android:orderInCategory="1"

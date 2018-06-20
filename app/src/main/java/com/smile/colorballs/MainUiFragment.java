@@ -16,7 +16,6 @@ import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -60,7 +59,7 @@ public class MainUiFragment extends Fragment {
 
     private ScoreSQLite scoreSQLite = null;
     private Context context = null;
-    private MainActivity mainActivity = null;
+    private MyActivity mainActivity = null;
     private View uiFragmentView = null;
 
     private Runnable bouncyRunnable; // needed to be tested 2018-0609
@@ -173,7 +172,7 @@ public class MainUiFragment extends Fragment {
         // the object gotten from getActivity() in onActivityCreated() is different from gotten in onCreate()
         // this context should be used in all scope, especially in AsyncTask
         context = getActivity();
-        mainActivity = (MainActivity)context;
+        mainActivity = (MyActivity)context;
 
         scoreSQLite = mainActivity.getScoreSQLite();
         fontSizeForText = mainActivity.getFontSizeForText();
