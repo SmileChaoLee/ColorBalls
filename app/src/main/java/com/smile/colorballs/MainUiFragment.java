@@ -31,6 +31,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.purplebrain.adbuddiz.sdk.AdBuddiz;
+import com.smile.facebookadsutil.FacebookAds;
 import com.smile.model.GridData;
 import com.smile.scoresqlite.ScoreSQLite;
 import com.smile.utility.ScreenUtl;
@@ -91,6 +92,10 @@ public class MainUiFragment extends Fragment {
     private float dialog_heightFactor = 1.0f;
     private float dialogFragment_widthFactor = dialog_widthFactor;
     private float dialogFragment_heightFactor = dialog_heightFactor;
+
+
+    // private properties facebook ads
+    private FacebookAds facebookAds = null;
 
     // private ModalDialogFragment gameOverDialog = null;
     public MainUiFragment() {
@@ -178,6 +183,8 @@ public class MainUiFragment extends Fragment {
         dialog_heightFactor = myActivity.getDialog_heightFactor();
         dialogFragment_widthFactor = myActivity.getDialogFragment_widthFactor();
         dialogFragment_heightFactor = myActivity.getDialogFragment_heightFactor();
+
+        facebookAds = myActivity.getFacebookAds();
 
         Point size = new Point();
         ScreenUtl.getScreenSize(context, size);
@@ -1008,12 +1015,32 @@ public class MainUiFragment extends Fragment {
         });
 
         alertD.show();
+
+        // show ads
+        facebookAds.showAd(TAG);
+        AdBuddiz.showAd(myActivity);
     }
 
     public boolean getEasyLevel() {
         return this.easyLevel;
     }
+
     public void setEasyLevel(boolean yn) {
         this.easyLevel = yn;
+        if (this.easyLevel) {
+            // easy level
+            getGridData().setMinBallsOneTime(MainUiFragment.MINB);
+            getGridData().setMaxBallsOneTime(MainUiFragment.MINB);
+        } else {
+            // difficult
+            getGridData().setMinBallsOneTime(MainUiFragment.MINB);
+            getGridData().setMaxBallsOneTime(MainUiFragment.MAXB);
+
+        }
+        displayNextColorBalls();
+
+        // show ads
+        facebookAds.showAd(TAG);
+        AdBuddiz.showAd(myActivity);
     }
 }

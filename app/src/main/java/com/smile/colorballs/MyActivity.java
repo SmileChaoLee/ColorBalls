@@ -221,22 +221,14 @@ public class MyActivity extends AppCompatActivity {
         if (id == R.id.easyLevel) {
             item.setChecked(true);
             registerMenuItemDifficult.setChecked(false);
-            mainUiFragment.getGridData().setMinBallsOneTime(MainUiFragment.MINB);
-            mainUiFragment.getGridData().setMaxBallsOneTime(MainUiFragment.MINB);
-            mainUiFragment.displayNextColorBalls();
-            facebookAds.showAd(TAG);
-            AdBuddiz.showAd(this);
+            mainUiFragment.setEasyLevel(true);
 
             return true;
         }
         if (id == R.id.difficultLevel) {
             item.setChecked(true);
             registerMenuItemEasy.setChecked(false);
-            mainUiFragment.getGridData().setMinBallsOneTime(MainUiFragment.MINB);
-            mainUiFragment.getGridData().setMaxBallsOneTime(MainUiFragment.MAXB);
-            mainUiFragment.displayNextColorBalls();
-            facebookAds.showAd(TAG);
-            AdBuddiz.showAd(this);
+            mainUiFragment.setEasyLevel(false);
 
             return true;
         }
@@ -266,8 +258,10 @@ public class MyActivity extends AppCompatActivity {
 
     @Override
     public void onDestroy() {
-        if (facebookAds != null) {
-            facebookAds.close();
+        if (isFinishing()) {
+            if (facebookAds != null) {
+                facebookAds.close();
+            }
         }
         super.onDestroy();
     }
