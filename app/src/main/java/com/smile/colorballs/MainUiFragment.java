@@ -44,7 +44,7 @@ import java.util.List;
 public class MainUiFragment extends Fragment {
 
     // public properties
-    public static final String MainUiFragmentTag = "MainUiFragmentTag";
+    public static final String MainUiFragmentTag = new String("MainUiFragmentTag");
     public final static int MINB = 3;
     public final static int MAXB = 4;
 
@@ -54,12 +54,10 @@ public class MainUiFragment extends Fragment {
     private final String TAG = "com.smile.colorballs.MainUiFragment";
     private final String GameOverDialogTag = "GameOverDialogFragment";
     private final int nextBallsViewIdStart = 100;
-    private final int insideColor0 = 0xFFA4FF13;
-    private final int lineColor0 = 0xFFFF1627;
 
     private ScoreSQLite scoreSQLite = null;
     private Context context = null;
-    private MyActivity mainActivity = null;
+    private MyActivity myActivity = null;
     private View uiFragmentView = null;
 
     private Runnable bouncyRunnable; // needed to be tested 2018-0609
@@ -172,14 +170,14 @@ public class MainUiFragment extends Fragment {
         // the object gotten from getActivity() in onActivityCreated() is different from gotten in onCreate()
         // this context should be used in all scope, especially in AsyncTask
         context = getActivity();
-        mainActivity = (MyActivity)context;
+        myActivity = (MyActivity)context;
 
-        scoreSQLite = mainActivity.getScoreSQLite();
-        fontSizeForText = mainActivity.getFontSizeForText();
-        dialog_widthFactor = mainActivity.getDialog_widthFactor();
-        dialog_heightFactor = mainActivity.getDialog_heightFactor();
-        dialogFragment_widthFactor = mainActivity.getDialogFragment_widthFactor();
-        dialogFragment_heightFactor = mainActivity.getDialogFragment_heightFactor();
+        scoreSQLite = myActivity.getScoreSQLite();
+        fontSizeForText = myActivity.getFontSizeForText();
+        dialog_widthFactor = myActivity.getDialog_widthFactor();
+        dialog_heightFactor = myActivity.getDialog_heightFactor();
+        dialogFragment_widthFactor = myActivity.getDialogFragment_widthFactor();
+        dialogFragment_heightFactor = myActivity.getDialogFragment_heightFactor();
 
         Point size = new Point();
         ScreenUtl.getScreenSize(context, size);
@@ -246,7 +244,7 @@ public class MainUiFragment extends Fragment {
 
         for (int i = 0; i < nextBallsRow; i++) {
             for (int j = 0; j < nextBallsNumber; j++) {
-                imageView = new ImageView(mainActivity);
+                imageView = new ImageView(myActivity);
                 imageView.setId(nextBallsViewIdStart + (nextBallsNumber * i + j));
                 imageView.setClickable(false);
                 imageView.setAdjustViewBounds(true);
@@ -290,7 +288,7 @@ public class MainUiFragment extends Fragment {
         for (int i = 0; i < rowCounts; i++) {
             for (int j = 0; j < colCounts; j++) {
                 imId = i * colCounts + j;
-                imageView = new ImageView(mainActivity);
+                imageView = new ImageView(myActivity);
                 imageView.setId(imId);
                 imageView.setAdjustViewBounds(true);
                 imageView.setScaleType(ImageView.ScaleType.FIT_XY);
@@ -324,7 +322,7 @@ public class MainUiFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // new StartHistoryScore().execute();   // removed on 2018-06-11 at 11:40am
-                mainActivity.showScoreHistory();   // added on 2018-06-11
+                myActivity.showScoreHistory();   // added on 2018-06-11
             }
         });
 
@@ -471,14 +469,12 @@ public class MainUiFragment extends Fragment {
                     public void button1OnClick(AlertDialogFragment dialogFragment) {
                         dialogFragment.dismiss();
                         recordScore(0);   //   Ending the game
-                        AdBuddiz.showAd(mainActivity);
                     }
 
                     @Override
                     public void button2OnClick(AlertDialogFragment dialogFragment) {
                         dialogFragment.dismiss();
                         newGame();
-                        AdBuddiz.showAd(mainActivity);
                     }
                 });
                 Bundle args = new Bundle();
@@ -716,17 +712,17 @@ public class MainUiFragment extends Fragment {
     }
 
     private void flushALLandBegin() {
-        /* cannot use FragmentManager to recreate Fragment because MainActivity will not have new instance of Fragment
-        // recreate this Fragment without recreating MainActivity
+        /* cannot use FragmentManager to recreate Fragment because MyActivity will not have new instance of Fragment
+        // recreate this Fragment without recreating MyActivity
         FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-        ft.replace(mainActivity.getMainUiLayoutId(), newInstance(), MainUiFragmentTag);
+        ft.replace(myActivity.getMainUiLayoutId(), newInstance(), MainUiFragmentTag);
         ft.commit();
         */
 
-        // must use the following to let MainActivity have new instance of Fragment
-        // recreate MainActivity like new start (no savedInstanceState)
-        Intent intent = mainActivity.getIntent();
-        mainActivity.finish();
+        // must use the following to let MyActivity have new instance of Fragment
+        // recreate MyActivity like new start (no savedInstanceState)
+        Intent intent = myActivity.getIntent();
+        myActivity.finish();
         startActivity(intent);
     }
 
@@ -919,8 +915,8 @@ public class MainUiFragment extends Fragment {
                     break;
                 case 3:
                     System.out.println("MainUiFragment.Calculation is calling scoreDialog.dismissAllowingStateLoss()");
-                    // scoreDialog.dismiss();  // removed on 2018-06-18
-                    scoreDialog.dismissAllowingStateLoss(); // added on 2018-06-18
+                    // scoreDialog.dismiss();  // removed on 2018-06-18 because crash app under some situation
+                    scoreDialog.dismissAllowingStateLoss(); // added on 2018-06-18. Resolve the crash issue temporarily
                     break;
             }
 
@@ -964,14 +960,14 @@ public class MainUiFragment extends Fragment {
     }
 
     public void recordScore(final int entryPoint) {
-        final EditText et = new EditText(mainActivity);
+        final EditText et = new EditText(myActivity);
         et.setTextSize(fontSizeForText);
         // et.setHeight(200);
         et.setTextColor(Color.BLUE);
         et.setBackground(new ColorDrawable(Color.TRANSPARENT));
         et.setHint(nameStr);
         et.setGravity(Gravity.CENTER);
-        AlertDialog alertD = new AlertDialog.Builder(mainActivity).create();
+        AlertDialog alertD = new AlertDialog.Builder(myActivity).create();
         alertD.setTitle(null);
         alertD.requestWindowFeature(Window.FEATURE_NO_TITLE);
         alertD.setCancelable(false);
@@ -982,7 +978,7 @@ public class MainUiFragment extends Fragment {
                 dialog.dismiss();
                 if (entryPoint==0) {
                     //  END PROGRAM
-                    mainActivity.finish();
+                    myActivity.finish();
                 } else if (entryPoint==1) {
                     //  NEW GAME
                     flushALLandBegin();
@@ -996,7 +992,7 @@ public class MainUiFragment extends Fragment {
 
                 scoreSQLite.addScore(et.getText().toString(),currentScore);
                 if (entryPoint==0) {
-                    mainActivity.finish();
+                    myActivity.finish();
                 } else if (entryPoint==1) {
                     //  NEW GAME
                     flushALLandBegin();

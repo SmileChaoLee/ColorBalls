@@ -2,6 +2,7 @@ package com.smile.colorballs;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -30,6 +31,8 @@ import java.util.ArrayList;
 public class Top10ScoreActivity extends AppCompatActivity {
 
     private static final String TAG = "Top10ScoreActivity";
+    public static final int activityRequestCode = 2;
+
     private ArrayList<String> top10Players = new ArrayList<String>();
     private ArrayList<Integer> top10Scores = new ArrayList<Integer>();
 
@@ -56,12 +59,6 @@ public class Top10ScoreActivity extends AppCompatActivity {
         }
         setContentView(R.layout.activity_top10_score);
         top10LayoutId = R.id.top10_score_linear_layout;
-        System.out.println("Top10ScoreActivity.onCreate().");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -73,6 +70,9 @@ public class Top10ScoreActivity extends AppCompatActivity {
         top10ScoreFragment = Top10ScoreFragment.newInstance(top10Players, top10Scores, fontSizeForText, new Top10ScoreFragment.Top10OkButtonListener() {
             @Override
             public void buttonOkClick(Activity activity) {
+                // Intent returnIntent = new Intent();
+                // setResult(Activity.RESULT_OK, returnIntent);
+                setResult(Activity.RESULT_OK);
                 activity.finish();
             }
         });
@@ -86,19 +86,20 @@ public class Top10ScoreActivity extends AppCompatActivity {
             ft.replace(top10LayoutId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
         }
         ft.commit();
-        System.out.println("Top10ScoreActivity.onResume() -----> top10ScoreFragment is created.");
+        System.out.println("Top10ScoreActivity.onCreate() -----> top10ScoreFragment is created.");
+
+        System.out.println("Top10ScoreActivity.onCreate().");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        System.out.println("Top10ScoreActivity.onResume().");
 
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        if (top10ScoreFragment != null) {
-            // remove top10ScoreFragment
-            FragmentTransaction ft = fmManager.beginTransaction();
-            ft.remove(top10ScoreFragment);
-            ft.commit();
-            System.out.println("Top10ScoreActivity.onSaveInstanceState() ---> removed top10ScoreFragment");
-        }
         super.onSaveInstanceState(outState);
     }
 }

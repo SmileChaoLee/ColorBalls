@@ -1,6 +1,5 @@
 package com.smile.colorballs;
 
-// import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -25,16 +24,17 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.TextView;
 
-import com.purplebrain.adbuddiz.sdk.AdBuddiz;
+import com.smile.facebookadsutil.FacebookAds;
 import com.smile.scoresqlite.ScoreSQLite;
 import com.smile.utility.ScreenUtl;
-
 import java.util.ArrayList;
+
+import com.purplebrain.adbuddiz.sdk.AdBuddiz;
 
 public class MyActivity extends AppCompatActivity {
 
     // private properties
-    private String TAG = "com.smile.colorballs.MainActivity";
+    private final String TAG = new String("com.smile.colorballs.MyActivity");
     private ScoreSQLite scoreSQLite = null;
     private int mainUiLayoutId = -1;
     private int scoreHistoryLayoutId = -1;
@@ -50,8 +50,11 @@ public class MyActivity extends AppCompatActivity {
     private float dialogFragment_widthFactor = dialog_widthFactor;
     private float dialogFragment_heightFactor = dialog_heightFactor;
 
+    // private properties facebook ads
+    private FacebookAds facebookAds = null;
+
     public MyActivity() {
-        System.out.println("MainActivity ---> Constructor");
+        System.out.println("MyActivity ---> Constructor");
         scoreSQLite = new ScoreSQLite(MyActivity.this);
     }
 
@@ -148,14 +151,28 @@ public class MyActivity extends AppCompatActivity {
                 FragmentTransaction ft = fmManager.beginTransaction();
                 ft.add(mainUiLayoutId, mainUiFragment, MainUiFragment.MainUiFragmentTag);
                 ft.commit();
-                System.out.println("MainActivity -----> mainUiFragment is created.");
+                System.out.println("MyActivity -----> mainUiFragment is created.");
             }
         }
+
+        facebookAds = new FacebookAds(this);
 
         // for AdBuddiz ads
         AdBuddiz.setPublisherKey("57c7153c-35dd-488a-beaa-3cae8b3ab668");
         AdBuddiz.cacheAds(this); // this = current Activity
         // AdBuddiz.RewardedVideo.fetch(this); // this = current Activity
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == Top10ScoreActivity.activityRequestCode) {
+                // show ads
+                facebookAds.showAd(TAG);
+                AdBuddiz.showAd(MyActivity.this);   // added on 2017-10-24
+            }
+        }
     }
 
     @Override
@@ -195,13 +212,10 @@ public class MyActivity extends AppCompatActivity {
             // removed on 2017-10-24
             // Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, autoRotate);
             mainUiFragment.recordScore(0);   //   from   END PROGRAM
-
-            AdBuddiz.showAd(this);
             return true;
         }
         if (id == R.id.newGame) {
             mainUiFragment.newGame();
-            AdBuddiz.showAd(this);
             return true;
         }
         if (id == R.id.easyLevel) {
@@ -210,7 +224,7 @@ public class MyActivity extends AppCompatActivity {
             mainUiFragment.getGridData().setMinBallsOneTime(MainUiFragment.MINB);
             mainUiFragment.getGridData().setMaxBallsOneTime(MainUiFragment.MINB);
             mainUiFragment.displayNextColorBalls();
-
+            facebookAds.showAd(TAG);
             AdBuddiz.showAd(this);
 
             return true;
@@ -221,7 +235,7 @@ public class MyActivity extends AppCompatActivity {
             mainUiFragment.getGridData().setMinBallsOneTime(MainUiFragment.MINB);
             mainUiFragment.getGridData().setMaxBallsOneTime(MainUiFragment.MAXB);
             mainUiFragment.displayNextColorBalls();
-
+            facebookAds.showAd(TAG);
             AdBuddiz.showAd(this);
 
             return true;
@@ -231,21 +245,30 @@ public class MyActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        if (top10ScoreFragment != null) {
-            // remove historyFragment
-            FragmentManager fmManager = getSupportFragmentManager();
-            FragmentTransaction ft = fmManager.beginTransaction();
-            ft.remove(top10ScoreFragment);
-            ft.commit();
-            System.out.println("MainActivity.onSaveInstanceState() is called. ---> removed top10ScoreFragment");
+        if (isChangingConfigurations()) {
+            // configuration is changing then remove the top10ScoreFragment
+            if (top10ScoreFragment != null) {
+                // remove historyFragment
+                FragmentManager fmManager = getSupportFragmentManager();
+                FragmentTransaction ft = fmManager.beginTransaction();
+                ft.remove(top10ScoreFragment);
+                ft.commit();
+                System.out.println("MyActivity.onSaveInstanceState() is called. ---> removed top10ScoreFragment");
+            }
+        } else {
+            // if configuration is not changing (still landscape because portrait does not have this fragment)
+            // keep top10ScoreFragment on screen (on right side)
         }
-        System.out.println("MainActivity.onSaveInstanceState() is called");
+        System.out.println("MyActivity.onSaveInstanceState() is called");
+
         super.onSaveInstanceState(outState);
     }
 
     @Override
     public void onDestroy() {
-        AdBuddiz.showAd(MyActivity.this);   // added on 2018-06-17
+        if (facebookAds != null) {
+            facebookAds.close();
+        }
         super.onDestroy();
     }
 
@@ -280,9 +303,12 @@ public class MyActivity extends AppCompatActivity {
         return dialogFragment_heightFactor;
     }
 
+    public FacebookAds getFacebookAds() {
+        return this.facebookAds;
+    }
+
     public void showScoreHistory() {
         new ShowTop10Scores().execute();
-        AdBuddiz.showAd(MyActivity.this);   // added on 2017-10-24
     }
 
     private class ShowTop10Scores extends AsyncTask<Void,Integer,ArrayList<Pair<String, Integer>>> {
@@ -355,7 +381,7 @@ public class MyActivity extends AppCompatActivity {
                         textLoad.setText("");
                     }
                 } catch (Exception ex) {
-                    System.out.println("MainActivity.ShowTop10Scores.onProgressUpdate() failed --> textLoad animation");
+                    System.out.println("MyActivity.ShowTop10Scores.onProgressUpdate() failed --> textLoad animation");
                     ex.printStackTrace();
                 }
             }
@@ -365,7 +391,7 @@ public class MyActivity extends AppCompatActivity {
         protected void onPostExecute(ArrayList<Pair<String, Integer>> resultList) {
 
             if (!isCancelled()) {
-                System.out.println("MainActivity.ShowTop10Scores() ---> calling loadingDialog.dismissAllowingStateLoss()");
+                System.out.println("MyActivity.ShowTop10Scores() ---> calling loadingDialog.dismissAllowingStateLoss()");
                 // loadingDialog.dismiss(); // removed on 2018-06-18
                 loadingDialog.dismissAllowingStateLoss();   // added on 2018-06-18
                 ArrayList<String> playerNames = new ArrayList<String>();
@@ -386,7 +412,11 @@ public class MyActivity extends AppCompatActivity {
                                     FragmentManager fmManager = getSupportFragmentManager();
                                     FragmentTransaction ft = fmManager.beginTransaction();
                                     ft.remove(top10ScoreFragment);
-                                    ft.commit();
+                                    // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
+                                    ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
+
+                                    facebookAds.showAd(TAG);
+                                    AdBuddiz.showAd(MyActivity.this);   // added on 2017-10-24
                                 }
                             }
                         });
@@ -399,8 +429,10 @@ public class MyActivity extends AppCompatActivity {
                         } else {
                             ft.replace(scoreHistoryLayoutId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
                         }
-                        ft.commit();
-                        System.out.println("MainActivity.ShowTop10Scores() -----> top10ScoreFragment is created.");
+                        // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
+                        ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
+
+                        System.out.println("MyActivity.ShowTop10Scores() -----> top10ScoreFragment is created.");
                     }
                 } else {
                     // for Portrait
@@ -411,7 +443,7 @@ public class MyActivity extends AppCompatActivity {
                     extras.putIntegerArrayList("Top10Scores", playerScores);
                     extras.putInt("FontSizeForText", fontSizeForText);
                     intent.putExtras(extras);
-                    startActivity(intent);
+                    startActivityForResult(intent, Top10ScoreActivity.activityRequestCode);
                 }
             }
         }
