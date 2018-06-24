@@ -845,7 +845,7 @@ public class MainUiFragment extends Fragment {
 
     private class CalculateScore extends AsyncTask<HashSet<Point>,Integer,String[]> {
 
-        private final String ScoreDialog = "ScoreDialogFragment";
+        private final String ScoreDialogTag = "ScoreDialogFragment";
         private int numBalls = 0;
         private int color = 0;
         private HashSet<Point> hashPoint;
@@ -917,8 +917,7 @@ public class MainUiFragment extends Fragment {
                     }
                     break;
                 case 2:
-                    scoreDialog.show(getActivity().getSupportFragmentManager(), ScoreDialog);
-                    // do not use scoreDialog.showDialogFragment(getSupportFragmentManager(), Top10LoadingDialog);
+                    scoreDialog.show(getActivity().getSupportFragmentManager(), ScoreDialogTag);
                     break;
                 case 3:
                     System.out.println("MainUiFragment.Calculation is calling scoreDialog.dismissAllowingStateLoss()");

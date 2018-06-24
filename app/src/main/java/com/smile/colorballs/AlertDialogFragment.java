@@ -13,6 +13,9 @@ import android.provider.CalendarContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,6 +58,18 @@ public class AlertDialogFragment extends DialogFragment {
     }
 
     public AlertDialogFragment() {
+    }
+
+    @Override
+    public void show(FragmentManager manager, String tag) {
+        // super.show(manager, tag);
+        FragmentTransaction ft = manager.beginTransaction();
+        Fragment prev = manager.findFragmentByTag(tag);
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.add(this, tag);
+        ft.commitAllowingStateLoss();
     }
 
     @Override
@@ -128,6 +143,7 @@ public class AlertDialogFragment extends DialogFragment {
         window.setDimAmount(0.0f);
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         setCancelable(false);   // make dialog a modal
+        setShowsDialog(true);   // added on 2018-06-24
 
         View view = inflater.inflate(R.layout.modal_dialogfragment, container, false);
 
