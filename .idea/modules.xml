@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ColorBalls.iml" filepath="$PROJECT_DIR$/ColorBalls.iml" />
+      <module fileurl="file://$PROJECT_DIR$/alertdialogfragment/alertdialogfragment.iml" filepath="$PROJECT_DIR$/alertdialogfragment/alertdialogfragment.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/facebookadsutil/facebookadsutil.iml" filepath="$PROJECT_DIR$/facebookadsutil/facebookadsutil.iml" />
       <module fileurl="file://$PROJECT_DIR$/scoresqlite/scoresqlite.iml" filepath="$PROJECT_DIR$/scoresqlite/scoresqlite.iml" />

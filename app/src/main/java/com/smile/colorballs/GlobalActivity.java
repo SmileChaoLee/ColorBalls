@@ -17,7 +17,7 @@ public class GlobalActivity extends ListActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_global);
+        setContentView(R.layout.activity_global_top10);
 
         String[] itemNo = new String[] {"1 ","2 ","3 ","4 ","5 ","6 ","7 ","8 ","9 ","10"};
         String[] queryResult = new String[] {"","","","","","","","","",""};
@@ -35,7 +35,7 @@ public class GlobalActivity extends ListActivity {
         }
 
 
-        Button okButton = (Button)findViewById(R.id.globalOkButton);
+        Button okButton = (Button)findViewById(R.id.globalTop10OkButton);
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -75,7 +75,7 @@ public class GlobalActivity extends ListActivity {
         @Override
         public View getView(final int position, View convertView, ViewGroup container) {
             if (convertView == null) {
-                convertView = getLayoutInflater().inflate(R.layout.global_list_items, container, false);
+                convertView = getLayoutInflater().inflate(R.layout.global_top10_list_items, container, false);
             }
 
             TextView vText1;

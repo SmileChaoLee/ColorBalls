@@ -24,6 +24,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.TextView;
 
+import com.smile.alertdialogfragment.AlertDialogFragment;
 import com.smile.facebookadsutil.FacebookAds;
 import com.smile.scoresqlite.ScoreSQLite;
 import com.smile.utility.ScreenUtl;
@@ -301,7 +302,7 @@ public class MyActivity extends AppCompatActivity {
         return this.facebookAds;
     }
 
-    public void showScoreHistory() {
+    public void showTop10ScoreHistory() {
         new ShowTop10Scores().execute();
     }
 

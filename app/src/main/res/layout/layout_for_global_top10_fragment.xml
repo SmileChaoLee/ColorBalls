@@ -6,16 +6,16 @@
     android:background="#ff00ff00">
 
     <TextView
-        android:id="@+id/top10ScoreTitle"
+        android:id="@+id/globalTop10Title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:textColor="#ff0000ff"
         android:layout_gravity="center_horizontal"
-        android:text="@string/top10Score" />
+        android:text="@string/globalTop10" />
 
     <ListView
-        android:id="@+id/top10ListView"
+        android:id="@+id/globalTop10ListView"
         android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -24,7 +24,7 @@
         android:layout_weight="1"/>
 
     <Button
-        android:id="@+id/top10OkButton"
+        android:id="@+id/globalTop10OkButton"
         android:layout_marginTop="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

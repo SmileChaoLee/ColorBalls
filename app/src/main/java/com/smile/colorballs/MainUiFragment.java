@@ -31,6 +31,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.purplebrain.adbuddiz.sdk.AdBuddiz;
+import com.smile.alertdialogfragment.AlertDialogFragment;
 import com.smile.facebookadsutil.FacebookAds;
 import com.smile.model.GridData;
 import com.smile.scoresqlite.ScoreSQLite;
@@ -203,7 +204,7 @@ public class MainUiFragment extends Fragment {
             screenWidth = screenWidth / 2;  // for this fragment is half a screenWidth
         }
 
-        float height_weightSum_uiFragmentView = 10;    // default
+        float height_weightSum_uiFragmentView = 11;    // default
         try {
             LinearLayout linearLay = (LinearLayout) uiFragmentView;
             float temp = linearLay.getWeightSum();
@@ -323,13 +324,21 @@ public class MainUiFragment extends Fragment {
             }
         });
 
-        Button historyButton = (Button) uiFragmentView.findViewById(R.id.historyButton);
-        historyButton.setTextSize(fontSizeForText);
-        historyButton.setOnClickListener(new View.OnClickListener() {
+        Button top10Button = (Button) uiFragmentView.findViewById(R.id.top10Button);
+        top10Button.setTextSize(fontSizeForText);
+        top10Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // new StartHistoryScore().execute();   // removed on 2018-06-11 at 11:40am
-                myActivity.showScoreHistory();   // added on 2018-06-11
+                myActivity.showTop10ScoreHistory();   // added on 2018-06-11
+            }
+        });
+
+        Button globalTop10Button = (Button) uiFragmentView.findViewById(R.id.globalTop10Button);
+        globalTop10Button.setTextSize(fontSizeForText);
+        globalTop10Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myActivity.showTop10ScoreHistory();   // added on 2018-06-11
             }
         });
 

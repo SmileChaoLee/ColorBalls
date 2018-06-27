@@ -40,6 +40,7 @@ import com.purplebrain.adbuddiz.sdk.AdBuddiz;
 // import com.smile.dao.ScoreMySQL; // removed on 2017-10-18
 
 // import com.smile.dao.ScoreSQLite;
+import com.smile.alertdialogfragment.AlertDialogFragment;
 import com.smile.scoresqlite.*;
 
 
@@ -118,7 +119,7 @@ public class MyActivity_OLD extends AppCompatActivity {
     private String cancelStr = new String("");
     private String gameOverStr = new String("");
     private String undoStr = new String("");
-    private String historyStr = new String("");
+    private String top10Str = new String("");
 
     FragmentManager fmManager = null;
 
@@ -155,7 +156,7 @@ public class MyActivity_OLD extends AppCompatActivity {
         cancelStr = getResources().getString(R.string.cancelStr);
         gameOverStr = getResources().getString(R.string.gameOverStr);
         undoStr = getResources().getString(R.string.undoStr);
-        historyStr = getResources().getString(R.string.historyStr);
+        top10Str = getResources().getString(R.string.top10Str);
 
         scoreSQLite = new ScoreSQLite(MyActivity_OLD.this);
         highestScore = scoreSQLite.readHighestScore();
@@ -301,12 +302,12 @@ public class MyActivity_OLD extends AppCompatActivity {
             }
         });
 
-        Button historyButton = (Button) findViewById(R.id.historyButton);
-        historyButton.setTextColor(Color.RED);
-        historyButton.setTypeface(historyButton.getTypeface(), Typeface.BOLD_ITALIC);
-        historyButton.setTextSize(20);
-        historyButton.setText(historyStr);
-        historyButton.setOnClickListener(new OnClickListener() {
+        Button top10Button = (Button) findViewById(R.id.top10Button);
+        top10Button.setTextColor(Color.RED);
+        top10Button.setTypeface(top10Button.getTypeface(), Typeface.BOLD_ITALIC);
+        top10Button.setTextSize(20);
+        top10Button.setText(top10Str);
+        top10Button.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
 
