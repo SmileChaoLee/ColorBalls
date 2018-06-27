@@ -825,9 +825,105 @@ public class MainUiFragment extends Fragment {
         displayGameGridView();
     }
 
+    // public methods
+    public GridData getGridData() {
+        return this.gridData;
+    }
+
+    public void displayNextColorBalls() {
+
+        ImageView imageView = null;
+
+        gridData.randColors();  //   next  balls
+        //   display the balls on the nextBallsView
+        displayNextBallsView();
+    }
+
+    public void newGame() {
+        recordScore(1);   //   START A NEW GAME
+    }
+
+    public void recordScore(final int entryPoint) {
+        final EditText et = new EditText(myActivity);
+        et.setTextSize(fontSizeForText);
+        // et.setHeight(200);
+        et.setTextColor(Color.BLUE);
+        et.setBackground(new ColorDrawable(Color.TRANSPARENT));
+        et.setHint(nameStr);
+        et.setGravity(Gravity.CENTER);
+        AlertDialog alertD = new AlertDialog.Builder(myActivity).create();
+        alertD.setTitle(null);
+        alertD.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        alertD.setCancelable(false);
+        alertD.setView(et);
+        alertD.setButton(DialogInterface.BUTTON_NEGATIVE, cancelStr, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                if (entryPoint==0) {
+                    //  END PROGRAM
+                    myActivity.finish();
+                } else if (entryPoint==1) {
+                    //  NEW GAME
+                    flushALLandBegin();
+                }
+            }
+        });
+        alertD.setButton(DialogInterface.BUTTON_POSITIVE, submitStr, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+
+                scoreSQLite.addScore(et.getText().toString(),currentScore);
+                if (entryPoint==0) {
+                    myActivity.finish();
+                } else if (entryPoint==1) {
+                    //  NEW GAME
+                    flushALLandBegin();
+                }
+            }
+        });
+
+        alertD.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                setDialogStyle(dialog);
+            }
+        });
+
+        alertD.show();
+
+        // show ads
+        facebookAds.showAd(TAG);
+        AdBuddiz.showAd(myActivity);
+    }
+
+    public boolean getEasyLevel() {
+        return this.easyLevel;
+    }
+
+    public void setEasyLevel(boolean yn) {
+        this.easyLevel = yn;
+        if (this.easyLevel) {
+            // easy level
+            getGridData().setMinBallsOneTime(MainUiFragment.MINB);
+            getGridData().setMaxBallsOneTime(MainUiFragment.MINB);
+        } else {
+            // difficult
+            getGridData().setMinBallsOneTime(MainUiFragment.MINB);
+            getGridData().setMaxBallsOneTime(MainUiFragment.MAXB);
+
+        }
+        displayNextColorBalls();
+
+        // show ads
+        facebookAds.showAd(TAG);
+        AdBuddiz.showAd(myActivity);
+    }
+
     private class CalculateScore extends AsyncTask<HashSet<Point>,Integer,String[]> {
 
-        private final String ScoreDialogTag = "ScoreDialogFragment";
+        private final String ScoreDialogTag = new String("ScoreDialogFragment");
         private int numBalls = 0;
         private int color = 0;
         private HashSet<Point> hashPoint;
@@ -927,101 +1023,5 @@ public class MainUiFragment extends Fragment {
 
             threadCompleted[1] = true;
         }
-    }
-
-    // public methods
-    public GridData getGridData() {
-        return this.gridData;
-    }
-
-    public void displayNextColorBalls() {
-
-        ImageView imageView = null;
-
-        gridData.randColors();  //   next  balls
-        //   display the balls on the nextBallsView
-        displayNextBallsView();
-    }
-
-    public void newGame() {
-        recordScore(1);   //   START A NEW GAME
-    }
-
-    public void recordScore(final int entryPoint) {
-        final EditText et = new EditText(myActivity);
-        et.setTextSize(fontSizeForText);
-        // et.setHeight(200);
-        et.setTextColor(Color.BLUE);
-        et.setBackground(new ColorDrawable(Color.TRANSPARENT));
-        et.setHint(nameStr);
-        et.setGravity(Gravity.CENTER);
-        AlertDialog alertD = new AlertDialog.Builder(myActivity).create();
-        alertD.setTitle(null);
-        alertD.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        alertD.setCancelable(false);
-        alertD.setView(et);
-        alertD.setButton(DialogInterface.BUTTON_NEGATIVE, cancelStr, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                if (entryPoint==0) {
-                    //  END PROGRAM
-                    myActivity.finish();
-                } else if (entryPoint==1) {
-                    //  NEW GAME
-                    flushALLandBegin();
-                }
-            }
-        });
-        alertD.setButton(DialogInterface.BUTTON_POSITIVE, submitStr, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-
-                scoreSQLite.addScore(et.getText().toString(),currentScore);
-                if (entryPoint==0) {
-                    myActivity.finish();
-                } else if (entryPoint==1) {
-                    //  NEW GAME
-                    flushALLandBegin();
-                }
-            }
-        });
-
-        alertD.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                setDialogStyle(dialog);
-            }
-        });
-
-        alertD.show();
-
-        // show ads
-        facebookAds.showAd(TAG);
-        AdBuddiz.showAd(myActivity);
-    }
-
-    public boolean getEasyLevel() {
-        return this.easyLevel;
-    }
-
-    public void setEasyLevel(boolean yn) {
-        this.easyLevel = yn;
-        if (this.easyLevel) {
-            // easy level
-            getGridData().setMinBallsOneTime(MainUiFragment.MINB);
-            getGridData().setMaxBallsOneTime(MainUiFragment.MINB);
-        } else {
-            // difficult
-            getGridData().setMinBallsOneTime(MainUiFragment.MINB);
-            getGridData().setMaxBallsOneTime(MainUiFragment.MAXB);
-
-        }
-        displayNextColorBalls();
-
-        // show ads
-        facebookAds.showAd(TAG);
-        AdBuddiz.showAd(myActivity);
     }
 }

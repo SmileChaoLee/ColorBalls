@@ -321,7 +321,7 @@ public class MyActivity extends AppCompatActivity {
 
     private class ShowTop10Scores extends AsyncTask<Void,Integer,ArrayList<Pair<String, Integer>>> {
 
-        public static final String Top10LoadingDialog = "Top10LoadingDialogFragment";
+        private static final String Top10LoadingDialog = "Top10LoadingDialogFragment";
         private Animation animationText = null;
         private AlertDialogFragment loadingDialog = null;
 
@@ -459,7 +459,7 @@ public class MyActivity extends AppCompatActivity {
 
     private class ShowGlobalTop10 extends AsyncTask<Void,Integer,ArrayList<Pair<String, Integer>>> {
 
-        public static final String GlobalTop10LoadingDialog = "GlobalTop10LoadingDialogFragment";
+        private static final String GlobalTop10LoadingDialog = "GlobalTop10LoadingDialogFragment";
         private Animation animationText = null;
         private AlertDialogFragment loadingDialog = null;
 
@@ -583,13 +583,13 @@ public class MyActivity extends AppCompatActivity {
                 } else {
                     // for Portrait
                     globalTop10Fragment = null;
-                    Intent intent = new Intent(getApplicationContext(), Top10ScoreActivity.class);
+                    Intent intent = new Intent(getApplicationContext(), GlobalTop10Activity.class);
                     Bundle extras = new Bundle();
                     extras.putStringArrayList("Top10Players", playerNames);
                     extras.putIntegerArrayList("Top10Scores", playerScores);
                     extras.putInt("FontSizeForText", fontSizeForText);
                     intent.putExtras(extras);
-                    startActivityForResult(intent, Top10ScoreActivity.activityRequestCode);
+                    startActivityForResult(intent, GlobalTop10Activity.activityRequestCode);
                 }
             }
         }
