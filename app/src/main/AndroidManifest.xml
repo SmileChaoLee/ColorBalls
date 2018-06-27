@@ -27,7 +27,7 @@
             android:name=".Top10ScoreActivity"
             android:label="@string/title_activity_history" />
         <activity
-            android:name=".GlobalActivity"
+            android:name=".GlobalTop10Activity"
             android:label="@string/title_activity_global" />
         <activity
             android:name="com.purplebrain.adbuddiz.sdk.AdBuddizActivity"

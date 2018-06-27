@@ -38,12 +38,13 @@ public class MyActivity extends AppCompatActivity {
     private final String TAG = new String("com.smile.colorballs.MyActivity");
     private ScoreSQLite scoreSQLite = null;
     private int mainUiLayoutId = -1;
-    private int scoreHistoryLayoutId = -1;
+    private int top10LayoutId = -1;
     private MenuItem registerMenuItemEasy = null;
     private MenuItem registerMenuItemDifficult = null;
 
     private MainUiFragment mainUiFragment = null;
     private Top10ScoreFragment top10ScoreFragment = null;
+    private GlobalTop10Fragment globalTop10Fragment = null;
 
     private int fontSizeForText = 24;
     private float dialog_widthFactor = 1.0f;
@@ -141,7 +142,7 @@ public class MyActivity extends AppCompatActivity {
         //
 
         mainUiLayoutId = R.id.mainUiLayout;
-        scoreHistoryLayoutId = R.id.scoreHistoryLayout;
+        top10LayoutId = R.id.top10Layout;
 
         FragmentManager fmManager = getSupportFragmentManager();
         mainUiFragment = (MainUiFragment) fmManager.findFragmentByTag(MainUiFragment.MainUiFragmentTag);
@@ -239,14 +240,22 @@ public class MyActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         if (isChangingConfigurations()) {
-            // configuration is changing then remove the top10ScoreFragment
+            // configuration is changing then remove top10ScoreFragment and globalTop10Fragment
             if (top10ScoreFragment != null) {
-                // remove historyFragment
+                // remove top10ScoreFragment
                 FragmentManager fmManager = getSupportFragmentManager();
                 FragmentTransaction ft = fmManager.beginTransaction();
                 ft.remove(top10ScoreFragment);
                 ft.commit();
                 System.out.println("MyActivity.onSaveInstanceState() is called. ---> removed top10ScoreFragment");
+            }
+            if (globalTop10Fragment != null) {
+                // remove globalTop10Fragment
+                FragmentManager fmManager = getSupportFragmentManager();
+                FragmentTransaction ft = fmManager.beginTransaction();
+                ft.remove(globalTop10Fragment);
+                ft.commit();
+                System.out.println("MyActivity.onSaveInstanceState() is called. ---> removed globalTop10Fragment");
             }
         } else {
             // if configuration is not changing (still landscape because portrait does not have this fragment)
@@ -304,6 +313,10 @@ public class MyActivity extends AppCompatActivity {
 
     public void showTop10ScoreHistory() {
         new ShowTop10Scores().execute();
+    }
+
+    public void showGlobalTop10History() {
+        new ShowGlobalTop10().execute();
     }
 
     private class ShowTop10Scores extends AsyncTask<Void,Integer,ArrayList<Pair<String, Integer>>> {
@@ -396,7 +409,7 @@ public class MyActivity extends AppCompatActivity {
                     playerScores.add((Integer)pair.second);
                 }
 
-                View historyView = findViewById(scoreHistoryLayoutId);
+                View historyView = findViewById(top10LayoutId);
                 if (historyView != null) {
                     if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         top10ScoreFragment = Top10ScoreFragment.newInstance(playerNames, playerScores, fontSizeForText, new Top10ScoreFragment.Top10OkButtonListener() {
@@ -418,11 +431,11 @@ public class MyActivity extends AppCompatActivity {
                         FragmentManager fmManager = getSupportFragmentManager();
                         FragmentTransaction ft = fmManager.beginTransaction();
                         ft = fmManager.beginTransaction();
-                        Fragment currentTop10SocreFragment = (Top10ScoreFragment) fmManager.findFragmentByTag(Top10ScoreFragment.Top10ScoreFragmentTag);
-                        if (currentTop10SocreFragment == null) {
-                            ft.add(scoreHistoryLayoutId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
+                        Fragment currentTop10ScoreFragment = (Top10ScoreFragment) fmManager.findFragmentByTag(Top10ScoreFragment.Top10ScoreFragmentTag);
+                        if (currentTop10ScoreFragment == null) {
+                            ft.add(top10LayoutId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
                         } else {
-                            ft.replace(scoreHistoryLayoutId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
+                            ft.replace(top10LayoutId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
                         }
                         // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                         ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
@@ -432,6 +445,144 @@ public class MyActivity extends AppCompatActivity {
                 } else {
                     // for Portrait
                     top10ScoreFragment = null;
+                    Intent intent = new Intent(getApplicationContext(), Top10ScoreActivity.class);
+                    Bundle extras = new Bundle();
+                    extras.putStringArrayList("Top10Players", playerNames);
+                    extras.putIntegerArrayList("Top10Scores", playerScores);
+                    extras.putInt("FontSizeForText", fontSizeForText);
+                    intent.putExtras(extras);
+                    startActivityForResult(intent, Top10ScoreActivity.activityRequestCode);
+                }
+            }
+        }
+    }
+
+    private class ShowGlobalTop10 extends AsyncTask<Void,Integer,ArrayList<Pair<String, Integer>>> {
+
+        public static final String GlobalTop10LoadingDialog = "GlobalTop10LoadingDialogFragment";
+        private Animation animationText = null;
+        private AlertDialogFragment loadingDialog = null;
+
+        public ShowGlobalTop10() {
+            System.out.println("ShowGlobalTop10()->fontSizeForText = " + fontSizeForText);
+            System.out.println("ShowGlobalTop10()->dialogFragment_widthFactor = " + dialogFragment_widthFactor);
+            loadingDialog = new AlertDialogFragment();
+            Bundle args = new Bundle();
+            args.putString("textContent", getResources().getString(R.string.loadScore));
+            args.putFloat("textSize", fontSizeForText * dialogFragment_widthFactor);
+            args.putInt("color", Color.RED);
+            args.putInt("width", 0);    // wrap_content
+            args.putInt("height", 0);   // wrap_content
+            args.putInt("numButtons", 0);
+            loadingDialog.setArguments(args);
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            animationText = new AlphaAnimation(0.0f,1.0f);
+            animationText.setDuration(300);
+            animationText.setStartOffset(0);
+            animationText.setRepeatMode(Animation.REVERSE);
+            animationText.setRepeatCount(Animation.INFINITE);
+            loadingDialog.show(getSupportFragmentManager(), GlobalTop10LoadingDialog);
+        }
+
+        @Override
+        protected ArrayList<Pair<String, Integer>> doInBackground(Void... params) {
+            int i = 0;
+            publishProgress(i);
+            // String[] result = scoreSQLite.read10HighestScore();
+            ArrayList<Pair<String, Integer>> resultList = scoreSQLite.readTop10ScoreList();
+            // wait for one second
+            try { Thread.sleep(1000); } catch (InterruptedException ex) { ex.printStackTrace(); }
+
+            i = 1;
+            TextView textLoad = loadingDialog.getText_shown();
+            while (textLoad == null) {
+                textLoad = loadingDialog.getText_shown();
+                SystemClock.sleep(20);
+            }
+
+            publishProgress(i);
+
+            // return result;
+            return resultList;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+            if (!isCancelled()) {
+                TextView textLoad = loadingDialog.getText_shown();
+                try {
+                    if (progress[0] == 0) {
+                        if (animationText != null) {
+                            textLoad.startAnimation(animationText);
+                        }
+                    } else {
+                        if (animationText != null) {
+                            textLoad.clearAnimation();
+                            animationText = null;
+                        }
+                        textLoad.setText("");
+                    }
+                } catch (Exception ex) {
+                    System.out.println("MyActivity.ShowGlobalTop10.onProgressUpdate() failed --> textLoad animation");
+                    ex.printStackTrace();
+                }
+            }
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Pair<String, Integer>> resultList) {
+
+            if (!isCancelled()) {
+                System.out.println("MyActivity.ShowGlobalTop10() ---> calling loadingDialog.dismissAllowingStateLoss()");
+                // loadingDialog.dismiss(); // removed on 2018-06-18
+                loadingDialog.dismissAllowingStateLoss();   // added on 2018-06-18
+                ArrayList<String> playerNames = new ArrayList<String>();
+                ArrayList<Integer> playerScores = new ArrayList<Integer>();
+                for (Pair pair : resultList) {
+                    playerNames.add((String)pair.first);
+                    playerScores.add((Integer)pair.second);
+                }
+
+                View historyView = findViewById(top10LayoutId);
+                if (historyView != null) {
+                    if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        globalTop10Fragment = GlobalTop10Fragment.newInstance(playerNames, playerScores, fontSizeForText, new GlobalTop10Fragment.GlobalTop10OkButtonListener() {
+                            @Override
+                            public void buttonOkClick(Activity activity) {
+                                if (globalTop10Fragment != null) {
+                                    // remove GlobalTop10Fragment to dismiss the top 10 score screen
+                                    FragmentManager fmManager = getSupportFragmentManager();
+                                    FragmentTransaction ft = fmManager.beginTransaction();
+                                    ft.remove(globalTop10Fragment);
+                                    // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
+                                    ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
+
+                                    facebookAds.showAd(TAG);
+                                    AdBuddiz.showAd(MyActivity.this);   // added on 2017-10-24
+                                }
+                            }
+                        });
+                        FragmentManager fmManager = getSupportFragmentManager();
+                        FragmentTransaction ft = fmManager.beginTransaction();
+                        ft = fmManager.beginTransaction();
+                        Fragment currentGlobalTop10Fragment = (GlobalTop10Fragment) fmManager.findFragmentByTag(GlobalTop10Fragment.GlobalTop10FragmentTag);
+                        if (currentGlobalTop10Fragment == null) {
+                            ft.add(top10LayoutId, globalTop10Fragment, GlobalTop10Fragment.GlobalTop10FragmentTag);
+                        } else {
+                            ft.replace(top10LayoutId, globalTop10Fragment, GlobalTop10Fragment.GlobalTop10FragmentTag);
+                        }
+                        // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
+                        ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
+
+                        System.out.println("MyActivity.ShowTop10Scores() -----> globalTop10Fragment is created.");
+                    }
+                } else {
+                    // for Portrait
+                    globalTop10Fragment = null;
                     Intent intent = new Intent(getApplicationContext(), Top10ScoreActivity.class);
                     Bundle extras = new Bundle();
                     extras.putStringArrayList("Top10Players", playerNames);

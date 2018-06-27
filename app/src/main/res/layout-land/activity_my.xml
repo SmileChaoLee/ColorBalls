@@ -15,7 +15,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/scoreHistoryLayout"
+        android:id="@+id/top10Layout"
         android:orientation="vertical"
         android:layout_width="0dp"
         android:layout_height="match_parent"

@@ -338,7 +338,7 @@ public class MainUiFragment extends Fragment {
         globalTop10Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                myActivity.showTop10ScoreHistory();   // added on 2018-06-11
+                myActivity.showGlobalTop10History();
             }
         });
 
@@ -348,33 +348,6 @@ public class MainUiFragment extends Fragment {
             easyLevel = true;   // start with easy level
             gridData = new GridData(rowCounts, colCounts, MINB, MINB);  // easy level (3 balls for next balls)
             displayGridDataNextCells();
-
-            /*
-            // for testing
-            AlertDialogFragment gameOverDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
-                @Override
-                public void button1OnClick(AlertDialogFragment dialogFragment) {
-                    dialogFragment.dismiss();
-                    recordScore(0);   //   Ending the game
-                }
-
-                @Override
-                public void button2OnClick(AlertDialogFragment dialogFragment) {
-                    dialogFragment.dismiss();
-                    newGame();
-                }
-            });
-            Bundle args = new Bundle();
-            args.putString("textContent", gameOverStr);
-            args.putFloat("textSize", fontSizeForText * dialogFragment_widthFactor);
-            args.putInt("color", Color.BLUE);
-            args.putInt("width", 0);    // wrap_content
-            args.putInt("height", 0);   // wrap_content
-            args.putInt("numButtons", 2);
-            gameOverDialog.setArguments(args);
-            gameOverDialog.show(getActivity().getSupportFragmentManager(), GameOverDialogTag);
-            // end of testing
-            */
 
         } else {
             // display the original state before changing configuration
