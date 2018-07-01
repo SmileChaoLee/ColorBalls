@@ -22,15 +22,29 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.smile.alertdialogfragment.AlertDialogFragment;
+import com.smile.dao.PlayerRecordRest;
 import com.smile.facebookadsutil.FacebookAds;
 import com.smile.scoresqlite.ScoreSQLite;
 import com.smile.utility.ScreenUtl;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 import com.purplebrain.adbuddiz.sdk.AdBuddiz;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MyActivity extends AppCompatActivity {
 
@@ -54,6 +68,9 @@ public class MyActivity extends AppCompatActivity {
 
     // private properties facebook ads
     private FacebookAds facebookAds = null;
+
+    // public properties
+    public static final String REST_Website = new String("http://192.168.0.11:5000/Playerscore");
 
     public MyActivity() {
         System.out.println("MyActivity ---> Constructor");
@@ -169,10 +186,17 @@ public class MyActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == Top10ScoreActivity.activityRequestCode) {
-                // show ads
-                facebookAds.showAd(TAG);
-                AdBuddiz.showAd(MyActivity.this);   // added on 2017-10-24
+            switch(resultCode) {
+                case Top10ScoreActivity.activityRequestCode:
+                    // show ads
+                    facebookAds.showAd(TAG);
+                    AdBuddiz.showAd(MyActivity.this);
+                    break;
+                case GlobalTop10Activity.activityRequestCode:
+                    // show ads
+                    facebookAds.showAd(TAG);
+                    AdBuddiz.showAd(MyActivity.this);
+                    break;
             }
         }
     }
@@ -457,11 +481,14 @@ public class MyActivity extends AppCompatActivity {
         }
     }
 
-    private class ShowGlobalTop10 extends AsyncTask<Void,Integer,ArrayList<Pair<String, Integer>>> {
+    private class ShowGlobalTop10 extends AsyncTask<Void,Integer,String[]> {
 
         private static final String GlobalTop10LoadingDialog = "GlobalTop10LoadingDialogFragment";
         private Animation animationText = null;
         private AlertDialogFragment loadingDialog = null;
+        private final String SUCCEEDED = "0";
+        private final String FAILED = "1";
+        private final String EXCEPTION = "2";
 
         public ShowGlobalTop10() {
             System.out.println("ShowGlobalTop10()->fontSizeForText = " + fontSizeForText);
@@ -489,11 +516,15 @@ public class MyActivity extends AppCompatActivity {
         }
 
         @Override
-        protected ArrayList<Pair<String, Integer>> doInBackground(Void... params) {
+        protected String[] doInBackground(Void... params) {
             int i = 0;
+            String[] result = {"",""};
+
             publishProgress(i);
-            // String[] result = scoreSQLite.read10HighestScore();
-            ArrayList<Pair<String, Integer>> resultList = scoreSQLite.readTop10ScoreList();
+
+            String webUrl = new String(REST_Website + "/GetTop10PlayerscoresREST");   // ASP.NET Core
+            result = PlayerRecordRest.getTop10Scores(webUrl);
+
             // wait for one second
             try { Thread.sleep(1000); } catch (InterruptedException ex) { ex.printStackTrace(); }
 
@@ -506,8 +537,7 @@ public class MyActivity extends AppCompatActivity {
 
             publishProgress(i);
 
-            // return result;
-            return resultList;
+            return result;
         }
 
         @Override
@@ -534,17 +564,47 @@ public class MyActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(ArrayList<Pair<String, Integer>> resultList) {
+        protected void onPostExecute(String[] result) {
 
             if (!isCancelled()) {
                 System.out.println("MyActivity.ShowGlobalTop10() ---> calling loadingDialog.dismissAllowingStateLoss()");
                 // loadingDialog.dismiss(); // removed on 2018-06-18
                 loadingDialog.dismissAllowingStateLoss();   // added on 2018-06-18
+
                 ArrayList<String> playerNames = new ArrayList<String>();
                 ArrayList<Integer> playerScores = new ArrayList<Integer>();
-                for (Pair pair : resultList) {
-                    playerNames.add((String)pair.first);
-                    playerScores.add((Integer)pair.second);
+
+                String status = result[0].toUpperCase();
+                if (status.equals(SUCCEEDED)) {
+                    // Succeeded
+                    try {
+                        JSONArray jArray = new JSONArray(result[1]);
+
+                        System.out.println("JSONArray = " + jArray);
+
+                        for (int i=0; i<jArray.length(); i++) {
+                            JSONObject jo = jArray.getJSONObject(i);
+                            playerNames.add(jo.getString("PlayerName"));
+                            playerScores.add(jo.getInt("Score"));
+                        }
+
+                    } catch(JSONException ex) {
+                        String errorMsg = ex.toString() + "\n" + ex.getStackTrace();
+                        Log.d(TAG, "Failed to parse JSONObject from the result." + "\n" + errorMsg);
+                        playerNames.add("JSONException->JSONArray");
+                        playerScores.add(0);
+                    }
+
+                } else if (status.equals(FAILED)) {
+                    // Failed
+                    Log.d(TAG, "Failed to get global top 10.");
+                    playerNames.add("Web Connection Failed.");
+                    playerScores.add(0);
+                } else {
+                    // Exception
+                    Log.d(TAG, "Failed to get global top 10 because of exception.");
+                    playerNames.add("Exception on Web read.");
+                    playerScores.add(0);
                 }
 
                 View historyView = findViewById(top10LayoutId);
@@ -578,7 +638,7 @@ public class MyActivity extends AppCompatActivity {
                         // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                         ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
 
-                        System.out.println("MyActivity.ShowTop10Scores() -----> globalTop10Fragment is created.");
+                        System.out.println("MyActivity.ShowGlobalTop10() -----> globalTop10Fragment is created.");
                     }
                 } else {
                     // for Portrait

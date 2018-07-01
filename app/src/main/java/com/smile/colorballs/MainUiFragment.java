@@ -16,7 +16,9 @@ import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,11 +34,14 @@ import android.widget.TextView;
 
 import com.purplebrain.adbuddiz.sdk.AdBuddiz;
 import com.smile.alertdialogfragment.AlertDialogFragment;
+import com.smile.dao.PlayerRecordRest;
 import com.smile.facebookadsutil.FacebookAds;
 import com.smile.model.GridData;
 import com.smile.scoresqlite.ScoreSQLite;
 import com.smile.utility.ScreenUtl;
 import com.smile.utility.SoundUtl;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -53,7 +58,7 @@ public class MainUiFragment extends Fragment {
     // private properties for this color balls game
     private OnFragmentInteractionListener mListener;
 
-    private final String TAG = "com.smile.colorballs.MainUiFragment";
+    private final String TAG = new String("com.smile.colorballs.MainUiFragment");
     private final String GameOverDialogTag = "GameOverDialogFragment";
     private final int nextBallsViewIdStart = 100;
 
@@ -137,13 +142,15 @@ public class MainUiFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);    // retain install of fragment when recreate
 
-        // string constant
-        yesStr = getResources().getString(R.string.yesStr);
-        noStr = getResources().getString(R.string.noStr);
-        nameStr = getResources().getString(R.string.nameStr);
-        submitStr = getResources().getString(R.string.submitStr);
-        cancelStr = getResources().getString(R.string.cancelStr);
-        gameOverStr = getResources().getString(R.string.gameOverStr);
+        if (savedInstanceState == null) {
+            // string constant
+            yesStr = getResources().getString(R.string.yesStr);
+            noStr = getResources().getString(R.string.noStr);
+            nameStr = getResources().getString(R.string.nameStr);
+            submitStr = getResources().getString(R.string.submitStr);
+            cancelStr = getResources().getString(R.string.cancelStr);
+            gameOverStr = getResources().getString(R.string.gameOverStr);
+        }
 
         System.out.println("MainUiFragment onCreate() is called.");
     }
@@ -475,6 +482,7 @@ public class MainUiFragment extends Fragment {
                 args.putInt("numButtons", 2);
                 gameOverDialog.setArguments(args);
                 gameOverDialog.show(getActivity().getSupportFragmentManager(), GameOverDialogTag);
+                FragmentManager f = getActivity().getSupportFragmentManager();
 
                 System.out.println("gameOverDialog.show() has been called.");
             }
@@ -846,7 +854,6 @@ public class MainUiFragment extends Fragment {
     public void recordScore(final int entryPoint) {
         final EditText et = new EditText(myActivity);
         et.setTextSize(fontSizeForText);
-        // et.setHeight(200);
         et.setTextColor(Color.BLUE);
         et.setBackground(new ColorDrawable(Color.TRANSPARENT));
         et.setHint(nameStr);
@@ -873,6 +880,24 @@ public class MainUiFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
+
+                // use thread to add a record to database (remote database on AWS-EC2)
+                Thread restThread = new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            String webUrl = new String(MyActivity.REST_Website + "/AddOneRecordREST");   // ASP.NET Cor
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("PlayerName", et.getText().toString());
+                            jsonObject.put("Score", currentScore);
+                            boolean yn = PlayerRecordRest.addOneRecord(webUrl, jsonObject);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            Log.d(TAG, "Failed to add one record to Playerscore table.");
+                        }
+                    }
+                };
+                restThread.start();
 
                 scoreSQLite.addScore(et.getText().toString(),currentScore);
                 if (entryPoint==0) {
