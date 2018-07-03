@@ -40,7 +40,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-import com.purplebrain.adbuddiz.sdk.AdBuddiz;
+// import com.purplebrain.adbuddiz.sdk.AdBuddiz;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -70,8 +70,8 @@ public class MyActivity extends AppCompatActivity {
     private FacebookAds facebookAds = null;
 
     // public properties
-    public static final String REST_Website = new String("http://192.168.0.11:5000/Playerscore");
-
+    // public static final String REST_Website = new String("http://192.168.0.11:5000/Playerscore");
+    public static final String REST_Website = new String("    http://ec2-13-59-195-3.us-east-2.compute.amazonaws.com/Playerscore");
     public MyActivity() {
         System.out.println("MyActivity ---> Constructor");
         scoreSQLite = new ScoreSQLite(MyActivity.this);
@@ -176,29 +176,38 @@ public class MyActivity extends AppCompatActivity {
 
         facebookAds = new FacebookAds(this);
 
-        // for AdBuddiz ads
-        AdBuddiz.setPublisherKey("57c7153c-35dd-488a-beaa-3cae8b3ab668");
-        AdBuddiz.cacheAds(this); // this = current Activity
+        // for AdBuddiz ads removed on 2018-07-03
+        // AdBuddiz.setPublisherKey("57c7153c-35dd-488a-beaa-3cae8b3ab668");
+        // AdBuddiz.cacheAds(this); // this = current Activity
         // AdBuddiz.RewardedVideo.fetch(this); // this = current Activity
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        /*
         if (resultCode == Activity.RESULT_OK) {
-            switch(resultCode) {
+            switch(requestCode) {
                 case Top10ScoreActivity.activityRequestCode:
                     // show ads
+                    Log.i(TAG, "Facebook showing ads");
                     facebookAds.showAd(TAG);
                     AdBuddiz.showAd(MyActivity.this);
                     break;
                 case GlobalTop10Activity.activityRequestCode:
                     // show ads
+                    Log.i(TAG, "Facebook showing ads");
                     facebookAds.showAd(TAG);
                     AdBuddiz.showAd(MyActivity.this);
                     break;
             }
         }
+        */
+
+        // show ads
+        Log.i(TAG, "Facebook showing ads");
+        facebookAds.showAd(TAG);
+        // AdBuddiz.showAd(MyActivity.this);
     }
 
     @Override
@@ -448,7 +457,7 @@ public class MyActivity extends AppCompatActivity {
                                     ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
 
                                     facebookAds.showAd(TAG);
-                                    AdBuddiz.showAd(MyActivity.this);   // added on 2017-10-24
+                                    // AdBuddiz.showAd(MyActivity.this);   // added on 2017-10-24
                                 }
                             }
                         });
@@ -622,7 +631,7 @@ public class MyActivity extends AppCompatActivity {
                                     ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
 
                                     facebookAds.showAd(TAG);
-                                    AdBuddiz.showAd(MyActivity.this);   // added on 2017-10-24
+                                    // AdBuddiz.showAd(MyActivity.this);   // added on 2017-10-24
                                 }
                             }
                         });

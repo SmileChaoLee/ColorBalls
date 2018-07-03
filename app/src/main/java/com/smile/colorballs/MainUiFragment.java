@@ -32,7 +32,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.purplebrain.adbuddiz.sdk.AdBuddiz;
+// import com.purplebrain.adbuddiz.sdk.AdBuddiz;
 import com.smile.alertdialogfragment.AlertDialogFragment;
 import com.smile.dao.PlayerRecordRest;
 import com.smile.facebookadsutil.FacebookAds;
@@ -920,7 +920,7 @@ public class MainUiFragment extends Fragment {
 
         // show ads
         facebookAds.showAd(TAG);
-        AdBuddiz.showAd(myActivity);
+        // AdBuddiz.showAd(myActivity); // remove on 2018-07-03
     }
 
     public boolean getEasyLevel() {
@@ -943,7 +943,7 @@ public class MainUiFragment extends Fragment {
 
         // show ads
         facebookAds.showAd(TAG);
-        AdBuddiz.showAd(myActivity);
+        // AdBuddiz.showAd(myActivity);
     }
 
     private class CalculateScore extends AsyncTask<HashSet<Point>,Integer,String[]> {
@@ -1020,7 +1020,8 @@ public class MainUiFragment extends Fragment {
                     }
                     break;
                 case 2:
-                    scoreDialog.show(getActivity().getSupportFragmentManager(), ScoreDialogTag);
+                    FragmentManager fm = getActivity().getSupportFragmentManager();
+                    scoreDialog.show(fm, ScoreDialogTag);
                     break;
                 case 3:
                     System.out.println("MainUiFragment.Calculation is calling scoreDialog.dismissAllowingStateLoss()");
