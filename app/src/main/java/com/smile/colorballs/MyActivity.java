@@ -174,7 +174,17 @@ public class MyActivity extends AppCompatActivity {
             }
         }
 
-        facebookAds = new FacebookAds(this);
+        System.out.println("Package Name = " + getPackageName());
+
+        String facebookPlacementID = new String("200699663911258_200701030577788"); // for colorballs
+        if (BuildConfig.APPLICATION_ID == "com.smile.colorballs") {
+            facebookPlacementID = new String("200699663911258_200701030577788"); // for colorballs
+        } else if (BuildConfig.APPLICATION_ID == "com.smile.fivecolorballs") {
+            facebookPlacementID = new String("241884113266033_241884616599316"); // for fivecolorballs
+        } else {
+            // default
+        }
+        facebookAds = new FacebookAds(this, facebookPlacementID);
 
         // for AdBuddiz ads removed on 2018-07-03
         // AdBuddiz.setPublisherKey("57c7153c-35dd-488a-beaa-3cae8b3ab668");

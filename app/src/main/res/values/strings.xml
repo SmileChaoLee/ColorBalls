@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">ColorBalls</string>
+    <string name="app_name_2">ColorBalls_2</string>
     <string name="easyLevel">Easy</string>
     <string name="difficultLevel">Difficult</string>
     <string name="quitGame">QUIT</string>

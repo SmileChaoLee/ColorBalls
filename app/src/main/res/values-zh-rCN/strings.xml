@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">五色球</string>
+    <string name="app_name_2">五色球_2</string>
     <string name="easyLevel">容易</string>
     <string name="difficultLevel">困难</string>
     <string name="quitGame">结束</string>

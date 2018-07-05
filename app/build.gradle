@@ -3,19 +3,49 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     buildToolsVersion '28.0.0'
-
     defaultConfig {
         applicationId "com.smile.colorballs"
+        manifestPlaceholders = [ appName:"@string/app_name"]
         minSdkVersion 16
         targetSdkVersion 28
-        versionCode 901
-        versionName "2.901"
+        versionCode 3000
+        versionName "3.000"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        flavorDimensions("colorballs")
+        productFlavors {
+            colorballs {
+                dimension "colorballs"
+                applicationId "com.smile.colorballs"
+                manifestPlaceholders = [ appNameSuffix:""]
+            }
+            fivecolorballs {
+                dimension "colorballs"
+                applicationId "com.smile.fivecolorballs"
+                manifestPlaceholders = [ appNameSuffix:"_2"]
+            }
+        }
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    productFlavors {
+        colorballs {
+            minSdkVersion 16
+            targetSdkVersion 28
+            testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+            versionCode 901
+            versionName '2.901'
+        }
+        fivecolorballs {
+            minSdkVersion 16
+            targetSdkVersion 28
+            versionCode 901
+            versionName '2.901'
+            testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
         }
     }
 }

@@ -16,7 +16,7 @@ public class FacebookAds {
     private InterstitialAd interstitialAd;
     private int retryCount = 0;
 
-    public FacebookAds(final Context context) {
+    public FacebookAds(final Context context, String placementID) {
 
         this.context = context;
 
@@ -26,7 +26,10 @@ public class FacebookAds {
         // now, while you are testing and replace it later when you have signed up.
         // While you are using this temporary code you will only get test ads and if you release
         // your code like this to the Google Play your users will not receive ads (you will get a no fill error).
-        interstitialAd = new InterstitialAd(context, "200699663911258_200701030577788");
+        // interstitialAd = new InterstitialAd(context, "200699663911258_200701030577788");
+        interstitialAd = new InterstitialAd(context, placementID);
+        // 241884113266033_241884616599316 for 五色球 color balls colorballs
+
         // Set listeners for the Interstitial Ad
         interstitialAd.setAdListener(new InterstitialAdListener() {
             @Override
