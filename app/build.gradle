@@ -4,10 +4,10 @@ android {
     compileSdkVersion 28
     buildToolsVersion '28.0.0'
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 15
         targetSdkVersion 28
-        versionCode 3000
-        versionName "3.000"
+        versionCode 3001
+        versionName "3.001"
         applicationId "com.smile.colorballs"
         manifestPlaceholders = [ appName:"@string/app_name"]
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
