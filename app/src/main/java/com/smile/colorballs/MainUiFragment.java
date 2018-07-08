@@ -855,7 +855,8 @@ public class MainUiFragment extends Fragment {
         final EditText et = new EditText(myActivity);
         et.setTextSize(fontSizeForText);
         et.setTextColor(Color.BLUE);
-        et.setBackground(new ColorDrawable(Color.TRANSPARENT));
+        // et.setBackground(new ColorDrawable(Color.TRANSPARENT));
+        // et.setBackgroundColor(Color.TRANSPARENT);
         et.setHint(nameStr);
         et.setGravity(Gravity.CENTER);
         AlertDialog alertD = new AlertDialog.Builder(myActivity).create();
