@@ -32,10 +32,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-// import com.purplebrain.adbuddiz.sdk.AdBuddiz;
 import com.smile.alertdialogfragment.AlertDialogFragment;
 import com.smile.dao.PlayerRecordRest;
-import com.smile.facebookadsutil.FacebookAds;
+import com.smile.facebookadsutil.*;
 import com.smile.model.GridData;
 import com.smile.scoresqlite.ScoreSQLite;
 import com.smile.utility.ScreenUtl;
@@ -101,7 +100,7 @@ public class MainUiFragment extends Fragment {
 
 
     // private properties facebook ads
-    private FacebookAds facebookAds = null;
+    private FacebookInterstitialAds facebookInterstitialAds = null;
 
     // private ModalDialogFragment gameOverDialog = null;
     public MainUiFragment() {
@@ -192,7 +191,7 @@ public class MainUiFragment extends Fragment {
         dialogFragment_widthFactor = myActivity.getDialogFragment_widthFactor();
         dialogFragment_heightFactor = myActivity.getDialogFragment_heightFactor();
 
-        facebookAds = myActivity.getFacebookAds();
+        facebookInterstitialAds = myActivity.getFacebookInterstitialAds();
 
         Point size = new Point();
         ScreenUtl.getScreenSize(context, size);
@@ -920,7 +919,7 @@ public class MainUiFragment extends Fragment {
         alertD.show();
 
         // show ads
-        facebookAds.showAd(TAG);
+        facebookInterstitialAds.showAd(TAG);
         // AdBuddiz.showAd(myActivity); // remove on 2018-07-03
     }
 
@@ -943,7 +942,7 @@ public class MainUiFragment extends Fragment {
         displayNextColorBalls();
 
         // show ads
-        facebookAds.showAd(TAG);
+        facebookInterstitialAds.showAd(TAG);
         // AdBuddiz.showAd(myActivity);
     }
 

@@ -5,18 +5,17 @@ import android.util.Log;
 
 import com.facebook.ads.*;
 
-public class FacebookAds {
+public class FacebookInterstitialAds {
 
+    private final String TAG = new String("com.smile.facebookadsutil.FacebookInterstitialAds");
     private static final int MAX_NUMBER_OF_RETRIES = 3;
     private static boolean shouldLoadAd = true;
 
     private final Context context;
-    private final String TAG = new String("FacebookAdsUtil");
-
     private InterstitialAd interstitialAd;
     private int retryCount = 0;
 
-    public FacebookAds(final Context context, String placementID) {
+    public FacebookInterstitialAds(final Context context, String placementID) {
 
         this.context = context;
 
@@ -53,7 +52,7 @@ public class FacebookAds {
                 // Ad error callback
                 // Ad error callback
                 // Stop retrying when it reaches to MAX_NUMBER_OF_RETRIES
-                if(retryCount < FacebookAds.MAX_NUMBER_OF_RETRIES) {
+                if(retryCount < FacebookInterstitialAds.MAX_NUMBER_OF_RETRIES) {
                     shouldLoadAd = false;
                     retryCount += 1;
                     interstitialAd.loadAd();
@@ -90,8 +89,6 @@ public class FacebookAds {
     }
 
     public void showAd(String callingObject) {
-        // For auto play video ads, it's recommended to load the ad
-        // at least 30 seconds before it is shown
         Log.e(TAG, callingObject + " calling showAd() method.");
         if (shouldLoadAd) {
             Log.e(TAG, callingObject + " loading Ad now.");

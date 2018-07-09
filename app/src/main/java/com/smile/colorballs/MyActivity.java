@@ -28,7 +28,7 @@ import android.widget.TextView;
 
 import com.smile.alertdialogfragment.AlertDialogFragment;
 import com.smile.dao.PlayerRecordRest;
-import com.smile.facebookadsutil.FacebookAds;
+import com.smile.facebookadsutil.*;
 import com.smile.scoresqlite.ScoreSQLite;
 import com.smile.utility.ScreenUtl;
 
@@ -67,7 +67,7 @@ public class MyActivity extends AppCompatActivity {
     private float dialogFragment_heightFactor = dialog_heightFactor;
 
     // private properties facebook ads
-    private FacebookAds facebookAds = null;
+    private FacebookInterstitialAds facebookInterstitialAds = null;
 
     // public properties
     // public static final String REST_Website = new String("http://192.168.0.11:5000/Playerscore");
@@ -184,7 +184,7 @@ public class MyActivity extends AppCompatActivity {
         } else {
             // default
         }
-        facebookAds = new FacebookAds(this, facebookPlacementID);
+        facebookInterstitialAds = new FacebookInterstitialAds(this, facebookPlacementID);
 
         // for AdBuddiz ads removed on 2018-07-03
         // AdBuddiz.setPublisherKey("57c7153c-35dd-488a-beaa-3cae8b3ab668");
@@ -201,13 +201,13 @@ public class MyActivity extends AppCompatActivity {
                 case Top10ScoreActivity.activityRequestCode:
                     // show ads
                     Log.i(TAG, "Facebook showing ads");
-                    facebookAds.showAd(TAG);
+                    facebookInterstitialAds.showAd(TAG);
                     AdBuddiz.showAd(MyActivity.this);
                     break;
                 case GlobalTop10Activity.activityRequestCode:
                     // show ads
                     Log.i(TAG, "Facebook showing ads");
-                    facebookAds.showAd(TAG);
+                    facebookInterstitialAds.showAd(TAG);
                     AdBuddiz.showAd(MyActivity.this);
                     break;
             }
@@ -216,7 +216,7 @@ public class MyActivity extends AppCompatActivity {
 
         // show ads
         Log.i(TAG, "Facebook showing ads");
-        facebookAds.showAd(TAG);
+        facebookInterstitialAds.showAd(TAG);
         // AdBuddiz.showAd(MyActivity.this);
     }
 
@@ -312,8 +312,8 @@ public class MyActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         if (isFinishing()) {
-            if (facebookAds != null) {
-                facebookAds.close();
+            if (facebookInterstitialAds != null) {
+                facebookInterstitialAds.close();
             }
         }
         super.onDestroy();
@@ -350,8 +350,8 @@ public class MyActivity extends AppCompatActivity {
         return dialogFragment_heightFactor;
     }
 
-    public FacebookAds getFacebookAds() {
-        return this.facebookAds;
+    public FacebookInterstitialAds getFacebookInterstitialAds() {
+        return this.facebookInterstitialAds;
     }
 
     public void showTop10ScoreHistory() {
@@ -466,7 +466,7 @@ public class MyActivity extends AppCompatActivity {
                                     // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                                     ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
 
-                                    facebookAds.showAd(TAG);
+                                    facebookInterstitialAds.showAd(TAG);
                                     // AdBuddiz.showAd(MyActivity.this);   // added on 2017-10-24
                                 }
                             }
@@ -640,7 +640,7 @@ public class MyActivity extends AppCompatActivity {
                                     // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                                     ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
 
-                                    facebookAds.showAd(TAG);
+                                    facebookInterstitialAds.showAd(TAG);
                                     // AdBuddiz.showAd(MyActivity.this);   // added on 2017-10-24
                                 }
                             }
