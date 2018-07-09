@@ -10,12 +10,16 @@ import com.facebook.ads.AdListener;
 import com.facebook.ads.AdSize;
 import com.facebook.ads.AdView;
 
+import android.os.Handler;
+
 public class FacebookBannerAds {
 
     private final String TAG = new String("com.smile.facebookadsutil.FacebookBannerAds");
     private static boolean shouldLoadAd = true;
 
     private final Context context;
+    private Handler adHandler = null;
+    private Runnable adRunnable = null;
     private AdView bannerAdView = null;
 
     public FacebookBannerAds(Context context, String placementID, int adSizeID) {
@@ -26,7 +30,21 @@ public class FacebookBannerAds {
         if (adSizeID != 1) {
             adSize = AdSize.BANNER_HEIGHT_90;   // tablet
         }
+
         bannerAdView = new AdView(context, placementID, adSize);
+
+        adHandler = new Handler(context.getMainLooper());
+        adRunnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    bannerAdView.loadAd();  // load again
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        };
+
         bannerAdView.setAdListener(new AdListener() {
             @Override
             public void onError(Ad ad, AdError adError) {
@@ -34,7 +52,12 @@ public class FacebookBannerAds {
                 // Toast.makeText(MainActivity.this, "Error: " + adError.getErrorMessage(), Toast.LENGTH_LONG).show();
                 Log.i(TAG, "Error: " + adError.getErrorMessage());
                 if (shouldLoadAd) {
-                    bannerAdView.loadAd();  // load again
+                    try {
+                        adHandler.removeCallbacksAndMessages(null); // remove previous message
+                        adHandler.postDelayed(adRunnable, 1000);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
 
@@ -44,6 +67,12 @@ public class FacebookBannerAds {
                 // Toast.makeText(MainActivity.this, "Ad has been Loaded.", Toast.LENGTH_LONG).show();
                 Log.i(TAG, "Ad has been Loaded.");
                 shouldLoadAd = false;
+                try {
+                    // adHandler.removeCallbacks(adRunnable);
+                    adHandler.removeCallbacksAndMessages(null);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
 
             @Override
@@ -70,14 +99,23 @@ public class FacebookBannerAds {
         Log.e(TAG, callingObject + " calling showAd() method.");
         if (shouldLoadAd) {
             Log.e(TAG, callingObject + " loading Ad now.");
-            bannerAdView.loadAd();
+            try {
+                bannerAdView.loadAd();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
     public void close() {
         // destroy the instance of facebook ads
-        if (bannerAdView != null) {
-            bannerAdView.destroy();
+        try {
+            if (bannerAdView != null) {
+                adHandler.removeCallbacksAndMessages(null);
+                bannerAdView.destroy();
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 }
