@@ -301,7 +301,8 @@ public class MainUiFragment extends Fragment {
         int imId = 0;
         for (int i = 0; i < rowCounts; i++) {
             for (int j = 0; j < colCounts; j++) {
-                imId = i * colCounts + j;
+                // imId = i * colCounts + j;
+                imId = i * rowCounts + j;
                 imageView = new ImageView(myActivity);
                 imageView.setId(imId);
                 imageView.setAdjustViewBounds(true);
@@ -359,7 +360,8 @@ public class MainUiFragment extends Fragment {
             // display the original state before changing configuration
             displayGameView();
             if (bouncingStatus == 1) {
-                ImageView v = uiFragmentView.findViewById(bouncyBallIndexI * colCounts + bouncyBallIndexJ);
+                // ImageView v = uiFragmentView.findViewById(bouncyBallIndexI * colCounts + bouncyBallIndexJ);
+                ImageView v = uiFragmentView.findViewById(bouncyBallIndexI * rowCounts + bouncyBallIndexJ);
                 drawBouncyBall(v, gridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
             }
         }
@@ -421,7 +423,8 @@ public class MainUiFragment extends Fragment {
             n1 = indexi[i];
             n2 = indexj[i];
             if ((n1 >= 0) && (n2 >= 0)) {
-                id = n1 * colCounts + n2;
+                // id = n1 * colCounts + n2;
+                id = n1 * rowCounts + n2;
                 imageView = (ImageView) uiFragmentView.findViewById(id);
                 drawBall(imageView,gridData.getCellValue(n1, n2));
             }
@@ -519,9 +522,12 @@ public class MainUiFragment extends Fragment {
     }
 
     public void clearCell(int i, int j) {
-        int id = i * colCounts + j;
+        // int id = i * colCounts + j;
+        int id = i * rowCounts + j;
         ImageView imageView = (ImageView) uiFragmentView.findViewById(id);
-        imageView.setImageResource(R.drawable.boximage);
+        // imageView.setImageResource(R.drawable.boximage);
+        imageView.setImageDrawable(null);
+        // imageView.setImageBitmap(null);
         gridData.setCellValue(i, j, 0);
     }
 
@@ -580,7 +586,8 @@ public class MainUiFragment extends Fragment {
                     bouncingStatus = 0;
                     cancelBouncyTimer();
                     bouncingStatus = 1;
-                    imageView = (ImageView) uiFragmentView.findViewById(bouncyBallIndexI * colCounts + bouncyBallIndexJ);
+                    // imageView = (ImageView) uiFragmentView.findViewById(bouncyBallIndexI * colCounts + bouncyBallIndexJ);
+                    imageView = (ImageView) uiFragmentView.findViewById(bouncyBallIndexI * rowCounts + bouncyBallIndexJ);
                     drawBall(imageView , gridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
                     drawBouncyBall((ImageView) v, gridData.getCellValue(i, j));
                     bouncyBallIndexI = i;
@@ -606,7 +613,8 @@ public class MainUiFragment extends Fragment {
                         ballYN = !ballYN;
                         bouncyHandler.postDelayed(this, 200);
                     } else {
-                        v.setImageResource(R.drawable.boximage);
+                        // v.setImageResource(R.drawable.boximage);
+                        v.setImageDrawable(null);
                     }
                 } else {
                     cancelBouncyTimer();
@@ -642,11 +650,13 @@ public class MainUiFragment extends Fragment {
                 threadCompleted[0] = false;
                 if (countDown >= 2) {   // eliminate start point
                     int i = (int) (countDown / 2);
-                    imageView = (ImageView) uiFragmentView.findViewById(tempList.get(i).x * colCounts + tempList.get(i).y);
+                    // imageView = (ImageView) uiFragmentView.findViewById(tempList.get(i).x * colCounts + tempList.get(i).y);
+                    imageView = (ImageView) uiFragmentView.findViewById(tempList.get(i).x * rowCounts + tempList.get(i).y);
                     if (ballYN) {
                         drawBall(imageView, color);
                     } else {
-                        imageView.setImageResource(R.drawable.boximage);
+                        // imageView.setImageResource(R.drawable.boximage);
+                        imageView.setImageDrawable(null);
                     }
                     ballYN = !ballYN;
                     countDown--;
@@ -664,7 +674,8 @@ public class MainUiFragment extends Fragment {
 
     private void doNextAction(final int i,final int j) {
         // may need to run runOnUiThread()
-        ImageView v = (ImageView) uiFragmentView.findViewById(i * colCounts + j);
+        // ImageView v = (ImageView) uiFragmentView.findViewById(i * colCounts + j);
+        ImageView v = (ImageView) uiFragmentView.findViewById(i * rowCounts + j);
         drawBall(v, gridData.getCellValue(i, j));
         if (gridData.check_moreFive(i, j) == 1) {
             //  check if there are more than five balls with same color connected together
@@ -802,7 +813,8 @@ public class MainUiFragment extends Fragment {
         }
         for (int i = numOneTime; i < nextBallsNumber; i++) {
             imageView = (ImageView) uiFragmentView.findViewById(nextBallsViewIdStart + i);
-            imageView.setImageResource(R.drawable.next_ball_background_image);
+            // imageView.setImageResource(R.drawable.next_ball_background_image);
+            imageView.setImageDrawable(null);
         }
     }
 
@@ -815,7 +827,8 @@ public class MainUiFragment extends Fragment {
                 imageView = (ImageView) uiFragmentView.findViewById(id);
                 int color = gridData.getCellValue(i, j);
                 if (color == 0) {
-                    imageView.setImageResource(R.drawable.boximage);
+                    // imageView.setImageResource(R.drawable.boximage);
+                    imageView.setImageDrawable(null);
                 } else {
                     drawBall(imageView, color);
                 }
@@ -1009,13 +1022,15 @@ public class MainUiFragment extends Fragment {
             switch (status[0]) {
                 case 0:
                     for (Point item : hashPoint) {
-                        ImageView v = (ImageView) uiFragmentView.findViewById(item.x * colCounts + item.y);
+                        // ImageView v = (ImageView) uiFragmentView.findViewById(item.x * colCounts + item.y);
+                        ImageView v = (ImageView) uiFragmentView.findViewById(item.x * rowCounts + item.y);
                         drawBall(v, color);
                     }
                     break;
                 case 1:
                     for (Point item : hashPoint) {
-                        ImageView v = (ImageView) uiFragmentView.findViewById(item.x * colCounts + item.y);
+                        // ImageView v = (ImageView) uiFragmentView.findViewById(item.x * colCounts + item.y);
+                        ImageView v = (ImageView) uiFragmentView.findViewById(item.x * rowCounts + item.y);
                         drawOval(v, color);
                     }
                     break;
