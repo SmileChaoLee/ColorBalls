@@ -40,9 +40,9 @@ public class GlobalTop10Fragment extends Fragment {
 
     private View globalTop10FragmentView = null;
 
-    private ArrayList<String> top10Players = new ArrayList();
-    private ArrayList<Integer> top10Scores = new ArrayList();
-    private ArrayList<Integer> medalImageIds = new ArrayList();
+    private ArrayList<String> top10Players = new ArrayList<>();
+    private ArrayList<Integer> top10Scores = new ArrayList<>();
+    private ArrayList<Integer> medalImageIds = new ArrayList<>();
     private ListView top10ListView = null;
     private myListAdapter mListAdapter = null;
     private Button okButton = null;
@@ -215,25 +215,26 @@ public class GlobalTop10Fragment extends Fragment {
         private ArrayList<Integer> scores;
         private ArrayList<Integer> medals;
 
+        @SuppressWarnings("unchecked")
         public myListAdapter(Context context, int layoutId, ArrayList<String> players, ArrayList<Integer> scores, ArrayList<Integer> medals) {
             super(context, layoutId, players);
 
             this.layoutId = layoutId;
 
             if (players == null) {
-                this.players = new ArrayList();
+                this.players = new ArrayList<>();
             } else {
                 this.players = players;
             }
 
             if (scores == null) {
-                this.scores = new ArrayList();
+                this.scores = new ArrayList<>();
             } else {
                 this.scores = scores;
             }
 
             if (medals == null) {
-                this.medals = new ArrayList();
+                this.medals = new ArrayList<>();
             } else {
                 this.medals = medals;
             }
@@ -245,6 +246,7 @@ public class GlobalTop10Fragment extends Fragment {
             return super.getItem(position);
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public int getPosition(@Nullable Object item) {
             return super.getPosition(item);
