@@ -42,7 +42,7 @@ public class Top10ScoreFragment extends Fragment {
     public static final String Top10ScoreFragmentTag = "Top10ScoreFragmentTag";
 
     // private properties
-    private static final String TAG = "Top10ScoreFragment";
+    private static final String TAG = new String("com.smile.colorballs.Top10ScoreFragment");
 
     private View top10ScoreFragmentView = null;
 
@@ -68,7 +68,7 @@ public class Top10ScoreFragment extends Fragment {
     }
 
     @SuppressLint("ValidFragment")
-    public Top10ScoreFragment(Top10OkButtonListener listener) {
+    private Top10ScoreFragment(Top10OkButtonListener listener) {
         super();
         this.top10OkButtonListener = listener;
     }
@@ -108,7 +108,7 @@ public class Top10ScoreFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         // historyView = inflater.inflate(R.layout.fragment_score_history, container, false);
@@ -118,6 +118,7 @@ public class Top10ScoreFragment extends Fragment {
 
         return view;
     }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -151,7 +152,8 @@ public class Top10ScoreFragment extends Fragment {
             medalImageIds.add(R.drawable.olympics_image);
 
             // the following statement was added on 2018-06-14
-            mListAdapter = new myListAdapter(getActivity(), R.layout.top10_score_list_items, top10Players, top10Scores, medalImageIds);
+            int layId = R.layout.top10_score_list_items;
+            mListAdapter = new myListAdapter(getActivity(), layId, top10Players, top10Scores, medalImageIds);
 
             top10ListView = top10ScoreFragmentView.findViewById(R.id.top10ListView);
             // this following statement was removed on 2018-06-14
@@ -211,7 +213,7 @@ public class Top10ScoreFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnFragmentInteractionListener {
+    interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
@@ -224,7 +226,7 @@ public class Top10ScoreFragment extends Fragment {
         private ArrayList<Integer> medals;
 
         @SuppressWarnings("unchecked")
-        public myListAdapter(Context context, int layoutId, ArrayList<String> players, ArrayList<Integer> scores, ArrayList<Integer> medals) {
+        myListAdapter(Context context, int layoutId, ArrayList<String> players, ArrayList<Integer> scores, ArrayList<Integer> medals) {
             super(context, layoutId, players);
 
             this.layoutId = layoutId;

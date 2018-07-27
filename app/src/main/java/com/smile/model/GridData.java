@@ -18,29 +18,25 @@ public class GridData {
     private int rowCounts=0,colCounts=0;
     private int cellValue[][];
     private int backupCell[][];
-    private int maxBalls = 5;
+    private final  int maxBalls = 5;
     private int maxBallsOneTime = 3;
     private int minBallsOneTime = 3;
     private int ballNumOneTime = 3;
     private int undoNumOneTime = ballNumOneTime;
-    private int numColors = 5;
-    private int[] ballColor = new int[] {Color.RED,Color.GREEN,Color.BLUE,Color.MAGENTA,Color.YELLOW};
+    private final int numColors = 5;
+    private final int[] ballColor = new int[] {Color.RED,Color.GREEN,Color.BLUE,Color.MAGENTA,Color.YELLOW};
     private int[] nextBalls = null;
     private int[] nextCellIndexI = null;
     private int[] nextCellIndexJ = null;
 
     private int[] undoBalls = null;
 
-    private int ballNumCompleted = 5;
+    private final int ballNumCompleted = 5;
 
     private HashSet<Point> Light_line;
     private List<Point> pathPoint;
 
     private Random random = null;
-
-    private Point startCell = new Point(0,0);  // startCell.x ---> no. of row , startCell.y ---> no. of column
-    private Point endCell  = new Point(0,0);
-    private Point lastFoundCell = new Point(0,0);
 
     private int numOfTotalBalls = 0;
     private boolean gameOver = false;
@@ -52,14 +48,6 @@ public class GridData {
     // cellValue[i][j] = 4 ------> for MAGENTA ball
     // cellValue[i][j] = 5 ------> for YELLOW ball
 
-    public GridData() {
-        setRowCounts(9);
-        setColCounts(9);
-        setMinBallsOneTime(3);
-        setMaxBallsOneTime(3);
-        initGridData();
-    }
-
     public GridData(int rowCounts , int colCounts , int minBallsOneTime , int maxBallsOneTime) {
         setRowCounts(rowCounts);
         setColCounts(colCounts);
@@ -68,11 +56,11 @@ public class GridData {
         initGridData();
     }
 
-    public void setRowCounts(int rowCounts) {
+    private void setRowCounts(int rowCounts) {
         this.rowCounts = rowCounts;
     }
 
-    public void setColCounts(int colCounts) {
+    private void setColCounts(int colCounts) {
         this.colCounts = colCounts;
     }
 
@@ -92,7 +80,7 @@ public class GridData {
         return this.cellValue[i][j];
     }
 
-    public void initGridData() {
+    private void initGridData() {
 
         nextBalls = new int[maxBalls];
         nextCellIndexI = new int[maxBalls];
@@ -133,7 +121,7 @@ public class GridData {
         }
     }
 
-    public void backupNextBalls() {
+    private void backupNextBalls() {
         undoNumOneTime = ballNumOneTime;
         for (int i=0 ; i<ballNumOneTime ; i++) {
             undoBalls[i] = nextBalls[i];
@@ -182,7 +170,7 @@ public class GridData {
         numOfTotalBalls = getTotalBalls();
     }
 
-    public int getTotalBalls() {
+    private int getTotalBalls() {
         int nb=0;
         // noColorList.clear();
         for (int i=0 ; i<rowCounts ; i++) {
@@ -454,7 +442,7 @@ public class GridData {
         return pathPoint;
     }
 
-    public void backupCellValue() {
+    private void backupCellValue() {
         for (int i=0 ; i<rowCounts ; i++) {
             for (int j=0 ; j<colCounts ; j++) {
                 backupCell[i][j] = cellValue[i][j];
@@ -462,26 +450,13 @@ public class GridData {
         }
     }
 
-    public void restoreCellValue() {
+    private void restoreCellValue() {
         for (int i=0 ; i<rowCounts ; i++) {
             for (int j=0 ; j<colCounts ; j++) {
                 cellValue[i][j] = backupCell[i][j];
             }
         }
     }
-
-    /* removed on 2018-05-28
-    private void getNoColorList() {
-        noColorList.clear();
-        for (int i=0 ; i<rowCounts ; i++) {
-            for (int j=0 ; j<colCounts ; j++) {
-                if (cellValue[i][j] == 0) {
-                    noColorList.add(new Point(i,j));
-                }
-            }
-        }
-    }
-    */
 
     public boolean moveCellToCell(Point sourcePoint, Point targetPoint) {
         boolean result = false;
@@ -495,26 +470,10 @@ public class GridData {
 
         backupNextBalls();
         backupCellValue();
-        // getNoColorList();
-
-        // pathPoint.clear();   // removed at 11:43 pm on 2017-10-19
 
         result = findPath(sourcePoint,targetPoint);
 
-        // removed on 2018-05-01
-        // for (Point temp : noColorList) {
-        //     cellValue[temp.x][temp.y] = 0;
-        // }
-
         return result;
-    }
-
-    private void setStartCell(Point startCell) {
-        this.startCell = startCell;
-    }
-
-    private void setEndCell(Point endCell) {
-        this.endCell = endCell;
     }
 
     private boolean findPath(Point source,Point target) {
@@ -527,8 +486,6 @@ public class GridData {
         Vector<Cell> cellVector0  = new Vector<>();
         cellVector0.addElement(new Cell(source,null));
         vPath.addElement(cellVector0);
-
-        // Cell cell = new Cell(new Point(0,0),null);
 
         while(!found && (cellVector0.size()!=0)) {
             Vector<Cell> vTemp = new Vector<>();
@@ -545,12 +502,7 @@ public class GridData {
             }
 
             vPath.addElement(vTemp);
-
-            // parent = new Vector<Cell>(vTemp);
             cellVector0 = vTemp;
-
-            // System.out.println("vp size = "+vp.size());
-            // System.out.println("parent size = " + parent.size());
         }
 
         pathPoint.clear();  // added at 10:43 pm on 2017-10-19
@@ -592,7 +544,7 @@ public class GridData {
 
 
 class Cell {
-    private Point coordinate = new Point(0,0);
+    private final Point coordinate = new Point();
     private Cell parentCell = null;
 
     Cell(Point coordinate,Cell parentCell) {

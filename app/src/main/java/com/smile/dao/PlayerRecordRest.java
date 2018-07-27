@@ -21,11 +21,11 @@ public class PlayerRecordRest {
         boolean yn = false;
 
         if  ( (webUrl == null) || (webUrl.isEmpty()) ) {
-         return yn;
+            return yn;
         }
 
         if ( (jsonObject == null) || (jsonObject.length()==0) ) {
-          return yn;
+            return yn;
         }
 
         try {
@@ -74,8 +74,9 @@ public class PlayerRecordRest {
                 yn = false;
             }
         } catch (Exception ex) {
-            String errorMsg = ex.toString() + "\n" + ex.getStackTrace();
+            String errorMsg = ex.toString();
             Log.d(TAG, "REST Web Service -> Exception occurred." + "\n" + errorMsg);
+            ex.printStackTrace();
             yn = false;
         }
 
@@ -125,8 +126,9 @@ public class PlayerRecordRest {
                 result[0] = FAILED;    // failed
             }
         } catch (Exception ex) {
-            String errorMsg = ex.toString() + "\n" + ex.getStackTrace();
+            String errorMsg = ex.toString();
             Log.d(TAG, "REST Web Service -> Exception occurred." + "\n" + errorMsg);
+            ex.printStackTrace();
             result[0] = EXCEPTION;
         }
 

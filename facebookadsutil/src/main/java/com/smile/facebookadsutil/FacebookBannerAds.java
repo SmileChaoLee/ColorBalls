@@ -18,9 +18,9 @@ public class FacebookBannerAds {
     private static boolean shouldLoadAd = true;
 
     private final Context context;
-    private Handler adHandler = null;
-    private Runnable adRunnable = null;
-    private AdView bannerAdView = null;
+    private Handler adHandler;
+    private Runnable adRunnable;
+    private AdView bannerAdView;
 
     public FacebookBannerAds(Context context, String placementID, int adSizeID) {
 

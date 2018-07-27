@@ -36,7 +36,7 @@ public class GlobalTop10Fragment extends Fragment {
     public static final String GlobalTop10FragmentTag = "GlobalTop10FragmentTag";
 
     // private properties
-    private static final String TAG = new String("GlobalTop10Fragment");
+    private static final String TAG = new String("com.smile.colorballs.GlobalTop10Fragment");
 
     private View globalTop10FragmentView = null;
 
@@ -62,7 +62,7 @@ public class GlobalTop10Fragment extends Fragment {
     }
 
     @SuppressLint("ValidFragment")
-    public GlobalTop10Fragment(GlobalTop10OkButtonListener listener) {
+    private GlobalTop10Fragment(GlobalTop10OkButtonListener listener) {
         super();
         this.globalTop10OkButtonListener = listener;
     }
@@ -102,7 +102,7 @@ public class GlobalTop10Fragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         // historyView = inflater.inflate(R.layout.fragment_score_history, container, false);
@@ -145,7 +145,8 @@ public class GlobalTop10Fragment extends Fragment {
             medalImageIds.add(R.drawable.olympics_image);
 
             // the following statement was added on 2018-06-14
-            mListAdapter = new myListAdapter(getActivity(), R.layout.global_top10_list_items, top10Players, top10Scores, medalImageIds);
+            int layId = R.layout.global_top10_list_items;
+            mListAdapter = new myListAdapter(getActivity(), layId, top10Players, top10Scores, medalImageIds);
 
             top10ListView = globalTop10FragmentView.findViewById(R.id.globalTop10ListView);
             top10ListView.setAdapter(mListAdapter);    // added on 2018-06-14
@@ -203,7 +204,7 @@ public class GlobalTop10Fragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnFragmentInteractionListener {
+    interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
@@ -216,7 +217,7 @@ public class GlobalTop10Fragment extends Fragment {
         private ArrayList<Integer> medals;
 
         @SuppressWarnings("unchecked")
-        public myListAdapter(Context context, int layoutId, ArrayList<String> players, ArrayList<Integer> scores, ArrayList<Integer> medals) {
+        myListAdapter(Context context, int layoutId, ArrayList<String> players, ArrayList<Integer> scores, ArrayList<Integer> medals) {
             super(context, layoutId, players);
 
             this.layoutId = layoutId;

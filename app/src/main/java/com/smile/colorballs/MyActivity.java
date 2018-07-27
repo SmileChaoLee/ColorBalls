@@ -609,8 +609,9 @@ public class MyActivity extends AppCompatActivity {
                         }
 
                     } catch(JSONException ex) {
-                        String errorMsg = ex.toString() + "\n" + ex.getStackTrace();
+                        String errorMsg = ex.toString();
                         Log.d(TAG, "Failed to parse JSONObject from the result." + "\n" + errorMsg);
+                        ex.printStackTrace();
                         playerNames.add("JSONException->JSONArray");
                         playerScores.add(0);
                     }

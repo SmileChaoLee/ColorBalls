@@ -39,15 +39,9 @@ public class AlertDialogFragment extends DialogFragment {
     private int dialogHeight = 0;
     private int numButtons = 0; // default is no buttons
 
-    private String modalDialogTag = "";
-    private boolean isDialogShown = false;
-    private boolean isDismissed = false;
-    private View modalDialogView = null;
     private AlertDialogFragment alertDialog = null;
 
     private DialogButtonListener ndl;
-    private Context context = null;
-    private Activity activity = null;
 
     public interface DialogButtonListener {
         void button1OnClick(AlertDialogFragment dialogFragment);
@@ -152,7 +146,6 @@ public class AlertDialogFragment extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
         System.out.println("AlertDialogFragment.onViewCreated() is called.");
 
-        modalDialogView = view;
         alertDialog = this;
 
         FrameLayout fLayout = view.findViewById(R.id.dialog_fragment_body_layout);

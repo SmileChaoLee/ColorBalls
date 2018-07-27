@@ -76,7 +76,7 @@ public class MainUiFragment extends Fragment {
     private int nextBallsNumber = 4;
     private int rowCounts = 9;
     private int colCounts = 9;
-    private boolean[] threadCompleted =  {true,true,true,true,true,true,true,true,true,true};
+    private final boolean[] threadCompleted =  {true,true,true,true,true,true,true,true,true,true};
 
     private int bouncyBallIndexI = -1, bouncyBallIndexJ = -1;   // the array index that the ball has been selected
     private int bouncingStatus = 0; //  no cell selected
@@ -156,7 +156,7 @@ public class MainUiFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         System.out.println("MainUiFragment onCreateView() is called.");
@@ -396,7 +396,7 @@ public class MainUiFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnFragmentInteractionListener {
+    interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
@@ -486,7 +486,6 @@ public class MainUiFragment extends Fragment {
                 args.putInt("numButtons", 2);
                 gameOverDialog.setArguments(args);
                 gameOverDialog.show(getActivity().getSupportFragmentManager(), GameOverDialogTag);
-                FragmentManager f = getActivity().getSupportFragmentManager();
 
                 System.out.println("gameOverDialog.show() has been called.");
             }
@@ -504,9 +503,6 @@ public class MainUiFragment extends Fragment {
             return;
         }
 
-        ImageView imageView = null;
-        int id, n1, n2 , color;
-
         gridData.undoTheLast();
 
         // restore the screen
@@ -523,7 +519,7 @@ public class MainUiFragment extends Fragment {
         undoEnable = false;
     }
 
-    public void clearCell(int i, int j) {
+    private void clearCell(int i, int j) {
         // int id = i * colCounts + j;
         int id = i * rowCounts + j;
         ImageView imageView = uiFragmentView.findViewById(id);
@@ -533,7 +529,7 @@ public class MainUiFragment extends Fragment {
         gridData.setCellValue(i, j, 0);
     }
 
-    public void doDrawBallsAndCheckListener(View v) {
+    private void doDrawBallsAndCheckListener(View v) {
 
         int i, j, id;
         id = v.getId();
@@ -851,13 +847,11 @@ public class MainUiFragment extends Fragment {
     }
 
     // public methods
-    public GridData getGridData() {
+    private GridData getGridData() {
         return this.gridData;
     }
 
-    public void displayNextColorBalls() {
-
-        ImageView imageView = null;
+    private void displayNextColorBalls() {
 
         gridData.randColors();  //   next  balls
         //   display the balls on the nextBallsView
@@ -908,7 +902,7 @@ public class MainUiFragment extends Fragment {
                             JSONObject jsonObject = new JSONObject();
                             jsonObject.put("PlayerName", et.getText().toString());
                             jsonObject.put("Score", currentScore);
-                            boolean yn = PlayerRecordRest.addOneRecord(webUrl, jsonObject);
+                            PlayerRecordRest.addOneRecord(webUrl, jsonObject);
                         } catch (Exception ex) {
                             ex.printStackTrace();
                             Log.d(TAG, "Failed to add one record to Playerscore table.");
