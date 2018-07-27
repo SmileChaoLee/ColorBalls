@@ -17,8 +17,8 @@ public class GlobalTop10Activity extends AppCompatActivity {
     private static final String TAG = new String("GlobalTop10Activity");
     public static final int activityRequestCode = 3;
 
-    private ArrayList<String> top10Players = new ArrayList<String>();
-    private ArrayList<Integer> top10Scores = new ArrayList<Integer>();
+    private ArrayList<String> top10Players = new ArrayList<>();
+    private ArrayList<Integer> top10Scores = new ArrayList<>();
 
     private FragmentManager fmManager = null;
     private Fragment globalTop10Fragment = null;

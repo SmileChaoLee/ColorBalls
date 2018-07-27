@@ -39,6 +39,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Locale;
 
 // import com.purplebrain.adbuddiz.sdk.AdBuddiz;
 
@@ -145,7 +146,7 @@ public class MyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_my);
 
         int highestScore = scoreSQLite.readHighestScore();
-        setTitle(String.format("%9d", highestScore));
+        setTitle(String.format(Locale.getDefault(), "%9d", highestScore));
 
         // setting the font size for activity label
         ActionBar actionBar = getSupportActionBar();
@@ -445,8 +446,8 @@ public class MyActivity extends AppCompatActivity {
                 System.out.println("MyActivity.ShowTop10Scores() ---> calling loadingDialog.dismissAllowingStateLoss()");
                 // loadingDialog.dismiss(); // removed on 2018-06-18
                 loadingDialog.dismissAllowingStateLoss();   // added on 2018-06-18
-                ArrayList<String> playerNames = new ArrayList<String>();
-                ArrayList<Integer> playerScores = new ArrayList<Integer>();
+                ArrayList<String> playerNames = new ArrayList<>();
+                ArrayList<Integer> playerScores = new ArrayList<>();
                 for (Pair pair : resultList) {
                     playerNames.add((String)pair.first);
                     playerScores.add((Integer)pair.second);
@@ -474,7 +475,7 @@ public class MyActivity extends AppCompatActivity {
                         FragmentManager fmManager = getSupportFragmentManager();
                         FragmentTransaction ft = fmManager.beginTransaction();
                         ft = fmManager.beginTransaction();
-                        Fragment currentTop10ScoreFragment = (Top10ScoreFragment) fmManager.findFragmentByTag(Top10ScoreFragment.Top10ScoreFragmentTag);
+                        Fragment currentTop10ScoreFragment = fmManager.findFragmentByTag(Top10ScoreFragment.Top10ScoreFragmentTag);
                         if (currentTop10ScoreFragment == null) {
                             ft.add(top10LayoutId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
                         } else {
@@ -590,8 +591,8 @@ public class MyActivity extends AppCompatActivity {
                 // loadingDialog.dismiss(); // removed on 2018-06-18
                 loadingDialog.dismissAllowingStateLoss();   // added on 2018-06-18
 
-                ArrayList<String> playerNames = new ArrayList<String>();
-                ArrayList<Integer> playerScores = new ArrayList<Integer>();
+                ArrayList<String> playerNames = new ArrayList<>();
+                ArrayList<Integer> playerScores = new ArrayList<>();
 
                 String status = result[0].toUpperCase();
                 if (status.equals(SUCCEEDED)) {
@@ -648,7 +649,7 @@ public class MyActivity extends AppCompatActivity {
                         FragmentManager fmManager = getSupportFragmentManager();
                         FragmentTransaction ft = fmManager.beginTransaction();
                         ft = fmManager.beginTransaction();
-                        Fragment currentGlobalTop10Fragment = (GlobalTop10Fragment) fmManager.findFragmentByTag(GlobalTop10Fragment.GlobalTop10FragmentTag);
+                        Fragment currentGlobalTop10Fragment = fmManager.findFragmentByTag(GlobalTop10Fragment.GlobalTop10FragmentTag);
                         if (currentGlobalTop10Fragment == null) {
                             ft.add(top10LayoutId, globalTop10Fragment, GlobalTop10Fragment.GlobalTop10FragmentTag);
                         } else {

@@ -12,11 +12,11 @@
         android:gravity="center">
 
         <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:contentDescription="background image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:background="@drawable/dialog_background"
-            android:layout_centerHorizontal="true" />
+            android:background="@drawable/dialog_background" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -68,7 +68,7 @@
                     android:textColor="#ff006400"
                     android:background="#ffd3d3d3"
                     android:textStyle="bold"
-                    android:text="Ok"
+                    android:text="OK"
                     android:layout_weight="1" />
             </LinearLayout>
 

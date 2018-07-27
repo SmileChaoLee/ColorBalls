@@ -40,9 +40,9 @@ public class GlobalTop10Fragment extends Fragment {
 
     private View globalTop10FragmentView = null;
 
-    private ArrayList<String> top10Players = new ArrayList<String>();
-    private ArrayList<Integer> top10Scores = new ArrayList<Integer>();
-    private ArrayList<Integer> medalImageIds = new ArrayList<Integer>();
+    private ArrayList<String> top10Players = new ArrayList();
+    private ArrayList<Integer> top10Scores = new ArrayList();
+    private ArrayList<Integer> medalImageIds = new ArrayList();
     private ListView top10ListView = null;
     private myListAdapter mListAdapter = null;
     private Button okButton = null;
@@ -54,7 +54,7 @@ public class GlobalTop10Fragment extends Fragment {
     private OnFragmentInteractionListener mListener;
 
     public interface GlobalTop10OkButtonListener {
-        public void buttonOkClick(Activity activity);
+        void buttonOkClick(Activity activity);
     }
 
     public GlobalTop10Fragment() {
@@ -125,7 +125,7 @@ public class GlobalTop10Fragment extends Fragment {
 
         if (savedInstanceState == null) {   // new Fragment instance
             titleForGlobalTop10ListView = globalTop10FragmentView.findViewById(R.id.globalTop10Title);
-            okButton = (Button) globalTop10FragmentView.findViewById(R.id.globalTop10OkButton);
+            okButton = globalTop10FragmentView.findViewById(R.id.globalTop10OkButton);
             okButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -221,19 +221,19 @@ public class GlobalTop10Fragment extends Fragment {
             this.layoutId = layoutId;
 
             if (players == null) {
-                this.players = new ArrayList<String>();
+                this.players = new ArrayList();
             } else {
                 this.players = players;
             }
 
             if (scores == null) {
-                this.scores = new ArrayList<Integer>();
+                this.scores = new ArrayList();
             } else {
                 this.scores = scores;
             }
 
             if (medals == null) {
-                this.medals = new ArrayList<Integer>();
+                this.medals = new ArrayList();
             } else {
                 this.medals = medals;
             }

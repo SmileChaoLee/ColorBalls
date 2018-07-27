@@ -30,7 +30,7 @@ public class ScoreSQLite extends SQLiteOpenHelper {
     private boolean readFinished = true;
 
     public ScoreSQLite(Context context) {
-        super(context,dbName,null,dbVersion);
+        super(context, dbName,null,dbVersion);
         myContext = context;
         scoreDatabase = null;
         readFinished = true;
@@ -134,7 +134,7 @@ public class ScoreSQLite extends SQLiteOpenHelper {
 
     public ArrayList<Pair<String, Integer>> readTop10ScoreList() {
 
-        ArrayList<Pair<String, Integer>> result = new ArrayList<Pair<String, Integer>>();
+        ArrayList<Pair<String, Integer>> result = new ArrayList<>();
 
         while (!readFinished) {}    // wait for other operations finish
         readFinished = false;
@@ -168,7 +168,7 @@ public class ScoreSQLite extends SQLiteOpenHelper {
 
     public ArrayList<String> readAllScores() {
 
-        ArrayList<String> resultStr  = new ArrayList<String>();
+        ArrayList<String> resultStr  = new ArrayList<>();
         String space = new String(new char[1]).replace("\0"," ");
         int strLen = 14;    // maximum chars for player name
 

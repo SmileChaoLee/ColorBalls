@@ -155,7 +155,7 @@ public class AlertDialogFragment extends DialogFragment {
         modalDialogView = view;
         alertDialog = this;
 
-        FrameLayout fLayout = (FrameLayout) view.findViewById(R.id.dialog_fragment_body_layout);
+        FrameLayout fLayout = view.findViewById(R.id.dialog_fragment_body_layout);
         FrameLayout.LayoutParams ll = new FrameLayout.LayoutParams(dialogWidth, dialogHeight, Gravity.CENTER);
         fLayout.setLayoutParams(ll);
 

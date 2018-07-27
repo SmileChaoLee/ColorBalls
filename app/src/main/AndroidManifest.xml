@@ -8,6 +8,8 @@
 
     <application
         android:allowBackup="true"
+        android:fullBackupContent="true"
+        android:supportsRtl="true"
         android:icon="@drawable/colorballs"
         android:label="${appName}${appNameSuffix}"
         android:theme="@style/AppTheme">
@@ -25,9 +27,6 @@
         <activity
             android:name=".GlobalTop10Activity"
             android:label="@string/title_activity_global" />
-        <activity
-            android:name="com.purplebrain.adbuddiz.sdk.AdBuddizActivity"
-            android:theme="@android:style/Theme.Translucent" />
     </application>
 
 </manifest>

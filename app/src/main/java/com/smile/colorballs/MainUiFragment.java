@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 public class MainUiFragment extends Fragment {
 
@@ -222,7 +223,7 @@ public class MainUiFragment extends Fragment {
             ex.printStackTrace();
         }
 
-        LinearLayout scoreNextBallsLayout = (LinearLayout) uiFragmentView.findViewById(R.id.score_next_balls_layout);
+        LinearLayout scoreNextBallsLayout = uiFragmentView.findViewById(R.id.score_next_balls_layout);
         float width_weightSum_scoreNextBallsLayout = scoreNextBallsLayout.getWeightSum();
         if (width_weightSum_scoreNextBallsLayout == 0) {
             width_weightSum_scoreNextBallsLayout = 5;   // default
@@ -234,12 +235,12 @@ public class MainUiFragment extends Fragment {
         }
 
         // display the highest score and current score
-        currentScoreView = (TextView) uiFragmentView.findViewById(R.id.currentScoreTextView);
+        currentScoreView = uiFragmentView.findViewById(R.id.currentScoreTextView);
         currentScoreView.setTextSize(fontSizeForText);
-        currentScoreView.setText(String.format("%9d", currentScore));
+        currentScoreView.setText(String.format(Locale.getDefault(), "%9d", currentScore));
 
         // display the view of next balls
-        GridLayout nextBallsLayout = (GridLayout) uiFragmentView.findViewById(R.id.nextBallsLayout);
+        GridLayout nextBallsLayout = uiFragmentView.findViewById(R.id.nextBallsLayout);
         int nextBallsRow = nextBallsLayout.getRowCount();
         nextBallsNumber = nextBallsLayout.getColumnCount();
         layoutParams = (LinearLayout.LayoutParams)nextBallsLayout.getLayoutParams();
@@ -269,7 +270,7 @@ public class MainUiFragment extends Fragment {
         }
 
         // for 9 x 9 grid: main part of this game
-        GridLayout gridCellsLayout = (GridLayout) uiFragmentView.findViewById(R.id.gridCellsLayout);
+        GridLayout gridCellsLayout = uiFragmentView.findViewById(R.id.gridCellsLayout);
         rowCounts = gridCellsLayout.getRowCount();
         colCounts = gridCellsLayout.getColumnCount();
         LinearLayout.LayoutParams gridLp = (LinearLayout.LayoutParams) gridCellsLayout.getLayoutParams();
@@ -278,7 +279,7 @@ public class MainUiFragment extends Fragment {
             height_weight_gridCellsLayout = 8;  // default
         }
 
-        int cellWidth = (int)(screenWidth / colCounts);
+        int cellWidth = screenWidth / colCounts;
         int eight10thOfHeight = (int)( (float)screenHeight / height_weightSum_uiFragmentView * height_weight_gridCellsLayout);
         if ( screenWidth >  eight10thOfHeight) {
             // if screen width greater than 8-10th of screen height
@@ -322,7 +323,7 @@ public class MainUiFragment extends Fragment {
             }
         }
 
-        Button undoButton = (Button) uiFragmentView.findViewById(R.id.undoButton);
+        Button undoButton = uiFragmentView.findViewById(R.id.undoButton);
         undoButton.setTextSize(fontSizeForText);
         undoButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -331,7 +332,7 @@ public class MainUiFragment extends Fragment {
             }
         });
 
-        Button top10Button = (Button) uiFragmentView.findViewById(R.id.top10Button);
+        Button top10Button = uiFragmentView.findViewById(R.id.top10Button);
         top10Button.setTextSize(fontSizeForText);
         top10Button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -340,7 +341,7 @@ public class MainUiFragment extends Fragment {
             }
         });
 
-        Button globalTop10Button = (Button) uiFragmentView.findViewById(R.id.globalTop10Button);
+        Button globalTop10Button = uiFragmentView.findViewById(R.id.globalTop10Button);
         globalTop10Button.setTextSize(fontSizeForText);
         globalTop10Button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -401,8 +402,8 @@ public class MainUiFragment extends Fragment {
     }
 
     private boolean completedAll() {
-        for (int i=0 ; i <threadCompleted.length;i++) {
-            if (!threadCompleted[i]) {
+        for (boolean thCompleted : threadCompleted) {
+            if (!thCompleted) {
                 return false;
             }
         }
@@ -425,12 +426,12 @@ public class MainUiFragment extends Fragment {
             if ((n1 >= 0) && (n2 >= 0)) {
                 // id = n1 * colCounts + n2;
                 id = n1 * rowCounts + n2;
-                imageView = (ImageView) uiFragmentView.findViewById(id);
+                imageView = uiFragmentView.findViewById(id);
                 drawBall(imageView,gridData.getCellValue(n1, n2));
             }
         }
 
-        HashSet<Point> hashPoint = new HashSet<Point>();
+        Point hashPoint[] = new Point[0];
         boolean hasMoreFive = false;
         for (int i = 0; i < numOneTime; i++) {
             n1 = indexi[i];
@@ -440,11 +441,12 @@ public class MainUiFragment extends Fragment {
                     //   has  color in this cell
                     if (gridData.check_moreFive(n1, n2) == 1) {
                         hasMoreFive = true;
-                        for (Point item : gridData.getLight_line()) {
-                            if (!hashPoint.contains(item)) {
-                                // does not contains then add into
-                                hashPoint.add(item);
-                            }
+                        int arraySize = gridData.getLight_line().size();
+                        hashPoint = new Point[arraySize];
+                        int index = 0;
+                        for (Point p : gridData.getLight_line()) {
+                            hashPoint[index] = p;
+                            ++index;
                         }
                     }
                 }
@@ -508,14 +510,14 @@ public class MainUiFragment extends Fragment {
         gridData.undoTheLast();
 
         // restore the screen
-        displayGameView();;
+        displayGameView();
 
         bouncingStatus = 0;
         bouncyBallIndexI = -1;
         bouncyBallIndexJ = -1;
 
         currentScore = undoScore;
-        currentScoreView.setText( String.format("%9d",currentScore));
+        currentScoreView.setText( String.format(Locale.getDefault(), "%9d",currentScore));
 
         // completedPath = true;
         undoEnable = false;
@@ -524,7 +526,7 @@ public class MainUiFragment extends Fragment {
     public void clearCell(int i, int j) {
         // int id = i * colCounts + j;
         int id = i * rowCounts + j;
-        ImageView imageView = (ImageView) uiFragmentView.findViewById(id);
+        ImageView imageView = uiFragmentView.findViewById(id);
         // imageView.setImageResource(R.drawable.boximage);
         imageView.setImageDrawable(null);
         // imageView.setImageBitmap(null);
@@ -587,7 +589,7 @@ public class MainUiFragment extends Fragment {
                     cancelBouncyTimer();
                     bouncingStatus = 1;
                     // imageView = (ImageView) uiFragmentView.findViewById(bouncyBallIndexI * colCounts + bouncyBallIndexJ);
-                    imageView = (ImageView) uiFragmentView.findViewById(bouncyBallIndexI * rowCounts + bouncyBallIndexJ);
+                    imageView = uiFragmentView.findViewById(bouncyBallIndexI * rowCounts + bouncyBallIndexJ);
                     drawBall(imageView , gridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
                     drawBouncyBall((ImageView) v, gridData.getCellValue(i, j));
                     bouncyBallIndexI = i;
@@ -639,7 +641,7 @@ public class MainUiFragment extends Fragment {
             return;
         }
 
-        final List<Point> tempList = new ArrayList<Point>(gridData.getPathPoint());
+        final List<Point> tempList = new ArrayList<>(gridData.getPathPoint());
         final Handler drawHandler = new Handler();
         Runnable runnablePath = new Runnable() {
             boolean ballYN = true;
@@ -649,9 +651,9 @@ public class MainUiFragment extends Fragment {
             public void run() {
                 threadCompleted[0] = false;
                 if (countDown >= 2) {   // eliminate start point
-                    int i = (int) (countDown / 2);
+                    int i = countDown / 2;
                     // imageView = (ImageView) uiFragmentView.findViewById(tempList.get(i).x * colCounts + tempList.get(i).y);
-                    imageView = (ImageView) uiFragmentView.findViewById(tempList.get(i).x * rowCounts + tempList.get(i).y);
+                    imageView = uiFragmentView.findViewById(tempList.get(i).x * rowCounts + tempList.get(i).y);
                     if (ballYN) {
                         drawBall(imageView, color);
                     } else {
@@ -675,18 +677,21 @@ public class MainUiFragment extends Fragment {
     private void doNextAction(final int i,final int j) {
         // may need to run runOnUiThread()
         // ImageView v = (ImageView) uiFragmentView.findViewById(i * colCounts + j);
-        ImageView v = (ImageView) uiFragmentView.findViewById(i * rowCounts + j);
+        ImageView v = uiFragmentView.findViewById(i * rowCounts + j);
         drawBall(v, gridData.getCellValue(i, j));
         if (gridData.check_moreFive(i, j) == 1) {
             //  check if there are more than five balls with same color connected together
             // int numBalls = gridData.getLight_line().size();
             // scoreCalculate(numBalls);
             // twinkleLineBallsAndClearCell(gridData.getLight_line(), 1);
-            HashSet<Point> hashPoint = new HashSet<>(gridData.getLight_line());
-            // HashSet<Point> hashPoint = new HashSet<Point>();
-            // for (Point item : gridData.getLight_line()) {
-            //     hashPoint.add(item);
-            // }
+            int arraySize = gridData.getLight_line().size();
+            Point hashPoint[] = new Point[arraySize];
+            int index = 0;
+            for (Point p : gridData.getLight_line()) {
+                hashPoint[index] = p;
+                ++index;
+            }
+
             threadCompleted[1] = false;
             CalculateScore calculateScore = new CalculateScore();
             calculateScore.execute(hashPoint);
@@ -808,11 +813,11 @@ public class MainUiFragment extends Fragment {
         ImageView imageView = null;
         int numOneTime = gridData.getBallNumOneTime();
         for (int i = 0; i < numOneTime; i++) {
-            imageView = (ImageView) uiFragmentView.findViewById(nextBallsViewIdStart + i);
+            imageView = uiFragmentView.findViewById(nextBallsViewIdStart + i);
             drawBall(imageView, gridData.getNextBalls()[i]);
         }
         for (int i = numOneTime; i < nextBallsNumber; i++) {
-            imageView = (ImageView) uiFragmentView.findViewById(nextBallsViewIdStart + i);
+            imageView = uiFragmentView.findViewById(nextBallsViewIdStart + i);
             // imageView.setImageResource(R.drawable.next_ball_background_image);
             imageView.setImageDrawable(null);
         }
@@ -824,7 +829,7 @@ public class MainUiFragment extends Fragment {
         for (int i = 0; i < rowCounts; i++) {
             for (int j = 0; j < colCounts; j++) {
                 int id = i * rowCounts + j;
-                imageView = (ImageView) uiFragmentView.findViewById(id);
+                imageView = uiFragmentView.findViewById(id);
                 int color = gridData.getCellValue(i, j);
                 if (color == 0) {
                     // imageView.setImageResource(R.drawable.boximage);
@@ -956,16 +961,15 @@ public class MainUiFragment extends Fragment {
 
         // show ads
         facebookInterstitialAds.showAd(TAG);
-        // AdBuddiz.showAd(myActivity);
     }
 
-    private class CalculateScore extends AsyncTask<HashSet<Point>,Integer,String[]> {
+    private class CalculateScore extends AsyncTask<Point, Integer, String[]> {
 
         private final String ScoreDialogTag = new String("ScoreDialogFragment");
         private int numBalls = 0;
         private int color = 0;
-        private HashSet<Point> hashPoint;
         private int score = 0;
+        private Point[] hashPoint = null;
         private AlertDialogFragment scoreDialog;
 
         @Override
@@ -974,20 +978,16 @@ public class MainUiFragment extends Fragment {
         }
 
         @Override
-        protected String[] doInBackground(HashSet<Point>... params) {
+        protected String[] doInBackground(Point... params) {
 
-            hashPoint = params[0];
+            hashPoint = params;
             if (hashPoint == null) {
                 return null;
             }
 
-            numBalls = hashPoint.size();
+            numBalls = hashPoint.length;
 
-            Iterator<Point> itr = hashPoint.iterator();
-            if (itr.hasNext()) {
-                Point point = itr.next();
-                color = gridData.getCellValue(point.x, point.y);
-            }
+            color = gridData.getCellValue(hashPoint[0].x, hashPoint[0].y);
 
             threadCompleted[1] = false;
 
@@ -1023,14 +1023,14 @@ public class MainUiFragment extends Fragment {
                 case 0:
                     for (Point item : hashPoint) {
                         // ImageView v = (ImageView) uiFragmentView.findViewById(item.x * colCounts + item.y);
-                        ImageView v = (ImageView) uiFragmentView.findViewById(item.x * rowCounts + item.y);
+                        ImageView v = uiFragmentView.findViewById(item.x * rowCounts + item.y);
                         drawBall(v, color);
                     }
                     break;
                 case 1:
                     for (Point item : hashPoint) {
                         // ImageView v = (ImageView) uiFragmentView.findViewById(item.x * colCounts + item.y);
-                        ImageView v = (ImageView) uiFragmentView.findViewById(item.x * rowCounts + item.y);
+                        ImageView v = uiFragmentView.findViewById(item.x * rowCounts + item.y);
                         drawOval(v, color);
                     }
                     break;
@@ -1060,7 +1060,7 @@ public class MainUiFragment extends Fragment {
             // update the UI
             undoScore = currentScore;
             currentScore = currentScore + score;
-            currentScoreView.setText(String.format("%9d", currentScore));
+            currentScoreView.setText(String.format(Locale.getDefault(), "%9d", currentScore));
 
             threadCompleted[1] = true;
         }

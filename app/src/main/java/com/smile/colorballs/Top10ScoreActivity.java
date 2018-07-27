@@ -33,8 +33,8 @@ public class Top10ScoreActivity extends AppCompatActivity {
     private static final String TAG = new String("Top10ScoreActivity");
     public static final int activityRequestCode = 2;
 
-    private ArrayList<String> top10Players = new ArrayList<String>();
-    private ArrayList<Integer> top10Scores = new ArrayList<Integer>();
+    private ArrayList<String> top10Players = new ArrayList<>();
+    private ArrayList<Integer> top10Scores = new ArrayList<>();
 
     private FragmentManager fmManager = null;
     private Fragment top10ScoreFragment = null;

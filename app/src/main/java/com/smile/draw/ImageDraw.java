@@ -21,7 +21,6 @@ import java.util.TimerTask;
 
 public class ImageDraw {
     private ImageView imageView;
-    private Bitmap bitmap;
     private ViewGroup.LayoutParams imageViewLp;
     private Canvas canvas;
 
@@ -34,7 +33,6 @@ public class ImageDraw {
     private int insideColor = 0xFF88DABA;
     private int lineColor = 0xFFCF12FF;
     private int drawColor = 0;
-    private int diff=5;
 
     private int gridRows = 0 , gridColumns = 0;
     private int gridWidth = 0 , gridHeight = 0;
@@ -58,7 +56,7 @@ public class ImageDraw {
         gridWidth = imageViewLp.width;
         gridHeight = imageViewLp.height;
 
-        bitmap = Bitmap.createBitmap(gridWidth , gridHeight , Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap(gridWidth , gridHeight , Bitmap.Config.ARGB_8888);
         setCanvas(new Canvas(bitmap));
         imageView.setImageBitmap(bitmap);
 
@@ -99,6 +97,7 @@ public class ImageDraw {
     }
 
     public void setCoordinate() {
+        int diff=5;
         Rect rect = new Rect(0,0,gridWidth,gridHeight);
         rectOutside = rect;
         rectInside.top = rect.top + diff;

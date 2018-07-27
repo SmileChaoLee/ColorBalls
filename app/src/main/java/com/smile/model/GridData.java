@@ -33,8 +33,7 @@ public class GridData {
 
     private int ballNumCompleted = 5;
 
-    private List<Point> Light_line;
-    // private List<Point> noColorList;
+    private HashSet<Point> Light_line;
     private List<Point> pathPoint;
 
     private Random random = null;
@@ -103,9 +102,8 @@ public class GridData {
 
         cellValue = new int[rowCounts][colCounts];
         backupCell = new int[rowCounts][colCounts];
-        Light_line = new ArrayList<Point>();
-        // noColorList = new ArrayList<Point>();
-        pathPoint   = new ArrayList<Point>();
+        Light_line = new HashSet<>();
+        pathPoint   = new ArrayList<>();
 
         for (int i=0 ; i<rowCounts ; i++) {
             for (int j=0 ; j<colCounts ; j++) {
@@ -218,7 +216,7 @@ public class GridData {
         return this.nextCellIndexJ;
     }
 
-    public List<Point> getLight_line() {
+    public HashSet<Point> getLight_line() {
         return this.Light_line;
     }
 
@@ -236,7 +234,7 @@ public class GridData {
         int  firstResult=0,secondResult=0,thirdResult=0,forthResult=0;
         int  cellColor;
 
-        List<Point> tempList = new ArrayList<Point>();
+        List<Point> tempList = new ArrayList<>();
         tempList.clear();
         // tempList.add(new Point(x,y));
 
@@ -250,7 +248,6 @@ public class GridData {
         for (i=x-1;i>=first_i;i--) {
             if (cellValue[i][y] == (cellColor)) {
                 num_b++ ;
-                // Light_line.add(new Point(i,y));
                 tempList.add(new Point(i,y));
             }
             else {
@@ -261,7 +258,9 @@ public class GridData {
         if (num_b>=(ballNumCompleted-1)) {
             // end
             for (Point temp : tempList) {
-                Light_line.add(temp);
+                if (!Light_line.contains(temp)) {
+                    Light_line.add(temp);
+                }
             }
             tempList.clear();
             firstResult = 1;
@@ -270,7 +269,6 @@ public class GridData {
         for (i=x+1;i<=end_i;i++) {
             if (cellValue[i][y] == cellColor) {
                 num_b++ ;
-                // Light_line.add(new Point(i,y));
                 tempList.add(new Point(i,y));
             }
             else {
@@ -281,7 +279,9 @@ public class GridData {
         if (num_b>=(ballNumCompleted-1)) {
             // end
             for (Point temp : tempList) {
-                Light_line.add(temp);
+                if (!Light_line.contains(temp)) {
+                    Light_line.add(temp);
+                }
             }
             firstResult = 1;
         }
@@ -299,7 +299,6 @@ public class GridData {
             if (cellValue[i][j] == cellColor)
             {
                 num_b++ ;
-                // Light_line.add(new Point(i,j));
                 tempList.add(new Point(i,j));
             }
             else
@@ -312,7 +311,9 @@ public class GridData {
         if (num_b>=(ballNumCompleted-1)) {
             // end
             for (Point temp : tempList) {
-                Light_line.add(temp);
+                if (!Light_line.contains(temp)) {
+                    Light_line.add(temp);
+                }
             }
             tempList.clear();
             secondResult = 1;
@@ -321,7 +322,6 @@ public class GridData {
         for (i=x+1, j= y-1 ;(i<=end_i)&&(j>=end_j) ; i++,j--) {
             if (cellValue[i][j] == cellColor) {
                 num_b++ ;
-                // Light_line.add(new Point(i,j));
                 tempList.add(new Point(i,j));
             }
             else {
@@ -333,7 +333,9 @@ public class GridData {
         if (num_b>=(ballNumCompleted-1)) {
             // end
             for (Point temp : tempList) {
-                Light_line.add(temp);
+                if (!Light_line.contains(temp)) {
+                    Light_line.add(temp);
+                }
             }
             secondResult = 1;
         }
@@ -347,7 +349,6 @@ public class GridData {
         for (j=y+1;j<=first_j;j++) {
             if (cellValue[x][j] == cellColor) {
                 num_b++ ;
-                // Light_line.add(new Point(x,j));
                 tempList.add(new Point(x,j));
             }
             else {
@@ -358,7 +359,9 @@ public class GridData {
         if (num_b>=(ballNumCompleted-1)) {
             // end
             for (Point temp : tempList) {
-                Light_line.add(temp);
+                if (!Light_line.contains(temp)) {
+                    Light_line.add(temp);
+                }
             }
             tempList.clear();
             thirdResult = 1;
@@ -368,7 +371,6 @@ public class GridData {
             if (cellValue[x][j] == cellColor)
             {
                 num_b++ ;
-                // Light_line.add(new Point(x,j));
                 tempList.add(new Point(x,j));
             }
             else
@@ -380,7 +382,9 @@ public class GridData {
         if (num_b>=(ballNumCompleted-1)) {
             // end
             for (Point temp : tempList) {
-                Light_line.add(temp);
+                if (!Light_line.contains(temp)) {
+                    Light_line.add(temp);
+                }
             }
             thirdResult = 1;
         }
@@ -397,7 +401,6 @@ public class GridData {
         for (i=x+1, j=y+1 ; (i<=first_i)&&(j<=first_j) ; i++,j++) {
             if (cellValue[i][j] == cellColor) {
                 num_b++ ;
-                // Light_line.add(new Point(i,j));
                 tempList.add(new Point(i,j));
             }
             else {
@@ -409,7 +412,9 @@ public class GridData {
         if (num_b>=(ballNumCompleted-1)) {
             // end
             for (Point temp : tempList) {
-                Light_line.add(temp);
+                if (!Light_line.contains(temp)) {
+                    Light_line.add(temp);
+                }
             }
             tempList.clear();
             forthResult = 1;
@@ -418,7 +423,6 @@ public class GridData {
         for (i=x-1, j= y-1 ; (i>=end_i)&&(j>=end_j) ; i--,j--) {
             if (cellValue[i][j] == cellColor) {
                 num_b++ ;
-                // Light_line.add(new Point(i,j));
                 tempList.add(new Point(i,j));
             }
             else {
@@ -430,7 +434,9 @@ public class GridData {
         if (num_b>=(ballNumCompleted-1)) {
             // end
             for (Point temp : tempList) {
-                Light_line.add(temp);
+                if (!Light_line.contains(temp)) {
+                    Light_line.add(temp);
+                }
             }
             forthResult = 1;
         }
@@ -515,19 +521,19 @@ public class GridData {
 
         boolean found = false;
 
-        HashSet<Point> traversed = new HashSet<Point>();
+        HashSet<Point> traversed = new HashSet<>();
 
-        Vector<Vector> vPath  = new Vector();
-        Vector<Cell> cellVector0  = new Vector();
+        Vector<Vector<Cell>> vPath  = new Vector<>();
+        Vector<Cell> cellVector0  = new Vector<>();
         cellVector0.addElement(new Cell(source,null));
         vPath.addElement(cellVector0);
 
         // Cell cell = new Cell(new Point(0,0),null);
 
         while(!found && (cellVector0.size()!=0)) {
-            Vector<Cell> vTemp = new Vector();
+            Vector<Cell> vTemp = new Vector<>();
             for(int i=0; i<cellVector0.size(); i++) {
-                Cell cell = (Cell)cellVector0.elementAt(i);
+                Cell cell = cellVector0.elementAt(i);
                 found = addCell(vTemp, cell,  0,  1,target, traversed);
                 if (found) break;
                 found = addCell(vTemp, cell,  0, -1,target, traversed);
@@ -550,8 +556,8 @@ public class GridData {
         pathPoint.clear();  // added at 10:43 pm on 2017-10-19
         if (found) {
             int vLength = vPath.size();
-            Vector<Cell> v = (Vector)vPath.elementAt(vLength-1);
-            Cell c = (Cell)((v.elementAt(v.size()-1)));
+            Vector<Cell> v =  vPath.elementAt(vLength-1);
+            Cell c = v.elementAt(v.size()-1);
             if (c!=null) {
                 for (int i = vLength-1 ; i>=0; i--) {
                     pathPoint.add(c.getCoordinate());
@@ -566,7 +572,7 @@ public class GridData {
         return found;
     }
 
-    private boolean addCell(Vector vector, Cell parent, int dx, int dy, Point target, HashSet<Point> traversed) {
+    private boolean addCell(Vector<Cell> vector, Cell parent, int dx, int dy, Point target, HashSet<Point> traversed) {
         Point pTemp = new Point(parent.getCoordinate());
         pTemp.set(pTemp.x+dx,pTemp.y+dy);
 
