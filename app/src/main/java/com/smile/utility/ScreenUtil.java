@@ -11,7 +11,7 @@ import android.view.WindowManager;
  * Created by chaolee on 2017-10-24.
  */
 
-public class ScreenUtl {
+public class ScreenUtil {
 
     public static int getStatusBarHeight(Context context) {
         int height = 0;

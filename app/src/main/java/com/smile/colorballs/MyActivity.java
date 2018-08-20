@@ -22,22 +22,14 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.smile.alertdialogfragment.AlertDialogFragment;
 import com.smile.dao.PlayerRecordRest;
 import com.smile.facebookadsutil.*;
 import com.smile.scoresqlite.ScoreSQLite;
-import com.smile.utility.ScreenUtl;
+import com.smile.utility.ScreenUtil;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -93,7 +85,7 @@ public class MyActivity extends AppCompatActivity {
         }
 
         Point size = new Point();
-        ScreenUtl.getScreenSize(this, size);
+        ScreenUtil.getScreenSize(this, size);
         int screenWidth = size.x;
         int screenHeight = size.y;
 

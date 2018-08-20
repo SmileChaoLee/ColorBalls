@@ -16,7 +16,7 @@ import static android.content.ContentValues.TAG;
  * Created by chaolee on 2017-10-19.
  */
 
-public class SoundUtl {
+public class SoundUtil {
 
     private static ToneGenerator pTone = null;
     private static MediaPlayer mediaPlayer = null;

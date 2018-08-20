@@ -7,7 +7,6 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -37,14 +36,12 @@ import com.smile.dao.PlayerRecordRest;
 import com.smile.facebookadsutil.*;
 import com.smile.model.GridData;
 import com.smile.scoresqlite.ScoreSQLite;
-import com.smile.utility.ScreenUtl;
-import com.smile.utility.SoundUtl;
+import com.smile.utility.ScreenUtil;
+import com.smile.utility.SoundUtil;
 
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -195,13 +192,13 @@ public class MainUiFragment extends Fragment {
         facebookInterstitialAds = myActivity.getFacebookInterstitialAds();
 
         Point size = new Point();
-        ScreenUtl.getScreenSize(context, size);
+        ScreenUtil.getScreenSize(context, size);
         int screenWidth = size.x;
         int screenHeight = size.y;
         System.out.println("Screen size of this device -> screenWidth = " + screenWidth + ", screenHeight = " + screenHeight);
 
-        int statusBarHeight = ScreenUtl.getStatusBarHeight(context);
-        int actionBarHeight = ScreenUtl.getActionBarHeight(context);
+        int statusBarHeight = ScreenUtil.getStatusBarHeight(context);
+        int actionBarHeight = ScreenUtil.getActionBarHeight(context);
 
         // keep navigation bar
         screenHeight = screenHeight - statusBarHeight - actionBarHeight;
@@ -573,7 +570,7 @@ public class MainUiFragment extends Fragment {
                         tone.release();
                         */
 
-                        SoundUtl.playUhOhSound(context);
+                        SoundUtil.playUhOhSound(context);
                         // SoundUtl.playTone();
                         // SoundUtl.playTone1();
                     }
