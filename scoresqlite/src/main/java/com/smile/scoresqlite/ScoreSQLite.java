@@ -8,32 +8,32 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Pair;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by lee on 10/8/2014.
  */
 public class ScoreSQLite extends SQLiteOpenHelper {
 
-    private Context myContext = null;
+    private static final String _id = new String("id");
     private static final String playerName = new String("playerName");
     private static final String playerScore = new String("playerScore");
 
     private static final String dbName = new String("colorBallDatabase.db");
     private static final String tableName = new String("score");
     private static final String createTable = "create table if not exists " + tableName + " ("
-            + playerName + " text not null ,  " + playerScore + " integer );";
+            + _id + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+            + playerName + " TEXT NOT NULL ,  " + playerScore + " INTEGER );";
     private static final String upDateTable = new String("update");
-    private SQLiteDatabase scoreDatabase = null;
-    private static final int dbVersion = 1;
 
-    private boolean readFinished;
+    private static final int dbVersion = 2;
+
+    private Context myContext;
+    private SQLiteDatabase scoreDatabase;
 
     public ScoreSQLite(Context context) {
         super(context, dbName,null,dbVersion);
         myContext = context;
         scoreDatabase = null;
-        readFinished = true;
     }
 
     @Override
@@ -51,18 +51,6 @@ public class ScoreSQLite extends SQLiteOpenHelper {
 
         try {
             scoreDatabase = getWritableDatabase();
-            if (scoreDatabase != null) {
-                scoreDatabase.execSQL(createTable);
-                String sql = "select count(*) as totalRec from " + tableName + ";";
-                Cursor cur = scoreDatabase.rawQuery(sql, new String[]{});
-                if (cur.moveToFirst()) {
-                    if (cur.getInt(0) == 0) {
-                        sql = "insert into " + tableName + " ( playerName , playerScore) values ( 'ChaoLee',100);";
-                        scoreDatabase.execSQL(sql);
-                    }
-                }
-                cur.close();
-            }
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -71,15 +59,10 @@ public class ScoreSQLite extends SQLiteOpenHelper {
     public int readHighestScore() {
         int highestScore = 0;
 
-        while (!readFinished) {
-            System.out.println("readFinished = " + readFinished);
-        }    // wait for other operations finish
-        readFinished = false;
-
         openScoreDatabase();
         if (scoreDatabase != null) {
             try {
-                String sql = "select playerScore from " + tableName + " order by playerScore desc";
+                String sql = "select playerScore from " + tableName + " order by playerScore desc limit 1";
                 Cursor cur = scoreDatabase.rawQuery(sql, new String[]{});
                 if (cur.moveToFirst()) {
                     highestScore = cur.getInt(0);
@@ -91,8 +74,6 @@ public class ScoreSQLite extends SQLiteOpenHelper {
             closeScoreDatabase();
         }
 
-        readFinished = true;
-
         return highestScore;
     }
 
@@ -100,57 +81,49 @@ public class ScoreSQLite extends SQLiteOpenHelper {
 
         ArrayList<Pair<String, Integer>> result = new ArrayList<>();
 
-        while (!readFinished) {}    // wait for other operations finish
-        readFinished = false;
-
         openScoreDatabase();
         if (scoreDatabase != null) {
             String temp = new String("");
             int score = 0;
-            int i = 0;
+            // int i = 0;
             Pair<String, Integer> pair;
 
-            Cursor cur = scoreDatabase.query(tableName, new String[] {"playerName","playerScore"}, null, null, null, null, "playerScore desc");
+            Cursor cur = scoreDatabase.query(tableName, new String[] {"playerName","playerScore"}, null, null, null, null, "playerScore desc", "10");
             if (cur.moveToFirst()) {
                 do {
                     temp = cur.getString(0);
                     score = cur.getInt(1);
                     pair = new Pair<>(temp, score);
                     result.add(pair);
-                    i++;
-                } while (cur.moveToNext() && (i<10));
+                    // i++;
+                // } while (cur.moveToNext() && (i<10));
+                } while (cur.moveToNext());
             }
 
             closeScoreDatabase();
         }
 
-        readFinished = true;
-
         return result;
     }
 
-    public ArrayList<String> readAllScores() {
+    public ArrayList<Pair<String, Integer>> readAllScores() {
 
-        ArrayList<String> resultStr  = new ArrayList<>();
-        String space = new String(new char[1]).replace("\0"," ");
-        int strLen = 14;    // maximum chars for player name
-
-        while (!readFinished) { }   // waits for other operations finishes
-        readFinished = false;
+        ArrayList<Pair<String, Integer>> result = new ArrayList<>();
 
         openScoreDatabase();
         if (scoreDatabase != null) {
             // succeeded to open
+            String temp = new String("");
+            int score = 0;
+            Pair<String, Integer> pair;
             try {
                 Cursor cur = scoreDatabase.query(tableName, new String[] {"playerName", "playerScore"},null,null,null,null,null);
                 if (cur.moveToFirst()) {
-                    // has data
-                    String temp = "";
                     do {
                         temp = cur.getString(0);
-                        temp = temp.substring(0, Math.min(temp.length(), strLen)).trim();
-                        temp = temp + (new String(new char[strLen - temp.length()]).replace("\0", " "));
-                        resultStr.add(temp + space + String.valueOf(cur.getInt(1)));
+                        score = cur.getInt(1);
+                        pair = new Pair<>(temp, score);
+                        result.add(pair);
                     } while (cur.moveToNext());
                 }
             } catch (Exception ex) {
@@ -158,9 +131,39 @@ public class ScoreSQLite extends SQLiteOpenHelper {
             }
         }
 
-        readFinished = true;
+        return result;
+    }
 
-        return resultStr;
+    public boolean isInTop10(int score) {
+
+        boolean yn = false;
+
+        openScoreDatabase();
+        if (scoreDatabase != null) {
+            // succeeded to open database
+            try {
+                Cursor cur = scoreDatabase.query(tableName, new String[]{"playerScore"}, null, null, null, null, "playerScore desc", "10");
+                if (cur.getCount() < 10) {
+                    // less than 10 scores
+                    yn = true;
+                } else {
+                    // has 10 scores
+                    if (cur.moveToLast()) {
+                        int tenThScore = cur.getInt(0);
+                        if (score > tenThScore) {
+                            // in the top 10 list
+                            yn = true;
+                        }
+                    }
+                }
+
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            closeScoreDatabase();
+        }
+
+        return yn;
     }
 
     public void addScore(final String name , final int score) {
@@ -169,41 +172,68 @@ public class ScoreSQLite extends SQLiteOpenHelper {
                 + ","+"playerScore="+String.valueOf(score)
                 + " where playerName='ChaoLee'";
         */
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                while (!readFinished) {}    // wait for other operations finish
-                readFinished = false;
 
-                openScoreDatabase();
-                if (scoreDatabase != null) {
-                    try {
-                        String sql = "select count(*) as totalRec from " + tableName + ";";
-                        Cursor cur = scoreDatabase.rawQuery(sql, new String[]{});
-                        if (cur.moveToFirst()) {
-                            if (cur.getInt(0) >= 100) {
-                                //   Over 100 records,   delete one record
-                                sql = "delete from " + tableName + " where playerScore in ( select playerScore from " + tableName + " order by playerScore limit 1);";
-                                scoreDatabase.execSQL(sql);
-                            }
-                        }
-                        cur.close();
-                        //  insert one record into table    SCORE
-                        System.out.println("addScore(final String name , final int score) --> score " + score);
-                        sql = "insert into " + tableName + " ( playerName , playerScore) values ("
-                                + "'" + name + "'," + String.valueOf(score) + ");";
+        openScoreDatabase();
+        if (scoreDatabase != null) {
+            try {
+                String sql = "select count(*) as totalRec from " + tableName + ";";
+                Cursor cur = scoreDatabase.rawQuery(sql, new String[]{});
+                if (cur.moveToFirst()) {
+                    if (cur.getInt(0) >= 100) {
+                        //   Over 100 records,   delete one record
+                        sql = "delete from " + tableName + " where playerScore in ( select playerScore from " + tableName + " order by playerScore limit 1);";
                         scoreDatabase.execSQL(sql);
-                    } catch (SQLException ex) {
-                        ex.printStackTrace();
                     }
-                    closeScoreDatabase();
                 }
-
-                readFinished = true;
+                cur.close();
+                //  insert one record into table    SCORE
+                System.out.println("addScore(final String name , final int score) --> score " + score);
+                sql = "insert into " + tableName + " ( playerName , playerScore) values ("
+                        + "'" + name + "'," + String.valueOf(score) + ");";
+                scoreDatabase.execSQL(sql);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
             }
-        };
+            closeScoreDatabase();
+        }
+    }
 
-        thread.start();
+    public void deleteOneScore(final int id) {
+
+        openScoreDatabase();
+        if (scoreDatabase != null) {
+            try {
+                scoreDatabase.delete(tableName, _id + "=" + id,null);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            closeScoreDatabase();
+        }
+    }
+
+    public void deleteAllAfterTop10() {
+            openScoreDatabase();
+            if (scoreDatabase != null) {
+                try {
+                    String query = "DELETE FROM " + tableName + " WHERE id NOT IN (SELECT ID FROM " + tableName + " ORDER BY " + playerScore + " DESC LIMIT 10)";
+                    scoreDatabase.execSQL(query);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+                closeScoreDatabase();
+            }
+    }
+
+    public void deleteAllScore() {
+            openScoreDatabase();
+            if (scoreDatabase != null) {
+                try {
+                    scoreDatabase.delete(tableName, null,null);
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+                closeScoreDatabase();
+            }
     }
 
     private void closeScoreDatabase() {
