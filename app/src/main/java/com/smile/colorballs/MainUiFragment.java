@@ -771,9 +771,10 @@ public class MainUiFragment extends Fragment {
                 break;
             case Color.YELLOW:
                 imageView.setImageResource(R.drawable.yellowball);
+                imageView.setImageResource(R.drawable.yellowball);
                 break;
             default:
-                imageView.setImageResource(R.drawable.ic_launcher);
+                imageView.setImageDrawable(null);
                 break;
         }
     }
@@ -796,7 +797,7 @@ public class MainUiFragment extends Fragment {
                 imageView.setImageResource(R.drawable.yellowball_o);
                 break;
             default:
-                imageView.setImageResource(R.drawable.ic_launcher);
+                imageView.setImageDrawable(null);
                 break;
         }
     }
