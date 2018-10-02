@@ -210,7 +210,7 @@ public class AlertDialogFragment extends DialogFragment {
         }
     }
 
-    // due to the bus of Android SDK, this override to onDestroyView() has to be done. Added on 2018-06-19 11:50pm
+    // due to the bugs of Android SDK, this override to onDestroyView() has to be done. Added on 2018-06-19 11:50pm
     @Override
     public void onDestroyView() {
         Dialog dialog = getDialog();
