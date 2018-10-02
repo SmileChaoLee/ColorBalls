@@ -4,29 +4,39 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.ActionBar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ToggleButton;
 
 public class SettingActivity extends AppCompatActivity {
 
-    private float textFontSize;
+    private float fontSizeForText;
     private ToggleButton soundSwitch;
     private boolean hasSound;
+    private ToggleButton easyLevelSwitch;
+    private boolean isEasyLevel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        textFontSize = 30;
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+        }
+
+        fontSizeForText = 30;
         hasSound = true;
+        isEasyLevel = true;
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            textFontSize = extras.getFloat("TextFontSize");
+            fontSizeForText = extras.getFloat("FontSizeForText");
             hasSound = extras.getBoolean("HasSound");
+            isEasyLevel = extras.getBoolean("IsEasyLevel");
         }
 
-        if (textFontSize == 50) {
+        if (fontSizeForText == 50) {
             // not a cell phone, it is a tablet
             setTheme(R.style.ThemeTextSize50Transparent);
         } else {
@@ -38,12 +48,22 @@ public class SettingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_setting);
 
         soundSwitch = findViewById(R.id.soundSwitch);
-        soundSwitch.setTextSize(textFontSize);
+        soundSwitch.setTextSize(fontSizeForText);
         soundSwitch.setChecked(hasSound);
         soundSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 hasSound = ((ToggleButton)view).isChecked();
+            }
+        });
+
+        easyLevelSwitch = findViewById(R.id.easyLevelSwitch);
+        easyLevelSwitch.setTextSize(fontSizeForText);
+        easyLevelSwitch.setChecked(isEasyLevel);
+        easyLevelSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isEasyLevel = ((ToggleButton)view).isChecked();
             }
         });
 
@@ -75,6 +95,7 @@ public class SettingActivity extends AppCompatActivity {
         Intent returnIntent = new Intent();
         Bundle extras = new Bundle();
         extras.putBoolean("HasSound", hasSound);
+        extras.putBoolean("IsEasyLevel", isEasyLevel);
         returnIntent.putExtras(extras);
 
         int resultYn = Activity.RESULT_OK;

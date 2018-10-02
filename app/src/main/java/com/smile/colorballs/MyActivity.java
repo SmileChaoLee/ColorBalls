@@ -46,8 +46,6 @@ public class MyActivity extends AppCompatActivity {
     private ScoreSQLite scoreSQLite = null;
     private int mainUiLayoutId = -1;
     private int top10LayoutId = -1;
-    private MenuItem registerMenuItemEasy = null;
-    private MenuItem registerMenuItemDifficult = null;
 
     private MainUiFragment mainUiFragment = null;
     private Top10ScoreFragment top10ScoreFragment = null;
@@ -78,8 +76,9 @@ public class MyActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        /*
         try {
-            requestWindowFeature(Window.FEATURE_NO_TITLE);
+            // requestWindowFeature(Window.FEATURE_NO_TITLE);
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
         } catch (Exception ex) {
@@ -87,6 +86,7 @@ public class MyActivity extends AppCompatActivity {
             ex.printStackTrace();
             finish();
         }
+        */
 
         Point size = new Point();
         ScreenUtil.getScreenSize(this, size);
@@ -185,36 +185,32 @@ public class MyActivity extends AppCompatActivity {
 
         // for AdBuddiz ads removed on 2018-07-03
         // AdBuddiz.setPublisherKey("57c7153c-35dd-488a-beaa-3cae8b3ab668");
-        // AdBuddiz.cacheAds(this); // this = current Activity
-        // AdBuddiz.RewardedVideo.fetch(this); // this = current Activity
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        /*
-        if (resultCode == Activity.RESULT_OK) {
             switch(requestCode) {
-                case Top10ScoreActivity.activityRequestCode:
-                    // show ads
-                    Log.i(TAG, "Facebook showing ads");
-                    facebookInterstitialAds.showAd(TAG);
-                    AdBuddiz.showAd(MyActivity.this);
+                case SettingActivityRequestCode:
+                    if (resultCode == Activity.RESULT_OK) {
+                        Bundle extras = data.getExtras();
+                        if (extras != null) {
+                            boolean hasSound = extras.getBoolean("HasSound");
+                            boolean isEasyLevel = extras.getBoolean("IsEasyLevel");
+                            mainUiFragment.setHasSound(hasSound);
+                            mainUiFragment.setEasyLevel(isEasyLevel);
+                        }
+                    }
                     break;
-                case GlobalTop10Activity.activityRequestCode:
-                    // show ads
-                    Log.i(TAG, "Facebook showing ads");
-                    facebookInterstitialAds.showAd(TAG);
-                    AdBuddiz.showAd(MyActivity.this);
+                case Top10ScoreActivityRequestCode:
+                    break;
+                case GlobalTop10ActivityRequestCode:
                     break;
             }
-        }
-        */
 
         // show ads
         Log.i(TAG, "Facebook showing ads");
         facebookInterstitialAds.showAd(TAG);
-        // AdBuddiz.showAd(MyActivity.this);
     }
 
     @Override
@@ -227,19 +223,6 @@ public class MyActivity extends AppCompatActivity {
         registerMenuItemNewGame.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         MenuItem registerMenuItemOption = menu.findItem(R.id.setting);
         registerMenuItemOption.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-
-        registerMenuItemEasy = menu.findItem(R.id.easyLevel);
-        registerMenuItemDifficult = menu.findItem(R.id.difficultLevel);
-
-        if (mainUiFragment.getEasyLevel()) {
-            // easy level
-            registerMenuItemDifficult.setChecked(false);
-            registerMenuItemEasy.setChecked(true);
-        }
-        else {
-            registerMenuItemDifficult.setChecked(true);
-            registerMenuItemEasy.setChecked(false);
-        }
 
         return true;
     }
@@ -260,20 +243,17 @@ public class MyActivity extends AppCompatActivity {
             mainUiFragment.newGame();
             return true;
         }
-        if (id == R.id.easyLevel) {
-            item.setChecked(true);
-            registerMenuItemDifficult.setChecked(false);
-            mainUiFragment.setEasyLevel(true);
-
+        if (id == R.id.setting) {
+            Intent intent = new Intent(this, SettingActivity.class);
+            Bundle extras = new Bundle();
+            extras.putInt("FontSizeForText", fontSizeForText);
+            extras.putBoolean("HasSound", mainUiFragment.getHasSound());
+            extras.putBoolean("IsEasyLevel", mainUiFragment.getEasyLevel());
+            intent.putExtras(extras);
+            startActivityForResult(intent, SettingActivityRequestCode);
             return true;
         }
-        if (id == R.id.difficultLevel) {
-            item.setChecked(true);
-            registerMenuItemEasy.setChecked(false);
-            mainUiFragment.setEasyLevel(false);
 
-            return true;
-        }
         return super.onOptionsItemSelected(item);
     }
 

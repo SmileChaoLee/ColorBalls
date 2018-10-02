@@ -22,11 +22,18 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".SettingActivity"
+            android:label="@string/settingStr"
+            android:theme="@style/ThemeTextSize30Transparent">
+        </activity>
+        <activity
             android:name=".Top10ScoreActivity"
-            android:label="@string/title_activity_history" />
+            android:label="@string/title_activity_history" >
+        </activity>
         <activity
             android:name=".GlobalTop10Activity"
-            android:label="@string/title_activity_global" />
+            android:label="@string/title_activity_global" >
+        </activity>
     </application>
 
 </manifest>

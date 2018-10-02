@@ -14,15 +14,6 @@
         android:title="@string/settingStr"
         android:orderInCategory="3"
         ColorBalls:showAsAction="always">
-        <menu>
-            <item android:id="@+id/easyLevel"
-                android:title="@string/easyLevel"
-                android:checkable="true"/>
-
-            <item android:id="@+id/difficultLevel"
-                android:title="@string/difficultLevel"
-                android:checkable="true"/>
-        </menu>
     </item>
 
 </menu>
