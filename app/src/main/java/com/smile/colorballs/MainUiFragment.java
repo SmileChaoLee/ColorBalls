@@ -96,6 +96,8 @@ public class MainUiFragment extends Fragment {
     private float dialogFragment_widthFactor = dialog_widthFactor;
     private float dialogFragment_heightFactor = dialog_heightFactor;
 
+    private boolean hasSound = true;    // has sound effect
+
 
     // private properties facebook ads
     private FacebookInterstitialAds facebookInterstitialAds = null;
@@ -564,8 +566,9 @@ public class MainUiFragment extends Fragment {
                         undoEnable = true;
                     } else {
                         //    make a sound
-
-                        SoundUtil.playSound(context, R.raw.uhoh);
+                        if (hasSound) {
+                            SoundUtil.playSound(context, R.raw.uhoh);
+                        }
                     }
                 }
             } else {
@@ -923,7 +926,6 @@ public class MainUiFragment extends Fragment {
 
         // show ads
         facebookInterstitialAds.showAd(TAG);
-        // AdBuddiz.showAd(myActivity); // remove on 2018-07-03
     }
 
     public boolean getEasyLevel() {
@@ -946,6 +948,13 @@ public class MainUiFragment extends Fragment {
 
         // show ads
         facebookInterstitialAds.showAd(TAG);
+    }
+
+    public boolean getHasSound() {
+        return hasSound;
+    }
+    public void setHasSound(boolean hasSound) {
+        this.hasSound = hasSound;
     }
 
     private class CalculateScore extends AsyncTask<Point, Integer, String[]> {

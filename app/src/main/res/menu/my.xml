@@ -10,8 +10,8 @@
         android:title="@string/newGame"
         android:orderInCategory="2"
         ColorBalls:showAsAction="always"/>
-    <item android:id="@+id/option"
-        android:title="@string/optionButton"
+    <item android:id="@+id/setting"
+        android:title="@string/settingStr"
         android:orderInCategory="3"
         ColorBalls:showAsAction="always">
         <menu>

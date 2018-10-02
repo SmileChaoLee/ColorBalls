@@ -16,6 +16,7 @@
 
     <string name="action_settings">Settings</string>
 
+    <string name="okStr">Ok</string>
     <string name="yesStr">YES</string>
     <string name="noStr">NO</string>
     <string name="gameOverStr">Game Over.\nContinue?</string>
@@ -26,5 +27,10 @@
     <string name="undoStr">Undo</string>
     <string name="top10Str">Top 10</string>
     <string name="globalTop10Str">Global Top 10</string>
+
+    <string name="settingStr">Settings</string>
+    <string name="soundStr">Sound</string>
+    <string name="onStr">On</string>
+    <string name="offStr">Off</string>
 
 </resources>

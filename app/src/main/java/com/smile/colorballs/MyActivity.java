@@ -63,6 +63,10 @@ public class MyActivity extends AppCompatActivity {
     private FacebookInterstitialAds facebookInterstitialAds = null;
 
     // public properties
+    public static final int SettingActivityRequestCode = 1;
+    public static final int Top10ScoreActivityRequestCode = 2;
+    public static final int GlobalTop10ActivityRequestCode = 3;
+
     // public static final String REST_Website = new String("http://192.168.0.11:5000/Playerscore");
     public static final String REST_Website = new String("    http://ec2-13-59-195-3.us-east-2.compute.amazonaws.com/Playerscore");
     public MyActivity() {
@@ -221,7 +225,7 @@ public class MyActivity extends AppCompatActivity {
         registerMenuItemEndGame.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         MenuItem registerMenuItemNewGame = menu.findItem(R.id.newGame);
         registerMenuItemNewGame.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        MenuItem registerMenuItemOption = menu.findItem(R.id.option);
+        MenuItem registerMenuItemOption = menu.findItem(R.id.setting);
         registerMenuItemOption.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 
         registerMenuItemEasy = menu.findItem(R.id.easyLevel);
@@ -487,7 +491,7 @@ public class MyActivity extends AppCompatActivity {
                     extras.putIntegerArrayList("Top10Scores", playerScores);
                     extras.putInt("FontSizeForText", fontSizeForText);
                     intent.putExtras(extras);
-                    startActivityForResult(intent, Top10ScoreActivity.activityRequestCode);
+                    startActivityForResult(intent, Top10ScoreActivityRequestCode);
                 }
             }
         }
@@ -662,7 +666,7 @@ public class MyActivity extends AppCompatActivity {
                     extras.putIntegerArrayList("Top10Scores", playerScores);
                     extras.putInt("FontSizeForText", fontSizeForText);
                     intent.putExtras(extras);
-                    startActivityForResult(intent, GlobalTop10Activity.activityRequestCode);
+                    startActivityForResult(intent, GlobalTop10ActivityRequestCode);
                 }
             }
         }

@@ -15,6 +15,7 @@
 
     <string name="action_settings">設定</string>
 
+    <string name="okStr">確定</string>
     <string name="yesStr">是</string>
     <string name="noStr">否</string>
     <string name="gameOverStr">遊戲結束.\n是否繼續?</string>
@@ -25,4 +26,9 @@
     <string name="undoStr">還 原</string>
     <string name="top10Str">前10名高分</string>
     <string name="globalTop10Str">全球前10排名</string>
+
+    <string name="settingStr">設定</string>
+    <string name="soundStr">聲音</string>
+    <string name="onStr">開</string>
+    <string name="offStr">關</string>
 </resources>
