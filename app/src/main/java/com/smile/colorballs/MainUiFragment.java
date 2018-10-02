@@ -381,6 +381,7 @@ public class MainUiFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        SoundUtil.releaseMediaPlayer();
     }
 
     /**
@@ -563,16 +564,8 @@ public class MainUiFragment extends Fragment {
                         undoEnable = true;
                     } else {
                         //    make a sound
-                        // removed for testing on 2017-10-18. the following sound maker would crash the app
-                        /*
-                        ToneGenerator tone = new ToneGenerator(AudioManager.STREAM_ALARM, ToneGenerator.MAX_VOLUME);
-                        tone.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD);
-                        tone.release();
-                        */
 
-                        SoundUtil.playUhOhSound(context);
-                        // SoundUtl.playTone();
-                        // SoundUtl.playTone1();
+                        SoundUtil.playSound(context, R.raw.uhoh);
                     }
                 }
             } else {
