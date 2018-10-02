@@ -198,7 +198,7 @@ public class MyActivity extends AppCompatActivity {
                             boolean hasSound = extras.getBoolean("HasSound");
                             boolean isEasyLevel = extras.getBoolean("IsEasyLevel");
                             mainUiFragment.setHasSound(hasSound);
-                            mainUiFragment.setEasyLevel(isEasyLevel);
+                            mainUiFragment.setIsEasyLevel(isEasyLevel);
                         }
                     }
                     break;
@@ -248,7 +248,7 @@ public class MyActivity extends AppCompatActivity {
             Bundle extras = new Bundle();
             extras.putInt("FontSizeForText", fontSizeForText);
             extras.putBoolean("HasSound", mainUiFragment.getHasSound());
-            extras.putBoolean("IsEasyLevel", mainUiFragment.getEasyLevel());
+            extras.putBoolean("IsEasyLevel", mainUiFragment.getIsEasyLevel());
             intent.putExtras(extras);
             startActivityForResult(intent, SettingActivityRequestCode);
             return true;

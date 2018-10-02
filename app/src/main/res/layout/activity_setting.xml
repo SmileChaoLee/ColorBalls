@@ -38,7 +38,7 @@
             android:orientation="vertical"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:background="#550000ff"
+            android:background="#550404ec"
             android:layout_weight="6"
             android:weightSum="5">
             <TextView
@@ -99,7 +99,7 @@
                         android:layout_alignParentLeft="true"
                         android:layout_marginLeft="10dp"
                         android:textColor="#ffffff00"
-                        android:text="@string/easyLevel">
+                        android:text="@string/playerLevelStr">
                     </TextView>
                     <ToggleButton
                         android:id="@+id/easyLevelSwitch"
@@ -111,8 +111,8 @@
                         android:background="@android:color/transparent"
                         android:textColor="@color/white"
                         android:textAllCaps="false"
-                        android:textOn="@string/easyLevel"
-                        android:textOff="@string/difficultLevel">
+                        android:textOn="@string/easyStr"
+                        android:textOff="@string/difficultStr">
                     </ToggleButton>
                 </RelativeLayout>
 

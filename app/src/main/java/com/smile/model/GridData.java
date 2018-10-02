@@ -6,8 +6,6 @@ package com.smile.model;
 
 import android.graphics.Color;
 import android.graphics.Point;
-import android.text.format.Time;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -103,12 +101,9 @@ public class GridData {
         gameOver = false;   // new Game
         numOfTotalBalls = 0;
 
-        Time now = new Time();
-        now.setToNow();
-        random = new Random(now.toMillis(false));
+        random = new Random(System.currentTimeMillis());
 
         randColors();
-        // randCells(); // removed on 2018-01-02
     }
 
     public void randColors() {
@@ -123,9 +118,14 @@ public class GridData {
 
     private void backupNextBalls() {
         undoNumOneTime = ballNumOneTime;
+
+        /*  removed on 2018-10-02
         for (int i=0 ; i<ballNumOneTime ; i++) {
             undoBalls[i] = nextBalls[i];
         }
+        */
+
+        undoBalls = nextBalls.clone();
     }
 
     public int[] getNextBalls() {
@@ -161,9 +161,13 @@ public class GridData {
     public void undoTheLast() {
 
         ballNumOneTime = undoNumOneTime;
+        /*  removed om 2018-10-02
         for (int i=0 ; i<ballNumOneTime ; i++) {
             nextBalls[i] = undoBalls[i];
         }
+        */
+
+        nextBalls = undoBalls.clone();
 
         restoreCellValue();
 
@@ -177,8 +181,6 @@ public class GridData {
             for (int j=0 ; j<colCounts; j++) {
                 if (cellValue[i][j] != 0) {
                     nb++;
-                } else {
-                    // noColorList.add(new Point(i,j));
                 }
             }
         }
@@ -443,19 +445,27 @@ public class GridData {
     }
 
     private void backupCellValue() {
+        /* removed on 2018-00-02
         for (int i=0 ; i<rowCounts ; i++) {
             for (int j=0 ; j<colCounts ; j++) {
                 backupCell[i][j] = cellValue[i][j];
             }
         }
+        */
+
+        backupCell = cellValue.clone();
     }
 
     private void restoreCellValue() {
+        /* removed on 2018-10-02
         for (int i=0 ; i<rowCounts ; i++) {
             for (int j=0 ; j<colCounts ; j++) {
                 cellValue[i][j] = backupCell[i][j];
             }
         }
+        */
+
+        cellValue = backupCell.clone();
     }
 
     public boolean moveCellToCell(Point sourcePoint, Point targetPoint) {
@@ -515,10 +525,7 @@ public class GridData {
                     pathPoint.add(c.getCoordinate());
                     c = c.getParentCell();
                 }
-            } else {
-                // System.out.println("Cell c is null");
             }
-
         }
 
         return found;
@@ -545,7 +552,7 @@ public class GridData {
 
 class Cell {
     private final Point coordinate = new Point();
-    private Cell parentCell = null;
+    private Cell parentCell;
 
     Cell(Point coordinate,Cell parentCell) {
         this.coordinate.set(coordinate.x,coordinate.y);

@@ -2,16 +2,18 @@ package com.smile.colorballs;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ToggleButton;
 
 public class SettingActivity extends AppCompatActivity {
 
-    private float fontSizeForText;
+    private int fontSizeForText;
     private ToggleButton soundSwitch;
     private boolean hasSound;
     private ToggleButton easyLevelSwitch;
@@ -31,7 +33,7 @@ public class SettingActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            fontSizeForText = extras.getFloat("FontSizeForText");
+            fontSizeForText = extras.getInt("FontSizeForText");
             hasSound = extras.getBoolean("HasSound");
             isEasyLevel = extras.getBoolean("IsEasyLevel");
         }
@@ -54,6 +56,7 @@ public class SettingActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 hasSound = ((ToggleButton)view).isChecked();
+                System.out.println("soundSwitch ---> hasSound = " + hasSound);
             }
         });
 

@@ -81,7 +81,7 @@ public class MainUiFragment extends Fragment {
     private boolean undoEnable = false;
     private int currentScore = 0;
     private int undoScore = 0;
-    private boolean easyLevel = true;
+    private boolean isEasyLevel = true;
 
     private String yesStr = new String("");
     private String noStr = new String("");
@@ -352,7 +352,7 @@ public class MainUiFragment extends Fragment {
         if ( (savedInstanceState == null) || (gridData == null) ) {
             // start a new game (no savedInstanceState)
             // or gridData is null (for some unknown reason)
-            easyLevel = true;   // start with easy level
+            isEasyLevel = true;   // start with easy level
             gridData = new GridData(rowCounts, colCounts, MINB, MINB);  // easy level (3 balls for next balls)
             displayGridDataNextCells();
 
@@ -704,7 +704,7 @@ public class MainUiFragment extends Fragment {
             score = score + minScore;
         }
 
-        if (!easyLevel) {
+        if (!isEasyLevel) {
             // difficult level
             score = score * 2;   // double of easy level
         }
@@ -928,13 +928,13 @@ public class MainUiFragment extends Fragment {
         facebookInterstitialAds.showAd(TAG);
     }
 
-    public boolean getEasyLevel() {
-        return this.easyLevel;
+    public boolean getIsEasyLevel() {
+        return this.isEasyLevel;
     }
 
-    public void setEasyLevel(boolean yn) {
-        this.easyLevel = yn;
-        if (this.easyLevel) {
+    public void setIsEasyLevel(boolean yn) {
+        this.isEasyLevel = yn;
+        if (this.isEasyLevel) {
             // easy level
             getGridData().setMinBallsOneTime(MainUiFragment.MINB);
             getGridData().setMaxBallsOneTime(MainUiFragment.MINB);
