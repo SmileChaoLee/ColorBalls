@@ -107,7 +107,7 @@ public class MainUiFragment extends Fragment {
 
 
     // private properties facebook ads
-    private FacebookInterstitialAds facebookInterstitialAds = null;
+    // private FacebookInterstitialAds facebookInterstitialAds = null;
 
     // private ModalDialogFragment gameOverDialog = null;
     public MainUiFragment() {
@@ -198,7 +198,7 @@ public class MainUiFragment extends Fragment {
         dialogFragment_widthFactor = myActivity.getDialogFragment_widthFactor();
         dialogFragment_heightFactor = myActivity.getDialogFragment_heightFactor();
 
-        facebookInterstitialAds = myActivity.getFacebookInterstitialAds();
+        // facebookInterstitialAds = myActivity.getFacebookInterstitialAds();
 
         Point size = new Point();
         ScreenUtil.getScreenSize(context, size);
@@ -954,7 +954,7 @@ public class MainUiFragment extends Fragment {
         alertD.show();
 
         // show ads
-        facebookInterstitialAds.showAd(TAG);
+        // facebookInterstitialAds.showAd(TAG); // removed on 2018-10-02
     }
 
     public boolean getIsEasyLevel() {
@@ -976,7 +976,7 @@ public class MainUiFragment extends Fragment {
         displayNextColorBalls();
 
         // show ads
-        facebookInterstitialAds.showAd(TAG);
+        // facebookInterstitialAds.showAd(TAG); // removed on 2018-10-02
     }
 
     public boolean getHasSound() {
