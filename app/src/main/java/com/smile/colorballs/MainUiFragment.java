@@ -904,7 +904,7 @@ public class MainUiFragment extends Fragment {
                 dialog.dismiss();
                 if (entryPoint==0) {
                     //  END PROGRAM
-                    myActivity.finish();
+                    myActivity.quitApplication();
                 } else if (entryPoint==1) {
                     //  NEW GAME
                     flushALLandBegin();
@@ -936,7 +936,7 @@ public class MainUiFragment extends Fragment {
 
                 scoreSQLite.addScore(et.getText().toString(),currentScore);
                 if (entryPoint==0) {
-                    myActivity.finish();
+                    myActivity.quitApplication();
                 } else if (entryPoint==1) {
                     //  NEW GAME
                     flushALLandBegin();

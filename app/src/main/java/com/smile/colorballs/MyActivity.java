@@ -190,27 +190,29 @@ public class MyActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-            switch(requestCode) {
-                case SettingActivityRequestCode:
-                    if (resultCode == Activity.RESULT_OK) {
-                        Bundle extras = data.getExtras();
-                        if (extras != null) {
-                            boolean hasSound = extras.getBoolean("HasSound");
-                            boolean isEasyLevel = extras.getBoolean("IsEasyLevel");
-                            mainUiFragment.setHasSound(hasSound);
-                            mainUiFragment.setIsEasyLevel(isEasyLevel);
-                        }
+        switch(requestCode) {
+            case SettingActivityRequestCode:
+                if (resultCode == Activity.RESULT_OK) {
+                    Bundle extras = data.getExtras();
+                    if (extras != null) {
+                        boolean hasSound = extras.getBoolean("HasSound");
+                        boolean isEasyLevel = extras.getBoolean("IsEasyLevel");
+                        mainUiFragment.setHasSound(hasSound);
+                        mainUiFragment.setIsEasyLevel(isEasyLevel);
                     }
-                    break;
-                case Top10ScoreActivityRequestCode:
-                    break;
-                case GlobalTop10ActivityRequestCode:
-                    break;
-            }
-
-        // show ads
-        Log.i(TAG, "Facebook showing ads");
-        facebookInterstitialAds.showAd(TAG);
+                }
+                break;
+            case Top10ScoreActivityRequestCode:
+                // show ads
+                Log.i(TAG, "Facebook showing ads");
+                facebookInterstitialAds.showAd(TAG);
+                break;
+            case GlobalTop10ActivityRequestCode:
+                // show ads
+                Log.i(TAG, "Facebook showing ads");
+                facebookInterstitialAds.showAd(TAG);
+                break;
+        }
     }
 
     @Override
@@ -300,6 +302,11 @@ public class MyActivity extends AppCompatActivity {
     public void onBackPressed() {
         // capture the event of back button when it is pressed
         // change back button behavior
+        quitApplication();
+    }
+
+    public void quitApplication() {
+        facebookInterstitialAds.showAd(TAG);
         finish();
     }
 
@@ -325,10 +332,6 @@ public class MyActivity extends AppCompatActivity {
 
     public float getDialogFragment_heightFactor() {
         return dialogFragment_heightFactor;
-    }
-
-    public FacebookInterstitialAds getFacebookInterstitialAds() {
-        return this.facebookInterstitialAds;
     }
 
     public void showTop10ScoreHistory() {
@@ -444,7 +447,6 @@ public class MyActivity extends AppCompatActivity {
                                     ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
 
                                     facebookInterstitialAds.showAd(TAG);
-                                    // AdBuddiz.showAd(MyActivity.this);   // added on 2017-10-24
                                 }
                             }
                         });
@@ -619,7 +621,6 @@ public class MyActivity extends AppCompatActivity {
                                     ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
 
                                     facebookInterstitialAds.showAd(TAG);
-                                    // AdBuddiz.showAd(MyActivity.this);   // added on 2017-10-24
                                 }
                             }
                         });
