@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
@@ -26,6 +29,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -36,6 +40,7 @@ import com.smile.dao.PlayerRecordRest;
 import com.smile.facebookadsutil.*;
 import com.smile.model.GridData;
 import com.smile.scoresqlite.ScoreSQLite;
+import com.smile.utility.FontAndBitmapUtil;
 import com.smile.utility.ScreenUtil;
 import com.smile.utility.SoundUtil;
 
@@ -63,6 +68,7 @@ public class MainUiFragment extends Fragment {
     private Context context = null;
     private MyActivity myActivity = null;
     private View uiFragmentView = null;
+    private ImageView scoreImageView = null;
 
     private Runnable bouncyRunnable; // needed to be tested 2018-0609
     private Handler bouncyHandler;   // needed to be tested
@@ -73,6 +79,8 @@ public class MainUiFragment extends Fragment {
     private int nextBallsNumber = 4;
     private int rowCounts = 9;
     private int colCounts = 9;
+    private int cellWidth = 0;
+    private int cellHeight = 0;
     private final boolean[] threadCompleted =  {true,true,true,true,true,true,true,true,true,true};
 
     private int bouncyBallIndexI = -1, bouncyBallIndexJ = -1;   // the array index that the ball has been selected
@@ -268,27 +276,40 @@ public class MainUiFragment extends Fragment {
             }
         }
 
+        FrameLayout gridPartFrameLayout = uiFragmentView.findViewById(R.id.gridPartFrameLayout);
+        LinearLayout.LayoutParams frameLp = (LinearLayout.LayoutParams) gridPartFrameLayout.getLayoutParams();
+        float height_weight_gridCellsLayout = frameLp.weight;
+
         // for 9 x 9 grid: main part of this game
         GridLayout gridCellsLayout = uiFragmentView.findViewById(R.id.gridCellsLayout);
         rowCounts = gridCellsLayout.getRowCount();
         colCounts = gridCellsLayout.getColumnCount();
-        LinearLayout.LayoutParams gridLp = (LinearLayout.LayoutParams) gridCellsLayout.getLayoutParams();
-        float height_weight_gridCellsLayout = gridLp.weight;
+        // LinearLayout.LayoutParams gridLp = (LinearLayout.LayoutParams) gridCellsLayout.getLayoutParams();
+        // float height_weight_gridCellsLayout = gridLp.weight;
         if (height_weight_gridCellsLayout == 0) {
             height_weight_gridCellsLayout = 8;  // default
         }
 
-        int cellWidth = screenWidth / colCounts;
+        cellWidth = screenWidth / colCounts;
         int eight10thOfHeight = (int)( (float)screenHeight / height_weightSum_uiFragmentView * height_weight_gridCellsLayout);
         if ( screenWidth >  eight10thOfHeight) {
             // if screen width greater than 8-10th of screen height
             cellWidth = eight10thOfHeight / rowCounts;
         }
-        int cellHeight = cellWidth;
+        cellHeight = cellWidth;
 
+        /* removed ont 2018-10-02 to test
         gridLp.width = cellWidth * colCounts;
         gridLp.topMargin = 20;
         gridLp.gravity = Gravity.CENTER;
+        */
+
+        // added on 2018-10-02 to test and it works
+        // setting the width and the height of GridLayout by using the FrameLayout that is on top of it
+        frameLp.width = cellWidth * colCounts;
+        frameLp.topMargin = 20;
+        frameLp.gravity = Gravity.CENTER;
+        //
 
         LinearLayout.LayoutParams oneBallLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -321,6 +342,11 @@ public class MainUiFragment extends Fragment {
 
             }
         }
+
+        // For testing to display score using ImageView
+        scoreImageView = uiFragmentView.findViewById(R.id.scoreImageView);
+        scoreImageView.setVisibility(View.GONE);
+        //
 
         Button undoButton = uiFragmentView.findViewById(R.id.undoButton);
         undoButton.setTextSize(fontSizeForText);
@@ -959,16 +985,22 @@ public class MainUiFragment extends Fragment {
 
     private class CalculateScore extends AsyncTask<Point, Integer, String[]> {
 
-        private final String ScoreDialogTag = new String("ScoreDialogFragment");
+        // private final String ScoreDialogTag = new String("ScoreDialogFragment");
         private int numBalls = 0;
         private int color = 0;
         private int score = 0;
         private Point[] hashPoint = null;
-        private AlertDialogFragment scoreDialog;
+        // private AlertDialogFragment scoreDialog;
+
+        private Bitmap scoreBitmap;
+        private ViewGroup.LayoutParams scoreImageViewLp;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+
+            threadCompleted[1] = false;
+            scoreImageView.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -980,13 +1012,18 @@ public class MainUiFragment extends Fragment {
             }
 
             numBalls = hashPoint.length;
+            score = scoreCalculate(numBalls);
+            Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.score_board_image);
+            String scoreString = String.valueOf(score);
+            double factor = 0.8;
+            int bmWidth = (int)(cellWidth * scoreString.length() * factor);
+            int bmHeight = (int)(cellHeight * factor * 2.0);
+            bm = Bitmap.createScaledBitmap(bm, bmWidth, bmHeight, false );  // scale
+            scoreBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(bm, scoreString, Color.BLACK);
 
             color = gridData.getCellValue(hashPoint[0].x, hashPoint[0].y);
 
-            threadCompleted[1] = false;
-
-            score = scoreCalculate(numBalls);
-
+            /* removed on 2018-10-02
             scoreDialog = new AlertDialogFragment();
             Bundle args = new Bundle();
             args.putString("textContent", "" + score);
@@ -996,6 +1033,7 @@ public class MainUiFragment extends Fragment {
             args.putInt("height", 0);   // wrap_content
             args.putInt("numButtons", 0);
             scoreDialog.setArguments(args);
+            */
 
             int twinkleCountDown = 5;
             for (int i=1; i<=twinkleCountDown; i++) {
@@ -1030,12 +1068,17 @@ public class MainUiFragment extends Fragment {
                     break;
                 case 2:
                     FragmentManager fm = getActivity().getSupportFragmentManager();
-                    scoreDialog.show(fm, ScoreDialogTag);
+
+                    // scoreDialog.show(fm, ScoreDialogTag);    / removed on 2018-10-02
+
+                    scoreImageView.setImageBitmap(scoreBitmap);
+
                     break;
                 case 3:
                     System.out.println("MainUiFragment.Calculation is calling scoreDialog.dismissAllowingStateLoss()");
                     // scoreDialog.dismiss();  // removed on 2018-06-18 because crash app under some situation
-                    scoreDialog.dismissAllowingStateLoss(); // added on 2018-06-18. Resolve the crash issue temporarily
+                    // removed on 2018-10-02
+                    // scoreDialog.dismissAllowingStateLoss(); // added on 2018-06-18. Resolve the crash issue temporarily
                     break;
             }
 
@@ -1057,6 +1100,10 @@ public class MainUiFragment extends Fragment {
             currentScoreView.setText(String.format(Locale.getDefault(), "%9d", currentScore));
 
             threadCompleted[1] = true;
+
+            // hide score ImageView
+            scoreImageView.setImageBitmap(null);
+            scoreImageView.setVisibility(View.GONE);
         }
     }
 }

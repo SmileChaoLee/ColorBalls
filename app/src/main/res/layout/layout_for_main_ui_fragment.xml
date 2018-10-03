@@ -42,20 +42,36 @@
             android:rowCount="1">
         </GridLayout>
 
-
     </LinearLayout>
 
-    <!-- Main part of the game (9 x 9) Grid -->
-
-    <GridLayout
-        android:id="@+id/gridCellsLayout"
+    <FrameLayout
+        android:id="@+id/gridPartFrameLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="8"
-        android:layout_gravity="center"
-        android:columnCount="9"
-        android:rowCount="9">
-    </GridLayout>
+        android:layout_weight="8">
+
+        <!-- Main part of the game (9 x 9) Grid -->
+        <GridLayout
+            android:id="@+id/gridCellsLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:columnCount="9"
+            android:rowCount="9">
+        </GridLayout>
+
+        <ImageView
+            android:id="@+id/scoreImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:scaleType="fitXY"
+            android:adjustViewBounds="true"
+            android:clickable="false"
+            android:background="@android:color/transparent">
+        </ImageView>
+
+    </FrameLayout>
 
     <!-- the undo button and history button -->
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
