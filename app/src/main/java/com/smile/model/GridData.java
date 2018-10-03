@@ -445,27 +445,20 @@ public class GridData {
     }
 
     private void backupCellValue() {
-        /* removed on 2018-00-02
+
         for (int i=0 ; i<rowCounts ; i++) {
             for (int j=0 ; j<colCounts ; j++) {
                 backupCell[i][j] = cellValue[i][j];
             }
         }
-        */
-
-        backupCell = cellValue.clone();
     }
 
     private void restoreCellValue() {
-        /* removed on 2018-10-02
         for (int i=0 ; i<rowCounts ; i++) {
             for (int j=0 ; j<colCounts ; j++) {
                 cellValue[i][j] = backupCell[i][j];
             }
         }
-        */
-
-        cellValue = backupCell.clone();
     }
 
     public boolean moveCellToCell(Point sourcePoint, Point targetPoint) {
