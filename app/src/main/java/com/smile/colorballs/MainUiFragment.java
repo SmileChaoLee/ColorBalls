@@ -715,18 +715,22 @@ public class MainUiFragment extends Fragment {
     }
 
     private int scoreCalculate(int numBalls) {
+        // 5 balls --> 5
+        // 6 balls --> 5 + (6-5)*2
+        // 7 balls --> 5 + (6-5)*2 + (7-5)*2
+        // 8 balls --> 5 + (6-5)*2 + (7-5)*2 + (8-5)*2
+        // n balls --> 5 + (6-5)*2 + (7-5)*5 + ... + (n-5)*2
+        int minBalls = 5;
         int minScore = 5;
-        int score = 0;
-        if (numBalls <= minScore) {
-            score = minScore;
-        } else {
-            score = 0;
+        int score = minScore;
+        if (numBalls > minScore) {
+            // greater than 5 balls
             int rate  = 1;
-            for (int i=1 ; i<=Math.abs(numBalls-minScore) ; i++) {
-                rate = rate * 2;
-                score = score + i*rate ;
+            for (int i=1 ; i<=Math.abs(numBalls-minBalls) ; i++) {
+                // rate = rate * 2; // removed on 2018-10-02
+                rate = 2;   // added on 2018-10-02
+                score += i * rate ;
             }
-            score = score + minScore;
         }
 
         if (!isEasyLevel) {
