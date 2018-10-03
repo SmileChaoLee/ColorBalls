@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
@@ -758,7 +757,7 @@ public class MainUiFragment extends Fragment {
         dlg.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         dlg.getWindow().setDimAmount(0.0f); // no dim for background screen
         dlg.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT,WindowManager.LayoutParams.WRAP_CONTENT);
-        dlg.getWindow().setBackgroundDrawableResource(R.drawable.dialog_background);
+        dlg.getWindow().setBackgroundDrawableResource(R.drawable.dialog_board_image);
 
         float fontSize = fontSizeForText * dialog_widthFactor;
         Button nBtn = dlg.getButton(DialogInterface.BUTTON_NEGATIVE);
@@ -1013,7 +1012,7 @@ public class MainUiFragment extends Fragment {
 
             numBalls = hashPoint.length;
             score = scoreCalculate(numBalls);
-            Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.score_board_image);
+            Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.dialog_board_image);
             String scoreString = String.valueOf(score);
             double factor = 0.8;
             int bmWidth = (int)(cellWidth * scoreString.length() * factor);
