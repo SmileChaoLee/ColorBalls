@@ -23,7 +23,7 @@
     <string name="cancelStr">取消</string>
     <string name="submitStr">送出</string>
     <string name="nameStr">輸入你的名字</string>
-    <string name="loadScore">下載中</string>
+    <string name="loadingString">下載中 ...</string>
     <string name="undoStr">還 原</string>
     <string name="top10Str">前10名高分</string>
     <string name="globalTop10Str">全球前10排名</string>
@@ -32,4 +32,6 @@
     <string name="soundStr">聲音</string>
     <string name="onStr">開</string>
     <string name="offStr">關</string>
+
+    <string name="showingAdsStr">廣告顯示中 ...</string>
 </resources>

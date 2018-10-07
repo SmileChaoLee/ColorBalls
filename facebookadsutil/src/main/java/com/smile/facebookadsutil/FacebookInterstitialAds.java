@@ -112,7 +112,7 @@ public class FacebookInterstitialAds {
         }
     }
 
-    public boolean adsShowDoneOrStopped() {
+    public boolean adsShowDisplayedOrStopped() {
         return (isDisplayed || (retryCount>= MAX_NUMBER_OF_RETRIES));
     }
 

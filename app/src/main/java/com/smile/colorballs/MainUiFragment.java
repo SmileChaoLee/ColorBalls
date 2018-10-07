@@ -958,6 +958,16 @@ public class MainUiFragment extends Fragment {
 
     public void recordScore(final int entryPoint) {
 
+        scoreImageView.setVisibility(View.VISIBLE);
+        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.dialog_board_image);
+        String showAdsString = getResources().getString(R.string.showingAdsStr);
+        double factor = 0.5;
+        int bmWidth = (int)(cellWidth * showAdsString.length() * factor);
+        int bmHeight = (int)(cellHeight * factor * 2.0);
+        bm = Bitmap.createScaledBitmap(bm, bmWidth, bmHeight, false );  // scale
+        Bitmap showingAdsBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(bm, showAdsString, Color.RED);
+        scoreImageView.setImageBitmap(showingAdsBitmap);
+
         isQuitingGame = true;
         myActivity.FacebookAds.showAd(TAG);
 
@@ -968,6 +978,8 @@ public class MainUiFragment extends Fragment {
                 if (myActivity.FacebookAds.adsShowDismissedOrStopped()) {
                     // new game
                     System.out.println("MainUiFragment ---> facebook ads dismissed.");
+                    scoreImageView.setImageBitmap(null);
+                    scoreImageView.setVisibility(View.GONE);
                     handlerClose.removeCallbacksAndMessages(null);
                     showRecordScoreDialog(entryPoint);
                 } else {
@@ -994,9 +1006,6 @@ public class MainUiFragment extends Fragment {
 
         }
         displayNextColorBalls();
-
-        // show ads
-        // facebookInterstitialAds.showAd(TAG); // removed on 2018-10-02
     }
 
     public boolean getHasSound() {
@@ -1005,8 +1014,8 @@ public class MainUiFragment extends Fragment {
     public void setHasSound(boolean hasSound) {
         this.hasSound = hasSound;
     }
-    public void setIsQuitingGame(boolean isQuiting) {
-        isQuitingGame = isQuiting;
+    public ImageView getScoreImageView() {
+        return scoreImageView;
     }
 
     private class CalculateScore extends AsyncTask<Point, Integer, String[]> {
@@ -1019,7 +1028,6 @@ public class MainUiFragment extends Fragment {
         // private AlertDialogFragment scoreDialog;
 
         private Bitmap scoreBitmap;
-        private ViewGroup.LayoutParams scoreImageViewLp;
 
         @Override
         protected void onPreExecute() {
@@ -1049,18 +1057,6 @@ public class MainUiFragment extends Fragment {
 
             color = gridData.getCellValue(hashPoint[0].x, hashPoint[0].y);
 
-            /* removed on 2018-10-02
-            scoreDialog = new AlertDialogFragment();
-            Bundle args = new Bundle();
-            args.putString("textContent", "" + score);
-            args.putFloat("textSize", fontSizeForText * dialog_widthFactor * 2.0f);
-            args.putInt("color", Color.BLUE);
-            args.putInt("width", 0);    // wrap_content
-            args.putInt("height", 0);   // wrap_content
-            args.putInt("numButtons", 0);
-            scoreDialog.setArguments(args);
-            */
-
             int twinkleCountDown = 5;
             for (int i=1; i<=twinkleCountDown; i++) {
                 int md = i % 2; // modulus
@@ -1080,31 +1076,20 @@ public class MainUiFragment extends Fragment {
             switch (status[0]) {
                 case 0:
                     for (Point item : hashPoint) {
-                        // ImageView v = (ImageView) uiFragmentView.findViewById(item.x * colCounts + item.y);
                         ImageView v = uiFragmentView.findViewById(item.x * rowCounts + item.y);
                         drawBall(v, color);
                     }
                     break;
                 case 1:
                     for (Point item : hashPoint) {
-                        // ImageView v = (ImageView) uiFragmentView.findViewById(item.x * colCounts + item.y);
                         ImageView v = uiFragmentView.findViewById(item.x * rowCounts + item.y);
                         drawOval(v, color);
                     }
                     break;
                 case 2:
-                    FragmentManager fm = getActivity().getSupportFragmentManager();
-
-                    // scoreDialog.show(fm, ScoreDialogTag);    / removed on 2018-10-02
-
                     scoreImageView.setImageBitmap(scoreBitmap);
-
                     break;
                 case 3:
-                    System.out.println("MainUiFragment.Calculation is calling scoreDialog.dismissAllowingStateLoss()");
-                    // scoreDialog.dismiss();  // removed on 2018-06-18 because crash app under some situation
-                    // removed on 2018-10-02
-                    // scoreDialog.dismissAllowingStateLoss(); // added on 2018-06-18. Resolve the crash issue temporarily
                     break;
             }
 

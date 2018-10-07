@@ -24,7 +24,7 @@
     <string name="cancelStr">Cancel</string>
     <string name="submitStr">Send</string>
     <string name="nameStr">Input your name</string>
-    <string name="loadScore">Loading</string>
+    <string name="loadingString">Loading ...</string>
     <string name="undoStr">Undo</string>
     <string name="top10Str">Top 10</string>
     <string name="globalTop10Str">Global Top 10</string>
@@ -34,4 +34,5 @@
     <string name="onStr">On</string>
     <string name="offStr">Off</string>
 
+    <string name="showingAdsStr">Showing Ads ...</string>
 </resources>

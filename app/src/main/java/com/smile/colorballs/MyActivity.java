@@ -3,6 +3,8 @@ package com.smile.colorballs;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.media.FaceDetector;
@@ -24,12 +26,14 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.smile.alertdialogfragment.AlertDialogFragment;
 import com.smile.dao.PlayerRecordRest;
 import com.smile.facebookadsutil.*;
 import com.smile.scoresqlite.ScoreSQLite;
+import com.smile.utility.FontAndBitmapUtil;
 import com.smile.utility.ScreenUtil;
 
 import java.util.ArrayList;
@@ -366,33 +370,24 @@ public class MyActivity extends AppCompatActivity {
 
     private class ShowTop10Scores extends AsyncTask<Void,Integer,ArrayList<Pair<String, Integer>>> {
 
-        private static final String Top10LoadingDialog = "Top10LoadingDialogFragment";
-        private Animation animationText = null;
-        private AlertDialogFragment loadingDialog = null;
-
-        public ShowTop10Scores() {
-            System.out.println("ShowTop10Scores()->fontSizeForText = " + fontSizeForText);
-            System.out.println("ShowTop10Scores()->dialogFragment_widthFactor = " + dialogFragment_widthFactor);
-            loadingDialog = new AlertDialogFragment();
-            Bundle args = new Bundle();
-            args.putString("textContent", getResources().getString(R.string.loadScore));
-            args.putFloat("textSize", fontSizeForText * dialogFragment_widthFactor);
-            args.putInt("color", Color.RED);
-            args.putInt("width", 0);    // wrap_content
-            args.putInt("height", 0);   // wrap_content
-            args.putInt("numButtons", 0);
-            loadingDialog.setArguments(args);
-        }
+        private Bitmap loadingBitmap;
+        private String loadingString;
+        private ImageView scoreImageView;
 
         @Override
         protected void onPreExecute() {
+            loadingString = getResources().getString(R.string.loadingString);
+            scoreImageView = mainUiFragment.getScoreImageView();
+            scoreImageView.setVisibility(View.VISIBLE);
 
-            animationText = new AlphaAnimation(0.0f,1.0f);
-            animationText.setDuration(300);
-            animationText.setStartOffset(0);
-            animationText.setRepeatMode(Animation.REVERSE);
-            animationText.setRepeatCount(Animation.INFINITE);
-            loadingDialog.show(getSupportFragmentManager(), Top10LoadingDialog);
+            float fontSize = fontSizeForText;
+            double factor = 1.5;
+            Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.dialog_board_image);
+            int bmWidth = (int)(fontSize * loadingString.length() * factor);
+            int bmHeight = (int)(fontSize * factor * 6.0);
+            bm = Bitmap.createScaledBitmap(bm, bmWidth, bmHeight, false );  // scale
+
+            loadingBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(bm, loadingString, Color.RED);
         }
 
         @Override
@@ -405,11 +400,6 @@ public class MyActivity extends AppCompatActivity {
             try { Thread.sleep(1000); } catch (InterruptedException ex) { ex.printStackTrace(); }
 
             i = 1;
-            TextView textLoad = loadingDialog.getText_shown();
-            while (textLoad == null) {
-                textLoad = loadingDialog.getText_shown();
-                SystemClock.sleep(20);
-            }
 
             publishProgress(i);
 
@@ -420,21 +410,9 @@ public class MyActivity extends AppCompatActivity {
         @Override
         protected void onProgressUpdate(Integer... progress) {
             if (!isCancelled()) {
-                TextView textLoad = loadingDialog.getText_shown();
                 try {
-                    if (progress[0] == 0) {
-                        if (animationText != null) {
-                            textLoad.startAnimation(animationText);
-                        }
-                    } else {
-                        if (animationText != null) {
-                            textLoad.clearAnimation();
-                            animationText = null;
-                        }
-                        textLoad.setText("");
-                    }
+                    scoreImageView.setImageBitmap(loadingBitmap);
                 } catch (Exception ex) {
-                    System.out.println("MyActivity.ShowTop10Scores.onProgressUpdate() failed --> textLoad animation");
                     ex.printStackTrace();
                 }
             }
@@ -443,10 +421,10 @@ public class MyActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(ArrayList<Pair<String, Integer>> resultList) {
 
+            scoreImageView.setImageBitmap(null);
+            scoreImageView.setVisibility(View.GONE);
+
             if (!isCancelled()) {
-                System.out.println("MyActivity.ShowTop10Scores() ---> calling loadingDialog.dismissAllowingStateLoss()");
-                // loadingDialog.dismiss(); // removed on 2018-06-18
-                loadingDialog.dismissAllowingStateLoss();   // added on 2018-06-18
                 ArrayList<String> playerNames = new ArrayList<>();
                 ArrayList<Integer> playerScores = new ArrayList<>();
                 for (Pair pair : resultList) {
@@ -467,8 +445,6 @@ public class MyActivity extends AppCompatActivity {
                                     ft.remove(top10ScoreFragment);
                                     // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                                     ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-
-                                    // FacebookAds.showAd(TAG);
                                 }
                             }
                         });
@@ -483,8 +459,6 @@ public class MyActivity extends AppCompatActivity {
                         }
                         // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                         ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-
-                        System.out.println("MyActivity.ShowTop10Scores() -----> top10ScoreFragment is created.");
                     }
                 } else {
                     // for Portrait
@@ -515,7 +489,7 @@ public class MyActivity extends AppCompatActivity {
             System.out.println("ShowGlobalTop10()->dialogFragment_widthFactor = " + dialogFragment_widthFactor);
             loadingDialog = new AlertDialogFragment();
             Bundle args = new Bundle();
-            args.putString("textContent", getResources().getString(R.string.loadScore));
+            args.putString("textContent", getResources().getString(R.string.loadingString));
             args.putFloat("textSize", fontSizeForText * dialogFragment_widthFactor);
             args.putInt("color", Color.RED);
             args.putInt("width", 0);    // wrap_content
