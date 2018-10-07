@@ -53,8 +53,8 @@ public class MainUiFragment extends Fragment {
 
     // public properties
     public static final String MainUiFragmentTag = new String("MainUiFragmentTag");
-    public final static int MINB = 3;
-    public final static int MAXB = 4;
+    public static final int MINB = 3;
+    public static final int MAXB = 4;
 
     // private properties for this color balls game
     private OnFragmentInteractionListener mListener;
@@ -104,7 +104,7 @@ public class MainUiFragment extends Fragment {
     private float dialogFragment_heightFactor = dialog_heightFactor;
 
     private boolean hasSound = true;    // has sound effect
-
+    private boolean isQuitingGame = false;    // quiting game
 
     // private properties facebook ads
     // private FacebookInterstitialAds facebookInterstitialAds = null;
@@ -197,8 +197,6 @@ public class MainUiFragment extends Fragment {
         dialog_heightFactor = myActivity.getDialog_heightFactor();
         dialogFragment_widthFactor = myActivity.getDialogFragment_widthFactor();
         dialogFragment_heightFactor = myActivity.getDialogFragment_heightFactor();
-
-        // facebookInterstitialAds = myActivity.getFacebookInterstitialAds();
 
         Point size = new Point();
         ScreenUtil.getScreenSize(context, size);
@@ -332,7 +330,7 @@ public class MainUiFragment extends Fragment {
                 imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(completedAll()) {
+                        if ( (completedAll()) && (!isQuitingGame) ) {
                             doDrawBallsAndCheckListener(v);
                         }
                     }
@@ -377,7 +375,8 @@ public class MainUiFragment extends Fragment {
         if ( (savedInstanceState == null) || (gridData == null) ) {
             // start a new game (no savedInstanceState)
             // or gridData is null (for some unknown reason)
-            isEasyLevel = true;   // start with easy level
+            isQuitingGame = false;  // new game
+            isEasyLevel = true;     // start with easy level
             gridData = new GridData(rowCounts, colCounts, MINB, MINB);  // easy level (3 balls for next balls)
             displayGridDataNextCells();
 
@@ -751,9 +750,12 @@ public class MainUiFragment extends Fragment {
 
         // must use the following to let MyActivity have new instance of Fragment
         // recreate MyActivity like new start (no savedInstanceState)
+        /*
         Intent intent = myActivity.getIntent();
         myActivity.finish();
         startActivity(intent);
+        */
+        myActivity.reStartApplication();   // restart the game
     }
 
     private void setDialogStyle(DialogInterface dialog) {
@@ -881,11 +883,7 @@ public class MainUiFragment extends Fragment {
         displayNextBallsView();
     }
 
-    public void newGame() {
-        recordScore(1);   //   START A NEW GAME
-    }
-
-    public void recordScore(final int entryPoint) {
+    private void showRecordScoreDialog(final int entryPoint) {
         final EditText et = new EditText(myActivity);
         et.setTextSize(fontSizeForText);
         et.setTextColor(Color.BLUE);
@@ -952,9 +950,31 @@ public class MainUiFragment extends Fragment {
         });
 
         alertD.show();
+    }
 
-        // show ads
-        // facebookInterstitialAds.showAd(TAG); // removed on 2018-10-02
+    public void newGame() {
+        recordScore(1);   //   START A NEW GAME
+    }
+
+    public void recordScore(final int entryPoint) {
+
+        isQuitingGame = true;
+        myActivity.FacebookAds.showAd(TAG);
+
+        final Handler handlerClose = new Handler();
+        final int timeDelay = 300;
+        handlerClose.postDelayed(new Runnable() {
+            public void run() {
+                if (myActivity.FacebookAds.adsShowDismissedOrStopped()) {
+                    // new game
+                    System.out.println("MainUiFragment ---> facebook ads dismissed.");
+                    handlerClose.removeCallbacksAndMessages(null);
+                    showRecordScoreDialog(entryPoint);
+                } else {
+                    handlerClose.postDelayed(this, timeDelay);
+                }
+            }
+        },timeDelay);
     }
 
     public boolean getIsEasyLevel() {
@@ -984,6 +1004,9 @@ public class MainUiFragment extends Fragment {
     }
     public void setHasSound(boolean hasSound) {
         this.hasSound = hasSound;
+    }
+    public void setIsQuitingGame(boolean isQuiting) {
+        isQuitingGame = isQuiting;
     }
 
     private class CalculateScore extends AsyncTask<Point, Integer, String[]> {

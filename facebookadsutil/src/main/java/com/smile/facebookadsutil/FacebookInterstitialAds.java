@@ -9,15 +9,22 @@ public class FacebookInterstitialAds {
 
     private final String TAG = new String("com.smile.facebookadsutil.FacebookInterstitialAds");
     private static final int MAX_NUMBER_OF_RETRIES = 3;
-    private static boolean shouldLoadAd = true;
+    private boolean shouldLoadAd = true;
 
     private final Context context;
     private InterstitialAd interstitialAd;
     private int retryCount = 0;
+    private boolean isDisplayed = false;
+    private boolean isDismissed = false;
 
     public FacebookInterstitialAds(final Context context, String placementID) {
 
         this.context = context;
+        isDisplayed = false;
+        shouldLoadAd = true;
+
+        Log.d(TAG, "isDisplayed = " + isDisplayed);
+        Log.d(TAG, "shouldLoadAd = " + shouldLoadAd);
 
         // for facebook ads
         // Instantiate an InterstitialAd object.
@@ -34,8 +41,9 @@ public class FacebookInterstitialAds {
             @Override
             public void onInterstitialDisplayed(Ad ad) {
                 // Interstitial ad displayed callback
-                shouldLoadAd = false;
+                shouldLoadAd = true;
                 retryCount = 0;
+                isDisplayed = true;
                 Log.e(TAG, "Interstitial ad displayed.");
             }
 
@@ -44,6 +52,8 @@ public class FacebookInterstitialAds {
                 // Interstitial dismissed callback
                 shouldLoadAd = true;
                 retryCount = 0;
+                isDisplayed = true;
+                isDismissed = true;
                 Log.e(TAG, "Interstitial ad dismissed.");
             }
 
@@ -69,12 +79,15 @@ public class FacebookInterstitialAds {
                 Log.d(TAG, "Interstitial ad is loaded and ready to be displayed!");
                 // Show the ad
                 shouldLoadAd = false;
+                isDisplayed = false;
                 interstitialAd.show();
             }
 
             @Override
             public void onAdClicked(Ad ad) {
                 // Ad clicked callback
+                shouldLoadAd = true;
+                isDisplayed = true;
                 Log.d(TAG, "Interstitial ad clicked!");
             }
 
@@ -82,7 +95,8 @@ public class FacebookInterstitialAds {
             public void onLoggingImpression(Ad ad) {
                 // Ad impression logged callback
                 // after displayed
-                shouldLoadAd = false;
+                shouldLoadAd = true;
+                isDisplayed = true;
                 Log.d(TAG, "Interstitial ad impression logged!");
             }
         });
@@ -90,10 +104,20 @@ public class FacebookInterstitialAds {
 
     public void showAd(String callingObject) {
         Log.e(TAG, callingObject + " calling showAd() method.");
+        isDisplayed = false;
+        isDismissed = false;
         if (shouldLoadAd) {
             Log.e(TAG, callingObject + " loading Ad now.");
             interstitialAd.loadAd();
         }
+    }
+
+    public boolean adsShowDoneOrStopped() {
+        return (isDisplayed || (retryCount>= MAX_NUMBER_OF_RETRIES));
+    }
+
+    public boolean adsShowDismissedOrStopped() {
+        return (isDismissed || (retryCount>= MAX_NUMBER_OF_RETRIES));
     }
 
     public void close() {

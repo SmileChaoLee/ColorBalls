@@ -85,8 +85,8 @@ public class Top10ScoreActivity extends AppCompatActivity {
             ft.replace(top10LayoutId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
         }
         ft.commit();
-        System.out.println("Top10ScoreActivity.onCreate() -----> top10ScoreFragment is created.");
 
+        System.out.println("Top10ScoreActivity.onCreate() -----> top10ScoreFragment is created.");
         System.out.println("Top10ScoreActivity.onCreate().");
     }
 

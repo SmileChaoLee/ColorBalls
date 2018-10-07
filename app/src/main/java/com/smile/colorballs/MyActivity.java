@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.media.FaceDetector;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -57,17 +59,27 @@ public class MyActivity extends AppCompatActivity {
     private float dialogFragment_widthFactor = dialog_widthFactor;
     private float dialogFragment_heightFactor = dialog_heightFactor;
 
-    // private properties facebook ads
-    private FacebookInterstitialAds facebookInterstitialAds = null;
-
     // public properties
+    public final FacebookInterstitialAds FacebookAds;
     public static final int SettingActivityRequestCode = 1;
     public static final int Top10ScoreActivityRequestCode = 2;
     public static final int GlobalTop10ActivityRequestCode = 3;
 
     // public static final String REST_Website = new String("http://192.168.0.11:5000/Playerscore");
     public static final String REST_Website = new String("    http://ec2-13-59-195-3.us-east-2.compute.amazonaws.com/Playerscore");
+
     public MyActivity() {
+        String facebookPlacementID = new String("200699663911258_200701030577788"); // for colorballs
+        if (BuildConfig.APPLICATION_ID == "com.smile.colorballs") {
+            facebookPlacementID = new String("200699663911258_200701030577788"); // for colorballs
+        } else if (BuildConfig.APPLICATION_ID == "com.smile.fivecolorballs") {
+            facebookPlacementID = new String("241884113266033_241884616599316"); // for fivecolorballs
+        } else {
+            // default
+        }
+        System.out.println("BuildConfig.APPLICATION_ID = " + BuildConfig.APPLICATION_ID);
+
+        FacebookAds = new FacebookInterstitialAds(ColorBallsApp.AppContext, facebookPlacementID);
         System.out.println("MyActivity ---> Constructor");
         scoreSQLite = new ScoreSQLite(MyActivity.this);
     }
@@ -98,7 +110,8 @@ public class MyActivity extends AppCompatActivity {
         fontSizeForText = 24;   // default for portrait of cell phone
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // Landscape
-            if (screenWidth >= 2000) {
+            // if (screenWidth >= 2000) {
+            if (ScreenUtil.isTablet(this)) {
                 // assume Tablet
                 fontSizeForText = 32;
             } else {
@@ -119,7 +132,8 @@ public class MyActivity extends AppCompatActivity {
             dialogFragment_heightFactor = dialog_heightFactor * 2.0f;
         } else {
             // portrait
-            if (screenWidth >= 1300) {
+            // if (screenWidth >= 1300) {
+            if (ScreenUtil.isTablet(this)) {
                 // assume Tablet
                 fontSizeForText = 48;
             } else {
@@ -171,18 +185,6 @@ public class MyActivity extends AppCompatActivity {
             }
         }
 
-        System.out.println("Package Name = " + getPackageName());
-
-        String facebookPlacementID = new String("200699663911258_200701030577788"); // for colorballs
-        if (BuildConfig.APPLICATION_ID == "com.smile.colorballs") {
-            facebookPlacementID = new String("200699663911258_200701030577788"); // for colorballs
-        } else if (BuildConfig.APPLICATION_ID == "com.smile.fivecolorballs") {
-            facebookPlacementID = new String("241884113266033_241884616599316"); // for fivecolorballs
-        } else {
-            // default
-        }
-        facebookInterstitialAds = new FacebookInterstitialAds(this, facebookPlacementID);
-
         // for AdBuddiz ads removed on 2018-07-03
         // AdBuddiz.setPublisherKey("57c7153c-35dd-488a-beaa-3cae8b3ab668");
     }
@@ -205,12 +207,12 @@ public class MyActivity extends AppCompatActivity {
             case Top10ScoreActivityRequestCode:
                 // show ads
                 Log.i(TAG, "Facebook showing ads");
-                facebookInterstitialAds.showAd(TAG);
+                // FacebookAds.showAd(TAG);
                 break;
             case GlobalTop10ActivityRequestCode:
                 // show ads
                 Log.i(TAG, "Facebook showing ads");
-                facebookInterstitialAds.showAd(TAG);
+                // FacebookAds.showAd(TAG);
                 break;
         }
     }
@@ -291,8 +293,8 @@ public class MyActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         if (isFinishing()) {
-            if (facebookInterstitialAds != null) {
-                facebookInterstitialAds.close();
+            if (FacebookAds != null) {
+                FacebookAds.close();
             }
         }
         super.onDestroy();
@@ -306,8 +308,28 @@ public class MyActivity extends AppCompatActivity {
     }
 
     public void quitApplication() {
-        facebookInterstitialAds.showAd(TAG);
-        finish();
+        final Handler handlerClose = new Handler();
+        final int timeDelay = 300;
+        handlerClose.postDelayed(new Runnable() {
+            public void run() {
+                // quit game
+                finish();
+            }
+        },timeDelay);
+    }
+
+    public void reStartApplication()
+    {
+        final Handler handlerClose = new Handler();
+        final int timeDelay = 300;
+        handlerClose.postDelayed(new Runnable() {
+            public void run() {
+                // restart this MyActivity, new game
+                Intent myIntent = getIntent();
+                finish();
+                startActivity(myIntent);
+            }
+        },timeDelay);
     }
 
     public ScoreSQLite getScoreSQLite() {
@@ -446,7 +468,7 @@ public class MyActivity extends AppCompatActivity {
                                     // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                                     ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
 
-                                    facebookInterstitialAds.showAd(TAG);
+                                    // FacebookAds.showAd(TAG);
                                 }
                             }
                         });
@@ -620,7 +642,7 @@ public class MyActivity extends AppCompatActivity {
                                     // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                                     ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
 
-                                    facebookInterstitialAds.showAd(TAG);
+                                    // FacebookAds.showAd(TAG);
                                 }
                             }
                         });
