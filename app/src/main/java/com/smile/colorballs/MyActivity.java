@@ -64,7 +64,7 @@ public class MyActivity extends AppCompatActivity {
     private float dialogFragment_heightFactor = dialog_heightFactor;
 
     // public properties
-    public final FacebookInterstitialAds FacebookAds;
+    // public final FacebookInterstitialAds FacebookAds;
     public static final int SettingActivityRequestCode = 1;
     public static final int Top10ScoreActivityRequestCode = 2;
     public static final int GlobalTop10ActivityRequestCode = 3;
@@ -73,6 +73,8 @@ public class MyActivity extends AppCompatActivity {
     public static final String REST_Website = new String("    http://ec2-13-59-195-3.us-east-2.compute.amazonaws.com/Playerscore");
 
     public MyActivity() {
+
+        /*
         String facebookPlacementID = new String("200699663911258_200701030577788"); // for colorballs
         if (BuildConfig.APPLICATION_ID == "com.smile.colorballs") {
             facebookPlacementID = new String("200699663911258_200701030577788"); // for colorballs
@@ -82,8 +84,9 @@ public class MyActivity extends AppCompatActivity {
             // default
         }
         System.out.println("BuildConfig.APPLICATION_ID = " + BuildConfig.APPLICATION_ID);
-
         FacebookAds = new FacebookInterstitialAds(ColorBallsApp.AppContext, facebookPlacementID);
+        */
+
         System.out.println("MyActivity ---> Constructor");
         scoreSQLite = new ScoreSQLite(MyActivity.this);
     }
@@ -297,9 +300,11 @@ public class MyActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         if (isFinishing()) {
+            /*
             if (FacebookAds != null) {
                 FacebookAds.close();
             }
+            */
         }
         super.onDestroy();
     }
@@ -312,6 +317,7 @@ public class MyActivity extends AppCompatActivity {
     }
 
     public void quitApplication() {
+        /*
         final Handler handlerClose = new Handler();
         final int timeDelay = 300;
         handlerClose.postDelayed(new Runnable() {
@@ -320,6 +326,8 @@ public class MyActivity extends AppCompatActivity {
                 finish();
             }
         },timeDelay);
+        */
+        finish();
     }
 
     public void reStartApplication()
