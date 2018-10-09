@@ -31,7 +31,6 @@ import android.widget.TextView;
 
 import com.smile.alertdialogfragment.AlertDialogFragment;
 import com.smile.dao.PlayerRecordRest;
-import com.smile.facebookadsutil.*;
 import com.smile.scoresqlite.ScoreSQLite;
 import com.smile.utility.FontAndBitmapUtil;
 import com.smile.utility.ScreenUtil;
@@ -52,6 +51,7 @@ public class MyActivity extends AppCompatActivity {
     private ScoreSQLite scoreSQLite = null;
     private int mainUiLayoutId = -1;
     private int top10LayoutId = -1;
+    private View historyView;
 
     private MainUiFragment mainUiFragment = null;
     private Top10ScoreFragment top10ScoreFragment = null;
@@ -64,7 +64,6 @@ public class MyActivity extends AppCompatActivity {
     private float dialogFragment_heightFactor = dialog_heightFactor;
 
     // public properties
-    // public final FacebookInterstitialAds FacebookAds;
     public static final int SettingActivityRequestCode = 1;
     public static final int Top10ScoreActivityRequestCode = 2;
     public static final int GlobalTop10ActivityRequestCode = 3;
@@ -73,21 +72,6 @@ public class MyActivity extends AppCompatActivity {
     public static final String REST_Website = new String("    http://ec2-13-59-195-3.us-east-2.compute.amazonaws.com/Playerscore");
 
     public MyActivity() {
-
-        /*
-        String facebookPlacementID = new String("200699663911258_200701030577788"); // for colorballs
-        if (BuildConfig.APPLICATION_ID == "com.smile.colorballs") {
-            facebookPlacementID = new String("200699663911258_200701030577788"); // for colorballs
-        } else if (BuildConfig.APPLICATION_ID == "com.smile.fivecolorballs") {
-            facebookPlacementID = new String("241884113266033_241884616599316"); // for fivecolorballs
-        } else {
-            // default
-        }
-        System.out.println("BuildConfig.APPLICATION_ID = " + BuildConfig.APPLICATION_ID);
-        FacebookAds = new FacebookInterstitialAds(ColorBallsApp.AppContext, facebookPlacementID);
-        */
-
-        System.out.println("MyActivity ---> Constructor");
         scoreSQLite = new ScoreSQLite(MyActivity.this);
     }
 
@@ -191,7 +175,6 @@ public class MyActivity extends AppCompatActivity {
                 System.out.println("MyActivity -----> mainUiFragment is created.");
             }
         }
-
         // for AdBuddiz ads removed on 2018-07-03
         // AdBuddiz.setPublisherKey("57c7153c-35dd-488a-beaa-3cae8b3ab668");
     }
@@ -299,13 +282,6 @@ public class MyActivity extends AppCompatActivity {
 
     @Override
     public void onDestroy() {
-        if (isFinishing()) {
-            /*
-            if (FacebookAds != null) {
-                FacebookAds.close();
-            }
-            */
-        }
         super.onDestroy();
     }
 
@@ -317,7 +293,6 @@ public class MyActivity extends AppCompatActivity {
     }
 
     public void quitApplication() {
-        /*
         final Handler handlerClose = new Handler();
         final int timeDelay = 300;
         handlerClose.postDelayed(new Runnable() {
@@ -326,8 +301,6 @@ public class MyActivity extends AppCompatActivity {
                 finish();
             }
         },timeDelay);
-        */
-        finish();
     }
 
     public void reStartApplication()
@@ -369,11 +342,24 @@ public class MyActivity extends AppCompatActivity {
     }
 
     public void showTop10ScoreHistory() {
-        new ShowTop10Scores().execute();
+        MainUiFragment.ShowFacebookAdsAsyncTask showAdsAsyncTask = mainUiFragment.new ShowFacebookAdsAsyncTask(0, new MainUiFragment.AfterDismissFunctionOfShowFacebookAds() {
+            @Override
+            public void executeAfterDismissAds(int endPoint) {
+                new ShowTop10Scores().execute();
+            }
+        });
+        showAdsAsyncTask.execute();
+
     }
 
     public void showGlobalTop10History() {
-        new ShowGlobalTop10().execute();
+        MainUiFragment.ShowFacebookAdsAsyncTask showAdsAsyncTask = mainUiFragment.new ShowFacebookAdsAsyncTask(0, new MainUiFragment.AfterDismissFunctionOfShowFacebookAds() {
+            @Override
+            public void executeAfterDismissAds(int endPoint) {
+                new ShowGlobalTop10().execute();
+            }
+        });
+        showAdsAsyncTask.execute();
     }
 
     private class ShowTop10Scores extends AsyncTask<Void,Integer,ArrayList<Pair<String, Integer>>> {
