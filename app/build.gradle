@@ -48,4 +48,5 @@ dependencies {
     implementation project(':scoresqlite')
     implementation project(':facebookadsutil')
     implementation project(':alertdialogfragment')
+    implementation 'org.jetbrains:annotations-java5:15.0'
 }

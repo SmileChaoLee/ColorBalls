@@ -70,8 +70,6 @@ public class GlobalTop10Activity extends AppCompatActivity {
         }
         ft.commit();
         System.out.println("GlobalTop10Activity.onCreate() -----> globalTop10Fragment is created.");
-
-        System.out.println("GlobalTop10Activity.onCreate().");
     }
 
     @Override

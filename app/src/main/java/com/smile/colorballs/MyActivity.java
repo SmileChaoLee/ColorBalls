@@ -1,19 +1,23 @@
 package com.smile.colorballs;
 
 import android.app.Activity;
+import android.app.IntentService;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.drm.DrmStore;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.media.FaceDetector;
 import android.os.AsyncTask;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
@@ -22,14 +26,10 @@ import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.smile.alertdialogfragment.AlertDialogFragment;
 import com.smile.dao.PlayerRecordRest;
 import com.smile.scoresqlite.ScoreSQLite;
 import com.smile.utility.FontAndBitmapUtil;
@@ -37,8 +37,6 @@ import com.smile.utility.ScreenUtil;
 
 import java.util.ArrayList;
 import java.util.Locale;
-
-// import com.purplebrain.adbuddiz.sdk.AdBuddiz;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -56,6 +54,7 @@ public class MyActivity extends AppCompatActivity {
     private MainUiFragment mainUiFragment = null;
     private Top10ScoreFragment top10ScoreFragment = null;
     private GlobalTop10Fragment globalTop10Fragment = null;
+    private MyBroadcastReceiver myReceiver;
 
     private int fontSizeForText = 24;
     private float dialog_widthFactor = 1.0f;
@@ -175,6 +174,8 @@ public class MyActivity extends AppCompatActivity {
                 System.out.println("MyActivity -----> mainUiFragment is created.");
             }
         }
+
+        myReceiver = new MyBroadcastReceiver();
         // for AdBuddiz ads removed on 2018-07-03
         // AdBuddiz.setPublisherKey("57c7153c-35dd-488a-beaa-3cae8b3ab668");
     }
@@ -281,6 +282,22 @@ public class MyActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MyGlobalTop10IntentService.Action_Name);
+        localBroadcastManager.registerReceiver(myReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        localBroadcastManager.unregisterReceiver(myReceiver);
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
     }
@@ -353,6 +370,8 @@ public class MyActivity extends AppCompatActivity {
     }
 
     public void showGlobalTop10History() {
+
+        /*
         MainUiFragment.ShowFacebookAdsAsyncTask showAdsAsyncTask = mainUiFragment.new ShowFacebookAdsAsyncTask(0, new MainUiFragment.AfterDismissFunctionOfShowFacebookAds() {
             @Override
             public void executeAfterDismissAds(int endPoint) {
@@ -360,6 +379,127 @@ public class MyActivity extends AppCompatActivity {
             }
         });
         showAdsAsyncTask.execute();
+        */
+
+        Intent myIntentService = new Intent(this, MyGlobalTop10IntentService.class);
+        startService(myIntentService);
+    }
+
+    private class MyBroadcastReceiver extends BroadcastReceiver {
+
+        private final String SUCCEEDED = "0";
+        private final String FAILED = "1";
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null) {
+                String actionName = intent.getAction();
+                if (actionName == MyGlobalTop10IntentService.Action_Name) {
+                    Bundle extras = intent.getExtras();
+                    ArrayList<String> playerNames = new ArrayList<>();
+                    ArrayList<Integer> playerScores = new ArrayList<>();
+                    String[] result = extras.getStringArray("RESULT");
+                    String status = result[0].toUpperCase();
+                    if (status.equals(SUCCEEDED)) {
+                        // Succeeded
+                        try {
+                            JSONArray jArray = new JSONArray(result[1]);
+                            for (int i=0; i<jArray.length(); i++) {
+                                JSONObject jo = jArray.getJSONObject(i);
+                                playerNames.add(jo.getString("PlayerName"));
+                                playerScores.add(jo.getInt("Score"));
+                            }
+
+                        } catch(JSONException ex) {
+                            String errorMsg = ex.toString();
+                            Log.d(TAG, "Failed to parse JSONObject from the result." + "\n" + errorMsg);
+                            ex.printStackTrace();
+                            playerNames.add("JSONException->JSONArray");
+                            playerScores.add(0);
+                        }
+
+                    } else if (status.equals(FAILED)) {
+                        // Failed
+                        Log.d(TAG, "Failed to get global top 10.");
+                        playerNames.add("Web Connection Failed.");
+                        playerScores.add(0);
+                    } else {
+                        // Exception
+                        Log.d(TAG, "Failed to get global top 10 because of exception.");
+                        playerNames.add("Exception on Web read.");
+                        playerScores.add(0);
+                    }
+
+                    View historyView = findViewById(top10LayoutId);
+                    if (historyView != null) {
+                        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                            globalTop10Fragment = GlobalTop10Fragment.newInstance(playerNames, playerScores, fontSizeForText, new GlobalTop10Fragment.GlobalTop10OkButtonListener() {
+                                @Override
+                                public void buttonOkClick(Activity activity) {
+                                    if (globalTop10Fragment != null) {
+                                        // remove GlobalTop10Fragment to dismiss the top 10 score screen
+                                        FragmentManager fmManager = getSupportFragmentManager();
+                                        FragmentTransaction ft = fmManager.beginTransaction();
+                                        ft.remove(globalTop10Fragment);
+                                        // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
+                                        ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
+                                    }
+                                }
+                            });
+                            FragmentManager fmManager = getSupportFragmentManager();
+                            FragmentTransaction ft = fmManager.beginTransaction();
+                            ft = fmManager.beginTransaction();
+                            Fragment currentGlobalTop10Fragment = fmManager.findFragmentByTag(GlobalTop10Fragment.GlobalTop10FragmentTag);
+                            if (currentGlobalTop10Fragment == null) {
+                                ft.add(top10LayoutId, globalTop10Fragment, GlobalTop10Fragment.GlobalTop10FragmentTag);
+                            } else {
+                                ft.replace(top10LayoutId, globalTop10Fragment, GlobalTop10Fragment.GlobalTop10FragmentTag);
+                            }
+                            // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
+                            ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
+                        }
+                    } else {
+                        System.out.println("The length of player names = " + playerNames.size());
+                        // for Portrait
+                        globalTop10Fragment = null;
+                        Intent globalTop10Intent = new Intent(getApplicationContext(), GlobalTop10Activity.class);
+                        Bundle globalTop10Extras = new Bundle();
+                        globalTop10Extras.putStringArrayList("Top10Players", playerNames);
+                        globalTop10Extras.putIntegerArrayList("Top10Scores", playerScores);
+                        globalTop10Extras.putInt("FontSizeForText", fontSizeForText);
+                        globalTop10Intent.putExtras(globalTop10Extras);
+                        startActivityForResult(globalTop10Intent, GlobalTop10ActivityRequestCode);
+                    }
+                }
+            }
+        }
+    }
+
+    public static class MyGlobalTop10IntentService extends IntentService {
+
+        public final static String Action_Name = "MyIntentService";
+
+        public MyGlobalTop10IntentService() {
+            super(Action_Name);
+        }
+
+        @Override
+        protected void onHandleIntent(Intent intent) {
+
+            System.out.println("MyIntentService --> onHandleIntent() is called.");
+            String webUrl = new String(REST_Website + "/GetTop10PlayerscoresREST");   // ASP.NET Core
+            String[] result = PlayerRecordRest.getTop10Scores(webUrl);
+
+            // wait for one second
+            try { Thread.sleep(3000); } catch (InterruptedException ex) { ex.printStackTrace(); }
+
+            Intent notificationIntent = new Intent(Action_Name);
+            Bundle extras = new Bundle();
+            extras.putStringArray("RESULT", result);
+            notificationIntent.putExtras(extras);
+            LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
+            localBroadcastManager.sendBroadcast(notificationIntent);
+        }
     }
 
     private class ShowTop10Scores extends AsyncTask<Void,Integer,ArrayList<Pair<String, Integer>>> {

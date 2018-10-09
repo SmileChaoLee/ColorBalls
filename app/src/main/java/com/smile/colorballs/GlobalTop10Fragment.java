@@ -87,7 +87,6 @@ public class GlobalTop10Fragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // setRetainInstance(false);    // removed on 2018-06-14
         setRetainInstance(true);    // added on 2018-06-14
 
         // if statement was added on 2018-06-14

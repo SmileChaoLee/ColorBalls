@@ -35,6 +35,11 @@
             android:name=".GlobalTop10Activity"
             android:label="@string/title_activity_global" >
         </activity>
+        <service
+            android:name=".MyActivity$MyGlobalTop10IntentService"
+            android:enabled="true"
+            android:exported="false">
+        </service>
     </application>
 
 </manifest>
