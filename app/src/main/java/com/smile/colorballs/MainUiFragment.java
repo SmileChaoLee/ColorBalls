@@ -903,19 +903,39 @@ public class MainUiFragment extends Fragment {
         displayGameGridView();
     }
 
-    // public methods
     private GridData getGridData() {
         return this.gridData;
     }
 
     private void displayNextColorBalls() {
-
         gridData.randColors();  //   next  balls
         //   display the balls on the nextBallsView
         displayNextBallsView();
     }
 
-    private void showRecordScoreDialog(final int entryPoint) {
+    private void showFacebookAdsAndNewGameOrQuit(final int entryPoint) {
+        ShowFacebookAdsAsyncTask showAdsAsyncTask = new ShowFacebookAdsAsyncTask(entryPoint, new AfterDismissFunctionOfShowFacebookAds() {
+            @Override
+            public void executeAfterDismissAds(int endPoint) {
+                if (entryPoint==0) {
+                    //  END PROGRAM
+                    myActivity.quitApplication();
+                } else if (entryPoint==1) {
+                    //  NEW GAME
+                    flushALLandBegin();
+                }
+            }
+        });
+        showAdsAsyncTask.execute();
+    }
+
+
+    // pub;ic methods
+    public void newGame() {
+        recordScore(1);   //   START A NEW GAME
+    }
+
+    public void recordScore(final int entryPoint) {
         final EditText et = new EditText(myActivity);
         et.setTextSize(fontSizeForText);
         et.setTextColor(Color.BLUE);
@@ -932,20 +952,13 @@ public class MainUiFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                if (entryPoint==0) {
-                    //  END PROGRAM
-                    myActivity.quitApplication();
-                } else if (entryPoint==1) {
-                    //  NEW GAME
-                    flushALLandBegin();
-                }
+                showFacebookAdsAndNewGameOrQuit(entryPoint);
             }
         });
         alertD.setButton(DialogInterface.BUTTON_POSITIVE, submitStr, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-
                 // use thread to add a record to database (remote database on AWS-EC2)
                 Thread restThread = new Thread() {
                     @Override
@@ -963,14 +976,9 @@ public class MainUiFragment extends Fragment {
                     }
                 };
                 restThread.start();
-
                 scoreSQLite.addScore(et.getText().toString(),currentScore);
-                if (entryPoint==0) {
-                    myActivity.quitApplication();
-                } else if (entryPoint==1) {
-                    //  NEW GAME
-                    flushALLandBegin();
-                }
+
+                showFacebookAdsAndNewGameOrQuit(entryPoint);
             }
         });
 
@@ -982,21 +990,6 @@ public class MainUiFragment extends Fragment {
         });
 
         alertD.show();
-    }
-
-    public void newGame() {
-        recordScore(1);   //   START A NEW GAME
-    }
-
-    public void recordScore(final int entryPoint) {
-
-        ShowFacebookAdsAsyncTask showAdsAsyncTask = new ShowFacebookAdsAsyncTask(entryPoint, new AfterDismissFunctionOfShowFacebookAds() {
-            @Override
-            public void executeAfterDismissAds(int endPoint) {
-                showRecordScoreDialog(entryPoint);
-            }
-        });
-        showAdsAsyncTask.execute();
     }
 
 

@@ -371,18 +371,26 @@ public class MyActivity extends AppCompatActivity {
 
     public void showGlobalTop10History() {
 
-        /*
         MainUiFragment.ShowFacebookAdsAsyncTask showAdsAsyncTask = mainUiFragment.new ShowFacebookAdsAsyncTask(0, new MainUiFragment.AfterDismissFunctionOfShowFacebookAds() {
             @Override
             public void executeAfterDismissAds(int endPoint) {
-                new ShowGlobalTop10().execute();
+                // new ShowGlobalTop10().execute();
+                String loadingString = getResources().getString(R.string.loadingString);
+                ImageView scoreImageView = mainUiFragment.getScoreImageView();
+                scoreImageView.setVisibility(View.VISIBLE);
+                float fontSize = fontSizeForText;
+                double factor = 1.5;
+                Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.dialog_board_image);
+                int bmWidth = (int)(fontSize * loadingString.length() * factor);
+                int bmHeight = (int)(fontSize * factor * 6.0);
+                bm = Bitmap.createScaledBitmap(bm, bmWidth, bmHeight, false );  // scale
+                Bitmap loadingBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(bm, loadingString, Color.RED);
+
+                Intent myIntentService = new Intent(MyActivity.this, MyGlobalTop10IntentService.class);
+                startService(myIntentService);
             }
         });
         showAdsAsyncTask.execute();
-        */
-
-        Intent myIntentService = new Intent(this, MyGlobalTop10IntentService.class);
-        startService(myIntentService);
     }
 
     private class MyBroadcastReceiver extends BroadcastReceiver {
@@ -412,7 +420,6 @@ public class MyActivity extends AppCompatActivity {
 
                         } catch(JSONException ex) {
                             String errorMsg = ex.toString();
-                            Log.d(TAG, "Failed to parse JSONObject from the result." + "\n" + errorMsg);
                             ex.printStackTrace();
                             playerNames.add("JSONException->JSONArray");
                             playerScores.add(0);
@@ -420,12 +427,10 @@ public class MyActivity extends AppCompatActivity {
 
                     } else if (status.equals(FAILED)) {
                         // Failed
-                        Log.d(TAG, "Failed to get global top 10.");
                         playerNames.add("Web Connection Failed.");
                         playerScores.add(0);
                     } else {
                         // Exception
-                        Log.d(TAG, "Failed to get global top 10 because of exception.");
                         playerNames.add("Exception on Web read.");
                         playerScores.add(0);
                     }
@@ -491,7 +496,7 @@ public class MyActivity extends AppCompatActivity {
             String[] result = PlayerRecordRest.getTop10Scores(webUrl);
 
             // wait for one second
-            try { Thread.sleep(3000); } catch (InterruptedException ex) { ex.printStackTrace(); }
+            try { Thread.sleep(2000); } catch (InterruptedException ex) { ex.printStackTrace(); }
 
             Intent notificationIntent = new Intent(Action_Name);
             Bundle extras = new Bundle();
