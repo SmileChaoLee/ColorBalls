@@ -104,10 +104,10 @@ public class FacebookInterstitialAds {
 
     public void showAd(String callingObject) {
         Log.e(TAG, callingObject + " calling showAd() method.");
-        isDisplayed = false;
-        isDismissed = false;
         if (shouldLoadAd) {
             Log.e(TAG, callingObject + " loading Ad now.");
+            isDisplayed = false;
+            isDismissed = false;
             interstitialAd.loadAd();
         }
     }

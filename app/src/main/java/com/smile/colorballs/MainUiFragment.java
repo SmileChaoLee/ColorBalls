@@ -2,6 +2,7 @@ package com.smile.colorballs;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -32,6 +33,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.smile.Service.MyGlobalTop10IntentService;
+import com.smile.Service.MyTop10ScoresIntentService;
 import com.smile.alertdialogfragment.AlertDialogFragment;
 import com.smile.dao.PlayerRecordRest;
 import com.smile.model.GridData;
@@ -102,6 +105,7 @@ public class MainUiFragment extends Fragment {
 
     private boolean isShowingFacebookAds;
     private boolean isShowingLoadingMessage;
+    private boolean isProcessingJob;
 
     public MainUiFragment() {
         // Required empty public constructor
@@ -342,7 +346,9 @@ public class MainUiFragment extends Fragment {
         undoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                undoTheLast();
+                if (!isProcessingJob) {
+                    undoTheLast();
+                }
             }
         });
 
@@ -351,7 +357,9 @@ public class MainUiFragment extends Fragment {
         top10Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                myActivity.showTop10ScoreHistory();   // added on 2018-06-11
+                if (!isProcessingJob) {
+                    showTop10ScoreHistory();   // added on 2018-06-11
+                }
             }
         });
 
@@ -360,7 +368,9 @@ public class MainUiFragment extends Fragment {
         globalTop10Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                myActivity.showGlobalTop10History();
+                if (!isProcessingJob) {
+                    showGlobalTop10History();
+                }
             }
         });
 
@@ -370,6 +380,7 @@ public class MainUiFragment extends Fragment {
 
             isShowingFacebookAds = false;
             isShowingLoadingMessage = false;
+            isProcessingJob = false;
 
             isEasyLevel = true;     // start with easy level
             gridData = new GridData(rowCounts, colCounts, MINB, MINB);  // easy level (3 balls for next balls)
@@ -921,6 +932,29 @@ public class MainUiFragment extends Fragment {
         showAdsAsyncTask.execute();
     }
 
+    public void showTop10ScoreHistory() {
+        ShowFacebookAdsAsyncTask showAdsAsyncTask = new ShowFacebookAdsAsyncTask(0, new MainUiFragment.AfterDismissFunctionOfShowFacebookAds() {
+            @Override
+            public void executeAfterDismissAds(int endPoint) {
+                showLoadingMessage();
+                Intent myIntentService = new Intent(myActivity, MyTop10ScoresIntentService.class);
+                myActivity.startService(myIntentService);
+            }
+        });
+        showAdsAsyncTask.execute();
+    }
+
+    private void showGlobalTop10History() {
+        ShowFacebookAdsAsyncTask showAdsAsyncTask = new ShowFacebookAdsAsyncTask(0, new AfterDismissFunctionOfShowFacebookAds() {
+            @Override
+            public void executeAfterDismissAds(int endPoint) {
+                showLoadingMessage();
+                Intent myIntentService = new Intent(myActivity, MyGlobalTop10IntentService.class);
+                myActivity.startService(myIntentService);
+            }
+        });
+        showAdsAsyncTask.execute();
+    }
 
     // pub;ic methods
     public void newGame() {

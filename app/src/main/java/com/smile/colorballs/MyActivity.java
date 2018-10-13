@@ -1,7 +1,6 @@
 package com.smile.colorballs;
 
 import android.app.Activity;
-import android.app.IntentService;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -23,7 +22,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.smile.dao.PlayerRecordRest;
+import com.smile.Service.MyGlobalTop10IntentService;
+import com.smile.Service.MyTop10ScoresIntentService;
 import com.smile.utility.ScreenUtil;
 
 import java.util.ArrayList;
@@ -44,6 +44,7 @@ public class MyActivity extends AppCompatActivity {
     private Top10ScoreFragment top10ScoreFragment = null;
     private GlobalTop10Fragment globalTop10Fragment = null;
     private MyBroadcastReceiver myReceiver;
+    private boolean isProcessingJob;
 
     private int fontSizeForText = 24;
     private float dialog_widthFactor = 1.0f;
@@ -57,6 +58,13 @@ public class MyActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            isProcessingJob = savedInstanceState.getBoolean("IsProcessingJob");
+        } else {
+            // no job is processing for now
+            isProcessingJob = false;
+        }
 
         Point size = new Point();
         ScreenUtil.getScreenSize(this, size);
@@ -194,6 +202,7 @@ public class MyActivity extends AppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+
         int id = item.getItemId();
         if (id == R.id.quitGame) {
             // removed on 2017-10-24
@@ -221,6 +230,9 @@ public class MyActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+
+        outState.putBoolean("IsProcessingJob", isProcessingJob);
+
         if (isChangingConfigurations()) {
             // configuration is changing then remove top10ScoreFragment and globalTop10Fragment
             if (top10ScoreFragment != null) {
@@ -313,31 +325,6 @@ public class MyActivity extends AppCompatActivity {
 
     public float getDialogFragment_heightFactor() {
         return dialogFragment_heightFactor;
-    }
-
-    public void showTop10ScoreHistory() {
-        MainUiFragment.ShowFacebookAdsAsyncTask showAdsAsyncTask = mainUiFragment.new ShowFacebookAdsAsyncTask(0, new MainUiFragment.AfterDismissFunctionOfShowFacebookAds() {
-            @Override
-            public void executeAfterDismissAds(int endPoint) {
-                mainUiFragment.showLoadingMessage();
-                Intent myIntentService = new Intent(MyActivity.this, MyTop10ScoresIntentService.class);
-                startService(myIntentService);
-            }
-        });
-        showAdsAsyncTask.execute();
-    }
-
-    public void showGlobalTop10History() {
-
-        MainUiFragment.ShowFacebookAdsAsyncTask showAdsAsyncTask = mainUiFragment.new ShowFacebookAdsAsyncTask(0, new MainUiFragment.AfterDismissFunctionOfShowFacebookAds() {
-            @Override
-            public void executeAfterDismissAds(int endPoint) {
-                mainUiFragment.showLoadingMessage();
-                Intent myIntentService = new Intent(MyActivity.this, MyGlobalTop10IntentService.class);
-                startService(myIntentService);
-            }
-        });
-        showAdsAsyncTask.execute();
     }
 
     private class MyBroadcastReceiver extends BroadcastReceiver {
@@ -487,69 +474,6 @@ public class MyActivity extends AppCompatActivity {
                         break;
                 }
             }
-        }
-    }
-
-    public static class MyTop10ScoresIntentService extends IntentService {
-        public final static String Action_Name = "MyTop10ScoresIntentService";
-
-        public MyTop10ScoresIntentService() {
-            super(Action_Name);
-        }
-
-        @Override
-        protected void onHandleIntent(Intent intent) {
-
-            System.out.println("MyTop10ScoresIntentService --> onHandleIntent() is called.");
-
-            ArrayList<Pair<String, Integer>> resultList = ColorBallsApp.ScoreSQLiteDB.readTop10ScoreList();
-            ArrayList<String> playerNames = new ArrayList<>();
-            ArrayList<Integer> playerScores = new ArrayList<>();
-
-            for (Pair pair : resultList) {
-                playerNames.add((String)pair.first);
-                playerScores.add((Integer)pair.second);
-            }
-            // wait for 3 seconds
-            try { Thread.sleep(3000); } catch (InterruptedException ex) { ex.printStackTrace(); }
-
-            Intent notificationIntent = new Intent(Action_Name);
-            Bundle extras = new Bundle();
-            extras.putStringArrayList("PlayerNames", playerNames);
-            extras.putIntegerArrayList("PlayerScores", playerScores);
-            notificationIntent.putExtras(extras);
-            LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
-            localBroadcastManager.sendBroadcast(notificationIntent);
-            System.out.println("MyTop10ScoresIntentService sent result");
-        }
-    }
-
-    public static class MyGlobalTop10IntentService extends IntentService {
-
-        public final static String Action_Name = "MyGlobalTop10IntentService";
-
-        public MyGlobalTop10IntentService() {
-            super(Action_Name);
-        }
-
-        @Override
-        protected void onHandleIntent(Intent intent) {
-
-            System.out.println("MyGlobalTop10IntentService --> onHandleIntent() is called.");
-
-            String webUrl = new String(ColorBallsApp.REST_Website + "/GetTop10PlayerscoresREST");   // ASP.NET Core
-            String[] result = PlayerRecordRest.getTop10Scores(webUrl);
-
-            // wait for 3 seconds
-            try { Thread.sleep(3000); } catch (InterruptedException ex) { ex.printStackTrace(); }
-
-            Intent notificationIntent = new Intent(Action_Name);
-            Bundle extras = new Bundle();
-            extras.putStringArray("RESULT", result);
-            notificationIntent.putExtras(extras);
-            LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
-            localBroadcastManager.sendBroadcast(notificationIntent);
-            System.out.println("MyTop10ScoresIntentService sent result");
         }
     }
 }
