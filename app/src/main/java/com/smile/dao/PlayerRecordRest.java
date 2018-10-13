@@ -31,8 +31,8 @@ public class PlayerRecordRest {
         try {
             URL url = new URL(webUrl);
             HttpURLConnection myConnection = (HttpURLConnection) url.openConnection();
-            // myConnection.setReadTimeout(15000);
-            // myConnection.setConnectTimeout(15000);
+            myConnection.setReadTimeout(15000);
+            myConnection.setConnectTimeout(15000);
             myConnection.setRequestMethod("POST");
             myConnection.setDoInput(true);
             myConnection.setDoOutput(true); // this method trigger POST request

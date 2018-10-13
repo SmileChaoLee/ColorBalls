@@ -39,7 +39,6 @@ import com.smile.alertdialogfragment.AlertDialogFragment;
 import com.smile.dao.PlayerRecordRest;
 import com.smile.facebookadsutil.*;
 import com.smile.model.GridData;
-import com.smile.scoresqlite.ScoreSQLite;
 import com.smile.utility.FontAndBitmapUtil;
 import com.smile.utility.ScreenUtil;
 import com.smile.utility.SoundUtil;
@@ -64,7 +63,6 @@ public class MainUiFragment extends Fragment {
     private final String GameOverDialogTag = "GameOverDialogFragment";
     private final int nextBallsViewIdStart = 100;
 
-    private ScoreSQLite scoreSQLite = null;
     private Context context = null;
     private MyActivity myActivity = null;
     private View uiFragmentView = null;
@@ -105,11 +103,10 @@ public class MainUiFragment extends Fragment {
     private float dialogFragment_heightFactor = dialog_heightFactor;
 
     private boolean hasSound = true;    // has sound effect
-    private boolean isQuitingGame = false;    // quiting game
 
     private FacebookInterstitialAds FacebookAds;
-    private Bitmap showingAdsBitmap;
     private boolean isShowingFacebookAds;
+    private boolean isShowingLoadingMessage;
 
     public MainUiFragment() {
         // Required empty public constructor
@@ -192,7 +189,6 @@ public class MainUiFragment extends Fragment {
         context = getActivity();
         myActivity = (MyActivity)context;
 
-        scoreSQLite = myActivity.getScoreSQLite();
         fontSizeForText = myActivity.getFontSizeForText();
         dialog_widthFactor = myActivity.getDialog_widthFactor();
         dialog_heightFactor = myActivity.getDialog_heightFactor();
@@ -331,7 +327,7 @@ public class MainUiFragment extends Fragment {
                 imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if ( (completedAll()) && (!isQuitingGame) ) {
+                        if ( (completedAll()) && (!isShowingFacebookAds) && (!isShowingLoadingMessage) ) {
                             doDrawBallsAndCheckListener(v);
                         }
                     }
@@ -388,17 +384,9 @@ public class MainUiFragment extends Fragment {
             System.out.println("BuildConfig.APPLICATION_ID = " + BuildConfig.APPLICATION_ID);
             FacebookAds = new FacebookInterstitialAds(ColorBallsApp.AppContext, facebookPlacementID);
 
-            Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.dialog_board_image);
-            String showAdsString = getResources().getString(R.string.showingAdsStr);
-            double factor = 0.5;
-            int bmWidth = (int) (cellWidth * showAdsString.length() * factor);
-            int bmHeight = (int) (cellHeight * factor * 2.0);
-            bm = Bitmap.createScaledBitmap(bm, bmWidth, bmHeight, false);  // scale
-            showingAdsBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(bm, showAdsString, Color.RED);
-
             isShowingFacebookAds = false;
+            isShowingLoadingMessage = false;
 
-            isQuitingGame = false;  // new game
             isEasyLevel = true;     // start with easy level
             gridData = new GridData(rowCounts, colCounts, MINB, MINB);  // easy level (3 balls for next balls)
             displayGridDataNextCells();
@@ -409,9 +397,13 @@ public class MainUiFragment extends Fragment {
             displayGameView();
             if (isShowingFacebookAds) {
                 // show message about it is showing Facebook ads
-                scoreImageView.setVisibility(View.VISIBLE);
-                scoreImageView.setImageBitmap(showingAdsBitmap);
+                showingAdsMessage();
             }
+
+            if (isShowingLoadingMessage) {
+                showLoadingMessage();
+            }
+
             if (bouncingStatus == 1) {
                 // ImageView v = uiFragmentView.findViewById(bouncyBallIndexI * colCounts + bouncyBallIndexJ);
                 ImageView v = uiFragmentView.findViewById(bouncyBallIndexI * rowCounts + bouncyBallIndexJ);
@@ -913,6 +905,25 @@ public class MainUiFragment extends Fragment {
         displayNextBallsView();
     }
 
+    private void showingAdsMessage() {
+        isShowingFacebookAds = true;
+        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.dialog_board_image);
+        String showAdsString = getResources().getString(R.string.showingAdsStr);
+        double factor = 0.5;
+        int bmWidth = (int) (cellWidth * showAdsString.length() * factor);
+        int bmHeight = (int) (cellHeight * factor * 2.0);
+        bm = Bitmap.createScaledBitmap(bm, bmWidth, bmHeight, false);  // scale
+        Bitmap showingAdsBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(bm, showAdsString, Color.RED);
+        scoreImageView.setVisibility(View.VISIBLE);
+        scoreImageView.setImageBitmap(showingAdsBitmap);
+    }
+
+    private void dismissShowingAdsMessage() {
+        isShowingFacebookAds = false;
+        scoreImageView.setImageBitmap(null);
+        scoreImageView.setVisibility(View.GONE);
+    }
+
     private void showFacebookAdsAndNewGameOrQuit(final int entryPoint) {
         ShowFacebookAdsAsyncTask showAdsAsyncTask = new ShowFacebookAdsAsyncTask(entryPoint, new AfterDismissFunctionOfShowFacebookAds() {
             @Override
@@ -976,7 +987,7 @@ public class MainUiFragment extends Fragment {
                     }
                 };
                 restThread.start();
-                scoreSQLite.addScore(et.getText().toString(),currentScore);
+                ColorBallsApp.ScoreSQLiteDB.addScore(et.getText().toString(),currentScore);
 
                 showFacebookAdsAndNewGameOrQuit(entryPoint);
             }
@@ -991,7 +1002,6 @@ public class MainUiFragment extends Fragment {
 
         alertD.show();
     }
-
 
     public boolean getIsEasyLevel() {
         return this.isEasyLevel;
@@ -1020,6 +1030,26 @@ public class MainUiFragment extends Fragment {
     }
     public ImageView getScoreImageView() {
         return scoreImageView;
+    }
+
+    public void showLoadingMessage() {
+        isShowingLoadingMessage = true;
+        String loadingString = getResources().getString(R.string.loadingString);
+        float fontSize = fontSizeForText;
+        double factor = 1.5;
+        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.dialog_board_image);
+        int bmWidth = (int)(fontSize * loadingString.length() * factor);
+        int bmHeight = (int)(fontSize * factor * 6.0);
+        bm = Bitmap.createScaledBitmap(bm, bmWidth, bmHeight, false );  // scale
+        Bitmap loadingBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(bm, loadingString, Color.RED);
+        scoreImageView.setVisibility(View.VISIBLE);
+        scoreImageView.setImageBitmap(loadingBitmap);
+    }
+
+    public void dismissShowingLoadingMessage() {
+        isShowingLoadingMessage = false;
+        scoreImageView.setImageBitmap(null);
+        scoreImageView.setVisibility(View.GONE);
     }
 
     private class CalculateScore extends AsyncTask<Point, Integer, String[]> {
@@ -1138,11 +1168,7 @@ public class MainUiFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
-            isQuitingGame = true;
-            isShowingFacebookAds = true;
-            scoreImageView.setVisibility(View.VISIBLE);
-            scoreImageView.setImageBitmap(showingAdsBitmap);
+            showingAdsMessage();
             FacebookAds.showAd(TAG);
         }
 
@@ -1160,18 +1186,15 @@ public class MainUiFragment extends Fragment {
         @Override
         protected void onProgressUpdate(Void... values) {
             super.onProgressUpdate(values);
-            scoreImageView.setImageBitmap(showingAdsBitmap);
+            showingAdsMessage();
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            scoreImageView.setImageBitmap(null);
-            scoreImageView.setVisibility(View.GONE);
-            afterDismissFunction.executeAfterDismissAds(endPoint);
+            dismissShowingAdsMessage();
 
-            isShowingFacebookAds = false;
-            isQuitingGame = false;
+            afterDismissFunction.executeAfterDismissAds(endPoint);
         }
         // end of showing facebook ads
     }
