@@ -44,7 +44,6 @@ public class MyActivity extends AppCompatActivity {
     private Top10ScoreFragment top10ScoreFragment = null;
     private GlobalTop10Fragment globalTop10Fragment = null;
     private MyBroadcastReceiver myReceiver;
-    private boolean isProcessingJob;
 
     private int fontSizeForText = 24;
     private float dialog_widthFactor = 1.0f;
@@ -58,13 +57,6 @@ public class MyActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (savedInstanceState != null) {
-            isProcessingJob = savedInstanceState.getBoolean("IsProcessingJob");
-        } else {
-            // no job is processing for now
-            isProcessingJob = false;
-        }
 
         Point size = new Point();
         ScreenUtil.getScreenSize(this, size);
@@ -182,7 +174,7 @@ public class MyActivity extends AppCompatActivity {
                 break;
         }
 
-        // mainUiFragment.setIsProcessingJob(false);
+        mainUiFragment.setIsProcessingJob(false);
     }
 
     @Override
@@ -227,7 +219,6 @@ public class MyActivity extends AppCompatActivity {
                 extras.putBoolean("IsEasyLevel", mainUiFragment.getIsEasyLevel());
                 intent.putExtras(extras);
                 startActivityForResult(intent, SettingActivityRequestCode);
-                mainUiFragment.setIsProcessingJob(false);
                 return true;
             }
         }
@@ -238,8 +229,6 @@ public class MyActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
 
-        outState.putBoolean("IsProcessingJob", isProcessingJob);
-
         if (isChangingConfigurations()) {
             // configuration is changing then remove top10ScoreFragment and globalTop10Fragment
             if (top10ScoreFragment != null) {
@@ -248,6 +237,7 @@ public class MyActivity extends AppCompatActivity {
                 FragmentTransaction ft = fmManager.beginTransaction();
                 ft.remove(top10ScoreFragment);
                 ft.commit();
+                mainUiFragment.setIsProcessingJob(false);
             }
             if (globalTop10Fragment != null) {
                 // remove globalTop10Fragment
@@ -255,6 +245,7 @@ public class MyActivity extends AppCompatActivity {
                 FragmentTransaction ft = fmManager.beginTransaction();
                 ft.remove(globalTop10Fragment);
                 ft.commit();
+                mainUiFragment.setIsProcessingJob(false);
             }
         } else {
             // if configuration is not changing (still landscape because portrait does not have this fragment)
@@ -380,6 +371,7 @@ public class MyActivity extends AppCompatActivity {
                                         ft.remove(top10ScoreFragment);
                                         // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                                         ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
+                                        mainUiFragment.setIsProcessingJob(false);
                                     }
                                 }
                             });
@@ -394,7 +386,6 @@ public class MyActivity extends AppCompatActivity {
                             }
                             // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                             ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-                            mainUiFragment.setIsProcessingJob(false);
                         }
                     } else {
                         // for Portrait
@@ -406,7 +397,6 @@ public class MyActivity extends AppCompatActivity {
                         top10Extras.putInt("FontSizeForText", fontSizeForText);
                         top10Intent.putExtras(top10Extras);
                         startActivityForResult(top10Intent, Top10ScoreActivityRequestCode);
-                        mainUiFragment.setIsProcessingJob(false);
                     }
                     break;
                 case MyGlobalTop10IntentService.Action_Name:
@@ -459,6 +449,7 @@ public class MyActivity extends AppCompatActivity {
                                         ft.remove(globalTop10Fragment);
                                         // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                                         ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
+                                        mainUiFragment.setIsProcessingJob(false);
                                     }
                                 }
                             });
@@ -473,7 +464,6 @@ public class MyActivity extends AppCompatActivity {
                             }
                             // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                             ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-                            mainUiFragment.setIsProcessingJob(false);
                         }
                     } else {
                         // for Portrait
@@ -485,7 +475,6 @@ public class MyActivity extends AppCompatActivity {
                         globalTop10Extras.putInt("FontSizeForText", fontSizeForText);
                         globalTop10Intent.putExtras(globalTop10Extras);
                         startActivityForResult(globalTop10Intent, GlobalTop10ActivityRequestCode);
-                        mainUiFragment.setIsProcessingJob(false);
                     }
                     break;
             }

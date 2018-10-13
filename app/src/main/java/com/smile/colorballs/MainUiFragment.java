@@ -362,7 +362,7 @@ public class MainUiFragment extends Fragment {
                 }
             }
         });
-
+        
         Button globalTop10Button = uiFragmentView.findViewById(R.id.globalTop10Button);
         globalTop10Button.setTextSize(fontSizeForText);
         globalTop10Button.setOnClickListener(new View.OnClickListener() {
@@ -951,6 +951,7 @@ public class MainUiFragment extends Fragment {
     }
 
     private void showGlobalTop10History() {
+        isProcessingJob = true;
         ShowFacebookAdsAsyncTask showAdsAsyncTask = new ShowFacebookAdsAsyncTask(0, new AfterDismissFunctionOfShowFacebookAds() {
             @Override
             public void executeAfterDismissAds(int endPoint) {
