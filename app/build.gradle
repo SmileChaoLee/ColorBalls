@@ -6,8 +6,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 28
-        versionCode 3102
-        versionName "3.102"
+        versionCode 3103
+        versionName "3.103"
         applicationId "com.smile.colorballs"
         manifestPlaceholders = [ appName:"@string/app_name"]
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"

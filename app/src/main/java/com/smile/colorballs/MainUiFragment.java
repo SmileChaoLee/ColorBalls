@@ -2,8 +2,6 @@ package com.smile.colorballs;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,7 +16,6 @@ import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Gravity;
@@ -37,7 +34,6 @@ import android.widget.TextView;
 
 import com.smile.alertdialogfragment.AlertDialogFragment;
 import com.smile.dao.PlayerRecordRest;
-import com.smile.facebookadsutil.*;
 import com.smile.model.GridData;
 import com.smile.utility.FontAndBitmapUtil;
 import com.smile.utility.ScreenUtil;
@@ -104,7 +100,6 @@ public class MainUiFragment extends Fragment {
 
     private boolean hasSound = true;    // has sound effect
 
-    private FacebookInterstitialAds FacebookAds;
     private boolean isShowingFacebookAds;
     private boolean isShowingLoadingMessage;
 
@@ -373,17 +368,6 @@ public class MainUiFragment extends Fragment {
             // start a new game (no savedInstanceState)
             // or gridData is null (for some unknown reason)
 
-            String facebookPlacementID = new String("200699663911258_200701030577788"); // for colorballs
-            if (BuildConfig.APPLICATION_ID == "com.smile.colorballs") {
-                facebookPlacementID = new String("200699663911258_200701030577788"); // for colorballs
-            } else if (BuildConfig.APPLICATION_ID == "com.smile.fivecolorballs") {
-                facebookPlacementID = new String("241884113266033_241884616599316"); // for fivecolorballs
-            } else {
-                // default
-            }
-            System.out.println("BuildConfig.APPLICATION_ID = " + BuildConfig.APPLICATION_ID);
-            FacebookAds = new FacebookInterstitialAds(ColorBallsApp.AppContext, facebookPlacementID);
-
             isShowingFacebookAds = false;
             isShowingLoadingMessage = false;
 
@@ -429,9 +413,6 @@ public class MainUiFragment extends Fragment {
         super.onDetach();
         mListener = null;
         SoundUtil.releaseMediaPlayer();
-        if (FacebookAds != null) {
-            FacebookAds.close();
-        }
     }
 
     /**
@@ -975,7 +956,7 @@ public class MainUiFragment extends Fragment {
                     @Override
                     public void run() {
                         try {
-                            String webUrl = new String(MyActivity.REST_Website + "/AddOneRecordREST");   // ASP.NET Cor
+                            String webUrl = new String(ColorBallsApp.REST_Website + "/AddOneRecordREST");   // ASP.NET Cor
                             JSONObject jsonObject = new JSONObject();
                             jsonObject.put("PlayerName", et.getText().toString());
                             jsonObject.put("Score", currentScore);
@@ -1169,13 +1150,13 @@ public class MainUiFragment extends Fragment {
         protected void onPreExecute() {
             super.onPreExecute();
             showingAdsMessage();
-            FacebookAds.showAd(TAG);
+            ColorBallsApp.FacebookAds.showAd(TAG);
         }
 
         @Override
         protected Void doInBackground(Void... voids) {
             final int timeDelay = 300;
-            while (!FacebookAds.adsShowDismissedOrStopped()) {
+            while (!ColorBallsApp.FacebookAds.adsShowDismissedOrStopped()) {
                 publishProgress();
                 SystemClock.sleep(timeDelay);
             }
