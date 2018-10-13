@@ -181,6 +181,8 @@ public class MyActivity extends AppCompatActivity {
             case GlobalTop10ActivityRequestCode:
                 break;
         }
+
+        // mainUiFragment.setIsProcessingJob(false);
     }
 
     @Override
@@ -203,26 +205,31 @@ public class MyActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
 
-        int id = item.getItemId();
-        if (id == R.id.quitGame) {
-            // removed on 2017-10-24
-            // Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, autoRotate);
-            mainUiFragment.recordScore(0);   //   from   END PROGRAM
-            return true;
-        }
-        if (id == R.id.newGame) {
-            mainUiFragment.newGame();
-            return true;
-        }
-        if (id == R.id.setting) {
-            Intent intent = new Intent(this, SettingActivity.class);
-            Bundle extras = new Bundle();
-            extras.putInt("FontSizeForText", fontSizeForText);
-            extras.putBoolean("HasSound", mainUiFragment.getHasSound());
-            extras.putBoolean("IsEasyLevel", mainUiFragment.getIsEasyLevel());
-            intent.putExtras(extras);
-            startActivityForResult(intent, SettingActivityRequestCode);
-            return true;
+        boolean isProcessingJob = mainUiFragment.getIsProcessingJob();
+        if (!isProcessingJob) {
+            int id = item.getItemId();
+            if (id == R.id.quitGame) {
+                // removed on 2017-10-24
+                // Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, autoRotate);
+                mainUiFragment.recordScore(0);   //   from   END PROGRAM
+                return true;
+            }
+            if (id == R.id.newGame) {
+                mainUiFragment.newGame();
+                return true;
+            }
+            if (id == R.id.setting) {
+                mainUiFragment.setIsProcessingJob(true);    // started procession job
+                Intent intent = new Intent(this, SettingActivity.class);
+                Bundle extras = new Bundle();
+                extras.putInt("FontSizeForText", fontSizeForText);
+                extras.putBoolean("HasSound", mainUiFragment.getHasSound());
+                extras.putBoolean("IsEasyLevel", mainUiFragment.getIsEasyLevel());
+                intent.putExtras(extras);
+                startActivityForResult(intent, SettingActivityRequestCode);
+                mainUiFragment.setIsProcessingJob(false);
+                return true;
+            }
         }
 
         return super.onOptionsItemSelected(item);
@@ -288,6 +295,8 @@ public class MyActivity extends AppCompatActivity {
         handlerClose.postDelayed(new Runnable() {
             public void run() {
                 // quit game
+                ColorBallsApp.ScoreSQLiteDB.close();
+                ColorBallsApp.FacebookAds.close();
                 finish();
             }
         },timeDelay);
@@ -300,6 +309,10 @@ public class MyActivity extends AppCompatActivity {
         handlerClose.postDelayed(new Runnable() {
             public void run() {
                 // restart this MyActivity, new game
+
+                ColorBallsApp.ScoreSQLiteDB.close();
+                ColorBallsApp.FacebookAds.close();
+
                 Intent myIntent = getIntent();
                 finish();
                 startActivity(myIntent);
@@ -339,140 +352,142 @@ public class MyActivity extends AppCompatActivity {
             mainUiFragment.dismissShowingLoadingMessage();
 
             String actionName = intent.getAction();
-            if (intent != null) {
-                Bundle extras;
-                ArrayList<String> playerNames = new ArrayList<>();
-                ArrayList<Integer> playerScores = new ArrayList<>();
-                View historyView;
-                switch (actionName) {
-                    case MyTop10ScoresIntentService.Action_Name:
-                        extras = intent.getExtras();
-                        if (extras != null) {
-                            playerNames = extras.getStringArrayList("PlayerNames");
-                            playerScores = extras.getIntegerArrayList("PlayerScores");
-                        } else {
-                            // failed
-                            playerNames.add("Failed to access Score SQLite database");
-                            playerScores.add(0);
-                        }
-                        historyView = findViewById(top10LayoutId);
-                        if (historyView != null) {
-                            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                                top10ScoreFragment = Top10ScoreFragment.newInstance(playerNames, playerScores, fontSizeForText, new Top10ScoreFragment.Top10OkButtonListener() {
-                                    @Override
-                                    public void buttonOkClick(Activity activity) {
-                                        if (top10ScoreFragment != null) {
-                                            // remove top10ScoreFragment to dismiss the top 10 score screen
-                                            FragmentManager fmManager = getSupportFragmentManager();
-                                            FragmentTransaction ft = fmManager.beginTransaction();
-                                            ft.remove(top10ScoreFragment);
-                                            // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
-                                            ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-                                        }
+            Bundle extras;
+            ArrayList<String> playerNames = new ArrayList<>();
+            ArrayList<Integer> playerScores = new ArrayList<>();
+            View historyView;
+            switch (actionName) {
+                case MyTop10ScoresIntentService.Action_Name:
+                    extras = intent.getExtras();
+                    if (extras != null) {
+                        playerNames = extras.getStringArrayList("PlayerNames");
+                        playerScores = extras.getIntegerArrayList("PlayerScores");
+                    } else {
+                        // failed
+                        playerNames.add("Failed to access Score SQLite database");
+                        playerScores.add(0);
+                    }
+                    historyView = findViewById(top10LayoutId);
+                    if (historyView != null) {
+                        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                            top10ScoreFragment = Top10ScoreFragment.newInstance(playerNames, playerScores, fontSizeForText, new Top10ScoreFragment.Top10OkButtonListener() {
+                                @Override
+                                public void buttonOkClick(Activity activity) {
+                                    if (top10ScoreFragment != null) {
+                                        // remove top10ScoreFragment to dismiss the top 10 score screen
+                                        FragmentManager fmManager = getSupportFragmentManager();
+                                        FragmentTransaction ft = fmManager.beginTransaction();
+                                        ft.remove(top10ScoreFragment);
+                                        // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
+                                        ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
                                     }
-                                });
-                                FragmentManager fmManager = getSupportFragmentManager();
-                                FragmentTransaction ft = fmManager.beginTransaction();
-                                ft = fmManager.beginTransaction();
-                                Fragment currentTop10ScoreFragment = fmManager.findFragmentByTag(Top10ScoreFragment.Top10ScoreFragmentTag);
-                                if (currentTop10ScoreFragment == null) {
-                                    ft.add(top10LayoutId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
-                                } else {
-                                    ft.replace(top10LayoutId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
                                 }
-                                // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
-                                ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
+                            });
+                            FragmentManager fmManager = getSupportFragmentManager();
+                            FragmentTransaction ft = fmManager.beginTransaction();
+                            ft = fmManager.beginTransaction();
+                            Fragment currentTop10ScoreFragment = fmManager.findFragmentByTag(Top10ScoreFragment.Top10ScoreFragmentTag);
+                            if (currentTop10ScoreFragment == null) {
+                                ft.add(top10LayoutId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
+                            } else {
+                                ft.replace(top10LayoutId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
                             }
-                        } else {
-                            // for Portrait
-                            top10ScoreFragment = null;
-                            Intent top10Intent = new Intent(getApplicationContext(), Top10ScoreActivity.class);
-                            Bundle top10Extras = new Bundle();
-                            top10Extras.putStringArrayList("Top10Players", playerNames);
-                            top10Extras.putIntegerArrayList("Top10Scores", playerScores);
-                            top10Extras.putInt("FontSizeForText", fontSizeForText);
-                            top10Intent.putExtras(top10Extras);
-                            startActivityForResult(top10Intent, Top10ScoreActivityRequestCode);
+                            // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
+                            ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
+                            mainUiFragment.setIsProcessingJob(false);
                         }
-                        break;
-                    case MyGlobalTop10IntentService.Action_Name:
-                        String[] result;
-                        extras = intent.getExtras();
-                        if (extras != null) {
-                            result = extras.getStringArray("RESULT");
-                        } else {
-                            //failed
-                            result = new String[] {FAILED};
-                        }
-                        String status = result[0].toUpperCase();
-                        if (status.equals(SUCCEEDED)) {
-                            // Succeeded
-                            try {
-                                JSONArray jArray = new JSONArray(result[1]);
-                                for (int i = 0; i < jArray.length(); i++) {
-                                    JSONObject jo = jArray.getJSONObject(i);
-                                    playerNames.add(jo.getString("PlayerName"));
-                                    playerScores.add(jo.getInt("Score"));
-                                }
-
-                            } catch (JSONException ex) {
-                                String errorMsg = ex.toString();
-                                ex.printStackTrace();
-                                playerNames.add("JSONException->JSONArray");
-                                playerScores.add(0);
+                    } else {
+                        // for Portrait
+                        top10ScoreFragment = null;
+                        Intent top10Intent = new Intent(getApplicationContext(), Top10ScoreActivity.class);
+                        Bundle top10Extras = new Bundle();
+                        top10Extras.putStringArrayList("Top10Players", playerNames);
+                        top10Extras.putIntegerArrayList("Top10Scores", playerScores);
+                        top10Extras.putInt("FontSizeForText", fontSizeForText);
+                        top10Intent.putExtras(top10Extras);
+                        startActivityForResult(top10Intent, Top10ScoreActivityRequestCode);
+                        mainUiFragment.setIsProcessingJob(false);
+                    }
+                    break;
+                case MyGlobalTop10IntentService.Action_Name:
+                    String[] result;
+                    extras = intent.getExtras();
+                    if (extras != null) {
+                        result = extras.getStringArray("RESULT");
+                    } else {
+                        //failed
+                        result = new String[] {FAILED};
+                    }
+                    String status = result[0].toUpperCase();
+                    if (status.equals(SUCCEEDED)) {
+                        // Succeeded
+                        try {
+                            JSONArray jArray = new JSONArray(result[1]);
+                            for (int i = 0; i < jArray.length(); i++) {
+                                JSONObject jo = jArray.getJSONObject(i);
+                                playerNames.add(jo.getString("PlayerName"));
+                                playerScores.add(jo.getInt("Score"));
                             }
 
-                        } else if (status.equals(FAILED)) {
-                            // Failed
-                            playerNames.add("Web Connection Failed.");
-                            playerScores.add(0);
-                        } else {
-                            // Exception
-                            playerNames.add("Exception on Web read.");
+                        } catch (JSONException ex) {
+                            String errorMsg = ex.toString();
+                            ex.printStackTrace();
+                            playerNames.add("JSONException->JSONArray");
                             playerScores.add(0);
                         }
 
-                        historyView = findViewById(top10LayoutId);
-                        if (historyView != null) {
-                            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                                globalTop10Fragment = GlobalTop10Fragment.newInstance(playerNames, playerScores, fontSizeForText, new GlobalTop10Fragment.GlobalTop10OkButtonListener() {
-                                    @Override
-                                    public void buttonOkClick(Activity activity) {
-                                        if (globalTop10Fragment != null) {
-                                            // remove GlobalTop10Fragment to dismiss the top 10 score screen
-                                            FragmentManager fmManager = getSupportFragmentManager();
-                                            FragmentTransaction ft = fmManager.beginTransaction();
-                                            ft.remove(globalTop10Fragment);
-                                            // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
-                                            ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-                                        }
+                    } else if (status.equals(FAILED)) {
+                        // Failed
+                        playerNames.add("Web Connection Failed.");
+                        playerScores.add(0);
+                    } else {
+                        // Exception
+                        playerNames.add("Exception on Web read.");
+                        playerScores.add(0);
+                    }
+
+                    historyView = findViewById(top10LayoutId);
+                    if (historyView != null) {
+                        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                            globalTop10Fragment = GlobalTop10Fragment.newInstance(playerNames, playerScores, fontSizeForText, new GlobalTop10Fragment.GlobalTop10OkButtonListener() {
+                                @Override
+                                public void buttonOkClick(Activity activity) {
+                                    if (globalTop10Fragment != null) {
+                                        // remove GlobalTop10Fragment to dismiss the top 10 score screen
+                                        FragmentManager fmManager = getSupportFragmentManager();
+                                        FragmentTransaction ft = fmManager.beginTransaction();
+                                        ft.remove(globalTop10Fragment);
+                                        // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
+                                        ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
                                     }
-                                });
-                                FragmentManager fmManager = getSupportFragmentManager();
-                                FragmentTransaction ft = fmManager.beginTransaction();
-                                ft = fmManager.beginTransaction();
-                                Fragment currentGlobalTop10Fragment = fmManager.findFragmentByTag(GlobalTop10Fragment.GlobalTop10FragmentTag);
-                                if (currentGlobalTop10Fragment == null) {
-                                    ft.add(top10LayoutId, globalTop10Fragment, GlobalTop10Fragment.GlobalTop10FragmentTag);
-                                } else {
-                                    ft.replace(top10LayoutId, globalTop10Fragment, GlobalTop10Fragment.GlobalTop10FragmentTag);
                                 }
-                                // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
-                                ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
+                            });
+                            FragmentManager fmManager = getSupportFragmentManager();
+                            FragmentTransaction ft = fmManager.beginTransaction();
+                            ft = fmManager.beginTransaction();
+                            Fragment currentGlobalTop10Fragment = fmManager.findFragmentByTag(GlobalTop10Fragment.GlobalTop10FragmentTag);
+                            if (currentGlobalTop10Fragment == null) {
+                                ft.add(top10LayoutId, globalTop10Fragment, GlobalTop10Fragment.GlobalTop10FragmentTag);
+                            } else {
+                                ft.replace(top10LayoutId, globalTop10Fragment, GlobalTop10Fragment.GlobalTop10FragmentTag);
                             }
-                        } else {
-                            // for Portrait
-                            globalTop10Fragment = null;
-                            Intent globalTop10Intent = new Intent(getApplicationContext(), GlobalTop10Activity.class);
-                            Bundle globalTop10Extras = new Bundle();
-                            globalTop10Extras.putStringArrayList("Top10Players", playerNames);
-                            globalTop10Extras.putIntegerArrayList("Top10Scores", playerScores);
-                            globalTop10Extras.putInt("FontSizeForText", fontSizeForText);
-                            globalTop10Intent.putExtras(globalTop10Extras);
-                            startActivityForResult(globalTop10Intent, GlobalTop10ActivityRequestCode);
+                            // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
+                            ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
+                            mainUiFragment.setIsProcessingJob(false);
                         }
-                        break;
-                }
+                    } else {
+                        // for Portrait
+                        globalTop10Fragment = null;
+                        Intent globalTop10Intent = new Intent(getApplicationContext(), GlobalTop10Activity.class);
+                        Bundle globalTop10Extras = new Bundle();
+                        globalTop10Extras.putStringArrayList("Top10Players", playerNames);
+                        globalTop10Extras.putIntegerArrayList("Top10Scores", playerScores);
+                        globalTop10Extras.putInt("FontSizeForText", fontSizeForText);
+                        globalTop10Intent.putExtras(globalTop10Extras);
+                        startActivityForResult(globalTop10Intent, GlobalTop10ActivityRequestCode);
+                        mainUiFragment.setIsProcessingJob(false);
+                    }
+                    break;
             }
         }
     }

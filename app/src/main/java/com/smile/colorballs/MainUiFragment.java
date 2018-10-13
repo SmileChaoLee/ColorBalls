@@ -326,7 +326,7 @@ public class MainUiFragment extends Fragment {
                 imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if ( (completedAll()) && (!isShowingFacebookAds) && (!isShowingLoadingMessage) ) {
+                        if ( (completedAll()) && (!isShowingFacebookAds) && (!isShowingLoadingMessage) && (!isProcessingJob) ) {
                             doDrawBallsAndCheckListener(v);
                         }
                     }
@@ -543,6 +543,8 @@ public class MainUiFragment extends Fragment {
             return;
         }
 
+        isProcessingJob = true; // started undoing
+
         gridData.undoTheLast();
 
         // restore the screen
@@ -557,6 +559,8 @@ public class MainUiFragment extends Fragment {
 
         // completedPath = true;
         undoEnable = false;
+
+        isProcessingJob = false;    // finished
     }
 
     private void clearCell(int i, int j) {
@@ -920,6 +924,7 @@ public class MainUiFragment extends Fragment {
         ShowFacebookAdsAsyncTask showAdsAsyncTask = new ShowFacebookAdsAsyncTask(entryPoint, new AfterDismissFunctionOfShowFacebookAds() {
             @Override
             public void executeAfterDismissAds(int endPoint) {
+                isProcessingJob = false;
                 if (entryPoint==0) {
                     //  END PROGRAM
                     myActivity.quitApplication();
@@ -932,7 +937,8 @@ public class MainUiFragment extends Fragment {
         showAdsAsyncTask.execute();
     }
 
-    public void showTop10ScoreHistory() {
+    private void showTop10ScoreHistory() {
+        isProcessingJob = true;
         ShowFacebookAdsAsyncTask showAdsAsyncTask = new ShowFacebookAdsAsyncTask(0, new MainUiFragment.AfterDismissFunctionOfShowFacebookAds() {
             @Override
             public void executeAfterDismissAds(int endPoint) {
@@ -962,6 +968,9 @@ public class MainUiFragment extends Fragment {
     }
 
     public void recordScore(final int entryPoint) {
+
+        isProcessingJob = true;
+
         final EditText et = new EditText(myActivity);
         et.setTextSize(fontSizeForText);
         et.setTextColor(Color.BLUE);
@@ -1045,6 +1054,12 @@ public class MainUiFragment extends Fragment {
     }
     public ImageView getScoreImageView() {
         return scoreImageView;
+    }
+    public boolean getIsProcessingJob() {
+        return isProcessingJob;
+    }
+    public void setIsProcessingJob(boolean isProcessingJob) {
+        this.isProcessingJob = isProcessingJob;
     }
 
     public void showLoadingMessage() {
