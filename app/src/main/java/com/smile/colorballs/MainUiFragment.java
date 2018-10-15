@@ -362,7 +362,7 @@ public class MainUiFragment extends Fragment {
                 }
             }
         });
-        
+
         Button globalTop10Button = uiFragmentView.findViewById(R.id.globalTop10Button);
         globalTop10Button.setTextSize(fontSizeForText);
         globalTop10Button.setOnClickListener(new View.OnClickListener() {

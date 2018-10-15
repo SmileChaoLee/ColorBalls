@@ -268,6 +268,12 @@ public class MyActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (ColorBallsApp.ScoreSQLiteDB != null) {
+            ColorBallsApp.ScoreSQLiteDB.close();
+        }
+        if (ColorBallsApp.FacebookAds != null) {
+            ColorBallsApp.FacebookAds.close();
+        }
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.unregisterReceiver(myReceiver);
         System.out.println("MyActivity.onDestroy --> myReceiver was unregistered.");
@@ -286,8 +292,6 @@ public class MyActivity extends AppCompatActivity {
         handlerClose.postDelayed(new Runnable() {
             public void run() {
                 // quit game
-                ColorBallsApp.ScoreSQLiteDB.close();
-                ColorBallsApp.FacebookAds.close();
                 finish();
             }
         },timeDelay);
@@ -300,10 +304,6 @@ public class MyActivity extends AppCompatActivity {
         handlerClose.postDelayed(new Runnable() {
             public void run() {
                 // restart this MyActivity, new game
-
-                ColorBallsApp.ScoreSQLiteDB.close();
-                ColorBallsApp.FacebookAds.close();
-
                 Intent myIntent = getIntent();
                 finish();
                 startActivity(myIntent);

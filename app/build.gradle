@@ -8,9 +8,10 @@ android {
         targetSdkVersion 28
         versionCode 3103
         versionName "3.103"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
         applicationId "com.smile.colorballs"
         manifestPlaceholders = [ appName:"@string/app_name"]
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         flavorDimensions("colorballs")
         productFlavors {
