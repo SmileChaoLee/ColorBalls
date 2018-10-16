@@ -34,5 +34,5 @@
     <string name="onStr">On</string>
     <string name="offStr">Off</string>
 
-    <string name="showingAdsStr">Showing Ads ...</string>
+    <string name="showingAdsString">Showing Ads ...</string>
 </resources>

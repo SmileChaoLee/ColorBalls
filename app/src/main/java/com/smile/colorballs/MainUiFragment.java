@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -94,7 +95,9 @@ public class MainUiFragment extends Fragment {
     private String submitStr = new String("");
     private String cancelStr = new String("");
     private String gameOverStr = new String("");
-
+    private Bitmap dialog_board_image;
+    private String showingAdsString;
+    private String loadingString;
     private int fontSizeForText = 24;   // default
     private float dialog_widthFactor = 1.0f;
     private float dialog_heightFactor = 1.0f;
@@ -153,6 +156,9 @@ public class MainUiFragment extends Fragment {
             submitStr = ColorBallsApp.AppResources.getString(R.string.submitStr);
             cancelStr = ColorBallsApp.AppResources.getString(R.string.cancelStr);
             gameOverStr = ColorBallsApp.AppResources.getString(R.string.gameOverStr);
+            dialog_board_image = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
+            showingAdsString = ColorBallsApp.AppResources.getString(R.string.showingAdsString);
+            loadingString = ColorBallsApp.AppResources.getString(R.string.loadingString);
         }
 
         System.out.println("MainUiFragment onCreate() is called.");
@@ -903,13 +909,11 @@ public class MainUiFragment extends Fragment {
 
     private void showingAdsMessage() {
         isShowingFacebookAds = true;
-        Bitmap bm = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
-        String showAdsString = ColorBallsApp.AppResources.getString(R.string.showingAdsStr);
         double factor = 0.5;
-        int bmWidth = (int) (cellWidth * showAdsString.length() * factor);
+        int bmWidth = (int) (cellWidth * showingAdsString.length() * factor);
         int bmHeight = (int) (cellHeight * factor * 2.0);
-        bm = Bitmap.createScaledBitmap(bm, bmWidth, bmHeight, false);  // scale
-        Bitmap showingAdsBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(bm, showAdsString, Color.RED);
+        Bitmap bm = Bitmap.createScaledBitmap(dialog_board_image, bmWidth, bmHeight, false);  // scale
+        Bitmap showingAdsBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(bm, showingAdsString, Color.RED);
         scoreImageView.setVisibility(View.VISIBLE);
         scoreImageView.setImageBitmap(showingAdsBitmap);
     }
@@ -1065,13 +1069,11 @@ public class MainUiFragment extends Fragment {
 
     public void showLoadingMessage() {
         isShowingLoadingMessage = true;
-        String loadingString = ColorBallsApp.AppResources.getString(R.string.loadingString);
         float fontSize = fontSizeForText;
         double factor = 1.5;
-        Bitmap bm = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
         int bmWidth = (int)(fontSize * loadingString.length() * factor);
         int bmHeight = (int)(fontSize * factor * 6.0);
-        bm = Bitmap.createScaledBitmap(bm, bmWidth, bmHeight, false );  // scale
+        Bitmap bm = Bitmap.createScaledBitmap(dialog_board_image, bmWidth, bmHeight, false );  // scale
         Bitmap loadingBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(bm, loadingString, Color.RED);
         scoreImageView.setVisibility(View.VISIBLE);
         scoreImageView.setImageBitmap(loadingBitmap);
@@ -1111,12 +1113,11 @@ public class MainUiFragment extends Fragment {
 
             numBalls = hashPoint.length;
             score = scoreCalculate(numBalls);
-            Bitmap bm = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
             String scoreString = String.valueOf(score);
             double factor = 0.8;
             int bmWidth = (int)(cellWidth * scoreString.length() * factor);
             int bmHeight = (int)(cellHeight * factor * 2.0);
-            bm = Bitmap.createScaledBitmap(bm, bmWidth, bmHeight, false );  // scale
+            Bitmap bm = Bitmap.createScaledBitmap(dialog_board_image, bmWidth, bmHeight, false );  // scale
             scoreBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(bm, scoreString, Color.BLACK);
 
             color = gridData.getCellValue(hashPoint[0].x, hashPoint[0].y);
@@ -1151,9 +1152,8 @@ public class MainUiFragment extends Fragment {
                     }
                     break;
                 case 2:
-                    scoreImageView.setImageBitmap(scoreBitmap);
-                    break;
                 case 3:
+                    scoreImageView.setImageBitmap(scoreBitmap);
                     break;
             }
 
@@ -1163,6 +1163,8 @@ public class MainUiFragment extends Fragment {
         @Override
         protected void onPostExecute(String[] result) {
             super.onPostExecute(result);
+
+            scoreImageView.setImageBitmap(scoreBitmap);
 
             // clear values of cells
             for (Point item : hashPoint) {

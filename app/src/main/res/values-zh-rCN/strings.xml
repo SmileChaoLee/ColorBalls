@@ -33,5 +33,5 @@
     <string name="onStr">开</string>
     <string name="offStr">关</string>
 
-    <string name="showingAdsStr">广告显示中 ...</string>
+    <string name="showingAdsString">广告显示中 ...</string>
 </resources>

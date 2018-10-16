@@ -129,14 +129,9 @@ public class AlertDialogFragment extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         System.out.println("AlertDialogFragment.onCreateView() is called.");
 
-        Window window = getDialog().getWindow();
-        window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-        window.setDimAmount(0.0f);
-        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        setCancelable(false);   // make dialog a modal
-        setShowsDialog(true);   // added on 2018-06-24
-
-        View view = inflater.inflate(R.layout.modal_dialogfragment, container, false);
+        // View view = inflater.inflate(R.layout.modal_dialogfragment, container, false);
+        // Changed to
+        View view = inflater.inflate(R.layout.modal_dialogfragment, container);
 
         return view;
     }
@@ -145,6 +140,17 @@ public class AlertDialogFragment extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         System.out.println("AlertDialogFragment.onViewCreated() is called.");
+
+        Window window = getDialog().getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        window.setDimAmount(0.0f);
+        // remove the background of DialogFragment
+        getDialog().requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setStyle(DialogFragment.STYLE_NO_FRAME, android.R.style.Theme);
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        setCancelable(false);   // make dialog a modal
+        setShowsDialog(true);   // added on 2018-06-24
 
         alertDialog = this;
 
