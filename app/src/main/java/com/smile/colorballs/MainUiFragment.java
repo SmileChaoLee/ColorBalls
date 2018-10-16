@@ -147,12 +147,12 @@ public class MainUiFragment extends Fragment {
 
         if (savedInstanceState == null) {
             // string constant
-            yesStr = getResources().getString(R.string.yesStr);
-            noStr = getResources().getString(R.string.noStr);
-            nameStr = getResources().getString(R.string.nameStr);
-            submitStr = getResources().getString(R.string.submitStr);
-            cancelStr = getResources().getString(R.string.cancelStr);
-            gameOverStr = getResources().getString(R.string.gameOverStr);
+            yesStr = ColorBallsApp.AppResources.getString(R.string.yesStr);
+            noStr = ColorBallsApp.AppResources.getString(R.string.noStr);
+            nameStr = ColorBallsApp.AppResources.getString(R.string.nameStr);
+            submitStr = ColorBallsApp.AppResources.getString(R.string.submitStr);
+            cancelStr = ColorBallsApp.AppResources.getString(R.string.cancelStr);
+            gameOverStr = ColorBallsApp.AppResources.getString(R.string.gameOverStr);
         }
 
         System.out.println("MainUiFragment onCreate() is called.");
@@ -206,7 +206,7 @@ public class MainUiFragment extends Fragment {
         // keep navigation bar
         screenHeight = screenHeight - statusBarHeight - actionBarHeight;
 
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        if (ColorBallsApp.AppResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // Landscape
             screenWidth = screenWidth / 2;  // for this fragment is half a screenWidth
         }
@@ -903,8 +903,8 @@ public class MainUiFragment extends Fragment {
 
     private void showingAdsMessage() {
         isShowingFacebookAds = true;
-        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.dialog_board_image);
-        String showAdsString = getResources().getString(R.string.showingAdsStr);
+        Bitmap bm = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
+        String showAdsString = ColorBallsApp.AppResources.getString(R.string.showingAdsStr);
         double factor = 0.5;
         int bmWidth = (int) (cellWidth * showAdsString.length() * factor);
         int bmHeight = (int) (cellHeight * factor * 2.0);
@@ -1065,10 +1065,10 @@ public class MainUiFragment extends Fragment {
 
     public void showLoadingMessage() {
         isShowingLoadingMessage = true;
-        String loadingString = getResources().getString(R.string.loadingString);
+        String loadingString = ColorBallsApp.AppResources.getString(R.string.loadingString);
         float fontSize = fontSizeForText;
         double factor = 1.5;
-        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.dialog_board_image);
+        Bitmap bm = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
         int bmWidth = (int)(fontSize * loadingString.length() * factor);
         int bmHeight = (int)(fontSize * factor * 6.0);
         bm = Bitmap.createScaledBitmap(bm, bmWidth, bmHeight, false );  // scale
@@ -1111,7 +1111,7 @@ public class MainUiFragment extends Fragment {
 
             numBalls = hashPoint.length;
             score = scoreCalculate(numBalls);
-            Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.dialog_board_image);
+            Bitmap bm = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
             String scoreString = String.valueOf(score);
             double factor = 0.8;
             int bmWidth = (int)(cellWidth * scoreString.length() * factor);
@@ -1217,7 +1217,7 @@ public class MainUiFragment extends Fragment {
         @Override
         protected void onProgressUpdate(Void... values) {
             super.onProgressUpdate(values);
-            showingAdsMessage();
+            // showingAdsMessage();
         }
 
         @Override

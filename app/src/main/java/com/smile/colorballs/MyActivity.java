@@ -66,7 +66,8 @@ public class MyActivity extends AppCompatActivity {
         float baseWidth = 1080.0f;
         float baseHeight = 1776.0f;
         fontSizeForText = 24;   // default for portrait of cell phone
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        // if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        if (ColorBallsApp.AppResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // Landscape
             // if (screenWidth >= 2000) {
             if (ScreenUtil.isTablet(this)) {
@@ -360,7 +361,8 @@ public class MyActivity extends AppCompatActivity {
                     }
                     historyView = findViewById(top10LayoutId);
                     if (historyView != null) {
-                        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        // if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        if (ColorBallsApp.AppResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                             top10ScoreFragment = Top10ScoreFragment.newInstance(playerNames, playerScores, fontSizeForText, new Top10ScoreFragment.Top10OkButtonListener() {
                                 @Override
                                 public void buttonOkClick(Activity activity) {
@@ -438,7 +440,8 @@ public class MyActivity extends AppCompatActivity {
 
                     historyView = findViewById(top10LayoutId);
                     if (historyView != null) {
-                        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        // if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        if (ColorBallsApp.AppResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                             globalTop10Fragment = GlobalTop10Fragment.newInstance(playerNames, playerScores, fontSizeForText, new GlobalTop10Fragment.GlobalTop10OkButtonListener() {
                                 @Override
                                 public void buttonOkClick(Activity activity) {
