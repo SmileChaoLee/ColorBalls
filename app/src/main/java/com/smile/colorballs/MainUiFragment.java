@@ -902,7 +902,8 @@ public class MainUiFragment extends Fragment {
     }
 
     private void showFacebookAdsAndNewGameOrQuit(final int entryPoint) {
-        FacebookInterstitialAds.ShowFacebookAdsAsyncTask showAdsAsyncTask = ColorBallsApp.FacebookAds.new ShowFacebookAdsAsyncTask(myActivity, showingAdsString, fontSizeForText, entryPoint, new FacebookInterstitialAds.AfterDismissFunctionOfShowFacebookAds() {
+        FacebookInterstitialAds.ShowFacebookAdsAsyncTask_AlertDialog showAdsAsyncTask =
+                ColorBallsApp.FacebookAds.new ShowFacebookAdsAsyncTask_AlertDialog(myActivity, showingAdsString, fontSizeForText, entryPoint, new FacebookInterstitialAds.AfterDismissFunctionOfShowFacebookAds() {
             @Override
             public void executeAfterDismissAds(int endPoint) {
                 isProcessingJob = false;

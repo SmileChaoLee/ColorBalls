@@ -319,8 +319,8 @@ public class MyActivity extends AppCompatActivity {
 
     // private methods
     private void showFacebookAdsUntilDismissed(Activity activity) {
-        FacebookInterstitialAds.ShowFacebookAdsAsyncTask showAdsAsyncTask =
-                ColorBallsApp.FacebookAds.new ShowFacebookAdsAsyncTask(this, ColorBallsApp.AppResources.getString(R.string.showingAdsString), fontSizeForText, 0);
+        FacebookInterstitialAds.ShowFacebookAdsAsyncTask_AlertDialog showAdsAsyncTask =
+                ColorBallsApp.FacebookAds.new ShowFacebookAdsAsyncTask_AlertDialog(this, ColorBallsApp.AppResources.getString(R.string.showingAdsString), fontSizeForText, 0);
         showAdsAsyncTask.execute();
     }
 
