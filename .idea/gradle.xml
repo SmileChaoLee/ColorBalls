@@ -8,10 +8,8 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/alertdialogfragment" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/facebookadsutil" />
-            <option value="$PROJECT_DIR$/scoresqlite" />
+            <option value="$PROJECT_DIR$/smilepublicclasseslibrary" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

@@ -1,5 +1,7 @@
 package com.smile.colorballs;
 
+import com.smile.smilepublicclasseslibrary.facebookadsutil.*;
+
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,9 +10,7 @@ import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.os.AsyncTask;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -18,17 +18,13 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
-import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.widget.TextView;
 
 import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
-import com.smile.alertdialogfragment.AlertDialogFragment;
 import com.smile.utility.ScreenUtil;
 
 import java.util.ArrayList;
@@ -175,8 +171,12 @@ public class MyActivity extends AppCompatActivity {
                 }
                 break;
             case Top10ScoreActivityRequestCode:
+                // show Facebook ads
+                showFacebookAdsUntilDismissed(this);
                 break;
             case GlobalTop10ActivityRequestCode:
+                // show Facebook ads
+                showFacebookAdsUntilDismissed(this);
                 break;
         }
 
@@ -317,28 +317,31 @@ public class MyActivity extends AppCompatActivity {
         },timeDelay);
     }
 
+    // private methods
+    private void showFacebookAdsUntilDismissed(Activity activity) {
+        FacebookInterstitialAds.ShowFacebookAdsAsyncTask showAdsAsyncTask =
+                ColorBallsApp.FacebookAds.new ShowFacebookAdsAsyncTask(this, ColorBallsApp.AppResources.getString(R.string.showingAdsString), fontSizeForText, 0);
+        showAdsAsyncTask.execute();
+    }
+
+    // public methods
     public int getFontSizeForText() {
         return fontSizeForText;
     }
-
     public float getDialog_widthFactor() {
         return dialog_widthFactor;
     }
-
     public float getDialog_heightFactor() {
         return dialog_heightFactor;
     }
-
     public float getDialogFragment_widthFactor() {
         return dialogFragment_widthFactor;
     }
-
     public float getDialogFragment_heightFactor() {
         return dialogFragment_heightFactor;
     }
 
     private class MyBroadcastReceiver extends BroadcastReceiver {
-
         private final String SUCCEEDED = "0";
         private final String FAILED = "1";
 
@@ -378,7 +381,7 @@ public class MyActivity extends AppCompatActivity {
                                         ft.remove(top10ScoreFragment);
                                         // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                                         ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-                                        mainUiFragment.setIsProcessingJob(false);
+                                        showFacebookAdsUntilDismissed(activity);
                                     }
                                 }
                             });
@@ -393,6 +396,7 @@ public class MyActivity extends AppCompatActivity {
                             }
                             // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                             ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
+                            mainUiFragment.setIsProcessingJob(false);
                         }
                     } else {
                         // for Portrait
@@ -457,7 +461,7 @@ public class MyActivity extends AppCompatActivity {
                                         ft.remove(globalTop10Fragment);
                                         // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                                         ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-                                        mainUiFragment.setIsProcessingJob(false);
+                                        showFacebookAdsUntilDismissed(activity);
                                     }
                                 }
                             });
@@ -472,6 +476,7 @@ public class MyActivity extends AppCompatActivity {
                             }
                             // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                             ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
+                            mainUiFragment.setIsProcessingJob(false);
                         }
                     } else {
                         // for Portrait

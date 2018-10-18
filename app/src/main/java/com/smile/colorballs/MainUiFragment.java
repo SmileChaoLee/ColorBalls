@@ -1,5 +1,8 @@
 package com.smile.colorballs;
 
+import com.smile.smilepublicclasseslibrary.alertdialogfragment.*;
+import com.smile.smilepublicclasseslibrary.facebookadsutil.*;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,7 +12,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -36,7 +38,6 @@ import android.widget.TextView;
 
 import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
-import com.smile.alertdialogfragment.AlertDialogFragment;
 import com.smile.dao.PlayerRecordRest;
 import com.smile.model.GridData;
 import com.smile.utility.FontAndBitmapUtil;
@@ -106,7 +107,6 @@ public class MainUiFragment extends Fragment {
 
     private boolean hasSound = true;    // has sound effect
 
-    private boolean isShowingFacebookAds;
     private boolean isShowingLoadingMessage;
     private boolean isProcessingJob;
 
@@ -332,7 +332,7 @@ public class MainUiFragment extends Fragment {
                 imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if ( (completedAll()) && (!isShowingFacebookAds) && (!isShowingLoadingMessage) && (!isProcessingJob) ) {
+                        if ( (completedAll()) && (!isShowingLoadingMessage) && (!isProcessingJob) ) {
                             doDrawBallsAndCheckListener(v);
                         }
                     }
@@ -384,7 +384,6 @@ public class MainUiFragment extends Fragment {
             // start a new game (no savedInstanceState)
             // or gridData is null (for some unknown reason)
 
-            isShowingFacebookAds = false;
             isShowingLoadingMessage = false;
             isProcessingJob = false;
 
@@ -396,10 +395,6 @@ public class MainUiFragment extends Fragment {
             // fragment recreated (keep the original state)
             // display the original state before changing configuration
             displayGameView();
-            if (isShowingFacebookAds) {
-                // show message about it is showing Facebook ads
-                showingAdsMessage();
-            }
 
             if (isShowingLoadingMessage) {
                 showLoadingMessage();
@@ -776,11 +771,10 @@ public class MainUiFragment extends Fragment {
 
         // must use the following to let MyActivity have new instance of Fragment
         // recreate MyActivity like new start (no savedInstanceState)
-        /*
-        Intent intent = myActivity.getIntent();
-        myActivity.finish();
-        startActivity(intent);
-        */
+        // Intent intent = myActivity.getIntent();
+        // myActivity.finish();
+        // startActivity(intent);
+
         myActivity.reStartApplication();   // restart the game
     }
 
@@ -907,25 +901,8 @@ public class MainUiFragment extends Fragment {
         displayNextBallsView();
     }
 
-    private void showingAdsMessage() {
-        isShowingFacebookAds = true;
-        double factor = 0.5;
-        int bmWidth = (int) (cellWidth * showingAdsString.length() * factor);
-        int bmHeight = (int) (cellHeight * factor * 2.0);
-        Bitmap bm = Bitmap.createScaledBitmap(dialog_board_image, bmWidth, bmHeight, false);  // scale
-        Bitmap showingAdsBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(bm, showingAdsString, Color.RED);
-        scoreImageView.setVisibility(View.VISIBLE);
-        scoreImageView.setImageBitmap(showingAdsBitmap);
-    }
-
-    private void dismissShowingAdsMessage() {
-        isShowingFacebookAds = false;
-        scoreImageView.setImageBitmap(null);
-        scoreImageView.setVisibility(View.GONE);
-    }
-
     private void showFacebookAdsAndNewGameOrQuit(final int entryPoint) {
-        ShowFacebookAdsAsyncTask showAdsAsyncTask = new ShowFacebookAdsAsyncTask(entryPoint, new AfterDismissFunctionOfShowFacebookAds() {
+        FacebookInterstitialAds.ShowFacebookAdsAsyncTask showAdsAsyncTask = ColorBallsApp.FacebookAds.new ShowFacebookAdsAsyncTask(myActivity, showingAdsString, fontSizeForText, entryPoint, new FacebookInterstitialAds.AfterDismissFunctionOfShowFacebookAds() {
             @Override
             public void executeAfterDismissAds(int endPoint) {
                 isProcessingJob = false;
@@ -943,28 +920,16 @@ public class MainUiFragment extends Fragment {
 
     private void showTop10ScoreHistory() {
         isProcessingJob = true;
-        ShowFacebookAdsAsyncTask showAdsAsyncTask = new ShowFacebookAdsAsyncTask(0, new MainUiFragment.AfterDismissFunctionOfShowFacebookAds() {
-            @Override
-            public void executeAfterDismissAds(int endPoint) {
-                showLoadingMessage();
-                Intent myIntentService = new Intent(myActivity, MyTop10ScoresIntentService.class);
-                myActivity.startService(myIntentService);
-            }
-        });
-        showAdsAsyncTask.execute();
+        showLoadingMessage();
+        Intent myIntentService = new Intent(myActivity, MyTop10ScoresIntentService.class);
+        myActivity.startService(myIntentService);
     }
 
     private void showGlobalTop10History() {
         isProcessingJob = true;
-        ShowFacebookAdsAsyncTask showAdsAsyncTask = new ShowFacebookAdsAsyncTask(0, new AfterDismissFunctionOfShowFacebookAds() {
-            @Override
-            public void executeAfterDismissAds(int endPoint) {
-                showLoadingMessage();
-                Intent myIntentService = new Intent(myActivity, MyGlobalTop10IntentService.class);
-                myActivity.startService(myIntentService);
-            }
-        });
-        showAdsAsyncTask.execute();
+        showLoadingMessage();
+        Intent myIntentService = new Intent(myActivity, MyGlobalTop10IntentService.class);
+        myActivity.startService(myIntentService);
     }
 
     // pub;ic methods
@@ -1182,53 +1147,5 @@ public class MainUiFragment extends Fragment {
             scoreImageView.setImageBitmap(null);
             scoreImageView.setVisibility(View.GONE);
         }
-    }
-
-    // interface for showing Facebook ads
-    public interface AfterDismissFunctionOfShowFacebookAds {
-        void executeAfterDismissAds(int endPoint);
-    }
-    public class ShowFacebookAdsAsyncTask extends AsyncTask<Void, Void, Void> {
-
-        private final int endPoint;
-        private final AfterDismissFunctionOfShowFacebookAds afterDismissFunction;
-
-        public ShowFacebookAdsAsyncTask(final int endPoint, final AfterDismissFunctionOfShowFacebookAds afterDismissFunction) {
-            this.endPoint = endPoint;
-            this.afterDismissFunction = afterDismissFunction;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            showingAdsMessage();
-            ColorBallsApp.FacebookAds.showAd(TAG);
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            final int timeDelay = 300;
-            while (!ColorBallsApp.FacebookAds.adsShowDismissedOrStopped()) {
-                publishProgress();
-                SystemClock.sleep(timeDelay);
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-            super.onProgressUpdate(values);
-            // showingAdsMessage();
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            dismissShowingAdsMessage();
-
-            afterDismissFunction.executeAfterDismissAds(endPoint);
-        }
-        // end of showing facebook ads
     }
 }
