@@ -974,6 +974,7 @@ public class MainUiFragment extends Fragment {
                             JSONObject jsonObject = new JSONObject();
                             jsonObject.put("PlayerName", et.getText().toString());
                             jsonObject.put("Score", currentScore);
+                            jsonObject.put("GameId", ColorBallsApp.GameId);
                             PlayerRecordRest.addOneRecord(webUrl, jsonObject);
                         } catch (Exception ex) {
                             ex.printStackTrace();

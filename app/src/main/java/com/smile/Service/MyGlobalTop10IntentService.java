@@ -21,7 +21,8 @@ public class MyGlobalTop10IntentService extends IntentService {
 
         System.out.println("MyGlobalTop10IntentService --> onHandleIntent() is called.");
 
-        String webUrl = new String(ColorBallsApp.REST_Website + "/GetTop10PlayerscoresREST");   // ASP.NET Core
+        String webUrl = ColorBallsApp.REST_Website + "/GetTop10PlayerscoresREST?gameId=1";   // ASP.NET Core
+        // String webUrl = "http://192.168.0.11:5000/Playerscore/GetTop10PlayerscoresREST?gameId=1";   // ASP.NET Core
         String[] result = PlayerRecordRest.getTop10Scores(webUrl);
 
         // wait for 3 seconds
@@ -33,6 +34,5 @@ public class MyGlobalTop10IntentService extends IntentService {
         notificationIntent.putExtras(extras);
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
         localBroadcastManager.sendBroadcast(notificationIntent);
-        System.out.println("MyTop10ScoresIntentService sent result");
     }
 }
