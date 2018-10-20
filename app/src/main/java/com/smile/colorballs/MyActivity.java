@@ -171,8 +171,6 @@ public class MyActivity extends AppCompatActivity {
                 }
                 break;
             case Top10ScoreActivityRequestCode:
-                // show Facebook ads
-                showFacebookAdsUntilDismissed(this);
                 break;
             case GlobalTop10ActivityRequestCode:
                 // show Facebook ads
@@ -381,7 +379,6 @@ public class MyActivity extends AppCompatActivity {
                                         ft.remove(top10ScoreFragment);
                                         // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                                         ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-                                        showFacebookAdsUntilDismissed(activity);
                                     }
                                 }
                             });
