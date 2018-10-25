@@ -4,7 +4,9 @@ import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
 
+import com.google.android.gms.ads.MobileAds;
 import com.smile.smilepublicclasseslibrary.facebookadsutil.*;
+import com.smile.smilepublicclasseslibrary.google_admob_ads_util.GoogleAdMobInterstitial;
 import com.smile.smilepublicclasseslibrary.scoresqlite.*;
 
 public class ColorBallsApp extends Application {
@@ -17,6 +19,7 @@ public class ColorBallsApp extends Application {
     public static Context AppContext;
     public static ScoreSQLite ScoreSQLiteDB;
     public static FacebookInterstitialAds FacebookAds;
+    public static GoogleAdMobInterstitial GoogleInterstitialAd;
 
     @Override
     public void onCreate() {
@@ -25,14 +28,25 @@ public class ColorBallsApp extends Application {
         AppContext = getApplicationContext();
         ScoreSQLiteDB = new ScoreSQLite(AppContext);
         String facebookPlacementID = new String("200699663911258_200701030577788"); // for colorballs
+        String googleAdMobAppID = getString(R.string.google_AdMobAppID);
+        String googleAdMobInterstitialID = "ca-app-pub-8354869049759576/1276882569";
         if (BuildConfig.APPLICATION_ID == "com.smile.colorballs") {
             facebookPlacementID = new String("200699663911258_200701030577788"); // for colorballs
+            // Google AdMob
+            googleAdMobAppID = getString(R.string.google_AdMobAppID);
+            googleAdMobInterstitialID = "ca-app-pub-8354869049759576/1276882569";
         } else if (BuildConfig.APPLICATION_ID == "com.smile.fivecolorballs") {
             facebookPlacementID = new String("241884113266033_241884616599316"); // for fivecolorballs
+            // Google AdMob
+            googleAdMobAppID = getString(R.string.google_AdMobAppID_2);
+            googleAdMobInterstitialID = "ca-app-pub-8354869049759576/2174745857";
         } else {
             // default
         }
         System.out.println("BuildConfig.APPLICATION_ID = " + BuildConfig.APPLICATION_ID);
         FacebookAds = new FacebookInterstitialAds(ColorBallsApp.AppContext, facebookPlacementID);
+        MobileAds.initialize(AppContext, googleAdMobAppID);
+        GoogleInterstitialAd = new GoogleAdMobInterstitial(AppContext, googleAdMobInterstitialID);
+        GoogleInterstitialAd.loadAd(); // load first ad
     }
 }

@@ -6,12 +6,12 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 28
-        versionCode 3107
-        versionName "3.107"
+        versionCode 3110
+        versionName "3.110"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         applicationId "com.smile.colorballs"
-        manifestPlaceholders = [ appName:"@string/app_name"]
+        manifestPlaceholders = [ appName:"@string/app_name", googleAdMobAppID:"@string/google_AdMobAppID"]
 
         flavorDimensions("colorballs")
         productFlavors {
@@ -46,6 +46,8 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support:support-v4:28.0.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
-    implementation project(':smilepublicclasseslibrary')
     implementation 'org.jetbrains:annotations-java5:15.0'
+    implementation 'com.android.support:customtabs:28.0.0'
+    implementation 'com.google.android.gms:play-services-ads:17.0.0'
+    implementation project(':smilepublicclasseslibrary')
 }

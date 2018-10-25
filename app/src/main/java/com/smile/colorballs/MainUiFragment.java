@@ -96,7 +96,6 @@ public class MainUiFragment extends Fragment {
     private String submitStr = new String("");
     private String cancelStr = new String("");
     private String gameOverStr = new String("");
-    private Bitmap dialog_board_image;
     private String showingAdsString;
     private String loadingString;
     private int fontSizeForText = 24;   // default
@@ -148,7 +147,7 @@ public class MainUiFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);    // retain install of fragment when recreate
 
-        if (savedInstanceState == null) {
+        // if (savedInstanceState == null) { // removed if statement on 2018-10-25
             // string constant
             yesStr = ColorBallsApp.AppResources.getString(R.string.yesStr);
             noStr = ColorBallsApp.AppResources.getString(R.string.noStr);
@@ -156,10 +155,9 @@ public class MainUiFragment extends Fragment {
             submitStr = ColorBallsApp.AppResources.getString(R.string.submitStr);
             cancelStr = ColorBallsApp.AppResources.getString(R.string.cancelStr);
             gameOverStr = ColorBallsApp.AppResources.getString(R.string.gameOverStr);
-            dialog_board_image = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
             showingAdsString = ColorBallsApp.AppResources.getString(R.string.showingAdsString);
             loadingString = ColorBallsApp.AppResources.getString(R.string.loadingString);
-        }
+        // }
 
         System.out.println("MainUiFragment onCreate() is called.");
     }
@@ -902,8 +900,8 @@ public class MainUiFragment extends Fragment {
     }
 
     private void showFacebookAdsAndNewGameOrQuit(final int entryPoint) {
-        FacebookInterstitialAds.ShowFacebookAdsAsyncTask_AlertDialog showAdsAsyncTask =
-                ColorBallsApp.FacebookAds.new ShowFacebookAdsAsyncTask_AlertDialog(myActivity, showingAdsString, fontSizeForText, entryPoint, new FacebookInterstitialAds.AfterDismissFunctionOfShowFacebookAds() {
+        FacebookInterstitialAds.ShowFacebookAdsAsyncTask_DialogFragment showAdsAsyncTask =
+                ColorBallsApp.FacebookAds.new ShowFacebookAdsAsyncTask_DialogFragment(myActivity, showingAdsString, fontSizeForText, entryPoint, new FacebookInterstitialAds.AfterDismissFunctionOfShowFacebookAds() {
             @Override
             public void executeAfterDismissAds(int endPoint) {
                 isProcessingJob = false;
@@ -1040,6 +1038,7 @@ public class MainUiFragment extends Fragment {
         double factor = 1.5;
         int bmWidth = (int)(fontSize * loadingString.length() * factor);
         int bmHeight = (int)(fontSize * factor * 6.0);
+        Bitmap dialog_board_image = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
         Bitmap bm = Bitmap.createScaledBitmap(dialog_board_image, bmWidth, bmHeight, false );  // scale
         Bitmap loadingBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(bm, loadingString, Color.RED);
         scoreImageView.setVisibility(View.VISIBLE);
@@ -1084,6 +1083,7 @@ public class MainUiFragment extends Fragment {
             double factor = 0.8;
             int bmWidth = (int)(cellWidth * scoreString.length() * factor);
             int bmHeight = (int)(cellHeight * factor * 2.0);
+            Bitmap dialog_board_image = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
             Bitmap bm = Bitmap.createScaledBitmap(dialog_board_image, bmWidth, bmHeight, false );  // scale
             scoreBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(bm, scoreString, Color.BLACK);
 

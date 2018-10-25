@@ -35,4 +35,7 @@
     <string name="offStr">Off</string>
 
     <string name="showingAdsString">Showing Ads ...</string>
+
+    <string name="google_AdMobAppID">"ca-app-pub-8354869049759576~1891379677"</string>
+    <string name="google_AdMobAppID_2">"ca-app-pub-8354869049759576~8647116443"</string>
 </resources>

@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
+import com.smile.smilepublicclasseslibrary.google_admob_ads_util.GoogleAdMobInterstitial;
 import com.smile.utility.ScreenUtil;
 
 import java.util.ArrayList;
@@ -173,8 +174,8 @@ public class MyActivity extends AppCompatActivity {
             case Top10ScoreActivityRequestCode:
                 break;
             case GlobalTop10ActivityRequestCode:
-                // show Facebook ads
-                showFacebookAdsUntilDismissed(this);
+                // showFacebookAdsUntilDismissed(this);
+                showGoogleAdMobAdsUntilDismissed(this);
                 break;
         }
 
@@ -317,8 +318,15 @@ public class MyActivity extends AppCompatActivity {
 
     // private methods
     private void showFacebookAdsUntilDismissed(Activity activity) {
-        FacebookInterstitialAds.ShowFacebookAdsAsyncTask_AlertDialog showAdsAsyncTask =
-                ColorBallsApp.FacebookAds.new ShowFacebookAdsAsyncTask_AlertDialog(this, ColorBallsApp.AppResources.getString(R.string.showingAdsString), fontSizeForText, 0);
+        FacebookInterstitialAds.ShowFacebookAdsAsyncTask_DialogFragment showAdsAsyncTask =
+                ColorBallsApp.FacebookAds.new ShowFacebookAdsAsyncTask_DialogFragment(this, ColorBallsApp.AppResources.getString(R.string.showingAdsString), fontSizeForText, 0);
+        showAdsAsyncTask.execute();
+    }
+
+    // private methods
+    private void showGoogleAdMobAdsUntilDismissed(Activity activity) {
+        GoogleAdMobInterstitial.ShowGoogleAdMobAdsAsyncTask showAdsAsyncTask =
+                ColorBallsApp.GoogleInterstitialAd.new ShowGoogleAdMobAdsAsyncTask(this, 0);
         showAdsAsyncTask.execute();
     }
 
@@ -458,7 +466,8 @@ public class MyActivity extends AppCompatActivity {
                                         ft.remove(globalTop10Fragment);
                                         // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                                         ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-                                        showFacebookAdsUntilDismissed(activity);
+                                        // showFacebookAdsUntilDismissed(activity);
+                                        showGoogleAdMobAdsUntilDismissed(activity);
                                     }
                                 }
                             });
