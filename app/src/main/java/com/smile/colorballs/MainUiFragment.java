@@ -38,8 +38,8 @@ import android.widget.TextView;
 
 import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
-import com.smile.dao.PlayerRecordRest;
 import com.smile.model.GridData;
+import com.smile.smilepublicclasseslibrary.player_record_rest.PlayerRecordRest;
 import com.smile.utility.FontAndBitmapUtil;
 import com.smile.utility.ScreenUtil;
 import com.smile.utility.SoundUtil;

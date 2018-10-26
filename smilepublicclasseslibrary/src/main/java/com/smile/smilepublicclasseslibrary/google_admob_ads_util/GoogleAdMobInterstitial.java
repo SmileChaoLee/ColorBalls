@@ -13,7 +13,6 @@ import android.widget.TextView;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
-import com.smile.smilepublicclasseslibrary.alertdialogfragment.AlertDialogFragment;
 
 public class GoogleAdMobInterstitial {
 
@@ -65,7 +64,6 @@ public class GoogleAdMobInterstitial {
             @Override
             public void onAdLeftApplication() {
                 // Code to be executed when the user has left the app.
-                mInterstitialAd = null;
                 isLoaded = false;
                 isDisplayed = false;
                 isDismissed = false;
@@ -79,27 +77,41 @@ public class GoogleAdMobInterstitial {
                 isDisplayed = true;
                 isDismissed = true;
                 isError = false;
-                mInterstitialAd.loadAd(new AdRequest.Builder().build());
+                try {
+                    AdRequest adRequest = new AdRequest.Builder().build();
+                    mInterstitialAd.loadAd(adRequest);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
         });
     }
     public void loadAd() {
-        AdRequest adRequest = new AdRequest.Builder().build();
         isLoaded = false;
         isDismissed = false;
         isDisplayed = false;
         isError = false;
-        mInterstitialAd.loadAd(adRequest);
+        try {
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mInterstitialAd.loadAd(adRequest);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
     public void showAd() {
+        isDismissed = false;
+        isDisplayed = false;
         if (mInterstitialAd.isLoaded()) {
             isLoaded = true;
-            isDismissed = false;
-            isDisplayed = false;
             isError = false;
             mInterstitialAd.show();
         } else {
             isLoaded = false;
+            isError = true; // not yet
+            if (!mInterstitialAd.isLoading()) {
+                // if not loading ad, then loadAd() again
+                loadAd();
+            }
         }
     }
     public boolean adsShowDisplayedOrStopped() {
