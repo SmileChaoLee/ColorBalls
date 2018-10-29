@@ -112,7 +112,7 @@ public class GoogleAdMobInterstitial {
             mInterstitialAd.show();
         } else {
             isLoaded = false;
-            isError = true; // not yet
+            isError = true;
             if (!mInterstitialAd.isLoading()) {
                 // if not loading ad, then loadAd() again
                 loadAd();

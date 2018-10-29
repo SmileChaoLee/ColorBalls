@@ -19,7 +19,7 @@ public class ShowingInterstitialAdsUtil {
         isShowingFacebookAd = true;
     }
 
-    public void showAd() {
+    public void showFacebookAdFirst() {
         if (facebookAd.isLoaded() && (!facebookAd.isError())) {
             // facebook ad is loaded, then show facebook
             isShowingFacebookAd = true;
@@ -29,6 +29,22 @@ public class ShowingInterstitialAdsUtil {
             isShowingFacebookAd = false;
             adMobAd.showAd();
             facebookAd.loadAd();    // load the next facebook ad
+        }
+    }
+    public void showGoogleAdMobAdFirst() {
+        if (adMobAd.isLoaded()) {
+            isShowingFacebookAd = false;
+            adMobAd.showAd();
+            facebookAd.loadAd();    // load the next facebook ad
+        } else {
+            isShowingFacebookAd = true;
+            if (facebookAd.isLoaded() && (!facebookAd.isError())) {
+                // facebook ad is loaded, then show facebook
+                facebookAd.showAd();
+            } else {
+                facebookAd.loadAd();
+            }
+            adMobAd.loadAd();   // load next AdMob ad
         }
     }
     public void close() {
@@ -60,7 +76,7 @@ public class ShowingInterstitialAdsUtil {
 
         @Override
         protected void onPreExecute() {
-            showAd();
+            showGoogleAdMobAdFirst();
         }
 
         @Override
