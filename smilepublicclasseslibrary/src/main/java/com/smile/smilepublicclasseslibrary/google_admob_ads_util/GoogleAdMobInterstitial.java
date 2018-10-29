@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.TextView;
@@ -16,6 +17,9 @@ import com.google.android.gms.ads.InterstitialAd;
 
 public class GoogleAdMobInterstitial {
 
+    private final String TAG = new String("google_admob_ads_util.GoogleAdMobInterstitial");
+
+    private Context context;
     private InterstitialAd mInterstitialAd;
 
     private boolean isLoaded;
@@ -25,7 +29,9 @@ public class GoogleAdMobInterstitial {
 
 
     public GoogleAdMobInterstitial(Context context, String interstitialID) {
-        mInterstitialAd = new InterstitialAd(context);
+
+        this.context = context;
+        mInterstitialAd = new InterstitialAd(this.context);
         mInterstitialAd.setAdUnitId(interstitialID);
 
         isLoaded = false;
@@ -37,6 +43,7 @@ public class GoogleAdMobInterstitial {
             @Override
             public void onAdLoaded() {
                 // Code to be executed when an ad finishes loading.
+                Log.e(TAG, "Interstitial ad loaded.");
                 isLoaded = true;
                 isDisplayed = false;
                 isDismissed = false;
@@ -46,6 +53,7 @@ public class GoogleAdMobInterstitial {
             @Override
             public void onAdFailedToLoad(int errorCode) {
                 // Code to be executed when an ad request fails.
+                Log.e(TAG, "Interstitial ad failed to load.");
                 isLoaded = false;
                 isDisplayed = false;
                 isDismissed = false;
@@ -55,6 +63,7 @@ public class GoogleAdMobInterstitial {
             @Override
             public void onAdOpened() {
                 // Code to be executed when the ad is displayed.
+                Log.e(TAG, "Interstitial ad displayed.");
                 isLoaded = true;
                 isDisplayed = true;
                 isDismissed = false;
@@ -64,6 +73,7 @@ public class GoogleAdMobInterstitial {
             @Override
             public void onAdLeftApplication() {
                 // Code to be executed when the user has left the app.
+                Log.e(TAG, "User left application.");
                 isLoaded = false;
                 isDisplayed = false;
                 isDismissed = false;
@@ -73,29 +83,24 @@ public class GoogleAdMobInterstitial {
             @Override
             public void onAdClosed() {
                 // Code to be executed when when the interstitial ad is closed.
+                Log.e(TAG, "Interstitial ad dismissed.");
                 isLoaded = true;
                 isDisplayed = true;
                 isDismissed = true;
                 isError = false;
-                try {
-                    AdRequest adRequest = new AdRequest.Builder().build();
-                    mInterstitialAd.loadAd(adRequest);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+                AdRequest adRequest = new AdRequest.Builder().build();
+                mInterstitialAd.loadAd(adRequest);
             }
         });
     }
     public void loadAd() {
-        isLoaded = false;
-        isDismissed = false;
-        isDisplayed = false;
-        isError = false;
-        try {
+        if ( !mInterstitialAd.isLoaded() && !mInterstitialAd.isLoading() ) {
+            isLoaded = false;
+            isDismissed = false;
+            isDisplayed = false;
+            isError = false;
             AdRequest adRequest = new AdRequest.Builder().build();
             mInterstitialAd.loadAd(adRequest);
-        } catch (Exception ex) {
-            ex.printStackTrace();
         }
     }
     public void showAd() {
@@ -114,6 +119,13 @@ public class GoogleAdMobInterstitial {
             }
         }
     }
+
+    public boolean isLoaded() {
+        return mInterstitialAd.isLoaded();
+    }
+    public boolean isLoading() {
+        return mInterstitialAd.isLoading();
+    }
     public boolean adsShowDisplayedOrStopped() {
         return (isDisplayed || (isError));
     }
@@ -122,22 +134,22 @@ public class GoogleAdMobInterstitial {
     }
 
     // interface for showing Google AdMob ads
-    public interface AfterDismissFunctionOfShowGoogleAdMobAds {
+    public interface AfterDismissFunctionOfShowGoogleAdMobAd {
         void executeAfterDismissAds(int endPoint);
     }
-    public class ShowGoogleAdMobAdsAsyncTask extends AsyncTask<Void, Integer, Void> {
+    public class ShowGoogleAdMobAdAsyncTask extends AsyncTask<Void, Integer, Void> {
 
         private final AppCompatActivity activity;
         private final int endPoint;
-        private final AfterDismissFunctionOfShowGoogleAdMobAds afterDismissFunction;
+        private final AfterDismissFunctionOfShowGoogleAdMobAd afterDismissFunction;
 
-        public ShowGoogleAdMobAdsAsyncTask(final AppCompatActivity activity, final int endPoint) {
+        public ShowGoogleAdMobAdAsyncTask(final AppCompatActivity activity, final int endPoint) {
             this.activity = activity;
             this.endPoint = endPoint;
             this.afterDismissFunction = null;
         }
 
-        public ShowGoogleAdMobAdsAsyncTask(final AppCompatActivity activity, final int endPoint, final AfterDismissFunctionOfShowGoogleAdMobAds afterDismissFunction) {
+        public ShowGoogleAdMobAdAsyncTask(final AppCompatActivity activity, final int endPoint, final AfterDismissFunctionOfShowGoogleAdMobAd afterDismissFunction) {
 
             this.activity = activity;
             this.endPoint = endPoint;

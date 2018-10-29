@@ -1,4 +1,4 @@
-package com.smile.smilepublicclasseslibrary.facebookadsutil;
+package com.smile.smilepublicclasseslibrary.facebook_ads_util;
 
 
 import android.content.Context;
@@ -13,7 +13,7 @@ import com.facebook.ads.AdView;
 
 public class FacebookBannerAds {
 
-    private final String TAG = new String("com.smile.facebookadsutil.FacebookBannerAds");
+    private final String TAG = new String("facebook_ads_util.FacebookBannerAds");
     private static boolean shouldLoadAd = true;
 
     private final Context context;

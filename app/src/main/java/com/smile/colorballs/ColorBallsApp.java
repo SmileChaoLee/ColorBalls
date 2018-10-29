@@ -5,9 +5,10 @@ import android.content.Context;
 import android.content.res.Resources;
 
 import com.google.android.gms.ads.MobileAds;
-import com.smile.smilepublicclasseslibrary.facebookadsutil.*;
+import com.smile.smilepublicclasseslibrary.facebook_ads_util.*;
 import com.smile.smilepublicclasseslibrary.google_admob_ads_util.GoogleAdMobInterstitial;
 import com.smile.smilepublicclasseslibrary.scoresqlite.*;
+import com.smile.smilepublicclasseslibrary.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
 
 public class ColorBallsApp extends Application {
 
@@ -18,8 +19,11 @@ public class ColorBallsApp extends Application {
     public static Resources AppResources;
     public static Context AppContext;
     public static ScoreSQLite ScoreSQLiteDB;
-    public static FacebookInterstitialAds FacebookAds;
-    public static GoogleAdMobInterstitial GoogleInterstitialAd;
+
+    public static ShowingInterstitialAdsUtil InterstitialAd;
+
+    private static FacebookInterstitialAds facebookAds;
+    private static GoogleAdMobInterstitial googleInterstitialAd;
 
     @Override
     public void onCreate() {
@@ -43,10 +47,15 @@ public class ColorBallsApp extends Application {
         } else {
             // default
         }
+
         System.out.println("BuildConfig.APPLICATION_ID = " + BuildConfig.APPLICATION_ID);
-        FacebookAds = new FacebookInterstitialAds(ColorBallsApp.AppContext, facebookPlacementID);
+        facebookAds = new FacebookInterstitialAds(ColorBallsApp.AppContext, facebookPlacementID);
+        facebookAds.loadAd();
+
         MobileAds.initialize(AppContext, googleAdMobAppID);
-        GoogleInterstitialAd = new GoogleAdMobInterstitial(AppContext, googleAdMobInterstitialID);
-        GoogleInterstitialAd.loadAd(); // load first ad
+        googleInterstitialAd = new GoogleAdMobInterstitial(AppContext, googleAdMobInterstitialID);
+        googleInterstitialAd.loadAd(); // load first ad
+
+        InterstitialAd = new ShowingInterstitialAdsUtil(facebookAds, googleInterstitialAd);
     }
 }

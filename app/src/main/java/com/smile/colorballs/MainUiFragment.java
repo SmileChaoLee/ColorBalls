@@ -1,7 +1,6 @@
 package com.smile.colorballs;
 
 import com.smile.smilepublicclasseslibrary.alertdialogfragment.*;
-import com.smile.smilepublicclasseslibrary.facebookadsutil.*;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -39,7 +38,9 @@ import android.widget.TextView;
 import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
 import com.smile.model.GridData;
+import com.smile.smilepublicclasseslibrary.facebook_ads_util.FacebookInterstitialAds;
 import com.smile.smilepublicclasseslibrary.player_record_rest.PlayerRecordRest;
+import com.smile.smilepublicclasseslibrary.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
 import com.smile.utility.FontAndBitmapUtil;
 import com.smile.utility.ScreenUtil;
 import com.smile.utility.SoundUtil;
@@ -899,9 +900,9 @@ public class MainUiFragment extends Fragment {
         displayNextBallsView();
     }
 
-    private void showFacebookAdsAndNewGameOrQuit(final int entryPoint) {
-        FacebookInterstitialAds.ShowFacebookAdsAsyncTask_DialogFragment showAdsAsyncTask =
-                ColorBallsApp.FacebookAds.new ShowFacebookAdsAsyncTask_DialogFragment(myActivity, showingAdsString, fontSizeForText, entryPoint, new FacebookInterstitialAds.AfterDismissFunctionOfShowFacebookAds() {
+    private void showInterstitialAdAndNewGameOrQuit(final int entryPoint) {
+        ShowingInterstitialAdsUtil.ShowAdAsyncTask showAdAsyncTask =
+                ColorBallsApp.InterstitialAd.new ShowAdAsyncTask(myActivity, entryPoint, new ShowingInterstitialAdsUtil.AfterDismissFunctionOfShowAd() {
             @Override
             public void executeAfterDismissAds(int endPoint) {
                 isProcessingJob = false;
@@ -914,7 +915,7 @@ public class MainUiFragment extends Fragment {
                 }
             }
         });
-        showAdsAsyncTask.execute();
+        showAdAsyncTask.execute();
     }
 
     private void showTop10ScoreHistory() {
@@ -956,7 +957,7 @@ public class MainUiFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                showFacebookAdsAndNewGameOrQuit(entryPoint);
+                showInterstitialAdAndNewGameOrQuit(entryPoint);
             }
         });
         alertD.setButton(DialogInterface.BUTTON_POSITIVE, submitStr, new DialogInterface.OnClickListener() {
@@ -981,9 +982,10 @@ public class MainUiFragment extends Fragment {
                     }
                 };
                 restThread.start();
+
                 ColorBallsApp.ScoreSQLiteDB.addScore(et.getText().toString(),currentScore);
 
-                showFacebookAdsAndNewGameOrQuit(entryPoint);
+                showInterstitialAdAndNewGameOrQuit(entryPoint);
             }
         });
 

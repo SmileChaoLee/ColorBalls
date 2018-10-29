@@ -1,6 +1,6 @@
 package com.smile.colorballs;
 
-import com.smile.smilepublicclasseslibrary.facebookadsutil.*;
+import com.smile.smilepublicclasseslibrary.facebook_ads_util.*;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -26,6 +26,7 @@ import android.widget.TextView;
 import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
 import com.smile.smilepublicclasseslibrary.google_admob_ads_util.GoogleAdMobInterstitial;
+import com.smile.smilepublicclasseslibrary.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
 import com.smile.utility.ScreenUtil;
 
 import java.util.ArrayList;
@@ -174,7 +175,6 @@ public class MyActivity extends AppCompatActivity {
             case Top10ScoreActivityRequestCode:
                 break;
             case GlobalTop10ActivityRequestCode:
-                // showFacebookAdsUntilDismissed(this);
                 showGoogleAdMobAdsUntilDismissed(this);
                 break;
         }
@@ -276,9 +276,12 @@ public class MyActivity extends AppCompatActivity {
         if (ColorBallsApp.ScoreSQLiteDB != null) {
             ColorBallsApp.ScoreSQLiteDB.close();
         }
-        if (ColorBallsApp.FacebookAds != null) {
-            ColorBallsApp.FacebookAds.close();
+        /*
+        // cannot close FacebookAd instance otherwise next run would not be showing Facebook ads
+        if (ColorBallsApp.InterstitialAd != null) {
+            ColorBallsApp.InterstitialAd.close();
         }
+        */
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.unregisterReceiver(myReceiver);
         System.out.println("MyActivity.onDestroy --> myReceiver was unregistered.");
@@ -293,7 +296,7 @@ public class MyActivity extends AppCompatActivity {
 
     public void quitApplication() {
         final Handler handlerClose = new Handler();
-        final int timeDelay = 300;
+        final int timeDelay = 200;
         handlerClose.postDelayed(new Runnable() {
             public void run() {
                 // quit game
@@ -305,7 +308,7 @@ public class MyActivity extends AppCompatActivity {
     public void reStartApplication()
     {
         final Handler handlerClose = new Handler();
-        final int timeDelay = 300;
+        final int timeDelay = 200;
         handlerClose.postDelayed(new Runnable() {
             public void run() {
                 // restart this MyActivity, new game
@@ -317,17 +320,10 @@ public class MyActivity extends AppCompatActivity {
     }
 
     // private methods
-    private void showFacebookAdsUntilDismissed(Activity activity) {
-        FacebookInterstitialAds.ShowFacebookAdsAsyncTask_DialogFragment showAdsAsyncTask =
-                ColorBallsApp.FacebookAds.new ShowFacebookAdsAsyncTask_DialogFragment(this, ColorBallsApp.AppResources.getString(R.string.showingAdsString), fontSizeForText, 0);
-        showAdsAsyncTask.execute();
-    }
-
-    // private methods
     private void showGoogleAdMobAdsUntilDismissed(Activity activity) {
-        GoogleAdMobInterstitial.ShowGoogleAdMobAdsAsyncTask showAdsAsyncTask =
-                ColorBallsApp.GoogleInterstitialAd.new ShowGoogleAdMobAdsAsyncTask(this, 0);
-        showAdsAsyncTask.execute();
+        ShowingInterstitialAdsUtil.ShowAdAsyncTask showAdAsyncTask =
+                ColorBallsApp.InterstitialAd.new ShowAdAsyncTask(this, 0);
+        showAdAsyncTask.execute();
     }
 
     // public methods
