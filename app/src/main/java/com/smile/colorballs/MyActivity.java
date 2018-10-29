@@ -173,9 +173,10 @@ public class MyActivity extends AppCompatActivity {
                 }
                 break;
             case Top10ScoreActivityRequestCode:
+                showAdUntilDismissed(this);
                 break;
             case GlobalTop10ActivityRequestCode:
-                showGoogleAdMobAdsUntilDismissed(this);
+                showAdUntilDismissed(this);
                 break;
         }
 
@@ -320,7 +321,7 @@ public class MyActivity extends AppCompatActivity {
     }
 
     // private methods
-    private void showGoogleAdMobAdsUntilDismissed(Activity activity) {
+    private void showAdUntilDismissed(Activity activity) {
         ShowingInterstitialAdsUtil.ShowAdAsyncTask showAdAsyncTask =
                 ColorBallsApp.InterstitialAd.new ShowAdAsyncTask(this, 0);
         showAdAsyncTask.execute();
@@ -383,6 +384,7 @@ public class MyActivity extends AppCompatActivity {
                                         ft.remove(top10ScoreFragment);
                                         // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                                         ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
+                                        showAdUntilDismissed(activity);
                                     }
                                 }
                             });
@@ -462,8 +464,7 @@ public class MyActivity extends AppCompatActivity {
                                         ft.remove(globalTop10Fragment);
                                         // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                                         ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-                                        // showFacebookAdsUntilDismissed(activity);
-                                        showGoogleAdMobAdsUntilDismissed(activity);
+                                        showAdUntilDismissed(activity);
                                     }
                                 }
                             });
