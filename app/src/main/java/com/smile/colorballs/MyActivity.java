@@ -39,12 +39,14 @@ public class MyActivity extends AppCompatActivity {
 
     // private properties
     private final String TAG = new String("com.smile.colorballs.MyActivity");
+    private final String GlobalTop10FragmentTag = "GlobalTop10FragmentTag";
+    private final String LocalTop10FragmentTag = "LocalTop10FragmentTag";
     private int mainUiLayoutId = -1;
     private int top10LayoutId = -1;
 
     private MainUiFragment mainUiFragment = null;
     private Top10ScoreFragment top10ScoreFragment = null;
-    private GlobalTop10Fragment globalTop10Fragment = null;
+    private Top10ScoreFragment globalTop10Fragment = null;
     private MyBroadcastReceiver myReceiver;
 
     private int fontSizeForText = 24;
@@ -360,6 +362,7 @@ public class MyActivity extends AppCompatActivity {
             View historyView;
             switch (actionName) {
                 case MyTop10ScoresIntentService.Action_Name:
+                    String top10ScoreTitle = getString(R.string.top10Score);
                     extras = intent.getExtras();
                     if (extras != null) {
                         playerNames = extras.getStringArrayList("PlayerNames");
@@ -373,7 +376,7 @@ public class MyActivity extends AppCompatActivity {
                     if (historyView != null) {
                         // if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         if (ColorBallsApp.AppResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                            top10ScoreFragment = Top10ScoreFragment.newInstance(playerNames, playerScores, fontSizeForText, new Top10ScoreFragment.Top10OkButtonListener() {
+                            top10ScoreFragment = Top10ScoreFragment.newInstance(top10ScoreTitle, playerNames, playerScores, fontSizeForText, new Top10ScoreFragment.Top10OkButtonListener() {
                                 @Override
                                 public void buttonOkClick(Activity activity) {
                                     if (top10ScoreFragment != null) {
@@ -390,11 +393,11 @@ public class MyActivity extends AppCompatActivity {
                             FragmentManager fmManager = getSupportFragmentManager();
                             FragmentTransaction ft = fmManager.beginTransaction();
                             ft = fmManager.beginTransaction();
-                            Fragment currentTop10ScoreFragment = fmManager.findFragmentByTag(Top10ScoreFragment.Top10ScoreFragmentTag);
+                            Fragment currentTop10ScoreFragment = fmManager.findFragmentByTag(LocalTop10FragmentTag);
                             if (currentTop10ScoreFragment == null) {
-                                ft.add(top10LayoutId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
+                                ft.add(top10LayoutId, top10ScoreFragment, LocalTop10FragmentTag);
                             } else {
-                                ft.replace(top10LayoutId, top10ScoreFragment, Top10ScoreFragment.Top10ScoreFragmentTag);
+                                ft.replace(top10LayoutId, top10ScoreFragment, LocalTop10FragmentTag);
                             }
                             // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                             ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
@@ -405,6 +408,7 @@ public class MyActivity extends AppCompatActivity {
                         top10ScoreFragment = null;
                         Intent top10Intent = new Intent(getApplicationContext(), Top10ScoreActivity.class);
                         Bundle top10Extras = new Bundle();
+                        top10Extras.putString("Top10TitleName", top10ScoreTitle);
                         top10Extras.putStringArrayList("Top10Players", playerNames);
                         top10Extras.putIntegerArrayList("Top10Scores", playerScores);
                         top10Extras.putInt("FontSizeForText", fontSizeForText);
@@ -413,6 +417,7 @@ public class MyActivity extends AppCompatActivity {
                     }
                     break;
                 case MyGlobalTop10IntentService.Action_Name:
+                    String globalTop10ScoreTitle = getString(R.string.globalTop10Score);
                     extras = intent.getExtras();
                     if (extras != null) {
                         playerNames = extras.getStringArrayList("PlayerNames");
@@ -427,11 +432,10 @@ public class MyActivity extends AppCompatActivity {
                     if (historyView != null) {
                         // if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         if (ColorBallsApp.AppResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                            globalTop10Fragment = GlobalTop10Fragment.newInstance(playerNames, playerScores, fontSizeForText, new GlobalTop10Fragment.GlobalTop10OkButtonListener() {
+                            globalTop10Fragment = Top10ScoreFragment.newInstance(globalTop10ScoreTitle, playerNames, playerScores, fontSizeForText, new Top10ScoreFragment.Top10OkButtonListener() {
                                 @Override
                                 public void buttonOkClick(Activity activity) {
                                     if (globalTop10Fragment != null) {
-                                        // remove GlobalTop10Fragment to dismiss the top 10 score screen
                                         FragmentManager fmManager = getSupportFragmentManager();
                                         FragmentTransaction ft = fmManager.beginTransaction();
                                         ft.remove(globalTop10Fragment);
@@ -444,11 +448,11 @@ public class MyActivity extends AppCompatActivity {
                             FragmentManager fmManager = getSupportFragmentManager();
                             FragmentTransaction ft = fmManager.beginTransaction();
                             ft = fmManager.beginTransaction();
-                            Fragment currentGlobalTop10Fragment = fmManager.findFragmentByTag(GlobalTop10Fragment.GlobalTop10FragmentTag);
+                            Fragment currentGlobalTop10Fragment = fmManager.findFragmentByTag(GlobalTop10FragmentTag);
                             if (currentGlobalTop10Fragment == null) {
-                                ft.add(top10LayoutId, globalTop10Fragment, GlobalTop10Fragment.GlobalTop10FragmentTag);
+                                ft.add(top10LayoutId, globalTop10Fragment, GlobalTop10FragmentTag);
                             } else {
-                                ft.replace(top10LayoutId, globalTop10Fragment, GlobalTop10Fragment.GlobalTop10FragmentTag);
+                                ft.replace(top10LayoutId, globalTop10Fragment, GlobalTop10FragmentTag);
                             }
                             // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                             ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
@@ -457,8 +461,9 @@ public class MyActivity extends AppCompatActivity {
                     } else {
                         // for Portrait
                         globalTop10Fragment = null;
-                        Intent globalTop10Intent = new Intent(getApplicationContext(), GlobalTop10Activity.class);
+                        Intent globalTop10Intent = new Intent(getApplicationContext(), Top10ScoreActivity.class);
                         Bundle globalTop10Extras = new Bundle();
+                        globalTop10Extras.putString("Top10TitleName", globalTop10ScoreTitle);
                         globalTop10Extras.putStringArrayList("Top10Players", playerNames);
                         globalTop10Extras.putIntegerArrayList("Top10Scores", playerScores);
                         globalTop10Extras.putInt("FontSizeForText", fontSizeForText);

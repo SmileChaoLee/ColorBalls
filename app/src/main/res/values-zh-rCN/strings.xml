@@ -11,8 +11,8 @@
     <string name="title_activity_history">前10名高分</string>
     <string name="top10Score">前10名高分</string>
 
-    <string name="title_activity_global">全球前10排名</string>
-    <string name="globalTop10">全球前10排名</string>
+    <string name="title_activity_global">全球前10排名Activity</string>
+    <string name="globalTop10Score">全球前10排名分数</string>
 
     <string name="action_settings">Settings</string>
 

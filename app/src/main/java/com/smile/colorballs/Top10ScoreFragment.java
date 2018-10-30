@@ -38,9 +38,6 @@ import java.util.List;
  */
 public class Top10ScoreFragment extends Fragment {
 
-    // public properties
-    public static final String Top10ScoreFragmentTag = "Top10ScoreFragmentTag";
-
     // private properties
     private static final String TAG = new String("com.smile.colorballs.Top10ScoreFragment");
 
@@ -54,6 +51,7 @@ public class Top10ScoreFragment extends Fragment {
     private Button okButton = null;
     private Top10OkButtonListener top10OkButtonListener = null;
     private TextView titleForTop10ListView = null;
+    private String top10TitleName = "";
 
     private int fontSizeForText = 24;
 
@@ -73,7 +71,7 @@ public class Top10ScoreFragment extends Fragment {
         this.top10OkButtonListener = listener;
     }
 
-    public static Top10ScoreFragment newInstance(ArrayList<String> playerNames, ArrayList<Integer> playerScores, int fontSize, Top10OkButtonListener listener) {
+    public static Top10ScoreFragment newInstance(String top10Title, ArrayList<String> playerNames, ArrayList<Integer> playerScores, int fontSize, Top10OkButtonListener listener) {
         Top10ScoreFragment fragment;
         if (listener == null) {
             fragment = new Top10ScoreFragment();
@@ -82,6 +80,7 @@ public class Top10ScoreFragment extends Fragment {
         }
 
         Bundle args = new Bundle();
+        args.putString("Top10TitleName", top10Title);
         args.putStringArrayList("Top10Players", playerNames);
         args.putIntegerArrayList("Top10Scores", playerScores);
         args.putInt("FontSizeForText", fontSize);
@@ -100,6 +99,7 @@ public class Top10ScoreFragment extends Fragment {
         if (savedInstanceState == null) {   // if new Fragment instance
             Bundle args = getArguments();
             if (args != null) {
+                top10TitleName = args.getString("Top10TitleName");
                 top10Players = args.getStringArrayList("Top10Players");
                 top10Scores = args.getIntegerArrayList("Top10Scores");
                 fontSizeForText = args.getInt("FontSizeForText");
@@ -113,6 +113,10 @@ public class Top10ScoreFragment extends Fragment {
         // Inflate the layout for this fragment
         // historyView = inflater.inflate(R.layout.fragment_score_history, container, false);
         View view = inflater.inflate(R.layout.layout_for_top10_score_fragment, container, false);
+
+        TextView top10TitleTextView = view.findViewById(R.id.top10ScoreTitle);
+        top10TitleTextView.setText(top10TitleName);
+        top10TitleTextView.setTextSize(fontSizeForText);
 
         System.out.println("Top10ScoreFragment ---> onCreateView() method. ");
 
