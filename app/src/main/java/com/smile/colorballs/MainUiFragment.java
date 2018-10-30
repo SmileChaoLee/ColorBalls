@@ -929,6 +929,9 @@ public class MainUiFragment extends Fragment {
         isProcessingJob = true;
         showLoadingMessage();
         Intent myIntentService = new Intent(myActivity, MyGlobalTop10IntentService.class);
+        String webUrl = ColorBallsApp.REST_Website + "/GetTop10PlayerscoresREST";  // ASP.NET Core
+        webUrl += "?gameId=" + ColorBallsApp.GameId;   // parameters
+        myIntentService.putExtra("WebUrl", webUrl);
         myActivity.startService(myIntentService);
     }
 

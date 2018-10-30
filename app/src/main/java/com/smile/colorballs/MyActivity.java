@@ -25,7 +25,6 @@ import android.widget.TextView;
 
 import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
-import com.smile.smilepublicclasseslibrary.google_admob_ads_util.GoogleAdMobInterstitial;
 import com.smile.smilepublicclasseslibrary.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
 import com.smile.utility.ScreenUtil;
 
@@ -414,39 +413,13 @@ public class MyActivity extends AppCompatActivity {
                     }
                     break;
                 case MyGlobalTop10IntentService.Action_Name:
-                    String[] result;
                     extras = intent.getExtras();
                     if (extras != null) {
-                        result = extras.getStringArray("RESULT");
+                        playerNames = extras.getStringArrayList("PlayerNames");
+                        playerScores = extras.getIntegerArrayList("PlayerScores");
                     } else {
-                        //failed
-                        result = new String[] {FAILED};
-                    }
-                    String status = result[0].toUpperCase();
-                    if (status.equals(SUCCEEDED)) {
-                        // Succeeded
-                        try {
-                            JSONArray jArray = new JSONArray(result[1]);
-                            for (int i = 0; i < jArray.length(); i++) {
-                                JSONObject jo = jArray.getJSONObject(i);
-                                playerNames.add(jo.getString("PlayerName"));
-                                playerScores.add(jo.getInt("Score"));
-                            }
-
-                        } catch (JSONException ex) {
-                            String errorMsg = ex.toString();
-                            ex.printStackTrace();
-                            playerNames.add("JSONException->JSONArray");
-                            playerScores.add(0);
-                        }
-
-                    } else if (status.equals(FAILED)) {
-                        // Failed
-                        playerNames.add("Web Connection Failed.");
-                        playerScores.add(0);
-                    } else {
-                        // Exception
-                        playerNames.add("Exception on Web read.");
+                        // failed
+                        playerNames.add("Failed to access data from MyGlobalTop10IntentService.");
                         playerScores.add(0);
                     }
 
