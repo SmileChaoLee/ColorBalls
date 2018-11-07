@@ -986,7 +986,15 @@ public class MainUiFragment extends Fragment {
                 };
                 restThread.start();
 
-                ColorBallsApp.ScoreSQLiteDB.addScore(et.getText().toString(),currentScore);
+                // modified on 2018-11-07
+                boolean isInTop10 = ColorBallsApp.ScoreSQLiteDB.isInTop10(currentScore);
+                if (isInTop10) {
+                    // inside top 10
+                    // record the current score
+                    ColorBallsApp.ScoreSQLiteDB.addScore(et.getText().toString(),currentScore);
+                    ColorBallsApp.ScoreSQLiteDB.deleteAllAfterTop10();  // only keep the top 10
+                }
+                //
 
                 showInterstitialAdAndNewGameOrQuit(entryPoint);
             }
