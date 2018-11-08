@@ -6,17 +6,14 @@
     <string name="easyStr">Easy</string>
     <string name="difficultStr">Difficult</string>
     <string name="playerLevelStr">Level</string>
-    <string name="quitGame">QUIT</string>
-    <string name="newGame">NEW</string>
+    <string name="quitGame">Quit</string>
+    <string name="newGame">New Game</string>
     <string name="optionButton">OPTION</string>
     <string name="title_activity_history">Top10ScoreActivity</string>
     <string name="top10Score">Top 10 Scores</string>
-
     <string name="title_activity_global">GlobalTop10Activity</string>
     <string name="globalTop10Score">Global Top 10 Scores</string>
-
     <string name="action_settings">Settings</string>
-
     <string name="okStr">Ok</string>
     <string name="yesStr">YES</string>
     <string name="noStr">NO</string>
@@ -28,13 +25,14 @@
     <string name="undoStr">Undo</string>
     <string name="top10Str">Top 10</string>
     <string name="globalTop10Str">Global Top 10</string>
-
     <string name="settingStr">Settings</string>
     <string name="soundStr">Sound</string>
     <string name="onStr">On</string>
     <string name="offStr">Off</string>
-
     <string name="showingAdsString">Showing Ads ...</string>
+    <string name="saveGameString">Save Game</string>
+    <string name="loadGameString">Load Game</string>
+    <string name="gameActionString">Game Action</string>
 
     <string name="google_AdMobAppID">"ca-app-pub-8354869049759576~1891379677"</string>
     <string name="google_AdMobAppID_2">"ca-app-pub-8354869049759576~8647116443"</string>

@@ -5,6 +5,16 @@
         <!-- Customize your theme here. -->
         <!-- no Status Bar -->
         <item name="android:windowFullscreen">true</item>
+        <item name="android:textAllCaps">false</item>
+
+        <item name="contentInsetStart">0dp</item>
+        <item name="contentInsetEnd">0dp</item>
+        <item name="android:textSize">20dp</item>
+        <item name="android:textColor">#0000FF</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:itemBackground">#ffa500</item>
+        <item name="android:itemPadding">0dp</item>
+
     </style>
 
     <style name="ThemeTextSize30" parent="AppTheme">

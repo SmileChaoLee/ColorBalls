@@ -1,19 +1,34 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:ColorBalls="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".MyActivity_OLD" >
+    tools:context=".MyActivity" >
     <item android:id="@+id/quitGame"
         android:title="@string/quitGame"
         android:orderInCategory="1"
-        ColorBalls:showAsAction="always"/>
-    <item android:id="@+id/newGame"
-        android:title="@string/newGame"
+        app:showAsAction="always"/>
+    <item android:id="@+id/gameAction"
+        android:title="@string/gameActionString"
         android:orderInCategory="2"
-        ColorBalls:showAsAction="always"/>
+        app:showAsAction="always">
+        <menu>
+            <item android:id="@+id/newGame"
+                android:title="@string/newGame"
+                android:orderInCategory="1"
+                app:showAsAction="never"/>
+            <item android:id="@+id/saveGame"
+                android:title="@string/saveGameString"
+                android:orderInCategory="2"
+                app:showAsAction="never"/>
+            <item android:id="@+id/loadGame"
+                android:title="@string/loadGameString"
+                android:orderInCategory="3"
+                app:showAsAction="never"/>
+        </menu>
+    </item>
     <item android:id="@+id/setting"
         android:title="@string/settingStr"
         android:orderInCategory="3"
-        ColorBalls:showAsAction="always">
+        app:showAsAction="always">
     </item>
 
 </menu>

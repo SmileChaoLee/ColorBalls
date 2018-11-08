@@ -1,0 +1,27 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ColorBalls="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MyActivity" >
+    <item android:id="@+id/quitGame"
+        android:title="@string/quitGame"
+        android:orderInCategory="1"
+        ColorBalls:showAsAction="always"/>
+    <item android:id="@+id/newGame"
+        android:title="@string/newGame"
+        android:orderInCategory="2"
+        ColorBalls:showAsAction="always"/>
+    <item android:id="@+id/saveGame"
+        android:title="@string/saveGameString"
+        android:orderInCategory="3"
+        ColorBalls:showAsAction="always"/>
+    <item android:id="@+id/loadGame"
+        android:title="@string/loadGameString"
+        android:orderInCategory="4"
+        ColorBalls:showAsAction="always"/>
+    <item android:id="@+id/setting"
+        android:title="@string/settingStr"
+        android:orderInCategory="5"
+        ColorBalls:showAsAction="always">
+    </item>
+
+</menu>

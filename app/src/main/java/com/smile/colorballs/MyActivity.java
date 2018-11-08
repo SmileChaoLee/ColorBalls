@@ -188,12 +188,12 @@ public class MyActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.my, menu);
+        /*
+        // removed on 2018-11-08
         MenuItem registerMenuItemEndGame = menu.findItem(R.id.quitGame);
-        registerMenuItemEndGame.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         MenuItem registerMenuItemNewGame = menu.findItem(R.id.newGame);
-        registerMenuItemNewGame.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         MenuItem registerMenuItemOption = menu.findItem(R.id.setting);
-        registerMenuItemOption.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        */
 
         return true;
     }

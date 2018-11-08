@@ -10,12 +10,9 @@
     <string name="optionButton">選項</string>
     <string name="title_activity_history">前10名高分</string>
     <string name="top10Score">前10名高分</string>
-
     <string name="title_activity_global">全球前10排名Activity</string>
     <string name="globalTop10Score">全球前10排名分數</string>
-
     <string name="action_settings">設定</string>
-
     <string name="okStr">確定</string>
     <string name="yesStr">是</string>
     <string name="noStr">否</string>
@@ -27,13 +24,14 @@
     <string name="undoStr">還 原</string>
     <string name="top10Str">前10名高分</string>
     <string name="globalTop10Str">全球前10排名</string>
-
     <string name="settingStr">設定</string>
     <string name="soundStr">聲音</string>
     <string name="onStr">開</string>
     <string name="offStr">關</string>
-
     <string name="showingAdsString">廣告顯示中 ...</string>
+    <string name="saveGameString">儲存遊戲</string>
+    <string name="loadGameString">載入遊戲</string>
+    <string name="gameActionString">遊戲動作</string>
 
     <string name="google_AdMobAppID">ca-app-pub-8354869049759576~1891379677</string>
     <string name="google_AdMobAppID_2">ca-app-pub-8354869049759576~8647116443</string>
