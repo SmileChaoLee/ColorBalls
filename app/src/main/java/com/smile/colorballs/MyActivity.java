@@ -217,6 +217,14 @@ public class MyActivity extends AppCompatActivity {
                 mainUiFragment.newGame();
                 return true;
             }
+            if (id == R.id.saveGame) {
+                mainUiFragment.saveGame();
+                return true;
+            }
+            if (id == R.id.loadGame) {
+                mainUiFragment.loadGame();
+                return true;
+            }
             if (id == R.id.setting) {
                 mainUiFragment.setIsProcessingJob(true);    // started procession job
                 Intent intent = new Intent(this, SettingActivity.class);

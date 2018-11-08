@@ -13,16 +13,21 @@ import java.util.Random;
 import java.util.Vector;
 
 public class GridData {
+    // 10->RED, 20->GREEN, 30->BLUE, 40->MAGENTA, 50->YELLOW
+    public static final int ColorRED = 10;
+    public static final int ColorGREEN = 20;
+    public static final int ColorBLUE = 30;
+    public static final int ColorMAGENTA = 40;
+    public static final int ColorYELLOW = 50;
+    public static final int MaxBalls = 5;
+    private final int[] ballColor = new int[] {ColorRED, ColorGREEN, ColorBLUE, ColorMAGENTA, ColorYELLOW};
     private int rowCounts=0,colCounts=0;
     private int cellValue[][];
     private int backupCell[][];
-    private final  int maxBalls = 5;
     private int maxBallsOneTime = 3;
     private int minBallsOneTime = 3;
     private int ballNumOneTime = 3;
     private int undoNumOneTime = ballNumOneTime;
-    private final int numColors = 5;
-    private final int[] ballColor = new int[] {Color.RED,Color.GREEN,Color.BLUE,Color.MAGENTA,Color.YELLOW};
     private int[] nextBalls = null;
     private int[] nextCellIndexI = null;
     private int[] nextCellIndexJ = null;
@@ -38,13 +43,6 @@ public class GridData {
 
     private int numOfTotalBalls = 0;
     private boolean gameOver = false;
-
-    // cellValue[i][j] = 0 ------> empty
-    // cellValue[i][j] = 1 ------> for  RED ball
-    // cellValue[i][j] = 2 ------> for GREEN ball
-    // cellValue[i][j] = 3 ------> for BLUE ball
-    // cellValue[i][j] = 4 ------> for MAGENTA ball
-    // cellValue[i][j] = 5 ------> for YELLOW ball
 
     public GridData(int rowCounts , int colCounts , int minBallsOneTime , int maxBallsOneTime) {
         setRowCounts(rowCounts);
@@ -80,11 +78,11 @@ public class GridData {
 
     private void initGridData() {
 
-        nextBalls = new int[maxBalls];
-        nextCellIndexI = new int[maxBalls];
-        nextCellIndexJ = new int[maxBalls];
+        nextBalls = new int[MaxBalls];
+        nextCellIndexI = new int[MaxBalls];
+        nextCellIndexJ = new int[MaxBalls];
 
-        undoBalls = new int[maxBalls];
+        undoBalls = new int[MaxBalls];
 
         cellValue = new int[rowCounts][colCounts];
         backupCell = new int[rowCounts][colCounts];
@@ -111,7 +109,7 @@ public class GridData {
         ballNumOneTime = random.nextInt(maxBallsOneTime-minBallsOneTime+1) + minBallsOneTime;
 
         for (int i=0 ; i<ballNumOneTime ; i++) {
-            int nn = random.nextInt(numColors);
+            int nn = random.nextInt(MaxBalls);
             nextBalls[i] = ballColor[nn];
         }
     }
@@ -130,6 +128,9 @@ public class GridData {
 
     public int[] getNextBalls() {
         return nextBalls;
+    }
+    public void setNextBalls(int[] nextBalls) {
+        this.nextBalls = nextBalls.clone();
     }
 
     public void randCells() {
@@ -213,6 +214,9 @@ public class GridData {
     public int getBallNumOneTime() {
         return this.ballNumOneTime;
     }
+    public void setBallNumOneTime(int ballNumOneTime) {
+        this.ballNumOneTime = ballNumOneTime;
+    }
 
     public int check_moreFive(int x,int y) {
 
@@ -226,7 +230,6 @@ public class GridData {
 
         List<Point> tempList = new ArrayList<>();
         tempList.clear();
-        // tempList.add(new Point(x,y));
 
         cellColor = cellValue[x][y];
 
@@ -445,13 +448,6 @@ public class GridData {
     }
 
     private void backupCellValue() {
-        /* removed on 2018-10-03
-        for (int i=0 ; i<rowCounts ; i++) {
-            for (int j=0 ; j<colCounts ; j++) {
-                backupCell[i][j] = cellValue[i][j];
-            }
-        }
-        */
 
         for (int i=0 ; i<rowCounts ; i++) {
             backupCell[i] = cellValue[i].clone();
@@ -459,13 +455,6 @@ public class GridData {
     }
 
     private void restoreCellValue() {
-        /* removed on 2018-10-03
-        for (int i=0 ; i<rowCounts ; i++) {
-            for (int j=0 ; j<colCounts ; j++) {
-                cellValue[i][j] = backupCell[i][j];
-            }
-        }
-        */
         for (int i=0 ; i<rowCounts ; i++) {
             cellValue[i] = backupCell[i].clone();
         }
@@ -543,7 +532,6 @@ public class GridData {
             if ((pTemp.x >= 0 && pTemp.x < rowCounts) && (pTemp.y >= 0 && pTemp.y < colCounts) && (cellValue[pTemp.x][pTemp.y] == 0)) {
                 Cell temp = new Cell(pTemp, parent);
                 vector.addElement(temp);
-                // cellValue[pTemp.x][pTemp.y] = -1;    // removed on 2018-05-01
                 traversed.add(pTemp);
             }
         }

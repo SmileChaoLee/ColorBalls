@@ -47,6 +47,10 @@ import com.smile.utility.SoundUtil;
 
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -803,20 +807,19 @@ public class MainUiFragment extends Fragment {
 
     private void drawBall(ImageView imageView,int color) {
         switch (color) {
-            case Color.RED:
+            case GridData.ColorRED:
                 imageView.setImageResource(R.drawable.redball);
                 break;
-            case Color.GREEN:
+            case GridData.ColorGREEN:
                 imageView.setImageResource(R.drawable.greenball);
                 break;
-            case Color.BLUE:
+            case GridData.ColorBLUE:
                 imageView.setImageResource(R.drawable.blueball);
                 break;
-            case Color.MAGENTA:
+            case GridData.ColorMAGENTA:
                 imageView.setImageResource(R.drawable.magentaball);
                 break;
-            case Color.YELLOW:
-                imageView.setImageResource(R.drawable.yellowball);
+            case GridData.ColorYELLOW:
                 imageView.setImageResource(R.drawable.yellowball);
                 break;
             default:
@@ -827,19 +830,19 @@ public class MainUiFragment extends Fragment {
 
     private void drawOval(ImageView imageView,int color) {
         switch (color) {
-            case Color.RED:
+            case GridData.ColorRED:
                 imageView.setImageResource(R.drawable.redball_o);
                 break;
-            case Color.GREEN:
+            case GridData.ColorGREEN:
                 imageView.setImageResource(R.drawable.greenball_o);
                 break;
-            case Color.BLUE:
+            case GridData.ColorBLUE:
                 imageView.setImageResource(R.drawable.blueball_o);
                 break;
-            case Color.MAGENTA:
+            case GridData.ColorMAGENTA:
                 imageView.setImageResource(R.drawable.magentaball_o);
                 break;
-            case Color.YELLOW:
+            case GridData.ColorYELLOW:
                 imageView.setImageResource(R.drawable.yellowball_o);
                 break;
             default:
@@ -935,9 +938,107 @@ public class MainUiFragment extends Fragment {
         myActivity.startService(myIntentService);
     }
 
-    // pub;ic methods
+    // public methods
     public void newGame() {
         recordScore(1);   //   START A NEW GAME
+    }
+    public void saveGame() {
+        isProcessingJob = true;
+
+        boolean succeeded = true;
+        File outputFile = new File(ColorBallsApp.AppContext.getFilesDir(), "saved_game");
+        try {
+            FileOutputStream foStream = new FileOutputStream(outputFile);
+            // save settings
+            if (hasSound) {
+                foStream.write(1);
+            } else {
+                foStream.write(0);
+            }
+            if (isEasyLevel) {
+                foStream.write(1);
+            } else {
+                foStream.write(0);
+            }
+            // save next balls
+            int nextNumber = gridData.getBallNumOneTime();
+            foStream.write(nextNumber);
+            for (int i=0; i<nextNumber; i++) {
+                foStream.write(gridData.getNextBalls()[i]);
+            }
+            // save values on 9x9 grid
+            for (int i=0; i<rowCounts; i++) {
+                for (int j=0; j<colCounts; j++) {
+                    foStream.write(gridData.getCellValue(i, j));
+                }
+            }
+            //
+            foStream.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            succeeded = false;
+        }
+        isProcessingJob = true;
+    }
+    public void loadGame() {
+        isProcessingJob = true;
+
+        boolean succeeded = true;
+        boolean soundYn;
+        boolean easyYn;
+        int numberOfNextBalls;
+        int[] nextBalls = new int[GridData.MaxBalls];
+        int[][] gameCells = new int[rowCounts][colCounts];
+
+        File inputFile = new File(ColorBallsApp.AppContext.getFilesDir(), "saved_game");
+        try {
+            FileInputStream fiStream = new FileInputStream(inputFile);
+            int bValue = fiStream.read();
+            if (bValue == 1) {
+                // has sound
+                Log.i(TAG, "FileInputStream Read: Game has sound");
+                soundYn = true;
+            } else {
+                // has no sound
+                Log.i(TAG, "FileInputStream Read: Game has no sound");
+                soundYn = true;
+            }
+            bValue = fiStream.read();
+            if (bValue == 1) {
+                // easy level
+                Log.i(TAG, "FileInputStream Read: Game is easy level");
+                easyYn = true;
+
+            } else {
+                // difficult level
+                Log.i(TAG, "FileInputStream Read: Game is difficult level");
+                easyYn = false;
+            }
+            numberOfNextBalls = fiStream.read();
+            Log.i(TAG, "FileInputStream Read: Game has " + numberOfNextBalls + " next balls");
+            int ballValue;
+            for (int i=0; i<numberOfNextBalls; i++) {
+                nextBalls[i] = fiStream.read();
+                Log.i(TAG, "FileInputStream Read: Next ball value = " + nextBalls[i]);
+            }
+            for (int i=0; i<rowCounts; i++) {
+                for (int j=0; j<colCounts; j++) {
+                    gameCells[i][j] = fiStream.read();
+                    Log.i(TAG, "FileInputStream Read: Value of ball at (" + i + ", " + j + ") = " + gameCells[i][j]);
+                }
+            }
+            fiStream.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            succeeded = false;
+        }
+        if (succeeded) {
+            // reset the game by data read
+        } else {
+            // show failed message
+        }
+
+        isProcessingJob = false;
     }
 
     public void recordScore(final int entryPoint) {
