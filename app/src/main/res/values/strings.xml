@@ -32,7 +32,7 @@
     <string name="showingAdsString">Showing Ads ...</string>
     <string name="saveGameString">Save Game</string>
     <string name="loadGameString">Load Game</string>
-    <string name="gameActionString">Game Action</string>
+    <string name="gameActionString">Action</string>
     <string name="savingGameString">Saving Game</string>
     <string name="loadingGameString">Loading Game</string>
     <string name="succeededSaveGameString">Saved game successfully.</string>

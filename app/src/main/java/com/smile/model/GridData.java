@@ -22,7 +22,7 @@ public class GridData {
     public static final int MaxBalls = 5;
     private final int[] ballColor = new int[] {ColorRED, ColorGREEN, ColorBLUE, ColorMAGENTA, ColorYELLOW};
     private int rowCounts=0,colCounts=0;
-    private int cellValue[][];
+    private int cellValues[][];
     private int backupCells[][];
     private int maxBallsOneTime = 3;
     private int minBallsOneTime = 3;
@@ -69,11 +69,15 @@ public class GridData {
     }
 
     public void setCellValue(int i,int j , int value) {
-        cellValue[i][j] = value;
+        cellValues[i][j] = value;
     }
-
     public int getCellValue(int i , int j) {
-        return this.cellValue[i][j];
+        return this.cellValues[i][j];
+    }
+    public void setCellValues(int[][] cellValues) {
+        for (int i=0; i<rowCounts; i++) {
+            this.cellValues[i] = cellValues[i].clone();
+        }
     }
 
     private void initGridData() {
@@ -84,14 +88,14 @@ public class GridData {
 
         undoNextBalls = new int[MaxBalls];
 
-        cellValue = new int[rowCounts][colCounts];
+        cellValues = new int[rowCounts][colCounts];
         backupCells = new int[rowCounts][colCounts];
         Light_line = new HashSet<>();
         pathPoint   = new ArrayList<>();
 
         for (int i=0 ; i<rowCounts ; i++) {
             for (int j=0 ; j<colCounts ; j++) {
-                cellValue[i][j] = 0;
+                cellValues[i][j] = 0;
                 backupCells[i][j] = 0;
             }
         }
@@ -151,10 +155,10 @@ public class GridData {
             n1 = random.nextInt(rowCounts);
             n2 = random.nextInt(colCounts);
 
-            if (cellValue[n1][n2] == 0) {
+            if (cellValues[n1][n2] == 0) {
                 nextCellIndexI[i] = n1;
                 nextCellIndexJ[i] = n2;
-                cellValue[n1][n2] = nextBalls[i];
+                cellValues[n1][n2] = nextBalls[i];
             } else {
                 i--;
             }
@@ -172,7 +176,7 @@ public class GridData {
 
         nextBalls = undoNextBalls.clone();
 
-        restoreCellValue();
+        restoreCellValues();
 
         numOfTotalBalls = getTotalBalls();
     }
@@ -182,7 +186,7 @@ public class GridData {
         // noColorList.clear();
         for (int i=0 ; i<rowCounts ; i++) {
             for (int j=0 ; j<colCounts; j++) {
-                if (cellValue[i][j] != 0) {
+                if (cellValues[i][j] != 0) {
                     nb++;
                 }
             }
@@ -239,7 +243,7 @@ public class GridData {
         List<Point> tempList = new ArrayList<>();
         tempList.clear();
 
-        cellColor = cellValue[x][y];
+        cellColor = cellValues[x][y];
 
         //first
         first_i = Math.max(x-(rowCounts-1),0);
@@ -247,7 +251,7 @@ public class GridData {
         num_b = 0 ;
 
         for (i=x-1;i>=first_i;i--) {
-            if (cellValue[i][y] == (cellColor)) {
+            if (cellValues[i][y] == (cellColor)) {
                 num_b++ ;
                 tempList.add(new Point(i,y));
             }
@@ -268,7 +272,7 @@ public class GridData {
         }
 
         for (i=x+1;i<=end_i;i++) {
-            if (cellValue[i][y] == cellColor) {
+            if (cellValues[i][y] == cellColor) {
                 num_b++ ;
                 tempList.add(new Point(i,y));
             }
@@ -297,7 +301,7 @@ public class GridData {
 
         num_b = 0 ;
         for (i=x-1, j=y+1;(i>=first_i)&&(j<=first_j) ;i--,j++) {
-            if (cellValue[i][j] == cellColor)
+            if (cellValues[i][j] == cellColor)
             {
                 num_b++ ;
                 tempList.add(new Point(i,j));
@@ -321,7 +325,7 @@ public class GridData {
         }
 
         for (i=x+1, j= y-1 ;(i<=end_i)&&(j>=end_j) ; i++,j--) {
-            if (cellValue[i][j] == cellColor) {
+            if (cellValues[i][j] == cellColor) {
                 num_b++ ;
                 tempList.add(new Point(i,j));
             }
@@ -348,7 +352,7 @@ public class GridData {
 
         num_b = 0 ;
         for (j=y+1;j<=first_j;j++) {
-            if (cellValue[x][j] == cellColor) {
+            if (cellValues[x][j] == cellColor) {
                 num_b++ ;
                 tempList.add(new Point(x,j));
             }
@@ -369,7 +373,7 @@ public class GridData {
         }
 
         for (j=y-1;j>=end_j;j--) {
-            if (cellValue[x][j] == cellColor)
+            if (cellValues[x][j] == cellColor)
             {
                 num_b++ ;
                 tempList.add(new Point(x,j));
@@ -400,7 +404,7 @@ public class GridData {
 
         num_b = 0 ;
         for (i=x+1, j=y+1 ; (i<=first_i)&&(j<=first_j) ; i++,j++) {
-            if (cellValue[i][j] == cellColor) {
+            if (cellValues[i][j] == cellColor) {
                 num_b++ ;
                 tempList.add(new Point(i,j));
             }
@@ -422,7 +426,7 @@ public class GridData {
         }
 
         for (i=x-1, j= y-1 ; (i>=end_i)&&(j>=end_j) ; i--,j--) {
-            if (cellValue[i][j] == cellColor) {
+            if (cellValues[i][j] == cellColor) {
                 num_b++ ;
                 tempList.add(new Point(i,j));
             }
@@ -458,23 +462,23 @@ public class GridData {
     private void backupCellValues() {
 
         for (int i=0 ; i<rowCounts ; i++) {
-            backupCells[i] = cellValue[i].clone();
+            backupCells[i] = cellValues[i].clone();
         }
     }
 
-    private void restoreCellValue() {
+    private void restoreCellValues() {
         for (int i=0 ; i<rowCounts ; i++) {
-            cellValue[i] = backupCells[i].clone();
+            cellValues[i] = backupCells[i].clone();
         }
     }
 
     public boolean moveCellToCell(Point sourcePoint, Point targetPoint) {
         boolean result = false;
 
-        if (cellValue[sourcePoint.x][sourcePoint.y] == 0) {
+        if (cellValues[sourcePoint.x][sourcePoint.y] == 0) {
             return result;
         }
-        if (cellValue[targetPoint.x][targetPoint.y] != 0) {
+        if (cellValues[targetPoint.x][targetPoint.y] != 0) {
             return result;
         }
 
@@ -537,7 +541,7 @@ public class GridData {
 
         if (!traversed.contains(pTemp)) {
             // has not been checked
-            if ((pTemp.x >= 0 && pTemp.x < rowCounts) && (pTemp.y >= 0 && pTemp.y < colCounts) && (cellValue[pTemp.x][pTemp.y] == 0)) {
+            if ((pTemp.x >= 0 && pTemp.x < rowCounts) && (pTemp.y >= 0 && pTemp.y < colCounts) && (cellValues[pTemp.x][pTemp.y] == 0)) {
                 Cell temp = new Cell(pTemp, parent);
                 vector.addElement(temp);
                 traversed.add(pTemp);

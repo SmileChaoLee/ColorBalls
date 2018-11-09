@@ -315,12 +315,6 @@ public class MainUiFragment extends Fragment {
         }
         cellHeight = cellWidth;
 
-        /* removed ont 2018-10-02 to test
-        gridLp.width = cellWidth * colCounts;
-        gridLp.topMargin = 20;
-        gridLp.gravity = Gravity.CENTER;
-        */
-
         // added on 2018-10-02 to test and it works
         // setting the width and the height of GridLayout by using the FrameLayout that is on top of it
         frameLp.width = cellWidth * colCounts;
@@ -966,12 +960,7 @@ public class MainUiFragment extends Fragment {
         myIntentService.putExtra("WebUrl", webUrl);
         myActivity.startService(myIntentService);
     }
-
-    // public methods
-    public void newGame() {
-        recordScore(1);   //   START A NEW GAME
-    }
-    public void saveGame() {
+    private void startSavingGame() {
         isProcessingJob = true;
 
         isShowingSavingGameMessage = true;
@@ -1038,6 +1027,7 @@ public class MainUiFragment extends Fragment {
 
         dismissShowMessageOnScreen();
         isShowingSavingGameMessage = false;
+        isProcessingJob = false;
 
         String textContent;
         if (succeeded) {
@@ -1058,27 +1048,26 @@ public class MainUiFragment extends Fragment {
                     }
                 });
         gameSavedDialog.show(getActivity().getSupportFragmentManager(), "GameSavedDialogTag");
-
-        isProcessingJob = false;
     }
-    public void loadGame() {
+    private void startLoadingGame() {
+
         isProcessingJob = true;
 
         isShowingLoadingGameMessage = true;
         showMessageOnScreen(savingGameString);
 
         boolean succeeded = true;
-        boolean soundYn;
-        boolean easyYn;
-        int ballNumOneTime;
+        boolean soundYn = hasSound;
+        boolean easyYn = isEasyLevel;
+        int ballNumOneTime = gridData.getBallNumOneTime();
         int[] nextBalls = new int[GridData.MaxBalls];
         int[][] gameCells = new int[rowCounts][colCounts];
-        int cScore;
-        boolean undoYn;
-        int undoNumOneTime;
+        int cScore = currentScore;
+        boolean undoYn = undoEnable;
+        int undoNumOneTime = gridData.getUndoNumOneTime();
         int[] undoNextBalls = new int[GridData.MaxBalls];
         int[][] backupCells = new int[rowCounts][colCounts];
-        int unScore;
+        int unScore = undoScore;
 
         File inputFile = new File(ColorBallsApp.AppContext.getFilesDir(), savedGameFileName);
         try {
@@ -1152,18 +1141,29 @@ public class MainUiFragment extends Fragment {
             ex.printStackTrace();
             succeeded = false;
         }
-        if (succeeded) {
-            // reset the game by data read
-        } else {
-            // show failed message
-        }
 
         dismissShowMessageOnScreen();
         isShowingLoadingGameMessage = false;
+        isProcessingJob = false;
 
         String textContent;
         if (succeeded) {
+            // reflesh Main UI with loaded data
             textContent = succeededLoadGameString;
+            setHasSound(soundYn);
+            setIsEasyLevel(easyYn);
+            gridData.setBallNumOneTime(ballNumOneTime);
+            gridData.setNextBalls(nextBalls);
+            gridData.setCellValues(gameCells);
+            currentScore = cScore;
+            undoEnable = undoYn;
+            gridData.setUndoNumOneTime(undoNumOneTime);
+            gridData.setUndoNextBalls(undoNextBalls);
+            gridData.setBackupCells(backupCells);
+            undoScore = unScore;
+            // start update UI
+            currentScoreView.setText(String.format(Locale.getDefault(), "%9d", currentScore));
+            displayGameView();
         } else {
             textContent = failedLoadGameString;
         }
@@ -1180,8 +1180,47 @@ public class MainUiFragment extends Fragment {
                     }
                 });
         gameLoadedDialog.show(getActivity().getSupportFragmentManager(), "GameLoadedDialogTag");
+    }
 
-        isProcessingJob = false;
+    // public methods
+    public void newGame() {
+        recordScore(1);   //   START A NEW GAME
+    }
+    public void saveGame() {
+        AlertDialogFragment sureSaveDialog = AlertDialogFragment.newInstance("Sure to save game?", fontSizeForText * dialogFragment_widthFactor
+                , Color.BLUE, 0, 0, 2, new AlertDialogFragment.DialogButtonListener() {
+                    @Override
+                    public void noButtonOnClick(AlertDialogFragment dialogFragment) {
+                        // cancel the action of saving game
+                        dialogFragment.dismissAllowingStateLoss();
+                    }
+
+                    @Override
+                    public void okButtonOnClick(AlertDialogFragment dialogFragment) {
+                        // start saving game to internal storage
+                        dialogFragment.dismissAllowingStateLoss();
+                        startSavingGame();
+                    }
+                });
+        sureSaveDialog.show(getActivity().getSupportFragmentManager(), "SureSaveDialogTag");
+    }
+    public void loadGame() {
+        AlertDialogFragment sureLoadDialog = AlertDialogFragment.newInstance("Sure to load game?", fontSizeForText * dialogFragment_widthFactor
+                , Color.BLUE, 0, 0, 2, new AlertDialogFragment.DialogButtonListener() {
+                    @Override
+                    public void noButtonOnClick(AlertDialogFragment dialogFragment) {
+                        // cancel the action of saving game
+                        dialogFragment.dismissAllowingStateLoss();
+                    }
+
+                    @Override
+                    public void okButtonOnClick(AlertDialogFragment dialogFragment) {
+                        // start saving game to internal storage
+                        dialogFragment.dismissAllowingStateLoss();
+                        startLoadingGame();
+                    }
+                });
+        sureLoadDialog.show(getActivity().getSupportFragmentManager(), "SureLoadDialogTag");
     }
 
     public void recordScore(final int entryPoint) {

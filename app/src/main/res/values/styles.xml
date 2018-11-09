@@ -9,7 +9,6 @@
 
         <item name="contentInsetStart">0dp</item>
         <item name="contentInsetEnd">0dp</item>
-        <item name="android:textSize">20dp</item>
         <item name="android:textColor">#0000FF</item>
         <item name="android:textStyle">bold</item>
         <item name="android:itemBackground">#ffa500</item>
