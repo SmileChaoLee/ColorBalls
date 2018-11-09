@@ -187,12 +187,6 @@ public class FacebookInterstitialAds {
             args.putInt("height", 0);   // wrap_content
             args.putInt("numButtons", 0);
             loadingDialog.setArguments(args);
-
-            animationText = new AlphaAnimation(0.0f,1.0f);
-            animationText.setDuration(300);
-            animationText.setStartOffset(0);
-            animationText.setRepeatMode(Animation.REVERSE);
-            animationText.setRepeatCount(Animation.INFINITE);
         }
 
         public ShowFacebookAdAsyncTask(final AppCompatActivity activity, final String messageString, final float fontSize, final int endPoint) {
