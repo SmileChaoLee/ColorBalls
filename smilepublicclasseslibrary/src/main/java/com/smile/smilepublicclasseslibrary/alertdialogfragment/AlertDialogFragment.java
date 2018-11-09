@@ -45,14 +45,19 @@ public class AlertDialogFragment extends DialogFragment {
 
     private DialogButtonListener ndl;
 
-    public interface DialogButtonListener extends Serializable {
+    public interface DialogButtonListener {
         void noButtonOnClick(AlertDialogFragment dialogFragment);
         void okButtonOnClick(AlertDialogFragment dialogFragment);
     }
 
     public AlertDialogFragment() {
     }
-    public static AlertDialogFragment newInstance(String textContent, float textSize, int color, int width, int height, int numButtons, DialogButtonListener ndl) {
+    @SuppressLint("ValidFragment")
+    public AlertDialogFragment(DialogButtonListener ndl) {
+        super();
+        this.ndl = ndl;
+    }
+    public static AlertDialogFragment newInstance(String textContent, float textSize, int color, int width, int height) {
         AlertDialogFragment modalDialog = new AlertDialogFragment();
         Bundle args = new Bundle();
         args.putString("textContent", textContent);
@@ -60,8 +65,7 @@ public class AlertDialogFragment extends DialogFragment {
         args.putInt("color", color);
         args.putInt("width", width);
         args.putInt("height", height);
-        args.putInt("numButtons", numButtons);
-        args.putSerializable("ButtonListener", ndl);
+        args.putInt("numButtons", 0);
         modalDialog.setArguments(args);
 
         return modalDialog;
@@ -104,10 +108,6 @@ public class AlertDialogFragment extends DialogFragment {
                 dialogWidth = args.getInt("width");
                 dialogHeight = args.getInt("height");
                 numButtons = args.getInt("numButtons");
-                DialogButtonListener ndlTemp = (DialogButtonListener) args.getSerializable("ButtonListener");
-                if (ndlTemp != null) {
-                    ndl = ndlTemp;
-                }
             }
 
             float factor = getActivity().getResources().getDisplayMetrics().density;

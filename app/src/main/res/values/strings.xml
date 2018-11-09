@@ -39,6 +39,8 @@
     <string name="failedSaveGameString">Failed to save game.</string>
     <string name="succeededLoadGameString">Loaded game successfully.</string>
     <string name="failedLoadGameString">Failed to load game.</string>
+    <string name="sureToSaveGameString">Sure to save game?</string>
+    <string name="sureToLoadGameString">Sure to load game?</string>
 
     <string name="google_AdMobAppID">"ca-app-pub-8354869049759576~1891379677"</string>
     <string name="google_AdMobAppID_2">"ca-app-pub-8354869049759576~8647116443"</string>

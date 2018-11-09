@@ -52,6 +52,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -127,6 +128,9 @@ public class MainUiFragment extends Fragment {
     private String failedLoadGameString;
     private boolean isShowingLoadingGameMessage;
 
+    private String sureToSaveGameString;
+    private String sureToLoadGameString;
+
     public MainUiFragment() {
         // Required empty public constructor
     }
@@ -178,6 +182,8 @@ public class MainUiFragment extends Fragment {
         failedSaveGameString = ColorBallsApp.AppResources.getString(R.string.failedSaveGameString);
         succeededLoadGameString = ColorBallsApp.AppResources.getString(R.string.succeededLoadGameString);
         failedLoadGameString = ColorBallsApp.AppResources.getString(R.string.failedLoadGameString);
+        sureToSaveGameString = ColorBallsApp.AppResources.getString(R.string.sureToSaveGameString);
+        sureToLoadGameString = ColorBallsApp.AppResources.getString(R.string.sureToLoadGameString);
 
         System.out.println("MainUiFragment onCreate() is called.");
     }
@@ -525,8 +531,7 @@ public class MainUiFragment extends Fragment {
             // if (gridData.getGameOver()) {
             if (gameOverYn) {
                 //  game over
-                AlertDialogFragment gameOverDialog = AlertDialogFragment.newInstance(gameOverStr, fontSizeForText * dialogFragment_widthFactor
-                        , Color.BLUE, 0, 0, 2, new AlertDialogFragment.DialogButtonListener() {
+                AlertDialogFragment gameOverDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
                     @Override
                     public void noButtonOnClick(AlertDialogFragment dialogFragment) {
                         // dialogFragment.dismiss();
@@ -541,7 +546,6 @@ public class MainUiFragment extends Fragment {
                         newGame();
                     }
                 });
-                /*
                 Bundle args = new Bundle();
                 args.putString("textContent", gameOverStr);
                 args.putFloat("textSize", fontSizeForText * dialogFragment_widthFactor);
@@ -550,7 +554,6 @@ public class MainUiFragment extends Fragment {
                 args.putInt("height", 0);   // wrap_content
                 args.putInt("numButtons", 2);
                 gameOverDialog.setArguments(args);
-                */
                 gameOverDialog.show(getActivity().getSupportFragmentManager(), GameOverDialogTag);
 
                 System.out.println("gameOverDialog.show() has been called.");
@@ -1035,18 +1038,25 @@ public class MainUiFragment extends Fragment {
         } else {
             textContent = failedSaveGameString;
         }
-        AlertDialogFragment gameSavedDialog = AlertDialogFragment.newInstance(textContent, fontSizeForText * dialogFragment_widthFactor
-                , Color.BLUE, 0, 0, 1, new AlertDialogFragment.DialogButtonListener() {
-                    @Override
-                    public void noButtonOnClick(AlertDialogFragment dialogFragment) {
-                        dialogFragment.dismissAllowingStateLoss();
-                    }
+        AlertDialogFragment gameSavedDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
+            @Override
+            public void noButtonOnClick(AlertDialogFragment dialogFragment) {
+                dialogFragment.dismissAllowingStateLoss();
+            }
 
-                    @Override
-                    public void okButtonOnClick(AlertDialogFragment dialogFragment) {
-                        dialogFragment.dismissAllowingStateLoss();
-                    }
-                });
+            @Override
+            public void okButtonOnClick(AlertDialogFragment dialogFragment) {
+                dialogFragment.dismissAllowingStateLoss();
+            }
+        });
+        Bundle args = new Bundle();
+        args.putString("textContent", textContent);
+        args.putFloat("textSize", fontSizeForText * dialogFragment_widthFactor);
+        args.putInt("color", Color.BLUE);
+        args.putInt("width", 0);    // wrap_content
+        args.putInt("height", 0);   // wrap_content
+        args.putInt("numButtons", 1);
+        gameSavedDialog.setArguments(args);
         gameSavedDialog.show(getActivity().getSupportFragmentManager(), "GameSavedDialogTag");
     }
     private void startLoadingGame() {
@@ -1167,19 +1177,26 @@ public class MainUiFragment extends Fragment {
         } else {
             textContent = failedLoadGameString;
         }
-        AlertDialogFragment gameLoadedDialog = AlertDialogFragment.newInstance(textContent, fontSizeForText * dialogFragment_widthFactor
-                , Color.BLUE, 0, 0, 1, new AlertDialogFragment.DialogButtonListener() {
-                    @Override
-                    public void noButtonOnClick(AlertDialogFragment dialogFragment) {
-                        dialogFragment.dismissAllowingStateLoss();
-                    }
+        AlertDialogFragment gameLoadedDialogTag = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
+            @Override
+            public void noButtonOnClick(AlertDialogFragment dialogFragment) {
+                dialogFragment.dismissAllowingStateLoss();
+            }
 
-                    @Override
-                    public void okButtonOnClick(AlertDialogFragment dialogFragment) {
-                        dialogFragment.dismissAllowingStateLoss();
-                    }
-                });
-        gameLoadedDialog.show(getActivity().getSupportFragmentManager(), "GameLoadedDialogTag");
+            @Override
+            public void okButtonOnClick(AlertDialogFragment dialogFragment) {
+                dialogFragment.dismissAllowingStateLoss();
+            }
+        });
+        Bundle args = new Bundle();
+        args.putString("textContent", textContent);
+        args.putFloat("textSize", fontSizeForText * dialogFragment_widthFactor);
+        args.putInt("color", Color.BLUE);
+        args.putInt("width", 0);    // wrap_content
+        args.putInt("height", 0);   // wrap_content
+        args.putInt("numButtons", 1);
+        gameLoadedDialogTag.setArguments(args);
+        gameLoadedDialogTag.show(getActivity().getSupportFragmentManager(), "GameLoadedDialogTag");
     }
 
     // public methods
@@ -1187,39 +1204,53 @@ public class MainUiFragment extends Fragment {
         recordScore(1);   //   START A NEW GAME
     }
     public void saveGame() {
-        AlertDialogFragment sureSaveDialog = AlertDialogFragment.newInstance("Sure to save game?", fontSizeForText * dialogFragment_widthFactor
-                , Color.BLUE, 0, 0, 2, new AlertDialogFragment.DialogButtonListener() {
-                    @Override
-                    public void noButtonOnClick(AlertDialogFragment dialogFragment) {
-                        // cancel the action of saving game
-                        dialogFragment.dismissAllowingStateLoss();
-                    }
+        AlertDialogFragment sureSaveDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
+            @Override
+            public void noButtonOnClick(AlertDialogFragment dialogFragment) {
+                // cancel the action of saving game
+                dialogFragment.dismissAllowingStateLoss();
+            }
 
-                    @Override
-                    public void okButtonOnClick(AlertDialogFragment dialogFragment) {
-                        // start saving game to internal storage
-                        dialogFragment.dismissAllowingStateLoss();
-                        startSavingGame();
-                    }
-                });
+            @Override
+            public void okButtonOnClick(AlertDialogFragment dialogFragment) {
+                // start saving game to internal storage
+                dialogFragment.dismissAllowingStateLoss();
+                startSavingGame();
+            }
+        });
+        Bundle args = new Bundle();
+        args.putString("textContent", sureToSaveGameString);
+        args.putFloat("textSize", fontSizeForText * dialogFragment_widthFactor);
+        args.putInt("color", Color.BLUE);
+        args.putInt("width", 0);    // wrap_content
+        args.putInt("height", 0);   // wrap_content
+        args.putInt("numButtons", 2);
+        sureSaveDialog.setArguments(args);
         sureSaveDialog.show(getActivity().getSupportFragmentManager(), "SureSaveDialogTag");
     }
     public void loadGame() {
-        AlertDialogFragment sureLoadDialog = AlertDialogFragment.newInstance("Sure to load game?", fontSizeForText * dialogFragment_widthFactor
-                , Color.BLUE, 0, 0, 2, new AlertDialogFragment.DialogButtonListener() {
-                    @Override
-                    public void noButtonOnClick(AlertDialogFragment dialogFragment) {
-                        // cancel the action of saving game
-                        dialogFragment.dismissAllowingStateLoss();
-                    }
+        AlertDialogFragment sureLoadDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
+            @Override
+            public void noButtonOnClick(AlertDialogFragment dialogFragment) {
+                // cancel the action of loading game
+                dialogFragment.dismissAllowingStateLoss();
+            }
 
-                    @Override
-                    public void okButtonOnClick(AlertDialogFragment dialogFragment) {
-                        // start saving game to internal storage
-                        dialogFragment.dismissAllowingStateLoss();
-                        startLoadingGame();
-                    }
-                });
+            @Override
+            public void okButtonOnClick(AlertDialogFragment dialogFragment) {
+                // start loading game to internal storage
+                dialogFragment.dismissAllowingStateLoss();
+                startLoadingGame();
+            }
+        });
+        Bundle args = new Bundle();
+        args.putString("textContent", sureToLoadGameString);
+        args.putFloat("textSize", fontSizeForText * dialogFragment_widthFactor);
+        args.putInt("color", Color.BLUE);
+        args.putInt("width", 0);    // wrap_content
+        args.putInt("height", 0);   // wrap_content
+        args.putInt("numButtons", 2);
+        sureLoadDialog.setArguments(args);
         sureLoadDialog.show(getActivity().getSupportFragmentManager(), "SureLoadDialogTag");
     }
 

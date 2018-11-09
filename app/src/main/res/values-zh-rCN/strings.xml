@@ -38,6 +38,8 @@
     <string name="failedSaveGameString">储存游戏失败</string>
     <string name="succeededLoadGameString">载入游戏成功</string>
     <string name="failedLoadGameString">载入游戏失败</string>
+    <string name="sureToSaveGameString">确定要储存游戏吗?</string>
+    <string name="sureToLoadGameString">确定要载入游戏吗?</string>
 
     <string name="google_AdMobAppID">ca-app-pub-8354869049759576~1891379677</string>
     <string name="google_AdMobAppID_2">ca-app-pub-8354869049759576~8647116443</string>
