@@ -38,7 +38,6 @@ import android.widget.TextView;
 import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
 import com.smile.model.GridData;
-import com.smile.smilepublicclasseslibrary.facebook_ads_util.FacebookInterstitialAds;
 import com.smile.smilepublicclasseslibrary.player_record_rest.PlayerRecordRest;
 import com.smile.smilepublicclasseslibrary.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
 import com.smile.utility.FontAndBitmapUtil;
@@ -51,6 +50,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -68,6 +68,7 @@ public class MainUiFragment extends Fragment {
     private final String TAG = new String("com.smile.colorballs.MainUiFragment");
     private final String GameOverDialogTag = "GameOverDialogFragment";
     private final int nextBallsViewIdStart = 100;
+    private final String savedGameFileName = "saved_game";
 
     private Context context = null;
     private MyActivity myActivity = null;
@@ -101,8 +102,8 @@ public class MainUiFragment extends Fragment {
     private String submitStr = new String("");
     private String cancelStr = new String("");
     private String gameOverStr = new String("");
-    private String showingAdsString;
     private String loadingString;
+    private String savingGameString;
     private int fontSizeForText = 24;   // default
     private float dialog_widthFactor = 1.0f;
     private float dialog_heightFactor = 1.0f;
@@ -112,6 +113,7 @@ public class MainUiFragment extends Fragment {
     private boolean hasSound = true;    // has sound effect
 
     private boolean isShowingLoadingMessage;
+    private boolean isShowingSavingGameMessage;
     private boolean isProcessingJob;
 
     public MainUiFragment() {
@@ -160,8 +162,8 @@ public class MainUiFragment extends Fragment {
             submitStr = ColorBallsApp.AppResources.getString(R.string.submitStr);
             cancelStr = ColorBallsApp.AppResources.getString(R.string.cancelStr);
             gameOverStr = ColorBallsApp.AppResources.getString(R.string.gameOverStr);
-            showingAdsString = ColorBallsApp.AppResources.getString(R.string.showingAdsString);
             loadingString = ColorBallsApp.AppResources.getString(R.string.loadingString);
+            savingGameString = ColorBallsApp.AppResources.getString(R.string.savingGameString);
         // }
 
         System.out.println("MainUiFragment onCreate() is called.");
@@ -388,6 +390,7 @@ public class MainUiFragment extends Fragment {
             // or gridData is null (for some unknown reason)
 
             isShowingLoadingMessage = false;
+            isShowingSavingGameMessage = false;
             isProcessingJob = false;
 
             isEasyLevel = true;     // start with easy level
@@ -401,6 +404,9 @@ public class MainUiFragment extends Fragment {
 
             if (isShowingLoadingMessage) {
                 showLoadingMessage();
+            }
+            if (isShowingSavingGameMessage) {
+                showSavingGameMessage();
             }
 
             if (bouncingStatus == 1) {
@@ -508,19 +514,23 @@ public class MainUiFragment extends Fragment {
             // if (gridData.getGameOver()) {
             if (gameOverYn) {
                 //  game over
-                AlertDialogFragment gameOverDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
+                AlertDialogFragment gameOverDialog = AlertDialogFragment.newInstance(gameOverStr, fontSizeForText * dialogFragment_widthFactor
+                        , Color.BLUE, 0, 0, 2, new AlertDialogFragment.DialogButtonListener() {
                     @Override
-                    public void button1OnClick(AlertDialogFragment dialogFragment) {
-                        dialogFragment.dismiss();
+                    public void noButtonOnClick(AlertDialogFragment dialogFragment) {
+                        // dialogFragment.dismiss();
+                        dialogFragment.dismissAllowingStateLoss();
                         recordScore(0);   //   Ending the game
                     }
 
                     @Override
-                    public void button2OnClick(AlertDialogFragment dialogFragment) {
-                        dialogFragment.dismiss();
+                    public void okButtonOnClick(AlertDialogFragment dialogFragment) {
+                        // dialogFragment.dismiss();
+                        dialogFragment.dismissAllowingStateLoss();
                         newGame();
                     }
                 });
+                /*
                 Bundle args = new Bundle();
                 args.putString("textContent", gameOverStr);
                 args.putFloat("textSize", fontSizeForText * dialogFragment_widthFactor);
@@ -529,6 +539,7 @@ public class MainUiFragment extends Fragment {
                 args.putInt("height", 0);   // wrap_content
                 args.putInt("numButtons", 2);
                 gameOverDialog.setArguments(args);
+                */
                 gameOverDialog.show(getActivity().getSupportFragmentManager(), GameOverDialogTag);
 
                 System.out.println("gameOverDialog.show() has been called.");
@@ -927,7 +938,6 @@ public class MainUiFragment extends Fragment {
         Intent myIntentService = new Intent(myActivity, MyTop10ScoresIntentService.class);
         myActivity.startService(myIntentService);
     }
-
     private void showGlobalTop10History() {
         isProcessingJob = true;
         showLoadingMessage();
@@ -937,6 +947,23 @@ public class MainUiFragment extends Fragment {
         myIntentService.putExtra("WebUrl", webUrl);
         myActivity.startService(myIntentService);
     }
+    private void showSavingGameMessage() {
+        isShowingSavingGameMessage = true;
+        float fontSize = fontSizeForText;
+        double factor = 1.5;
+        int bmWidth = (int)(fontSize * savingGameString.length() * factor);
+        int bmHeight = (int)(fontSize * factor * 6.0);
+        Bitmap dialog_board_image = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
+        Bitmap bm = Bitmap.createScaledBitmap(dialog_board_image, bmWidth, bmHeight, false );  // scale
+        Bitmap loadingBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(bm, savingGameString, Color.RED);
+        scoreImageView.setVisibility(View.VISIBLE);
+        scoreImageView.setImageBitmap(loadingBitmap);
+    }
+    private void dismissSavingGameMessage() {
+        isShowingSavingGameMessage = false;
+        scoreImageView.setImageBitmap(null);
+        scoreImageView.setVisibility(View.GONE);
+    }
 
     // public methods
     public void newGame() {
@@ -945,8 +972,10 @@ public class MainUiFragment extends Fragment {
     public void saveGame() {
         isProcessingJob = true;
 
+        // showSavingGameMessage();
+
         boolean succeeded = true;
-        File outputFile = new File(ColorBallsApp.AppContext.getFilesDir(), "saved_game");
+        File outputFile = new File(ColorBallsApp.AppContext.getFilesDir(), savedGameFileName);
         try {
             FileOutputStream foStream = new FileOutputStream(outputFile);
             // save settings
@@ -961,9 +990,8 @@ public class MainUiFragment extends Fragment {
                 foStream.write(0);
             }
             // save next balls
-            int nextNumber = gridData.getBallNumOneTime();
-            foStream.write(nextNumber);
-            for (int i=0; i<nextNumber; i++) {
+            foStream.write(gridData.getBallNumOneTime());
+            for (int i=0; i<GridData.MaxBalls; i++) {
                 foStream.write(gridData.getNextBalls()[i]);
             }
             // save values on 9x9 grid
@@ -972,13 +1000,61 @@ public class MainUiFragment extends Fragment {
                     foStream.write(gridData.getCellValue(i, j));
                 }
             }
-            //
+            // save current score
+            byte[] scoreByte = ByteBuffer.allocate(4).putInt(currentScore).array();
+            foStream.write(scoreByte);
+            // save undoEnable
+            if (undoEnable) {
+                // can undo
+                foStream.write(1);
+                foStream.write(gridData.getUndoNumOneTime());
+                // save undoNextBalls
+                for (int i=0; i<GridData.MaxBalls; i++) {
+                    foStream.write(gridData.getUndoNextBalls()[i]);
+                }
+                // save backupCells
+                for (int i=0; i<rowCounts; i++) {
+                    for (int j=0; j<colCounts; j++) {
+                        foStream.write(gridData.getBackupCells()[i][j]);
+                    }
+                }
+                byte[] undoScoreByte = ByteBuffer.allocate(4).putInt(undoScore).array();
+                foStream.write(undoScoreByte);
+                // end of writing
+            } else {
+                // no undo
+                foStream.write(0);
+                // end of writing
+            }
+
             foStream.close();
         } catch (IOException ex) {
             ex.printStackTrace();
             succeeded = false;
         }
-        isProcessingJob = true;
+
+        String textContent;
+        if (succeeded) {
+            textContent = "Saved game successfully.";
+        } else {
+            textContent = "Failed to save game.";
+        }
+        AlertDialogFragment gameSavedDialog = AlertDialogFragment.newInstance(textContent, fontSizeForText * dialogFragment_widthFactor
+                , Color.BLUE, 0, 0, 1, new AlertDialogFragment.DialogButtonListener() {
+                    @Override
+                    public void noButtonOnClick(AlertDialogFragment dialogFragment) {
+                        dialogFragment.dismissAllowingStateLoss();
+                    }
+
+                    @Override
+                    public void okButtonOnClick(AlertDialogFragment dialogFragment) {
+                        dialogFragment.dismissAllowingStateLoss();
+                    }
+                });
+        gameSavedDialog.show(getActivity().getSupportFragmentManager(), "GameSavedDialogTag");
+
+        // dismissSavingGameMessage();
+        isProcessingJob = false;
     }
     public void loadGame() {
         isProcessingJob = true;
@@ -986,11 +1062,17 @@ public class MainUiFragment extends Fragment {
         boolean succeeded = true;
         boolean soundYn;
         boolean easyYn;
-        int numberOfNextBalls;
+        int ballNumOneTime;
         int[] nextBalls = new int[GridData.MaxBalls];
         int[][] gameCells = new int[rowCounts][colCounts];
+        int cScore;
+        boolean undoYn;
+        int undoNumOneTime;
+        int[] undoNextBalls = new int[GridData.MaxBalls];
+        int[][] backupCells = new int[rowCounts][colCounts];
+        int unScore;
 
-        File inputFile = new File(ColorBallsApp.AppContext.getFilesDir(), "saved_game");
+        File inputFile = new File(ColorBallsApp.AppContext.getFilesDir(), savedGameFileName);
         try {
             FileInputStream fiStream = new FileInputStream(inputFile);
             int bValue = fiStream.read();
@@ -1014,10 +1096,10 @@ public class MainUiFragment extends Fragment {
                 Log.i(TAG, "FileInputStream Read: Game is difficult level");
                 easyYn = false;
             }
-            numberOfNextBalls = fiStream.read();
-            Log.i(TAG, "FileInputStream Read: Game has " + numberOfNextBalls + " next balls");
+            ballNumOneTime = fiStream.read();
+            Log.i(TAG, "FileInputStream Read: Game has " + ballNumOneTime + " next balls");
             int ballValue;
-            for (int i=0; i<numberOfNextBalls; i++) {
+            for (int i=0; i<GridData.MaxBalls; i++) {
                 nextBalls[i] = fiStream.read();
                 Log.i(TAG, "FileInputStream Read: Next ball value = " + nextBalls[i]);
             }
@@ -1026,6 +1108,36 @@ public class MainUiFragment extends Fragment {
                     gameCells[i][j] = fiStream.read();
                     Log.i(TAG, "FileInputStream Read: Value of ball at (" + i + ", " + j + ") = " + gameCells[i][j]);
                 }
+            }
+            // reading current score
+            byte[] scoreByte = new byte[4];
+            fiStream.read(scoreByte);
+            cScore = ByteBuffer.wrap(scoreByte).getInt();
+            Log.i(TAG, "FileInputStream Read: Current score = " + cScore);
+            // reading undoEnable
+            bValue = fiStream.read();
+            if (bValue == 1) {
+                // has undo data
+                Log.i(TAG, "FileInputStream Read: Game has undo data");
+                undoYn = true;
+                undoNumOneTime = fiStream.read();
+                for (int i=0; i<GridData.MaxBalls; i++) {
+                    undoNextBalls[i] = fiStream.read();
+                }
+                // save backupCells
+                for (int i=0; i<rowCounts; i++) {
+                    for (int j=0; j<colCounts; j++) {
+                        backupCells[i][j] = fiStream.read();
+                    }
+                }
+                byte[] undoScoreByte = new byte[4];
+                fiStream.read(undoScoreByte);
+                unScore = ByteBuffer.wrap(undoScoreByte).getInt();
+                Log.i(TAG, "FileInputStream Read: undoScore = " + unScore);
+            } else {
+                // does not has undo data
+                Log.i(TAG, "FileInputStream Read: Game does not has undo data");
+                undoYn = false;
             }
             fiStream.close();
         } catch (IOException ex) {
@@ -1145,7 +1257,6 @@ public class MainUiFragment extends Fragment {
     public void setIsProcessingJob(boolean isProcessingJob) {
         this.isProcessingJob = isProcessingJob;
     }
-
     public void showLoadingMessage() {
         isShowingLoadingMessage = true;
         float fontSize = fontSizeForText;
@@ -1158,7 +1269,6 @@ public class MainUiFragment extends Fragment {
         scoreImageView.setVisibility(View.VISIBLE);
         scoreImageView.setImageBitmap(loadingBitmap);
     }
-
     public void dismissShowingLoadingMessage() {
         isShowingLoadingMessage = false;
         scoreImageView.setImageBitmap(null);

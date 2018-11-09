@@ -23,7 +23,7 @@ public class GridData {
     private final int[] ballColor = new int[] {ColorRED, ColorGREEN, ColorBLUE, ColorMAGENTA, ColorYELLOW};
     private int rowCounts=0,colCounts=0;
     private int cellValue[][];
-    private int backupCell[][];
+    private int backupCells[][];
     private int maxBallsOneTime = 3;
     private int minBallsOneTime = 3;
     private int ballNumOneTime = 3;
@@ -32,7 +32,7 @@ public class GridData {
     private int[] nextCellIndexI = null;
     private int[] nextCellIndexJ = null;
 
-    private int[] undoBalls = null;
+    private int[] undoNextBalls = null;
 
     private final int ballNumCompleted = 5;
 
@@ -82,17 +82,17 @@ public class GridData {
         nextCellIndexI = new int[MaxBalls];
         nextCellIndexJ = new int[MaxBalls];
 
-        undoBalls = new int[MaxBalls];
+        undoNextBalls = new int[MaxBalls];
 
         cellValue = new int[rowCounts][colCounts];
-        backupCell = new int[rowCounts][colCounts];
+        backupCells = new int[rowCounts][colCounts];
         Light_line = new HashSet<>();
         pathPoint   = new ArrayList<>();
 
         for (int i=0 ; i<rowCounts ; i++) {
             for (int j=0 ; j<colCounts ; j++) {
                 cellValue[i][j] = 0;
-                backupCell[i][j] = 0;
+                backupCells[i][j] = 0;
             }
         }
 
@@ -116,21 +116,28 @@ public class GridData {
 
     private void backupNextBalls() {
         undoNumOneTime = ballNumOneTime;
-
-        /*  removed on 2018-10-02
-        for (int i=0 ; i<ballNumOneTime ; i++) {
-            undoBalls[i] = nextBalls[i];
-        }
-        */
-
-        undoBalls = nextBalls.clone();
+        undoNextBalls = nextBalls.clone();
     }
 
     public int[] getNextBalls() {
-        return nextBalls;
+        return this.nextBalls;
     }
     public void setNextBalls(int[] nextBalls) {
         this.nextBalls = nextBalls.clone();
+    }
+    public int[] getUndoNextBalls() {
+        return this.undoNextBalls;
+    }
+    public void setUndoNextBalls(int[] undoNextBalls) {
+        this.undoNextBalls = undoNextBalls.clone();
+    }
+    public int[][] getBackupCells() {
+        return backupCells;
+    }
+    public void setBackupCells(int[][] backupCells) {
+        for (int i=0 ; i<rowCounts ; i++) {
+            this.backupCells[i] = backupCells[i].clone();
+        }
     }
 
     public void randCells() {
@@ -162,13 +169,8 @@ public class GridData {
     public void undoTheLast() {
 
         ballNumOneTime = undoNumOneTime;
-        /*  removed om 2018-10-02
-        for (int i=0 ; i<ballNumOneTime ; i++) {
-            nextBalls[i] = undoBalls[i];
-        }
-        */
 
-        nextBalls = undoBalls.clone();
+        nextBalls = undoNextBalls.clone();
 
         restoreCellValue();
 
@@ -216,6 +218,12 @@ public class GridData {
     }
     public void setBallNumOneTime(int ballNumOneTime) {
         this.ballNumOneTime = ballNumOneTime;
+    }
+    public int getUndoNumOneTime() {
+        return this.undoNumOneTime;
+    }
+    public void setUndoNumOneTime(int undoNumOneTime) {
+        this.undoNumOneTime = undoNumOneTime;
     }
 
     public int check_moreFive(int x,int y) {
@@ -447,16 +455,16 @@ public class GridData {
         return pathPoint;
     }
 
-    private void backupCellValue() {
+    private void backupCellValues() {
 
         for (int i=0 ; i<rowCounts ; i++) {
-            backupCell[i] = cellValue[i].clone();
+            backupCells[i] = cellValue[i].clone();
         }
     }
 
     private void restoreCellValue() {
         for (int i=0 ; i<rowCounts ; i++) {
-            cellValue[i] = backupCell[i].clone();
+            cellValue[i] = backupCells[i].clone();
         }
     }
 
@@ -471,7 +479,7 @@ public class GridData {
         }
 
         backupNextBalls();
-        backupCellValue();
+        backupCellValues();
 
         result = findPath(sourcePoint,targetPoint);
 

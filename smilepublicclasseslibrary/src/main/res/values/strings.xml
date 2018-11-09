@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SmilePublicClassesLibrary</string>
+    <string name="noString">No</string>
+    <string name="okString">Ok</string>
 </resources>

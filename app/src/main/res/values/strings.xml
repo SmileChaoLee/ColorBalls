@@ -33,6 +33,8 @@
     <string name="saveGameString">Save Game</string>
     <string name="loadGameString">Load Game</string>
     <string name="gameActionString">Game Action</string>
+    <string name="savingGameString">Saving Game</string>
+    <string name="loadingGameString">Loading Game</string>
 
     <string name="google_AdMobAppID">"ca-app-pub-8354869049759576~1891379677"</string>
     <string name="google_AdMobAppID_2">"ca-app-pub-8354869049759576~8647116443"</string>

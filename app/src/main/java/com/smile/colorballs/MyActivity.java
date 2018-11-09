@@ -219,7 +219,7 @@ public class MyActivity extends AppCompatActivity {
             }
             if (id == R.id.saveGame) {
                 mainUiFragment.saveGame();
-                return true;
+                return super.onOptionsItemSelected(item);
             }
             if (id == R.id.loadGame) {
                 mainUiFragment.loadGame();

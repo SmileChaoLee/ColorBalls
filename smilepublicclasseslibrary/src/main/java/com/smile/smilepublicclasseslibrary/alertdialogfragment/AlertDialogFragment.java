@@ -25,12 +25,14 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.Serializable;
+
 public class AlertDialogFragment extends DialogFragment {
 
     private TextView text_shown = null;
     private EditText text_edit = null;
-    private Button button1 = null;
-    private Button button2 = null;
+    private Button noButton = null;
+    private Button okButton = null;
 
     private String textContext = "";
     private float textSize = 24;
@@ -43,19 +45,14 @@ public class AlertDialogFragment extends DialogFragment {
 
     private DialogButtonListener ndl;
 
-    public interface DialogButtonListener {
-        void button1OnClick(AlertDialogFragment dialogFragment);
-        void button2OnClick(AlertDialogFragment dialogFragment);
+    public interface DialogButtonListener extends Serializable {
+        void noButtonOnClick(AlertDialogFragment dialogFragment);
+        void okButtonOnClick(AlertDialogFragment dialogFragment);
     }
 
     public AlertDialogFragment() {
     }
-    @SuppressLint("ValidFragment")
-    public AlertDialogFragment(AlertDialogFragment.DialogButtonListener ndl) {
-        super();
-        this.ndl = ndl;
-    }
-    public static AlertDialogFragment newInstance(String textContent, float textSize, int color, int width, int height, int numButtons) {
+    public static AlertDialogFragment newInstance(String textContent, float textSize, int color, int width, int height, int numButtons, DialogButtonListener ndl) {
         AlertDialogFragment modalDialog = new AlertDialogFragment();
         Bundle args = new Bundle();
         args.putString("textContent", textContent);
@@ -64,6 +61,7 @@ public class AlertDialogFragment extends DialogFragment {
         args.putInt("width", width);
         args.putInt("height", height);
         args.putInt("numButtons", numButtons);
+        args.putSerializable("ButtonListener", ndl);
         modalDialog.setArguments(args);
 
         return modalDialog;
@@ -105,7 +103,11 @@ public class AlertDialogFragment extends DialogFragment {
                 textColor = args.getInt("color");
                 dialogWidth = args.getInt("width");
                 dialogHeight = args.getInt("height");
-                numButtons = getArguments().getInt("numButtons");
+                numButtons = args.getInt("numButtons");
+                DialogButtonListener ndlTemp = (DialogButtonListener) args.getSerializable("ButtonListener");
+                if (ndlTemp != null) {
+                    ndl = ndlTemp;
+                }
             }
 
             float factor = getActivity().getResources().getDisplayMetrics().density;
@@ -161,20 +163,24 @@ public class AlertDialogFragment extends DialogFragment {
         text_shown.setText(textContext);
         text_shown.setTextSize(textSize);
         text_shown.setTextColor(textColor);
-        button1 = view.findViewById(R.id.dialogfragment_button1);
-        button1.setTextSize(textSize);
-        button1.setOnClickListener(new View.OnClickListener() {
+        noButton = view.findViewById(R.id.dialogfragment_noButton);
+        noButton.setTextSize(textSize);
+        noButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ndl.button1OnClick(alertDialog);
+                if (ndl != null) {
+                    ndl.noButtonOnClick(alertDialog);
+                }
             }
         });
-        button2 = view.findViewById(R.id.dialogfragment_button2);
-        button2.setTextSize(textSize);
-        button2.setOnClickListener(new View.OnClickListener() {
+        okButton = view.findViewById(R.id.dialogfragment_okButton);
+        okButton.setTextSize(textSize);
+        okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ndl.button2OnClick(alertDialog);
+                if (ndl != null) {
+                    ndl.okButtonOnClick(alertDialog);
+                }
             }
         });
         LinearLayout.LayoutParams lp = null;
@@ -183,13 +189,13 @@ public class AlertDialogFragment extends DialogFragment {
                 // buttons. nothing has to be changed
                 break;
             case 1:
-                // only 1 button, then disable button2 and make it invisible
-                button2.setVisibility(View.GONE);
-                button2.setEnabled(false);
-                lp = (LinearLayout.LayoutParams)button2.getLayoutParams();
+                // only 1 button, then disable noButton and make it invisible
+                noButton.setVisibility(View.GONE);
+                noButton.setEnabled(false);
+                lp = (LinearLayout.LayoutParams)noButton.getLayoutParams();
                 lp.weight = 0.0f;
 
-                lp = (LinearLayout.LayoutParams)button1.getLayoutParams();
+                lp = (LinearLayout.LayoutParams)okButton.getLayoutParams();
                 lp.weight = 2.0f;
 
                 break;
@@ -200,16 +206,16 @@ public class AlertDialogFragment extends DialogFragment {
                 // TextView
                 text_shown.setPadding(20,20,20,20);
                 lp = (LinearLayout.LayoutParams)text_shown.getLayoutParams();
-                lp.weight = 3.0f;
+                // lp.weight = contentWeightSum;
 
                 // buttons
-                button1.setVisibility(View.GONE);
-                button1.setEnabled(false);
-                button2.setVisibility(View.GONE);
-                button2.setEnabled(false);
-                LinearLayout linearLayout = view.findViewById(R.id.linearlayout_for_buttons_in_modalfragment);
-                lp = (LinearLayout.LayoutParams)linearLayout.getLayoutParams();
-                lp.weight = 0.0f;
+                noButton.setVisibility(View.GONE);
+                noButton.setEnabled(false);
+                okButton.setVisibility(View.GONE);
+                okButton.setEnabled(false);
+                // LinearLayout linearLayout = view.findViewById(R.id.linearlayout_for_buttons_in_modalfragment);
+                // lp = (LinearLayout.LayoutParams)linearLayout.getLayoutParams();
+                // lp.weight = 0.0f;
 
                 break;
         }
@@ -232,11 +238,11 @@ public class AlertDialogFragment extends DialogFragment {
     public void setText_shown(TextView text_shown) {
         this.text_shown = text_shown;
     }
-    public Button getButton1() {
-        return this.button1;
+    public Button getNoButton() {
+        return this.noButton;
     }
-    public Button getButton2() {
-        return this.button2;
+    public Button getOkButton() {
+        return this.okButton;
     }
 
 }
