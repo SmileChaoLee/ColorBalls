@@ -32,8 +32,12 @@
     <string name="saveGameString">储存游戏</string>
     <string name="loadGameString">载入游戏</string>
     <string name="gameActionString">游戏动作</string>
-    <string name="savingGameString">Saving Game</string>
-    <string name="loadingGameString">Loading Game</string>
+    <string name="savingGameString">储存游戏中</string>
+    <string name="loadingGameString">载入游戏中</string>
+    <string name="succeededSaveGameString">储存游戏成功</string>
+    <string name="failedSaveGameString">储存游戏失败</string>
+    <string name="succeededLoadGameString">载入游戏成功</string>
+    <string name="failedLoadGameString">载入游戏失败</string>
 
     <string name="google_AdMobAppID">ca-app-pub-8354869049759576~1891379677</string>
     <string name="google_AdMobAppID_2">ca-app-pub-8354869049759576~8647116443</string>

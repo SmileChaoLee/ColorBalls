@@ -39,31 +39,47 @@
                 android:orientation="horizontal"
                 android:gravity="center"
                 android:layout_marginBottom="20dp"
-                android:layout_below="@+id/text_shown">
+                android:layout_below="@+id/text_shown"
+                android:weightSum="2">
 
-                <Button
-                    android:id="@+id/dialogfragment_noButton"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/noButton_Layout"
+                    android:orientation="vertical"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
-                    android:gravity="center"
-                    android:textColor="#ffff0000"
-                    android:background="#ffd3d3d3"
-                    android:textStyle="bold"
-                    android:text="@string/noString" />
-
-                <Button
-                    android:id="@+id/dialogfragment_okButton"
-                    android:layout_width="wrap_content"
+                    android:layout_weight="1">
+                    <Button
+                        android:id="@+id/dialogfragment_noButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:textColor="#ffff0000"
+                        android:background="#ffd3d3d3"
+                        android:textStyle="bold"
+                        android:text="@string/noString" />
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/okButton_Layout"
+                    android:orientation="vertical"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
-                    android:gravity="center"
-                    android:textColor="#ff006400"
-                    android:background="#ffd3d3d3"
-                    android:textStyle="bold"
-                    android:text="@string/okString" />
+                    android:layout_weight="1">
+                    <Button
+                        android:id="@+id/dialogfragment_okButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:textColor="#ff006400"
+                        android:background="#ffd3d3d3"
+                        android:textStyle="bold"
+                        android:text="@string/okString" />
+                </LinearLayout>
             </LinearLayout>
 
         </RelativeLayout>

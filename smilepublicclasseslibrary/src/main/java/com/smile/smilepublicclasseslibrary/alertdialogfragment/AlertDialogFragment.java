@@ -163,6 +163,8 @@ public class AlertDialogFragment extends DialogFragment {
         text_shown.setText(textContext);
         text_shown.setTextSize(textSize);
         text_shown.setTextColor(textColor);
+
+        LinearLayout noButton_Layout = view.findViewById(R.id.noButton_Layout);
         noButton = view.findViewById(R.id.dialogfragment_noButton);
         noButton.setTextSize(textSize);
         noButton.setOnClickListener(new View.OnClickListener() {
@@ -173,6 +175,7 @@ public class AlertDialogFragment extends DialogFragment {
                 }
             }
         });
+        LinearLayout okButton_Layout = view.findViewById(R.id.okButton_Layout);
         okButton = view.findViewById(R.id.dialogfragment_okButton);
         okButton.setTextSize(textSize);
         okButton.setOnClickListener(new View.OnClickListener() {
@@ -190,12 +193,12 @@ public class AlertDialogFragment extends DialogFragment {
                 break;
             case 1:
                 // only 1 button, then disable noButton and make it invisible
-                noButton.setVisibility(View.GONE);
+                noButton_Layout.setVisibility(View.GONE);
                 noButton.setEnabled(false);
-                lp = (LinearLayout.LayoutParams)noButton.getLayoutParams();
+                lp = (LinearLayout.LayoutParams)noButton_Layout.getLayoutParams();
                 lp.weight = 0.0f;
 
-                lp = (LinearLayout.LayoutParams)okButton.getLayoutParams();
+                lp = (LinearLayout.LayoutParams)okButton_Layout.getLayoutParams();
                 lp.weight = 2.0f;
 
                 break;
@@ -206,16 +209,12 @@ public class AlertDialogFragment extends DialogFragment {
                 // TextView
                 text_shown.setPadding(20,20,20,20);
                 lp = (LinearLayout.LayoutParams)text_shown.getLayoutParams();
-                // lp.weight = contentWeightSum;
 
                 // buttons
-                noButton.setVisibility(View.GONE);
+                noButton_Layout.setVisibility(View.GONE);
                 noButton.setEnabled(false);
-                okButton.setVisibility(View.GONE);
+                okButton_Layout.setVisibility(View.GONE);
                 okButton.setEnabled(false);
-                // LinearLayout linearLayout = view.findViewById(R.id.linearlayout_for_buttons_in_modalfragment);
-                // lp = (LinearLayout.LayoutParams)linearLayout.getLayoutParams();
-                // lp.weight = 0.0f;
 
                 break;
         }

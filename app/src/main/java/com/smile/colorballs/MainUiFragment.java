@@ -102,8 +102,6 @@ public class MainUiFragment extends Fragment {
     private String submitStr = new String("");
     private String cancelStr = new String("");
     private String gameOverStr = new String("");
-    private String loadingString;
-    private String savingGameString;
     private int fontSizeForText = 24;   // default
     private float dialog_widthFactor = 1.0f;
     private float dialog_heightFactor = 1.0f;
@@ -112,9 +110,20 @@ public class MainUiFragment extends Fragment {
 
     private boolean hasSound = true;    // has sound effect
 
-    private boolean isShowingLoadingMessage;
-    private boolean isShowingSavingGameMessage;
     private boolean isProcessingJob;
+
+    private String loadingString;
+    private boolean isShowingLoadingMessage;
+
+    private String savingGameString;
+    private String succeededSaveGameString;
+    private String failedSaveGameString;
+    private boolean isShowingSavingGameMessage;
+
+    private String loadingGameString;
+    private String succeededLoadGameString;
+    private String failedLoadGameString;
+    private boolean isShowingLoadingGameMessage;
 
     public MainUiFragment() {
         // Required empty public constructor
@@ -154,17 +163,19 @@ public class MainUiFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);    // retain install of fragment when recreate
 
-        // if (savedInstanceState == null) { // removed if statement on 2018-10-25
-            // string constant
-            yesStr = ColorBallsApp.AppResources.getString(R.string.yesStr);
-            noStr = ColorBallsApp.AppResources.getString(R.string.noStr);
-            nameStr = ColorBallsApp.AppResources.getString(R.string.nameStr);
-            submitStr = ColorBallsApp.AppResources.getString(R.string.submitStr);
-            cancelStr = ColorBallsApp.AppResources.getString(R.string.cancelStr);
-            gameOverStr = ColorBallsApp.AppResources.getString(R.string.gameOverStr);
-            loadingString = ColorBallsApp.AppResources.getString(R.string.loadingString);
-            savingGameString = ColorBallsApp.AppResources.getString(R.string.savingGameString);
-        // }
+        yesStr = ColorBallsApp.AppResources.getString(R.string.yesStr);
+        noStr = ColorBallsApp.AppResources.getString(R.string.noStr);
+        nameStr = ColorBallsApp.AppResources.getString(R.string.nameStr);
+        submitStr = ColorBallsApp.AppResources.getString(R.string.submitStr);
+        cancelStr = ColorBallsApp.AppResources.getString(R.string.cancelStr);
+        gameOverStr = ColorBallsApp.AppResources.getString(R.string.gameOverStr);
+        loadingString = ColorBallsApp.AppResources.getString(R.string.loadingString);
+        savingGameString = ColorBallsApp.AppResources.getString(R.string.savingGameString);
+        loadingGameString = ColorBallsApp.AppResources.getString(R.string.loadingGameString);
+        succeededSaveGameString = ColorBallsApp.AppResources.getString(R.string.succeededSaveGameString);
+        failedSaveGameString = ColorBallsApp.AppResources.getString(R.string.failedSaveGameString);
+        succeededLoadGameString = ColorBallsApp.AppResources.getString(R.string.succeededLoadGameString);
+        failedLoadGameString = ColorBallsApp.AppResources.getString(R.string.failedLoadGameString);
 
         System.out.println("MainUiFragment onCreate() is called.");
     }
@@ -337,7 +348,7 @@ public class MainUiFragment extends Fragment {
                 imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if ( (completedAll()) && (!isShowingLoadingMessage) && (!isProcessingJob) ) {
+                        if ( (completedAll()) && (!isProcessingJob) ) {
                             doDrawBallsAndCheckListener(v);
                         }
                     }
@@ -391,6 +402,7 @@ public class MainUiFragment extends Fragment {
 
             isShowingLoadingMessage = false;
             isShowingSavingGameMessage = false;
+            isShowingLoadingGameMessage = false;
             isProcessingJob = false;
 
             isEasyLevel = true;     // start with easy level
@@ -403,10 +415,13 @@ public class MainUiFragment extends Fragment {
             displayGameView();
 
             if (isShowingLoadingMessage) {
-                showLoadingMessage();
+                showMessageOnScreen(loadingString);
             }
             if (isShowingSavingGameMessage) {
-                showSavingGameMessage();
+                showMessageOnScreen(savingGameString);
+            }
+            if (isShowingLoadingGameMessage) {
+                showMessageOnScreen(loadingGameString);
             }
 
             if (bouncingStatus == 1) {
@@ -934,35 +949,20 @@ public class MainUiFragment extends Fragment {
 
     private void showTop10ScoreHistory() {
         isProcessingJob = true;
-        showLoadingMessage();
+        isShowingLoadingMessage = true;
+        showMessageOnScreen(loadingString);
         Intent myIntentService = new Intent(myActivity, MyTop10ScoresIntentService.class);
         myActivity.startService(myIntentService);
     }
     private void showGlobalTop10History() {
         isProcessingJob = true;
-        showLoadingMessage();
+        isShowingLoadingMessage = true;
+        showMessageOnScreen(loadingString);
         Intent myIntentService = new Intent(myActivity, MyGlobalTop10IntentService.class);
         String webUrl = ColorBallsApp.REST_Website + "/GetTop10PlayerscoresREST";  // ASP.NET Core
         webUrl += "?gameId=" + ColorBallsApp.GameId;   // parameters
         myIntentService.putExtra("WebUrl", webUrl);
         myActivity.startService(myIntentService);
-    }
-    private void showSavingGameMessage() {
-        isShowingSavingGameMessage = true;
-        float fontSize = fontSizeForText;
-        double factor = 1.5;
-        int bmWidth = (int)(fontSize * savingGameString.length() * factor);
-        int bmHeight = (int)(fontSize * factor * 6.0);
-        Bitmap dialog_board_image = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
-        Bitmap bm = Bitmap.createScaledBitmap(dialog_board_image, bmWidth, bmHeight, false );  // scale
-        Bitmap loadingBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(bm, savingGameString, Color.RED);
-        scoreImageView.setVisibility(View.VISIBLE);
-        scoreImageView.setImageBitmap(loadingBitmap);
-    }
-    private void dismissSavingGameMessage() {
-        isShowingSavingGameMessage = false;
-        scoreImageView.setImageBitmap(null);
-        scoreImageView.setVisibility(View.GONE);
     }
 
     // public methods
@@ -972,7 +972,8 @@ public class MainUiFragment extends Fragment {
     public void saveGame() {
         isProcessingJob = true;
 
-        // showSavingGameMessage();
+        isShowingSavingGameMessage = true;
+        showMessageOnScreen(savingGameString);
 
         boolean succeeded = true;
         File outputFile = new File(ColorBallsApp.AppContext.getFilesDir(), savedGameFileName);
@@ -1033,11 +1034,14 @@ public class MainUiFragment extends Fragment {
             succeeded = false;
         }
 
+        dismissShowMessageOnScreen();
+        isShowingSavingGameMessage = false;
+
         String textContent;
         if (succeeded) {
-            textContent = "Saved game successfully.";
+            textContent = succeededSaveGameString;
         } else {
-            textContent = "Failed to save game.";
+            textContent = failedSaveGameString;
         }
         AlertDialogFragment gameSavedDialog = AlertDialogFragment.newInstance(textContent, fontSizeForText * dialogFragment_widthFactor
                 , Color.BLUE, 0, 0, 1, new AlertDialogFragment.DialogButtonListener() {
@@ -1053,11 +1057,13 @@ public class MainUiFragment extends Fragment {
                 });
         gameSavedDialog.show(getActivity().getSupportFragmentManager(), "GameSavedDialogTag");
 
-        // dismissSavingGameMessage();
         isProcessingJob = false;
     }
     public void loadGame() {
         isProcessingJob = true;
+
+        isShowingLoadingGameMessage = true;
+        showMessageOnScreen(savingGameString);
 
         boolean succeeded = true;
         boolean soundYn;
@@ -1149,6 +1155,29 @@ public class MainUiFragment extends Fragment {
         } else {
             // show failed message
         }
+
+        dismissShowMessageOnScreen();
+        isShowingLoadingGameMessage = false;
+
+        String textContent;
+        if (succeeded) {
+            textContent = succeededLoadGameString;
+        } else {
+            textContent = failedLoadGameString;
+        }
+        AlertDialogFragment gameLoadedDialog = AlertDialogFragment.newInstance(textContent, fontSizeForText * dialogFragment_widthFactor
+                , Color.BLUE, 0, 0, 1, new AlertDialogFragment.DialogButtonListener() {
+                    @Override
+                    public void noButtonOnClick(AlertDialogFragment dialogFragment) {
+                        dialogFragment.dismissAllowingStateLoss();
+                    }
+
+                    @Override
+                    public void okButtonOnClick(AlertDialogFragment dialogFragment) {
+                        dialogFragment.dismissAllowingStateLoss();
+                    }
+                });
+        gameLoadedDialog.show(getActivity().getSupportFragmentManager(), "GameLoadedDialogTag");
 
         isProcessingJob = false;
     }
@@ -1257,22 +1286,23 @@ public class MainUiFragment extends Fragment {
     public void setIsProcessingJob(boolean isProcessingJob) {
         this.isProcessingJob = isProcessingJob;
     }
-    public void showLoadingMessage() {
-        isShowingLoadingMessage = true;
+    public void showMessageOnScreen(String messageString) {
         float fontSize = fontSizeForText;
         double factor = 1.5;
-        int bmWidth = (int)(fontSize * loadingString.length() * factor);
+        int bmWidth = (int)(fontSize * messageString.length() * factor);
         int bmHeight = (int)(fontSize * factor * 6.0);
         Bitmap dialog_board_image = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
         Bitmap bm = Bitmap.createScaledBitmap(dialog_board_image, bmWidth, bmHeight, false );  // scale
-        Bitmap loadingBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(bm, loadingString, Color.RED);
+        Bitmap showBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(bm, messageString, Color.RED);
         scoreImageView.setVisibility(View.VISIBLE);
-        scoreImageView.setImageBitmap(loadingBitmap);
+        scoreImageView.setImageBitmap(showBitmap);
     }
-    public void dismissShowingLoadingMessage() {
-        isShowingLoadingMessage = false;
+    public void dismissShowMessageOnScreen() {
         scoreImageView.setImageBitmap(null);
         scoreImageView.setVisibility(View.GONE);
+    }
+    public void setIsShowingLoadingMessage(boolean isShowingLoadingMessage) {
+        this.isShowingLoadingMessage = isShowingLoadingMessage;
     }
 
     private class CalculateScore extends AsyncTask<Point, Integer, String[]> {

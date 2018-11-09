@@ -361,7 +361,7 @@ public class MyActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
 
             System.out.println("MyActivity.MyBroadcastReceiver.onReceive() is called.");
-            mainUiFragment.dismissShowingLoadingMessage();
+            mainUiFragment.dismissShowMessageOnScreen();
 
             String actionName = intent.getAction();
             Bundle extras;
@@ -370,6 +370,7 @@ public class MyActivity extends AppCompatActivity {
             View historyView;
             switch (actionName) {
                 case MyTop10ScoresIntentService.Action_Name:
+                    mainUiFragment.setIsShowingLoadingMessage(false);
                     String top10ScoreTitle = getString(R.string.top10Score);
                     extras = intent.getExtras();
                     if (extras != null) {
@@ -425,6 +426,7 @@ public class MyActivity extends AppCompatActivity {
                     }
                     break;
                 case MyGlobalTop10IntentService.Action_Name:
+                    mainUiFragment.setIsShowingLoadingMessage(false);
                     String globalTop10ScoreTitle = getString(R.string.globalTop10Score);
                     extras = intent.getExtras();
                     if (extras != null) {
