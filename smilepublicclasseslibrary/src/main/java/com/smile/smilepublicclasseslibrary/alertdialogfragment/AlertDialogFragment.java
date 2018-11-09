@@ -147,7 +147,7 @@ public class AlertDialogFragment extends DialogFragment {
         window.setDimAmount(0.0f);
         // remove the background of DialogFragment
         getDialog().requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setStyle(DialogFragment.STYLE_NO_FRAME, android.R.style.Theme);
+        // setStyle(DialogFragment.STYLE_NO_FRAME, android.R.style.Theme);  // removed on 2018-11-09 at 7:72am
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
         setCancelable(false);   // make dialog a modal
