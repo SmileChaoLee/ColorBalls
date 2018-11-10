@@ -28,7 +28,7 @@ import android.widget.TextView;
 import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
 import com.smile.smilepublicclasseslibrary.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
-import com.smile.utility.ScreenUtil;
+import com.smile.smilepublicclasseslibrary.utilities.*;
 
 import java.util.ArrayList;
 import java.util.Locale;

@@ -1,4 +1,4 @@
-package com.smile.utility;
+package com.smile.smilepublicclasseslibrary.utilities;
 
 import android.app.Activity;
 import android.content.Context;

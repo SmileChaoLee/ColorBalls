@@ -27,8 +27,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -42,8 +40,7 @@ import com.smile.Service.MyTop10ScoresIntentService;
 import com.smile.model.GridData;
 import com.smile.smilepublicclasseslibrary.player_record_rest.PlayerRecordRest;
 import com.smile.smilepublicclasseslibrary.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
-import com.smile.utility.FontAndBitmapUtil;
-import com.smile.utility.ScreenUtil;
+import com.smile.smilepublicclasseslibrary.utilities.*;
 import com.smile.utility.SoundUtil;
 
 import org.json.JSONObject;

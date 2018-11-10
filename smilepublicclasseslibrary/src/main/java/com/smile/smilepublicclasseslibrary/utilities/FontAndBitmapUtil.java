@@ -1,4 +1,4 @@
-package com.smile.utility;
+package com.smile.smilepublicclasseslibrary.utilities;
 
 import android.content.Context;
 import android.graphics.Bitmap;
