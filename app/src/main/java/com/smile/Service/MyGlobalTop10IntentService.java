@@ -67,7 +67,7 @@ public class MyGlobalTop10IntentService extends IntentService {
         }
 
         // wait for 3 seconds
-        try { Thread.sleep(3000); } catch (InterruptedException ex) { ex.printStackTrace(); }
+        // try { Thread.sleep(3000); } catch (InterruptedException ex) { ex.printStackTrace(); }
 
         Intent notificationIntent = new Intent(Action_Name);
         Bundle extras = new Bundle();
@@ -76,5 +76,11 @@ public class MyGlobalTop10IntentService extends IntentService {
         notificationIntent.putExtras(extras);
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
         localBroadcastManager.sendBroadcast(notificationIntent);
+
+        // added on 2018-11-11
+        ColorBallsApp.isShowingLoadingMessage = false;
+        ColorBallsApp.isProcessingJob = false;
+
+        System.out.println("MyGlobalTop10IntentService sent result");
     }
 }

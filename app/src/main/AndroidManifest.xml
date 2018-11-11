@@ -27,6 +27,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".SettingActivity"
             android:label="@string/settingStr"
@@ -35,10 +36,6 @@
         <activity
             android:name=".Top10ScoreActivity"
             android:label="@string/title_activity_history" >
-        </activity>
-        <activity
-            android:name=".GlobalTop10Activity"
-            android:label="@string/title_activity_global" >
         </activity>
         <service
             android:name="com.smile.Service.MyTop10ScoresIntentService"

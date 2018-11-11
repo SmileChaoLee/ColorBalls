@@ -30,8 +30,9 @@ public class MyTop10ScoresIntentService extends IntentService {
             playerNames.add((String)pair.first);
             playerScores.add((Integer)pair.second);
         }
+
         // wait for 3 seconds
-        try { Thread.sleep(3000); } catch (InterruptedException ex) { ex.printStackTrace(); }
+        // try { Thread.sleep(3000); } catch (InterruptedException ex) { ex.printStackTrace(); }
 
         Intent notificationIntent = new Intent(Action_Name);
         Bundle extras = new Bundle();
@@ -40,6 +41,11 @@ public class MyTop10ScoresIntentService extends IntentService {
         notificationIntent.putExtras(extras);
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
         localBroadcastManager.sendBroadcast(notificationIntent);
+
+        // added on 2018-11-11
+        ColorBallsApp.isShowingLoadingMessage = false;
+        ColorBallsApp.isProcessingJob = false;
+
         System.out.println("MyTop10ScoresIntentService sent result");
     }
 }

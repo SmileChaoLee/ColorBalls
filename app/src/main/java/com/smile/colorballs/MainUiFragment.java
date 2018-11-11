@@ -49,7 +49,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -110,20 +109,15 @@ public class MainUiFragment extends Fragment {
 
     private boolean hasSound = true;    // has sound effect
 
-    private boolean isProcessingJob;
-
     private String loadingString;
-    private boolean isShowingLoadingMessage;
 
     private String savingGameString;
     private String succeededSaveGameString;
     private String failedSaveGameString;
-    private boolean isShowingSavingGameMessage;
 
     private String loadingGameString;
     private String succeededLoadGameString;
     private String failedLoadGameString;
-    private boolean isShowingLoadingGameMessage;
 
     private String sureToSaveGameString;
     private String sureToLoadGameString;
@@ -347,7 +341,7 @@ public class MainUiFragment extends Fragment {
                 imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if ( (completedAll()) && (!isProcessingJob) ) {
+                        if ( (completedAll()) && (!ColorBallsApp.isProcessingJob) ) {
                             doDrawBallsAndCheckListener(v);
                         }
                     }
@@ -367,7 +361,7 @@ public class MainUiFragment extends Fragment {
         undoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!isProcessingJob) {
+                if (!ColorBallsApp.isProcessingJob) {
                     undoTheLast();
                 }
             }
@@ -378,7 +372,7 @@ public class MainUiFragment extends Fragment {
         top10Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!isProcessingJob) {
+                if (!ColorBallsApp.isProcessingJob) {
                     showTop10ScoreHistory();   // added on 2018-06-11
                 }
             }
@@ -389,7 +383,7 @@ public class MainUiFragment extends Fragment {
         globalTop10Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!isProcessingJob) {
+                if (!ColorBallsApp.isProcessingJob) {
                     showGlobalTop10History();
                 }
             }
@@ -399,10 +393,10 @@ public class MainUiFragment extends Fragment {
             // start a new game (no savedInstanceState)
             // or gridData is null (for some unknown reason)
 
-            isShowingLoadingMessage = false;
-            isShowingSavingGameMessage = false;
-            isShowingLoadingGameMessage = false;
-            isProcessingJob = false;
+            ColorBallsApp.isShowingLoadingMessage = false;
+            ColorBallsApp.isShowingSavingGameMessage = false;
+            ColorBallsApp.isShowingLoadingGameMessage = false;
+            ColorBallsApp.isProcessingJob = false;
 
             isEasyLevel = true;     // start with easy level
             gridData = new GridData(rowCounts, colCounts, MINB, MINB);  // easy level (3 balls for next balls)
@@ -413,13 +407,13 @@ public class MainUiFragment extends Fragment {
             // display the original state before changing configuration
             displayGameView();
 
-            if (isShowingLoadingMessage) {
+            if (ColorBallsApp.isShowingLoadingMessage) {
                 showMessageOnScreen(loadingString);
             }
-            if (isShowingSavingGameMessage) {
+            if (ColorBallsApp.isShowingSavingGameMessage) {
                 showMessageOnScreen(savingGameString);
             }
-            if (isShowingLoadingGameMessage) {
+            if (ColorBallsApp.isShowingLoadingGameMessage) {
                 showMessageOnScreen(loadingGameString);
             }
 
@@ -569,7 +563,7 @@ public class MainUiFragment extends Fragment {
             return;
         }
 
-        isProcessingJob = true; // started undoing
+        ColorBallsApp.isProcessingJob = true; // started undoing
 
         gridData.undoTheLast();
 
@@ -586,7 +580,7 @@ public class MainUiFragment extends Fragment {
         // completedPath = true;
         undoEnable = false;
 
-        isProcessingJob = false;    // finished
+        ColorBallsApp.isProcessingJob = false;    // finished
     }
 
     private void clearCell(int i, int j) {
@@ -930,7 +924,7 @@ public class MainUiFragment extends Fragment {
                 ColorBallsApp.InterstitialAd.new ShowAdAsyncTask(myActivity, entryPoint, new ShowingInterstitialAdsUtil.AfterDismissFunctionOfShowAd() {
             @Override
             public void executeAfterDismissAds(int endPoint) {
-                isProcessingJob = false;
+                ColorBallsApp.isProcessingJob = false;
                 if (entryPoint==0) {
                     //  END PROGRAM
                     myActivity.quitApplication();
@@ -944,15 +938,15 @@ public class MainUiFragment extends Fragment {
     }
 
     private void showTop10ScoreHistory() {
-        isProcessingJob = true;
-        isShowingLoadingMessage = true;
+        ColorBallsApp.isProcessingJob = true;
+        ColorBallsApp.isShowingLoadingMessage = true;
         showMessageOnScreen(loadingString);
         Intent myIntentService = new Intent(myActivity, MyTop10ScoresIntentService.class);
         myActivity.startService(myIntentService);
     }
     private void showGlobalTop10History() {
-        isProcessingJob = true;
-        isShowingLoadingMessage = true;
+        ColorBallsApp.isProcessingJob = true;
+        ColorBallsApp.isShowingLoadingMessage = true;
         showMessageOnScreen(loadingString);
         Intent myIntentService = new Intent(myActivity, MyGlobalTop10IntentService.class);
         String webUrl = ColorBallsApp.REST_Website + "/GetTop10PlayerscoresREST";  // ASP.NET Core
@@ -961,9 +955,9 @@ public class MainUiFragment extends Fragment {
         myActivity.startService(myIntentService);
     }
     private void startSavingGame() {
-        isProcessingJob = true;
+        ColorBallsApp.isProcessingJob = true;
 
-        isShowingSavingGameMessage = true;
+        ColorBallsApp.isShowingSavingGameMessage = true;
         showMessageOnScreen(savingGameString);
 
         boolean succeeded = true;
@@ -1026,8 +1020,8 @@ public class MainUiFragment extends Fragment {
         }
 
         dismissShowMessageOnScreen();
-        isShowingSavingGameMessage = false;
-        isProcessingJob = false;
+        ColorBallsApp.isShowingSavingGameMessage = false;
+        ColorBallsApp.isProcessingJob = false;
 
         String textContent;
         if (succeeded) {
@@ -1058,9 +1052,9 @@ public class MainUiFragment extends Fragment {
     }
     private void startLoadingGame() {
 
-        isProcessingJob = true;
+        ColorBallsApp.isProcessingJob = true;
 
-        isShowingLoadingGameMessage = true;
+        ColorBallsApp.isShowingLoadingGameMessage = true;
         showMessageOnScreen(savingGameString);
 
         boolean succeeded = true;
@@ -1150,8 +1144,8 @@ public class MainUiFragment extends Fragment {
         }
 
         dismissShowMessageOnScreen();
-        isShowingLoadingGameMessage = false;
-        isProcessingJob = false;
+        ColorBallsApp.isShowingLoadingGameMessage = false;
+        ColorBallsApp.isProcessingJob = false;
 
         String textContent;
         if (succeeded) {
@@ -1253,7 +1247,7 @@ public class MainUiFragment extends Fragment {
 
     public void recordScore(final int entryPoint) {
 
-        isProcessingJob = true;
+        ColorBallsApp.isProcessingJob = true;
 
         final EditText et = new EditText(myActivity);
         et.setTextSize(fontSizeForText);
@@ -1349,12 +1343,6 @@ public class MainUiFragment extends Fragment {
     public ImageView getScoreImageView() {
         return scoreImageView;
     }
-    public boolean getIsProcessingJob() {
-        return isProcessingJob;
-    }
-    public void setIsProcessingJob(boolean isProcessingJob) {
-        this.isProcessingJob = isProcessingJob;
-    }
     public void showMessageOnScreen(String messageString) {
         float fontSize = fontSizeForText;
         double factor = 1.5;
@@ -1369,9 +1357,6 @@ public class MainUiFragment extends Fragment {
     public void dismissShowMessageOnScreen() {
         scoreImageView.setImageBitmap(null);
         scoreImageView.setVisibility(View.GONE);
-    }
-    public void setIsShowingLoadingMessage(boolean isShowingLoadingMessage) {
-        this.isShowingLoadingMessage = isShowingLoadingMessage;
     }
 
     private class CalculateScore extends AsyncTask<Point, Integer, String[]> {

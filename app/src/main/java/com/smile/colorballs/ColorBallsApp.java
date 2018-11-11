@@ -20,6 +20,11 @@ public class ColorBallsApp extends Application {
     public static Context AppContext;
     public static ScoreSQLite ScoreSQLiteDB;
 
+    public static boolean isProcessingJob;
+    public static boolean isShowingLoadingMessage;
+    public static boolean isShowingSavingGameMessage;
+    public static boolean isShowingLoadingGameMessage;
+
     public static ShowingInterstitialAdsUtil InterstitialAd;
 
     private static FacebookInterstitialAds facebookAds;
@@ -31,6 +36,11 @@ public class ColorBallsApp extends Application {
         AppResources = getResources();
         AppContext = getApplicationContext();
         ScoreSQLiteDB = new ScoreSQLite(AppContext);
+        isProcessingJob = false;
+        isShowingLoadingMessage = false;
+        isShowingSavingGameMessage = false;
+        isShowingLoadingGameMessage = false;
+
         String facebookPlacementID = new String("200699663911258_200701030577788"); // for colorballs
         String googleAdMobAppID = getString(R.string.google_AdMobAppID);
         String googleAdMobInterstitialID = "ca-app-pub-8354869049759576/1276882569";

@@ -1,7 +1,5 @@
 package com.smile.colorballs;
 
-import com.smile.smilepublicclasseslibrary.facebook_ads_util.*;
-
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -18,6 +16,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,10 +31,6 @@ import com.smile.smilepublicclasseslibrary.utilities.*;
 
 import java.util.ArrayList;
 import java.util.Locale;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class MyActivity extends AppCompatActivity {
 
@@ -181,25 +176,21 @@ public class MyActivity extends AppCompatActivity {
                 break;
             case Top10ScoreActivityRequestCode:
                 showAdUntilDismissed(this);
+                ColorBallsApp.isShowingLoadingMessage = false;
+                ColorBallsApp.isProcessingJob = false;
                 break;
             case GlobalTop10ActivityRequestCode:
                 showAdUntilDismissed(this);
+                ColorBallsApp.isShowingLoadingMessage = false;
+                ColorBallsApp.isProcessingJob = false;
                 break;
         }
-
-        mainUiFragment.setIsProcessingJob(false);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.my, menu);
-        /*
-        // removed on 2018-11-08
-        MenuItem registerMenuItemEndGame = menu.findItem(R.id.quitGame);
-        MenuItem registerMenuItemNewGame = menu.findItem(R.id.newGame);
-        MenuItem registerMenuItemOption = menu.findItem(R.id.setting);
-        */
 
         return true;
     }
@@ -210,7 +201,7 @@ public class MyActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
 
-        boolean isProcessingJob = mainUiFragment.getIsProcessingJob();
+        boolean isProcessingJob = ColorBallsApp.isProcessingJob;
         if (!isProcessingJob) {
             int id = item.getItemId();
             if (id == R.id.quitGame) {
@@ -232,7 +223,7 @@ public class MyActivity extends AppCompatActivity {
                 return true;
             }
             if (id == R.id.setting) {
-                mainUiFragment.setIsProcessingJob(true);    // started procession job
+                ColorBallsApp.isProcessingJob = true;    // started procession job
                 Intent intent = new Intent(this, SettingActivity.class);
                 Bundle extras = new Bundle();
                 extras.putInt("FontSizeForText", fontSizeForText);
@@ -240,6 +231,7 @@ public class MyActivity extends AppCompatActivity {
                 extras.putBoolean("IsEasyLevel", mainUiFragment.getIsEasyLevel());
                 intent.putExtras(extras);
                 startActivityForResult(intent, SettingActivityRequestCode);
+                ColorBallsApp.isProcessingJob = false;
                 return true;
             }
         }
@@ -258,7 +250,8 @@ public class MyActivity extends AppCompatActivity {
                 FragmentTransaction ft = fmManager.beginTransaction();
                 ft.remove(top10ScoreFragment);
                 ft.commit();
-                mainUiFragment.setIsProcessingJob(false);
+                ColorBallsApp.isShowingLoadingMessage = false;
+                ColorBallsApp.isProcessingJob = false;
             }
             if (globalTop10Fragment != null) {
                 // remove globalTop10Fragment
@@ -266,7 +259,8 @@ public class MyActivity extends AppCompatActivity {
                 FragmentTransaction ft = fmManager.beginTransaction();
                 ft.remove(globalTop10Fragment);
                 ft.commit();
-                mainUiFragment.setIsProcessingJob(false);
+                ColorBallsApp.isShowingLoadingMessage = false;
+                ColorBallsApp.isProcessingJob = false;
             }
         } else {
             // if configuration is not changing (still landscape because portrait does not have this fragment)
@@ -359,7 +353,7 @@ public class MyActivity extends AppCompatActivity {
         return dialogFragment_heightFactor;
     }
 
-    private class MyBroadcastReceiver extends BroadcastReceiver {
+    public class MyBroadcastReceiver extends BroadcastReceiver {
         private final String SUCCEEDED = "0";
         private final String FAILED = "1";
 
@@ -367,7 +361,6 @@ public class MyActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
 
             System.out.println("MyActivity.MyBroadcastReceiver.onReceive() is called.");
-            mainUiFragment.dismissShowMessageOnScreen();
 
             String actionName = intent.getAction();
             Bundle extras;
@@ -376,7 +369,7 @@ public class MyActivity extends AppCompatActivity {
             View historyView;
             switch (actionName) {
                 case MyTop10ScoresIntentService.Action_Name:
-                    mainUiFragment.setIsShowingLoadingMessage(false);
+
                     String top10ScoreTitle = getString(R.string.top10Score);
                     extras = intent.getExtras();
                     if (extras != null) {
@@ -416,7 +409,6 @@ public class MyActivity extends AppCompatActivity {
                             }
                             // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                             ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-                            mainUiFragment.setIsProcessingJob(false);
                         }
                     } else {
                         // for Portrait
@@ -430,9 +422,13 @@ public class MyActivity extends AppCompatActivity {
                         top10Intent.putExtras(top10Extras);
                         startActivityForResult(top10Intent, Top10ScoreActivityRequestCode);
                     }
+                    mainUiFragment.dismissShowMessageOnScreen();
+                    ColorBallsApp.isShowingLoadingMessage = false;
+                    ColorBallsApp.isProcessingJob = false;
                     break;
+
                 case MyGlobalTop10IntentService.Action_Name:
-                    mainUiFragment.setIsShowingLoadingMessage(false);
+
                     String globalTop10ScoreTitle = getString(R.string.globalTop10Score);
                     extras = intent.getExtras();
                     if (extras != null) {
@@ -472,7 +468,6 @@ public class MyActivity extends AppCompatActivity {
                             }
                             // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                             ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-                            mainUiFragment.setIsProcessingJob(false);
                         }
                     } else {
                         // for Portrait
@@ -486,6 +481,9 @@ public class MyActivity extends AppCompatActivity {
                         globalTop10Intent.putExtras(globalTop10Extras);
                         startActivityForResult(globalTop10Intent, GlobalTop10ActivityRequestCode);
                     }
+                    mainUiFragment.dismissShowMessageOnScreen();
+                    ColorBallsApp.isShowingLoadingMessage = false;
+                    ColorBallsApp.isProcessingJob = false;
                     break;
             }
         }
