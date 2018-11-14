@@ -32,8 +32,6 @@ public class MyGlobalTop10IntentService extends IntentService {
         ArrayList<String> playerNames = new ArrayList<>();
         ArrayList<Integer> playerScores = new ArrayList<>();
 
-        // String webUrl = ColorBallsApp.REST_Website + "/GetTop10PlayerscoresREST?gameId=1";   // ASP.NET Core
-        // String webUrl = "http://192.168.0.11:5000/Playerscore/GetTop10PlayerscoresREST?gameId=1";   // ASP.NET Core
         String webUrl = intent.getStringExtra("WebUrl");
         String[] result = PlayerRecordRest.getTop10Scores(webUrl);
 

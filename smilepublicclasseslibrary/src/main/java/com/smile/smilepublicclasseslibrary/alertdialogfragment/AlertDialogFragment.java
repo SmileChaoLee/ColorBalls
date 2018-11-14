@@ -23,6 +23,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.Serializable;
@@ -206,15 +207,15 @@ public class AlertDialogFragment extends DialogFragment {
                 // no buttons
             default:
                 // no buttons
-                // TextView
-                text_shown.setPadding(20,20,20,20);
-                lp = (LinearLayout.LayoutParams)text_shown.getLayoutParams();
 
-                // buttons
-                noButton_Layout.setVisibility(View.GONE);
+                // setting buttons
+                // noButton_Layout.setVisibility(View.GONE);
                 noButton.setEnabled(false);
-                okButton_Layout.setVisibility(View.GONE);
+                // okButton_Layout.setVisibility(View.GONE);
                 okButton.setEnabled(false);
+
+                LinearLayout buttons_LinearLayout = view.findViewById(R.id.linearlayout_for_buttons_in_modalfragment);
+                buttons_LinearLayout.setVisibility(View.GONE);
 
                 break;
         }

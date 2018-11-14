@@ -21,17 +21,25 @@
         <RelativeLayout
             android:id="@+id/dialog_fragment_body_content_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <TextView
-                android:id="@+id/text_shown"
+            android:layout_height="match_parent"
+            android:gravity="center">
+            <LinearLayout
+                android:id="@+id/textShown_layout"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text=""
-                android:textColor="#ffff0000"
-                android:textStyle="bold"
-                android:layout_alignParentTop="true"/>
-
+                android:layout_alignParentTop="true">
+                <TextView
+                    android:id="@+id/text_shown"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text=""
+                    android:textColor="#ffff0000"
+                    android:textStyle="bold" >
+                </TextView>
+            </LinearLayout>
             <LinearLayout
                 android:id="@+id/linearlayout_for_buttons_in_modalfragment"
                 android:layout_width="match_parent"
@@ -39,7 +47,7 @@
                 android:orientation="horizontal"
                 android:gravity="center"
                 android:layout_marginBottom="20dp"
-                android:layout_below="@+id/text_shown"
+                android:layout_below="@+id/textShown_layout"
                 android:weightSum="2">
 
                 <LinearLayout
