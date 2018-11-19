@@ -19,6 +19,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -41,6 +43,8 @@ public class AlertDialogFragment extends DialogFragment {
     private int dialogWidth = 0;
     private int dialogHeight = 0;
     private int numButtons = 0; // default is no buttons
+    private boolean isAnimation = false;
+    private Animation animationText;
 
     private AlertDialogFragment alertDialog = null;
 
@@ -58,7 +62,7 @@ public class AlertDialogFragment extends DialogFragment {
         super();
         this.ndl = ndl;
     }
-    public static AlertDialogFragment newInstance(String textContent, float textSize, int color, int width, int height) {
+    public static AlertDialogFragment newInstance(String textContent, float textSize, int color, int width, int height, boolean isAnimation) {
         AlertDialogFragment modalDialog = new AlertDialogFragment();
         Bundle args = new Bundle();
         args.putString("textContent", textContent);
@@ -67,6 +71,7 @@ public class AlertDialogFragment extends DialogFragment {
         args.putInt("width", width);
         args.putInt("height", height);
         args.putInt("numButtons", 0);
+        args.putBoolean("IsAnimation", isAnimation);
         modalDialog.setArguments(args);
 
         return modalDialog;
@@ -100,6 +105,7 @@ public class AlertDialogFragment extends DialogFragment {
             dialogWidth = 0;    // wrap_content
             dialogHeight = 0;   // wrap_content
             numButtons = 0;     // default is no buttons
+            isAnimation = false;
 
             Bundle args = getArguments();
             if (args != null) {
@@ -109,6 +115,15 @@ public class AlertDialogFragment extends DialogFragment {
                 dialogWidth = args.getInt("width");
                 dialogHeight = args.getInt("height");
                 numButtons = args.getInt("numButtons");
+                isAnimation = args.getBoolean("IsAnimation", false);
+            }
+
+            if (isAnimation) {
+                animationText = new AlphaAnimation(0.0f,1.0f);
+                animationText.setDuration(300);
+                animationText.setStartOffset(0);
+                animationText.setRepeatMode(Animation.REVERSE);
+                animationText.setRepeatCount(Animation.INFINITE);
             }
 
             float factor = getActivity().getResources().getDisplayMetrics().density;
@@ -164,6 +179,9 @@ public class AlertDialogFragment extends DialogFragment {
         text_shown.setText(textContext);
         text_shown.setTextSize(textSize);
         text_shown.setTextColor(textColor);
+        if ( (isAnimation) && (animationText != null) ) {
+            text_shown.startAnimation(animationText);
+        }
 
         LinearLayout noButton_Layout = view.findViewById(R.id.noButton_Layout);
         noButton = view.findViewById(R.id.dialogfragment_noButton);
