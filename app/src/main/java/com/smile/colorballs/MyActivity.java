@@ -202,18 +202,20 @@ public class MyActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
 
         boolean isProcessingJob = ColorBallsApp.isProcessingJob;
+
+        int id = item.getItemId();
+        if (id == R.id.quitGame) {
+            // removed on 2017-10-24
+            // Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, autoRotate);
+            mainUiFragment.recordScore(0);   //   from   END PROGRAM
+            return true;
+        }
+        if (id == R.id.newGame) {
+            mainUiFragment.newGame();
+            return true;
+        }
+
         if (!isProcessingJob) {
-            int id = item.getItemId();
-            if (id == R.id.quitGame) {
-                // removed on 2017-10-24
-                // Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, autoRotate);
-                mainUiFragment.recordScore(0);   //   from   END PROGRAM
-                return true;
-            }
-            if (id == R.id.newGame) {
-                mainUiFragment.newGame();
-                return true;
-            }
             if (id == R.id.saveGame) {
                 mainUiFragment.saveGame();
                 return super.onOptionsItemSelected(item);

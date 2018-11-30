@@ -19,33 +19,65 @@ public class ShowingInterstitialAdsUtil {
         isShowingFacebookAd = true;
     }
 
-    public void showFacebookAdFirst() {
+    public boolean showFacebookAdFirst() {
+        boolean succeededAdMob = false;
+        boolean succeededFacebook = false;
+
         if (facebookAd.isLoaded() && (!facebookAd.isError())) {
             // facebook ad is loaded, then show facebook
             isShowingFacebookAd = true;
-            facebookAd.showAd();
+            succeededFacebook = facebookAd.showAd();
+            if (!succeededFacebook) {
+                // If no facebook ad showing
+                // then load next facebook ad
+                facebookAd.loadAd();
+            }
+            adMobAd.loadAd();
         } else {
             // if facebook ad is not loaded, then show AdMob ad
             isShowingFacebookAd = false;
-            adMobAd.showAd();
+            if (adMobAd.isLoaded()) {
+                succeededAdMob = adMobAd.showAd();
+            }
+            if (!succeededAdMob) {
+                // If no AdMob ad showing
+                // then load the next AdMob ad
+                adMobAd.loadAd();
+            }
             facebookAd.loadAd();    // load the next facebook ad
         }
+
+        return (succeededAdMob || succeededFacebook);
     }
-    public void showGoogleAdMobAdFirst() {
+
+    public boolean showGoogleAdMobAdFirst() {
+        boolean succeededAdMob = false;
+        boolean succeededFacebook = false;
+
         if (adMobAd.isLoaded()) {
             isShowingFacebookAd = false;
-            adMobAd.showAd();
+            succeededAdMob = adMobAd.showAd();
+            if (!succeededAdMob) {
+                // if no AdMob ad showing
+                // then load next AdMob ad
+                adMobAd.loadAd();
+            }
             facebookAd.loadAd();    // load the next facebook ad
         } else {
+            // AdMob ad is not loaded, then show facebook
             isShowingFacebookAd = true;
             if (facebookAd.isLoaded() && (!facebookAd.isError())) {
-                // facebook ad is loaded, then show facebook
-                facebookAd.showAd();
-            } else {
+                succeededFacebook = facebookAd.showAd();
+            }
+            if (!succeededFacebook) {
+                // If no facebook ad showing
+                // load next facebook ad
                 facebookAd.loadAd();
             }
             adMobAd.loadAd();   // load next AdMob ad
         }
+
+        return (succeededAdMob || succeededFacebook);
     }
     public void close() {
         facebookAd.close();
@@ -60,11 +92,13 @@ public class ShowingInterstitialAdsUtil {
         private final AppCompatActivity activity;
         private final int endPoint;
         private final AfterDismissFunctionOfShowAd afterDismissFunction;
+        private  boolean isAdShown = false;
 
         public ShowAdAsyncTask(final AppCompatActivity activity, final int endPoint) {
             this.activity = activity;
             this.endPoint = endPoint;
             this.afterDismissFunction = null;
+            isAdShown = false;
         }
 
         public ShowAdAsyncTask(final AppCompatActivity activity, final int endPoint, final AfterDismissFunctionOfShowAd afterDismissFunction) {
@@ -76,7 +110,7 @@ public class ShowingInterstitialAdsUtil {
 
         @Override
         protected void onPreExecute() {
-            showGoogleAdMobAdFirst();
+            isAdShown = showGoogleAdMobAdFirst();
         }
 
         @Override
@@ -84,14 +118,16 @@ public class ShowingInterstitialAdsUtil {
 
             final int timeDelay = 300;
             int i = 0;
-            if (isShowingFacebookAd) {
-                while (!facebookAd.adsShowDismissedOrStopped()) {
-                    SystemClock.sleep(timeDelay);
-                }
-            } else {
-                // is showing google AdMob ad
-                while (!adMobAd.adsShowDismissedOrStopped()) {
-                    SystemClock.sleep(timeDelay);
+            if (isAdShown) {
+                if (isShowingFacebookAd) {
+                    while (!facebookAd.adsShowDismissedOrStopped()) {
+                        SystemClock.sleep(timeDelay);
+                    }
+                } else {
+                    // is showing google AdMob ad
+                    while (!adMobAd.adsShowDismissedOrStopped()) {
+                        SystemClock.sleep(timeDelay);
+                    }
                 }
             }
 

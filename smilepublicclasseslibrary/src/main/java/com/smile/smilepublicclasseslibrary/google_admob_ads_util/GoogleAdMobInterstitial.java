@@ -103,21 +103,22 @@ public class GoogleAdMobInterstitial {
             mInterstitialAd.loadAd(adRequest);
         }
     }
-    public void showAd() {
+    public boolean showAd() {
+        boolean succeeded = false;
+
         isDismissed = false;
         isDisplayed = false;
         if (mInterstitialAd.isLoaded()) {
             isLoaded = true;
             isError = false;
             mInterstitialAd.show();
+            succeeded = true;
         } else {
             isLoaded = false;
             isError = true;
-            if (!mInterstitialAd.isLoading()) {
-                // if not loading ad, then loadAd() again
-                loadAd();
-            }
         }
+
+        return succeeded;
     }
 
     public boolean isLoaded() {
@@ -131,57 +132,5 @@ public class GoogleAdMobInterstitial {
     }
     public boolean adsShowDismissedOrStopped() {
         return (isDismissed || (isError));
-    }
-
-    // interface for showing Google AdMob ads
-    public interface AfterDismissFunctionOfShowGoogleAdMobAd {
-        void executeAfterDismissAds(int endPoint);
-    }
-    public class ShowGoogleAdMobAdAsyncTask extends AsyncTask<Void, Integer, Void> {
-
-        private final AppCompatActivity activity;
-        private final int endPoint;
-        private final AfterDismissFunctionOfShowGoogleAdMobAd afterDismissFunction;
-
-        public ShowGoogleAdMobAdAsyncTask(final AppCompatActivity activity, final int endPoint) {
-            this.activity = activity;
-            this.endPoint = endPoint;
-            this.afterDismissFunction = null;
-        }
-
-        public ShowGoogleAdMobAdAsyncTask(final AppCompatActivity activity, final int endPoint, final AfterDismissFunctionOfShowGoogleAdMobAd afterDismissFunction) {
-
-            this.activity = activity;
-            this.endPoint = endPoint;
-            this.afterDismissFunction = afterDismissFunction;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            showAd();
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-
-            final int timeDelay = 300;
-            int i = 0;
-            while (!adsShowDismissedOrStopped()) {
-                SystemClock.sleep(timeDelay);
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... progress) {
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            if (afterDismissFunction != null) {
-                afterDismissFunction.executeAfterDismissAds(endPoint);
-            }
-        }
     }
 }

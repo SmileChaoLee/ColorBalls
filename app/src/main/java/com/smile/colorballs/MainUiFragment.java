@@ -520,7 +520,6 @@ public class MainUiFragment extends Fragment {
         } else {
             // check if game over
             gameOverYn = gridData.getGameOver();
-            // if (gridData.getGameOver()) {
             if (gameOverYn) {
                 //  game over
                 AlertDialogFragment gameOverDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
@@ -1314,6 +1313,8 @@ public class MainUiFragment extends Fragment {
         });
 
         alertD.show();
+
+        ColorBallsApp.isProcessingJob = false;
     }
 
     public boolean getIsEasyLevel() {

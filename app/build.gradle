@@ -1,29 +1,37 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'chaolee'
+            keyPassword '86637971'
+            storeFile file('/Users/chaolee/AndroidStudio/keystore/key.jks')
+            storePassword '86637971'
+        }
+    }
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 28
-        versionCode 3201
-        versionName "3.201"
+        versionCode 3202
+        versionName "3.202"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         applicationId "com.smile.colorballs"
-        manifestPlaceholders = [ appName:"@string/app_name", googleAdMobAppID:"@string/google_AdMobAppID"]
+        manifestPlaceholders = [appName: "@string/app_name", googleAdMobAppID: "@string/google_AdMobAppID"]
 
         flavorDimensions("colorballs")
         productFlavors {
             colorballs {
                 dimension "colorballs"
                 applicationId "com.smile.colorballs"
-                manifestPlaceholders = [ appNameSuffix:""]
+                manifestPlaceholders = [appNameSuffix: ""]
             }
             fivecolorballs {
                 dimension "colorballs"
                 applicationId "com.smile.fivecolorballs"
-                manifestPlaceholders = [ appNameSuffix:"_2"]
+                manifestPlaceholders = [appNameSuffix: "_2"]
             }
         }
     }
@@ -31,6 +39,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
+        }
+        debug {
+            signingConfig signingConfigs.config
         }
     }
 }
