@@ -3,10 +3,9 @@ package com.smile.colorballs;
 import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
-
 import com.google.android.gms.ads.MobileAds;
 import com.smile.smilepublicclasseslibrary.facebook_ads_util.*;
-import com.smile.smilepublicclasseslibrary.google_admob_ads_util.GoogleAdMobInterstitial;
+import com.smile.smilepublicclasseslibrary.google_admob_ads_util.*;
 import com.smile.smilepublicclasseslibrary.scoresqlite.*;
 import com.smile.smilepublicclasseslibrary.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
 
