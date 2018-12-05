@@ -303,7 +303,8 @@ public class MyActivity extends AppCompatActivity {
     public void onBackPressed() {
         // capture the event of back button when it is pressed
         // change back button behavior
-        quitApplication();
+        // quitApplication();
+        mainUiFragment.recordScore(0);   //   from   END PROGRAM
     }
 
     public void quitApplication() {
