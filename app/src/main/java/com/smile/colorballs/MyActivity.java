@@ -17,13 +17,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
 import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
 import com.smile.smilepublicclasseslibrary.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
@@ -38,12 +43,16 @@ public class MyActivity extends AppCompatActivity {
     private final String TAG = new String("com.smile.colorballs.MyActivity");
     private final String GlobalTop10FragmentTag = "GlobalTop10FragmentTag";
     private final String LocalTop10FragmentTag = "LocalTop10FragmentTag";
-    private int mainUiLayoutId = -1;
+    private int mainUiFragmentLayoutId = -1;
     private int top10LayoutId = -1;
+    private LinearLayout bannerLinearLayout = null;
+    private AdView bannerAdView = null;
 
     private MainUiFragment mainUiFragment = null;
     private Top10ScoreFragment top10ScoreFragment = null;
     private Top10ScoreFragment globalTop10Fragment = null;
+    private float mainFragmentHeight;
+    private float mainFragmentWidth;
     private MyBroadcastReceiver myReceiver;
 
     private int fontSizeForText = 24;
@@ -65,8 +74,8 @@ public class MyActivity extends AppCompatActivity {
 
         Point size = new Point();
         ScreenUtil.getScreenSize(this, size);
-        int screenWidth = size.x;
-        int screenHeight = size.y;
+        float screenWidth = size.x;
+        float screenHeight = size.y;
 
         float baseWidth = 1080.0f;
         float baseHeight = 1776.0f;
@@ -117,6 +126,11 @@ public class MyActivity extends AppCompatActivity {
             dialogFragment_heightFactor = dialog_heightFactor;
         }
 
+        float statusBarHeight = ScreenUtil.getStatusBarHeight(this);
+        float actionBarHeight = ScreenUtil.getActionBarHeight(this);
+        // keep navigation bar
+        screenHeight = screenHeight - statusBarHeight - actionBarHeight;
+
         setContentView(R.layout.activity_my);
 
         int highestScore = ColorBallsApp.ScoreSQLiteDB.readHighestScore();
@@ -133,19 +147,41 @@ public class MyActivity extends AppCompatActivity {
         actionBar.setCustomView(titleView);
         //
 
-        mainUiLayoutId = R.id.mainUiLayout;
+        LinearLayout linearLayout_myActivity = findViewById(R.id.linearLayout_myActivity);
+        float main_WeightSum = linearLayout_myActivity.getWeightSum();
+
+        mainUiFragmentLayoutId = R.id.mainUiFragmentLayout;
         top10LayoutId = R.id.top10Layout;
+
+        LinearLayout gameViewLinearLayout = findViewById(R.id.gameViewLinearLayout);
+        LinearLayout.LayoutParams gameViewLp = (LinearLayout.LayoutParams) gameViewLinearLayout.getLayoutParams();
+        float mainFragment_Weight = gameViewLp.weight;
+        mainFragmentHeight = screenHeight * mainFragment_Weight / main_WeightSum;
+        mainFragmentWidth = screenWidth;
 
         FragmentManager fmManager = getSupportFragmentManager();
         mainUiFragment = (MainUiFragment) fmManager.findFragmentByTag(MainUiFragment.MainUiFragmentTag);
-        View gameView = findViewById(mainUiLayoutId);
-        if (gameView != null) {
-            if (mainUiFragment == null) {
-                mainUiFragment = MainUiFragment.newInstance();
-                FragmentTransaction ft = fmManager.beginTransaction();
-                ft.add(mainUiLayoutId, mainUiFragment, MainUiFragment.MainUiFragmentTag);
-                ft.commit();
-            }
+
+        if (mainUiFragment == null) {
+            mainUiFragment = MainUiFragment.newInstance();
+            FragmentTransaction ft = fmManager.beginTransaction();
+            ft.add(mainUiFragmentLayoutId, mainUiFragment, MainUiFragment.MainUiFragmentTag);
+            ft.commit();
+        }
+
+        if (!ColorBallsApp.googleAdMobBannerID.isEmpty()) {
+            bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
+            bannerAdView = new AdView(this);
+
+            LinearLayout.LayoutParams bannerLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+            bannerLp.gravity = Gravity.CENTER;
+            bannerAdView.setLayoutParams(bannerLp);
+            // AdSize adSize = new AdSize(AdSize.FULL_WIDTH, AdSize.AUTO_HEIGHT);
+            bannerAdView.setAdSize(AdSize.BANNER);
+            bannerAdView.setAdUnitId(ColorBallsApp.googleAdMobBannerID);
+            bannerLinearLayout.addView(bannerAdView);
+            AdRequest adRequest = new AdRequest.Builder().build();
+            bannerAdView.loadAd(adRequest);
         }
 
         myReceiver = new MyBroadcastReceiver();
@@ -216,6 +252,18 @@ public class MyActivity extends AppCompatActivity {
         }
 
         if (!isProcessingJob) {
+            if (id == R.id.undoGame) {
+                mainUiFragment.undoTheLast();
+                return super.onOptionsItemSelected(item);
+            }
+            if (id == R.id.top10) {
+                mainUiFragment.showTop10ScoreHistory();
+                return super.onOptionsItemSelected(item);
+            }
+            if (id == R.id.globalTop10) {
+                mainUiFragment.showGlobalTop10History();
+                return super.onOptionsItemSelected(item);
+            }
             if (id == R.id.saveGame) {
                 mainUiFragment.saveGame();
                 return super.onOptionsItemSelected(item);
@@ -354,6 +402,12 @@ public class MyActivity extends AppCompatActivity {
     }
     public float getDialogFragment_heightFactor() {
         return dialogFragment_heightFactor;
+    }
+    public float getMainFragmentWidth() {
+        return this.mainFragmentWidth;
+    }
+    public float getMainFragmentHeight() {
+        return this.mainFragmentHeight;
     }
 
     public class MyBroadcastReceiver extends BroadcastReceiver {

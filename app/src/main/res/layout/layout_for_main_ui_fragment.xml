@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,10 +6,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ffe8e56a"
-    android:weightSum="11">
+    android:weightSum="9">
 
     <!-- Scores part and Next balls part -->
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:id="@+id/score_next_balls_layout"
         android:orientation="horizontal"
         android:layout_width="match_parent"
@@ -72,58 +71,5 @@
         </ImageView>
 
     </FrameLayout>
-
-    <!-- the undo button and history button -->
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/linearlayout_for_buttons_in_mainactivity"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2"
-        android:weightSum="3">
-
-        <Button
-            android:id="@+id/undoButton"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_margin="5dp"
-            android:padding="0dp"
-            android:text="@string/undoStr"
-            android:textStyle="bold|italic"
-            android:textColor="@android:color/holo_red_dark"
-            android:background="@drawable/undo_button"
-            android:layout_weight="1"
-            />
-
-        <Button
-            android:id="@+id/top10Button"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_margin="5dp"
-            android:padding="0dp"
-            android:text="@string/top10Str"
-            android:textStyle="bold|italic"
-            android:textColor="@android:color/holo_red_dark"
-            android:background="@drawable/history_button"
-            android:layout_weight="1"
-            />
-
-        <Button
-            android:id="@+id/globalTop10Button"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_margin="5dp"
-            android:padding="0dp"
-            android:text="@string/globalTop10Str"
-            android:textStyle="bold|italic"
-            android:textColor="@android:color/holo_red_dark"
-            android:background="@drawable/history_button"
-            android:layout_weight="1"
-            />
-
-    </LinearLayout>
 
 </LinearLayout>

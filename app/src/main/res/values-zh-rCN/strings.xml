@@ -24,6 +24,7 @@
     <string name="undoStr">还 原</string>
     <string name="top10Str">前10名高分</string>
     <string name="globalTop10Str">全球前10排名</string>
+    <string name="fileMenuStr">档案</string>
     <string name="settingStr">设定</string>
     <string name="soundStr">声音</string>
     <string name="onStr">开</string>

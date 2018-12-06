@@ -112,6 +112,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/check-libraries" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/check-manifest" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/checkColorballsReleaseClasspath" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/checkFivecolorballsReleaseClasspath" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/compatible_screen_manifest" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/instant_run_merged_manifests" />
@@ -197,6 +198,7 @@
     <orderEntry type="library" name="Gradle: com.android.support:appcompat-v7-28.0.0" level="project" />
     <orderEntry type="library" name="Gradle: com.google.firebase:firebase-analytics-impl-16.2.3" level="project" />
     <orderEntry type="library" name="Gradle: com.google.firebase:firebase-iid-17.0.3" level="project" />
+    <orderEntry type="module" module-name="smilepublicclasseslibrary" />
     <orderEntry type="module" module-name="smilepublicclasseslibrary" />
   </component>
 </module>

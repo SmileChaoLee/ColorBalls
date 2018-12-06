@@ -1,5 +1,8 @@
 package com.smile.colorballs;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
 import com.smile.smilepublicclasseslibrary.alertdialogfragment.*;
 
 import android.content.Context;
@@ -38,7 +41,6 @@ import android.widget.TextView;
 import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
 import com.smile.model.GridData;
-import com.smile.smilepublicclasseslibrary.facebook_ads_util.FacebookInterstitialAds;
 import com.smile.smilepublicclasseslibrary.player_record_rest.PlayerRecordRest;
 import com.smile.smilepublicclasseslibrary.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
 import com.smile.smilepublicclasseslibrary.utilities.*;
@@ -74,6 +76,8 @@ public class MainUiFragment extends Fragment {
     private MyActivity myActivity = null;
     private View uiFragmentView = null;
     private ImageView scoreImageView = null;
+    private float fragmentWidth;
+    private float fragmentHeight;
 
     private Runnable bouncyRunnable; // needed to be tested 2018-0609
     private Handler bouncyHandler;   // needed to be tested
@@ -215,25 +219,15 @@ public class MainUiFragment extends Fragment {
         dialog_heightFactor = myActivity.getDialog_heightFactor();
         dialogFragment_widthFactor = myActivity.getDialogFragment_widthFactor();
         dialogFragment_heightFactor = myActivity.getDialogFragment_heightFactor();
-
-        Point size = new Point();
-        ScreenUtil.getScreenSize(context, size);
-        int screenWidth = size.x;
-        int screenHeight = size.y;
-        System.out.println("Screen size of this device -> screenWidth = " + screenWidth + ", screenHeight = " + screenHeight);
-
-        int statusBarHeight = ScreenUtil.getStatusBarHeight(context);
-        int actionBarHeight = ScreenUtil.getActionBarHeight(context);
-
-        // keep navigation bar
-        screenHeight = screenHeight - statusBarHeight - actionBarHeight;
+        fragmentWidth = myActivity.getMainFragmentWidth();
+        fragmentHeight = myActivity.getMainFragmentHeight();
 
         if (ColorBallsApp.AppResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // Landscape
-            screenWidth = screenWidth / 2;  // for this fragment is half a screenWidth
+            fragmentWidth = fragmentWidth / 2;  // for this fragment is half a fragmentWidth
         }
 
-        float height_weightSum_uiFragmentView = 11;    // default
+        float height_weightSum_uiFragmentView = 9;    // default
         try {
             LinearLayout linearLay = (LinearLayout) uiFragmentView;
             float temp = linearLay.getWeightSum();
@@ -268,13 +262,13 @@ public class MainUiFragment extends Fragment {
         layoutParams = (LinearLayout.LayoutParams)nextBallsLayout.getLayoutParams();
         float width_weight_nextBalls = layoutParams.weight;
 
-        int nextBallsViewWidth = (int)((float)screenWidth * width_weight_nextBalls / width_weightSum_scoreNextBallsLayout);   // 3-5th of screen width
+        int nextBallsViewWidth = (int)((float)fragmentWidth * width_weight_nextBalls / width_weightSum_scoreNextBallsLayout);   // 3/5 of screen width
 
         LinearLayout.LayoutParams oneNextBallLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         oneNextBallLp.width = nextBallsViewWidth / nextBallsNumber;
         // the layout_weight for height is 1
-        oneNextBallLp.height = (int)((float)screenHeight * height_weight_scoreNextBallsLayout / height_weightSum_uiFragmentView);
+        oneNextBallLp.height = (int)((float)fragmentHeight * height_weight_scoreNextBallsLayout / height_weightSum_uiFragmentView);
         oneNextBallLp.gravity = Gravity.CENTER;
 
         ImageView imageView = null;
@@ -305,9 +299,9 @@ public class MainUiFragment extends Fragment {
             height_weight_gridCellsLayout = 8;  // default
         }
 
-        cellWidth = screenWidth / colCounts;
-        int eight10thOfHeight = (int)( (float)screenHeight / height_weightSum_uiFragmentView * height_weight_gridCellsLayout);
-        if ( screenWidth >  eight10thOfHeight) {
+        cellWidth = (int)(fragmentWidth / colCounts);
+        int eight10thOfHeight = (int)( (float)fragmentHeight / height_weightSum_uiFragmentView * height_weight_gridCellsLayout);
+        if ( fragmentWidth >  eight10thOfHeight) {
             // if screen width greater than 8-10th of screen height
             cellWidth = eight10thOfHeight / rowCounts;
         }
@@ -357,42 +351,10 @@ public class MainUiFragment extends Fragment {
         scoreImageView.setVisibility(View.GONE);
         //
 
-        Button undoButton = uiFragmentView.findViewById(R.id.undoButton);
-        undoButton.setTextSize(fontSizeForText);
-        undoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!ColorBallsApp.isProcessingJob) {
-                    undoTheLast();
-                }
-            }
-        });
-
-        Button top10Button = uiFragmentView.findViewById(R.id.top10Button);
-        top10Button.setTextSize(fontSizeForText);
-        top10Button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!ColorBallsApp.isProcessingJob) {
-                    showTop10ScoreHistory();   // added on 2018-06-11
-                }
-            }
-        });
-
-        Button globalTop10Button = uiFragmentView.findViewById(R.id.globalTop10Button);
-        globalTop10Button.setTextSize(fontSizeForText);
-        globalTop10Button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!ColorBallsApp.isProcessingJob) {
-                    showGlobalTop10History();
-                }
-            }
-        });
-
         if ( (savedInstanceState == null) || (gridData == null) ) {
             // start a new game (no savedInstanceState)
             // or gridData is null (for some unknown reason)
+            // AdMob ads
 
             ColorBallsApp.isShowingLoadingMessage = false;
             ColorBallsApp.isShowingSavingGameMessage = false;
@@ -555,32 +517,6 @@ public class MainUiFragment extends Fragment {
             // game has not been over yet
             displayNextColorBalls();
         }
-    }
-
-    private void undoTheLast() {
-
-        if (!undoEnable) {
-            return;
-        }
-
-        ColorBallsApp.isProcessingJob = true; // started undoing
-
-        gridData.undoTheLast();
-
-        // restore the screen
-        displayGameView();
-
-        bouncingStatus = 0;
-        bouncyBallIndexI = -1;
-        bouncyBallIndexJ = -1;
-
-        currentScore = undoScore;
-        currentScoreView.setText( String.format(Locale.getDefault(), "%9d",currentScore));
-
-        // completedPath = true;
-        undoEnable = false;
-
-        ColorBallsApp.isProcessingJob = false;    // finished
     }
 
     private void clearCell(int i, int j) {
@@ -936,24 +872,6 @@ public class MainUiFragment extends Fragment {
         });
         showAdAsyncTask.execute();
     }
-
-    private void showTop10ScoreHistory() {
-        ColorBallsApp.isProcessingJob = true;
-        ColorBallsApp.isShowingLoadingMessage = true;
-        showMessageOnScreen(loadingString);
-        Intent myIntentService = new Intent(myActivity, MyTop10ScoresIntentService.class);
-        myActivity.startService(myIntentService);
-    }
-    private void showGlobalTop10History() {
-        ColorBallsApp.isProcessingJob = true;
-        ColorBallsApp.isShowingLoadingMessage = true;
-        showMessageOnScreen(loadingString);
-        Intent myIntentService = new Intent(myActivity, MyGlobalTop10IntentService.class);
-        String webUrl = ColorBallsApp.REST_Website + "/GetTop10PlayerscoresREST";  // ASP.NET Core
-        webUrl += "?gameId=" + ColorBallsApp.GameId;   // parameters
-        myIntentService.putExtra("WebUrl", webUrl);
-        myActivity.startService(myIntentService);
-    }
     private void startSavingGame() {
         ColorBallsApp.isProcessingJob = true;
 
@@ -1191,6 +1109,48 @@ public class MainUiFragment extends Fragment {
     }
 
     // public methods
+    public void undoTheLast() {
+
+        if (!undoEnable) {
+            return;
+        }
+
+        ColorBallsApp.isProcessingJob = true; // started undoing
+
+        gridData.undoTheLast();
+
+        // restore the screen
+        displayGameView();
+
+        bouncingStatus = 0;
+        bouncyBallIndexI = -1;
+        bouncyBallIndexJ = -1;
+
+        currentScore = undoScore;
+        currentScoreView.setText( String.format(Locale.getDefault(), "%9d",currentScore));
+
+        // completedPath = true;
+        undoEnable = false;
+
+        ColorBallsApp.isProcessingJob = false;    // finished
+    }
+    public void showTop10ScoreHistory() {
+        ColorBallsApp.isProcessingJob = true;
+        ColorBallsApp.isShowingLoadingMessage = true;
+        showMessageOnScreen(loadingString);
+        Intent myIntentService = new Intent(myActivity, MyTop10ScoresIntentService.class);
+        myActivity.startService(myIntentService);
+    }
+    public void showGlobalTop10History() {
+        ColorBallsApp.isProcessingJob = true;
+        ColorBallsApp.isShowingLoadingMessage = true;
+        showMessageOnScreen(loadingString);
+        Intent myIntentService = new Intent(myActivity, MyGlobalTop10IntentService.class);
+        String webUrl = ColorBallsApp.REST_Website + "/GetTop10PlayerscoresREST";  // ASP.NET Core
+        webUrl += "?gameId=" + ColorBallsApp.GameId;   // parameters
+        myIntentService.putExtra("WebUrl", webUrl);
+        myActivity.startService(myIntentService);
+    }
     public void newGame() {
         recordScore(1);   //   START A NEW GAME
     }
