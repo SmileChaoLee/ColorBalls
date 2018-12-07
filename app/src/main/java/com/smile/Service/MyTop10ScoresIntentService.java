@@ -7,6 +7,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
 
 import com.smile.colorballs.ColorBallsApp;
+import com.smile.smilepublicclasseslibrary.player_record_rest.PlayerRecordRest;
 
 import java.util.ArrayList;
 
@@ -22,17 +23,10 @@ public class MyTop10ScoresIntentService extends IntentService {
 
         System.out.println("MyTop10ScoresIntentService --> onHandleIntent() is called.");
 
-        ArrayList<Pair<String, Integer>> resultList = ColorBallsApp.ScoreSQLiteDB.readTop10ScoreList();
         ArrayList<String> playerNames = new ArrayList<>();
         ArrayList<Integer> playerScores = new ArrayList<>();
 
-        for (Pair pair : resultList) {
-            playerNames.add((String)pair.first);
-            playerScores.add((Integer)pair.second);
-        }
-
-        // wait for 3 seconds
-        // try { Thread.sleep(3000); } catch (InterruptedException ex) { ex.printStackTrace(); }
+        String status = PlayerRecordRest.GetLocalTop10Scores(ColorBallsApp.ScoreSQLiteDB, playerNames, playerScores);
 
         Intent notificationIntent = new Intent(Action_Name);
         Bundle extras = new Bundle();

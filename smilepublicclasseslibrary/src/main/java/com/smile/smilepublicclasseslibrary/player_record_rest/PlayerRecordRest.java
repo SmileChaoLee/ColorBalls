@@ -1,7 +1,12 @@
 package com.smile.smilepublicclasseslibrary.player_record_rest;
 
 import android.util.Log;
+import android.util.Pair;
 
+import com.smile.smilepublicclasseslibrary.scoresqlite.ScoreSQLite;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
@@ -10,6 +15,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class PlayerRecordRest {
     private static final String TAG = new String("com.smile.dao.PlayerRecordRest");
@@ -20,11 +26,11 @@ public class PlayerRecordRest {
     public static boolean addOneRecord(String webUrl, JSONObject jsonObject) {
         boolean yn = false;
 
-        if  ( (webUrl == null) || (webUrl.isEmpty()) ) {
+        if ((webUrl == null) || (webUrl.isEmpty())) {
             return yn;
         }
 
-        if ( (jsonObject == null) || (jsonObject.length()==0) ) {
+        if ((jsonObject == null) || (jsonObject.length() == 0)) {
             return yn;
         }
 
@@ -84,11 +90,11 @@ public class PlayerRecordRest {
     }
 
     public static String[] getTop10Scores(String webUrl) {
-        if ( (webUrl == null) || (webUrl.isEmpty()) ) {
+        if ((webUrl == null) || (webUrl.isEmpty())) {
             return null;
         }
 
-        String[] result = new String[] {"",""};
+        String[] result = new String[]{"", ""};
         try {
             URL url = new URL(webUrl);
             HttpURLConnection myConnection = (HttpURLConnection) url.openConnection();
@@ -133,5 +139,70 @@ public class PlayerRecordRest {
         }
 
         return result;
+    }
+
+    public static  String GetLocalTop10Scores(ScoreSQLite scoreSQLite, ArrayList<String> playerNames, ArrayList<Integer> playerScores) {
+
+        String status = SUCCEEDED;
+
+        try {
+            ArrayList<Pair<String, Integer>> resultList = scoreSQLite.readTop10ScoreList();
+            playerNames.clear();
+            playerScores.clear();
+
+            for (Pair pair : resultList) {
+                playerNames.add((String) pair.first);
+                playerScores.add((Integer) pair.second);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            status = EXCEPTION;
+        }
+
+        return status;
+    }
+
+    public static String GetGlobalTop10Scores(String webUrl, ArrayList<String> playerNames, ArrayList<Integer> playerScores) {
+
+        try {
+            playerNames.clear();
+            playerScores.clear();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return EXCEPTION;
+        }
+
+        String[] result = PlayerRecordRest.getTop10Scores(webUrl);
+
+        String status = result[0].toUpperCase();
+
+        if (status.equals(SUCCEEDED)) {
+            // Succeeded
+            try {
+                JSONArray jArray = new JSONArray(result[1]);
+                for (int i = 0; i < jArray.length(); i++) {
+                    JSONObject jo = jArray.getJSONObject(i);
+                    playerNames.add(jo.getString("PlayerName"));
+                    playerScores.add(jo.getInt("Score"));
+                }
+
+            } catch (JSONException ex) {
+                String errorMsg = ex.toString();
+                ex.printStackTrace();
+                playerNames.add("JSONException->JSONArray");
+                playerScores.add(0);
+            }
+
+        } else if (status.equals(FAILED)) {
+            // Failed
+            playerNames.add("Web Connection Failed.");
+            playerScores.add(0);
+        } else {
+            // Exception
+            playerNames.add("Exception on Web read.");
+            playerScores.add(0);
+        }
+
+        return status;
     }
 }
