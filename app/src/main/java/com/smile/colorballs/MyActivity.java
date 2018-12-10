@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.IntentCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
@@ -170,6 +171,7 @@ public class MyActivity extends AppCompatActivity {
         }
 
         if (!ColorBallsApp.googleAdMobBannerID.isEmpty()) {
+            Log.d(TAG, "Starting the initialization for Banner Ad.");
             bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
             bannerAdView = new AdView(this);
 
@@ -373,8 +375,15 @@ public class MyActivity extends AppCompatActivity {
         handlerClose.postDelayed(new Runnable() {
             public void run() {
                 // restart this MyActivity, new game
+                /*  removed on 2018-12-10
                 Intent myIntent = getIntent();
                 finish();
+                startActivity(myIntent);
+                */
+                String packageName = getBaseContext().getPackageName();
+                Intent myIntent = getBaseContext().getPackageManager().getLaunchIntentForPackage(packageName);
+                myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                finish();   // finish() might not be needed
                 startActivity(myIntent);
             }
         },timeDelay);
