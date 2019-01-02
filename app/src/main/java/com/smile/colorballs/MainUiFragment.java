@@ -755,60 +755,10 @@ public class MainUiFragment extends Fragment {
 
     private void drawBall(ImageView imageView, int color) {
         imageView.setImageBitmap(ColorBallsApp.colorBallMap.get(color));
-        /*
-        switch (color) {
-            case ColorBallsApp.ColorRED:
-                imageView.setImageResource(R.drawable.redball);
-                break;
-            case ColorBallsApp.ColorGREEN:
-                imageView.setImageResource(R.drawable.greenball);
-                break;
-            case ColorBallsApp.ColorBLUE:
-                imageView.setImageResource(R.drawable.blueball);
-                break;
-            case ColorBallsApp.ColorMAGENTA:
-                imageView.setImageResource(R.drawable.magentaball);
-                break;
-            case ColorBallsApp.ColorYELLOW:
-                imageView.setImageResource(R.drawable.yellowball);
-                break;
-            case ColorBallsApp.ColorCyan:
-                imageView.setImageResource(R.drawable.cyanball);
-                break;
-            default:
-                imageView.setImageDrawable(null);
-                break;
-        }
-        */
     }
 
     private void drawOval(ImageView imageView,int color) {
         imageView.setImageBitmap(ColorBallsApp.colorOvalBallMap.get(color));
-        /*
-        switch (color) {
-            case ColorBallsApp.ColorRED:
-                imageView.setImageResource(R.drawable.redball_o);
-                break;
-            case ColorBallsApp.ColorGREEN:
-                imageView.setImageResource(R.drawable.greenball_o);
-                break;
-            case ColorBallsApp.ColorBLUE:
-                imageView.setImageResource(R.drawable.blueball_o);
-                break;
-            case ColorBallsApp.ColorMAGENTA:
-                imageView.setImageResource(R.drawable.magentaball_o);
-                break;
-            case ColorBallsApp.ColorYELLOW:
-                imageView.setImageResource(R.drawable.yellowball_o);
-                break;
-            case ColorBallsApp.ColorCyan:
-                imageView.setImageResource(R.drawable.cyanball_o);
-                break;
-            default:
-                imageView.setImageDrawable(null);
-                break;
-        }
-        */
     }
 
     private void displayNextBallsView() {
