@@ -520,9 +520,8 @@ public class MainUiFragment extends Fragment {
         // int id = i * colCounts + j;
         int id = i * rowCounts + j;
         ImageView imageView = uiFragmentView.findViewById(id);
-        // imageView.setImageResource(R.drawable.boximage);
-        imageView.setImageDrawable(null);
-        // imageView.setImageBitmap(null);
+        // imageView.setImageDrawable(null);
+        imageView.setImageBitmap(null);
         gridData.setCellValue(i, j, 0);
     }
 
@@ -643,8 +642,8 @@ public class MainUiFragment extends Fragment {
                     if (ballYN) {
                         drawBall(imageView, color);
                     } else {
-                        // imageView.setImageResource(R.drawable.boximage);
-                        imageView.setImageDrawable(null);
+                        // imageView.setImageDrawable(null);
+                        imageView.setImageBitmap(null);
                     }
                     ballYN = !ballYN;
                     countDown--;
@@ -754,50 +753,62 @@ public class MainUiFragment extends Fragment {
         pBtn.setLayoutParams(layoutParams);
     }
 
-    private void drawBall(ImageView imageView,int color) {
+    private void drawBall(ImageView imageView, int color) {
+        imageView.setImageBitmap(ColorBallsApp.colorBallMap.get(color));
+        /*
         switch (color) {
-            case GridData.ColorRED:
+            case ColorBallsApp.ColorRED:
                 imageView.setImageResource(R.drawable.redball);
                 break;
-            case GridData.ColorGREEN:
+            case ColorBallsApp.ColorGREEN:
                 imageView.setImageResource(R.drawable.greenball);
                 break;
-            case GridData.ColorBLUE:
+            case ColorBallsApp.ColorBLUE:
                 imageView.setImageResource(R.drawable.blueball);
                 break;
-            case GridData.ColorMAGENTA:
+            case ColorBallsApp.ColorMAGENTA:
                 imageView.setImageResource(R.drawable.magentaball);
                 break;
-            case GridData.ColorYELLOW:
+            case ColorBallsApp.ColorYELLOW:
                 imageView.setImageResource(R.drawable.yellowball);
+                break;
+            case ColorBallsApp.ColorCyan:
+                imageView.setImageResource(R.drawable.cyanball);
                 break;
             default:
                 imageView.setImageDrawable(null);
                 break;
         }
+        */
     }
 
     private void drawOval(ImageView imageView,int color) {
+        imageView.setImageBitmap(ColorBallsApp.colorOvalBallMap.get(color));
+        /*
         switch (color) {
-            case GridData.ColorRED:
+            case ColorBallsApp.ColorRED:
                 imageView.setImageResource(R.drawable.redball_o);
                 break;
-            case GridData.ColorGREEN:
+            case ColorBallsApp.ColorGREEN:
                 imageView.setImageResource(R.drawable.greenball_o);
                 break;
-            case GridData.ColorBLUE:
+            case ColorBallsApp.ColorBLUE:
                 imageView.setImageResource(R.drawable.blueball_o);
                 break;
-            case GridData.ColorMAGENTA:
+            case ColorBallsApp.ColorMAGENTA:
                 imageView.setImageResource(R.drawable.magentaball_o);
                 break;
-            case GridData.ColorYELLOW:
+            case ColorBallsApp.ColorYELLOW:
                 imageView.setImageResource(R.drawable.yellowball_o);
+                break;
+            case ColorBallsApp.ColorCyan:
+                imageView.setImageResource(R.drawable.cyanball_o);
                 break;
             default:
                 imageView.setImageDrawable(null);
                 break;
         }
+        */
     }
 
     private void displayNextBallsView() {
@@ -810,8 +821,8 @@ public class MainUiFragment extends Fragment {
         }
         for (int i = numOneTime; i < nextBallsNumber; i++) {
             imageView = uiFragmentView.findViewById(nextBallsViewIdStart + i);
-            // imageView.setImageResource(R.drawable.next_ball_background_image);
-            imageView.setImageDrawable(null);
+            // imageView.setImageDrawable(null);
+            imageView.setImageBitmap(null);
         }
     }
 
@@ -824,8 +835,8 @@ public class MainUiFragment extends Fragment {
                 imageView = uiFragmentView.findViewById(id);
                 int color = gridData.getCellValue(i, j);
                 if (color == 0) {
-                    // imageView.setImageResource(R.drawable.boximage);
-                    imageView.setImageDrawable(null);
+                    // imageView.setImageDrawable(null);
+                    imageView.setImageBitmap(null);
                 } else {
                     drawBall(imageView, color);
                 }
@@ -892,7 +903,7 @@ public class MainUiFragment extends Fragment {
             }
             // save next balls
             foStream.write(gridData.getBallNumOneTime());
-            for (int i=0; i<GridData.MaxBalls; i++) {
+            for (int i=0; i<ColorBallsApp.MaxBalls; i++) {
                 foStream.write(gridData.getNextBalls()[i]);
             }
             // save values on 9x9 grid
@@ -910,7 +921,7 @@ public class MainUiFragment extends Fragment {
                 foStream.write(1);
                 foStream.write(gridData.getUndoNumOneTime());
                 // save undoNextBalls
-                for (int i=0; i<GridData.MaxBalls; i++) {
+                for (int i=0; i<ColorBallsApp.MaxBalls; i++) {
                     foStream.write(gridData.getUndoNextBalls()[i]);
                 }
                 // save backupCells
@@ -976,12 +987,12 @@ public class MainUiFragment extends Fragment {
         boolean soundYn = hasSound;
         boolean easyYn = isEasyLevel;
         int ballNumOneTime = gridData.getBallNumOneTime();
-        int[] nextBalls = new int[GridData.MaxBalls];
+        int[] nextBalls = new int[ColorBallsApp.MaxBalls];
         int[][] gameCells = new int[rowCounts][colCounts];
         int cScore = currentScore;
         boolean undoYn = undoEnable;
         int undoNumOneTime = gridData.getUndoNumOneTime();
-        int[] undoNextBalls = new int[GridData.MaxBalls];
+        int[] undoNextBalls = new int[ColorBallsApp.MaxBalls];
         int[][] backupCells = new int[rowCounts][colCounts];
         int unScore = undoScore;
 
@@ -1012,7 +1023,7 @@ public class MainUiFragment extends Fragment {
             ballNumOneTime = fiStream.read();
             Log.i(TAG, "FileInputStream Read: Game has " + ballNumOneTime + " next balls");
             int ballValue;
-            for (int i=0; i<GridData.MaxBalls; i++) {
+            for (int i=0; i<ColorBallsApp.MaxBalls; i++) {
                 nextBalls[i] = fiStream.read();
                 Log.i(TAG, "FileInputStream Read: Next ball value = " + nextBalls[i]);
             }
@@ -1034,7 +1045,7 @@ public class MainUiFragment extends Fragment {
                 Log.i(TAG, "FileInputStream Read: Game has undo data");
                 undoYn = true;
                 undoNumOneTime = fiStream.read();
-                for (int i=0; i<GridData.MaxBalls; i++) {
+                for (int i=0; i<ColorBallsApp.MaxBalls; i++) {
                     undoNextBalls[i] = fiStream.read();
                 }
                 // save backupCells

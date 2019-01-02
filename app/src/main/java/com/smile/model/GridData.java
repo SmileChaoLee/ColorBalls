@@ -6,6 +6,9 @@ package com.smile.model;
 
 import android.graphics.Color;
 import android.graphics.Point;
+
+import com.smile.colorballs.ColorBallsApp;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -13,14 +16,6 @@ import java.util.Random;
 import java.util.Vector;
 
 public class GridData {
-    // 10->RED, 20->GREEN, 30->BLUE, 40->MAGENTA, 50->YELLOW
-    public static final int ColorRED = 10;
-    public static final int ColorGREEN = 20;
-    public static final int ColorBLUE = 30;
-    public static final int ColorMAGENTA = 40;
-    public static final int ColorYELLOW = 50;
-    public static final int MaxBalls = 5;
-    private final int[] ballColor = new int[] {ColorRED, ColorGREEN, ColorBLUE, ColorMAGENTA, ColorYELLOW};
     private int rowCounts=0,colCounts=0;
     private int cellValues[][];
     private int backupCells[][];
@@ -82,11 +77,11 @@ public class GridData {
 
     private void initGridData() {
 
-        nextBalls = new int[MaxBalls];
-        nextCellIndexI = new int[MaxBalls];
-        nextCellIndexJ = new int[MaxBalls];
+        nextBalls = new int[ColorBallsApp.MaxBalls];
+        nextCellIndexI = new int[ColorBallsApp.MaxBalls];
+        nextCellIndexJ = new int[ColorBallsApp.MaxBalls];
 
-        undoNextBalls = new int[MaxBalls];
+        undoNextBalls = new int[ColorBallsApp.MaxBalls];
 
         cellValues = new int[rowCounts][colCounts];
         backupCells = new int[rowCounts][colCounts];
@@ -113,8 +108,8 @@ public class GridData {
         ballNumOneTime = random.nextInt(maxBallsOneTime-minBallsOneTime+1) + minBallsOneTime;
 
         for (int i=0 ; i<ballNumOneTime ; i++) {
-            int nn = random.nextInt(MaxBalls);
-            nextBalls[i] = ballColor[nn];
+            int nn = random.nextInt(ColorBallsApp.MaxBalls);
+            nextBalls[i] = ColorBallsApp.ballColor[nn];
         }
     }
 

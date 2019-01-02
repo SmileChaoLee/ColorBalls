@@ -3,11 +3,16 @@ package com.smile.colorballs;
 import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 import com.google.android.gms.ads.MobileAds;
 import com.smile.smilepublicclasseslibrary.facebook_ads_util.*;
 import com.smile.smilepublicclasseslibrary.google_admob_ads_util.*;
 import com.smile.smilepublicclasseslibrary.scoresqlite.*;
 import com.smile.smilepublicclasseslibrary.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
+
+import java.util.HashMap;
 
 public class ColorBallsApp extends Application {
 
@@ -18,6 +23,18 @@ public class ColorBallsApp extends Application {
     public static Resources AppResources;
     public static Context AppContext;
     public static ScoreSQLite ScoreSQLiteDB;
+
+    // 10->RED, 20->GREEN, 30->BLUE, 40->MAGENTA, 50->YELLOW, 60->Cyan
+    public static final int ColorRED = 10;
+    public static final int ColorGREEN = 20;
+    public static final int ColorBLUE = 30;
+    public static final int ColorMAGENTA = 40;
+    public static final int ColorYELLOW = 50;
+    public static final int ColorCyan = 60;
+    public static final int MaxBalls = 6;   // 6 colors totally
+    public static final int[] ballColor = new int[] {ColorRED, ColorGREEN, ColorBLUE, ColorMAGENTA, ColorYELLOW, ColorCyan};
+    public static HashMap<Integer, Bitmap> colorBallMap;
+    public static HashMap<Integer, Bitmap> colorOvalBallMap;
 
     public static boolean isProcessingJob;
     public static boolean isShowingLoadingMessage;
@@ -33,9 +50,39 @@ public class ColorBallsApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
         AppResources = getResources();
         AppContext = getApplicationContext();
         ScoreSQLiteDB = new ScoreSQLite(AppContext);
+
+        colorBallMap = new HashMap<>();
+        colorOvalBallMap = new HashMap<>();
+
+        Bitmap bm = BitmapFactory.decodeResource(AppResources, R.drawable.redball);
+        colorBallMap.put(ColorRED, bm);
+        bm = BitmapFactory.decodeResource(AppResources, R.drawable.redball_o);
+        colorOvalBallMap.put(ColorRED, bm);
+        bm = BitmapFactory.decodeResource(AppResources, R.drawable.greenball);
+        colorBallMap.put(ColorGREEN, bm);
+        bm = BitmapFactory.decodeResource(AppResources, R.drawable.greenball_o);
+        colorOvalBallMap.put(ColorGREEN, bm);
+        bm = BitmapFactory.decodeResource(AppResources, R.drawable.blueball);
+        colorBallMap.put(ColorBLUE, bm);
+        bm = BitmapFactory.decodeResource(AppResources, R.drawable.blueball_o);
+        colorOvalBallMap.put(ColorBLUE, bm);
+        bm = BitmapFactory.decodeResource(AppResources, R.drawable.magentaball);
+        colorBallMap.put(ColorMAGENTA, bm);
+        bm = BitmapFactory.decodeResource(AppResources, R.drawable.magentaball_o);
+        colorOvalBallMap.put(ColorMAGENTA, bm);
+        bm = BitmapFactory.decodeResource(AppResources, R.drawable.yellowball);
+        colorBallMap.put(ColorYELLOW, bm);
+        bm = BitmapFactory.decodeResource(AppResources, R.drawable.yellowball_o);
+        colorOvalBallMap.put(ColorYELLOW, bm);
+        bm = BitmapFactory.decodeResource(AppResources, R.drawable.cyanball);
+        colorBallMap.put(ColorCyan, bm);
+        bm = BitmapFactory.decodeResource(AppResources, R.drawable.cyanball_o);
+        colorOvalBallMap.put(ColorCyan, bm);
+
         isProcessingJob = false;
         isShowingLoadingMessage = false;
         isShowingSavingGameMessage = false;
