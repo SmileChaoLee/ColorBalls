@@ -53,8 +53,6 @@ public class Top10ScoreFragment extends Fragment {
     private TextView titleForTop10ListView = null;
     private String top10TitleName = "";
 
-    private int fontSizeForText = 24;
-
     private OnFragmentInteractionListener mListener;
 
     public interface Top10OkButtonListener {
@@ -83,7 +81,6 @@ public class Top10ScoreFragment extends Fragment {
         args.putString("Top10TitleName", top10Title);
         args.putStringArrayList("Top10Players", playerNames);
         args.putIntegerArrayList("Top10Scores", playerScores);
-        args.putInt("FontSizeForText", fontSize);
         fragment.setArguments(args);
 
         return fragment;
@@ -102,7 +99,6 @@ public class Top10ScoreFragment extends Fragment {
                 top10TitleName = args.getString("Top10TitleName");
                 top10Players = args.getStringArrayList("Top10Players");
                 top10Scores = args.getIntegerArrayList("Top10Scores");
-                fontSizeForText = args.getInt("FontSizeForText");
             }
         }
     }
@@ -116,7 +112,7 @@ public class Top10ScoreFragment extends Fragment {
 
         TextView top10TitleTextView = view.findViewById(R.id.top10ScoreTitle);
         top10TitleTextView.setText(top10TitleName);
-        top10TitleTextView.setTextSize(fontSizeForText);
+        top10TitleTextView.setTextSize(ColorBallsApp.TextFontSize);
 
         System.out.println("Top10ScoreFragment ---> onCreateView() method. ");
 
@@ -172,10 +168,10 @@ public class Top10ScoreFragment extends Fragment {
         }
         if (okButton != null) {
             // set text size for okButton
-            okButton.setTextSize(fontSizeForText);
+            okButton.setTextSize(ColorBallsApp.TextFontSize);
         }
         if (titleForTop10ListView != null) {
-            titleForTop10ListView.setTextSize(fontSizeForText);
+            titleForTop10ListView.setTextSize(ColorBallsApp.TextFontSize);
         }
     }
 
@@ -279,7 +275,7 @@ public class Top10ScoreFragment extends Fragment {
             int listViewHeight = parent.getHeight();
             int itemNum = 4;
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                itemNum = 3;
+                itemNum = 2;
             }
             int itemHeight = listViewHeight / itemNum;    // items for one screen
             ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
@@ -287,9 +283,9 @@ public class Top10ScoreFragment extends Fragment {
             // view.setLayoutParams(layoutParams);  // no needed
 
             TextView pTextView = view.findViewById(R.id.playerTextView);
-            pTextView.setTextSize(fontSizeForText);
+            pTextView.setTextSize(ColorBallsApp.TextFontSize);
             TextView sTextView = view.findViewById(R.id.scoreTextView);
-            sTextView.setTextSize(fontSizeForText);
+            sTextView.setTextSize(ColorBallsApp.TextFontSize);
             ImageView medalImage = view.findViewById(R.id.medalImage);
 
             pTextView.setText(players.get(position));
