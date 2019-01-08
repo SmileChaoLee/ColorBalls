@@ -3,8 +3,10 @@ package com.smile.colorballs;
 import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import com.google.android.gms.ads.MobileAds;
 import com.smile.smilepublicclasseslibrary.facebook_ads_util.*;
@@ -33,6 +35,7 @@ public class ColorBallsApp extends Application {
     public static final int ColorCyan = 60;
     public static final int MaxBalls = 6;   // 6 colors totally
     public static final int[] ballColor = new int[] {ColorRED, ColorGREEN, ColorBLUE, ColorMAGENTA, ColorYELLOW, ColorCyan};
+
     public static HashMap<Integer, Bitmap> colorBallMap;
     public static HashMap<Integer, Bitmap> colorOvalBallMap;
 

@@ -1,11 +1,15 @@
 package com.smile.smilepublicclasseslibrary.utilities;
 
-import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
+import android.content.res.TypedArray;
 import android.graphics.Point;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Display;
+import android.view.WindowManager;
+
+import static android.content.Context.WINDOW_SERVICE;
 
 /**
  * Created by chaolee on 2017-10-24.
@@ -41,22 +45,124 @@ public class ScreenUtil {
         return height;
     }
 
-    public static void getScreenSize(Context context, Point size) {
-        // Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        Display display =  ((Activity)context).getWindowManager().getDefaultDisplay();
+    public static Point getScreenSize(Context context) {
+        Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        // Display display =  ((Activity)context).getWindowManager().getDefaultDisplay();
+        Point size = new Point();
         display.getSize(size);
+
+        return size;
+    }
+
+    public static float getDefaultTextSizeFromTheme(Context context) {
+        Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        display.getMetrics(displayMetrics);
+
+        int[] attrs = {android.R.attr.textSize}; // retrieve text size from style.xml
+        TypedArray typedArray = context.obtainStyledAttributes(attrs);
+        float defaultTextFontSize = typedArray.getDimension(0,0) / displayMetrics.density;
+        typedArray.recycle();
+
+        return defaultTextFontSize;
+    }
+
+    public static float suitableFontSize(Context context, float defaultFontSize, float baseScreenSize) {
+
+        // this method based on Nexus 5 device
+        // 1080 x 1776 pixels
+        // screen width in inches = 2.25
+        // screen height in inches = 3.7
+        // screen size = 4.330415725176914 inches (diagonal)
+
+        float fontSize = 24; // default font size setting for Nexus 5
+        float baseSize = 4.330415725176914f; // based on the screen size of Nexus 5
+        if (defaultFontSize > 0) {
+            fontSize = defaultFontSize;
+        }
+        if (baseScreenSize > 0) {
+            baseSize = baseScreenSize;
+        }
+
+        float size = screenSizeInches(context);
+        fontSize = fontSize * (size / baseSize);
+
+        return fontSize;
+    }
+
+    public static float suitableFontScale(Context context, float baseScreenSize) {
+
+        // this method based on Nexus 5 device
+        // 1080 x 1776 pixels
+        // screen width in inches = 2.25
+        // screen height in inches = 3.7
+        // screen size = 4.330415725176914 inches (diagonal)
+
+        float baseSize = 4.330415725176914f; // based on the screen size of Nexus 5
+        if (baseScreenSize > 0) {
+            baseSize = baseScreenSize;
+        }
+
+        // double size = screenSizeInches(context);
+        // float fontScale = (float)(size / baseSize);
+        float wInches = screenWidthInches(context);
+        float hInches = screenHeightInches(context);
+        float fontScale = wInches / baseSize;
+        if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            fontScale = hInches / baseSize;
+        }
+
+        return fontScale;
+    }
+
+    public static void adjustFontScale( Context context, Configuration configuration, float scale) {
+        configuration.fontScale = scale;
+        Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        display.getMetrics(displayMetrics);
+        displayMetrics.scaledDensity = configuration.fontScale * displayMetrics.density;
+        context.getResources().updateConfiguration(configuration, displayMetrics);
+    }
+
+    public static float screenWidthInches(Context context) {
+        // Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
+        Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        display.getMetrics(displayMetrics);
+
+        float wInches = (float)(displayMetrics.widthPixels) / (float)(displayMetrics.xdpi);
+
+        return wInches;
+    }
+
+    public static float screenHeightInches(Context context) {
+        // Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
+        Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        display.getMetrics(displayMetrics);
+
+        float hInches = (float)(displayMetrics.heightPixels) / (float)(displayMetrics.ydpi);
+
+        return hInches;
+    }
+
+    public static float screenSizeInches(Context context) {
+        // Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
+        Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        display.getMetrics(displayMetrics);
+
+        float wInches = (float)(displayMetrics.widthPixels) / (float)(displayMetrics.xdpi);
+        float hInches = (float)(displayMetrics.heightPixels) / (float)(displayMetrics.ydpi);
+
+        float screenDiagonal = (float) (Math.sqrt(Math.pow(wInches, 2) + Math.pow(hInches, 2)) );
+
+        return screenDiagonal;
     }
 
     public static boolean isTablet(Context context)
     {
-        Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        display.getMetrics(displayMetrics);
-
-        float wInches = (float)(displayMetrics.widthPixels) / (float)(displayMetrics.densityDpi);
-        float hInches = (float)(displayMetrics.heightPixels) / (float)(displayMetrics.densityDpi);
-
-        double screenDiagonal = Math.sqrt(Math.pow(wInches, 2) + Math.pow(hInches, 2));
+        double screenDiagonal = screenSizeInches(context);
         return (screenDiagonal >= 7.0);
     }
 }

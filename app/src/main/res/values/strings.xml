@@ -7,7 +7,7 @@
     <string name="difficultStr">Difficult</string>
     <string name="playerLevelStr">Level</string>
     <string name="quitGame">Quit</string>
-    <string name="newGame">New Game</string>
+    <string name="newGame">New</string>
     <string name="optionButton">OPTION</string>
     <string name="title_activity_history">Top10ScoreActivity</string>
     <string name="top10Score">Top 10 Scores</string>

@@ -10,10 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.TextView;
-
 import java.util.ArrayList;
-
 
 public class Top10ScoreActivity extends AppCompatActivity {
 
@@ -27,8 +24,6 @@ public class Top10ScoreActivity extends AppCompatActivity {
     private Fragment top10ScoreFragment = null;
     private int top10LayoutId;
     private String top10TitleName = "";
-
-    private int fontSizeForText = 24;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,10 +48,9 @@ public class Top10ScoreActivity extends AppCompatActivity {
             top10TitleName = extras.getString("Top10TitleName");
             top10Players = extras.getStringArrayList("Top10Players");
             top10Scores = extras.getIntegerArrayList("Top10Scores");
-            fontSizeForText = extras.getInt("FontSizeForText");
         }
 
-        top10ScoreFragment = Top10ScoreFragment.newInstance(top10TitleName, top10Players, top10Scores, fontSizeForText, new Top10ScoreFragment.Top10OkButtonListener() {
+        top10ScoreFragment = Top10ScoreFragment.newInstance(top10TitleName, top10Players, top10Scores, new Top10ScoreFragment.Top10OkButtonListener() {
             @Override
             public void buttonOkClick(Activity activity) {
                 // Intent returnIntent = new Intent();

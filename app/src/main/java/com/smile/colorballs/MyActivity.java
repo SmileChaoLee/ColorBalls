@@ -6,18 +6,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.IntentCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,6 +45,10 @@ public class MyActivity extends AppCompatActivity {
     private final String TAG = new String("com.smile.colorballs.MyActivity");
     private final String GlobalTop10FragmentTag = "GlobalTop10FragmentTag";
     private final String LocalTop10FragmentTag = "LocalTop10FragmentTag";
+    private final int SettingActivityRequestCode = 1;
+    private final int Top10ScoreActivityRequestCode = 2;
+    private final int GlobalTop10ActivityRequestCode = 3;
+
     private int mainUiFragmentLayoutId = -1;
     private int top10LayoutId = -1;
     private LinearLayout bannerLinearLayout = null;
@@ -56,14 +61,7 @@ public class MyActivity extends AppCompatActivity {
     private float mainFragmentWidth;
     private MyBroadcastReceiver myReceiver;
 
-    private int fontSizeForText = 24;
-    private float dialog_widthFactor = 1.0f;
-    private float dialog_heightFactor = 1.0f;
-    private float dialogFragment_widthFactor = dialog_widthFactor;
-    private float dialogFragment_heightFactor = dialog_heightFactor;
-    private final int SettingActivityRequestCode = 1;
-    private final int Top10ScoreActivityRequestCode = 2;
-    private final int GlobalTop10ActivityRequestCode = 3;
+    private float textFontSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,59 +71,14 @@ public class MyActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN ,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        Point size = new Point();
-        ScreenUtil.getScreenSize(this, size);
+        Point size = ScreenUtil.getScreenSize(this);
         float screenWidth = size.x;
         float screenHeight = size.y;
 
-        float baseWidth = 1080.0f;
-        float baseHeight = 1776.0f;
-        fontSizeForText = 24;   // default for portrait of cell phone
-        // if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-        if (ColorBallsApp.AppResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            // Landscape
-            // if (screenWidth >= 2000) {
-            if (ScreenUtil.isTablet(this)) {
-                // assume Tablet
-                fontSizeForText = 32;
-            } else {
-                // cell phone
-                fontSizeForText = 16;
-
-            }
-            dialog_widthFactor = screenWidth / baseHeight;
-            if (dialog_widthFactor < 1.0f) {
-                dialog_widthFactor = 1.0f;
-            }
-            dialogFragment_widthFactor = dialog_widthFactor * 2.0f;
-
-            dialog_heightFactor = screenHeight / baseWidth;
-            if (dialog_heightFactor < 1.0f) {
-                dialog_heightFactor = 1.0f;
-            }
-            dialogFragment_heightFactor = dialog_heightFactor * 2.0f;
-        } else {
-            // portrait
-            // if (screenWidth >= 1300) {
-            if (ScreenUtil.isTablet(this)) {
-                // assume Tablet
-                fontSizeForText = 48;
-            } else {
-                // cell phone
-                fontSizeForText = 24;
-            }
-            dialog_widthFactor = screenWidth / baseWidth;
-            if (dialog_widthFactor < 1.0f) {
-                dialog_widthFactor = 1.0f;
-            }
-            dialogFragment_widthFactor = dialog_widthFactor;
-
-            dialog_heightFactor = screenHeight / baseHeight;
-            if (dialog_heightFactor < 1.0f) {
-                dialog_heightFactor = 1.0f;
-            }
-            dialogFragment_heightFactor = dialog_heightFactor;
-        }
+        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this);
+        textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, 0.0f);
+        Log.d(TAG, "DefaultTextFontSize = " + defaultTextFontSize);
+        Log.d(TAG, "textFontSize = " + textFontSize);
 
         float statusBarHeight = ScreenUtil.getStatusBarHeight(this);
         float actionBarHeight = ScreenUtil.getActionBarHeight(this);
@@ -135,7 +88,7 @@ public class MyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_my);
 
         int highestScore = ColorBallsApp.ScoreSQLiteDB.readHighestScore();
-        setTitle(String.format(Locale.getDefault(), "%9d", highestScore));
+        setTitle(String.format(Locale.getDefault(), "%8d", highestScore));
 
         // setting the font size for activity label
         ActionBar actionBar = getSupportActionBar();
@@ -143,10 +96,9 @@ public class MyActivity extends AppCompatActivity {
         TextView titleView = new TextView(this);
         titleView.setText(actionBar.getTitle());
         titleView.setTextColor(Color.WHITE);
-        titleView.setTextSize(fontSizeForText);
+        titleView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
         actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         actionBar.setCustomView(titleView);
-        //
 
         LinearLayout linearLayout_myActivity = findViewById(R.id.linearLayout_myActivity);
         float main_WeightSum = linearLayout_myActivity.getWeightSum();
@@ -278,7 +230,6 @@ public class MyActivity extends AppCompatActivity {
                 ColorBallsApp.isProcessingJob = true;    // started procession job
                 Intent intent = new Intent(this, SettingActivity.class);
                 Bundle extras = new Bundle();
-                extras.putInt("FontSizeForText", fontSizeForText);
                 extras.putBoolean("HasSound", mainUiFragment.getHasSound());
                 extras.putBoolean("IsEasyLevel", mainUiFragment.getIsEasyLevel());
                 intent.putExtras(extras);
@@ -338,15 +289,9 @@ public class MyActivity extends AppCompatActivity {
         if (ColorBallsApp.ScoreSQLiteDB != null) {
             ColorBallsApp.ScoreSQLiteDB.close();
         }
-        /*
-        // cannot close FacebookAd instance otherwise next run would not be showing Facebook ads
-        if (ColorBallsApp.InterstitialAd != null) {
-            ColorBallsApp.InterstitialAd.close();
-        }
-        */
+
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.unregisterReceiver(myReceiver);
-        System.out.println("MyActivity.onDestroy --> myReceiver was unregistered.");
     }
 
     @Override
@@ -364,6 +309,9 @@ public class MyActivity extends AppCompatActivity {
             public void run() {
                 // quit game
                 finish();
+                int pid = android.os.Process.myPid();
+                android.os.Process.killProcess(pid);
+                System.exit(0);
             }
         },timeDelay);
     }
@@ -382,9 +330,14 @@ public class MyActivity extends AppCompatActivity {
                 */
                 String packageName = getBaseContext().getPackageName();
                 Intent myIntent = getBaseContext().getPackageManager().getLaunchIntentForPackage(packageName);
-                myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                finish();   // finish() might not be needed
+                myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
                 startActivity(myIntent);
+
+                finish();   // finish() might not be needed
+                // Kill Current Process
+                int pid = android.os.Process.myPid();
+                android.os.Process.killProcess(pid);
             }
         },timeDelay);
     }
@@ -397,21 +350,6 @@ public class MyActivity extends AppCompatActivity {
     }
 
     // public methods
-    public int getFontSizeForText() {
-        return fontSizeForText;
-    }
-    public float getDialog_widthFactor() {
-        return dialog_widthFactor;
-    }
-    public float getDialog_heightFactor() {
-        return dialog_heightFactor;
-    }
-    public float getDialogFragment_widthFactor() {
-        return dialogFragment_widthFactor;
-    }
-    public float getDialogFragment_heightFactor() {
-        return dialogFragment_heightFactor;
-    }
     public float getMainFragmentWidth() {
         return this.mainFragmentWidth;
     }
@@ -450,7 +388,7 @@ public class MyActivity extends AppCompatActivity {
                     if (historyView != null) {
                         // if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         if (ColorBallsApp.AppResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                            top10ScoreFragment = Top10ScoreFragment.newInstance(top10ScoreTitle, playerNames, playerScores, fontSizeForText, new Top10ScoreFragment.Top10OkButtonListener() {
+                            top10ScoreFragment = Top10ScoreFragment.newInstance(top10ScoreTitle, playerNames, playerScores, new Top10ScoreFragment.Top10OkButtonListener() {
                                 @Override
                                 public void buttonOkClick(Activity activity) {
                                     if (top10ScoreFragment != null) {
@@ -484,7 +422,6 @@ public class MyActivity extends AppCompatActivity {
                         top10Extras.putString("Top10TitleName", top10ScoreTitle);
                         top10Extras.putStringArrayList("Top10Players", playerNames);
                         top10Extras.putIntegerArrayList("Top10Scores", playerScores);
-                        top10Extras.putInt("FontSizeForText", fontSizeForText);
                         top10Intent.putExtras(top10Extras);
                         startActivityForResult(top10Intent, Top10ScoreActivityRequestCode);
                     }
@@ -510,7 +447,7 @@ public class MyActivity extends AppCompatActivity {
                     if (historyView != null) {
                         // if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         if (ColorBallsApp.AppResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                            globalTop10Fragment = Top10ScoreFragment.newInstance(globalTop10ScoreTitle, playerNames, playerScores, fontSizeForText, new Top10ScoreFragment.Top10OkButtonListener() {
+                            globalTop10Fragment = Top10ScoreFragment.newInstance(globalTop10ScoreTitle, playerNames, playerScores, new Top10ScoreFragment.Top10OkButtonListener() {
                                 @Override
                                 public void buttonOkClick(Activity activity) {
                                     if (globalTop10Fragment != null) {
@@ -543,7 +480,6 @@ public class MyActivity extends AppCompatActivity {
                         globalTop10Extras.putString("Top10TitleName", globalTop10ScoreTitle);
                         globalTop10Extras.putStringArrayList("Top10Players", playerNames);
                         globalTop10Extras.putIntegerArrayList("Top10Scores", playerScores);
-                        globalTop10Extras.putInt("FontSizeForText", fontSizeForText);
                         globalTop10Intent.putExtras(globalTop10Extras);
                         startActivityForResult(globalTop10Intent, GlobalTop10ActivityRequestCode);
                     }

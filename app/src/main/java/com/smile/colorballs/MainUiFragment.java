@@ -21,6 +21,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -71,6 +72,7 @@ public class MainUiFragment extends Fragment {
 
     private Context context = null;
     private MyActivity myActivity = null;
+    private float textFontSize;
     private View uiFragmentView = null;
     private ImageView scoreImageView = null;
     private float fragmentWidth;
@@ -103,11 +105,6 @@ public class MainUiFragment extends Fragment {
     private String submitStr = new String("");
     private String cancelStr = new String("");
     private String gameOverStr = new String("");
-    private int fontSizeForText = 24;   // default
-    private float dialog_widthFactor = 1.0f;
-    private float dialog_heightFactor = 1.0f;
-    private float dialogFragment_widthFactor = dialog_widthFactor;
-    private float dialogFragment_heightFactor = dialog_heightFactor;
 
     private boolean hasSound = true;    // has sound effect
 
@@ -153,6 +150,12 @@ public class MainUiFragment extends Fragment {
                 }
             };
         }
+
+        this.context = context;
+        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this.context);
+        textFontSize = ScreenUtil.suitableFontSize(this.context, defaultTextFontSize,0.0f);
+
+        myActivity = (MyActivity)this.context;
 
         System.out.println("MainUiFragment onAttach() is called.");
     }
@@ -208,14 +211,10 @@ public class MainUiFragment extends Fragment {
         // starting the game
         // the object gotten from getActivity() in onActivityCreated() is different from gotten in onCreate()
         // this context should be used in all scope, especially in AsyncTask
-        context = getActivity();
-        myActivity = (MyActivity)context;
 
-        fontSizeForText = myActivity.getFontSizeForText();
-        dialog_widthFactor = myActivity.getDialog_widthFactor();
-        dialog_heightFactor = myActivity.getDialog_heightFactor();
-        dialogFragment_widthFactor = myActivity.getDialogFragment_widthFactor();
-        dialogFragment_heightFactor = myActivity.getDialogFragment_heightFactor();
+        // context = getActivity();
+        // myActivity = (MyActivity)context;
+
         fragmentWidth = myActivity.getMainFragmentWidth();
         fragmentHeight = myActivity.getMainFragmentHeight();
 
@@ -249,8 +248,8 @@ public class MainUiFragment extends Fragment {
 
         // display the highest score and current score
         currentScoreView = uiFragmentView.findViewById(R.id.currentScoreTextView);
-        currentScoreView.setTextSize(fontSizeForText);
-        currentScoreView.setText(String.format(Locale.getDefault(), "%9d", currentScore));
+        currentScoreView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+        currentScoreView.setText(String.format(Locale.getDefault(), "%8d", currentScore));
 
         // display the view of next balls
         GridLayout nextBallsLayout = uiFragmentView.findViewById(R.id.nextBallsLayout);
@@ -498,11 +497,12 @@ public class MainUiFragment extends Fragment {
                 });
                 Bundle args = new Bundle();
                 args.putString("textContent", gameOverStr);
-                args.putFloat("textSize", fontSizeForText * dialogFragment_widthFactor);
+                args.putFloat("TextFontSize", textFontSize);
                 args.putInt("color", Color.BLUE);
                 args.putInt("width", 0);    // wrap_content
                 args.putInt("height", 0);   // wrap_content
                 args.putInt("numButtons", 2);
+                args.putBoolean("IsAnimation", false);
                 gameOverDialog.setArguments(args);
                 gameOverDialog.show(getActivity().getSupportFragmentManager(), GameOverDialogTag);
 
@@ -736,9 +736,8 @@ public class MainUiFragment extends Fragment {
         dlg.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT,WindowManager.LayoutParams.WRAP_CONTENT);
         dlg.getWindow().setBackgroundDrawableResource(R.drawable.dialog_board_image);
 
-        float fontSize = fontSizeForText * dialog_widthFactor;
         Button nBtn = dlg.getButton(DialogInterface.BUTTON_NEGATIVE);
-        nBtn.setTextSize(fontSize);
+        nBtn.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
         nBtn.setTypeface(Typeface.DEFAULT_BOLD);
         nBtn.setTextColor(Color.RED);
 
@@ -747,7 +746,7 @@ public class MainUiFragment extends Fragment {
         nBtn.setLayoutParams(layoutParams);
 
         Button pBtn = dlg.getButton(DialogInterface.BUTTON_POSITIVE);
-        pBtn.setTextSize(fontSize);
+        pBtn.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
         pBtn.setTypeface(Typeface.DEFAULT_BOLD);
         pBtn.setTextColor(Color.rgb(0x00,0x64,0x00));
         pBtn.setLayoutParams(layoutParams);
@@ -918,11 +917,12 @@ public class MainUiFragment extends Fragment {
         });
         Bundle args = new Bundle();
         args.putString("textContent", textContent);
-        args.putFloat("textSize", fontSizeForText * dialogFragment_widthFactor);
+        args.putFloat("TextFontSize", textFontSize);
         args.putInt("color", Color.BLUE);
         args.putInt("width", 0);    // wrap_content
         args.putInt("height", 0);   // wrap_content
         args.putInt("numButtons", 1);
+        args.putBoolean("IsAnimation", false);
         gameSavedDialog.setArguments(args);
         gameSavedDialog.show(getActivity().getSupportFragmentManager(), "GameSavedDialogTag");
     }
@@ -1039,12 +1039,12 @@ public class MainUiFragment extends Fragment {
             gridData.setBackupCells(backupCells);
             undoScore = unScore;
             // start update UI
-            currentScoreView.setText(String.format(Locale.getDefault(), "%9d", currentScore));
+            currentScoreView.setText(String.format(Locale.getDefault(), "%8d", currentScore));
             displayGameView();
         } else {
             textContent = failedLoadGameString;
         }
-        AlertDialogFragment gameLoadedDialogTag = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
+        AlertDialogFragment gameLoadedDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
             @Override
             public void noButtonOnClick(AlertDialogFragment dialogFragment) {
                 dialogFragment.dismissAllowingStateLoss();
@@ -1057,13 +1057,14 @@ public class MainUiFragment extends Fragment {
         });
         Bundle args = new Bundle();
         args.putString("textContent", textContent);
-        args.putFloat("textSize", fontSizeForText * dialogFragment_widthFactor);
+        args.putFloat("TextFontSize", textFontSize);
         args.putInt("color", Color.BLUE);
         args.putInt("width", 0);    // wrap_content
         args.putInt("height", 0);   // wrap_content
         args.putInt("numButtons", 1);
-        gameLoadedDialogTag.setArguments(args);
-        gameLoadedDialogTag.show(getActivity().getSupportFragmentManager(), "GameLoadedDialogTag");
+        args.putBoolean("IsAnimation", false);
+        gameLoadedDialog.setArguments(args);
+        gameLoadedDialog.show(getActivity().getSupportFragmentManager(), "GameLoadedDialogTag");
     }
 
     // public methods
@@ -1085,7 +1086,7 @@ public class MainUiFragment extends Fragment {
         bouncyBallIndexJ = -1;
 
         currentScore = undoScore;
-        currentScoreView.setText( String.format(Locale.getDefault(), "%9d",currentScore));
+        currentScoreView.setText( String.format(Locale.getDefault(), "%8d",currentScore));
 
         // completedPath = true;
         undoEnable = false;
@@ -1129,11 +1130,12 @@ public class MainUiFragment extends Fragment {
         });
         Bundle args = new Bundle();
         args.putString("textContent", sureToSaveGameString);
-        args.putFloat("textSize", fontSizeForText * dialogFragment_widthFactor);
+        args.putFloat("TextFontSize", textFontSize);
         args.putInt("color", Color.BLUE);
         args.putInt("width", 0);    // wrap_content
         args.putInt("height", 0);   // wrap_content
         args.putInt("numButtons", 2);
+        args.putBoolean("IsAnimation", false);
         sureSaveDialog.setArguments(args);
         sureSaveDialog.show(getActivity().getSupportFragmentManager(), "SureSaveDialogTag");
     }
@@ -1154,11 +1156,12 @@ public class MainUiFragment extends Fragment {
         });
         Bundle args = new Bundle();
         args.putString("textContent", sureToLoadGameString);
-        args.putFloat("textSize", fontSizeForText * dialogFragment_widthFactor);
+        args.putFloat("TextFontSize", textFontSize);
         args.putInt("color", Color.BLUE);
         args.putInt("width", 0);    // wrap_content
         args.putInt("height", 0);   // wrap_content
         args.putInt("numButtons", 2);
+        args.putBoolean("IsAnimation", false);
         sureLoadDialog.setArguments(args);
         sureLoadDialog.show(getActivity().getSupportFragmentManager(), "SureLoadDialogTag");
     }
@@ -1168,11 +1171,11 @@ public class MainUiFragment extends Fragment {
         ColorBallsApp.isProcessingJob = true;
 
         final EditText et = new EditText(myActivity);
-        et.setTextSize(fontSizeForText);
         et.setTextColor(Color.BLUE);
         // et.setBackground(new ColorDrawable(Color.TRANSPARENT));
         // et.setBackgroundColor(Color.TRANSPARENT);
         et.setHint(nameStr);
+        et.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
         et.setGravity(Gravity.CENTER);
         AlertDialog alertD = new AlertDialog.Builder(myActivity).create();
         alertD.setTitle(null);
@@ -1264,7 +1267,7 @@ public class MainUiFragment extends Fragment {
         return scoreImageView;
     }
     public void showMessageOnScreen(String messageString) {
-        float fontSize = fontSizeForText;
+        float fontSize = textFontSize;
         double factor = 1.5;
         int bmWidth = (int)(fontSize * messageString.length() * factor);
         int bmHeight = (int)(fontSize * factor * 6.0);
@@ -1369,7 +1372,7 @@ public class MainUiFragment extends Fragment {
             // update the UI
             undoScore = currentScore;
             currentScore = currentScore + score;
-            currentScoreView.setText(String.format(Locale.getDefault(), "%9d", currentScore));
+            currentScoreView.setText(String.format(Locale.getDefault(), "%8d", currentScore));
 
             threadCompleted[1] = true;
 

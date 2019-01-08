@@ -9,14 +9,10 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBar;
-import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -24,6 +20,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.smile.smilepublicclasseslibrary.utilities.ScreenUtil;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +40,7 @@ public class Top10ScoreFragment extends Fragment {
     // private properties
     private static final String TAG = new String("com.smile.colorballs.Top10ScoreFragment");
 
+    private Context context;
     private View top10ScoreFragmentView = null;
 
     private ArrayList<String> top10Players = new ArrayList<>();
@@ -52,6 +52,8 @@ public class Top10ScoreFragment extends Fragment {
     private Top10OkButtonListener top10OkButtonListener = null;
     private TextView titleForTop10ListView = null;
     private String top10TitleName = "";
+
+    private float textFontSize;
 
     private OnFragmentInteractionListener mListener;
 
@@ -69,7 +71,7 @@ public class Top10ScoreFragment extends Fragment {
         this.top10OkButtonListener = listener;
     }
 
-    public static Top10ScoreFragment newInstance(String top10Title, ArrayList<String> playerNames, ArrayList<Integer> playerScores, int fontSize, Top10OkButtonListener listener) {
+    public static Top10ScoreFragment newInstance(String top10Title, ArrayList<String> playerNames, ArrayList<Integer> playerScores, Top10OkButtonListener listener) {
         Top10ScoreFragment fragment;
         if (listener == null) {
             fragment = new Top10ScoreFragment();
@@ -87,9 +89,27 @@ public class Top10ScoreFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            mListener = new Top10ScoreFragment.OnFragmentInteractionListener() {
+                @Override
+                public void onFragmentInteraction(Uri uri) {
+                    System.out.println("must implement OnFragmentInteractionListener --> Uri = " + uri);
+                }
+            };
+        }
+
+        this.context = context;
+        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this.context);
+        textFontSize = ScreenUtil.suitableFontSize(this.context, defaultTextFontSize,0.0f);
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // setRetainInstance(false);    // removed on 2018-06-14
         setRetainInstance(true);    // added on 2018-06-14
 
         // if statement was added on 2018-06-14
@@ -112,7 +132,7 @@ public class Top10ScoreFragment extends Fragment {
 
         TextView top10TitleTextView = view.findViewById(R.id.top10ScoreTitle);
         top10TitleTextView.setText(top10TitleName);
-        top10TitleTextView.setTextSize(ColorBallsApp.TextFontSize);
+        top10TitleTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
 
         System.out.println("Top10ScoreFragment ---> onCreateView() method. ");
 
@@ -132,7 +152,9 @@ public class Top10ScoreFragment extends Fragment {
 
         if (savedInstanceState == null) {   // new Fragment instance
             titleForTop10ListView = top10ScoreFragmentView.findViewById(R.id.top10ScoreTitle);
+            titleForTop10ListView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
             okButton = top10ScoreFragmentView.findViewById(R.id.top10OkButton);
+            okButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
             okButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -166,34 +188,22 @@ public class Top10ScoreFragment extends Fragment {
                 }
             });
         }
+
+        /*
         if (okButton != null) {
             // set text size for okButton
-            okButton.setTextSize(ColorBallsApp.TextFontSize);
+            okButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
         }
         if (titleForTop10ListView != null) {
-            titleForTop10ListView.setTextSize(ColorBallsApp.TextFontSize);
+            titleForTop10ListView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
         }
+        */
     }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            mListener = new Top10ScoreFragment.OnFragmentInteractionListener() {
-                @Override
-                public void onFragmentInteraction(Uri uri) {
-                    System.out.println("must implement OnFragmentInteractionListener --> Uri = " + uri);
-                }
-            };
         }
     }
 
@@ -275,7 +285,7 @@ public class Top10ScoreFragment extends Fragment {
             int listViewHeight = parent.getHeight();
             int itemNum = 4;
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                itemNum = 2;
+                itemNum = 3;
             }
             int itemHeight = listViewHeight / itemNum;    // items for one screen
             ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
@@ -283,15 +293,14 @@ public class Top10ScoreFragment extends Fragment {
             // view.setLayoutParams(layoutParams);  // no needed
 
             TextView pTextView = view.findViewById(R.id.playerTextView);
-            pTextView.setTextSize(ColorBallsApp.TextFontSize);
+            pTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
             TextView sTextView = view.findViewById(R.id.scoreTextView);
-            sTextView.setTextSize(ColorBallsApp.TextFontSize);
+            sTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
             ImageView medalImage = view.findViewById(R.id.medalImage);
 
             pTextView.setText(players.get(position));
             sTextView.setText(String.valueOf(scores.get(position)));
             medalImage.setImageResource(medals.get(position));
-
 
             return view;
         }

@@ -2,18 +2,20 @@ package com.smile.colorballs;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
-import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.ToggleButton;
+
+import com.smile.smilepublicclasseslibrary.utilities.ScreenUtil;
 
 public class SettingActivity extends AppCompatActivity {
 
-    private int fontSizeForText;
+    private float textFontSize;
     private ToggleButton soundSwitch;
     private boolean hasSound;
     private ToggleButton easyLevelSwitch;
@@ -22,46 +24,48 @@ public class SettingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this);
+        textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, 0.0f);
+
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.hide();
         }
 
-        fontSizeForText = 30;
         hasSound = true;
         isEasyLevel = true;
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            fontSizeForText = extras.getInt("FontSizeForText");
             hasSound = extras.getBoolean("HasSound");
             isEasyLevel = extras.getBoolean("IsEasyLevel");
-        }
-
-        if (fontSizeForText == 50) {
-            // not a cell phone, it is a tablet
-            setTheme(R.style.ThemeTextSize50Transparent);
-        } else {
-            setTheme(R.style.ThemeTextSize30Transparent);
         }
 
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_setting);
 
+        TextView settingTitle = findViewById(R.id.settingTitle);
+        settingTitle.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+
+        TextView soundSettingTitle = findViewById(R.id.soundSettingTitle);
+        soundSettingTitle.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+
         soundSwitch = findViewById(R.id.soundSwitch);
-        soundSwitch.setTextSize(fontSizeForText);
+        soundSwitch.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
         soundSwitch.setChecked(hasSound);
         soundSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 hasSound = ((ToggleButton)view).isChecked();
-                System.out.println("soundSwitch ---> hasSound = " + hasSound);
             }
         });
 
+        TextView levelSettingTitle = findViewById(R.id.levelSettingTitle);
+        levelSettingTitle.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+
         easyLevelSwitch = findViewById(R.id.easyLevelSwitch);
-        easyLevelSwitch.setTextSize(fontSizeForText);
+        easyLevelSwitch.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
         easyLevelSwitch.setChecked(isEasyLevel);
         easyLevelSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,6 +75,7 @@ public class SettingActivity extends AppCompatActivity {
         });
 
         Button confirmButton = findViewById(R.id.confirmSettingButton);
+        confirmButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -79,6 +84,7 @@ public class SettingActivity extends AppCompatActivity {
         });
 
         Button cancelButton = findViewById(R.id.cancelSettingButton);
+        cancelButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
