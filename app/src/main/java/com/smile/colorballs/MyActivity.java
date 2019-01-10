@@ -6,8 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
-import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -15,8 +13,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.ActionBar;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.RelativeSizeSpan;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -62,6 +64,7 @@ public class MyActivity extends AppCompatActivity {
     private MyBroadcastReceiver myReceiver;
 
     private float textFontSize;
+    private float fontScale;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,10 +78,12 @@ public class MyActivity extends AppCompatActivity {
         float screenWidth = size.x;
         float screenHeight = size.y;
 
-        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this);
+        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this, R.style.AppTheme);
         textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, 0.0f);
+        fontScale = ScreenUtil.suitableFontScale(this, 0.0f);
         Log.d(TAG, "DefaultTextFontSize = " + defaultTextFontSize);
         Log.d(TAG, "textFontSize = " + textFontSize);
+        Log.d(TAG, "fontScale = " + fontScale);
 
         float statusBarHeight = ScreenUtil.getStatusBarHeight(this);
         float actionBarHeight = ScreenUtil.getActionBarHeight(this);
@@ -87,18 +92,26 @@ public class MyActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_my);
 
-        int highestScore = ColorBallsApp.ScoreSQLiteDB.readHighestScore();
-        setTitle(String.format(Locale.getDefault(), "%8d", highestScore));
+        Toolbar colorballs_toolbar = findViewById(R.id.colorballs_toolbar);
+        setSupportActionBar(colorballs_toolbar);
+        colorballs_toolbar.setTitle("");
+        TextView toolbarTitleTextView = findViewById(R.id.toolbarTitleTextView);
+        toolbarTitleTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
 
+        int highestScore = ColorBallsApp.ScoreSQLiteDB.readHighestScore();
+        toolbarTitleTextView.setText(String.format(Locale.getDefault(), "%8d", highestScore));
+
+        // setTitle(String.format(Locale.getDefault(), "%8d", highestScore));
+        /*
         // setting the font size for activity label
         ActionBar actionBar = getSupportActionBar();
-
         TextView titleView = new TextView(this);
         titleView.setText(actionBar.getTitle());
         titleView.setTextColor(Color.WHITE);
         titleView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
         actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         actionBar.setCustomView(titleView);
+        */
 
         LinearLayout linearLayout_myActivity = findViewById(R.id.linearLayout_myActivity);
         float main_WeightSum = linearLayout_myActivity.getWeightSum();
@@ -181,6 +194,20 @@ public class MyActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.my, menu);
+        if (menu != null) {
+            int mSize = menu.size();
+            MenuItem mItem;
+            SpannableString spanString;
+            int sLen;
+            for (int i=0; i<mSize; i++) {
+                mItem = menu.getItem(i);
+                spanString = new SpannableString(mItem.getTitle().toString());
+                sLen = spanString.length();
+                spanString.setSpan(new RelativeSizeSpan(fontScale), 0, sLen, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                // spanString.setSpan(new AbsoluteSizeSpan(10, true), 0, sLen, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                mItem.setTitle(spanString);
+            }
+        }
 
         return true;
     }

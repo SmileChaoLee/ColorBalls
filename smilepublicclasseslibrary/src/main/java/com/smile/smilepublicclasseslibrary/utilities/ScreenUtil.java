@@ -9,8 +9,6 @@ import android.util.TypedValue;
 import android.view.Display;
 import android.view.WindowManager;
 
-import static android.content.Context.WINDOW_SERVICE;
-
 /**
  * Created by chaolee on 2017-10-24.
  */
@@ -54,6 +52,21 @@ public class ScreenUtil {
         return size;
     }
 
+    public static float getDefaultTextSizeFromTheme(Context context, int themeId) {
+        Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        display.getMetrics(displayMetrics);
+
+        int[] attrs = {android.R.attr.textSize}; // retrieve text size from style.xml
+        TypedArray typedArray = context.obtainStyledAttributes(themeId, attrs);
+        float dimension = typedArray.getDimension(0,0);
+        float density = displayMetrics.density;
+        float defaultTextFontSize = dimension / density;
+        typedArray.recycle();
+
+        return defaultTextFontSize;
+    }
+
     public static float getDefaultTextSizeFromTheme(Context context) {
         Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -61,13 +74,15 @@ public class ScreenUtil {
 
         int[] attrs = {android.R.attr.textSize}; // retrieve text size from style.xml
         TypedArray typedArray = context.obtainStyledAttributes(attrs);
-        float defaultTextFontSize = typedArray.getDimension(0,0) / displayMetrics.density;
+        float dimension = typedArray.getDimension(0,0);
+        float density = displayMetrics.density;
+        float defaultTextFontSize = dimension / density;
         typedArray.recycle();
 
         return defaultTextFontSize;
     }
 
-    public static float suitableFontSize(Context context, float defaultFontSize, float baseScreenSize) {
+    public static float suitableFontSize(Context context, float defaultFontSize, float baseScreenWidthSize) {
 
         // this method based on Nexus 5 device
         // 1080 x 1776 pixels
@@ -76,21 +91,17 @@ public class ScreenUtil {
         // screen size = 4.330415725176914 inches (diagonal)
 
         float fontSize = 24; // default font size setting for Nexus 5
-        float baseSize = 4.330415725176914f; // based on the screen size of Nexus 5
         if (defaultFontSize > 0) {
             fontSize = defaultFontSize;
         }
-        if (baseScreenSize > 0) {
-            baseSize = baseScreenSize;
-        }
 
-        float size = screenSizeInches(context);
-        fontSize = fontSize * (size / baseSize);
+        float fontScale = suitableFontScale(context, baseScreenWidthSize);
+        fontSize = fontSize * fontScale;
 
         return fontSize;
     }
 
-    public static float suitableFontScale(Context context, float baseScreenSize) {
+    public static float suitableFontScale(Context context, float baseScreenWidthSize) {
 
         // this method based on Nexus 5 device
         // 1080 x 1776 pixels
@@ -98,18 +109,16 @@ public class ScreenUtil {
         // screen height in inches = 3.7
         // screen size = 4.330415725176914 inches (diagonal)
 
-        float baseSize = 4.330415725176914f; // based on the screen size of Nexus 5
-        if (baseScreenSize > 0) {
-            baseSize = baseScreenSize;
+        float baseWidthSize = 2.25f;    // the width in inches of Nexus 5
+        if (baseScreenWidthSize > 0) {
+            baseWidthSize = baseScreenWidthSize;
         }
 
-        // double size = screenSizeInches(context);
-        // float fontScale = (float)(size / baseSize);
         float wInches = screenWidthInches(context);
         float hInches = screenHeightInches(context);
-        float fontScale = wInches / baseSize;
+        float fontScale = wInches / baseWidthSize;
         if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            fontScale = hInches / baseSize;
+            fontScale = hInches / baseWidthSize;
         }
 
         return fontScale;

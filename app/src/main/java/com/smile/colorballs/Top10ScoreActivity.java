@@ -28,6 +28,7 @@ public class Top10ScoreActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        /*
         try {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -40,6 +41,7 @@ public class Top10ScoreActivity extends AppCompatActivity {
             Log.d(TAG, "Unable to start this Activity.");
             ex.printStackTrace();
         }
+        */
         setContentView(R.layout.activity_top10_score);
         top10LayoutId = R.id.top10_score_linear_layout;
 

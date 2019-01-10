@@ -27,10 +27,12 @@ public class SettingActivity extends AppCompatActivity {
         float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this);
         textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, 0.0f);
 
+        /*
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.hide();
         }
+        */
 
         hasSound = true;
         isEasyLevel = true;
