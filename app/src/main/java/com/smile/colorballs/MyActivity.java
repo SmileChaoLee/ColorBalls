@@ -15,10 +15,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.AbsoluteSizeSpan;
-import android.text.style.RelativeSizeSpan;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -140,11 +136,13 @@ public class MyActivity extends AppCompatActivity {
             bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
             bannerAdView = new AdView(this);
 
-            LinearLayout.LayoutParams bannerLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-            bannerLp.gravity = Gravity.CENTER;
-            bannerAdView.setLayoutParams(bannerLp);
-            // AdSize adSize = new AdSize(AdSize.FULL_WIDTH, AdSize.AUTO_HEIGHT);
-            bannerAdView.setAdSize(AdSize.BANNER);
+            // LinearLayout.LayoutParams bannerLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+            // bannerLp.gravity = Gravity.CENTER;
+            // bannerAdView.setLayoutParams(bannerLp);
+            AdSize adSize = new AdSize(AdSize.FULL_WIDTH, AdSize.AUTO_HEIGHT);
+            bannerAdView.setAdSize(adSize);
+            // bannerAdView.setAdSize(AdSize.BANNER);
+            // bannerAdView.setAdSize(AdSize.FULL_BANNER);
             bannerAdView.setAdUnitId(ColorBallsApp.googleAdMobBannerID);
             bannerLinearLayout.addView(bannerAdView);
             AdRequest adRequest = new AdRequest.Builder().build();
@@ -194,20 +192,8 @@ public class MyActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.my, menu);
-        if (menu != null) {
-            int mSize = menu.size();
-            MenuItem mItem;
-            SpannableString spanString;
-            int sLen;
-            for (int i=0; i<mSize; i++) {
-                mItem = menu.getItem(i);
-                spanString = new SpannableString(mItem.getTitle().toString());
-                sLen = spanString.length();
-                spanString.setSpan(new RelativeSizeSpan(fontScale), 0, sLen, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                // spanString.setSpan(new AbsoluteSizeSpan(10, true), 0, sLen, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                mItem.setTitle(spanString);
-            }
-        }
+
+        ScreenUtil.resizeMenuTextSize(menu, fontScale);
 
         return true;
     }

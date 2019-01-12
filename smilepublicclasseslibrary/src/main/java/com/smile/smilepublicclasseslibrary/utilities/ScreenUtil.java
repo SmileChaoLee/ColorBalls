@@ -4,9 +4,16 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.Point;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Display;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.WindowManager;
 
 /**
@@ -173,5 +180,24 @@ public class ScreenUtil {
     {
         double screenDiagonal = screenSizeInches(context);
         return (screenDiagonal >= 7.0);
+    }
+
+    public static void resizeMenuTextSize(Menu menu, float fontScale) {
+        if (menu != null) {
+            int mSize = menu.size();
+            MenuItem mItem;
+            SpannableString spanString;
+            int sLen;
+            for (int i=0; i<mSize; i++) {
+                mItem = menu.getItem(i);
+                spanString = new SpannableString(mItem.getTitle().toString());
+                sLen = spanString.length();
+                spanString.setSpan(new RelativeSizeSpan(fontScale), 0, sLen, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                mItem.setTitle(spanString);
+
+                // submenus
+                resizeMenuTextSize(mItem.getSubMenu(), fontScale);
+            }
+        }
     }
 }
