@@ -285,7 +285,7 @@ public class Top10ScoreFragment extends Fragment {
             int listViewHeight = parent.getHeight();
             int itemNum = 4;
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                itemNum = 3;
+                itemNum = 2;
             }
             int itemHeight = listViewHeight / itemNum;    // items for one screen
             ViewGroup.LayoutParams layoutParams = view.getLayoutParams();

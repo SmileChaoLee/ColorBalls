@@ -137,12 +137,11 @@ public class MyActivity extends AppCompatActivity {
             bannerAdView = new AdView(this);
 
             // LinearLayout.LayoutParams bannerLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-            // bannerLp.gravity = Gravity.CENTER;
+            // bannerLp.gravity = Gravity.BOTTOM;
             // bannerAdView.setLayoutParams(bannerLp);
             AdSize adSize = new AdSize(AdSize.FULL_WIDTH, AdSize.AUTO_HEIGHT);
             bannerAdView.setAdSize(adSize);
             // bannerAdView.setAdSize(AdSize.BANNER);
-            // bannerAdView.setAdSize(AdSize.FULL_BANNER);
             bannerAdView.setAdUnitId(ColorBallsApp.googleAdMobBannerID);
             bannerLinearLayout.addView(bannerAdView);
             AdRequest adRequest = new AdRequest.Builder().build();

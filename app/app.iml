@@ -8,11 +8,11 @@
     </facet>
     <facet type="android" name="Android">
       <configuration>
-        <option name="SELECTED_BUILD_VARIANT" value="colorballsRelease" />
-        <option name="ASSEMBLE_TASK_NAME" value="assembleColorballsRelease" />
-        <option name="COMPILE_JAVA_TASK_NAME" value="compileColorballsReleaseSources" />
+        <option name="SELECTED_BUILD_VARIANT" value="fivecolorballsRelease" />
+        <option name="ASSEMBLE_TASK_NAME" value="assembleFivecolorballsRelease" />
+        <option name="COMPILE_JAVA_TASK_NAME" value="compileFivecolorballsReleaseSources" />
         <afterSyncTasks>
-          <task>generateColorballsReleaseSources</task>
+          <task>generateFivecolorballsReleaseSources</task>
         </afterSyncTasks>
         <option name="ALLOW_USER_CONFIGURATION" value="false" />
         <option name="MANIFEST_FILE_RELATIVE_PATH" value="/src/main/AndroidManifest.xml" />
@@ -23,54 +23,54 @@
     </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7">
-    <output url="file://$MODULE_DIR$/build/intermediates/javac/colorballsRelease/compileColorballsReleaseJavaWithJavac/classes" />
-    <output-test url="file://$MODULE_DIR$/build/intermediates/javac/colorballsReleaseUnitTest/compileColorballsReleaseUnitTestJavaWithJavac/classes" />
+    <output url="file://$MODULE_DIR$/build/intermediates/javac/fivecolorballsRelease/compileFivecolorballsReleaseJavaWithJavac/classes" />
+    <output-test url="file://$MODULE_DIR$/build/intermediates/javac/fivecolorballsReleaseUnitTest/compileFivecolorballsReleaseUnitTestJavaWithJavac/classes" />
     <exclude-output />
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/colorballs/release" isTestSource="false" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/not_namespaced_r_class_sources/colorballsRelease/processColorballsReleaseResources/r" isTestSource="false" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/aidl/colorballs/release" isTestSource="false" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/colorballs/release" isTestSource="false" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/colorballs/release" isTestSource="false" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/google-services/colorballs/release" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/colorballs/release" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/colorballs/release" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballsRelease/res" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballsRelease/resources" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballsRelease/assets" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballsRelease/aidl" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballsRelease/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballsRelease/rs" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballsRelease/shaders" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/test/colorballs/release" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballsRelease/res" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballsRelease/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballsRelease/assets" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballsRelease/aidl" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballsRelease/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballsRelease/rs" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballsRelease/shaders" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballs/res" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballs/resources" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballs/assets" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballs/aidl" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballs/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballs/rs" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballs/shaders" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestColorballs/res" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestColorballs/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestColorballs/assets" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestColorballs/aidl" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestColorballs/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestColorballs/rs" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestColorballs/shaders" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs/res" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs/assets" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs/aidl" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs/rs" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs/shaders" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/fivecolorballs/release" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/not_namespaced_r_class_sources/fivecolorballsRelease/processFivecolorballsReleaseResources/r" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/aidl/fivecolorballs/release" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/fivecolorballs/release" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/fivecolorballs/release" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/google-services/fivecolorballs/release" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/fivecolorballs/release" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/fivecolorballs/release" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/fivecolorballsRelease/res" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/fivecolorballsRelease/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/fivecolorballsRelease/assets" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/fivecolorballsRelease/aidl" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/fivecolorballsRelease/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/fivecolorballsRelease/rs" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/fivecolorballsRelease/shaders" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/test/fivecolorballs/release" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testFivecolorballsRelease/res" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testFivecolorballsRelease/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testFivecolorballsRelease/assets" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testFivecolorballsRelease/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testFivecolorballsRelease/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testFivecolorballsRelease/rs" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testFivecolorballsRelease/shaders" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/fivecolorballs/res" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/fivecolorballs/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/fivecolorballs/assets" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/fivecolorballs/aidl" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/fivecolorballs/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/fivecolorballs/rs" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/fivecolorballs/shaders" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestFivecolorballs/res" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestFivecolorballs/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestFivecolorballs/assets" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestFivecolorballs/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestFivecolorballs/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestFivecolorballs/rs" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestFivecolorballs/shaders" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testFivecolorballs/res" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testFivecolorballs/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testFivecolorballs/assets" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testFivecolorballs/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testFivecolorballs/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testFivecolorballs/rs" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testFivecolorballs/shaders" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/release/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/release/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/release/assets" type="java-resource" />
@@ -112,6 +112,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/check-libraries" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/check-manifest" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/checkColorballsReleaseClasspath" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/checkFivecolorballsReleaseClasspath" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/compatible_screen_manifest" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/instant_run_merged_manifests" />
