@@ -63,7 +63,7 @@ public class AlertDialogFragment extends DialogFragment {
         super();
         this.ndl = ndl;
     }
-    public static AlertDialogFragment newInstance(String textContent, int textFontSize, int color, int width, int height, boolean isAnimation) {
+    public static AlertDialogFragment newInstance(String textContent, float textFontSize, int color, int width, int height, boolean isAnimation) {
         AlertDialogFragment modalDialog = new AlertDialogFragment();
         Bundle args = new Bundle();
         args.putString("textContent", textContent);

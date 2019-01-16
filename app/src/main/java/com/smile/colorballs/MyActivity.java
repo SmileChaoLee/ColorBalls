@@ -74,7 +74,7 @@ public class MyActivity extends AppCompatActivity {
         float screenWidth = size.x;
         float screenHeight = size.y;
 
-        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this, R.style.AppTheme);
+        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this);
         textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, 0.0f);
         fontScale = ScreenUtil.suitableFontScale(this, 0.0f);
         Log.d(TAG, "DefaultTextFontSize = " + defaultTextFontSize);

@@ -1267,15 +1267,6 @@ public class MainUiFragment extends Fragment {
         return scoreImageView;
     }
     public void showMessageOnScreen(String messageString) {
-        /*
-        float fontSize = textFontSize;
-        double factor = 1.5;
-        int bmWidth = (int)(fontSize * messageString.length() * factor);
-        int bmHeight = (int)(fontSize * factor * 6.0);
-        Bitmap dialog_board_image = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
-        Bitmap bm = Bitmap.createScaledBitmap(dialog_board_image, bmWidth, bmHeight, false );  // scale
-        Bitmap showBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(bm, messageString, Color.RED);
-        */
         Bitmap dialog_board_image = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
         Bitmap showBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(dialog_board_image, messageString, Color.RED);
         scoreImageView.setVisibility(View.VISIBLE);
