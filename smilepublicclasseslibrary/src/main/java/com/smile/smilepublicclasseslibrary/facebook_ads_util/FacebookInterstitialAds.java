@@ -1,24 +1,7 @@
 package com.smile.smilepublicclasseslibrary.facebook_ads_util;
 
-import com.smile.smilepublicclasseslibrary.alertdialogfragment.*;
-
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.graphics.Color;
-import android.graphics.Typeface;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.SystemClock;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.Window;
-import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.widget.TextView;
 import com.facebook.ads.*;
 
 public class FacebookInterstitialAds {

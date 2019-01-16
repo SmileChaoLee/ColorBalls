@@ -66,12 +66,12 @@ public class AlertDialogFragment extends DialogFragment {
     public static AlertDialogFragment newInstance(String textContent, float textFontSize, int color, int width, int height, boolean isAnimation) {
         AlertDialogFragment modalDialog = new AlertDialogFragment();
         Bundle args = new Bundle();
-        args.putString("textContent", textContent);
+        args.putString("TextContent", textContent);
         args.putFloat("TextFontSize", textFontSize);
-        args.putInt("color", color);
-        args.putInt("width", width);
-        args.putInt("height", height);
-        args.putInt("numButtons", 0);
+        args.putInt("Color", color);
+        args.putInt("Width", width);
+        args.putInt("Height", height);
+        args.putInt("NumButtons", 0);
         args.putBoolean("IsAnimation", isAnimation);
         modalDialog.setArguments(args);
 
@@ -110,12 +110,12 @@ public class AlertDialogFragment extends DialogFragment {
 
             Bundle args = getArguments();
             if (args != null) {
-                textContext = args.getString("textContent");
+                textContext = args.getString("TextContent");
                 textFontSize = args.getFloat("TextFontSize");
-                textColor = args.getInt("color");
-                dialogWidth = args.getInt("width");
-                dialogHeight = args.getInt("height");
-                numButtons = args.getInt("numButtons");
+                textColor = args.getInt("Color");
+                dialogWidth = args.getInt("Width");
+                dialogHeight = args.getInt("Height");
+                numButtons = args.getInt("NumButtons");
                 isAnimation = args.getBoolean("IsAnimation", false);
             }
 

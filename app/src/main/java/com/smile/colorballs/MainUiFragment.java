@@ -496,12 +496,12 @@ public class MainUiFragment extends Fragment {
                     }
                 });
                 Bundle args = new Bundle();
-                args.putString("textContent", gameOverStr);
+                args.putString("TextContent", gameOverStr);
                 args.putFloat("TextFontSize", textFontSize);
-                args.putInt("color", Color.BLUE);
-                args.putInt("width", 0);    // wrap_content
-                args.putInt("height", 0);   // wrap_content
-                args.putInt("numButtons", 2);
+                args.putInt("Color", Color.BLUE);
+                args.putInt("Width", 0);    // wrap_content
+                args.putInt("Height", 0);   // wrap_content
+                args.putInt("NumButtons", 2);
                 args.putBoolean("IsAnimation", false);
                 gameOverDialog.setArguments(args);
                 gameOverDialog.show(getActivity().getSupportFragmentManager(), GameOverDialogTag);
@@ -916,12 +916,12 @@ public class MainUiFragment extends Fragment {
             }
         });
         Bundle args = new Bundle();
-        args.putString("textContent", textContent);
+        args.putString("TextContent", textContent);
         args.putFloat("TextFontSize", textFontSize);
-        args.putInt("color", Color.BLUE);
-        args.putInt("width", 0);    // wrap_content
-        args.putInt("height", 0);   // wrap_content
-        args.putInt("numButtons", 1);
+        args.putInt("Color", Color.BLUE);
+        args.putInt("Width", 0);    // wrap_content
+        args.putInt("Height", 0);   // wrap_content
+        args.putInt("NumButtons", 1);
         args.putBoolean("IsAnimation", false);
         gameSavedDialog.setArguments(args);
         gameSavedDialog.show(getActivity().getSupportFragmentManager(), "GameSavedDialogTag");
@@ -1056,12 +1056,12 @@ public class MainUiFragment extends Fragment {
             }
         });
         Bundle args = new Bundle();
-        args.putString("textContent", textContent);
+        args.putString("TextContent", textContent);
         args.putFloat("TextFontSize", textFontSize);
-        args.putInt("color", Color.BLUE);
-        args.putInt("width", 0);    // wrap_content
-        args.putInt("height", 0);   // wrap_content
-        args.putInt("numButtons", 1);
+        args.putInt("Color", Color.BLUE);
+        args.putInt("Width", 0);    // wrap_content
+        args.putInt("Height", 0);   // wrap_content
+        args.putInt("NumButtons", 1);
         args.putBoolean("IsAnimation", false);
         gameLoadedDialog.setArguments(args);
         gameLoadedDialog.show(getActivity().getSupportFragmentManager(), "GameLoadedDialogTag");
@@ -1129,12 +1129,12 @@ public class MainUiFragment extends Fragment {
             }
         });
         Bundle args = new Bundle();
-        args.putString("textContent", sureToSaveGameString);
+        args.putString("TextContent", sureToSaveGameString);
         args.putFloat("TextFontSize", textFontSize);
-        args.putInt("color", Color.BLUE);
-        args.putInt("width", 0);    // wrap_content
-        args.putInt("height", 0);   // wrap_content
-        args.putInt("numButtons", 2);
+        args.putInt("Color", Color.BLUE);
+        args.putInt("Width", 0);    // wrap_content
+        args.putInt("Height", 0);   // wrap_content
+        args.putInt("NumButtons", 2);
         args.putBoolean("IsAnimation", false);
         sureSaveDialog.setArguments(args);
         sureSaveDialog.show(getActivity().getSupportFragmentManager(), "SureSaveDialogTag");
@@ -1155,12 +1155,12 @@ public class MainUiFragment extends Fragment {
             }
         });
         Bundle args = new Bundle();
-        args.putString("textContent", sureToLoadGameString);
+        args.putString("TextContent", sureToLoadGameString);
         args.putFloat("TextFontSize", textFontSize);
-        args.putInt("color", Color.BLUE);
-        args.putInt("width", 0);    // wrap_content
-        args.putInt("height", 0);   // wrap_content
-        args.putInt("numButtons", 2);
+        args.putInt("Color", Color.BLUE);
+        args.putInt("Width", 0);    // wrap_content
+        args.putInt("Height", 0);   // wrap_content
+        args.putInt("NumButtons", 2);
         args.putBoolean("IsAnimation", false);
         sureLoadDialog.setArguments(args);
         sureLoadDialog.show(getActivity().getSupportFragmentManager(), "SureLoadDialogTag");
