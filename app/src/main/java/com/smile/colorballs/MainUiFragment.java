@@ -64,7 +64,7 @@ public class MainUiFragment extends Fragment {
 
     private final static String TAG = new String("MainUiFragment");
     private final static String GameOverDialogTag = "GameOverDialogFragmentTag";
-    private final static String MessageDialogTag = "MessageDialogTag";
+    // private final static String MessageDialogTag = "MessageDialogTag";
 
     private final int nextBallsViewIdStart = 100;
     private final String savedGameFileName = "saved_game";
@@ -1267,22 +1267,17 @@ public class MainUiFragment extends Fragment {
         return scoreImageView;
     }
     public void showMessageOnScreen(String messageString) {
-
-        /*
         Bitmap dialog_board_image = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
         Bitmap showBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(dialog_board_image, messageString, Color.RED);
         scoreImageView.setVisibility(View.VISIBLE);
         scoreImageView.setImageBitmap(showBitmap);
-        */
 
         // messageDialog = AlertDialogFragment.newInstance(messageString, textFontSize, Color.RED, 0, 0, true);
         // messageDialog.show(getActivity().getSupportFragmentManager(), MessageDialogTag);
     }
     public void dismissShowMessageOnScreen() {
-        /*
         scoreImageView.setImageBitmap(null);
         scoreImageView.setVisibility(View.GONE);
-        */
 
         // if (messageDialog != null) {
         //     messageDialog.dismissAllowingStateLoss();
