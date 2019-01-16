@@ -62,13 +62,15 @@ public class MainUiFragment extends Fragment {
     public static final int MINB = 3;
     public static final int MAXB = 4;
 
-    // private properties for this color balls game
-    private OnFragmentInteractionListener mListener;
+    private final static String TAG = new String("MainUiFragment");
+    private final static String GameOverDialogTag = "GameOverDialogFragmentTag";
+    private final static String MessageDialogTag = "MessageDialogTag";
 
-    private final String TAG = new String("com.smile.colorballs.MainUiFragment");
-    private final String GameOverDialogTag = "GameOverDialogFragment";
     private final int nextBallsViewIdStart = 100;
     private final String savedGameFileName = "saved_game";
+
+    // private properties for this color balls game
+    private OnFragmentInteractionListener mListener;
 
     private Context context = null;
     private MyActivity myActivity = null;
@@ -98,6 +100,7 @@ public class MainUiFragment extends Fragment {
     private int currentScore = 0;
     private int undoScore = 0;
     private boolean isEasyLevel = true;
+    private boolean hasSound = true;    // has sound effect
 
     private String yesStr = new String("");
     private String noStr = new String("");
@@ -106,20 +109,17 @@ public class MainUiFragment extends Fragment {
     private String cancelStr = new String("");
     private String gameOverStr = new String("");
 
-    private boolean hasSound = true;    // has sound effect
-
     private String loadingString;
-
     private String savingGameString;
     private String succeededSaveGameString;
     private String failedSaveGameString;
-
     private String loadingGameString;
     private String succeededLoadGameString;
     private String failedLoadGameString;
-
     private String sureToSaveGameString;
     private String sureToLoadGameString;
+
+    private AlertDialogFragment messageDialog;
 
     public MainUiFragment() {
         // Required empty public constructor
@@ -1267,14 +1267,26 @@ public class MainUiFragment extends Fragment {
         return scoreImageView;
     }
     public void showMessageOnScreen(String messageString) {
+
+        /*
         Bitmap dialog_board_image = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
         Bitmap showBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(dialog_board_image, messageString, Color.RED);
         scoreImageView.setVisibility(View.VISIBLE);
         scoreImageView.setImageBitmap(showBitmap);
+        */
+
+        // messageDialog = AlertDialogFragment.newInstance(messageString, textFontSize, Color.RED, 0, 0, true);
+        // messageDialog.show(getActivity().getSupportFragmentManager(), MessageDialogTag);
     }
     public void dismissShowMessageOnScreen() {
+        /*
         scoreImageView.setImageBitmap(null);
         scoreImageView.setVisibility(View.GONE);
+        */
+
+        // if (messageDialog != null) {
+        //     messageDialog.dismissAllowingStateLoss();
+        // }
     }
 
     private class CalculateScore extends AsyncTask<Point, Integer, String[]> {

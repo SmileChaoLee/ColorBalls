@@ -264,7 +264,8 @@ public class MyActivity extends AppCompatActivity {
                 FragmentManager fmManager = getSupportFragmentManager();
                 FragmentTransaction ft = fmManager.beginTransaction();
                 ft.remove(top10ScoreFragment);
-                ft.commit();
+                // ft.commit();
+                ft.commitAllowingStateLoss();   // temporarily solved
                 ColorBallsApp.isShowingLoadingMessage = false;
                 ColorBallsApp.isProcessingJob = false;
             }
@@ -273,7 +274,8 @@ public class MyActivity extends AppCompatActivity {
                 FragmentManager fmManager = getSupportFragmentManager();
                 FragmentTransaction ft = fmManager.beginTransaction();
                 ft.remove(globalTop10Fragment);
-                ft.commit();
+                // ft.commit();
+                ft.commitAllowingStateLoss();   // temporarily solved
                 ColorBallsApp.isShowingLoadingMessage = false;
                 ColorBallsApp.isProcessingJob = false;
             }
