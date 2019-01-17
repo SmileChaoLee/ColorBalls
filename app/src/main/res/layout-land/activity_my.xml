@@ -13,14 +13,15 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:weightSum="11">
+        android:weightSum="100">
 
         <LinearLayout
             android:id="@+id/gameViewLinearLayout"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="9">
+            android:layout_weight="85"
+            android:weightSum="2">
 
             <LinearLayout
                 android:id="@+id/mainUiFragmentLayout"
@@ -35,20 +36,20 @@
                 android:orientation="vertical"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="#d4d28f">
+                android:background="#d4d28f"
+                android:layout_weight="1">
             </LinearLayout>
 
         </LinearLayout>
 
         <!-- the banner ads showing area -->
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <LinearLayout
             android:id="@+id/linearlayout_for_ads_in_myActivity"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:gravity="bottom"
-            android:layout_weight="2" >
+            android:gravity="right|bottom"
+            android:layout_weight="15" >
         </LinearLayout>
 
     </LinearLayout>

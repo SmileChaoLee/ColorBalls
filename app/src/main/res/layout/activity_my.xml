@@ -9,17 +9,19 @@
 
     <LinearLayout
         android:id="@+id/linearLayout_myActivity"
+        android:baselineAligned="false"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:weightSum="11">
+        android:weightSum="100">
 
         <LinearLayout
             android:id="@+id/gameViewLinearLayout"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="9">
+            android:layout_weight="90">
+
             <LinearLayout
                 android:id="@+id/mainUiFragmentLayout"
                 android:orientation="vertical"
@@ -29,13 +31,13 @@
         </LinearLayout>
 
         <!-- the banner ads showing area -->
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <LinearLayout
             android:id="@+id/linearlayout_for_ads_in_myActivity"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:gravity="bottom"
-            android:layout_weight="2" >
+            android:gravity="center_horizontal|bottom"
+            android:layout_weight="10" >
         </LinearLayout>
 
     </LinearLayout>

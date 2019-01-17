@@ -223,7 +223,7 @@ public class MainUiFragment extends Fragment {
             fragmentWidth = fragmentWidth / 2;  // for this fragment is half a fragmentWidth
         }
 
-        float height_weightSum_uiFragmentView = 9;    // default
+        float height_weightSum_uiFragmentView = 100;    // default
         try {
             LinearLayout linearLay = (LinearLayout) uiFragmentView;
             float temp = linearLay.getWeightSum();
@@ -237,14 +237,8 @@ public class MainUiFragment extends Fragment {
 
         LinearLayout scoreNextBallsLayout = uiFragmentView.findViewById(R.id.score_next_balls_layout);
         float width_weightSum_scoreNextBallsLayout = scoreNextBallsLayout.getWeightSum();
-        if (width_weightSum_scoreNextBallsLayout == 0) {
-            width_weightSum_scoreNextBallsLayout = 5;   // default
-        }
-        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) scoreNextBallsLayout.getLayoutParams();
-        float height_weight_scoreNextBallsLayout = layoutParams.weight;
-        if (height_weight_scoreNextBallsLayout == 0) {
-            height_weight_scoreNextBallsLayout = 1; //default
-        }
+        LinearLayout.LayoutParams scoreNextBallsLayoutParams = (LinearLayout.LayoutParams) scoreNextBallsLayout.getLayoutParams();
+        float height_weight_scoreNextBallsLayout = scoreNextBallsLayoutParams.weight;
 
         // display the highest score and current score
         currentScoreView = uiFragmentView.findViewById(R.id.currentScoreTextView);
@@ -255,8 +249,8 @@ public class MainUiFragment extends Fragment {
         GridLayout nextBallsLayout = uiFragmentView.findViewById(R.id.nextBallsLayout);
         int nextBallsRow = nextBallsLayout.getRowCount();
         nextBallsNumber = nextBallsLayout.getColumnCount();
-        layoutParams = (LinearLayout.LayoutParams)nextBallsLayout.getLayoutParams();
-        float width_weight_nextBalls = layoutParams.weight;
+        LinearLayout.LayoutParams nextBallsLayoutParams = (LinearLayout.LayoutParams)nextBallsLayout.getLayoutParams();
+        float width_weight_nextBalls = nextBallsLayoutParams.weight;
 
         int nextBallsViewWidth = (int)((float)fragmentWidth * width_weight_nextBalls / width_weightSum_scoreNextBallsLayout);   // 3/5 of screen width
 
@@ -267,8 +261,7 @@ public class MainUiFragment extends Fragment {
         oneNextBallLp.height = (int)((float)fragmentHeight * height_weight_scoreNextBallsLayout / height_weightSum_uiFragmentView);
         oneNextBallLp.gravity = Gravity.CENTER;
 
-        ImageView imageView = null;
-
+        ImageView imageView;
         for (int i = 0; i < nextBallsRow; i++) {
             for (int j = 0; j < nextBallsNumber; j++) {
                 imageView = new ImageView(myActivity);
@@ -291,9 +284,6 @@ public class MainUiFragment extends Fragment {
         colCounts = gridCellsLayout.getColumnCount();
         // LinearLayout.LayoutParams gridLp = (LinearLayout.LayoutParams) gridCellsLayout.getLayoutParams();
         // float height_weight_gridCellsLayout = gridLp.weight;
-        if (height_weight_gridCellsLayout == 0) {
-            height_weight_gridCellsLayout = 8;  // default
-        }
 
         cellWidth = (int)(fragmentWidth / colCounts);
         int eight10thOfHeight = (int)( (float)fragmentHeight / height_weightSum_uiFragmentView * height_weight_gridCellsLayout);
@@ -318,7 +308,7 @@ public class MainUiFragment extends Fragment {
 
         // set listener for each ImageView
         // ImageView imageView;
-        int imId = 0;
+        int imId;
         for (int i = 0; i < rowCounts; i++) {
             for (int j = 0; j < colCounts; j++) {
                 // imId = i * colCounts + j;
@@ -338,6 +328,7 @@ public class MainUiFragment extends Fragment {
                     }
                 });
                 gridCellsLayout.addView(imageView, imId, oneBallLp);
+                // gridCellsLayout.addView(imageView, imId);
 
             }
         }

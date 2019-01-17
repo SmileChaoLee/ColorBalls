@@ -5,8 +5,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Point;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -66,9 +68,20 @@ public class MyActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Log.d(TAG, "onCreate() is called");
+        /*
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN ,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        */
+
+        if (ScreenUtil.isTablet(this)) {
+            // Table then change orientation to Landscape
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else {
+            // phone then change orientation to Portrait
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
 
         Point size = ScreenUtil.getScreenSize(this);
         float screenWidth = size.x;
@@ -135,13 +148,8 @@ public class MyActivity extends AppCompatActivity {
             Log.d(TAG, "Starting the initialization for Banner Ad.");
             bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
             bannerAdView = new AdView(this);
-
-            // LinearLayout.LayoutParams bannerLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-            // bannerLp.gravity = Gravity.BOTTOM;
-            // bannerAdView.setLayoutParams(bannerLp);
-            AdSize adSize = new AdSize(AdSize.FULL_WIDTH, AdSize.AUTO_HEIGHT);
-            bannerAdView.setAdSize(adSize);
-            // bannerAdView.setAdSize(AdSize.BANNER);
+            bannerAdView.setAdSize(AdSize.BANNER);
+            // bannerAdView.setAdSize(AdSize.SMART_BANNER);
             bannerAdView.setAdUnitId(ColorBallsApp.googleAdMobBannerID);
             bannerLinearLayout.addView(bannerAdView);
             AdRequest adRequest = new AdRequest.Builder().build();
@@ -157,6 +165,8 @@ public class MyActivity extends AppCompatActivity {
 
         // for AdBuddiz ads removed on 2018-07-03
         // AdBuddiz.setPublisherKey("57c7153c-35dd-488a-beaa-3cae8b3ab668");
+
+        Log.d(TAG, "onCreate() is finished.");
     }
 
     @Override
@@ -264,7 +274,11 @@ public class MyActivity extends AppCompatActivity {
                 FragmentManager fmManager = getSupportFragmentManager();
                 FragmentTransaction ft = fmManager.beginTransaction();
                 ft.remove(top10ScoreFragment);
-                // ft.commit();
+                if (top10ScoreFragment.isStateSaved()) {
+                    ft.commitAllowingStateLoss();   // temporarily solved
+                } else {
+                    ft.commit();
+                }
                 ft.commitAllowingStateLoss();   // temporarily solved
                 ColorBallsApp.isShowingLoadingMessage = false;
                 ColorBallsApp.isProcessingJob = false;
@@ -274,8 +288,14 @@ public class MyActivity extends AppCompatActivity {
                 FragmentManager fmManager = getSupportFragmentManager();
                 FragmentTransaction ft = fmManager.beginTransaction();
                 ft.remove(globalTop10Fragment);
-                // ft.commit();
-                ft.commitAllowingStateLoss();   // temporarily solved
+                if (globalTop10Fragment.isStateSaved()) {
+                    Log.d(TAG, "globalTop10Fragment.isStateSaved() = true");
+                    ft.commitAllowingStateLoss();   // temporarily solved
+                } else {
+                    Log.d(TAG, "globalTop10Fragment.isStateSaved() = false");
+                    ft.commit();
+                }
+
                 ColorBallsApp.isShowingLoadingMessage = false;
                 ColorBallsApp.isProcessingJob = false;
             }
@@ -283,6 +303,8 @@ public class MyActivity extends AppCompatActivity {
             // if configuration is not changing (still landscape because portrait does not have this fragment)
             // keep top10ScoreFragment on screen (on right side)
         }
+
+        Log.d(TAG, "MyActivity.onSaveInstanceState() is called");
 
         super.onSaveInstanceState(outState);
     }
