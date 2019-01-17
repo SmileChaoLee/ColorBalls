@@ -129,10 +129,18 @@ public class MyActivity extends AppCompatActivity {
         top10LayoutId = R.id.top10Layout;
 
         LinearLayout gameViewLinearLayout = findViewById(R.id.gameViewLinearLayout);
+        float gameViewWeightSum = gameViewLinearLayout.getWeightSum();
         LinearLayout.LayoutParams gameViewLp = (LinearLayout.LayoutParams) gameViewLinearLayout.getLayoutParams();
         float mainFragment_Weight = gameViewLp.weight;
         mainFragmentHeight = screenHeight * mainFragment_Weight / main_WeightSum;
-        mainFragmentWidth = screenWidth;
+
+        LinearLayout mainUiFragmentLayout = findViewById(mainUiFragmentLayoutId);
+        // float mainFragmentWeightSum = mainUiFragmentLayout.getWeightSum();
+        LinearLayout.LayoutParams mainUiFragmentLayoutParams = (LinearLayout.LayoutParams)mainUiFragmentLayout.getLayoutParams();
+        float mainUiFragment_weight = mainUiFragmentLayoutParams.weight;
+        mainFragmentWidth = screenWidth * (mainUiFragment_weight / gameViewWeightSum);
+
+        Log.d(TAG, "mainFragmentWidth = " + mainFragmentWidth);
 
         FragmentManager fmManager = getSupportFragmentManager();
         mainUiFragment = (MainUiFragment) fmManager.findFragmentByTag(MainUiFragment.MainUiFragmentTag);

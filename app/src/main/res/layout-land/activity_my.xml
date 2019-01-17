@@ -3,7 +3,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#ffe8e56a">
+    android:background="#d4d28f">
 
     <include layout="@layout/toolbar_layout" />
 
@@ -19,8 +19,8 @@
             android:id="@+id/gameViewLinearLayout"
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="85"
+            android:layout_height="match_parent"
+            android:layout_weight="100"
             android:weightSum="2">
 
             <LinearLayout
@@ -32,24 +32,31 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/top10Layout"
                 android:orientation="vertical"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:background="#d4d28f"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:weightSum="100">
+
+                <LinearLayout
+                    android:id="@+id/top10Layout"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="90">
+                </LinearLayout>
+
+                <!-- the banner ads showing area -->
+                <LinearLayout
+                    android:id="@+id/linearlayout_for_ads_in_myActivity"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:gravity="center_horizontal|bottom"
+                    android:layout_weight="10" >
+                </LinearLayout>
             </LinearLayout>
 
-        </LinearLayout>
-
-        <!-- the banner ads showing area -->
-        <LinearLayout
-            android:id="@+id/linearlayout_for_ads_in_myActivity"
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:gravity="right|bottom"
-            android:layout_weight="15" >
         </LinearLayout>
 
     </LinearLayout>

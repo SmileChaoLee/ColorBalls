@@ -1,6 +1,8 @@
 package com.smile.colorballs;
 
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -10,6 +12,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
+
+import com.smile.smilepublicclasseslibrary.utilities.ScreenUtil;
+
 import java.util.ArrayList;
 
 public class Top10ScoreActivity extends AppCompatActivity {
@@ -28,6 +33,7 @@ public class Top10ScoreActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         /*
         try {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -42,8 +48,14 @@ public class Top10ScoreActivity extends AppCompatActivity {
             ex.printStackTrace();
         }
         */
-        setContentView(R.layout.activity_top10_score);
-        top10LayoutId = R.id.top10_score_linear_layout;
+
+        if (ScreenUtil.isTablet(this)) {
+            // Table then change orientation to Landscape
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else {
+            // phone then change orientation to Portrait
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -51,6 +63,10 @@ public class Top10ScoreActivity extends AppCompatActivity {
             top10Players = extras.getStringArrayList("Top10Players");
             top10Scores = extras.getIntegerArrayList("Top10Scores");
         }
+
+        setContentView(R.layout.activity_top10_score);
+
+        top10LayoutId = R.id.top10_score_linear_layout;
 
         top10ScoreFragment = Top10ScoreFragment.newInstance(top10TitleName, top10Players, top10Scores, new Top10ScoreFragment.Top10OkButtonListener() {
             @Override

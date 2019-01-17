@@ -218,10 +218,12 @@ public class MainUiFragment extends Fragment {
         fragmentWidth = myActivity.getMainFragmentWidth();
         fragmentHeight = myActivity.getMainFragmentHeight();
 
+        /*
         if (ColorBallsApp.AppResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // Landscape
             fragmentWidth = fragmentWidth / 2;  // for this fragment is half a fragmentWidth
         }
+        */
 
         float height_weightSum_uiFragmentView = 100;    // default
         try {
@@ -628,7 +630,6 @@ public class MainUiFragment extends Fragment {
                 threadCompleted[0] = false;
                 if (countDown >= 2) {   // eliminate start point
                     int i = countDown / 2;
-                    // imageView = (ImageView) uiFragmentView.findViewById(tempList.get(i).x * colCounts + tempList.get(i).y);
                     imageView = uiFragmentView.findViewById(tempList.get(i).x * rowCounts + tempList.get(i).y);
                     if (ballYN) {
                         drawBall(imageView, color);
@@ -689,7 +690,6 @@ public class MainUiFragment extends Fragment {
             // greater than 5 balls
             int rate  = 1;
             for (int i=1 ; i<=Math.abs(numBalls-minBalls) ; i++) {
-                // rate = rate * 2; // removed on 2018-10-02
                 rate = 2;   // added on 2018-10-02
                 score += i * rate ;
             }

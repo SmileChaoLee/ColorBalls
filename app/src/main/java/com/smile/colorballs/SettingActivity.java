@@ -2,6 +2,8 @@ package com.smile.colorballs;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
@@ -23,16 +25,21 @@ public class SettingActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
+            // Oreo on API 26. Under Full Screen and Translucent, the orientation cannot be changed
+            if (ScreenUtil.isTablet(this)) {
+                // Table then change orientation to Landscape
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            } else {
+                // phone then change orientation to Portrait
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            }
+        }
 
         float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this);
         textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, 0.0f);
-
-        /*
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.hide();
-        }
-        */
 
         hasSound = true;
         isEasyLevel = true;
@@ -42,8 +49,6 @@ public class SettingActivity extends AppCompatActivity {
             hasSound = extras.getBoolean("HasSound");
             isEasyLevel = extras.getBoolean("IsEasyLevel");
         }
-
-        super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_setting);
 
