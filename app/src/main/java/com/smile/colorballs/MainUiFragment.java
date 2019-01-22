@@ -59,17 +59,12 @@ public class MainUiFragment extends Fragment {
 
     // public properties
     public static final String MainUiFragmentTag = new String("MainUiFragmentTag");
-    public static final int MINB = 3;
-    public static final int MAXB = 4;
-
-    private final static String TAG = new String("MainUiFragment");
-    private final static String GameOverDialogTag = "GameOverDialogFragmentTag";
-    // private final static String MessageDialogTag = "MessageDialogTag";
-
-    private final int nextBallsViewIdStart = 100;
-    private final String savedGameFileName = "saved_game";
 
     // private properties for this color balls game
+    private final static String TAG = new String("MainUiFragment");
+    private final static String GameOverDialogTag = "GameOverDialogFragmentTag";
+    private final int nextBallsViewIdStart = 100;
+    private final String savedGameFileName = "saved_game";
     private OnFragmentInteractionListener mListener;
 
     private Context context = null;
@@ -86,7 +81,6 @@ public class MainUiFragment extends Fragment {
 
     private TextView currentScoreView;
 
-    private int nextBallsNumber = 4;
     private int rowCounts = 9;
     private int colCounts = 9;
     private int cellWidth = 0;
@@ -118,8 +112,6 @@ public class MainUiFragment extends Fragment {
     private String failedLoadGameString;
     private String sureToSaveGameString;
     private String sureToLoadGameString;
-
-    private AlertDialogFragment messageDialog;
 
     public MainUiFragment() {
         // Required empty public constructor
@@ -250,7 +242,7 @@ public class MainUiFragment extends Fragment {
         // display the view of next balls
         GridLayout nextBallsLayout = uiFragmentView.findViewById(R.id.nextBallsLayout);
         int nextBallsRow = nextBallsLayout.getRowCount();
-        nextBallsNumber = nextBallsLayout.getColumnCount();
+        int nextBallsColumn = nextBallsLayout.getColumnCount();
         LinearLayout.LayoutParams nextBallsLayoutParams = (LinearLayout.LayoutParams)nextBallsLayout.getLayoutParams();
         float width_weight_nextBalls = nextBallsLayoutParams.weight;
 
@@ -258,16 +250,16 @@ public class MainUiFragment extends Fragment {
 
         LinearLayout.LayoutParams oneNextBallLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        oneNextBallLp.width = nextBallsViewWidth / nextBallsNumber;
+        oneNextBallLp.width = nextBallsViewWidth / nextBallsColumn;
         // the layout_weight for height is 1
         oneNextBallLp.height = (int)((float)fragmentHeight * height_weight_scoreNextBallsLayout / height_weightSum_uiFragmentView);
         oneNextBallLp.gravity = Gravity.CENTER;
 
         ImageView imageView;
         for (int i = 0; i < nextBallsRow; i++) {
-            for (int j = 0; j < nextBallsNumber; j++) {
+            for (int j = 0; j < nextBallsColumn; j++) {
                 imageView = new ImageView(myActivity);
-                imageView.setId(nextBallsViewIdStart + (nextBallsNumber * i + j));
+                imageView.setId(nextBallsViewIdStart + (nextBallsColumn * i + j));
                 imageView.setClickable(false);
                 imageView.setAdjustViewBounds(true);
                 imageView.setScaleType(ImageView.ScaleType.FIT_XY);
@@ -351,7 +343,7 @@ public class MainUiFragment extends Fragment {
             ColorBallsApp.isProcessingJob = false;
 
             isEasyLevel = true;     // start with easy level
-            gridData = new GridData(rowCounts, colCounts, MINB, MINB);  // easy level (3 balls for next balls)
+            gridData = new GridData(rowCounts, colCounts, ColorBallsApp.NumOfColorsUsedByEasy);
             displayGridDataNextCells();
 
         } else {
@@ -423,7 +415,8 @@ public class MainUiFragment extends Fragment {
     private void displayGridDataNextCells() {
 
         gridData.randCells();
-        int numOneTime = gridData.getBallNumOneTime();
+
+        int numOneTime = gridData.ballNumOneTime;
 
         int[] indexi = gridData.getNextCellIndexI();
         int[] indexj = gridData.getNextCellIndexJ();
@@ -754,15 +747,10 @@ public class MainUiFragment extends Fragment {
     private void displayNextBallsView() {
         // display the view of next balls
         ImageView imageView = null;
-        int numOneTime = gridData.getBallNumOneTime();
+        int numOneTime = gridData.ballNumOneTime;
         for (int i = 0; i < numOneTime; i++) {
             imageView = uiFragmentView.findViewById(nextBallsViewIdStart + i);
             drawBall(imageView, gridData.getNextBalls()[i]);
-        }
-        for (int i = numOneTime; i < nextBallsNumber; i++) {
-            imageView = uiFragmentView.findViewById(nextBallsViewIdStart + i);
-            // imageView.setImageDrawable(null);
-            imageView.setImageBitmap(null);
         }
     }
 
@@ -842,8 +830,8 @@ public class MainUiFragment extends Fragment {
                 foStream.write(0);
             }
             // save next balls
-            foStream.write(gridData.getBallNumOneTime());
-            for (int i=0; i<ColorBallsApp.MaxBalls; i++) {
+            foStream.write(gridData.ballNumOneTime);
+            for (int i=0; i<ColorBallsApp.NumOfColorsUsedByDifficult; i++) {
                 foStream.write(gridData.getNextBalls()[i]);
             }
             // save values on 9x9 grid
@@ -859,9 +847,9 @@ public class MainUiFragment extends Fragment {
             if (undoEnable) {
                 // can undo
                 foStream.write(1);
-                foStream.write(gridData.getUndoNumOneTime());
+                foStream.write(gridData.ballNumOneTime);
                 // save undoNextBalls
-                for (int i=0; i<ColorBallsApp.MaxBalls; i++) {
+                for (int i=0; i<ColorBallsApp.NumOfColorsUsedByDifficult; i++) {
                     foStream.write(gridData.getUndoNextBalls()[i]);
                 }
                 // save backupCells
@@ -927,13 +915,13 @@ public class MainUiFragment extends Fragment {
         boolean succeeded = true;
         boolean soundYn = hasSound;
         boolean easyYn = isEasyLevel;
-        int ballNumOneTime = gridData.getBallNumOneTime();
-        int[] nextBalls = new int[ColorBallsApp.MaxBalls];
+        int ballNumOneTime = gridData.ballNumOneTime;
+        int[] nextBalls = new int[ColorBallsApp.NumOfColorsUsedByDifficult];
         int[][] gameCells = new int[rowCounts][colCounts];
         int cScore = currentScore;
         boolean undoYn = undoEnable;
-        int undoNumOneTime = gridData.getUndoNumOneTime();
-        int[] undoNextBalls = new int[ColorBallsApp.MaxBalls];
+        int undoNumOneTime = gridData.ballNumOneTime;
+        int[] undoNextBalls = new int[ColorBallsApp.NumOfColorsUsedByDifficult];
         int[][] backupCells = new int[rowCounts][colCounts];
         int unScore = undoScore;
 
@@ -964,7 +952,7 @@ public class MainUiFragment extends Fragment {
             ballNumOneTime = fiStream.read();
             Log.i(TAG, "FileInputStream Read: Game has " + ballNumOneTime + " next balls");
             int ballValue;
-            for (int i=0; i<ColorBallsApp.MaxBalls; i++) {
+            for (int i=0; i<ColorBallsApp.NumOfColorsUsedByDifficult; i++) {
                 nextBalls[i] = fiStream.read();
                 Log.i(TAG, "FileInputStream Read: Next ball value = " + nextBalls[i]);
             }
@@ -986,7 +974,7 @@ public class MainUiFragment extends Fragment {
                 Log.i(TAG, "FileInputStream Read: Game has undo data");
                 undoYn = true;
                 undoNumOneTime = fiStream.read();
-                for (int i=0; i<ColorBallsApp.MaxBalls; i++) {
+                for (int i=0; i<ColorBallsApp.NumOfColorsUsedByDifficult; i++) {
                     undoNextBalls[i] = fiStream.read();
                 }
                 // save backupCells
@@ -1020,12 +1008,10 @@ public class MainUiFragment extends Fragment {
             textContent = succeededLoadGameString;
             setHasSound(soundYn);
             setIsEasyLevel(easyYn);
-            gridData.setBallNumOneTime(ballNumOneTime);
             gridData.setNextBalls(nextBalls);
             gridData.setCellValues(gameCells);
             currentScore = cScore;
             undoEnable = undoYn;
-            gridData.setUndoNumOneTime(undoNumOneTime);
             gridData.setUndoNextBalls(undoNextBalls);
             gridData.setBackupCells(backupCells);
             undoScore = unScore;
@@ -1237,15 +1223,12 @@ public class MainUiFragment extends Fragment {
         this.isEasyLevel = yn;
         if (this.isEasyLevel) {
             // easy level
-            getGridData().setMinBallsOneTime(MainUiFragment.MINB);
-            getGridData().setMaxBallsOneTime(MainUiFragment.MINB);
+            getGridData().setNumOfColorsUsed(ColorBallsApp.NumOfColorsUsedByEasy);
         } else {
             // difficult
-            getGridData().setMinBallsOneTime(MainUiFragment.MINB);
-            getGridData().setMaxBallsOneTime(MainUiFragment.MAXB);
-
+            getGridData().setNumOfColorsUsed(ColorBallsApp.NumOfColorsUsedByDifficult);
         }
-        displayNextColorBalls();
+        // displayNextColorBalls(); // removed on 2019-01-22
     }
 
     public boolean getHasSound() {
@@ -1262,17 +1245,10 @@ public class MainUiFragment extends Fragment {
         Bitmap showBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(dialog_board_image, messageString, Color.RED);
         scoreImageView.setVisibility(View.VISIBLE);
         scoreImageView.setImageBitmap(showBitmap);
-
-        // messageDialog = AlertDialogFragment.newInstance(messageString, textFontSize, Color.RED, 0, 0, true);
-        // messageDialog.show(getActivity().getSupportFragmentManager(), MessageDialogTag);
     }
     public void dismissShowMessageOnScreen() {
         scoreImageView.setImageBitmap(null);
         scoreImageView.setVisibility(View.GONE);
-
-        // if (messageDialog != null) {
-        //     messageDialog.dismissAllowingStateLoss();
-        // }
     }
 
     private class CalculateScore extends AsyncTask<Point, Integer, String[]> {

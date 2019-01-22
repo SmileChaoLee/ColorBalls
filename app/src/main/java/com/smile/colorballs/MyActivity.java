@@ -166,10 +166,10 @@ public class MyActivity extends AppCompatActivity {
         }
 
         myReceiver = new MyBroadcastReceiver();
-        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(MyTop10ScoresIntentService.Action_Name);
         intentFilter.addAction(MyGlobalTop10IntentService.Action_Name);
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.registerReceiver(myReceiver, intentFilter);
 
         // for AdBuddiz ads removed on 2018-07-03

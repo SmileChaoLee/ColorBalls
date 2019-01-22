@@ -13,7 +13,7 @@
     <string name="title_activity_global">全球前10排名Activity</string>
     <string name="globalTop10Score">全球前10排名分数</string>
     <string name="action_settings">Settings</string>
-    <string name="okStr">确定</string>
+    <string name="okString">确定</string>
     <string name="yesStr">是</string>
     <string name="noStr">否</string>
     <string name="gameOverStr">游戏结束.\n是否继续?</string>

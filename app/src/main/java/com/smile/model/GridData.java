@@ -4,7 +4,6 @@ package com.smile.model;
  * Created by lee on 9/19/2014.
  */
 
-import android.graphics.Color;
 import android.graphics.Point;
 
 import com.smile.colorballs.ColorBallsApp;
@@ -16,20 +15,17 @@ import java.util.Random;
 import java.util.Vector;
 
 public class GridData {
-    private int rowCounts=0,colCounts=0;
+    public static final int ballNumOneTime = 3;
+
+    private final int ballNumCompleted = 5;
+
+    private int rowCounts=0, colCounts=0;
     private int cellValues[][];
     private int backupCells[][];
-    private int maxBallsOneTime = 3;
-    private int minBallsOneTime = 3;
-    private int ballNumOneTime = 3;
-    private int undoNumOneTime = ballNumOneTime;
     private int[] nextBalls = null;
     private int[] nextCellIndexI = null;
     private int[] nextCellIndexJ = null;
-
     private int[] undoNextBalls = null;
-
-    private final int ballNumCompleted = 5;
 
     private HashSet<Point> Light_line;
     private List<Point> pathPoint;
@@ -37,30 +33,32 @@ public class GridData {
     private Random random = null;
 
     private int numOfTotalBalls = 0;
+    private int numOfColorsUsed = 5;    // 5 colors for easy level, 6 colors for difficult level
     private boolean gameOver = false;
 
-    public GridData(int rowCounts , int colCounts , int minBallsOneTime , int maxBallsOneTime) {
-        setRowCounts(rowCounts);
-        setColCounts(colCounts);
-        setMinBallsOneTime(minBallsOneTime);
-        setMaxBallsOneTime(maxBallsOneTime);
-        initGridData();
-    }
-
-    private void setRowCounts(int rowCounts) {
+    public GridData(int rowCounts , int colCounts, int numOfColorsUsed) {
         this.rowCounts = rowCounts;
-    }
-
-    private void setColCounts(int colCounts) {
         this.colCounts = colCounts;
-    }
+        this.numOfColorsUsed = numOfColorsUsed;
 
-    public void setMinBallsOneTime(int minBallsOneTime) {
-        this.minBallsOneTime = minBallsOneTime;
-    }
-
-    public void setMaxBallsOneTime(int maxBallsOneTime) {
-        this.maxBallsOneTime = maxBallsOneTime;
+        nextBalls = new int[ColorBallsApp.NumOfColorsUsedByDifficult];
+        nextCellIndexI = new int[ColorBallsApp.NumOfColorsUsedByDifficult];
+        nextCellIndexJ = new int[ColorBallsApp.NumOfColorsUsedByDifficult];
+        undoNextBalls = new int[ColorBallsApp.NumOfColorsUsedByDifficult];
+        cellValues = new int[rowCounts][colCounts];
+        backupCells = new int[rowCounts][colCounts];
+        Light_line = new HashSet<>();
+        pathPoint   = new ArrayList<>();
+        for (int i=0 ; i<rowCounts ; i++) {
+            for (int j=0 ; j<colCounts ; j++) {
+                cellValues[i][j] = 0;
+                backupCells[i][j] = 0;
+            }
+        }
+        gameOver = false;   // new Game
+        numOfTotalBalls = 0;
+        random = new Random(System.currentTimeMillis());
+        randColors();
     }
 
     public void setCellValue(int i,int j , int value) {
@@ -75,49 +73,13 @@ public class GridData {
         }
     }
 
-    private void initGridData() {
-
-        nextBalls = new int[ColorBallsApp.MaxBalls];
-        nextCellIndexI = new int[ColorBallsApp.MaxBalls];
-        nextCellIndexJ = new int[ColorBallsApp.MaxBalls];
-
-        undoNextBalls = new int[ColorBallsApp.MaxBalls];
-
-        cellValues = new int[rowCounts][colCounts];
-        backupCells = new int[rowCounts][colCounts];
-        Light_line = new HashSet<>();
-        pathPoint   = new ArrayList<>();
-
-        for (int i=0 ; i<rowCounts ; i++) {
-            for (int j=0 ; j<colCounts ; j++) {
-                cellValues[i][j] = 0;
-                backupCells[i][j] = 0;
-            }
-        }
-
-        gameOver = false;   // new Game
-        numOfTotalBalls = 0;
-
-        random = new Random(System.currentTimeMillis());
-
-        randColors();
-    }
-
     public void randColors() {
-
-        ballNumOneTime = random.nextInt(maxBallsOneTime-minBallsOneTime+1) + minBallsOneTime;
-
         for (int i=0 ; i<ballNumOneTime ; i++) {
-            int nn = random.nextInt(ColorBallsApp.MaxBalls);
+            // int nn = random.nextInt(ColorBallsApp.MaxBalls);
+            int nn = random.nextInt(numOfColorsUsed);
             nextBalls[i] = ColorBallsApp.ballColor[nn];
         }
     }
-
-    private void backupNextBalls() {
-        undoNumOneTime = ballNumOneTime;
-        undoNextBalls = nextBalls.clone();
-    }
-
     public int[] getNextBalls() {
         return this.nextBalls;
     }
@@ -137,6 +99,12 @@ public class GridData {
         for (int i=0 ; i<rowCounts ; i++) {
             this.backupCells[i] = backupCells[i].clone();
         }
+    }
+    public int getNumOfColorsUsed() {
+        return this.numOfColorsUsed;
+    }
+    public void setNumOfColorsUsed(int numOfColorsUsed) {
+        this.numOfColorsUsed = numOfColorsUsed;
     }
 
     public void randCells() {
@@ -167,26 +135,14 @@ public class GridData {
 
     public void undoTheLast() {
 
-        ballNumOneTime = undoNumOneTime;
-
         nextBalls = undoNextBalls.clone();
 
-        restoreCellValues();
+        // restore CellValues;
+        for (int i=0 ; i<rowCounts ; i++) {
+            cellValues[i] = backupCells[i].clone();
+        }
 
         numOfTotalBalls = getTotalBalls();
-    }
-
-    private int getTotalBalls() {
-        int nb=0;
-        // noColorList.clear();
-        for (int i=0 ; i<rowCounts ; i++) {
-            for (int j=0 ; j<colCounts; j++) {
-                if (cellValues[i][j] != 0) {
-                    nb++;
-                }
-            }
-        }
-        return nb;
     }
 
     public boolean getGameOver() {
@@ -210,19 +166,6 @@ public class GridData {
 
     public HashSet<Point> getLight_line() {
         return this.Light_line;
-    }
-
-    public int getBallNumOneTime() {
-        return this.ballNumOneTime;
-    }
-    public void setBallNumOneTime(int ballNumOneTime) {
-        this.ballNumOneTime = ballNumOneTime;
-    }
-    public int getUndoNumOneTime() {
-        return this.undoNumOneTime;
-    }
-    public void setUndoNumOneTime(int undoNumOneTime) {
-        this.undoNumOneTime = undoNumOneTime;
     }
 
     public int check_moreFive(int x,int y) {
@@ -454,19 +397,6 @@ public class GridData {
         return pathPoint;
     }
 
-    private void backupCellValues() {
-
-        for (int i=0 ; i<rowCounts ; i++) {
-            backupCells[i] = cellValues[i].clone();
-        }
-    }
-
-    private void restoreCellValues() {
-        for (int i=0 ; i<rowCounts ; i++) {
-            cellValues[i] = backupCells[i].clone();
-        }
-    }
-
     public boolean moveCellToCell(Point sourcePoint, Point targetPoint) {
         boolean result = false;
 
@@ -477,12 +407,28 @@ public class GridData {
             return result;
         }
 
-        backupNextBalls();
-        backupCellValues();
+        undoNextBalls = nextBalls.clone();
+        // backup CellValues;
+        for (int i=0 ; i<rowCounts ; i++) {
+            backupCells[i] = cellValues[i].clone();
+        }
 
         result = findPath(sourcePoint,targetPoint);
 
         return result;
+    }
+
+    private int getTotalBalls() {
+        int nb=0;
+        // noColorList.clear();
+        for (int i=0 ; i<rowCounts ; i++) {
+            for (int j=0 ; j<colCounts; j++) {
+                if (cellValues[i][j] != 0) {
+                    nb++;
+                }
+            }
+        }
+        return nb;
     }
 
     private boolean findPath(Point source,Point target) {

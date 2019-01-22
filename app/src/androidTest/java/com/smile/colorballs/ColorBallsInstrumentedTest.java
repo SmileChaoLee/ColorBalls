@@ -1,9 +1,18 @@
 package com.smile.colorballs;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.os.SystemClock;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.MenuPopupWindow;
+import android.util.Log;
 import android.view.View;
+
+import com.smile.Service.MyGlobalTop10IntentService;
+import com.smile.Service.MyTop10ScoresIntentService;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
@@ -36,8 +45,14 @@ import static org.junit.Assert.fail;
 @RunWith(AndroidJUnit4.class)
 public class ColorBallsInstrumentedTest {
 
+    private static final String TAG ="ColorBallsInstrumentedTest";
+
     private static Context appContext;
     private static Resources appResources;
+
+    private MyActivity myActivity;
+    private BroadcastReceiver testReceiver;
+    private boolean isOnReceived;
 
     private String packageNameForColorBalls = "com.smile.colorballs";
     private String googleAdMobBannerIDForColorBalls = "ca-app-pub-8354869049759576/3904969730";
@@ -60,6 +75,7 @@ public class ColorBallsInstrumentedTest {
     public void test_PreRun() {
         // appContext = myActivityTestRule.getActivity();
         // appResources = appContext.getResources();
+        myActivity = myActivityTestRule.getActivity();
         System.out.println("Setting up before each test case.");
     }
 
@@ -101,6 +117,37 @@ public class ColorBallsInstrumentedTest {
 
     @Test
     public void test_top10SubmenuUnderActionGame() {
+
+        /*
+        testReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                // R.id.top10ScoreTitle is in layout_for_top10_score_fragment.xml.xml which is used by Top10ScoreFragment
+                onView(withId(R.id.top10ScoreTitle)).check(matches(isDisplayed()));  // succeeded
+                onView(withId(R.id.top10ListView)).check(matches(isDisplayed()));
+                onView(withId(R.id.top10OkButton)).check(matches(isDisplayed()));
+
+                // LocalBroadcastManager.getInstance(myActivity).unregisterReceiver(testReceiver);  // does not work
+                // myActivity.unregisterReceiver(testReceiver);     // works
+                // ColorBallsApp.AppContext.unregisterReceiver(testReceiver);   // works
+                // appContext.unregisterReceiver(testReceiver); // works
+
+                isOnReceived = true;
+
+                Log.d(TAG, "testReceiver.onReceive() is called.");
+            }
+        };
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MyTop10ScoresIntentService.Action_Name);
+        // LocalBroadcastManager.getInstance(myActivity).registerReceiver(testReceiver, intentFilter);  // does not work
+        myActivity.registerReceiver(testReceiver, intentFilter); // works
+        // ColorBallsApp.AppContext.registerReceiver(testReceiver, intentFilter);   // works
+        // appContext.registerReceiver(testReceiver, intentFilter); // works
+
+        isOnReceived = false;
+        */
+
         onView(withId(R.id.gameAction)).perform(click());
         // test Top 10 submenu
         onData(CoreMatchers.anything())
@@ -108,14 +155,13 @@ public class ColorBallsInstrumentedTest {
                 .inAdapterView(CoreMatchers.<View>instanceOf(MenuPopupWindow.MenuDropDownListView.class))
                 .atPosition(0) // for the first submenu item, here: R.id.top10
                 .perform(click());
-        // R.id.top10ScoreTitle is in layout_for_top10_score_fragment.xml which is used by Top10ScoreFragment
-        // onView(withId(R.id.top10ScoreTitle)).check(matches(isDisplayed()));  // succeeded
-        // or
-        // the string R.string.top10Score will be displayed in Top10ScoreFragment (called by Top10ScoreActivity)
-        onView(withText(R.string.top10Score)).check(matches(isDisplayed()));
-        onView(withText(R.string.okStr));
-        onView(withId(R.id.top10OkButton)).perform(click());
 
+        SystemClock.sleep(3000);
+
+        // R.id.top10ScoreTitle is in layout_for_top10_score_fragment.xml.xml which is used by Top10ScoreFragment
+        onView(withId(R.id.top10ScoreTitle)).check(matches(isDisplayed()));  // succeeded
+        onView(withId(R.id.top10ListView)).check(matches(isDisplayed()));
+        onView(withId(R.id.top10OkButton)).check(matches(isDisplayed()));
     }
 
     @Test
@@ -127,43 +173,34 @@ public class ColorBallsInstrumentedTest {
                 .inAdapterView(CoreMatchers.<View>instanceOf(MenuPopupWindow.MenuDropDownListView.class))
                 .atPosition(1) // for the second submenu item, here: R.id.globalTop10
                 .perform(click());
-        // R.id.top10ScoreTitle is in layout_for_top10_score_fragment.xml which is used by Top10ScoreFragment
-        // onView(withId(R.id.top10ScoreTitle)).check(matches(isDisplayed()));  // succeeded
-        // or
-        // the string R.string.globalTop10Score will be displayed in Top10ScoreFragment (called by Top10ScoreActivity)
-        // onView(withText(R.string.globalTop10Score)).check(matches(isDisplayed()));
-        onView(withText(R.string.globalTop10Score)).check(matches(isDisplayed()));
-        onView(withText(R.string.okStr));
-        onView(withId(R.id.top10OkButton)).perform(click());
+
+        SystemClock.sleep(3000);
+
+        // R.id.top10ScoreTitle is in layout_for_top10_score_fragment.xml.xml which is used by Top10ScoreFragment
+        onView(withId(R.id.top10ScoreTitle)).check(matches(isDisplayed()));  // succeeded
+        onView(withId(R.id.top10ListView)).check(matches(isDisplayed()));
+        onView(withId(R.id.top10OkButton)).check(matches(isDisplayed()));
 
     }
 
     @Test
     public void test_settingSubmenu() {
-        if(appResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            test_settingMenuItem();
-        }
+        test_settingMenuItem();
     }
 
     @Test
     public void test_newGameSubmenu() {
-        if(appResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            test_newGameMenuItem();
-        }
+        test_newGameMenuItem();
     }
 
     @Test
     public void test_quitGameSubmenu() {
-        if(appResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            test_quitGameMenuItem();
-        }
+        test_quitGameMenuItem();
     }
 
     @Test
     public void test_FileSubmenu() {
-        if(appResources.getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            test_FileSubmenuForPortrait();
-        }
+        test_FileMenuItem();
     }
 
     @After
@@ -176,34 +213,68 @@ public class ColorBallsInstrumentedTest {
         System.out.println("Cleaning up after all test cases. One time running.");
     }
 
-    private void test_FileSubmenuForPortrait() {
-        onView(withId(R.id.file)).perform(click());
-        onView(withText(R.string.settingStr)).check(matches(isDisplayed()));
-        onView(withText(R.string.newGame)).check(matches(isDisplayed()));
-        onView(withText(R.string.quitGame)).check(matches(isDisplayed()));
-
-        test_settingMenuItem();
-        test_newGameMenuItem();
-        test_quitGameMenuItem();
+    private void test_FileMenuItem() {
+        if(appResources.getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            onView(withId(R.id.file)).perform(click());
+            onView(withText(R.string.settingStr)).check(matches(isDisplayed()));
+            onView(withText(R.string.newGame)).check(matches(isDisplayed()));
+            onView(withText(R.string.quitGame)).check(matches(isDisplayed()));
+        }
     }
 
     private void test_settingMenuItem() {
-        onView(withId(R.id.setting)).perform(click());
+        if(appResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // Landscape
+            onView(withId(R.id.setting)).perform(click());
+
+        } else {
+            // Portrait
+            onView(withId(R.id.file)).perform(click());
+            onData(CoreMatchers.anything())
+                    .inRoot(RootMatchers.isPlatformPopup()) // isPlatformPopup() == is in PopupWindow
+                    .inAdapterView(CoreMatchers.<View>instanceOf(MenuPopupWindow.MenuDropDownListView.class))
+                    .atPosition(0) // for the second submenu item, here: R.id.setting
+                    .perform(click());
+        }
+
         onView(withText(R.string.settingStr)).check(matches(isDisplayed()));
         onView(withText(R.string.soundStr)).check(matches(isDisplayed()));
         onView(withText(R.string.playerLevelStr)).check(matches(isDisplayed()));
         onView(withText(R.string.cancelStr)).check(matches(isDisplayed()));
         onView(withText(R.string.okString)).check(matches(isDisplayed()));
+        onView(withId(R.id.confirmSettingButton)).perform(click());
     }
 
     private void test_newGameMenuItem() {
-        onView(withId(R.id.newGame)).perform(click());
+        if(appResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // Landscape
+            onView(withId(R.id.newGame)).perform(click());
+        } else {
+            // Portrait
+            onView(withId(R.id.file)).perform(click());
+            onData(CoreMatchers.anything())
+                    .inRoot(RootMatchers.isPlatformPopup()) // isPlatformPopup() == is in PopupWindow
+                    .inAdapterView(CoreMatchers.<View>instanceOf(MenuPopupWindow.MenuDropDownListView.class))
+                    .atPosition(1) // for the second submenu item, here: R.id.newGame
+                    .perform(click());
+        }
         onView(withText(R.string.cancelStr)).check(matches(isDisplayed()));
         onView(withText(R.string.submitStr)).check(matches(isDisplayed()));
     }
 
     private void test_quitGameMenuItem() {
-        onView(withId(R.id.quitGame)).perform(click());
+        if(appResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // Landscape
+            onView(withId(R.id.quitGame)).perform(click());
+        } else {
+            // portrait
+            onView(withId(R.id.file)).perform(click());
+            onData(CoreMatchers.anything())
+                    .inRoot(RootMatchers.isPlatformPopup()) // isPlatformPopup() == is in PopupWindow
+                    .inAdapterView(CoreMatchers.<View>instanceOf(MenuPopupWindow.MenuDropDownListView.class))
+                    .atPosition(2) // for the second submenu item, here: R.id.quitGame
+                    .perform(click());
+        }
         onView(withText(R.string.cancelStr)).check(matches(isDisplayed()));
         onView(withText(R.string.submitStr)).check(matches(isDisplayed()));
     }

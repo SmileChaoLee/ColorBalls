@@ -2,19 +2,15 @@ package com.smile.colorballs;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 
 import com.google.android.gms.ads.MobileAds;
 import com.smile.smilepublicclasseslibrary.facebook_ads_util.*;
 import com.smile.smilepublicclasseslibrary.google_admob_ads_util.*;
 import com.smile.smilepublicclasseslibrary.scoresqlite.*;
 import com.smile.smilepublicclasseslibrary.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
-import com.smile.smilepublicclasseslibrary.utilities.ScreenUtil;
 
 import java.util.HashMap;
 
@@ -35,7 +31,8 @@ public class ColorBallsApp extends Application {
     public static final int ColorMAGENTA = 40;
     public static final int ColorYELLOW = 50;
     public static final int ColorCyan = 60;
-    public static final int MaxBalls = 6;   // 6 colors totally
+    public static final int NumOfColorsUsedByEasy = 5;          // 5 colors for easy level
+    public static final int NumOfColorsUsedByDifficult = 6;    // 6 colors for difficult level
     public static final int[] ballColor = new int[] {ColorRED, ColorGREEN, ColorBLUE, ColorMAGENTA, ColorYELLOW, ColorCyan};
 
     public static HashMap<Integer, Bitmap> colorBallMap;
