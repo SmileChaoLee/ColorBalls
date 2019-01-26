@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
@@ -16,16 +17,12 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.TypedValue;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -50,6 +47,7 @@ public class MyActivity extends AppCompatActivity {
     private final int Top10ScoreActivityRequestCode = 2;
     private final int GlobalTop10ActivityRequestCode = 3;
 
+    private Toolbar supportToolbar;
     private int mainUiFragmentLayoutId = -1;
     private int top10LayoutId = -1;
     private LinearLayout bannerLinearLayout = null;
@@ -88,12 +86,12 @@ public class MyActivity extends AppCompatActivity {
         float screenWidth = size.x;
         float screenHeight = size.y;
 
-        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this);
-        textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, 0.0f);
-        fontScale = ScreenUtil.suitableFontScale(this, 0.0f);
+        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this, ColorBallsApp.FontSize_Scale_Type, null);
+        textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, ColorBallsApp.FontSize_Scale_Type, 0.0f);
+        fontScale = ScreenUtil.suitableFontScale(this, ColorBallsApp.FontSize_Scale_Type, 0.0f);
         Log.d(TAG, "DefaultTextFontSize = " + defaultTextFontSize);
-        Log.d(TAG, "textFontSize = " + textFontSize);
         Log.d(TAG, "fontScale = " + fontScale);
+        Log.d(TAG, "textFontSize = " + textFontSize);
 
         float statusBarHeight = ScreenUtil.getStatusBarHeight(this);
         float actionBarHeight = ScreenUtil.getActionBarHeight(this);
@@ -102,23 +100,33 @@ public class MyActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_my);
 
-        Toolbar colorballs_toolbar = findViewById(R.id.colorballs_toolbar);
-        setSupportActionBar(colorballs_toolbar);
-        colorballs_toolbar.setTitle("");
-        TextView toolbarTitleTextView = findViewById(R.id.toolbarTitleTextView);
-        toolbarTitleTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+        TextView companyNameTextView = findViewById(R.id.companyNameTextView);
+        if (companyNameTextView != null) {
+            ScreenUtil.resizeTextSize(companyNameTextView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        }
+
+        TextView companyContactEmailTextView = findViewById(R.id.companyContactEmailTextView);
+        if (companyContactEmailTextView != null) {
+            ScreenUtil.resizeTextSize(companyContactEmailTextView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        }
 
         int highestScore = ColorBallsApp.ScoreSQLiteDB.readHighestScore();
+
+        supportToolbar = findViewById(R.id.colorballs_toolbar);
+        setSupportActionBar(supportToolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        TextView toolbarTitleTextView = findViewById(R.id.toolbarTitleTextView);
+        ScreenUtil.resizeTextSize(toolbarTitleTextView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
         toolbarTitleTextView.setText(String.format(Locale.getDefault(), "%8d", highestScore));
 
-        // setTitle(String.format(Locale.getDefault(), "%8d", highestScore));
         /*
         // setting the font size for activity label
+        setTitle(String.format(Locale.getDefault(), "%8d", highestScore));
         ActionBar actionBar = getSupportActionBar();
         TextView titleView = new TextView(this);
         titleView.setText(actionBar.getTitle());
         titleView.setTextColor(Color.WHITE);
-        titleView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+        ScreenUtil.resizeTextSize(titleView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
         actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         actionBar.setCustomView(titleView);
         */
@@ -158,7 +166,6 @@ public class MyActivity extends AppCompatActivity {
             bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
             bannerAdView = new AdView(this);
             bannerAdView.setAdSize(AdSize.BANNER);
-            // bannerAdView.setAdSize(AdSize.SMART_BANNER);
             bannerAdView.setAdUnitId(ColorBallsApp.googleAdMobBannerID);
             bannerLinearLayout.addView(bannerAdView);
             AdRequest adRequest = new AdRequest.Builder().build();
@@ -210,7 +217,13 @@ public class MyActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.my, menu);
-        ScreenUtil.resizeMenuTextSize(menu, fontScale);
+
+        final int popupThemeId = supportToolbar.getPopupTheme();
+        // final Context wrapper = new ContextThemeWrapper(this, R.style.menu_text_style);
+        final Context wrapper = new ContextThemeWrapper(this, popupThemeId);
+        final float fScale = fontScale;
+
+        ScreenUtil.buildActionViewClassMenu(this, wrapper, menu, fScale, ColorBallsApp.FontSize_Scale_Type);
 
         return true;
     }

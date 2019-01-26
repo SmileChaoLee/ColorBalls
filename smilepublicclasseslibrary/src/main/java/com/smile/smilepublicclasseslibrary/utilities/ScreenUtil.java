@@ -1,26 +1,35 @@
 package com.smile.smilepublicclasseslibrary.utilities;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.Point;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.PopupMenu;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SubMenu;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 /**
  * Created by chaolee on 2017-10-24.
  */
 
 public class ScreenUtil {
+
+    public static final int fontSize_Sp_Type = 1;
+    public static final int FontSize_Dip_Type = 2;
+    public static final int FontSize_Pixel_Type = 3;
 
     public static int getStatusBarHeight(Context context) {
         int height = 0;
@@ -59,37 +68,37 @@ public class ScreenUtil {
         return size;
     }
 
-    public static float getDefaultTextSizeFromTheme(Context context, int themeId) {
+    public static float getDefaultTextSizeFromTheme(Context context, int fontSize_Type, @Nullable Integer themeId) {
         Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         DisplayMetrics displayMetrics = new DisplayMetrics();
         display.getMetrics(displayMetrics);
 
+        TypedArray typedArray;
         int[] attrs = {android.R.attr.textSize}; // retrieve text size from style.xml
-        TypedArray typedArray = context.obtainStyledAttributes(themeId, attrs);
+        if (themeId == null) {
+            typedArray = context.obtainStyledAttributes(attrs);
+        } else {
+            typedArray = context.obtainStyledAttributes(themeId, attrs);
+        }
         float dimension = typedArray.getDimension(0,0);
+        System.out.println("getDefaultTextSizeFromTheme().dimension = " + dimension);
+
         float density = displayMetrics.density;
+        System.out.println("getDefaultTextSizeFromTheme().density = " + density);
+
         float defaultTextFontSize = dimension / density;
+        if (fontSize_Type == FontSize_Pixel_Type) {
+            defaultTextFontSize = dimension;
+        } else {
+
+            defaultTextFontSize = dimension / density;
+        }
         typedArray.recycle();
 
         return defaultTextFontSize;
     }
 
-    public static float getDefaultTextSizeFromTheme(Context context) {
-        Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        display.getMetrics(displayMetrics);
-
-        int[] attrs = {android.R.attr.textSize}; // retrieve text size from style.xml
-        TypedArray typedArray = context.obtainStyledAttributes(attrs);
-        float dimension = typedArray.getDimension(0,0);
-        float density = displayMetrics.density;
-        float defaultTextFontSize = dimension / density;
-        typedArray.recycle();
-
-        return defaultTextFontSize;
-    }
-
-    public static float suitableFontSize(Context context, float defaultFontSize, float baseScreenWidthSize) {
+    public static float suitableFontSize(Context context, float defaultFontSize, int fontSize_Type, float baseScreenWidth) {
 
         // this method based on Nexus 5 device
         // 1080 x 1776 pixels
@@ -97,18 +106,23 @@ public class ScreenUtil {
         // screen height in inches = 3.7
         // screen size = 4.330415725176914 inches (diagonal)
 
-        float fontSize = 24; // default font size setting for Nexus 5
+        float fontSize;
+        if (fontSize_Type == FontSize_Pixel_Type) {
+            fontSize = 75; // default font size in pixels setting for Nexus 5
+        } else {
+            fontSize = 24; // default font size in sp setting for Nexus 5
+        }
         if (defaultFontSize > 0) {
             fontSize = defaultFontSize;
         }
 
-        float fontScale = suitableFontScale(context, baseScreenWidthSize);
+        float fontScale = suitableFontScale(context, fontSize_Type, baseScreenWidth);
         fontSize = fontSize * fontScale;
 
         return fontSize;
     }
 
-    public static float suitableFontScale(Context context, float baseScreenWidthSize) {
+    public static float suitableFontScale(Context context, int fontSize_Type, float baseScreenWidth) {
 
         // this method based on Nexus 5 device
         // 1080 x 1776 pixels
@@ -116,16 +130,35 @@ public class ScreenUtil {
         // screen height in inches = 3.7
         // screen size = 4.330415725176914 inches (diagonal)
 
-        float baseWidthSize = 2.25f;    // the width in inches of Nexus 5
-        if (baseScreenWidthSize > 0) {
-            baseWidthSize = baseScreenWidthSize;
-        }
+        float fontScale;
+        if (fontSize_Type == FontSize_Pixel_Type) {
+            float baseWidthPixels = 1080.0f;    // the width (pixels) of Nexus 5
+            if (baseScreenWidth > 0) {
+                baseWidthPixels = baseScreenWidth;
+            }
 
-        float wInches = screenWidthInches(context);
-        float hInches = screenHeightInches(context);
-        float fontScale = wInches / baseWidthSize;
-        if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            fontScale = hInches / baseWidthSize;
+            Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            display.getMetrics(displayMetrics);
+
+            float wPixels = displayMetrics.widthPixels;
+            float hPixels = displayMetrics.heightPixels;
+            fontScale = wPixels / baseWidthPixels;
+            if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                fontScale = hPixels / baseWidthPixels;
+            }
+        } else {
+            float baseWidthSize = 2.25f;    // the width in inches of Nexus 5
+            if (baseScreenWidth > 0) {
+                baseWidthSize = baseScreenWidth;
+            }
+
+            float wInches = screenWidthInches(context);
+            float hInches = screenHeightInches(context);
+            fontScale = wInches / baseWidthSize;
+            if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                fontScale = hInches / baseWidthSize;
+            }
         }
 
         return fontScale;
@@ -199,5 +232,92 @@ public class ScreenUtil {
                 resizeMenuTextSize(mItem.getSubMenu(), fontScale);
             }
         }
+    }
+
+    public static void buildActionViewClassMenu(final Activity activity, final Context wrapper, final Menu menu, final float fontScale, final int fontSize_Type) {
+
+        if (menu == null) {
+            return;
+        }
+
+        float originalMenuTextSize;
+        int menuSize = menu.size(); // for the main menu that is always showing
+
+        for (int i = 0; i < menuSize; i++) {
+            final MenuItem mItem = menu.getItem(i);
+
+            View view = mItem.getActionView();
+            if (view != null) {
+                TextView mItemTextView = (TextView) view;
+                // mItemTextView.setPadding(0, 0, 10, 0);  // has been set in styles.xml
+                mItemTextView.setText(mItem.getTitle());
+                originalMenuTextSize = mItemTextView.getTextSize();
+                ScreenUtil.resizeTextSize(mItemTextView, originalMenuTextSize * fontScale, fontSize_Type);
+                System.out.println("originalMenuTextSize = " + originalMenuTextSize);
+                System.out.println("originalMenuTextSize * fontScale = " + originalMenuTextSize * fontScale);
+                mItemTextView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (mItem.hasSubMenu()) {
+                            Menu subMenu = mItem.getSubMenu();
+                            ScreenUtil.buildMenuInPopupMenuByView(activity, wrapper, subMenu, view, fontScale);
+                        } else {
+                            activity.onOptionsItemSelected(mItem);
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    public static void buildMenuInPopupMenuByView(final Activity activity, final Context wrapper, Menu menu, View view, final float fontScale) {
+
+        if (menu == null) {
+            return;
+        }
+
+        PopupMenu popupMenu = new PopupMenu(wrapper, view);
+
+        final int menuSize = menu.size();
+        for (int j = 0; j<menuSize; j++) {
+            MenuItem menuItem = menu.getItem(j);
+            String title = menuItem.getTitle().toString();
+            int menuItemId = menuItem.getItemId();
+            popupMenu.getMenu().add(1, menuItemId, j, title);
+
+            // resize text font size of popup menu items
+            MenuItem popupItem = popupMenu.getMenu().getItem(j);
+            SpannableString spanString = new SpannableString(popupItem.getTitle().toString());
+            int sLen = spanString.length();
+            spanString.setSpan(new RelativeSizeSpan(fontScale), 0, sLen, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            popupItem.setTitle(spanString);
+        }
+
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                return activity.onOptionsItemSelected(menuItem);
+            }
+        });
+
+        popupMenu.show();
+    }
+
+    public static void resizeTextSize(TextView textView, float textFontSize, int fontSize_Type) {
+        switch (fontSize_Type) {
+            case FontSize_Pixel_Type:
+                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textFontSize);
+                break;
+            case FontSize_Dip_Type:
+                textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+                break;
+            case fontSize_Sp_Type:
+                textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textFontSize);
+                break;
+            default:
+                textView.setTextSize(textFontSize);
+                break;
+        }
+
     }
 }

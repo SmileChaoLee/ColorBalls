@@ -5,7 +5,6 @@ import com.smile.smilepublicclasseslibrary.alertdialogfragment.*;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -144,8 +143,8 @@ public class MainUiFragment extends Fragment {
         }
 
         this.context = context;
-        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this.context);
-        textFontSize = ScreenUtil.suitableFontSize(this.context, defaultTextFontSize,0.0f);
+        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this.context, ColorBallsApp.FontSize_Scale_Type, null);
+        textFontSize = ScreenUtil.suitableFontSize(this.context, defaultTextFontSize, ColorBallsApp.FontSize_Scale_Type, 0.0f);
 
         myActivity = (MyActivity)this.context;
 
@@ -236,7 +235,7 @@ public class MainUiFragment extends Fragment {
 
         // display the highest score and current score
         currentScoreView = uiFragmentView.findViewById(R.id.currentScoreTextView);
-        currentScoreView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+        ScreenUtil.resizeTextSize(currentScoreView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
         currentScoreView.setText(String.format(Locale.getDefault(), "%8d", currentScore));
 
         // display the view of next balls
@@ -483,6 +482,7 @@ public class MainUiFragment extends Fragment {
                 });
                 Bundle args = new Bundle();
                 args.putString("TextContent", gameOverStr);
+                args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
                 args.putFloat("TextFontSize", textFontSize);
                 args.putInt("Color", Color.BLUE);
                 args.putInt("Width", 0);    // wrap_content
@@ -721,7 +721,7 @@ public class MainUiFragment extends Fragment {
         dlg.getWindow().setBackgroundDrawableResource(R.drawable.dialog_board_image);
 
         Button nBtn = dlg.getButton(DialogInterface.BUTTON_NEGATIVE);
-        nBtn.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+        ScreenUtil.resizeTextSize((TextView) nBtn, textFontSize, ColorBallsApp.FontSize_Scale_Type);
         nBtn.setTypeface(Typeface.DEFAULT_BOLD);
         nBtn.setTextColor(Color.RED);
 
@@ -730,7 +730,7 @@ public class MainUiFragment extends Fragment {
         nBtn.setLayoutParams(layoutParams);
 
         Button pBtn = dlg.getButton(DialogInterface.BUTTON_POSITIVE);
-        pBtn.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+        ScreenUtil.resizeTextSize((TextView) pBtn, textFontSize, ColorBallsApp.FontSize_Scale_Type);
         pBtn.setTypeface(Typeface.DEFAULT_BOLD);
         pBtn.setTextColor(Color.rgb(0x00,0x64,0x00));
         pBtn.setLayoutParams(layoutParams);
@@ -896,6 +896,7 @@ public class MainUiFragment extends Fragment {
         });
         Bundle args = new Bundle();
         args.putString("TextContent", textContent);
+        args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
         args.putFloat("TextFontSize", textFontSize);
         args.putInt("Color", Color.BLUE);
         args.putInt("Width", 0);    // wrap_content
@@ -1034,6 +1035,7 @@ public class MainUiFragment extends Fragment {
         });
         Bundle args = new Bundle();
         args.putString("TextContent", textContent);
+        args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
         args.putFloat("TextFontSize", textFontSize);
         args.putInt("Color", Color.BLUE);
         args.putInt("Width", 0);    // wrap_content
@@ -1107,6 +1109,7 @@ public class MainUiFragment extends Fragment {
         });
         Bundle args = new Bundle();
         args.putString("TextContent", sureToSaveGameString);
+        args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
         args.putFloat("TextFontSize", textFontSize);
         args.putInt("Color", Color.BLUE);
         args.putInt("Width", 0);    // wrap_content
@@ -1133,6 +1136,7 @@ public class MainUiFragment extends Fragment {
         });
         Bundle args = new Bundle();
         args.putString("TextContent", sureToLoadGameString);
+        args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
         args.putFloat("TextFontSize", textFontSize);
         args.putInt("Color", Color.BLUE);
         args.putInt("Width", 0);    // wrap_content
@@ -1152,7 +1156,7 @@ public class MainUiFragment extends Fragment {
         // et.setBackground(new ColorDrawable(Color.TRANSPARENT));
         // et.setBackgroundColor(Color.TRANSPARENT);
         et.setHint(nameStr);
-        et.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+        ScreenUtil.resizeTextSize(et, textFontSize, ColorBallsApp.FontSize_Scale_Type);
         et.setGravity(Gravity.CENTER);
         AlertDialog alertD = new AlertDialog.Builder(myActivity).create();
         alertD.setTitle(null);

@@ -38,8 +38,8 @@ public class SettingActivity extends AppCompatActivity {
             }
         }
 
-        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this);
-        textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, 0.0f);
+        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this, ColorBallsApp.FontSize_Scale_Type, null);
+        textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, ColorBallsApp.FontSize_Scale_Type, 0.0f);
 
         hasSound = true;
         isEasyLevel = true;
@@ -53,13 +53,13 @@ public class SettingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_setting);
 
         TextView settingTitle = findViewById(R.id.settingTitle);
-        settingTitle.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+        ScreenUtil.resizeTextSize(settingTitle, textFontSize, ColorBallsApp.FontSize_Scale_Type);
 
         TextView soundSettingTitle = findViewById(R.id.soundSettingTitle);
-        soundSettingTitle.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+        ScreenUtil.resizeTextSize(soundSettingTitle, textFontSize, ColorBallsApp.FontSize_Scale_Type);
 
         soundSwitch = findViewById(R.id.soundSwitch);
-        soundSwitch.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+        ScreenUtil.resizeTextSize(soundSwitch, textFontSize, ColorBallsApp.FontSize_Scale_Type);
         soundSwitch.setChecked(hasSound);
         soundSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,10 +69,10 @@ public class SettingActivity extends AppCompatActivity {
         });
 
         TextView levelSettingTitle = findViewById(R.id.levelSettingTitle);
-        levelSettingTitle.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+        ScreenUtil.resizeTextSize(levelSettingTitle, textFontSize, ColorBallsApp.FontSize_Scale_Type);
 
         easyLevelSwitch = findViewById(R.id.easyLevelSwitch);
-        easyLevelSwitch.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+        ScreenUtil.resizeTextSize(easyLevelSwitch, textFontSize, ColorBallsApp.FontSize_Scale_Type);
         easyLevelSwitch.setChecked(isEasyLevel);
         easyLevelSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,7 +82,7 @@ public class SettingActivity extends AppCompatActivity {
         });
 
         Button confirmButton = findViewById(R.id.confirmSettingButton);
-        confirmButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+        ScreenUtil.resizeTextSize(confirmButton, textFontSize, ColorBallsApp.FontSize_Scale_Type);
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -91,7 +91,7 @@ public class SettingActivity extends AppCompatActivity {
         });
 
         Button cancelButton = findViewById(R.id.cancelSettingButton);
-        cancelButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+        ScreenUtil.resizeTextSize(cancelButton, textFontSize, ColorBallsApp.FontSize_Scale_Type);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -3,7 +3,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#d4d28f">
+    android:background="@color/yellow2">
 
     <include layout="@layout/toolbar_layout" />
 
@@ -38,13 +38,50 @@
                 android:layout_weight="1"
                 android:weightSum="100">
 
-                <LinearLayout
-                    android:id="@+id/top10Layout"
-                    android:orientation="vertical"
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="90">
-                </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/rightPartBackgroundLayout"
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:weightSum="100">
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_gravity="center"
+                            android:scaleType="centerInside"
+                            android:background="@drawable/smile"
+                            android:layout_weight="75" />
+                        <TextView
+                            android:id="@+id/companyNameTextView"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:textColor="@color/blue"
+                            android:text="@string/companyNameString"
+                            android:layout_weight="10"/>
+                        <TextView
+                            android:id="@+id/companyContactEmailTextView"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:textColor="@color/blue"
+                            android:text="@string/companyContactEmailString"
+                            android:layout_weight="10"/>
+                        <ImageView
+                            android:id="@+id/dummyImageView"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="5"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/top10Layout"
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+                    </LinearLayout>
+                </FrameLayout>
 
                 <!-- the banner ads showing area -->
                 <LinearLayout

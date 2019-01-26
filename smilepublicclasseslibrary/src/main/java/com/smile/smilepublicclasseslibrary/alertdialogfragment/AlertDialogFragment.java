@@ -1,6 +1,7 @@
 package com.smile.smilepublicclasseslibrary.alertdialogfragment;
 
 import com.smile.smilepublicclasseslibrary.*;
+import com.smile.smilepublicclasseslibrary.utilities.ScreenUtil;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -39,6 +40,7 @@ public class AlertDialogFragment extends DialogFragment {
     private Button okButton = null;
 
     private String textContext = "";
+    private int fontSize_Scale_Type;
     private float textFontSize = 24;
     private int textColor = 0;
     private int dialogWidth = 0;
@@ -63,10 +65,11 @@ public class AlertDialogFragment extends DialogFragment {
         super();
         this.ndl = ndl;
     }
-    public static AlertDialogFragment newInstance(String textContent, float textFontSize, int color, int width, int height, boolean isAnimation) {
+    public static AlertDialogFragment newInstance(String textContent,int fontSize_Type, float textFontSize, int color, int width, int height, boolean isAnimation) {
         AlertDialogFragment modalDialog = new AlertDialogFragment();
         Bundle args = new Bundle();
         args.putString("TextContent", textContent);
+        args.putInt("FontSize_Scale_Type", fontSize_Type);
         args.putFloat("TextFontSize", textFontSize);
         args.putInt("Color", color);
         args.putInt("Width", width);
@@ -101,6 +104,7 @@ public class AlertDialogFragment extends DialogFragment {
         if (savedInstanceState == null) {
             // initialize variables
             textContext = "No content";
+            fontSize_Scale_Type = -1;   // use default setTextSize()
             textFontSize = 24;  // default font size
             textColor = Color.BLUE;
             dialogWidth = 0;    // wrap_content
@@ -111,6 +115,7 @@ public class AlertDialogFragment extends DialogFragment {
             Bundle args = getArguments();
             if (args != null) {
                 textContext = args.getString("TextContent");
+                fontSize_Scale_Type = args.getInt("FontSize_Scale_Type");
                 textFontSize = args.getFloat("TextFontSize");
                 textColor = args.getInt("Color");
                 dialogWidth = args.getInt("Width");
@@ -178,7 +183,7 @@ public class AlertDialogFragment extends DialogFragment {
 
         text_shown = view.findViewById(R.id.text_shown);
         text_shown.setText(textContext);
-        text_shown.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+        ScreenUtil.resizeTextSize(text_shown, textFontSize, fontSize_Scale_Type);
         text_shown.setTextColor(textColor);
         if ( (isAnimation) && (animationText != null) ) {
             text_shown.startAnimation(animationText);
@@ -186,7 +191,7 @@ public class AlertDialogFragment extends DialogFragment {
 
         LinearLayout noButton_Layout = view.findViewById(R.id.noButton_Layout);
         noButton = view.findViewById(R.id.dialogfragment_noButton);
-        noButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+        ScreenUtil.resizeTextSize(noButton, textFontSize, fontSize_Scale_Type);
         noButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -197,7 +202,7 @@ public class AlertDialogFragment extends DialogFragment {
         });
         LinearLayout okButton_Layout = view.findViewById(R.id.okButton_Layout);
         okButton = view.findViewById(R.id.dialogfragment_okButton);
-        okButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+        ScreenUtil.resizeTextSize(okButton, textFontSize, fontSize_Scale_Type);
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

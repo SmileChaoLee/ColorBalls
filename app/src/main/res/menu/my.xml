@@ -5,47 +5,58 @@
     <item android:id="@+id/undoGame"
         android:title="@string/undoStr"
         android:orderInCategory="1"
-        app:showAsAction="always"/>
+        app:showAsAction="always"
+        app:actionViewClass="android.widget.TextView">
+    </item>
     <item android:id="@+id/gameAction"
         android:title="@string/gameActionString"
         android:orderInCategory="2"
-        app:showAsAction="always">
+        app:showAsAction="always"
+        app:actionViewClass="android.widget.TextView">
         <menu>
             <item android:id="@+id/top10"
                 android:title="@string/top10Str"
                 android:orderInCategory="1"
-                app:showAsAction="never"/>
+                app:showAsAction="never">
+            </item>
             <item android:id="@+id/globalTop10"
                 android:title="@string/globalTop10Str"
                 android:orderInCategory="2"
-                app:showAsAction="never"/>
+                app:showAsAction="never">
+            </item>
             <item android:id="@+id/saveGame"
                 android:title="@string/saveGameString"
                 android:orderInCategory="3"
-                app:showAsAction="never"/>
+                app:showAsAction="never">
+            </item>
             <item android:id="@+id/loadGame"
                 android:title="@string/loadGameString"
                 android:orderInCategory="4"
-                app:showAsAction="never"/>
+                app:showAsAction="never">
+            </item>
         </menu>
     </item>
     <item android:id="@+id/file"
         android:title="@string/fileMenuStr"
         android:orderInCategory="3"
-        app:showAsAction="always">
+        app:showAsAction="always"
+        app:actionViewClass="android.widget.TextView">
         <menu>
             <item android:id="@+id/setting"
                 android:title="@string/settingStr"
                 android:orderInCategory="1"
-                app:showAsAction="never"/>
+                app:showAsAction="never">
+            </item>
             <item android:id="@+id/newGame"
                 android:title="@string/newGame"
                 android:orderInCategory="2"
-                app:showAsAction="never"/>
+                app:showAsAction="never">
+            </item>
             <item android:id="@+id/quitGame"
                 android:title="@string/quitGame"
                 android:orderInCategory="3"
-                app:showAsAction="never"/>
+                app:showAsAction="never">
+            </item>
         </menu>
     </item>
 

@@ -11,6 +11,7 @@ import com.smile.smilepublicclasseslibrary.facebook_ads_util.*;
 import com.smile.smilepublicclasseslibrary.google_admob_ads_util.*;
 import com.smile.smilepublicclasseslibrary.scoresqlite.*;
 import com.smile.smilepublicclasseslibrary.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
+import com.smile.smilepublicclasseslibrary.utilities.ScreenUtil;
 
 import java.util.HashMap;
 
@@ -34,6 +35,7 @@ public class ColorBallsApp extends Application {
     public static final int NumOfColorsUsedByEasy = 5;          // 5 colors for easy level
     public static final int NumOfColorsUsedByDifficult = 6;    // 6 colors for difficult level
     public static final int[] ballColor = new int[] {ColorRED, ColorGREEN, ColorBLUE, ColorMAGENTA, ColorYELLOW, ColorCyan};
+    public static final int FontSize_Scale_Type = ScreenUtil.FontSize_Pixel_Type;
 
     public static HashMap<Integer, Bitmap> colorBallMap;
     public static HashMap<Integer, Bitmap> colorOvalBallMap;

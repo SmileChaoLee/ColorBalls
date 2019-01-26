@@ -103,8 +103,8 @@ public class Top10ScoreFragment extends Fragment {
         }
 
         this.context = context;
-        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this.context);
-        textFontSize = ScreenUtil.suitableFontSize(this.context, defaultTextFontSize,0.0f);
+        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this.context, ColorBallsApp.FontSize_Scale_Type, null);
+        textFontSize = ScreenUtil.suitableFontSize(this.context, defaultTextFontSize, ColorBallsApp.FontSize_Scale_Type,0.0f);
     }
 
     @Override
@@ -132,7 +132,7 @@ public class Top10ScoreFragment extends Fragment {
 
         TextView top10TitleTextView = view.findViewById(R.id.top10ScoreTitle);
         top10TitleTextView.setText(top10TitleName);
-        top10TitleTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+        ScreenUtil.resizeTextSize(top10TitleTextView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
 
         System.out.println("Top10ScoreFragment ---> onCreateView() method. ");
 
@@ -152,9 +152,9 @@ public class Top10ScoreFragment extends Fragment {
 
         if (savedInstanceState == null) {   // new Fragment instance
             titleForTop10ListView = top10ScoreFragmentView.findViewById(R.id.top10ScoreTitle);
-            titleForTop10ListView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+            ScreenUtil.resizeTextSize(titleForTop10ListView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
             okButton = top10ScoreFragmentView.findViewById(R.id.top10OkButton);
-            okButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+            ScreenUtil.resizeTextSize(okButton, textFontSize, ColorBallsApp.FontSize_Scale_Type);
             okButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -188,16 +188,6 @@ public class Top10ScoreFragment extends Fragment {
                 }
             });
         }
-
-        /*
-        if (okButton != null) {
-            // set text size for okButton
-            okButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
-        }
-        if (titleForTop10ListView != null) {
-            titleForTop10ListView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
-        }
-        */
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -293,9 +283,9 @@ public class Top10ScoreFragment extends Fragment {
             // view.setLayoutParams(layoutParams);  // no needed
 
             TextView pTextView = view.findViewById(R.id.playerTextView);
-            pTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+            ScreenUtil.resizeTextSize(pTextView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
             TextView sTextView = view.findViewById(R.id.scoreTextView);
-            sTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
+            ScreenUtil.resizeTextSize(sTextView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
             ImageView medalImage = view.findViewById(R.id.medalImage);
 
             pTextView.setText(players.get(position));
