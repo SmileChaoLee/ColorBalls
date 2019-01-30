@@ -158,7 +158,11 @@ public class MyActivity extends AppCompatActivity {
             mainUiFragment = MainUiFragment.newInstance();
             FragmentTransaction ft = fmManager.beginTransaction();
             ft.add(mainUiFragmentLayoutId, mainUiFragment, MainUiFragment.MainUiFragmentTag);
-            ft.commit();
+            if (mainUiFragment.isStateSaved()) {
+                ft.commitAllowingStateLoss();
+            } else {
+                ft.commit();
+            }
         }
 
         if (!ColorBallsApp.googleAdMobBannerID.isEmpty()) {
@@ -296,11 +300,12 @@ public class MyActivity extends AppCompatActivity {
                 FragmentTransaction ft = fmManager.beginTransaction();
                 ft.remove(top10ScoreFragment);
                 if (top10ScoreFragment.isStateSaved()) {
+                    Log.d(TAG, "top10ScoreFragment.isStateSaved() = true");
                     ft.commitAllowingStateLoss();   // temporarily solved
                 } else {
+                    Log.d(TAG, "top10ScoreFragment.isStateSaved() = false");
                     ft.commit();
                 }
-                ft.commitAllowingStateLoss();   // temporarily solved
                 ColorBallsApp.isShowingLoadingMessage = false;
                 ColorBallsApp.isProcessingJob = false;
             }
