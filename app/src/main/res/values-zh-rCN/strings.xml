@@ -41,7 +41,9 @@
     <string name="failedLoadGameString">载入游戏失败</string>
     <string name="sureToSaveGameString">确定要储存游戏吗?</string>
     <string name="sureToLoadGameString">确定要载入游戏吗?</string>
-    <string name="warningSaveGameString">已经超过五次储存</string>
+    <string name="warningSaveGameString">储存次超过极限</string>
+    <string name="howManyTimesString">次</string>
+    <string name="continueString">继续</string>
     <string name="companyDescriptionString">客制化软体, 智慧型手机程序, 及网页应用程序等开发</string>
     <string name="companyNameString">微笑资讯有限公司</string>
     <string name="companyContactEmailString">leechao1959@gmail.com</string>

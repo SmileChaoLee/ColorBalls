@@ -415,13 +415,13 @@ public class MyActivity extends AppCompatActivity {
     }
 
     // private methods
-    private void showAdUntilDismissed(Activity activity) {
+
+    // public methods
+    public void showAdUntilDismissed(Activity activity) {
         ShowingInterstitialAdsUtil.ShowAdAsyncTask showAdAsyncTask =
                 ColorBallsApp.InterstitialAd.new ShowAdAsyncTask(this, 0);
         showAdAsyncTask.execute();
     }
-
-    // public methods
     public float getMainFragmentWidth() {
         return this.mainFragmentWidth;
     }

@@ -172,7 +172,10 @@ public class MainUiFragment extends Fragment {
         failedLoadGameString = ColorBallsApp.AppResources.getString(R.string.failedLoadGameString);
         sureToSaveGameString = ColorBallsApp.AppResources.getString(R.string.sureToSaveGameString);
         sureToLoadGameString = ColorBallsApp.AppResources.getString(R.string.sureToLoadGameString);
-        warningSaveGameString = ColorBallsApp.AppResources.getString(R.string.warningSaveGameString);
+        warningSaveGameString = ColorBallsApp.AppResources.getString(R.string.warningSaveGameString) + " ("
+                                + ColorBallsApp.Max_Saved_Games + " "
+                                + ColorBallsApp.AppResources.getString(R.string.howManyTimesString) + " )"
+                                + "\n" + ColorBallsApp.AppResources.getString(R.string.continueString) + "?";
 
         System.out.println("MainUiFragment onCreate() is called.");
     }
@@ -810,7 +813,7 @@ public class MainUiFragment extends Fragment {
         });
         showAdAsyncTask.execute();
     }
-    private boolean startSavingGame() {
+    private boolean startSavingGame(int numOfSaved, final boolean isShowAd) {
         ColorBallsApp.isProcessingJob = true;
         ColorBallsApp.isShowingSavingGameMessage = true;
         showMessageOnScreen(savingGameString);
@@ -881,6 +884,18 @@ public class MainUiFragment extends Fragment {
         String textContent;
         if (succeeded) {
             textContent = succeededSaveGameString;
+            if (succeeded) {
+                numOfSaved++;
+                // save numOfSaved back to file (ColorBallsApp.NumOfSavedGameFileName)
+                try {
+                    File outputFile = new File(ColorBallsApp.AppContext.getFilesDir(), ColorBallsApp.NumOfSavedGameFileName);
+                    FileOutputStream foStream = new FileOutputStream(outputFile);
+                    foStream.write(numOfSaved);
+                    foStream.close();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
         } else {
             textContent = failedSaveGameString;
         }
@@ -893,6 +908,10 @@ public class MainUiFragment extends Fragment {
             @Override
             public void okButtonOnClick(AlertDialogFragment dialogFragment) {
                 dialogFragment.dismissAllowingStateLoss();
+                if (isShowAd) {
+                    // excess 5 times saving game, then show ad
+                    myActivity.showAdUntilDismissed(myActivity);
+                }
             }
         });
         Bundle args = new Bundle();
@@ -1118,21 +1137,10 @@ public class MainUiFragment extends Fragment {
                     ex.printStackTrace();
                 }
                 if (numOfSaved <= ColorBallsApp.Max_Saved_Games) {
-                    boolean succeeded = startSavingGame();
-                    if (succeeded) {
-                        numOfSaved++;
-                        // save numOfSaved back to file (ColorBallsApp.NumOfSavedGameFileName)
-                        try {
-                            File outputFile = new File(ColorBallsApp.AppContext.getFilesDir(), ColorBallsApp.NumOfSavedGameFileName);
-                            FileOutputStream foStream = new FileOutputStream(outputFile);
-                            foStream.write(numOfSaved);
-                            foStream.close();
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
-                        }
-                    }
+                    boolean succeeded = startSavingGame(numOfSaved, false);
                 } else {
                     // display warning to users
+                    final int finalNumOfSaved = numOfSaved;
                     AlertDialogFragment warningSaveGameDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
                         @Override
                         public void noButtonOnClick(AlertDialogFragment dialogFragment) {
@@ -1142,6 +1150,7 @@ public class MainUiFragment extends Fragment {
                         @Override
                         public void okButtonOnClick(AlertDialogFragment dialogFragment) {
                             dialogFragment.dismissAllowingStateLoss();
+                            boolean succeeded = startSavingGame(finalNumOfSaved, true);
                         }
                     });
                     Bundle args = new Bundle();
@@ -1151,7 +1160,7 @@ public class MainUiFragment extends Fragment {
                     args.putInt("Color", Color.BLUE);
                     args.putInt("Width", 0);    // wrap_content
                     args.putInt("Height", 0);   // wrap_content
-                    args.putInt("NumButtons", 1);
+                    args.putInt("NumButtons", 2);
                     args.putBoolean("IsAnimation", false);
                     warningSaveGameDialog.setArguments(args);
                     warningSaveGameDialog.show(getActivity().getSupportFragmentManager(), "SaveGameWarningDialogTag");

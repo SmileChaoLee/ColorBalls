@@ -42,7 +42,9 @@
     <string name="failedLoadGameString">Failed to load game.</string>
     <string name="sureToSaveGameString">Sure to save game?</string>
     <string name="sureToLoadGameString">Sure to load game?</string>
-    <string name="warningSaveGameString">Saved more than 5 times</string>
+    <string name="warningSaveGameString">Excess the limit</string>
+    <string name="howManyTimesString">times</string>
+    <string name="continueString">Continue</string>
     <string name="companyDescriptionString">Design customized software, Apps, Smart phone Apps and Web Apps.</string>
     <string name="companyNameString">Smile Information Inc.</string>
     <string name="companyContactEmailString">leechao1959@gmail.com</string>
