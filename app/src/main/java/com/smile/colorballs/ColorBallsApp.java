@@ -36,6 +36,8 @@ public class ColorBallsApp extends Application {
     public static final int NumOfColorsUsedByDifficult = 6;    // 6 colors for difficult level
     public static final int[] ballColor = new int[] {ColorRED, ColorGREEN, ColorBLUE, ColorMAGENTA, ColorYELLOW, ColorCyan};
     public static final int FontSize_Scale_Type = ScreenUtil.FontSize_Pixel_Type;
+    public static final String NumOfSavedGameFileName = "num_saved_game";
+    public static final int Max_Saved_Games = 5;
 
     public static HashMap<Integer, Bitmap> colorBallMap;
     public static HashMap<Integer, Bitmap> colorOvalBallMap;

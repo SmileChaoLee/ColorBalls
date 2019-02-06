@@ -12,7 +12,7 @@ import com.smile.smilepublicclasseslibrary.player_record_rest.PlayerRecordRest;
 import java.util.ArrayList;
 
 public class MyTop10ScoresIntentService extends IntentService {
-    public final static String Action_Name = "MyTop10ScoresIntentService";
+    public final static String Action_Name = "com.smile.Service.MyTop10ScoresIntentService";
 
     public MyTop10ScoresIntentService() {
         super(Action_Name);

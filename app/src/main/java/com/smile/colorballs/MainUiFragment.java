@@ -111,6 +111,7 @@ public class MainUiFragment extends Fragment {
     private String failedLoadGameString;
     private String sureToSaveGameString;
     private String sureToLoadGameString;
+    private String warningSaveGameString;
 
     public MainUiFragment() {
         // Required empty public constructor
@@ -171,6 +172,7 @@ public class MainUiFragment extends Fragment {
         failedLoadGameString = ColorBallsApp.AppResources.getString(R.string.failedLoadGameString);
         sureToSaveGameString = ColorBallsApp.AppResources.getString(R.string.sureToSaveGameString);
         sureToLoadGameString = ColorBallsApp.AppResources.getString(R.string.sureToLoadGameString);
+        warningSaveGameString = ColorBallsApp.AppResources.getString(R.string.warningSaveGameString);
 
         System.out.println("MainUiFragment onCreate() is called.");
     }
@@ -808,15 +810,14 @@ public class MainUiFragment extends Fragment {
         });
         showAdAsyncTask.execute();
     }
-    private void startSavingGame() {
+    private boolean startSavingGame() {
         ColorBallsApp.isProcessingJob = true;
-
         ColorBallsApp.isShowingSavingGameMessage = true;
         showMessageOnScreen(savingGameString);
 
         boolean succeeded = true;
-        File outputFile = new File(ColorBallsApp.AppContext.getFilesDir(), savedGameFileName);
         try {
+            File outputFile = new File(ColorBallsApp.AppContext.getFilesDir(), savedGameFileName);
             FileOutputStream foStream = new FileOutputStream(outputFile);
             // save settings
             if (hasSound) {
@@ -905,7 +906,10 @@ public class MainUiFragment extends Fragment {
         args.putBoolean("IsAnimation", false);
         gameSavedDialog.setArguments(args);
         gameSavedDialog.show(getActivity().getSupportFragmentManager(), "GameSavedDialogTag");
+
+        return succeeded;
     }
+
     private void startLoadingGame() {
 
         ColorBallsApp.isProcessingJob = true;
@@ -926,8 +930,8 @@ public class MainUiFragment extends Fragment {
         int[][] backupCells = new int[rowCounts][colCounts];
         int unScore = undoScore;
 
-        File inputFile = new File(ColorBallsApp.AppContext.getFilesDir(), savedGameFileName);
         try {
+            File inputFile = new File(ColorBallsApp.AppContext.getFilesDir(), savedGameFileName);
             FileInputStream fiStream = new FileInputStream(inputFile);
             int bValue = fiStream.read();
             if (bValue == 1) {
@@ -1104,7 +1108,54 @@ public class MainUiFragment extends Fragment {
             public void okButtonOnClick(AlertDialogFragment dialogFragment) {
                 // start saving game to internal storage
                 dialogFragment.dismissAllowingStateLoss();
-                startSavingGame();
+                int numOfSaved = 0;
+                try {
+                    File inputFile = new File(ColorBallsApp.AppContext.getFilesDir(), ColorBallsApp.NumOfSavedGameFileName);
+                    FileInputStream fiStream = new FileInputStream(inputFile);
+                    numOfSaved = fiStream.read();
+                    fiStream.close();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+                if (numOfSaved <= ColorBallsApp.Max_Saved_Games) {
+                    boolean succeeded = startSavingGame();
+                    if (succeeded) {
+                        numOfSaved++;
+                        // save numOfSaved back to file (ColorBallsApp.NumOfSavedGameFileName)
+                        try {
+                            File outputFile = new File(ColorBallsApp.AppContext.getFilesDir(), ColorBallsApp.NumOfSavedGameFileName);
+                            FileOutputStream foStream = new FileOutputStream(outputFile);
+                            foStream.write(numOfSaved);
+                            foStream.close();
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                } else {
+                    // display warning to users
+                    AlertDialogFragment warningSaveGameDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
+                        @Override
+                        public void noButtonOnClick(AlertDialogFragment dialogFragment) {
+                            dialogFragment.dismissAllowingStateLoss();
+                        }
+
+                        @Override
+                        public void okButtonOnClick(AlertDialogFragment dialogFragment) {
+                            dialogFragment.dismissAllowingStateLoss();
+                        }
+                    });
+                    Bundle args = new Bundle();
+                    args.putString("TextContent", warningSaveGameString); // excessive the number (5)
+                    args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
+                    args.putFloat("TextFontSize", textFontSize);
+                    args.putInt("Color", Color.BLUE);
+                    args.putInt("Width", 0);    // wrap_content
+                    args.putInt("Height", 0);   // wrap_content
+                    args.putInt("NumButtons", 1);
+                    args.putBoolean("IsAnimation", false);
+                    warningSaveGameDialog.setArguments(args);
+                    warningSaveGameDialog.show(getActivity().getSupportFragmentManager(), "SaveGameWarningDialogTag");
+                }
             }
         });
         Bundle args = new Bundle();

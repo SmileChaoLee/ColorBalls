@@ -1,18 +1,11 @@
 package com.smile.colorballs;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.SystemClock;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.MenuPopupWindow;
-import android.util.Log;
 import android.view.View;
-
-import com.smile.Service.MyGlobalTop10IntentService;
-import com.smile.Service.MyTop10ScoresIntentService;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
@@ -25,20 +18,22 @@ import org.junit.runner.RunWith;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.Espresso;
-import androidx.test.espresso.action.ViewActions;
+import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.matcher.RootMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
+import androidx.test.uiautomator.UiDevice;
 
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.pressBack;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
+import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -76,6 +71,7 @@ public class ColorBallsInstrumentedTest {
         // appContext = myActivityTestRule.getActivity();
         // appResources = appContext.getResources();
         myActivity = myActivityTestRule.getActivity();
+        Espresso.closeSoftKeyboard();
         System.out.println("Setting up before each test case.");
     }
 
@@ -113,40 +109,11 @@ public class ColorBallsInstrumentedTest {
         onView(withText(R.string.globalTop10Str)).check(matches(isDisplayed()));
         onView(withText(R.string.saveGameString)).check(matches(isDisplayed()));
         onView(withText(R.string.loadGameString)).check(matches(isDisplayed()));
+        Espresso.pressBack();
     }
 
     @Test
-    public void test_top10SubmenuUnderActionGame() {
-
-        /*
-        testReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                // R.id.top10ScoreTitle is in layout_for_top10_score_fragment.xml.xml which is used by Top10ScoreFragment
-                onView(withId(R.id.top10ScoreTitle)).check(matches(isDisplayed()));  // succeeded
-                onView(withId(R.id.top10ListView)).check(matches(isDisplayed()));
-                onView(withId(R.id.top10OkButton)).check(matches(isDisplayed()));
-
-                // LocalBroadcastManager.getInstance(myActivity).unregisterReceiver(testReceiver);  // does not work
-                // myActivity.unregisterReceiver(testReceiver);     // works
-                // ColorBallsApp.AppContext.unregisterReceiver(testReceiver);   // works
-                // appContext.unregisterReceiver(testReceiver); // works
-
-                isOnReceived = true;
-
-                Log.d(TAG, "testReceiver.onReceive() is called.");
-            }
-        };
-
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(MyTop10ScoresIntentService.Action_Name);
-        // LocalBroadcastManager.getInstance(myActivity).registerReceiver(testReceiver, intentFilter);  // does not work
-        myActivity.registerReceiver(testReceiver, intentFilter); // works
-        // ColorBallsApp.AppContext.registerReceiver(testReceiver, intentFilter);   // works
-        // appContext.registerReceiver(testReceiver, intentFilter); // works
-
-        isOnReceived = false;
-        */
+    public void test_top10SubmenuUnderActionGame() throws InterruptedException {
 
         onView(withId(R.id.gameAction)).perform(click());
         // test Top 10 submenu
@@ -156,7 +123,7 @@ public class ColorBallsInstrumentedTest {
                 .atPosition(0) // for the first submenu item, here: R.id.top10
                 .perform(click());
 
-        SystemClock.sleep(3000);
+        SystemClock.sleep(5000);
 
         // R.id.top10ScoreTitle is in layout_for_top10_score_fragment.xml.xml which is used by Top10ScoreFragment
         onView(withId(R.id.top10ScoreTitle)).check(matches(isDisplayed()));  // succeeded
@@ -174,7 +141,7 @@ public class ColorBallsInstrumentedTest {
                 .atPosition(1) // for the second submenu item, here: R.id.globalTop10
                 .perform(click());
 
-        SystemClock.sleep(3000);
+        SystemClock.sleep(5000);
 
         // R.id.top10ScoreTitle is in layout_for_top10_score_fragment.xml.xml which is used by Top10ScoreFragment
         onView(withId(R.id.top10ScoreTitle)).check(matches(isDisplayed()));  // succeeded
@@ -219,6 +186,7 @@ public class ColorBallsInstrumentedTest {
             onView(withText(R.string.settingStr)).check(matches(isDisplayed()));
             onView(withText(R.string.newGame)).check(matches(isDisplayed()));
             onView(withText(R.string.quitGame)).check(matches(isDisplayed()));
+            Espresso.pressBack();
         }
     }
 
@@ -242,6 +210,7 @@ public class ColorBallsInstrumentedTest {
         onView(withText(R.string.playerLevelStr)).check(matches(isDisplayed()));
         onView(withText(R.string.cancelStr)).check(matches(isDisplayed()));
         onView(withText(R.string.okString)).check(matches(isDisplayed()));
+
         onView(withId(R.id.confirmSettingButton)).perform(click());
     }
 
@@ -277,6 +246,15 @@ public class ColorBallsInstrumentedTest {
         }
         onView(withText(R.string.cancelStr)).check(matches(isDisplayed()));
         onView(withText(R.string.submitStr)).check(matches(isDisplayed()));
+
+        // Espresso.closeSoftKeyboard();;
+        // onView(withText(R.string.cancelStr)).perform(click());
+
+        // SystemClock.sleep(2000);
+
+        // After that, press back button to go back
+        // UiDevice mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+        // mDevice.pressBack();
     }
 
 }

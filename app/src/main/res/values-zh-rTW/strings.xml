@@ -41,8 +41,10 @@
     <string name="failedLoadGameString">載入遊戲失敗</string>
     <string name="sureToSaveGameString">確定要儲存遊戲嗎?</string>
     <string name="sureToLoadGameString">確定要載入遊戲嗎?</string>
+    <string name="warningSaveGameString">已經超過五次儲存</string>
+    <string name="companyDescriptionString">客製化軟體, 智慧型手機程式, 及網頁應用程式等開發</string>
     <string name="companyNameString">微笑資訊有限公司</string>
-    <string name="companyContactEmailString">smilechao.lee@gmail.com</string>
+    <string name="companyContactEmailString">leechao1959@gmail.com</string>
 
     <string name="google_AdMobAppID">ca-app-pub-8354869049759576~1891379677</string>
     <string name="google_AdMobAppID_2">ca-app-pub-8354869049759576~8647116443</string>

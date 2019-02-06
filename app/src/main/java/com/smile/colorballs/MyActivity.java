@@ -34,6 +34,11 @@ import com.smile.Service.MyTop10ScoresIntentService;
 import com.smile.smilepublicclasseslibrary.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
 import com.smile.smilepublicclasseslibrary.utilities.*;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -100,14 +105,19 @@ public class MyActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_my);
 
+        TextView companyDescriptionTextView = findViewById(R.id.companyDescriptionTextView);
+        if (companyDescriptionTextView != null) {
+            ScreenUtil.resizeTextSize(companyDescriptionTextView, textFontSize * 0.6f, ColorBallsApp.FontSize_Scale_Type);
+        }
+
         TextView companyNameTextView = findViewById(R.id.companyNameTextView);
         if (companyNameTextView != null) {
-            ScreenUtil.resizeTextSize(companyNameTextView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+            ScreenUtil.resizeTextSize(companyNameTextView, textFontSize * 0.6f, ColorBallsApp.FontSize_Scale_Type);
         }
 
         TextView companyContactEmailTextView = findViewById(R.id.companyContactEmailTextView);
         if (companyContactEmailTextView != null) {
-            ScreenUtil.resizeTextSize(companyContactEmailTextView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+            ScreenUtil.resizeTextSize(companyContactEmailTextView, textFontSize * 0.6f, ColorBallsApp.FontSize_Scale_Type);
         }
 
         int highestScore = ColorBallsApp.ScoreSQLiteDB.readHighestScore();

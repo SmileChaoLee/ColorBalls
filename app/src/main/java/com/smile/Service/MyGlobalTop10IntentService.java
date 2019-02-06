@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public class MyGlobalTop10IntentService extends IntentService {
 
-    public final static String Action_Name = "MyGlobalTop10IntentService";
+    public final static String Action_Name = "com.smile.Service.MyGlobalTop10IntentService";
 
     public MyGlobalTop10IntentService() {
         super(Action_Name);
