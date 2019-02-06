@@ -1136,7 +1136,7 @@ public class MainUiFragment extends Fragment {
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
-                if (numOfSaved <= ColorBallsApp.Max_Saved_Games) {
+                if (numOfSaved < ColorBallsApp.Max_Saved_Games) {
                     boolean succeeded = startSavingGame(numOfSaved, false);
                 } else {
                     // display warning to users
