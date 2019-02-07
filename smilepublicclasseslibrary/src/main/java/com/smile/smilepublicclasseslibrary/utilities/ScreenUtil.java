@@ -68,6 +68,31 @@ public class ScreenUtil {
         return size;
     }
 
+    public static int dpToPixel(Context context, int dp) {
+        Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        display.getMetrics(displayMetrics);
+
+        float density = displayMetrics.density;
+        int pixels = (int)((float)dp * density);
+
+        return pixels;
+    }
+
+    public static int pixelToDp(Context context, int pixel) {
+        Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        display.getMetrics(displayMetrics);
+
+        float density = displayMetrics.density;
+        int dp = 0;
+        if (density != 0) {
+            dp = (int) ((float) pixel / density);
+        }
+
+        return dp;
+    }
+
     public static float getDefaultTextSizeFromTheme(Context context, int fontSize_Type, @Nullable Integer themeId) {
         Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         DisplayMetrics displayMetrics = new DisplayMetrics();
