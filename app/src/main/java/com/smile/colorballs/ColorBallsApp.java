@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.multidex.MultiDex;
+import android.support.multidex.MultiDexApplication;
 
 import com.google.android.gms.ads.MobileAds;
 import com.smile.smilepublicclasseslibrary.facebook_ads_util.*;
@@ -15,7 +17,7 @@ import com.smile.smilepublicclasseslibrary.utilities.ScreenUtil;
 
 import java.util.HashMap;
 
-public class ColorBallsApp extends Application {
+public class ColorBallsApp extends MultiDexApplication {
 
     // public static final String REST_Website = new String("http://192.168.0.10:5000/Playerscore");
     public static final String REST_Website = "http://ec2-13-59-195-3.us-east-2.compute.amazonaws.com/Playerscore";
