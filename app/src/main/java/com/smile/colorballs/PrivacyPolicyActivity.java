@@ -16,14 +16,6 @@ public class PrivacyPolicyActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (ScreenUtil.isTablet(this)) {
-            // Table then change orientation to Landscape
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        } else {
-            // phone then change orientation to Portrait
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
-
         setContentView(R.layout.activity_privacy_policy);
 
         privacyPolicyWebView = findViewById(R.id.privacyPolicyWebView);
@@ -33,33 +25,16 @@ public class PrivacyPolicyActivity extends AppCompatActivity {
 
     @Override
     public void onPause() {
-        privacyPolicyWebView.onPause();
-        privacyPolicyWebView.pauseTimers();
         super.onPause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        privacyPolicyWebView.resumeTimers();
-        privacyPolicyWebView.onResume();
     }
 
     @Override
     protected void onDestroy() {
-        privacyPolicyWebView.clearHistory();
-        // NOTE: clears RAM cache, if you pass true, it will also clear the disk cache.
-        // Probably not a great idea to pass true if you have other WebViews still alive.
-        privacyPolicyWebView.clearCache(true);
-        privacyPolicyWebView.loadUrl("about:blank");
-
-        // privacyPolicyWebView.onPause();
-        privacyPolicyWebView.removeAllViews();
-        privacyPolicyWebView.destroyDrawingCache();
-
-        privacyPolicyWebView.destroy();
-        privacyPolicyWebView = null;
-
         super.onDestroy();
     }
 
