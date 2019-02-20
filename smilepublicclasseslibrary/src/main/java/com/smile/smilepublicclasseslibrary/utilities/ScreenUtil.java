@@ -18,8 +18,10 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Created by chaolee on 2017-10-24.
@@ -344,5 +346,13 @@ public class ScreenUtil {
                 break;
         }
 
+    }
+
+    public static void showToast(Context context, String content, float textFontSize, int fontSize_Type, int showPeriod) {
+        Toast toast = Toast.makeText(context, content, showPeriod);
+        ViewGroup toastView = (ViewGroup) toast.getView();
+        TextView messageTextView = (TextView) toastView.getChildAt(0);
+        ScreenUtil.resizeTextSize(messageTextView, textFontSize, fontSize_Type);
+        toast.show();
     }
 }

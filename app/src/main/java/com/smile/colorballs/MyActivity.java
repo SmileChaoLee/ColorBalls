@@ -215,7 +215,7 @@ public class MyActivity extends AppCompatActivity {
                 }
                 break;
             case Top10ScoreActivityRequestCode:
-                // showAdUntilDismissed(this);  // removed on 2019-02-06
+                showAdUntilDismissed(this);
                 ColorBallsApp.isShowingLoadingMessage = false;
                 ColorBallsApp.isProcessingJob = false;
                 break;
@@ -269,10 +269,6 @@ public class MyActivity extends AppCompatActivity {
             }
             if (id == R.id.top10) {
                 mainUiFragment.showTop10ScoreHistory();
-                return super.onOptionsItemSelected(item);
-            }
-            if (id == R.id.globalTop10) {
-                mainUiFragment.showGlobalTop10History();
                 return super.onOptionsItemSelected(item);
             }
             if (id == R.id.saveGame) {
@@ -470,7 +466,7 @@ public class MyActivity extends AppCompatActivity {
                                         ft.remove(top10ScoreFragment);
                                         // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                                         ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-                                        // showAdUntilDismissed(activity);  // removed on 2019-02-06
+                                        showAdUntilDismissed(activity);
                                     }
                                 }
                             });
