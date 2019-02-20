@@ -271,6 +271,10 @@ public class MyActivity extends AppCompatActivity {
                 mainUiFragment.showTop10ScoreHistory();
                 return super.onOptionsItemSelected(item);
             }
+            if (id == R.id.globalTop10) {
+                mainUiFragment.showGlobalTop10History();
+                return super.onOptionsItemSelected(item);
+            }
             if (id == R.id.saveGame) {
                 mainUiFragment.saveGame();
                 return super.onOptionsItemSelected(item);

@@ -19,6 +19,11 @@
                 android:orderInCategory="1"
                 app:showAsAction="never">
             </item>
+            <item android:id="@+id/globalTop10"
+                android:title="@string/globalTop10Str"
+                android:orderInCategory="2"
+                app:showAsAction="never">
+            </item>
             <item android:id="@+id/saveGame"
                 android:title="@string/saveGameString"
                 android:orderInCategory="3"

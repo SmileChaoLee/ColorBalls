@@ -1236,7 +1236,6 @@ public class MainUiFragment extends Fragment {
                 dialog.dismiss();
                 // removed on 2019-02-20 no global ranking any more
                 // use thread to add a record to database (remote database on AWS-EC2)
-                /*
                 Thread restThread = new Thread() {
                     @Override
                     public void run() {
@@ -1254,7 +1253,6 @@ public class MainUiFragment extends Fragment {
                     }
                 };
                 restThread.start();
-                */
 
                 // modified on 2018-11-07
                 boolean isInTop10 = ColorBallsApp.ScoreSQLiteDB.isInTop10(currentScore);
