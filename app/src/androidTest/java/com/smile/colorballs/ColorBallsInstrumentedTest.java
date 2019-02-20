@@ -103,17 +103,18 @@ public class ColorBallsInstrumentedTest {
     }
 
     @Test
-    public void test_ActionSubmenu() {
+    public void test_MoreActionSubmenu() {
         onView(withId(R.id.gameAction)).perform(click());
         onView(withText(R.string.top10Str)).check(matches(isDisplayed()));
         onView(withText(R.string.globalTop10Str)).check(matches(isDisplayed()));
         onView(withText(R.string.saveGameString)).check(matches(isDisplayed()));
         onView(withText(R.string.loadGameString)).check(matches(isDisplayed()));
+        onView(withText(R.string.privacyPolicyString)).check(matches(isDisplayed()));
         Espresso.pressBack();
     }
 
     @Test
-    public void test_top10SubmenuUnderActionGame() throws InterruptedException {
+    public void test_top10SubmenuUnderMoreAction() throws InterruptedException {
 
         onView(withId(R.id.gameAction)).perform(click());
         // test Top 10 submenu
@@ -132,7 +133,7 @@ public class ColorBallsInstrumentedTest {
     }
 
     @Test
-    public void test_globalTop10SubmenuUnderActionGame() {
+    public void test_globalTop10SubmenuUnderMoreAction() {
         onView(withId(R.id.gameAction)).perform(click());
         // test Top 10 submenu
         onData(CoreMatchers.anything())
