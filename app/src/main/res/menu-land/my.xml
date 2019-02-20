@@ -8,9 +8,27 @@
         app:showAsAction="always"
         app:actionViewClass="android.widget.TextView">
     </item>
-    <item android:id="@+id/gameAction"
-        android:title="@string/gameActionString"
+    <item android:id="@+id/newGame"
+        android:title="@string/newGame"
         android:orderInCategory="2"
+        app:showAsAction="always"
+        app:actionViewClass="android.widget.TextView">
+    </item>
+    <item android:id="@+id/quitGame"
+        android:title="@string/quitGame"
+        android:orderInCategory="3"
+        app:showAsAction="always"
+        app:actionViewClass="android.widget.TextView">
+    </item>
+    <item android:id="@+id/setting"
+        android:title="@string/settingStr"
+        android:orderInCategory="4"
+        app:showAsAction="always"
+        app:actionViewClass="android.widget.TextView">
+    </item>
+    <item android:id="@+id/gameAction"
+        android:title="@string/moreActionString"
+        android:orderInCategory="5"
         app:showAsAction="always"
         app:actionViewClass="android.widget.TextView">
         <menu>
@@ -34,25 +52,11 @@
                 android:orderInCategory="4"
                 app:showAsAction="never">
             </item>
+            <item android:id="@+id/privacyPolicy"
+                android:title="@string/privacyPolicyString"
+                android:orderInCategory="5"
+                app:showAsAction="never">
+            </item>
         </menu>
     </item>
-    <item android:id="@+id/newGame"
-        android:title="@string/newGame"
-        android:orderInCategory="3"
-        app:showAsAction="always"
-        app:actionViewClass="android.widget.TextView">
-    </item>
-    <item android:id="@+id/quitGame"
-        android:title="@string/quitGame"
-        android:orderInCategory="4"
-        app:showAsAction="always"
-        app:actionViewClass="android.widget.TextView">
-    </item>
-    <item android:id="@+id/setting"
-        android:title="@string/settingStr"
-        android:orderInCategory="5"
-        app:showAsAction="always"
-        app:actionViewClass="android.widget.TextView">
-    </item>
-
 </menu>

@@ -10,6 +10,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -293,6 +294,10 @@ public class MyActivity extends AppCompatActivity {
                 startActivityForResult(intent, SettingActivityRequestCode);
                 ColorBallsApp.isProcessingJob = false;
                 return true;
+            }
+            if (id == R.id.privacyPolicy) {
+                Intent privacyPolicyIntent = new Intent(this, PrivacyPolicyActivity.class);
+                startActivity(privacyPolicyIntent);
             }
         }
 

@@ -10,20 +10,24 @@
         android:name=".ColorBallsApp"
         android:allowBackup="true"
         android:fullBackupContent="true"
-        android:supportsRtl="true"
         android:icon="@drawable/colorballs"
         android:label="${appName}${appNameSuffix}"
+        android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
 
-        <meta-data android:name="google_analytics_adid_collection_enabled" android:value="false" />
-        <meta-data android:name="firebase_analytics_collection_deactivated" android:value="true" />
-
+        <meta-data
+            android:name="google_analytics_adid_collection_enabled"
+            android:value="false" />
+        <meta-data
+            android:name="firebase_analytics_collection_deactivated"
+            android:value="true" />
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="${googleAdMobAppID}${appNameSuffix}"/>
+            android:value="${googleAdMobAppID}${appNameSuffix}" />
 
-        <activity android:name=".MyActivity"
+        <activity
+            android:name=".MyActivity"
             android:label="${appName}${appNameSuffix}">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,16 +35,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".SettingActivity"
             android:label="@string/settingStr"
-            android:theme="@style/AppThemeTransparent">
-        </activity>
+            android:theme="@style/AppThemeTransparent"></activity>
         <activity
             android:name=".Top10ScoreActivity"
-            android:label="@string/title_activity_history" >
+            android:label="@string/title_activity_history">
         </activity>
+        <activity
+            android:name=".PrivacyPolicyActivity"
+            android:label="@string/privacyPolicyString">
+        </activity>
+
         <service
             android:name="com.smile.Service.MyTop10ScoresIntentService"
             android:enabled="true"

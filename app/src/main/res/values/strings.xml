@@ -33,7 +33,7 @@
     <string name="showingAdsString">Showing Ads ...</string>
     <string name="saveGameString">Save Game</string>
     <string name="loadGameString">Load Game</string>
-    <string name="gameActionString">Action</string>
+    <string name="moreActionString">More</string>
     <string name="savingGameString">Saving Game</string>
     <string name="loadingGameString">Loading Game</string>
     <string name="succeededSaveGameString">Saved game successfully.</string>
@@ -48,6 +48,7 @@
     <string name="companyDescriptionString">Design customized software, Apps, Smart phone Apps and Web Apps.</string>
     <string name="companyNameString">Smile Information Inc.</string>
     <string name="companyContactEmailString">leechao1959@gmail.com</string>
+    <string name="privacyPolicyString">Privacy Policy</string>
 
     <string name="google_AdMobAppID">"ca-app-pub-8354869049759576~1891379677"</string>
     <string name="google_AdMobAppID_2">"ca-app-pub-8354869049759576~8647116443"</string>

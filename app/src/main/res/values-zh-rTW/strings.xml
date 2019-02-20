@@ -21,7 +21,7 @@
     <string name="submitStr">送出</string>
     <string name="nameStr">輸入你的名字</string>
     <string name="loadingString">下載中 ...</string>
-    <string name="undoStr">還 原</string>
+    <string name="undoStr">還原</string>
     <string name="top10Str">前10名高分</string>
     <string name="globalTop10Str">全球前10排名</string>
     <string name="fileMenuStr">檔案</string>
@@ -32,7 +32,7 @@
     <string name="showingAdsString">廣告顯示中 ...</string>
     <string name="saveGameString">儲存遊戲</string>
     <string name="loadGameString">載入遊戲</string>
-    <string name="gameActionString">遊戲動作</string>
+    <string name="moreActionString">更多</string>
     <string name="savingGameString">儲存遊戲中</string>
     <string name="loadingGameString">載入遊戲中</string>
     <string name="succeededSaveGameString">儲存遊戲成功</string>
@@ -47,6 +47,7 @@
     <string name="companyDescriptionString">客製化軟體, 智慧型手機程式, 及網頁應用程式等開發</string>
     <string name="companyNameString">微笑資訊有限公司</string>
     <string name="companyContactEmailString">leechao1959@gmail.com</string>
+    <string name="privacyPolicyString">隐私政策</string>
 
     <string name="google_AdMobAppID">ca-app-pub-8354869049759576~1891379677</string>
     <string name="google_AdMobAppID_2">ca-app-pub-8354869049759576~8647116443</string>
