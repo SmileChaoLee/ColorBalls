@@ -3,4 +3,5 @@
     <string name="app_name">SmilePublicClassesLibrary</string>
     <string name="noString">否</string>
     <string name="okString">確定</string>
+    <string name="privacyPolicyString">隐私政策</string>
 </resources>

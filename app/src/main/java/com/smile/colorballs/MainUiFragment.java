@@ -804,7 +804,7 @@ public class MainUiFragment extends Fragment {
                 ColorBallsApp.isProcessingJob = false;
                 if (entryPoint==0) {
                     //  END PROGRAM
-                    myActivity.quitApplication();
+                    myActivity.exitApplication();
                 } else if (entryPoint==1) {
                     //  NEW GAME
                     flushALLandBegin();

@@ -73,6 +73,8 @@ public class Top10ScoreActivity extends AppCompatActivity {
             public void buttonOkClick(Activity activity) {
                 // Intent returnIntent = new Intent();
                 // setResult(Activity.RESULT_OK, returnIntent);
+                // activity.finish();
+                // or
                 setResult(Activity.RESULT_OK);
                 activity.finish();
             }

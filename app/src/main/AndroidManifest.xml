@@ -36,11 +36,6 @@
             android:name=".Top10ScoreActivity"
             android:label="@string/title_activity_history">
         </activity>
-        <activity
-            android:name=".PrivacyPolicyActivity"
-            android:label="@string/privacyPolicyString">
-        </activity>
-
         <service
             android:name="com.smile.Service.MyTop10ScoresIntentService"
             android:enabled="true"

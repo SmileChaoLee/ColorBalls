@@ -7,10 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.drawable.GradientDrawable;
-import android.net.Uri;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -32,14 +29,11 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
+import com.smile.smilepublicclasseslibrary.privacy_policy.PrivacyPolicyActivity;
+import com.smile.smilepublicclasseslibrary.privacy_policy.PrivacyPolicyUtil;
 import com.smile.smilepublicclasseslibrary.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
 import com.smile.smilepublicclasseslibrary.utilities.*;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -52,6 +46,7 @@ public class MyActivity extends AppCompatActivity {
     private final int SettingActivityRequestCode = 1;
     private final int Top10ScoreActivityRequestCode = 2;
     private final int GlobalTop10ActivityRequestCode = 3;
+    private final int PrivacyPolicyActivityRequestCode = 10;
 
     private Toolbar supportToolbar;
     private int mainUiFragmentLayoutId = -1;
@@ -296,8 +291,9 @@ public class MyActivity extends AppCompatActivity {
                 return true;
             }
             if (id == R.id.privacyPolicy) {
-                Intent privacyPolicyIntent = new Intent(this, PrivacyPolicyActivity.class);
-                startActivity(privacyPolicyIntent);
+                // Intent privacyPolicyIntent = new Intent(this, PrivacyPolicyActivity.class);
+                // startActivity(privacyPolicyIntent);
+                PrivacyPolicyUtil.startPrivacyPolicyActivity(this, ColorBallsApp.PrivacyPolicyUrl, PrivacyPolicyActivityRequestCode);
             }
         }
 
@@ -379,12 +375,12 @@ public class MyActivity extends AppCompatActivity {
         mainUiFragment.recordScore(0);   //   from   END PROGRAM
     }
 
-    public void quitApplication() {
+    public void exitApplication() {
         final Handler handlerClose = new Handler();
         final int timeDelay = 200;
         handlerClose.postDelayed(new Runnable() {
             public void run() {
-                // quit game
+                // exit application
                 finish();
                 int pid = android.os.Process.myPid();
                 android.os.Process.killProcess(pid);
