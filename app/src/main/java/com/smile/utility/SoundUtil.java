@@ -27,7 +27,8 @@ public class SoundUtil {
             }
         });
 
-        mediaThread.run();
+        // mediaThread.run();
+        mediaThread.start();
     }
 
     public static void releaseMediaPlayer() {
