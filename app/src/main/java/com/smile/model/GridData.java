@@ -168,7 +168,7 @@ public class GridData {
         return this.Light_line;
     }
 
-    public int check_moreFive(int x,int y) {
+    public int check_moreThanFive(int x,int y) {
 
         Light_line.clear();
         Light_line.add(new Point(x,y));

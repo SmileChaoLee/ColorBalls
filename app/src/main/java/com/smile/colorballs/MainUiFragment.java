@@ -51,6 +51,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
@@ -438,36 +439,34 @@ public class MainUiFragment extends Fragment {
             }
         }
 
-        Point hashPoint[] = new Point[0];
         boolean hasMoreFive = false;
+        HashSet<Point> linkedPoint = new HashSet<>();
         for (int i = 0; i < numOneTime; i++) {
             n1 = indexi[i];
             n2 = indexj[i];
             if ((n1 >= 0) && (n2 >= 0)) {
                 if (gridData.getCellValue(n1, n2) != 0) {
                     //   has  color in this cell
-                    if (gridData.check_moreFive(n1, n2) == 1) {
+                    if (gridData.check_moreThanFive(n1, n2) == 1) {
                         hasMoreFive = true;
-                        int arraySize = gridData.getLight_line().size();
-                        hashPoint = new Point[arraySize];
-                        int index = 0;
-                        for (Point p : gridData.getLight_line()) {
-                            hashPoint[index] = p;
-                            ++index;
+                        for (Point point : gridData.getLight_line()) {
+                            if (!linkedPoint.contains(point)) {
+                                linkedPoint.add(point);
+                            }
                         }
                     }
                 }
             }
         }
 
-        boolean gameOverYn = false;
+        // boolean gameOverYn = false;  // removed on 2019-03-30
         if (hasMoreFive) {
-            threadCompleted[1] = false;
-            CalculateScore calculateScore = new CalculateScore();
-            calculateScore.execute(hashPoint);
+            // threadCompleted[1] = false;  // removed on 2019-03-30
+            CalculateScore calculateScore = new CalculateScore(linkedPoint, true);
+            calculateScore.execute();
         } else {
             // check if game over
-            gameOverYn = gridData.getGameOver();
+            boolean gameOverYn = gridData.getGameOver();
             if (gameOverYn) {
                 //  game over
                 AlertDialogFragment gameOverDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
@@ -498,13 +497,19 @@ public class MainUiFragment extends Fragment {
                 gameOverDialog.show(getActivity().getSupportFragmentManager(), GameOverDialogTag);
 
                 System.out.println("gameOverDialog.show() has been called.");
+            } else {
+                // game has not been over yet
+                displayNextColorBalls();
             }
         }
 
+        /*
+        // removed on 2019-03-30
         if (!gameOverYn) {
             // game has not been over yet
             displayNextColorBalls();
         }
+        */
     }
 
     private void clearCell(int i, int j) {
@@ -654,11 +659,12 @@ public class MainUiFragment extends Fragment {
         // ImageView v = (ImageView) uiFragmentView.findViewById(i * colCounts + j);
         ImageView v = uiFragmentView.findViewById(i * rowCounts + j);
         drawBall(v, gridData.getCellValue(i, j));
-        if (gridData.check_moreFive(i, j) == 1) {
+        if (gridData.check_moreThanFive(i, j) == 1) {
             //  check if there are more than five balls with same color connected together
             // int numBalls = gridData.getLight_line().size();
             // scoreCalculate(numBalls);
             // twinkleLineBallsAndClearCell(gridData.getLight_line(), 1);
+            /*
             int arraySize = gridData.getLight_line().size();
             Point hashPoint[] = new Point[arraySize];
             int index = 0;
@@ -666,10 +672,11 @@ public class MainUiFragment extends Fragment {
                 hashPoint[index] = p;
                 ++index;
             }
+            */
 
-            threadCompleted[1] = false;
-            CalculateScore calculateScore = new CalculateScore();
-            calculateScore.execute(hashPoint);
+            // threadCompleted[1] = false;  // removed on 2019-03-30
+            CalculateScore calculateScore = new CalculateScore(gridData.getLight_line(), false);
+            calculateScore.execute();
         } else {
             displayGridDataNextCells();   // has a problem
         }
@@ -1322,9 +1329,24 @@ public class MainUiFragment extends Fragment {
         private int numBalls = 0;
         private int color = 0;
         private int score = 0;
-        private Point[] hashPoint = null;
-
+        private HashSet<Point> hasPoint = null;
+        private boolean isNextBalls;
         private Bitmap scoreBitmap;
+
+        public CalculateScore(HashSet<Point> linkedPoint, boolean isNextBalls) {
+            this.isNextBalls = isNextBalls;
+            if (linkedPoint != null) {
+                hasPoint = new HashSet<>(linkedPoint);
+                Point point = hasPoint.iterator().next();
+                color = gridData.getCellValue(point.x, point.y);
+
+                numBalls = hasPoint.size();
+                score = scoreCalculate(numBalls);
+                String scoreString = String.valueOf(score);
+                Bitmap dialog_board_image = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
+                scoreBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(dialog_board_image, scoreString, Color.BLACK);
+            }
+        }
 
         @Override
         protected void onPreExecute() {
@@ -1337,18 +1359,9 @@ public class MainUiFragment extends Fragment {
         @Override
         protected String[] doInBackground(Point... params) {
 
-            hashPoint = params;
-            if (hashPoint == null) {
+            if (hasPoint == null) {
                 return null;
             }
-
-            numBalls = hashPoint.length;
-            score = scoreCalculate(numBalls);
-            String scoreString = String.valueOf(score);
-            Bitmap dialog_board_image = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
-            scoreBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(dialog_board_image, scoreString, Color.BLACK);
-
-            color = gridData.getCellValue(hashPoint[0].x, hashPoint[0].y);
 
             int twinkleCountDown = 5;
             for (int i=1; i<=twinkleCountDown; i++) {
@@ -1368,13 +1381,13 @@ public class MainUiFragment extends Fragment {
         protected void onProgressUpdate(Integer... status) {
             switch (status[0]) {
                 case 0:
-                    for (Point item : hashPoint) {
+                    for (Point item : hasPoint) {
                         ImageView v = uiFragmentView.findViewById(item.x * rowCounts + item.y);
                         drawBall(v, color);
                     }
                     break;
                 case 1:
-                    for (Point item : hashPoint) {
+                    for (Point item : hasPoint) {
                         ImageView v = uiFragmentView.findViewById(item.x * rowCounts + item.y);
                         drawOval(v, color);
                     }
@@ -1395,7 +1408,7 @@ public class MainUiFragment extends Fragment {
             scoreImageView.setImageBitmap(scoreBitmap);
 
             // clear values of cells
-            for (Point item : hashPoint) {
+            for (Point item : hasPoint) {
                 clearCell(item.x, item.y);
             }
 
@@ -1409,6 +1422,11 @@ public class MainUiFragment extends Fragment {
             // hide score ImageView
             scoreImageView.setImageBitmap(null);
             scoreImageView.setVisibility(View.GONE);
+
+            // added on 2019-03-30
+            if (isNextBalls) {
+                displayNextColorBalls();
+            }
         }
     }
 }
