@@ -16,8 +16,8 @@ android {
         targetSdkVersion 28
         multiDexEnabled true
 
-        versionCode 3272
-        versionName "3.272"
+        versionCode 3273
+        versionName "3.273"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         applicationId "com.smile.colorballs"
@@ -34,6 +34,11 @@ android {
                 dimension "colorballs"
                 applicationId "com.smile.fivecolorballs"
                 manifestPlaceholders = [appNameSuffix: "_2"]
+            }
+            colorballs_pro {
+                dimension "colorballs"
+                applicationId "com.smile.colorballs_pro"
+                manifestPlaceholders = [appNameSuffix: "_pro"]
             }
         }
     }

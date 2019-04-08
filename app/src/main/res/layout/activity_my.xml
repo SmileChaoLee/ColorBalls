@@ -32,15 +32,45 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- the banner ads showing area -->
-        <LinearLayout
-            android:id="@+id/linearlayout_for_ads_in_myActivity"
-            android:orientation="vertical"
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:gravity="center_horizontal|bottom"
             android:layout_weight="10" >
-        </LinearLayout>
+            <!-- the banner ads showing area -->
+            <LinearLayout
+                android:id="@+id/linearlayout_for_ads_in_myActivity"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_horizontal|bottom">
+            </LinearLayout>
+            <!-- company information area -->
+            <LinearLayout
+                android:id="@+id/linearlayout_for_company_information"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_horizontal|bottom"
+                android:visibility="gone"
+                android:weightSum="2">
+                <TextView
+                    android:id="@+id/companyNameTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:textColor="@color/blue"
+                    android:gravity="center"
+                    android:text="@string/companyNameString"
+                    android:layout_weight="1"/>
+                <TextView
+                    android:id="@+id/companyContactEmailTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:textColor="@color/blue"
+                    android:gravity="center"
+                    android:text="@string/companyContactEmailString"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+        </FrameLayout>
 
     </LinearLayout>
 

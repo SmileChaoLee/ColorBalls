@@ -804,6 +804,19 @@ public class MainUiFragment extends Fragment {
     }
 
     private void showInterstitialAdAndNewGameOrQuit(final int entryPoint) {
+
+        if (ColorBallsApp.InterstitialAd == null) {
+            if (entryPoint==0) {
+                //  END PROGRAM
+                myActivity.exitApplication();
+            } else if (entryPoint==1) {
+                //  NEW GAME
+                flushALLandBegin();
+            }
+            ColorBallsApp.isProcessingJob = false;
+            return;
+        }
+
         ShowingInterstitialAdsUtil.ShowAdAsyncTask showAdAsyncTask =
                 ColorBallsApp.InterstitialAd.new ShowAdAsyncTask(myActivity, entryPoint, new ShowingInterstitialAdsUtil.AfterDismissFunctionOfShowAd() {
             @Override

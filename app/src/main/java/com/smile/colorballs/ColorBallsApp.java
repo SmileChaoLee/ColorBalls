@@ -49,6 +49,7 @@ public class ColorBallsApp extends MultiDexApplication {
     public static boolean isShowingLoadingMessage;
     public static boolean isShowingSavingGameMessage;
     public static boolean isShowingLoadingGameMessage;
+    public static boolean isProVersion = false;
 
     public static ShowingInterstitialAdsUtil InterstitialAd;
     public static String googleAdMobBannerID = "";
@@ -97,9 +98,13 @@ public class ColorBallsApp extends MultiDexApplication {
         isShowingSavingGameMessage = false;
         isShowingLoadingGameMessage = false;
 
-        String facebookPlacementID = new String("200699663911258_200701030577788"); // for colorballs
-        String googleAdMobAppID = getString(R.string.google_AdMobAppID);
-        String googleAdMobInterstitialID = "ca-app-pub-8354869049759576/1276882569";
+        System.out.println("BuildConfig.APPLICATION_ID = " + BuildConfig.APPLICATION_ID);
+
+        String facebookPlacementID = ""; // for colorballs
+        String googleAdMobAppID = "";
+        googleAdMobBannerID = "";
+        String googleAdMobInterstitialID = "";
+        isProVersion = false;
         if (BuildConfig.APPLICATION_ID == "com.smile.colorballs") {
             facebookPlacementID = new String("200699663911258_200701030577788"); // for colorballs
             // Google AdMob
@@ -113,17 +118,19 @@ public class ColorBallsApp extends MultiDexApplication {
             googleAdMobInterstitialID = "ca-app-pub-8354869049759576/2174745857";
             googleAdMobBannerID = "ca-app-pub-8354869049759576/7162646323";
         } else {
-            // default
+            // default for professional version
+            isProVersion = true;
         }
 
-        System.out.println("BuildConfig.APPLICATION_ID = " + BuildConfig.APPLICATION_ID);
-        facebookAds = new FacebookInterstitialAds(ColorBallsApp.AppContext, facebookPlacementID);
-        facebookAds.loadAd();
+        if (!isProVersion) {
+            facebookAds = new FacebookInterstitialAds(ColorBallsApp.AppContext, facebookPlacementID);
+            facebookAds.loadAd();
 
-        MobileAds.initialize(AppContext, googleAdMobAppID);
-        googleInterstitialAd = new GoogleAdMobInterstitial(AppContext, googleAdMobInterstitialID);
-        googleInterstitialAd.loadAd(); // load first ad
+            MobileAds.initialize(AppContext, googleAdMobAppID);
+            googleInterstitialAd = new GoogleAdMobInterstitial(AppContext, googleAdMobInterstitialID);
+            googleInterstitialAd.loadAd(); // load first ad
 
-        InterstitialAd = new ShowingInterstitialAdsUtil(facebookAds, googleInterstitialAd);
+            InterstitialAd = new ShowingInterstitialAdsUtil(facebookAds, googleInterstitialAd);
+        }
     }
 }

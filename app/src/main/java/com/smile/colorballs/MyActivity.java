@@ -30,7 +30,6 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
-import com.smile.smilepublicclasseslibrary.privacy_policy.PrivacyPolicyActivity;
 import com.smile.smilepublicclasseslibrary.privacy_policy.PrivacyPolicyUtil;
 import com.smile.smilepublicclasseslibrary.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
 import com.smile.smilepublicclasseslibrary.utilities.*;
@@ -52,7 +51,6 @@ public class MyActivity extends AppCompatActivity {
     private Toolbar supportToolbar;
     private int mainUiFragmentLayoutId = -1;
     private int top10LayoutId = -1;
-    private LinearLayout bannerLinearLayout = null;
     private AdView bannerAdView = null;
 
     private MainUiFragment mainUiFragment = null;
@@ -76,24 +74,24 @@ public class MyActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         */
 
+        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this, ColorBallsApp.FontSize_Scale_Type, null);
+        textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, ColorBallsApp.FontSize_Scale_Type, 0.0f);
+        fontScale = ScreenUtil.suitableFontScale(this, ColorBallsApp.FontSize_Scale_Type, 0.0f);
+
+        float textSizeCompInfo;
         if (ScreenUtil.isTablet(this)) {
             // Table then change orientation to Landscape
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            textSizeCompInfo = textFontSize * 0.6f;
         } else {
             // phone then change orientation to Portrait
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            textSizeCompInfo = textFontSize;
         }
 
         Point size = ScreenUtil.getScreenSize(this);
         float screenWidth = size.x;
         float screenHeight = size.y;
-
-        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this, ColorBallsApp.FontSize_Scale_Type, null);
-        textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, ColorBallsApp.FontSize_Scale_Type, 0.0f);
-        fontScale = ScreenUtil.suitableFontScale(this, ColorBallsApp.FontSize_Scale_Type, 0.0f);
-        Log.d(TAG, "DefaultTextFontSize = " + defaultTextFontSize);
-        Log.d(TAG, "fontScale = " + fontScale);
-        Log.d(TAG, "textFontSize = " + textFontSize);
 
         float statusBarHeight = ScreenUtil.getStatusBarHeight(this);
         float actionBarHeight = ScreenUtil.getActionBarHeight(this);
@@ -104,17 +102,17 @@ public class MyActivity extends AppCompatActivity {
 
         TextView companyDescriptionTextView = findViewById(R.id.companyDescriptionTextView);
         if (companyDescriptionTextView != null) {
-            ScreenUtil.resizeTextSize(companyDescriptionTextView, textFontSize * 0.6f, ColorBallsApp.FontSize_Scale_Type);
+            ScreenUtil.resizeTextSize(companyDescriptionTextView, textSizeCompInfo, ColorBallsApp.FontSize_Scale_Type);
         }
 
         TextView companyNameTextView = findViewById(R.id.companyNameTextView);
         if (companyNameTextView != null) {
-            ScreenUtil.resizeTextSize(companyNameTextView, textFontSize * 0.6f, ColorBallsApp.FontSize_Scale_Type);
+            ScreenUtil.resizeTextSize(companyNameTextView, textSizeCompInfo, ColorBallsApp.FontSize_Scale_Type);
         }
 
         TextView companyContactEmailTextView = findViewById(R.id.companyContactEmailTextView);
         if (companyContactEmailTextView != null) {
-            ScreenUtil.resizeTextSize(companyContactEmailTextView, textFontSize * 0.6f, ColorBallsApp.FontSize_Scale_Type);
+            ScreenUtil.resizeTextSize(companyContactEmailTextView, textSizeCompInfo, ColorBallsApp.FontSize_Scale_Type);
         }
 
         int highestScore = ColorBallsApp.ScoreSQLiteDB.readHighestScore();
@@ -172,15 +170,27 @@ public class MyActivity extends AppCompatActivity {
             }
         }
 
+        LinearLayout bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
+        LinearLayout companyInfoLayout = findViewById(R.id.linearlayout_for_company_information);
         if (!ColorBallsApp.googleAdMobBannerID.isEmpty()) {
+            if (companyInfoLayout != null) {
+                companyInfoLayout.setVisibility(View.GONE);
+            }
             Log.d(TAG, "Starting the initialization for Banner Ad.");
-            bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
             bannerAdView = new AdView(this);
             bannerAdView.setAdSize(AdSize.BANNER);
             bannerAdView.setAdUnitId(ColorBallsApp.googleAdMobBannerID);
             bannerLinearLayout.addView(bannerAdView);
             AdRequest adRequest = new AdRequest.Builder().build();
             bannerAdView.loadAd(adRequest);
+        } else {
+            // show company information
+            if (bannerLinearLayout != null) {
+                bannerLinearLayout.setVisibility(View.GONE);
+            }
+            if (companyInfoLayout != null) {
+                companyInfoLayout.setVisibility(View.VISIBLE);
+            }
         }
 
         myReceiver = new MyBroadcastReceiver();
@@ -420,6 +430,10 @@ public class MyActivity extends AppCompatActivity {
 
     // public methods
     public void showAdUntilDismissed(Activity activity) {
+        if (ColorBallsApp.InterstitialAd == null) {
+            return;
+        }
+
         ShowingInterstitialAdsUtil.ShowAdAsyncTask showAdAsyncTask =
                 ColorBallsApp.InterstitialAd.new ShowAdAsyncTask(this, 0);
         showAdAsyncTask.execute();
