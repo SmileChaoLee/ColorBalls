@@ -1,5 +1,6 @@
 package com.smile.colorballs;
 
+import com.smile.smilepublicclasseslibrary.SoundPoolUtil;
 import com.smile.smilepublicclasseslibrary.alertdialogfragment.*;
 
 import android.content.Context;
@@ -41,7 +42,6 @@ import com.smile.model.GridData;
 import com.smile.smilepublicclasseslibrary.player_record_rest.PlayerRecordRest;
 import com.smile.smilepublicclasseslibrary.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
 import com.smile.smilepublicclasseslibrary.utilities.*;
-import com.smile.utility.SoundUtil;
 
 import org.json.JSONObject;
 
@@ -95,6 +95,7 @@ public class MainUiFragment extends Fragment {
     private int undoScore = 0;
     private boolean isEasyLevel = true;
     private boolean hasSound = true;    // has sound effect
+    private SoundPoolUtil soundPoolUtil;
 
     private String yesStr = new String("");
     private String noStr = new String("");
@@ -149,6 +150,9 @@ public class MainUiFragment extends Fragment {
         textFontSize = ScreenUtil.suitableFontSize(this.context, defaultTextFontSize, ColorBallsApp.FontSize_Scale_Type, 0.0f);
 
         myActivity = (MyActivity)this.context;
+
+
+        soundPoolUtil = new SoundPoolUtil(context, R.raw.uhoh);
 
         System.out.println("MainUiFragment onAttach() is called.");
     }
@@ -390,7 +394,7 @@ public class MainUiFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
-        SoundUtil.releaseMediaPlayer();
+        soundPoolUtil.release();
     }
 
     /**
@@ -559,7 +563,7 @@ public class MainUiFragment extends Fragment {
                     } else {
                         //    make a sound
                         if (hasSound) {
-                            SoundUtil.playSound(context, R.raw.uhoh);
+                            soundPoolUtil.playSound();
                         }
                     }
                 }
@@ -569,7 +573,6 @@ public class MainUiFragment extends Fragment {
                     bouncingStatus = 0;
                     cancelBouncyTimer();
                     bouncingStatus = 1;
-                    // imageView = (ImageView) uiFragmentView.findViewById(bouncyBallIndexI * colCounts + bouncyBallIndexJ);
                     imageView = uiFragmentView.findViewById(bouncyBallIndexI * rowCounts + bouncyBallIndexJ);
                     drawBall(imageView , gridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
                     drawBouncyBall((ImageView) v, gridData.getCellValue(i, j));
