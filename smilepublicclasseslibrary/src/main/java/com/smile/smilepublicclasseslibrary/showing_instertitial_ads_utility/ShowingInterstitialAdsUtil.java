@@ -23,28 +23,32 @@ public class ShowingInterstitialAdsUtil {
         boolean succeededAdMob = false;
         boolean succeededFacebook = false;
 
-        if (facebookAd.isLoaded() && (!facebookAd.isError())) {
-            // facebook ad is loaded, then show facebook
-            isShowingFacebookAd = true;
-            succeededFacebook = facebookAd.showAd();
-            if (!succeededFacebook) {
-                // If no facebook ad showing
-                // then load next facebook ad
-                facebookAd.loadAd();
-            }
-            adMobAd.loadAd();
-        } else {
-            // if facebook ad is not loaded, then show AdMob ad
-            isShowingFacebookAd = false;
-            if (adMobAd.isLoaded()) {
-                succeededAdMob = adMobAd.showAd();
-            }
-            if (!succeededAdMob) {
-                // If no AdMob ad showing
-                // then load the next AdMob ad
+        try {
+            if (facebookAd.isLoaded() && (!facebookAd.isError())) {
+                // facebook ad is loaded, then show facebook
+                isShowingFacebookAd = true;
+                succeededFacebook = facebookAd.showAd();
+                if (!succeededFacebook) {
+                    // If no facebook ad showing
+                    // then load next facebook ad
+                    facebookAd.loadAd();
+                }
                 adMobAd.loadAd();
+            } else {
+                // if facebook ad is not loaded, then show AdMob ad
+                isShowingFacebookAd = false;
+                if (adMobAd.isLoaded()) {
+                    succeededAdMob = adMobAd.showAd();
+                }
+                if (!succeededAdMob) {
+                    // If no AdMob ad showing
+                    // then load the next AdMob ad
+                    adMobAd.loadAd();
+                }
+                facebookAd.loadAd();    // load the next facebook ad
             }
-            facebookAd.loadAd();    // load the next facebook ad
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
 
         return (succeededAdMob || succeededFacebook);
@@ -54,33 +58,41 @@ public class ShowingInterstitialAdsUtil {
         boolean succeededAdMob = false;
         boolean succeededFacebook = false;
 
-        if (adMobAd.isLoaded()) {
-            isShowingFacebookAd = false;
-            succeededAdMob = adMobAd.showAd();
-            if (!succeededAdMob) {
-                // if no AdMob ad showing
-                // then load next AdMob ad
-                adMobAd.loadAd();
+        try {
+            if (adMobAd.isLoaded()) {
+                isShowingFacebookAd = false;
+                succeededAdMob = adMobAd.showAd();
+                if (!succeededAdMob) {
+                    // if no AdMob ad showing
+                    // then load next AdMob ad
+                    adMobAd.loadAd();
+                }
+                facebookAd.loadAd();    // load the next facebook ad
+            } else {
+                // AdMob ad is not loaded, then show facebook
+                isShowingFacebookAd = true;
+                if (facebookAd.isLoaded() && (!facebookAd.isError())) {
+                    succeededFacebook = facebookAd.showAd();
+                }
+                if (!succeededFacebook) {
+                    // If no facebook ad showing
+                    // load next facebook ad
+                    facebookAd.loadAd();
+                }
+                adMobAd.loadAd();   // load next AdMob ad
             }
-            facebookAd.loadAd();    // load the next facebook ad
-        } else {
-            // AdMob ad is not loaded, then show facebook
-            isShowingFacebookAd = true;
-            if (facebookAd.isLoaded() && (!facebookAd.isError())) {
-                succeededFacebook = facebookAd.showAd();
-            }
-            if (!succeededFacebook) {
-                // If no facebook ad showing
-                // load next facebook ad
-                facebookAd.loadAd();
-            }
-            adMobAd.loadAd();   // load next AdMob ad
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
 
         return (succeededAdMob || succeededFacebook);
     }
     public void close() {
-        facebookAd.close();
+        try {
+            facebookAd.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     // interface for showing Google AdMob ads
@@ -119,15 +131,19 @@ public class ShowingInterstitialAdsUtil {
             final int timeDelay = 300;
             int i = 0;
             if (isAdShown) {
-                if (isShowingFacebookAd) {
-                    while (!facebookAd.adsShowDismissedOrStopped()) {
-                        SystemClock.sleep(timeDelay);
+                try {
+                    if (isShowingFacebookAd) {
+                        while (!facebookAd.adsShowDismissedOrStopped()) {
+                            SystemClock.sleep(timeDelay);
+                        }
+                    } else {
+                        // is showing google AdMob ad
+                        while (!adMobAd.adsShowDismissedOrStopped()) {
+                            SystemClock.sleep(timeDelay);
+                        }
                     }
-                } else {
-                    // is showing google AdMob ad
-                    while (!adMobAd.adsShowDismissedOrStopped()) {
-                        SystemClock.sleep(timeDelay);
-                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
             }
 
@@ -140,8 +156,12 @@ public class ShowingInterstitialAdsUtil {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            if (afterDismissFunction != null) {
-                afterDismissFunction.executeAfterDismissAds(endPoint);
+            try {
+                if (afterDismissFunction != null) {
+                    afterDismissFunction.executeAfterDismissAds(endPoint);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }
     }

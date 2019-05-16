@@ -1,4 +1,4 @@
-package com.smile.smilepublicclasseslibrary;
+package com.smile.smilepublicclasseslibrary.utilities;
 
 import android.content.Context;
 import android.media.AudioManager;
@@ -10,6 +10,7 @@ public class SoundPoolUtil {
     private SoundPool soundPool;
     private int soundId;
 
+    @SuppressWarnings("deprecation")
     public SoundPoolUtil(final Context context, final int rawId) {
         int maxStreams = 1;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

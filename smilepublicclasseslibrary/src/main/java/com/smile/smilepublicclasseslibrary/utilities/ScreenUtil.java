@@ -191,15 +191,6 @@ public class ScreenUtil {
         return fontScale;
     }
 
-    public static void adjustFontScale( Context context, Configuration configuration, float scale) {
-        configuration.fontScale = scale;
-        Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        display.getMetrics(displayMetrics);
-        displayMetrics.scaledDensity = configuration.fontScale * displayMetrics.density;
-        context.getResources().updateConfiguration(configuration, displayMetrics);
-    }
-
     public static float screenWidthInches(Context context) {
         // Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
         Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();

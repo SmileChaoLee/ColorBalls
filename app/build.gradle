@@ -16,8 +16,8 @@ android {
         targetSdkVersion 28
         multiDexEnabled true
 
-        versionCode 3276
-        versionName "3.276"
+        versionCode 3281
+        versionName "3.281"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         applicationId "com.smile.colorballs"
@@ -59,6 +59,11 @@ allprojects {
     tasks.withType(JavaCompile) {
         options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
     }
+    configurations.all {
+        resolutionStrategy {
+            force("com.google.auto.value:auto-value-annotations:1.6.3")
+        }
+    }
 }
 
 dependencies {
@@ -68,9 +73,9 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     implementation 'org.jetbrains:annotations-java5:15.0'
     implementation 'com.android.support:recyclerview-v7:28.0.0'
-    implementation 'com.facebook.android:audience-network-sdk:4.99.0'
+    implementation 'com.facebook.android:audience-network-sdk:5.3.0'
     implementation 'com.android.support:customtabs:28.0.0'
-    implementation 'com.google.firebase:firebase-core:16.0.8'
+    implementation 'com.google.firebase:firebase-core:16.0.9'
     implementation 'com.google.firebase:firebase-ads:17.2.0'
     implementation 'com.android.support:multidex:1.0.3'
 
@@ -80,7 +85,7 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:1.0.0"
     androidTestImplementation 'androidx.test:rules:1.1.0'
     androidTestImplementation 'androidx.test.ext:truth:1.0.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0-beta01'
     androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
 }
 

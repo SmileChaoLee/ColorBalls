@@ -1,6 +1,6 @@
 package com.smile.colorballs;
 
-import com.smile.smilepublicclasseslibrary.SoundPoolUtil;
+import com.smile.smilepublicclasseslibrary.utilities.SoundPoolUtil;
 import com.smile.smilepublicclasseslibrary.alertdialogfragment.*;
 
 import android.content.Context;
@@ -21,7 +21,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
