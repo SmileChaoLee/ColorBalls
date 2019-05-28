@@ -170,6 +170,9 @@ public class MyActivity extends AppCompatActivity {
             }
         }
 
+        TextView musicWebsiteAddressTextView = findViewById(R.id.musicWebsiteAddressTextView);
+        ScreenUtil.resizeTextSize(musicWebsiteAddressTextView, textSizeCompInfo, ColorBallsApp.FontSize_Scale_Type);
+
         LinearLayout bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
         LinearLayout companyInfoLayout = findViewById(R.id.linearlayout_for_company_information);
         if (!ColorBallsApp.googleAdMobBannerID.isEmpty()) {
