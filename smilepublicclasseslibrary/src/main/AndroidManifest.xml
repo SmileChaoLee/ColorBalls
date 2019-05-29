@@ -1,10 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.smile.smilepublicclasseslibrary">
+
     <application>
+        <service
+            android:name=".services.MusicBoundService"
+            android:enabled="true"
+            android:exported="true"></service>
+
         <activity
             android:name=".privacy_policy.PrivacyPolicyActivity"
-            android:label="@string/privacyPolicyString">
-        </activity>
+            android:label="@string/privacyPolicyString"></activity>
     </application>
-</manifest>
 
+</manifest>

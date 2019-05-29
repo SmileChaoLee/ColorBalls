@@ -711,19 +711,6 @@ public class MainUiFragment extends Fragment {
     }
 
     private void flushALLandBegin() {
-        /* cannot use FragmentManager to recreate Fragment because MyActivity will not have new instance of Fragment
-        // recreate this Fragment without recreating MyActivity
-        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-        ft.replace(myActivity.getMainUiLayoutId(), newInstance(), MainUiFragmentTag);
-        ft.commit();
-        */
-
-        // must use the following to let MyActivity have new instance of Fragment
-        // recreate MyActivity like new start (no savedInstanceState)
-        // Intent intent = myActivity.getIntent();
-        // myActivity.finish();
-        // startActivity(intent);
-
         myActivity.reStartApplication();   // restart the game
     }
 

@@ -15,13 +15,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="${googleAdMobAppID}${appNameSuffix}" />
 
         <uses-library
             android:name="org.apache.http.legacy"
-            android:required="false"/>
+            android:required="false" />
 
         <activity
             android:name=".MyActivity"
@@ -35,11 +36,11 @@
         <activity
             android:name=".SettingActivity"
             android:label="@string/settingStr"
-            android:theme="@style/AppThemeTransparent"></activity>
+            android:theme="@style/AppThemeTransparent" />
         <activity
             android:name=".Top10ScoreActivity"
-            android:label="@string/title_activity_history">
-        </activity>
+            android:label="@string/title_activity_history"></activity>
+
         <service
             android:name="com.smile.Service.MyTop10ScoresIntentService"
             android:enabled="true"
@@ -47,6 +48,11 @@
         </service>
         <service
             android:name="com.smile.Service.MyGlobalTop10IntentService"
+            android:enabled="true"
+            android:exported="false">
+        </service>
+        <service
+            android:name="com.smile.Service.MusicService"
             android:enabled="true"
             android:exported="false">
         </service>

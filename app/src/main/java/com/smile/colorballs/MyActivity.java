@@ -23,7 +23,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
@@ -31,6 +30,7 @@ import com.google.android.gms.ads.AdView;
 import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
 import com.smile.smilepublicclasseslibrary.privacy_policy.PrivacyPolicyUtil;
+import com.smile.smilepublicclasseslibrary.services.MusicBoundService;
 import com.smile.smilepublicclasseslibrary.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
 import com.smile.smilepublicclasseslibrary.utilities.*;
 
@@ -47,6 +47,11 @@ public class MyActivity extends AppCompatActivity {
     private final int Top10ScoreActivityRequestCode = 2;
     private final int GlobalTop10ActivityRequestCode = 3;
     private final int PrivacyPolicyActivityRequestCode = 10;
+    private final int QuitGame = 0;
+    private final int NewGame = 1;
+
+    private float textFontSize;
+    private float fontScale;
 
     private Toolbar supportToolbar;
     private int mainUiFragmentLayoutId = -1;
@@ -58,10 +63,13 @@ public class MyActivity extends AppCompatActivity {
     private Top10ScoreFragment globalTop10Fragment = null;
     private float mainFragmentHeight;
     private float mainFragmentWidth;
+
     private MyBroadcastReceiver myReceiver;
 
-    private float textFontSize;
-    private float fontScale;
+    private IntentFilter myIntentFilter;
+    private MusicBoundService.MusicServiceConnection musicServiceConnection;
+
+    private int isQuitOrNewGame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -197,14 +205,20 @@ public class MyActivity extends AppCompatActivity {
         }
 
         myReceiver = new MyBroadcastReceiver();
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(MyTop10ScoresIntentService.Action_Name);
-        intentFilter.addAction(MyGlobalTop10IntentService.Action_Name);
+        myIntentFilter = new IntentFilter();
+        myIntentFilter.addAction(MyTop10ScoresIntentService.Action_Name);
+        myIntentFilter.addAction(MyGlobalTop10IntentService.Action_Name);
+        myIntentFilter.addAction(MusicBoundService.ActionName);
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
-        localBroadcastManager.registerReceiver(myReceiver, intentFilter);
+        localBroadcastManager.registerReceiver(myReceiver, myIntentFilter);
 
-        // for AdBuddiz ads removed on 2018-07-03
-        // AdBuddiz.setPublisherKey("57c7153c-35dd-488a-beaa-3cae8b3ab668");
+        musicServiceConnection = new MusicBoundService.MusicServiceConnection();
+
+        Intent serviceIntent = new Intent(this, MusicBoundService.class);
+        serviceIntent.putExtra("MusicResourceId", R.raw.background_music);
+        bindService(serviceIntent, musicServiceConnection, Context.BIND_AUTO_CREATE);
+
+        isQuitOrNewGame = QuitGame; // default is quiting game when destroy activity
 
         Log.d(TAG, "onCreate() is finished.");
     }
@@ -218,6 +232,14 @@ public class MyActivity extends AppCompatActivity {
                     Bundle extras = data.getExtras();
                     if (extras != null) {
                         boolean hasSound = extras.getBoolean("HasSound");
+                        MusicBoundService musicBoundService = musicServiceConnection.getMusicBoundService();
+                        if (musicBoundService != null) {
+                            if (hasSound) {
+                                musicBoundService.playMusic();
+                            } else {
+                                musicBoundService.pauseMusic();
+                            }
+                        }
                         boolean isEasyLevel = extras.getBoolean("IsEasyLevel");
                         mainUiFragment.setHasSound(hasSound);
                         mainUiFragment.setIsEasyLevel(isEasyLevel);
@@ -363,22 +385,69 @@ public class MyActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d(TAG, "MyActivity.onResume() is called");
+
+        boolean hasSound = mainUiFragment.getHasSound();
+        if (hasSound) {
+            MusicBoundService musicBoundService = musicServiceConnection.getMusicBoundService();
+            if (musicBoundService != null) {
+                musicBoundService.playMusic();
+            }
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        Log.d(TAG, "MyActivity.onPause() is called");
+
+        MusicBoundService musicBoundService = musicServiceConnection.getMusicBoundService();
+        if (musicBoundService != null) {
+            musicBoundService.pauseMusic();
+        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "MyActivity.onDestroy() is called");
+
         if (ColorBallsApp.ScoreSQLiteDB != null) {
             ColorBallsApp.ScoreSQLiteDB.close();
         }
 
+        if (musicServiceConnection != null) {
+            if (musicServiceConnection.isServiceBound()) {
+                unbindService(musicServiceConnection);
+            }
+        }
+
+        MusicBoundService musicBoundService = musicServiceConnection.getMusicBoundService();
+        Log.d(TAG, "MyActivity.musicBoundService() = " + musicBoundService);
+        if (musicBoundService != null) {
+            Log.d(TAG, "MyActivity->stopping service");
+            musicBoundService.terminateService();
+        }
+
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.unregisterReceiver(myReceiver);
+
+        int pid = android.os.Process.myPid();
+        if (isQuitOrNewGame == QuitGame) {
+            // Kill Current Process
+            android.os.Process.killProcess(pid);
+            System.exit(0);
+        } else {
+            // create a new game
+            String packageName = getBaseContext().getPackageName();
+            Intent myIntent = getBaseContext().getPackageManager().getLaunchIntentForPackage(packageName);
+            myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(myIntent);
+
+            // Kill Current Process
+            android.os.Process.killProcess(pid);
+        }
+
     }
 
     @Override
@@ -390,41 +459,41 @@ public class MyActivity extends AppCompatActivity {
     }
 
     public void exitApplication() {
+        isQuitOrNewGame = QuitGame;
         final Handler handlerClose = new Handler();
         final int timeDelay = 200;
         handlerClose.postDelayed(new Runnable() {
             public void run() {
                 // exit application
                 finish();
-                int pid = android.os.Process.myPid();
-                android.os.Process.killProcess(pid);
-                System.exit(0);
             }
         },timeDelay);
     }
 
-    public void reStartApplication()
-    {
+    public void reStartApplication() {
+        isQuitOrNewGame = NewGame;
         final Handler handlerClose = new Handler();
         final int timeDelay = 200;
         handlerClose.postDelayed(new Runnable() {
             public void run() {
+                finish();
                 // restart this MyActivity, new game
                 /*  removed on 2018-12-10
                 Intent myIntent = getIntent();
                 finish();
                 startActivity(myIntent);
                 */
+                /*
                 String packageName = getBaseContext().getPackageName();
                 Intent myIntent = getBaseContext().getPackageManager().getLaunchIntentForPackage(packageName);
                 myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
                 startActivity(myIntent);
+                */
 
-                finish();   // finish() might not be needed
+                // finish();   // finish() might not be needed
                 // Kill Current Process
-                int pid = android.os.Process.myPid();
-                android.os.Process.killProcess(pid);
+                // int pid = android.os.Process.myPid();
+                // android.os.Process.killProcess(pid);
             }
         },timeDelay);
     }
