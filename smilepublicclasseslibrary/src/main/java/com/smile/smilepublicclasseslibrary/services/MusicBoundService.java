@@ -34,27 +34,27 @@ public class MusicBoundService extends Service {
 
     public static class MusicServiceConnection implements ServiceConnection {
         private MusicBoundService musicBoundService;
-        private boolean isServiceBound;
+        private boolean isServiceConnected;
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.i(TAG, "Bound service connected");
             MusicBoundService.ServiceBinder musicBinder = (MusicBoundService.ServiceBinder)service;
             musicBoundService = musicBinder.getService();
-            isServiceBound = true;
+            isServiceConnected = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.i(TAG, "Bound service disconnected");
             musicBoundService = null;
-            isServiceBound = false;
+            isServiceConnected = false;
         }
 
         public MusicBoundService getMusicBoundService() {
             return musicBoundService;
         }
-        public boolean isServiceBound() {
-            return isServiceBound;
+        public boolean isServiceConnected() {
+            return isServiceConnected;
         }
     }
 

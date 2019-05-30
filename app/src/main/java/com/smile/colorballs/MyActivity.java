@@ -68,6 +68,7 @@ public class MyActivity extends AppCompatActivity {
 
     private IntentFilter myIntentFilter;
     private MusicBoundService.MusicServiceConnection musicServiceConnection;
+    private boolean isServiceConnected;
 
     private int isQuitOrNewGame;
 
@@ -216,7 +217,7 @@ public class MyActivity extends AppCompatActivity {
 
         Intent serviceIntent = new Intent(this, MusicBoundService.class);
         serviceIntent.putExtra("MusicResourceId", R.raw.background_music);
-        bindService(serviceIntent, musicServiceConnection, Context.BIND_AUTO_CREATE);
+        isServiceConnected = bindService(serviceIntent, musicServiceConnection, Context.BIND_AUTO_CREATE);
 
         isQuitOrNewGame = QuitGame; // default is quiting game when destroy activity
 
@@ -392,6 +393,7 @@ public class MyActivity extends AppCompatActivity {
             MusicBoundService musicBoundService = musicServiceConnection.getMusicBoundService();
             if (musicBoundService != null) {
                 musicBoundService.playMusic();
+                Log.d(TAG, "musicBoundService.playMusic() is called");
             }
         }
     }
@@ -404,6 +406,7 @@ public class MyActivity extends AppCompatActivity {
         MusicBoundService musicBoundService = musicServiceConnection.getMusicBoundService();
         if (musicBoundService != null) {
             musicBoundService.pauseMusic();
+            Log.d(TAG, "musicBoundService.pauseMusic() is called");
         }
     }
 
@@ -417,7 +420,7 @@ public class MyActivity extends AppCompatActivity {
         }
 
         if (musicServiceConnection != null) {
-            if (musicServiceConnection.isServiceBound()) {
+            if (musicServiceConnection.isServiceConnected()) {
                 unbindService(musicServiceConnection);
             }
         }
