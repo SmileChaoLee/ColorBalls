@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Point;
+import android.media.AudioManager;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -217,6 +218,7 @@ public class MyActivity extends AppCompatActivity {
 
         Intent serviceIntent = new Intent(this, MusicBoundService.class);
         serviceIntent.putExtra("MusicResourceId", R.raw.background_music);
+        serviceIntent.putExtra("SoundVolume", 30);
         isServiceConnected = bindService(serviceIntent, musicServiceConnection, Context.BIND_AUTO_CREATE);
 
         isQuitOrNewGame = QuitGame; // default is quiting game when destroy activity

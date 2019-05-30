@@ -2,8 +2,10 @@ package com.smile.smilepublicclasseslibrary.services;
 
 import android.app.Service;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Bundle;
@@ -20,6 +22,8 @@ public class MusicBoundService extends Service {
     public static final int MusicPaused = 0x03;
 
     private static final String TAG = new String("com.smile.smilepublicclasseslibrary.services.MusicService");
+    private final int maxVolume = 100;
+    private int soundVolume = maxVolume - 1;   // full volume
     private MediaPlayer mediaPlayer = null;
     private Thread backgroundThread = null;
     private int musicResourceId;
@@ -89,6 +93,7 @@ public class MusicBoundService extends Service {
         musicResourceId = 0;    // no resource
         if (extras != null) {
             musicResourceId = extras.getInt("MusicResourceId", 0);
+            soundVolume = extras.getInt("SoundVolume", maxVolume - 1);
         }
 
         backgroundThread = new Thread(new Runnable() {
@@ -134,12 +139,6 @@ public class MusicBoundService extends Service {
             backgroundThread = null;
         }
 
-        /*
-        Thread dummy = backgroundThread;
-        backgroundThread = null;
-        dummy.interrupt();
-        */
-
         serviceBinder = null;
     }
 
@@ -147,6 +146,8 @@ public class MusicBoundService extends Service {
         if (mediaPlayer == null) {
             mediaPlayer = MediaPlayer.create(getApplicationContext(), musicResourceId);
             if (mediaPlayer != null) {
+                float log1 = (float) (1 - (Math.log(maxVolume - soundVolume) / Math.log(maxVolume)));
+                mediaPlayer.setVolume(log1, log1);
                 mediaPlayer.setLooping(true);
                 mediaPlayer.start();
             }
@@ -155,18 +156,20 @@ public class MusicBoundService extends Service {
 
     public void playMusic() {
         if (mediaPlayer != null) {
+            try {
+                if (!mediaPlayer.isPlaying()) {
+                    mediaPlayer.start();
+                    // send broadcast to receiver
+                    Intent broadcastIntent = new Intent(ActionName);
+                    Bundle extras = new Bundle();
+                    extras.putInt("PlayStatus", MusicPlaying);
+                    broadcastIntent.putExtras(extras);
 
-            if (!mediaPlayer.isPlaying()) {
-                mediaPlayer.start();
-
-                // send broadcast to receiver
-                Intent broadcastIntent = new Intent(ActionName);
-                Bundle extras = new Bundle();
-                extras.putInt("PlayStatus", MusicPlaying);
-                broadcastIntent.putExtras(extras);
-
-                LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getBaseContext());
-                localBroadcastManager.sendBroadcast(broadcastIntent);
+                    LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getBaseContext());
+                    localBroadcastManager.sendBroadcast(broadcastIntent);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }
 
