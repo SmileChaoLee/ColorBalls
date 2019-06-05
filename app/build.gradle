@@ -16,8 +16,8 @@ android {
         targetSdkVersion 28
         multiDexEnabled true
 
-        versionCode 3282
-        versionName "3.282"
+        versionCode 3290
+        versionName "3.290"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         applicationId "com.smile.colorballs"
@@ -44,7 +44,8 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.config
         }

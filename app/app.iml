@@ -8,69 +8,69 @@
     </facet>
     <facet type="android" name="Android">
       <configuration>
-        <option name="SELECTED_BUILD_VARIANT" value="colorballsRelease" />
-        <option name="ASSEMBLE_TASK_NAME" value="assembleColorballsRelease" />
-        <option name="COMPILE_JAVA_TASK_NAME" value="compileColorballsReleaseSources" />
+        <option name="SELECTED_BUILD_VARIANT" value="colorballs_proRelease" />
+        <option name="ASSEMBLE_TASK_NAME" value="assembleColorballs_proRelease" />
+        <option name="COMPILE_JAVA_TASK_NAME" value="compileColorballs_proReleaseSources" />
         <afterSyncTasks>
-          <task>generateColorballsReleaseSources</task>
+          <task>generateColorballs_proReleaseSources</task>
         </afterSyncTasks>
         <option name="ALLOW_USER_CONFIGURATION" value="false" />
         <option name="MANIFEST_FILE_RELATIVE_PATH" value="/src/main/AndroidManifest.xml" />
         <option name="RES_FOLDER_RELATIVE_PATH" value="/src/main/res" />
-        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/src/main/res;file://$MODULE_DIR$/build/generated/res/google-services/colorballs/release;file://$MODULE_DIR$/build/generated/res/resValues/colorballs/release" />
+        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/src/main/res;file://$MODULE_DIR$/build/generated/res/google-services/colorballs_pro/release;file://$MODULE_DIR$/build/generated/res/resValues/colorballs_pro/release" />
         <option name="TEST_RES_FOLDERS_RELATIVE_PATH" value="" />
         <option name="ASSETS_FOLDER_RELATIVE_PATH" value="/src/main/assets" />
       </configuration>
     </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7">
-    <output url="file://$MODULE_DIR$/build/intermediates/javac/colorballsRelease/compileColorballsReleaseJavaWithJavac/classes" />
-    <output-test url="file://$MODULE_DIR$/build/intermediates/javac/colorballsReleaseUnitTest/compileColorballsReleaseUnitTestJavaWithJavac/classes" />
+    <output url="file://$MODULE_DIR$/build/intermediates/javac/colorballs_proRelease/compileColorballs_proReleaseJavaWithJavac/classes" />
+    <output-test url="file://$MODULE_DIR$/build/intermediates/javac/colorballs_proReleaseUnitTest/compileColorballs_proReleaseUnitTestJavaWithJavac/classes" />
     <exclude-output />
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/colorballs/release" isTestSource="false" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/aidl_source_output_dir/colorballsRelease/compileColorballsReleaseAidl/out" isTestSource="false" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/colorballs/release" isTestSource="false" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/renderscript_source_output_dir/colorballsRelease/compileColorballsReleaseRenderscript/out" isTestSource="false" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/google-services/colorballs/release" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/colorballs/release" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/colorballs/release" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballsRelease/res" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballsRelease/resources" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballsRelease/assets" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballsRelease/aidl" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballsRelease/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballsRelease/rs" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballsRelease/shaders" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/test/colorballs/release" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballsRelease/res" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballsRelease/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballsRelease/assets" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballsRelease/aidl" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballsRelease/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballsRelease/rs" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballsRelease/shaders" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballs/res" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballs/resources" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballs/assets" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballs/aidl" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballs/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballs/rs" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/colorballs/shaders" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestColorballs/res" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestColorballs/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestColorballs/assets" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestColorballs/aidl" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestColorballs/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestColorballs/rs" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestColorballs/shaders" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs/res" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs/assets" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs/aidl" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs/rs" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs/shaders" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/colorballs_pro/release" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/aidl_source_output_dir/colorballs_proRelease/compileColorballs_proReleaseAidl/out" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/colorballs_pro/release" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/renderscript_source_output_dir/colorballs_proRelease/compileColorballs_proReleaseRenderscript/out" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/google-services/colorballs_pro/release" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/colorballs_pro/release" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/colorballs_pro/release" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/colorballs_proRelease/res" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/colorballs_proRelease/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/colorballs_proRelease/assets" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/colorballs_proRelease/aidl" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/colorballs_proRelease/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/colorballs_proRelease/rs" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/colorballs_proRelease/shaders" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/test/colorballs_pro/release" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs_proRelease/res" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs_proRelease/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs_proRelease/assets" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs_proRelease/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs_proRelease/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs_proRelease/rs" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs_proRelease/shaders" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/colorballs_pro/res" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/colorballs_pro/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/colorballs_pro/assets" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/colorballs_pro/aidl" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/colorballs_pro/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/colorballs_pro/rs" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/colorballs_pro/shaders" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestColorballs_pro/res" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestColorballs_pro/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestColorballs_pro/assets" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestColorballs_pro/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestColorballs_pro/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestColorballs_pro/rs" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestColorballs_pro/shaders" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs_pro/res" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs_pro/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs_pro/assets" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs_pro/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs_pro/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs_pro/rs" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testColorballs_pro/shaders" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/release/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/release/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/release/assets" type="java-resource" />
@@ -130,6 +130,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/metadata_feature_manifest" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/prebuild" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/processed_res" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/proguard-files" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/res" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/shader_assets" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/signing_config" />
@@ -206,6 +207,8 @@
     <orderEntry type="library" name="Gradle: com.android.support:support-media-compat:28.0.0@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-tasks:16.0.1@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-measurement-sdk-api:16.5.0@aar" level="project" />
+    <orderEntry type="module" module-name="smilepublicclasseslibrary" />
+    <orderEntry type="module" module-name="smilepublicclasseslibrary" />
     <orderEntry type="module" module-name="smilepublicclasseslibrary" />
   </component>
 </module>
