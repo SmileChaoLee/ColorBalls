@@ -53,6 +53,8 @@ public class ColorBallsInstrumentedTest {
     private String googleAdMobBannerIDForColorBalls = "ca-app-pub-8354869049759576/3904969730";
     private String packageNameForFiveColorBalls = "com.smile.fivecolorballs";
     private String googleAdMobBannerIDForFiveColorBalls = "ca-app-pub-8354869049759576/7162646323";
+    private String packageNameForColorBalls_pro = "com.smile.colorballs_pro";
+    private String googleAdMobBannerIDForColorBalls_pro = "";
 
     @BeforeClass
     public static void test_Setup() {
@@ -86,12 +88,19 @@ public class ColorBallsInstrumentedTest {
     }
 
     @Test
+    public void testPackageNameForColorBalls_pro() {
+        assertEquals(packageNameForColorBalls_pro, appContext.getPackageName());
+    }
+
+    @Test
     public void TestGoogleAdMobBannerID() {
         String packageName = appContext.getPackageName();
         if (packageName.equals(packageNameForColorBalls)) {
             assertEquals(googleAdMobBannerIDForColorBalls, ColorBallsApp.googleAdMobBannerID);
         } else if (packageName.equals(packageNameForFiveColorBalls)) {
             assertEquals(googleAdMobBannerIDForFiveColorBalls, ColorBallsApp.googleAdMobBannerID);
+        } else if (packageName.equals(packageNameForColorBalls_pro)) {
+                assertEquals(googleAdMobBannerIDForColorBalls_pro, ColorBallsApp.googleAdMobBannerID);
         } else {
             fail("Wrong package name and wrong AdMob Banner ID");
         }

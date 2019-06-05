@@ -1,19 +1,17 @@
 package com.smile.colorballs;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
 import com.google.android.gms.ads.MobileAds;
-import com.smile.smilepublicclasseslibrary.facebook_ads_util.*;
-import com.smile.smilepublicclasseslibrary.google_admob_ads_util.*;
-import com.smile.smilepublicclasseslibrary.scoresqlite.*;
-import com.smile.smilepublicclasseslibrary.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
-import com.smile.smilepublicclasseslibrary.utilities.ScreenUtil;
+import com.smile.smilelibraries.facebook_ads_util.FacebookInterstitialAds;
+import com.smile.smilelibraries.google_admob_ads_util.GoogleAdMobInterstitial;
+import com.smile.smilelibraries.scoresqlite.ScoreSQLite;
+import com.smile.smilelibraries.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
+import com.smile.smilelibraries.utilities.ScreenUtil;
 
 import java.util.HashMap;
 

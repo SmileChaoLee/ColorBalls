@@ -29,10 +29,10 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
-import com.smile.smilepublicclasseslibrary.privacy_policy.PrivacyPolicyUtil;
-import com.smile.smilepublicclasseslibrary.services.MusicBoundService;
-import com.smile.smilepublicclasseslibrary.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
-import com.smile.smilepublicclasseslibrary.utilities.*;
+import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil;
+import com.smile.smilelibraries.services.MusicBoundService;
+import com.smile.smilelibraries.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
+import com.smile.smilelibraries.utilities.ScreenUtil;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -436,11 +436,13 @@ public class MyActivity extends AppCompatActivity {
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.unregisterReceiver(myReceiver);
 
-        int pid = android.os.Process.myPid();
+        // int pid = android.os.Process.myPid();
         if (isQuitOrNewGame == QuitGame) {
             // Kill Current Process
+            /*  removed for testing (UI test)
             android.os.Process.killProcess(pid);
             System.exit(0);
+            */
         } else {
             // create a new game
             String packageName = getBaseContext().getPackageName();
@@ -449,7 +451,9 @@ public class MyActivity extends AppCompatActivity {
             startActivity(myIntent);
 
             // Kill Current Process
+            /*  removed for testing (UI test)
             android.os.Process.killProcess(pid);
+            */
         }
 
     }

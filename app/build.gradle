@@ -44,8 +44,8 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.config
         }
@@ -80,7 +80,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-ads:17.2.0'
     implementation 'com.android.support:multidex:1.0.3'
 
-    implementation project(':smilepublicclasseslibrary')
+    implementation project(':smilelibraries')
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation "androidx.test.ext:junit:1.0.0"

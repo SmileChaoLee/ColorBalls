@@ -1,7 +1,9 @@
 package com.smile.colorballs;
 
-import com.smile.smilepublicclasseslibrary.utilities.SoundPoolUtil;
-import com.smile.smilepublicclasseslibrary.alertdialogfragment.*;
+import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment;
+import com.smile.smilelibraries.utilities.FontAndBitmapUtil;
+import com.smile.smilelibraries.utilities.ScreenUtil;
+import com.smile.smilelibraries.utilities.SoundPoolUtil;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -38,9 +40,8 @@ import android.widget.TextView;
 import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
 import com.smile.model.GridData;
-import com.smile.smilepublicclasseslibrary.player_record_rest.PlayerRecordRest;
-import com.smile.smilepublicclasseslibrary.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
-import com.smile.smilepublicclasseslibrary.utilities.*;
+import com.smile.smilelibraries.player_record_rest.PlayerRecordRest;
+import com.smile.smilelibraries.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
 
 import org.json.JSONObject;
 

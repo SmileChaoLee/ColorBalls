@@ -1,1 +1,1 @@
-include ':app', ':smilepublicclasseslibrary'
+include ':app', ':smilelibraries'
