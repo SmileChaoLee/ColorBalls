@@ -52,11 +52,6 @@
             android:enabled="true"
             android:exported="false">
         </service>
-        <service
-            android:name="com.smile.Service.MusicService"
-            android:enabled="true"
-            android:exported="false">
-        </service>
     </application>
 
 </manifest>
