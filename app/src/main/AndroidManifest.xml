@@ -11,7 +11,7 @@
         android:name=".ColorBallsApp"
         android:allowBackup="true"
         android:fullBackupContent="true"
-        android:icon="@drawable/colorballs"
+        android:icon="@drawable/app_icon"
         android:label="${appName}${appNameSuffix}"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
