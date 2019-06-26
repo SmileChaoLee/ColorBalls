@@ -79,14 +79,16 @@ public class MainUiFragment extends Fragment {
     private Handler bouncyHandler;   // needed to be tested
     private GridData gridData;
 
+    private int highestScore;
+    private TextView toolbarTitleTextView;
     private TextView currentScoreView;
 
     private int rowCounts = 9;
     private int colCounts = 9;
     private int cellWidth = 0;
     private int cellHeight = 0;
-    private final boolean[] threadCompleted =  {true,true,true,true,true,true,true,true,true,true};
 
+    private final boolean[] threadCompleted =  {true,true,true,true,true,true,true,true,true,true};
     private int bouncyBallIndexI = -1, bouncyBallIndexJ = -1;   // the array index that the ball has been selected
     private int bouncingStatus = 0; //  no cell selected
     //  one cell with a ball selected
@@ -95,8 +97,8 @@ public class MainUiFragment extends Fragment {
     private int undoScore = 0;
     private boolean isEasyLevel = true;
     private boolean hasSound = true;    // has sound effect
-    private SoundPoolUtil soundPoolUtil;
 
+    private SoundPoolUtil soundPoolUtil;
     private String yesStr = new String("");
     private String noStr = new String("");
     private String nameStr = new String("");
@@ -244,9 +246,11 @@ public class MainUiFragment extends Fragment {
         float height_weight_scoreNextBallsLayout = scoreNextBallsLayoutParams.weight;
 
         // display the highest score and current score
+        toolbarTitleTextView = myActivity.findViewById(R.id.toolbarTitleTextView);
+        ScreenUtil.resizeTextSize(toolbarTitleTextView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+
         currentScoreView = uiFragmentView.findViewById(R.id.currentScoreTextView);
         ScreenUtil.resizeTextSize(currentScoreView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
-        currentScoreView.setText(String.format(Locale.getDefault(), "%8d", currentScore));
 
         // display the view of next balls
         GridLayout nextBallsLayout = uiFragmentView.findViewById(R.id.nextBallsLayout);
@@ -346,18 +350,15 @@ public class MainUiFragment extends Fragment {
             // or gridData is null (for some unknown reason)
             // AdMob ads
 
-            ColorBallsApp.isShowingLoadingMessage = false;
-            ColorBallsApp.isShowingSavingGameMessage = false;
-            ColorBallsApp.isShowingLoadingGameMessage = false;
-            ColorBallsApp.isProcessingJob = false;
-
-            isEasyLevel = true;     // start with easy level
-            gridData = new GridData(rowCounts, colCounts, ColorBallsApp.NumOfColorsUsedByEasy);
-            displayGridDataNextCells();
+            createNewGame();
 
         } else {
             // fragment recreated (keep the original state)
             // display the original state before changing configuration
+
+            toolbarTitleTextView.setText(String.format(Locale.getDefault(), "%8d", highestScore));
+            currentScoreView.setText(String.format(Locale.getDefault(), "%8d", currentScore));
+
             displayGameView();
 
             if (ColorBallsApp.isShowingLoadingMessage) {
@@ -410,6 +411,38 @@ public class MainUiFragment extends Fragment {
     interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    private void createNewGame() {
+        ColorBallsApp.isShowingLoadingMessage = false;
+        ColorBallsApp.isShowingSavingGameMessage = false;
+        ColorBallsApp.isShowingLoadingGameMessage = false;
+        ColorBallsApp.isProcessingJob = false;
+
+        for (int i = 0; i<threadCompleted.length; i++) {
+            threadCompleted[i] = true;
+        }
+
+        bouncyBallIndexI = -1;
+        bouncyBallIndexJ = -1;  // the array index that the ball has been selected
+        bouncingStatus = 0;     //  no cell selected
+        undoEnable = false;
+        currentScore = 0;
+        undoScore = 0;
+        isEasyLevel = true; // start with easy level
+        hasSound = true;    // has sound effect
+
+        if (ColorBallsApp.ScoreSQLiteDB != null) {
+            highestScore = ColorBallsApp.ScoreSQLiteDB.readHighestScore();
+        }
+
+        toolbarTitleTextView.setText(String.format(Locale.getDefault(), "%8d", highestScore));
+        currentScoreView.setText(String.format(Locale.getDefault(), "%8d", currentScore));
+
+        gridData = new GridData(rowCounts, colCounts, ColorBallsApp.NumOfColorsUsedByEasy);
+
+        displayGameView();
+        displayGridDataNextCells();
     }
 
     private boolean completedAll() {
@@ -712,7 +745,9 @@ public class MainUiFragment extends Fragment {
     }
 
     private void flushALLandBegin() {
-        myActivity.reStartApplication();   // restart the game
+        // myActivity.reStartApplication();   // restart the game
+
+        createNewGame();
     }
 
     private void setDialogStyle(DialogInterface dialog) {
@@ -823,6 +858,7 @@ public class MainUiFragment extends Fragment {
         });
         showAdAsyncTask.execute();
     }
+
     private boolean startSavingGame(int numOfSaved, final boolean isShowAd) {
         ColorBallsApp.isProcessingJob = true;
         ColorBallsApp.isShowingSavingGameMessage = true;
@@ -1105,6 +1141,7 @@ public class MainUiFragment extends Fragment {
 
         ColorBallsApp.isProcessingJob = false;    // finished
     }
+
     public void showTop10ScoreHistory() {
         ColorBallsApp.isProcessingJob = true;
         ColorBallsApp.isShowingLoadingMessage = true;

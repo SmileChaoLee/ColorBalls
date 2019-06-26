@@ -120,26 +120,9 @@ public class MyActivity extends AppCompatActivity {
             ScreenUtil.resizeTextSize(companyContactEmailTextView, textSizeCompInfo, ColorBallsApp.FontSize_Scale_Type);
         }
 
-        int highestScore = ColorBallsApp.ScoreSQLiteDB.readHighestScore();
-
         supportToolbar = findViewById(R.id.colorballs_toolbar);
         setSupportActionBar(supportToolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        TextView toolbarTitleTextView = findViewById(R.id.toolbarTitleTextView);
-        ScreenUtil.resizeTextSize(toolbarTitleTextView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
-        toolbarTitleTextView.setText(String.format(Locale.getDefault(), "%8d", highestScore));
-
-        /*
-        // setting the font size for activity label
-        setTitle(String.format(Locale.getDefault(), "%8d", highestScore));
-        ActionBar actionBar = getSupportActionBar();
-        TextView titleView = new TextView(this);
-        titleView.setText(actionBar.getTitle());
-        titleView.setTextColor(Color.WHITE);
-        ScreenUtil.resizeTextSize(titleView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
-        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        actionBar.setCustomView(titleView);
-        */
 
         LinearLayout linearLayout_myActivity = findViewById(R.id.linearLayout_myActivity);
         float main_WeightSum = linearLayout_myActivity.getWeightSum();
@@ -154,12 +137,9 @@ public class MyActivity extends AppCompatActivity {
         mainFragmentHeight = screenHeight * mainFragment_Weight / main_WeightSum;
 
         LinearLayout mainUiFragmentLayout = findViewById(mainUiFragmentLayoutId);
-        // float mainFragmentWeightSum = mainUiFragmentLayout.getWeightSum();
         LinearLayout.LayoutParams mainUiFragmentLayoutParams = (LinearLayout.LayoutParams)mainUiFragmentLayout.getLayoutParams();
         float mainUiFragment_weight = mainUiFragmentLayoutParams.weight;
         mainFragmentWidth = screenWidth * (mainUiFragment_weight / gameViewWeightSum);
-
-        Log.d(TAG, "mainFragmentWidth = " + mainFragmentWidth);
 
         FragmentManager fmManager = getSupportFragmentManager();
         mainUiFragment = (MainUiFragment) fmManager.findFragmentByTag(MainUiFragment.MainUiFragmentTag);
@@ -378,20 +358,23 @@ public class MyActivity extends AppCompatActivity {
         super.onDestroy();
         Log.d(TAG, "MyActivity.onDestroy() is called");
 
+        /*
         if (ColorBallsApp.ScoreSQLiteDB != null) {
             ColorBallsApp.ScoreSQLiteDB.close();
         }
+        */
 
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.unregisterReceiver(myReceiver);
 
+        /*
+        // the following were removed on 2019-06-25
         // int pid = android.os.Process.myPid();
         if (isQuitOrNewGame == QuitGame) {
             // Kill Current Process
-            /*  removed for testing (UI test)
-            android.os.Process.killProcess(pid);
-            System.exit(0);
-            */
+            //  removed for testing (UI test)
+            // android.os.Process.killProcess(pid);
+            // System.exit(0);
         } else {
             // create a new game
             String packageName = getBaseContext().getPackageName();
@@ -400,10 +383,11 @@ public class MyActivity extends AppCompatActivity {
             startActivity(myIntent);
 
             // Kill Current Process
-            /*  removed for testing (UI test)
-            android.os.Process.killProcess(pid);
-            */
+            // removed for testing (UI test)
+            // android.os.Process.killProcess(pid);
+            //
         }
+        */
 
     }
 
@@ -411,7 +395,6 @@ public class MyActivity extends AppCompatActivity {
     public void onBackPressed() {
         // capture the event of back button when it is pressed
         // change back button behavior
-        // quitApplication();
         mainUiFragment.recordScore(0);   //   from   END PROGRAM
     }
 
@@ -427,37 +410,6 @@ public class MyActivity extends AppCompatActivity {
         },timeDelay);
     }
 
-    public void reStartApplication() {
-        isQuitOrNewGame = NewGame;
-        final Handler handlerClose = new Handler();
-        final int timeDelay = 200;
-        handlerClose.postDelayed(new Runnable() {
-            public void run() {
-                finish();
-                // restart this MyActivity, new game
-                /*  removed on 2018-12-10
-                Intent myIntent = getIntent();
-                finish();
-                startActivity(myIntent);
-                */
-                /*
-                String packageName = getBaseContext().getPackageName();
-                Intent myIntent = getBaseContext().getPackageManager().getLaunchIntentForPackage(packageName);
-                myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(myIntent);
-                */
-
-                // finish();   // finish() might not be needed
-                // Kill Current Process
-                // int pid = android.os.Process.myPid();
-                // android.os.Process.killProcess(pid);
-            }
-        },timeDelay);
-    }
-
-    // private methods
-
-    // public methods
     public void showAdUntilDismissed(Activity activity) {
         if (ColorBallsApp.InterstitialAd == null) {
             return;

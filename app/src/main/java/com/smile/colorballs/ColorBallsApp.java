@@ -96,8 +96,6 @@ public class ColorBallsApp extends MultiDexApplication {
         isShowingSavingGameMessage = false;
         isShowingLoadingGameMessage = false;
 
-        System.out.println("BuildConfig.APPLICATION_ID = " + BuildConfig.APPLICATION_ID);
-
         String facebookPlacementID = ""; // for colorballs
         String googleAdMobAppID = "";
         googleAdMobBannerID = "";
