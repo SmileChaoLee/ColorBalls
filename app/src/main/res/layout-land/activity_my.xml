@@ -41,7 +41,7 @@
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="90">
+                    android:layout_weight="88">
                     <LinearLayout
                         android:id="@+id/rightPartBackgroundLayout"
                         android:orientation="vertical"
@@ -68,16 +68,7 @@
                             android:padding="0dp"
                             android:gravity="center_vertical"
                             android:text="@string/companyDescriptionString"
-                            android:layout_weight="18" />
-                        <TextView
-                            android:id="@+id/musicWebsiteAddressTextView"
-                            android:layout_width="match_parent"
-                            android:layout_height="0dp"
-                            android:textColor="@android:color/black"
-                            android:gravity="center"
-                            android:text="@string/musicWebsiteAddressString"
-                            android:layout_weight="6">
-                        </TextView>
+                            android:layout_weight="20" />
                         <TextView
                             android:id="@+id/companyNameTextView"
                             android:layout_width="match_parent"
@@ -85,7 +76,7 @@
                             android:textColor="@color/blue"
                             android:gravity="center"
                             android:text="@string/companyNameString"
-                            android:layout_weight="6"/>
+                            android:layout_weight="8"/>
                         <TextView
                             android:id="@+id/companyContactEmailTextView"
                             android:layout_width="match_parent"
@@ -93,7 +84,7 @@
                             android:textColor="@color/blue"
                             android:gravity="center"
                             android:text="@string/companyContactEmailString"
-                            android:layout_weight="6"/>
+                            android:layout_weight="8"/>
                     </LinearLayout>
                     <LinearLayout
                         android:id="@+id/top10Layout"
@@ -110,7 +101,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:gravity="center_horizontal|bottom"
-                    android:layout_weight="10" >
+                    android:layout_weight="12" >
                 </LinearLayout>
             </LinearLayout>
 

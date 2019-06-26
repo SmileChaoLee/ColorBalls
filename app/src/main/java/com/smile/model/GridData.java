@@ -179,7 +179,7 @@ public class GridData {
         int  cellColor;
 
         List<Point> tempList = new ArrayList<>();
-        tempList.clear();
+        // tempList.clear();    // no need, removed on 2019-06-17
 
         cellColor = cellValues[x][y];
 

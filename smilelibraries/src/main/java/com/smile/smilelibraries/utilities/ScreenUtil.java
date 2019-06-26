@@ -269,8 +269,6 @@ public class ScreenUtil {
                 mItemTextView.setText(mItem.getTitle());
                 originalMenuTextSize = mItemTextView.getTextSize();
                 ScreenUtil.resizeTextSize(mItemTextView, originalMenuTextSize * fontScale, fontSize_Type);
-                System.out.println("originalMenuTextSize = " + originalMenuTextSize);
-                System.out.println("originalMenuTextSize * fontScale = " + originalMenuTextSize * fontScale);
                 mItemTextView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -282,6 +280,15 @@ public class ScreenUtil {
                         }
                     }
                 });
+            } else {
+                SpannableString spanString = new SpannableString(mItem.getTitle().toString());
+                int sLen = spanString.length();
+                spanString.setSpan(new RelativeSizeSpan(fontScale), 0, sLen, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                mItem.setTitle(spanString);
+                if (mItem.hasSubMenu()) {
+                    Menu subMenu = mItem.getSubMenu();
+                    ScreenUtil.resizeMenuTextSize(subMenu, fontScale);
+                }
             }
         }
     }

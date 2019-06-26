@@ -30,7 +30,6 @@ import com.google.android.gms.ads.AdView;
 import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil;
-import com.smile.smilelibraries.services.MusicBoundService;
 import com.smile.smilelibraries.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
 import com.smile.smilelibraries.utilities.ScreenUtil;
 
@@ -65,10 +64,7 @@ public class MyActivity extends AppCompatActivity {
     private float mainFragmentWidth;
 
     private MyBroadcastReceiver myReceiver;
-
     private IntentFilter myIntentFilter;
-    private MusicBoundService.MusicServiceConnection musicServiceConnection;
-    private boolean isServiceConnected;
 
     private int isQuitOrNewGame;
 
@@ -179,9 +175,6 @@ public class MyActivity extends AppCompatActivity {
             }
         }
 
-        TextView musicWebsiteAddressTextView = findViewById(R.id.musicWebsiteAddressTextView);
-        ScreenUtil.resizeTextSize(musicWebsiteAddressTextView, textSizeCompInfo, ColorBallsApp.FontSize_Scale_Type);
-
         LinearLayout bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
         LinearLayout companyInfoLayout = findViewById(R.id.linearlayout_for_company_information);
         if (!ColorBallsApp.googleAdMobBannerID.isEmpty()) {
@@ -209,16 +202,8 @@ public class MyActivity extends AppCompatActivity {
         myIntentFilter = new IntentFilter();
         myIntentFilter.addAction(MyTop10ScoresIntentService.Action_Name);
         myIntentFilter.addAction(MyGlobalTop10IntentService.Action_Name);
-        myIntentFilter.addAction(MusicBoundService.ActionName);
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.registerReceiver(myReceiver, myIntentFilter);
-
-        musicServiceConnection = new MusicBoundService.MusicServiceConnection();
-
-        Intent serviceIntent = new Intent(this, MusicBoundService.class);
-        serviceIntent.putExtra("MusicResourceId", R.raw.background_music);
-        serviceIntent.putExtra("SoundVolume", 30);
-        isServiceConnected = bindService(serviceIntent, musicServiceConnection, Context.BIND_AUTO_CREATE);
 
         isQuitOrNewGame = QuitGame; // default is quiting game when destroy activity
 
@@ -234,14 +219,6 @@ public class MyActivity extends AppCompatActivity {
                     Bundle extras = data.getExtras();
                     if (extras != null) {
                         boolean hasSound = extras.getBoolean("HasSound");
-                        MusicBoundService musicBoundService = musicServiceConnection.getMusicBoundService();
-                        if (musicBoundService != null) {
-                            if (hasSound) {
-                                musicBoundService.playMusic();
-                            } else {
-                                musicBoundService.pauseMusic();
-                            }
-                        }
                         boolean isEasyLevel = extras.getBoolean("IsEasyLevel");
                         mainUiFragment.setHasSound(hasSound);
                         mainUiFragment.setIsEasyLevel(isEasyLevel);
@@ -388,27 +365,12 @@ public class MyActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "MyActivity.onResume() is called");
-
-        boolean hasSound = mainUiFragment.getHasSound();
-        if (hasSound) {
-            MusicBoundService musicBoundService = musicServiceConnection.getMusicBoundService();
-            if (musicBoundService != null) {
-                musicBoundService.playMusic();
-                Log.d(TAG, "musicBoundService.playMusic() is called");
-            }
-        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         Log.d(TAG, "MyActivity.onPause() is called");
-
-        MusicBoundService musicBoundService = musicServiceConnection.getMusicBoundService();
-        if (musicBoundService != null) {
-            musicBoundService.pauseMusic();
-            Log.d(TAG, "musicBoundService.pauseMusic() is called");
-        }
     }
 
     @Override
@@ -418,19 +380,6 @@ public class MyActivity extends AppCompatActivity {
 
         if (ColorBallsApp.ScoreSQLiteDB != null) {
             ColorBallsApp.ScoreSQLiteDB.close();
-        }
-
-        if (musicServiceConnection != null) {
-            if (musicServiceConnection.isServiceConnected()) {
-                unbindService(musicServiceConnection);
-            }
-        }
-
-        MusicBoundService musicBoundService = musicServiceConnection.getMusicBoundService();
-        Log.d(TAG, "MyActivity.musicBoundService() = " + musicBoundService);
-        if (musicBoundService != null) {
-            Log.d(TAG, "MyActivity->stopping service");
-            musicBoundService.terminateService();
         }
 
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
