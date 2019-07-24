@@ -25,9 +25,9 @@ public class PrivacyPolicyActivity extends AppCompatActivity {
             returnToCallingIntent();
         }
 
-        setContentView(R.layout.activity_privacy_policy);
+        setContentView(com.smile.smilelibraries.R.layout.activity_privacy_policy);
 
-        privacyPolicyWebView = findViewById(R.id.privacyPolicyWebView);
+        privacyPolicyWebView = findViewById(com.smile.smilelibraries.R.id.privacyPolicyWebView);
         privacyPolicyWebView.getSettings().setJavaScriptEnabled(true);
         privacyPolicyWebView.loadUrl(privacyPolicyUrl);
     }
