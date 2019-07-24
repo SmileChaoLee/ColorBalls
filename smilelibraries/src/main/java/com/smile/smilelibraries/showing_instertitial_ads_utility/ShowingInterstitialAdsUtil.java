@@ -2,7 +2,7 @@ package com.smile.smilelibraries.showing_instertitial_ads_utility;
 
 import android.os.AsyncTask;
 import android.os.SystemClock;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.smile.smilelibraries.facebook_ads_util.FacebookInterstitialAds;
 import com.smile.smilelibraries.google_admob_ads_util.GoogleAdMobInterstitial;

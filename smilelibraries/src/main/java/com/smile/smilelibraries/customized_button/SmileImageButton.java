@@ -6,7 +6,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-public class SmileImageButton extends android.support.v7.widget.AppCompatImageButton implements View.OnTouchListener {
+public class SmileImageButton extends androidx.appcompat.widget.AppCompatImageButton implements View.OnTouchListener {
 
     private final static int colorFilterChanged = Color.argb(100, 155, 155, 155);
     private final static int colorFilterOriginal = Color.argb(0, 155, 155, 155);

@@ -9,14 +9,14 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.view.ContextThemeWrapper;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,7 +34,6 @@ import com.smile.smilelibraries.showing_instertitial_ads_utility.ShowingIntersti
 import com.smile.smilelibraries.utilities.ScreenUtil;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class MyActivity extends AppCompatActivity {
 
