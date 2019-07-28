@@ -1,0 +1,7 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="PrivacyPolicyTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- no Status Bar -->
+        <item name="android:windowFullscreen">true</item>
+    </style>
+</resources>

@@ -5,14 +5,12 @@
     <item android:id="@+id/undoGame"
         android:title="@string/undoStr"
         android:orderInCategory="1"
-        app:showAsAction="always"
-        app:actionViewClass="android.widget.TextView">
+        app:showAsAction="always">
     </item>
     <item android:id="@+id/file"
         android:title="@string/fileMenuStr"
         android:orderInCategory="2"
-        app:showAsAction="always"
-        app:actionViewClass="android.widget.TextView">
+        app:showAsAction="always">
         <menu>
             <item android:id="@+id/setting"
                 android:title="@string/settingStr"
@@ -34,8 +32,7 @@
     <item android:id="@+id/gameAction"
         android:title="@string/moreActionString"
         android:orderInCategory="3"
-        app:showAsAction="always"
-        app:actionViewClass="android.widget.TextView">
+        app:showAsAction="always">
         <menu>
             <item android:id="@+id/top10"
                 android:title="@string/top10Str"

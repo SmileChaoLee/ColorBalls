@@ -11,7 +11,9 @@
 
         <activity
             android:name="com.smile.smilelibraries.privacy_policy.PrivacyPolicyActivity"
-            android:label="@string/privacyPolicyString"></activity>
+            android:label="@string/privacyPolicyString"
+            android:theme="@style/PrivacyPolicyTheme">
+        </activity>
     </application>
 
 </manifest>
