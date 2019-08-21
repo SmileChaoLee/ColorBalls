@@ -122,8 +122,7 @@ public class ShowingInterstitialAdsUtil {
 
         @Override
         protected void onPreExecute() {
-            // isAdShown = showGoogleAdMobAdFirst();    // removed on 2019-08-21
-            isAdShown = showFacebookAdFirst();  // added on 2019-08-21
+            isAdShown = showGoogleAdMobAdFirst();
         }
 
         @Override
