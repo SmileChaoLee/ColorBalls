@@ -16,8 +16,8 @@ android {
         targetSdkVersion 29
         multiDexEnabled true
 
-        versionCode 3301
-        versionName "3.301"
+        versionCode 3302
+        versionName "3.302"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         applicationId "com.smile.colorballs"
@@ -73,15 +73,15 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta2'
     implementation 'org.jetbrains:annotations-java5:15.0'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0-beta01'
-    implementation 'com.facebook.android:audience-network-sdk:5.5.0-beta'
-    implementation 'androidx.browser:browser:1.0.0'
-    implementation 'com.google.firebase:firebase-core:17.0.1'
-    implementation 'com.google.firebase:firebase-ads:18.1.0'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0-beta03'
+    implementation 'com.facebook.android:audience-network-sdk:5.5.0'
+    implementation 'androidx.browser:browser:1.2.0-alpha07'
+    implementation 'com.google.firebase:firebase-core:17.1.0'
+    implementation 'com.google.firebase:firebase-ads:18.1.1'
     implementation 'androidx.multidex:multidex:2.0.1'
 
-    implementation 'com.google.android.gms:play-services-measurement:17.0.0'
-    implementation 'com.google.android.gms:play-services-measurement-sdk:17.0.0'
+    implementation 'com.google.android.gms:play-services-measurement:17.1.0'
+    implementation 'com.google.android.gms:play-services-measurement-sdk:17.1.0'
 
     implementation project(':smilelibraries')
 
