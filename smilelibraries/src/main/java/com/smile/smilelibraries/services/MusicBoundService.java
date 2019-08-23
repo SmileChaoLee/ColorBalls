@@ -37,26 +37,43 @@ public class MusicBoundService extends Service {
     public static class MusicServiceConnection implements ServiceConnection {
         private MusicBoundService musicBoundService;
         private boolean isServiceConnected;
+        private boolean hasMusic;
+
+        public MusicServiceConnection() {
+            hasMusic = true;
+            isServiceConnected = false;
+        }
+        public MusicServiceConnection(boolean hasMusic) {
+            this.hasMusic = hasMusic;
+            isServiceConnected = false;
+        }
+
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.i(TAG, "Bound service connected");
             MusicBoundService.ServiceBinder musicBinder = (MusicBoundService.ServiceBinder)service;
             musicBoundService = musicBinder.getService();
             isServiceConnected = true;
+            if (musicBoundService != null) {
+                if (hasMusic) {
+                    musicBoundService.playMusic();
+                } else {
+                    musicBoundService.pauseMusic();
+                }
+            }
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.i(TAG, "Bound service disconnected");
-            musicBoundService = null;
             isServiceConnected = false;
         }
 
-        public MusicBoundService getMusicBoundService() {
-            return musicBoundService;
-        }
         public boolean isServiceConnected() {
             return isServiceConnected;
+        }
+        public MusicBoundService getMusicBoundService() {
+            return musicBoundService;
         }
     }
 
@@ -147,7 +164,6 @@ public class MusicBoundService extends Service {
                 float log1 = (float) (1 - (Math.log(maxVolume - soundVolume) / Math.log(maxVolume)));
                 mediaPlayer.setVolume(log1, log1);
                 mediaPlayer.setLooping(true);
-                mediaPlayer.start();
             }
         }
     }

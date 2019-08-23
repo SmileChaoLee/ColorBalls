@@ -20,7 +20,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="90"
+            android:layout_weight="84"
             android:weightSum="1">
 
             <LinearLayout
@@ -30,6 +30,22 @@
                 android:layout_height="0dp"
                 android:layout_weight="1">
             </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/musicCreditLinearLayout"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="6">
+            <TextView
+                android:id="@+id/musicWebsiteAddressTextView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textColor="@android:color/black"
+                android:gravity="center"
+                android:text="@string/musicWebsiteAddressString">
+            </TextView>
         </LinearLayout>
 
         <FrameLayout

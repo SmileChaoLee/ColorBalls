@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.Toolbar;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,6 +31,7 @@ import com.google.android.gms.ads.AdView;
 import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil;
+import com.smile.smilelibraries.services.MusicBoundService;
 import com.smile.smilelibraries.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
 import com.smile.smilelibraries.utilities.ScreenUtil;
 
@@ -65,7 +67,11 @@ public class MyActivity extends AppCompatActivity {
     private MyBroadcastReceiver myReceiver;
     private IntentFilter myIntentFilter;
 
-    private int isQuitOrNewGame;
+    private MusicBoundService.MusicServiceConnection musicServiceConnection;
+    private boolean isServiceConnected;
+    private boolean hasMusic;
+
+    // private int isQuitOrNewGame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,6 +160,9 @@ public class MyActivity extends AppCompatActivity {
             }
         }
 
+        TextView musicWebsiteAddressTextView = findViewById(R.id.musicWebsiteAddressTextView);
+        ScreenUtil.resizeTextSize(musicWebsiteAddressTextView, textSizeCompInfo, ColorBallsApp.FontSize_Scale_Type);
+
         LinearLayout bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
         LinearLayout companyInfoLayout = findViewById(R.id.linearlayout_for_company_information);
         if (!ColorBallsApp.googleAdMobBannerID.isEmpty()) {
@@ -181,10 +190,19 @@ public class MyActivity extends AppCompatActivity {
         myIntentFilter = new IntentFilter();
         myIntentFilter.addAction(MyTop10ScoresIntentService.Action_Name);
         myIntentFilter.addAction(MyGlobalTop10IntentService.Action_Name);
+        myIntentFilter.addAction(MusicBoundService.ActionName);
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.registerReceiver(myReceiver, myIntentFilter);
 
-        isQuitOrNewGame = QuitGame; // default is quiting game when destroy activity
+        hasMusic = false;   // defualt is no music
+
+        musicServiceConnection = new MusicBoundService.MusicServiceConnection(hasMusic);
+        Intent serviceIntent = new Intent(this, MusicBoundService.class);
+        serviceIntent.putExtra("MusicResourceId", R.raw.background_music);
+        serviceIntent.putExtra("SoundVolume", 30);
+        bindService(serviceIntent, musicServiceConnection, Context.BIND_AUTO_CREATE);
+
+        // isQuitOrNewGame = QuitGame; // default is quiting game when destroy activity
 
         Log.d(TAG, "onCreate() is finished.");
     }
@@ -198,8 +216,18 @@ public class MyActivity extends AppCompatActivity {
                     Bundle extras = data.getExtras();
                     if (extras != null) {
                         boolean hasSound = extras.getBoolean("HasSound");
-                        boolean isEasyLevel = extras.getBoolean("IsEasyLevel");
                         mainUiFragment.setHasSound(hasSound);
+                        hasMusic = extras.getBoolean("HasMusic");
+                        MusicBoundService musicBoundService = musicServiceConnection.getMusicBoundService();
+                        if (musicBoundService != null) {
+                            Log.d(TAG, "has music to play");
+                            if (hasMusic) {
+                                musicBoundService.playMusic();
+                            } else {
+                                musicBoundService.pauseMusic();
+                            }
+                        }
+                        boolean isEasyLevel = extras.getBoolean("IsEasyLevel");
                         mainUiFragment.setIsEasyLevel(isEasyLevel);
                     }
                 }
@@ -278,6 +306,7 @@ public class MyActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, SettingActivity.class);
                 Bundle extras = new Bundle();
                 extras.putBoolean("HasSound", mainUiFragment.getHasSound());
+                extras.putBoolean("HasMusic", hasMusic);
                 extras.putBoolean("IsEasyLevel", mainUiFragment.getIsEasyLevel());
                 intent.putExtras(extras);
                 startActivityForResult(intent, SettingActivityRequestCode);
@@ -344,12 +373,29 @@ public class MyActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "MyActivity.onResume() is called");
+
+        MusicBoundService musicBoundService = musicServiceConnection.getMusicBoundService();
+        if (musicBoundService != null) {
+            if (hasMusic) {
+                musicBoundService.playMusic();
+                Log.d(TAG, "musicBoundService.playMusic() is called");
+            } else {
+                musicBoundService.pauseMusic();
+                Log.d(TAG, "musicBoundService.pauseMusic() is called");
+            }
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         Log.d(TAG, "MyActivity.onPause() is called");
+
+        MusicBoundService musicBoundService = musicServiceConnection.getMusicBoundService();
+        if (musicBoundService != null) {
+            musicBoundService.pauseMusic();
+            Log.d(TAG, "musicBoundService.pauseMusic() is called");
+        }
     }
 
     @Override
@@ -362,6 +408,17 @@ public class MyActivity extends AppCompatActivity {
             ColorBallsApp.ScoreSQLiteDB.close();
         }
         */
+
+        if (musicServiceConnection != null) {
+            if (isServiceConnected) {
+                unbindService(musicServiceConnection);
+            }
+            MusicBoundService musicBoundService = musicServiceConnection.getMusicBoundService();
+            if (musicBoundService != null) {
+                Log.d(TAG, "MyActivity->stopping service");
+                musicBoundService.terminateService();
+            }
+        }
 
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.unregisterReceiver(myReceiver);
@@ -398,7 +455,7 @@ public class MyActivity extends AppCompatActivity {
     }
 
     public void exitApplication() {
-        isQuitOrNewGame = QuitGame;
+        // isQuitOrNewGame = QuitGame;
         final Handler handlerClose = new Handler();
         final int timeDelay = 200;
         handlerClose.postDelayed(new Runnable() {
@@ -425,7 +482,7 @@ public class MyActivity extends AppCompatActivity {
         return this.mainFragmentHeight;
     }
 
-    public class MyBroadcastReceiver extends BroadcastReceiver {
+    private class MyBroadcastReceiver extends BroadcastReceiver {
         private final String SUCCEEDED = "0";
         private final String FAILED = "1";
 

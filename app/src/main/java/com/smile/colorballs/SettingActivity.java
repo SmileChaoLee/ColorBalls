@@ -18,6 +18,8 @@ public class SettingActivity extends AppCompatActivity {
     private float textFontSize;
     private ToggleButton soundSwitch;
     private boolean hasSound;
+    private ToggleButton musicSwitch;
+    private boolean hasMusic;
     private ToggleButton easyLevelSwitch;
     private boolean isEasyLevel;
 
@@ -40,11 +42,13 @@ public class SettingActivity extends AppCompatActivity {
         textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, ColorBallsApp.FontSize_Scale_Type, 0.0f);
 
         hasSound = true;
+        hasMusic = false;
         isEasyLevel = true;
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             hasSound = extras.getBoolean("HasSound");
+            hasMusic = extras.getBoolean("HasMusic");
             isEasyLevel = extras.getBoolean("IsEasyLevel");
         }
 
@@ -63,6 +67,19 @@ public class SettingActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 hasSound = ((ToggleButton)view).isChecked();
+            }
+        });
+
+        TextView musicSettingTitle = findViewById(R.id.musicSettingTitle);
+        ScreenUtil.resizeTextSize(musicSettingTitle, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+
+        musicSwitch = findViewById(R.id.musicSwitch);
+        ScreenUtil.resizeTextSize(musicSwitch, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        musicSwitch.setChecked(hasMusic);
+        musicSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                hasMusic = ((ToggleButton)view).isChecked();
             }
         });
 
@@ -109,6 +126,7 @@ public class SettingActivity extends AppCompatActivity {
         Intent returnIntent = new Intent();
         Bundle extras = new Bundle();
         extras.putBoolean("HasSound", hasSound);
+        extras.putBoolean("HasMusic", hasMusic);
         extras.putBoolean("IsEasyLevel", isEasyLevel);
         returnIntent.putExtras(extras);
 
