@@ -28,7 +28,6 @@
     <string name="fileMenuStr">档案</string>
     <string name="settingStr">设定</string>
     <string name="soundStr">声音</string>
-    <string name="musicString">音乐</string>
     <string name="onStr">开</string>
     <string name="offStr">关</string>
     <string name="showingAdsString">广告显示中 ...</string>
@@ -49,7 +48,6 @@
     <string name="companyDescriptionString">客制化软体, 智慧型手机程序, 及网页应用程序等开发</string>
     <string name="companyNameString">微笑资讯有限公司</string>
     <string name="companyContactEmailString">leechao1959@gmail.com</string>
-    <string name="musicWebsiteAddressString">音乐: www.bensound.com</string>
 
     <string name="google_AdMobAppID">ca-app-pub-8354869049759576~1891379677</string>
     <string name="google_AdMobAppID_2">ca-app-pub-8354869049759576~8647116443</string>

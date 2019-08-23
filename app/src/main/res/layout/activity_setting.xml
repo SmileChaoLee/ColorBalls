@@ -95,35 +95,6 @@
                     android:layout_height="0dp"
                     android:layout_weight="1">
                     <TextView
-                        android:id="@+id/musicSettingTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="left|center_vertical"
-                        android:layout_alignParentLeft="true"
-                        android:layout_marginLeft="10dp"
-                        android:textColor="#ffffff00"
-                        android:text="@string/musicString">
-                    </TextView>
-                    <ToggleButton
-                        android:id="@+id/musicSwitch"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="right|center_vertical"
-                        android:layout_alignParentRight="true"
-                        android:layout_marginRight="10dp"
-                        android:background="@android:color/transparent"
-                        android:textColor="@color/white"
-                        android:textAllCaps="false"
-                        android:textOn="@string/onStr"
-                        android:textOff="@string/offStr">
-                    </ToggleButton>
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1">
-                    <TextView
                         android:id="@+id/levelSettingTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -146,6 +117,12 @@
                         android:textOn="@string/easyStr"
                         android:textOff="@string/difficultStr">
                     </ToggleButton>
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
                 </RelativeLayout>
 
             </LinearLayout>
