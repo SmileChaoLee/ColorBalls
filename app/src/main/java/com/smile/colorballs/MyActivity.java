@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Point;
+import android.os.Build;
 import android.os.Handler;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -227,7 +228,21 @@ public class MyActivity extends AppCompatActivity {
         final Context wrapper = new ContextThemeWrapper(this, popupThemeId);
         final float fScale = fontScale;
 
-        ScreenUtil.buildActionViewClassMenu(this, wrapper, menu, fScale, ColorBallsApp.FontSize_Scale_Type);
+        // ScreenUtil.buildActionViewClassMenu(this, wrapper, menu, fScale, ColorBallsApp.FontSize_Scale_Type);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            // API >= 18 works on SpannableString on Main menu items
+            ScreenUtil.resizeMenuTextSize(menu, fScale);
+        } else {
+            // API < 18 does not work on SpannableString on Main menu
+            // only sub menu works on SpannableString
+            // Text size of Menu items use dimens
+            int menuSize = menu.size();
+            Menu subMenu;
+            for (int i=0; i<menuSize; i++) {
+                subMenu = menu.getItem(i).getSubMenu();
+                ScreenUtil.resizeMenuTextSize(subMenu, fScale);
+            }
+        }
 
         return true;
     }

@@ -52,8 +52,6 @@
 
     <style name="CustomToolbarTheme" parent="ThemeOverlay.AppCompat.ActionBar">
         <item name="actionMenuTextColor">@drawable/main_menuitem_color</item>
-        <item name="android:textSize">60px</item>
-        <item name="android:textStyle">normal</item>
         <item name="android:paddingLeft">0dp</item>
         <item name="android:paddingTop">0dp</item>
         <item name="android:paddingRight">0dp</item>
@@ -66,6 +64,8 @@
         this style can be put in main AppThem or the themes of ActionBar or Toolbar
         using item of <item name="actionButtonStyle">@style/CustomActionButtonTheme</item>
         -->
+        <item name="android:textSize">@dimen/actionButtonTextSize</item>
+        <item name="android:textStyle">normal</item>
         <item name="textAllCaps">false</item>
         <item name="android:background">@drawable/main_menuitem_background_color</item>
     </style>
