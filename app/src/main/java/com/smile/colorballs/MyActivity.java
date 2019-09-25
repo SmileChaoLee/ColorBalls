@@ -25,12 +25,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
+import com.smile.smilelibraries.Models.ExitAppTimer;
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil;
 import com.smile.smilelibraries.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
 import com.smile.smilelibraries.utilities.ScreenUtil;
@@ -409,7 +411,13 @@ public class MyActivity extends AppCompatActivity {
     public void onBackPressed() {
         // capture the event of back button when it is pressed
         // change back button behavior
-        mainUiFragment.recordScore(0);   //   from   END PROGRAM
+        ExitAppTimer exitAppTimer = ExitAppTimer.getInstance(1000); // singleton class
+        if (exitAppTimer.canExit()) {
+            mainUiFragment.recordScore(0);   //   from   END PROGRAM
+        } else {
+            exitAppTimer.start();
+            ScreenUtil.showToast(this, getString(R.string.backKeyToExitApp), textFontSize*0.7f, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_SHORT);
+        }
     }
 
     public void exitApplication() {

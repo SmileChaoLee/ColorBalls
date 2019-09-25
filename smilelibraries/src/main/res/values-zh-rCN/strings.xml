@@ -4,4 +4,5 @@
     <string name="noString">否</string>
     <string name="okString">确定</string>
     <string name="privacyPolicyString">隐私政策</string>
+    <string name="backKeyToExitApp">再按一次倒退键离开程序</string>
 </resources>

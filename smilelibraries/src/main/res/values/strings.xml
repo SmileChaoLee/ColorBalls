@@ -3,4 +3,5 @@
     <string name="noString">No</string>
     <string name="okString">Ok</string>
     <string name="privacyPolicyString">Privacy Policy</string>
+    <string name="backKeyToExitApp">Press the back key again to exit.</string>
 </resources>
