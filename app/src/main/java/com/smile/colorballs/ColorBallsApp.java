@@ -101,13 +101,13 @@ public class ColorBallsApp extends MultiDexApplication {
         googleAdMobBannerID = "";
         String googleAdMobInterstitialID = "";
         isProVersion = false;
-        if (BuildConfig.APPLICATION_ID == "com.smile.colorballs") {
+        if (BuildConfig.APPLICATION_ID.equals("com.smile.colorballs")) {
             facebookPlacementID = new String("200699663911258_200701030577788"); // for colorballs
             // Google AdMob
             googleAdMobAppID = getString(R.string.google_AdMobAppID);
             googleAdMobBannerID = "ca-app-pub-8354869049759576/3904969730";
             googleAdMobInterstitialID = "ca-app-pub-8354869049759576/1276882569";
-        } else if (BuildConfig.APPLICATION_ID == "com.smile.fivecolorballs") {
+        } else if (BuildConfig.APPLICATION_ID.equals("com.smile.fivecolorballs")) {
             facebookPlacementID = new String("241884113266033_241884616599316"); // for fivecolorballs
             // Google AdMob
             googleAdMobAppID = getString(R.string.google_AdMobAppID_2);

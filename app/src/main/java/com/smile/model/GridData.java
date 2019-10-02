@@ -189,7 +189,7 @@ public class GridData {
         num_b = 0 ;
 
         for (i=x-1;i>=first_i;i--) {
-            if (cellValues[i][y] == (cellColor)) {
+            if (cellValues[i][y] == cellColor) {
                 num_b++ ;
                 tempList.add(new Point(i,y));
             }

@@ -225,11 +225,13 @@ public class MyActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.my, menu);
 
+        /*
         final int popupThemeId = supportToolbar.getPopupTheme();
         // final Context wrapper = new ContextThemeWrapper(this, R.style.menu_text_style);
         final Context wrapper = new ContextThemeWrapper(this, popupThemeId);
-        final float fScale = fontScale;
+        */
 
+        final float fScale = fontScale;
         // ScreenUtil.buildActionViewClassMenu(this, wrapper, menu, fScale, ColorBallsApp.FontSize_Scale_Type);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             // API >= 18 works on SpannableString on Main menu items
