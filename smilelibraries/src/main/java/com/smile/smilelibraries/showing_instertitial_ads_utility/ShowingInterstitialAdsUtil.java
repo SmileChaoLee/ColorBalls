@@ -101,21 +101,17 @@ public class ShowingInterstitialAdsUtil {
     }
     public class ShowAdAsyncTask extends AsyncTask<Void, Integer, Void> {
 
-        private final AppCompatActivity activity;
         private final int endPoint;
         private final AfterDismissFunctionOfShowAd afterDismissFunction;
         private  boolean isAdShown = false;
 
-        public ShowAdAsyncTask(final AppCompatActivity activity, final int endPoint) {
-            this.activity = activity;
+        public ShowAdAsyncTask(final int endPoint) {
             this.endPoint = endPoint;
             this.afterDismissFunction = null;
             isAdShown = false;
         }
 
-        public ShowAdAsyncTask(final AppCompatActivity activity, final int endPoint, final AfterDismissFunctionOfShowAd afterDismissFunction) {
-
-            this.activity = activity;
+        public ShowAdAsyncTask(final int endPoint, final AfterDismissFunctionOfShowAd afterDismissFunction) {
             this.endPoint = endPoint;
             this.afterDismissFunction = afterDismissFunction;
         }

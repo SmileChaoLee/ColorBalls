@@ -440,7 +440,7 @@ public class MyActivity extends AppCompatActivity {
         }
 
         ShowingInterstitialAdsUtil.ShowAdAsyncTask showAdAsyncTask =
-                ColorBallsApp.InterstitialAd.new ShowAdAsyncTask(this, 0);
+                ColorBallsApp.InterstitialAd.new ShowAdAsyncTask(0);
         showAdAsyncTask.execute();
     }
     public float getMainFragmentWidth() {
