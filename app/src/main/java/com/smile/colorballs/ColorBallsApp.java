@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Handler;
+import android.os.Looper;
+
 import androidx.multidex.MultiDexApplication;
 
 import com.facebook.ads.AudienceNetworkAds;
@@ -15,6 +18,7 @@ import com.smile.smilelibraries.showing_instertitial_ads_utility.ShowingIntersti
 import com.smile.smilelibraries.utilities.ScreenUtil;
 
 import java.util.HashMap;
+// import java.util.logging.Handler;
 
 public class ColorBallsApp extends MultiDexApplication {
 
@@ -122,13 +126,22 @@ public class ColorBallsApp extends MultiDexApplication {
         if (!isProVersion) {
             AudienceNetworkAds.initialize(this);
             facebookAds = new FacebookInterstitialAds(ColorBallsApp.AppContext, facebookPlacementID);
-            facebookAds.loadAd();
 
             MobileAds.initialize(AppContext, googleAdMobAppID);
             googleInterstitialAd = new GoogleAdMobInterstitial(AppContext, googleAdMobInterstitialID);
-            googleInterstitialAd.loadAd(); // load first ad
 
             InterstitialAd = new ShowingInterstitialAdsUtil(facebookAds, googleInterstitialAd);
+
+            final Handler adHandler = new Handler(Looper.getMainLooper());
+            final Runnable adRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    adHandler.removeCallbacksAndMessages(null);
+                    googleInterstitialAd.loadAd(); // load first google ad
+                    facebookAds.loadAd();   // load first facebook ad
+                }
+            };
+            adHandler.postDelayed(adRunnable, 1000);
         }
     }
 }

@@ -2,13 +2,13 @@ package com.smile.smilelibraries.showing_instertitial_ads_utility;
 
 import android.os.AsyncTask;
 import android.os.SystemClock;
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.util.Log;
 import com.smile.smilelibraries.facebook_ads_util.FacebookInterstitialAds;
 import com.smile.smilelibraries.google_admob_ads_util.GoogleAdMobInterstitial;
 
 public class ShowingInterstitialAdsUtil {
 
+    private final static String TAG = new String(".ShowingInterstitialAdsUtil");
     private final FacebookInterstitialAds facebookAd;
     private final GoogleAdMobInterstitial adMobAd;
     private boolean isShowingFacebookAd;
@@ -33,7 +33,10 @@ public class ShowingInterstitialAdsUtil {
                     // then load next facebook ad
                     facebookAd.loadAd();
                 }
-                adMobAd.loadAd();
+                if (!adMobAd.isLoading()) {
+                    // not loading
+                    adMobAd.loadAd();
+                }
             } else {
                 // if facebook ad is not loaded, then show AdMob ad
                 isShowingFacebookAd = false;
@@ -45,7 +48,9 @@ public class ShowingInterstitialAdsUtil {
                     // then load the next AdMob ad
                     adMobAd.loadAd();
                 }
-                facebookAd.loadAd();    // load the next facebook ad
+                if (facebookAd.isError()) {
+                    facebookAd.loadAd();    // load the next facebook ad
+                }
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -67,7 +72,9 @@ public class ShowingInterstitialAdsUtil {
                     // then load next AdMob ad
                     adMobAd.loadAd();
                 }
-                facebookAd.loadAd();    // load the next facebook ad
+                if (facebookAd.isError()) {
+                    facebookAd.loadAd();    // load the next facebook ad
+                }
             } else {
                 // AdMob ad is not loaded, then show facebook
                 isShowingFacebookAd = true;
@@ -79,7 +86,10 @@ public class ShowingInterstitialAdsUtil {
                     // load next facebook ad
                     facebookAd.loadAd();
                 }
-                adMobAd.loadAd();   // load next AdMob ad
+                if (!adMobAd.isLoading()) {
+                    // not loading
+                    adMobAd.loadAd();   // load next AdMob ad
+                }
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -129,11 +139,13 @@ public class ShowingInterstitialAdsUtil {
             if (isAdShown) {
                 try {
                     if (isShowingFacebookAd) {
+                        Log.d(TAG, "Showing Facebook Ads");
                         while (!facebookAd.adsShowDismissedOrStopped()) {
                             SystemClock.sleep(timeDelay);
                         }
                     } else {
                         // is showing google AdMob ad
+                        Log.d(TAG, "Showing Google Ads");
                         while (!adMobAd.adsShowDismissedOrStopped()) {
                             SystemClock.sleep(timeDelay);
                         }
