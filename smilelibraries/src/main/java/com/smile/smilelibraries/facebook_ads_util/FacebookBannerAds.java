@@ -44,7 +44,7 @@ public class FacebookBannerAds {
             }
         };
 
-        bannerAdView.setAdListener(new AdListener() {
+        AdListener adListener = new AdListener() {
             @Override
             public void onError(Ad ad, AdError adError) {
                 // Ad error callback
@@ -87,7 +87,13 @@ public class FacebookBannerAds {
                 // Toast.makeText(MainActivity.this, "onLoggingImpression.", Toast.LENGTH_LONG).show();
                 Log.i(TAG, "onLoggingImpression.");
             }
-        });
+        };
+
+        // bannerAdView.setAdListener(adListener);
+        bannerAdView.loadAd(bannerAdView.buildLoadAdConfig() // LoadConfigBuilder
+                .withBid(placementID)
+                .withAdListener(adListener)
+                .build()); // builds LoadConfig
     }
 
     public AdView getBannerAdView() {

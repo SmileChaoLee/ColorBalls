@@ -28,10 +28,7 @@ public class FacebookInterstitialAds {
         isClicked = false;
         isError = false;
 
-        interstitialAd = new InterstitialAd(this.context, placementID);
-
-        // Set listeners for the Interstitial Ad
-        interstitialAd.setAdListener(new InterstitialAdListener() {
+        InterstitialAdListener adListener = new InterstitialAdListener() {
             @Override
             public void onInterstitialDisplayed(Ad ad) {
                 // Interstitial ad displayed callback
@@ -87,7 +84,16 @@ public class FacebookInterstitialAds {
                 isLoggingImpression = true;
                 Log.d(TAG, "Interstitial ad impression logged!");
             }
-        });
+        };
+
+        // interstitialAd = new InterstitialAd(this.context, placementID);
+        // interstitialAd.setAdListener(adListener);
+        interstitialAd = new InterstitialAd(this.context, placementID);
+        interstitialAd.loadAd(interstitialAd.buildLoadAdConfig() // LoadConfigBuilder
+                .withBid(placementID)
+                .withAdListener(adListener)
+                .withCacheFlags(CacheFlag.ALL)
+                .build()); // builds LoadConfig
     }
     public void loadAd() {
         if (!interstitialAd.isAdLoaded()) {

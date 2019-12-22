@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import androidx.multidex.MultiDexApplication;
 
+import com.facebook.ads.AudienceNetworkAds;
 import com.google.android.gms.ads.MobileAds;
 import com.smile.smilelibraries.facebook_ads_util.FacebookInterstitialAds;
 import com.smile.smilelibraries.google_admob_ads_util.GoogleAdMobInterstitial;
@@ -119,6 +120,7 @@ public class ColorBallsApp extends MultiDexApplication {
         }
 
         if (!isProVersion) {
+            AudienceNetworkAds.initialize(this);
             facebookAds = new FacebookInterstitialAds(ColorBallsApp.AppContext, facebookPlacementID);
             facebookAds.loadAd();
 
