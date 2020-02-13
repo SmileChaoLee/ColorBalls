@@ -490,11 +490,13 @@ public class MyActivity extends AppCompatActivity {
         @Override
         public void run() {
             loggingImpressionHandler.removeCallbacksAndMessages(null);
-            if (adViewLoadConfig != null) {
+            if (adViewLoadConfig!=null && facebookAdView!=null) {
                 facebookAdView.loadAd(adViewLoadConfig);
             }
         }
     };
+    private final int maxNumberLoadingFacebookBannerAd = 10;
+    private int numberOfLoadingFacebookBannerAd = 0;
 
     private void setFacebookAudienceNetworkBannerAdView() {
         Log.d(TAG, "Starting the initialization for Banner Ad of Facebook.");
@@ -502,16 +504,27 @@ public class MyActivity extends AppCompatActivity {
         if (BuildConfig.DEBUG) {
             testString = "IMG_16_9_APP_INSTALL#";
         }
+        numberOfLoadingFacebookBannerAd = 0;
         facebookAdView = new com.facebook.ads.AdView(this, testString+ColorBallsApp.facebookBannerID, com.facebook.ads.AdSize.BANNER_HEIGHT_50);
         com.facebook.ads.AdListener facebookAdListener = new com.facebook.ads.AdListener() {
             @Override
             public void onError(Ad ad, AdError adError) {
                 // Ad error callback
                 Log.d(TAG, "Could not load Facebook Banner ad.");
-                if (facebookAdView != null) {
-                    facebookAdView.destroy();
-                    facebookAdView = null;
-                    setGoogleAdMobBannerAdView();   // switch to Google AdMob
+                numberOfLoadingFacebookBannerAd++;
+                if (numberOfLoadingFacebookBannerAd>maxNumberLoadingFacebookBannerAd) {
+                    if (facebookAdView != null) {
+                        facebookAdView.setVisibility(View.GONE);
+                        bannerLinearLayout.removeView(facebookAdView);
+                        facebookAdView.destroy();
+                        facebookAdView = null;
+                        adViewLoadConfig = null;
+                        setGoogleAdMobBannerAdView();   // switch to Google AdMob
+                    }
+                } else {
+                    if (facebookAdView!=null && adViewLoadConfig!=null) {
+                        facebookAdView.loadAd(adViewLoadConfig);
+                    }
                 }
             }
 
@@ -519,13 +532,14 @@ public class MyActivity extends AppCompatActivity {
             public void onAdLoaded(Ad ad) {
                 // Ad loaded callback
                 Log.d(TAG, "Succeeded to load Facebook Banner ad.");
+                numberOfLoadingFacebookBannerAd = 0;
             }
 
             @Override
             public void onAdClicked(Ad ad) {
                 // Ad clicked callback
                 Log.d(TAG, "Clicked Facebook Banner ad.");
-                if (adViewLoadConfig != null) {
+                if (adViewLoadConfig!=null && facebookAdView!=null) {
                     facebookAdView.loadAd(adViewLoadConfig);
                 }
             }
@@ -534,9 +548,10 @@ public class MyActivity extends AppCompatActivity {
             public void onLoggingImpression(Ad ad) {
                 // Ad impression logged callback
                 Log.d(TAG, "Logging impression of Facebook Banner ad.");
-                loggingImpressionHandler.postDelayed(loggingImpressionRunnable, 60000); // 1 minute
+                loggingImpressionHandler.postDelayed(loggingImpressionRunnable, 120000); // 2 minute
             }
         };
+
         adViewLoadConfig = facebookAdView.buildLoadAdConfig()
                 .withAdListener(facebookAdListener).build();
 
