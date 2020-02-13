@@ -523,7 +523,7 @@ public class MyActivity extends AppCompatActivity {
                     }
                 } else {
                     if (facebookAdView!=null && adViewLoadConfig!=null) {
-                        facebookAdView.loadAd(adViewLoadConfig);
+                        loggingImpressionHandler.postDelayed(loggingImpressionRunnable, 2000); // 2 seconds
                     }
                 }
             }
