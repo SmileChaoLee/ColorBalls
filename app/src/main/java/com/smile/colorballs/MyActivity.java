@@ -9,6 +9,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Build;
+import android.os.Debug;
 import android.os.Handler;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -16,7 +17,6 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.Toolbar;
 
 import android.util.Log;
@@ -29,7 +29,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
 import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
 import com.smile.smilelibraries.Models.ExitAppTimer;
@@ -58,7 +57,7 @@ public class MyActivity extends AppCompatActivity {
     private Toolbar supportToolbar;
     private int mainUiFragmentLayoutId = -1;
     private int top10LayoutId = -1;
-    private AdView bannerAdView = null;
+    // private AdView bannerAdView = null;
 
     private MainUiFragment mainUiFragment = null;
     private Top10ScoreFragment top10ScoreFragment = null;
@@ -69,6 +68,9 @@ public class MyActivity extends AppCompatActivity {
     private MyBroadcastReceiver myReceiver;
     private IntentFilter myIntentFilter;
     // private int isQuitOrNewGame;
+
+    private com.facebook.ads.AdView facebookAdView;
+    private com.google.android.gms.ads.AdView adMobBannerAdView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,17 +161,49 @@ public class MyActivity extends AppCompatActivity {
 
         LinearLayout bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
         LinearLayout companyInfoLayout = findViewById(R.id.linearlayout_for_company_information);
-        if (!ColorBallsApp.googleAdMobBannerID.isEmpty()) {
+        if (!ColorBallsApp.googleAdMobBannerID.isEmpty() || !ColorBallsApp.facebookBannerID.isEmpty()) {
             if (companyInfoLayout != null) {
                 companyInfoLayout.setVisibility(View.GONE);
             }
-            Log.d(TAG, "Starting the initialization for Banner Ad.");
-            bannerAdView = new AdView(this);
-            bannerAdView.setAdSize(AdSize.BANNER);
-            bannerAdView.setAdUnitId(ColorBallsApp.googleAdMobBannerID);
-            bannerLinearLayout.addView(bannerAdView);
-            AdRequest adRequest = new AdRequest.Builder().build();
-            bannerAdView.loadAd(adRequest);
+            boolean googleORfacebook = true;    // true for google, false for facebook
+            if (ColorBallsApp.AdProvider == ShowingInterstitialAdsUtil.FacebookAdProvider) {
+                Log.d(TAG, "ShowingInterstitialAdsUtil.FacebookAdProvider.");
+                if (!ColorBallsApp.facebookBannerID.isEmpty()) {
+                    googleORfacebook = false;   // facebook first
+                    Log.d(TAG, "ColorBallsApp.facebookBannerID is not empty.");
+                } else {
+                    Log.d(TAG, "ColorBallsApp.facebookBannerID is empty.");
+                }
+            }
+            if (googleORfacebook) {
+                Log.d(TAG, "ShowingInterstitialAdsUtil.GoogleAdMobAdProvider.");
+                // google first
+                if (ColorBallsApp.googleAdMobBannerID.isEmpty()) {
+                    // google is is empty so facebook id will not be empty
+                    googleORfacebook = false;    // no google so facebook first
+                }
+            }
+            if (googleORfacebook) {
+                // Google AdMob (Banner Ad)
+                Log.d(TAG, "Starting the initialization for Banner Ad of Google AdMob.");
+                com.google.android.gms.ads.AdView adMobBannerAdView = new com.google.android.gms.ads.AdView(this);
+                adMobBannerAdView.setAdSize(AdSize.BANNER);
+                adMobBannerAdView.setAdUnitId(ColorBallsApp.googleAdMobBannerID);
+                bannerLinearLayout.addView(adMobBannerAdView);
+                AdRequest adRequest = new AdRequest.Builder().build();
+                adMobBannerAdView.loadAd(adRequest);
+            } else {
+                // Facebook Ad (Banner Ad)
+                Log.d(TAG, "Starting the initialization for Banner Ad of Facebook.");
+                String testString = "";
+                if (BuildConfig.DEBUG) {
+                    testString = "IMG_16_9_APP_INSTALL#";
+                }
+                // facebookAdView = new com.facebook.ads.AdView(this, "IMG_16_9_APP_INSTALL#YOUR_PLACEMENT_ID", com.facebook.ads.AdSize.BANNER_HEIGHT_50);
+                facebookAdView = new com.facebook.ads.AdView(this, testString+ColorBallsApp.facebookBannerID, com.facebook.ads.AdSize.BANNER_HEIGHT_50);
+                bannerLinearLayout.addView(facebookAdView);
+                facebookAdView.loadAd();
+            }
         } else {
             // show company information
             if (bannerLinearLayout != null) {
@@ -373,17 +407,14 @@ public class MyActivity extends AppCompatActivity {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         Log.d(TAG, "MyActivity.onDestroy() is called");
-
-        /*
-        if (ColorBallsApp.ScoreSQLiteDB != null) {
-            ColorBallsApp.ScoreSQLiteDB.close();
-        }
-        */
 
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.unregisterReceiver(myReceiver);
+
+        if (facebookAdView != null) {
+            facebookAdView.destroy();
+        }
 
         /*
         // the following were removed on 2019-06-25
@@ -406,6 +437,8 @@ public class MyActivity extends AppCompatActivity {
             //
         }
         */
+
+        super.onDestroy();
 
     }
 
@@ -440,7 +473,7 @@ public class MyActivity extends AppCompatActivity {
         }
 
         ShowingInterstitialAdsUtil.ShowAdAsyncTask showAdAsyncTask =
-                ColorBallsApp.InterstitialAd.new ShowAdAsyncTask(0);
+                ColorBallsApp.InterstitialAd.new ShowAdAsyncTask(0, ColorBallsApp.AdProvider);
         showAdAsyncTask.execute();
     }
     public float getMainFragmentWidth() {

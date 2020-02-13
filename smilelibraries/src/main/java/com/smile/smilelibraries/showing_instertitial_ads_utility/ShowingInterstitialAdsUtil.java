@@ -8,6 +8,9 @@ import com.smile.smilelibraries.google_admob_ads_util.GoogleAdMobInterstitial;
 
 public class ShowingInterstitialAdsUtil {
 
+    public final static int GoogleAdMobAdProvider = 0;
+    public final static int FacebookAdProvider = 1;
+
     private final static String TAG = new String(".ShowingInterstitialAdsUtil");
     private final FacebookInterstitialAds facebookAd;
     private final GoogleAdMobInterstitial adMobAd;
@@ -16,7 +19,7 @@ public class ShowingInterstitialAdsUtil {
     public ShowingInterstitialAdsUtil(FacebookInterstitialAds facebookAd, GoogleAdMobInterstitial adMobAd) {
         this.facebookAd = facebookAd;
         this.adMobAd = adMobAd;
-        isShowingFacebookAd = true;
+        isShowingFacebookAd = false;
     }
 
     public boolean showFacebookAdFirst() {
@@ -113,22 +116,51 @@ public class ShowingInterstitialAdsUtil {
 
         private final int endPoint;
         private final AfterDismissFunctionOfShowAd afterDismissFunction;
-        private  boolean isAdShown = false;
+        private boolean isAdShown = false;
+        private int adProvider;
 
         public ShowAdAsyncTask(final int endPoint) {
             this.endPoint = endPoint;
             this.afterDismissFunction = null;
             isAdShown = false;
+            this.adProvider = GoogleAdMobAdProvider; // default is Google AdMob
+        }
+
+        public ShowAdAsyncTask(final int endPoint, int adProvider) {
+            this.endPoint = endPoint;
+            this.afterDismissFunction = null;
+            isAdShown = false;
+            this.adProvider = adProvider;
         }
 
         public ShowAdAsyncTask(final int endPoint, final AfterDismissFunctionOfShowAd afterDismissFunction) {
             this.endPoint = endPoint;
             this.afterDismissFunction = afterDismissFunction;
+            isAdShown = false;
+            this.adProvider = GoogleAdMobAdProvider; // default is Google AdMob
+        }
+
+        public ShowAdAsyncTask(final int endPoint, int adProvider, final AfterDismissFunctionOfShowAd afterDismissFunction) {
+            this.endPoint = endPoint;
+            this.afterDismissFunction = afterDismissFunction;
+            isAdShown = false;
+            this.adProvider = adProvider;
         }
 
         @Override
         protected void onPreExecute() {
-            isAdShown = showGoogleAdMobAdFirst();
+            switch (adProvider) {
+                case FacebookAdProvider:
+                    // facebook ad
+                    isAdShown = showFacebookAdFirst();
+                    Log.d(TAG, "Started showing Facebook Ad.");
+                    break;
+                default:
+                    // Google AdMob for 0 or others
+                    isAdShown = showGoogleAdMobAdFirst();
+                    Log.d(TAG, "Started showing Google AdMob Ad.");
+                    break;
+            }
         }
 
         @Override
@@ -139,13 +171,13 @@ public class ShowingInterstitialAdsUtil {
             if (isAdShown) {
                 try {
                     if (isShowingFacebookAd) {
-                        Log.d(TAG, "Showing Facebook Ads");
+                        Log.d(TAG, "Facebook Ads was shown.");
                         while (!facebookAd.adsShowDismissedOrStopped()) {
                             SystemClock.sleep(timeDelay);
                         }
                     } else {
                         // is showing google AdMob ad
-                        Log.d(TAG, "Showing Google Ads");
+                        Log.d(TAG, "Google Ads was shown.");
                         while (!adMobAd.adsShowDismissedOrStopped()) {
                             SystemClock.sleep(timeDelay);
                         }

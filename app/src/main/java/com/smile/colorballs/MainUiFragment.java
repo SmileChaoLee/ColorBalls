@@ -843,7 +843,7 @@ public class MainUiFragment extends Fragment {
         }
 
         ShowingInterstitialAdsUtil.ShowAdAsyncTask showAdAsyncTask =
-                ColorBallsApp.InterstitialAd.new ShowAdAsyncTask(entryPoint, new ShowingInterstitialAdsUtil.AfterDismissFunctionOfShowAd() {
+                ColorBallsApp.InterstitialAd.new ShowAdAsyncTask(entryPoint, ColorBallsApp.AdProvider, new ShowingInterstitialAdsUtil.AfterDismissFunctionOfShowAd() {
             @Override
             public void executeAfterDismissAds(int endPoint) {
                 ColorBallsApp.isProcessingJob = false;
