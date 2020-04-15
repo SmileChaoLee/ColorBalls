@@ -21,8 +21,13 @@ public class PrivacyPolicyActivity extends AppCompatActivity {
         privacyPolicyUrl = "";
         callingIntent = getIntent();
         privacyPolicyUrl = callingIntent.getStringExtra("PrivacyPolicyWebsite");
-        if ( (privacyPolicyUrl == null) || (privacyPolicyUrl.isEmpty()) ) {
+        if (privacyPolicyUrl == null) {
             returnToCallingIntent();
+            return;
+        }
+        if (privacyPolicyUrl.isEmpty()) {
+            returnToCallingIntent();
+            return;
         }
 
         setContentView(R.layout.activity_privacy_policy);
