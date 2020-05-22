@@ -131,7 +131,8 @@ public class ColorBallsApp extends MultiDexApplication {
             AudienceNetworkAds.initialize(this);
             facebookAds = new FacebookInterstitialAds(ColorBallsApp.AppContext, facebookInterstitialID);
 
-            MobileAds.initialize(AppContext, googleAdMobAppID);
+            // MobileAds.initialize(AppContext, googleAdMobAppID);  // deprecated
+            MobileAds.initialize(AppContext);
             googleInterstitialAd = new GoogleAdMobInterstitial(AppContext, googleAdMobInterstitialID);
 
             InterstitialAd = new ShowingInterstitialAdsUtil(facebookAds, googleInterstitialAd);
