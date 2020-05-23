@@ -847,11 +847,9 @@ public class MainUiFragment extends Fragment {
             @Override
             public void executeAfterDismissAds(int endPoint) {
                 ColorBallsApp.isProcessingJob = false;
-                // if (entryPoint==0) {     // removed on 2019-12-22
                 if (endPoint==0) {          // added on 2019-12-22
                     //  END PROGRAM
                     myActivity.exitApplication();
-                // } else if (entryPoint==1) {  // removed on 2019-12-22
                 } else if (endPoint==1) {       // added on 2019-12-22
                     //  NEW GAME
                     flushALLandBegin();

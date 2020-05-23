@@ -55,8 +55,8 @@ public class ColorBallsApp extends MultiDexApplication {
     public static ShowingInterstitialAdsUtil InterstitialAd;
     public static String facebookBannerID = "";
     public static String googleAdMobBannerID = "";
-    public static int AdProvider = ShowingInterstitialAdsUtil.GoogleAdMobAdProvider;    // default is Google AdMob
-    // public static int AdProvider = ShowingInterstitialAdsUtil.FacebookAdProvider;    // default is Facebook Ad
+    // public static int AdProvider = ShowingInterstitialAdsUtil.GoogleAdMobAdProvider;    // default is Google AdMob
+    public static int AdProvider = ShowingInterstitialAdsUtil.FacebookAdProvider;    // default is Facebook Ad
 
     private static FacebookInterstitialAds facebookAds;
     private static GoogleAdMobInterstitial googleInterstitialAd;

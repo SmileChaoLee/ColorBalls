@@ -16,8 +16,8 @@ android {
         targetSdkVersion 29
         multiDexEnabled true
 
-        versionCode 3400
-        versionName "3.400"
+        versionCode 3401
+        versionName "3.401"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         applicationId "com.smile.colorballs"
@@ -80,7 +80,8 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta6'
     implementation 'org.jetbrains:annotations-java5:15.0'
     implementation 'androidx.recyclerview:recyclerview:1.2.0-alpha03'
-    implementation 'com.facebook.android:audience-network-sdk:5.6.0'
+    implementation 'com.android.support:support-annotations:28.0.0'
+    implementation 'com.facebook.android:audience-network-sdk:5.9.0'
     implementation 'androidx.browser:browser:1.2.0'
     implementation 'com.google.firebase:firebase-core:17.4.2'
     implementation 'com.google.firebase:firebase-ads:19.1.0'
