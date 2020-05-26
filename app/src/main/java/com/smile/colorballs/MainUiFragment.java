@@ -496,9 +496,7 @@ public class MainUiFragment extends Fragment {
             }
         }
 
-        // boolean gameOverYn = false;  // removed on 2019-03-30
         if (hasMoreFive) {
-            // threadCompleted[1] = false;  // removed on 2019-03-30
             CalculateScore calculateScore = new CalculateScore(linkedPoint, true);
             calculateScore.execute();
         } else {
@@ -539,14 +537,6 @@ public class MainUiFragment extends Fragment {
                 displayNextColorBalls();
             }
         }
-
-        /*
-        // removed on 2019-03-30
-        if (!gameOverYn) {
-            // game has not been over yet
-            displayNextColorBalls();
-        }
-        */
     }
 
     private void clearCell(int i, int j) {
@@ -695,22 +685,8 @@ public class MainUiFragment extends Fragment {
         // ImageView v = (ImageView) uiFragmentView.findViewById(i * colCounts + j);
         ImageView v = uiFragmentView.findViewById(i * rowCounts + j);
         drawBall(v, gridData.getCellValue(i, j));
+        //  check if there are more than five balls with same color connected together
         if (gridData.check_moreThanFive(i, j) == 1) {
-            //  check if there are more than five balls with same color connected together
-            // int numBalls = gridData.getLight_line().size();
-            // scoreCalculate(numBalls);
-            // twinkleLineBallsAndClearCell(gridData.getLight_line(), 1);
-            /*
-            int arraySize = gridData.getLight_line().size();
-            Point hashPoint[] = new Point[arraySize];
-            int index = 0;
-            for (Point p : gridData.getLight_line()) {
-                hashPoint[index] = p;
-                ++index;
-            }
-            */
-
-            // threadCompleted[1] = false;  // removed on 2019-03-30
             CalculateScore calculateScore = new CalculateScore(gridData.getLight_line(), false);
             calculateScore.execute();
         } else {
@@ -1399,43 +1375,51 @@ public class MainUiFragment extends Fragment {
         @Override
         protected String[] doInBackground(Point... params) {
 
-            if (hasPoint == null) {
-                return null;
-            }
+            if (hasPoint != null) {
+                int twinkleCountDown = 5;
+                for (int i = 1; i <= twinkleCountDown; i++) {
+                    int md = i % 2; // modulus
+                    publishProgress(md);
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                publishProgress(2);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
 
-            int twinkleCountDown = 5;
-            for (int i=1; i<=twinkleCountDown; i++) {
-                int md = i % 2; // modulus
-                publishProgress(md);
-                try { Thread.sleep(100); } catch (InterruptedException ex) { ex.printStackTrace(); }
+                publishProgress(3);
             }
-            publishProgress(2);
-            try { Thread.sleep(500); } catch (InterruptedException ex) { ex.printStackTrace(); }
-
-            publishProgress(3);
 
             return null;
         }
 
         @Override
         protected void onProgressUpdate(Integer... status) {
-            switch (status[0]) {
-                case 0:
-                    for (Point item : hasPoint) {
-                        ImageView v = uiFragmentView.findViewById(item.x * rowCounts + item.y);
-                        drawBall(v, color);
-                    }
-                    break;
-                case 1:
-                    for (Point item : hasPoint) {
-                        ImageView v = uiFragmentView.findViewById(item.x * rowCounts + item.y);
-                        drawOval(v, color);
-                    }
-                    break;
-                case 2:
-                case 3:
-                    scoreImageView.setImageBitmap(scoreBitmap);
-                    break;
+            if (hasPoint != null) {
+                switch (status[0]) {
+                    case 0:
+                        for (Point item : hasPoint) {
+                            ImageView v = uiFragmentView.findViewById(item.x * rowCounts + item.y);
+                            drawBall(v, color);
+                        }
+                        break;
+                    case 1:
+                        for (Point item : hasPoint) {
+                            ImageView v = uiFragmentView.findViewById(item.x * rowCounts + item.y);
+                            drawOval(v, color);
+                        }
+                        break;
+                    case 2:
+                    case 3:
+                        scoreImageView.setImageBitmap(scoreBitmap);
+                        break;
+                }
             }
 
             return ;
@@ -1445,28 +1429,30 @@ public class MainUiFragment extends Fragment {
         protected void onPostExecute(String[] result) {
             super.onPostExecute(result);
 
-            scoreImageView.setImageBitmap(scoreBitmap);
+            if (hasPoint != null) {
+                scoreImageView.setImageBitmap(scoreBitmap);
 
-            // clear values of cells
-            for (Point item : hasPoint) {
-                clearCell(item.x, item.y);
+                // clear values of cells
+                for (Point item : hasPoint) {
+                    clearCell(item.x, item.y);
+                }
+
+                // update the UI
+                undoScore = currentScore;
+                currentScore = currentScore + score;
+                currentScoreView.setText(String.format(Locale.getDefault(), "%8d", currentScore));
+
+                // hide score ImageView
+                scoreImageView.setImageBitmap(null);
+                scoreImageView.setVisibility(View.GONE);
+
+                // added on 2019-03-30
+                if (isNextBalls) {
+                    displayNextColorBalls();
+                }
             }
-
-            // update the UI
-            undoScore = currentScore;
-            currentScore = currentScore + score;
-            currentScoreView.setText(String.format(Locale.getDefault(), "%8d", currentScore));
 
             threadCompleted[1] = true;
-
-            // hide score ImageView
-            scoreImageView.setImageBitmap(null);
-            scoreImageView.setVisibility(View.GONE);
-
-            // added on 2019-03-30
-            if (isNextBalls) {
-                displayNextColorBalls();
-            }
         }
     }
 }
