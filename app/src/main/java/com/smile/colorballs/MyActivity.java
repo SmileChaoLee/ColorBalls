@@ -37,6 +37,7 @@ import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
 import com.smile.smilelibraries.Models.ExitAppTimer;
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil;
+import com.smile.smilelibraries.showing_banner_ads_utility.SetBannerAdViewForAdMobOrFacebook;
 import com.smile.smilelibraries.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
 import com.smile.smilelibraries.utilities.ScreenUtil;
 
@@ -52,8 +53,6 @@ public class MyActivity extends AppCompatActivity {
     private final int Top10ScoreActivityRequestCode = 2;
     private final int GlobalTop10ActivityRequestCode = 3;
     private final int PrivacyPolicyActivityRequestCode = 10;
-    private final int QuitGame = 0;
-    private final int NewGame = 1;
 
     private float textFontSize;
     private float fontScale;
@@ -61,7 +60,6 @@ public class MyActivity extends AppCompatActivity {
     private Toolbar supportToolbar;
     private int mainUiFragmentLayoutId = -1;
     private int top10LayoutId = -1;
-    // private AdView bannerAdView = null;
 
     private MainUiFragment mainUiFragment = null;
     private Top10ScoreFragment top10ScoreFragment = null;
@@ -71,13 +69,10 @@ public class MyActivity extends AppCompatActivity {
 
     private MyBroadcastReceiver myReceiver;
     private IntentFilter myIntentFilter;
-    // private int isQuitOrNewGame;
 
-    private LinearLayout bannerLinearLayout;
     private LinearLayout companyInfoLayout;
-    private com.facebook.ads.AdView facebookAdView;
-    private com.google.android.gms.ads.AdView adMobBannerAdView;
-    private com.facebook.ads.AdView.AdViewLoadConfig facebookAdViewLoadConfig;
+    private LinearLayout bannerLinearLayout;
+    private SetBannerAdViewForAdMobOrFacebook myBannerAdView;
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -169,44 +164,17 @@ public class MyActivity extends AppCompatActivity {
 
         bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
         companyInfoLayout = findViewById(R.id.linearlayout_for_company_information);
-        if (!ColorBallsApp.googleAdMobBannerID.isEmpty() || !ColorBallsApp.facebookBannerID.isEmpty()) {
-            if (companyInfoLayout != null) {
-                companyInfoLayout.setVisibility(View.GONE);
-            }
-            boolean googleORfacebook = true;    // true for google, false for facebook
-            if (ColorBallsApp.AdProvider == ShowingInterstitialAdsUtil.FacebookAdProvider) {
-                Log.d(TAG, "ShowingInterstitialAdsUtil.FacebookAdProvider.");
-                if (!ColorBallsApp.facebookBannerID.isEmpty()) {
-                    googleORfacebook = false;   // facebook first
-                    Log.d(TAG, "ColorBallsApp.facebookBannerID is not empty.");
-                } else {
-                    Log.d(TAG, "ColorBallsApp.facebookBannerID is empty.");
-                }
-            }
-            if (googleORfacebook) {
-                Log.d(TAG, "ShowingInterstitialAdsUtil.GoogleAdMobAdProvider.");
-                // google first
-                if (ColorBallsApp.googleAdMobBannerID.isEmpty()) {
-                    // google is is empty so facebook id will not be empty
-                    googleORfacebook = false;    // no google so facebook first
-                }
-            }
-            if (googleORfacebook) {
-                // Google AdMob (Banner Ad)
-                setGoogleAdMobBannerAdView();
-            } else {
-                // Facebook Ad (Banner Ad)
-                setFacebookAudienceNetworkBannerAdView();
-            }
-        } else {
-            // show company information
-            if (bannerLinearLayout != null) {
-                bannerLinearLayout.setVisibility(View.GONE);
-            }
-            if (companyInfoLayout != null) {
-                companyInfoLayout.setVisibility(View.VISIBLE);
-            }
+
+        String testString = "";
+        // for debug mode
+        if (com.smile.colorballs.BuildConfig.DEBUG) {
+            testString = "IMG_16_9_APP_INSTALL#";
         }
+        String facebookBannerID = testString + ColorBallsApp.facebookBannerID;
+        //
+        myBannerAdView = new SetBannerAdViewForAdMobOrFacebook(this, companyInfoLayout, bannerLinearLayout
+                , ColorBallsApp.googleAdMobBannerID, facebookBannerID);
+        myBannerAdView.showBannerAdViewFromAdMobOrFacebook(ColorBallsApp.AdProvider);
 
         myReceiver = new MyBroadcastReceiver();
         myIntentFilter = new IntentFilter();
@@ -214,8 +182,6 @@ public class MyActivity extends AppCompatActivity {
         myIntentFilter.addAction(MyGlobalTop10IntentService.Action_Name);
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.registerReceiver(myReceiver, myIntentFilter);
-
-        // isQuitOrNewGame = QuitGame; // default is quiting game when destroy activity
 
         Log.d(TAG, "onCreate() is finished.");
     }
@@ -406,10 +372,10 @@ public class MyActivity extends AppCompatActivity {
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.unregisterReceiver(myReceiver);
 
-        if (facebookAdView != null) {
-            facebookAdView.destroy();
+        if (myBannerAdView != null) {
+            myBannerAdView.destroy();
+            myBannerAdView = null;
         }
-
         /*
         // the following were removed on 2019-06-25
         // int pid = android.os.Process.myPid();
@@ -450,7 +416,6 @@ public class MyActivity extends AppCompatActivity {
     }
 
     public void exitApplication() {
-        // isQuitOrNewGame = QuitGame;
         final Handler handlerClose = new Handler();
         final int timeDelay = 200;
         handlerClose.postDelayed(new Runnable() {
@@ -475,140 +440,6 @@ public class MyActivity extends AppCompatActivity {
     }
     public float getMainFragmentHeight() {
         return this.mainFragmentHeight;
-    }
-
-    private final AdRequest adMobBannerAdRequest = new AdRequest.Builder().build();
-    private final Handler loggingGoogleImpressionHandler = new Handler(Looper.getMainLooper());
-    private final Runnable loggingGoogleImpressionRunnable = new Runnable() {
-        @Override
-        public void run() {
-            loggingGoogleImpressionHandler.removeCallbacksAndMessages(null);
-            if (adMobBannerAdView!=null) {
-                Log.d(TAG, "Reloading Banner Ad of Google AdMob.");
-                adMobBannerAdView.loadAd(adMobBannerAdRequest);
-            }
-        }
-    };
-    private final int maxNumberLoadingGoogleAdMobBannerAd = 10;
-    private int numberOfLoadingGoogleAdMobBannerAd = 0;
-
-    private void setGoogleAdMobBannerAdView() {
-        Log.d(TAG, "Starting the initialization for Banner Ad of Google AdMob.");
-        numberOfLoadingGoogleAdMobBannerAd = 0;
-        adMobBannerAdView = new com.google.android.gms.ads.AdView(this);
-        adMobBannerAdView.setAdSize(AdSize.BANNER);
-        adMobBannerAdView.setAdUnitId(ColorBallsApp.googleAdMobBannerID);
-        bannerLinearLayout.addView(adMobBannerAdView);
-        AdListener adMobBannerListener = new AdListener() {
-            @Override
-            public void onAdFailedToLoad(int i) {
-                super.onAdFailedToLoad(i);
-                Log.d(TAG, "Could not load Google AdMob Banner ad.");
-                numberOfLoadingGoogleAdMobBannerAd++;
-                loggingGoogleImpressionHandler.removeCallbacksAndMessages(null);
-                if (numberOfLoadingGoogleAdMobBannerAd >= maxNumberLoadingGoogleAdMobBannerAd) {
-                    if (adMobBannerAdView != null) {
-                        adMobBannerAdView.setVisibility(View.GONE);
-                        bannerLinearLayout.removeView(adMobBannerAdView);
-                        adMobBannerAdView.destroy();
-                        adMobBannerAdView = null;
-                        if (numberOfLoadingFacebookBannerAd < maxNumberLoadingFacebookBannerAd) {
-                            setFacebookAudienceNetworkBannerAdView();   // switch to Facebook Audience Network
-                        }
-                    }
-                } else {
-                    loggingGoogleImpressionHandler.postDelayed(loggingGoogleImpressionRunnable, 2000); // 2 second
-                }
-            }
-            @Override
-            public void onAdLoaded() {
-                super.onAdLoaded();
-                Log.d(TAG, "Succeeded to load Google AdMob Banner ad.");
-                numberOfLoadingGoogleAdMobBannerAd = 0;
-                loggingGoogleImpressionHandler.removeCallbacksAndMessages(null);
-            }
-        };
-        adMobBannerAdView.setAdListener(adMobBannerListener);
-        adMobBannerAdView.loadAd(adMobBannerAdRequest);
-    }
-
-    private final Handler loggingFacebookImpressionHandler = new Handler(Looper.getMainLooper());
-    private final Runnable loggingFaceboookImpressionRunnable = new Runnable() {
-        @Override
-        public void run() {
-            loggingFacebookImpressionHandler.removeCallbacksAndMessages(null);
-            if (facebookAdViewLoadConfig !=null && facebookAdView!=null) {
-                Log.d(TAG, "Reloading Banner Ad of Facebook.");
-                facebookAdView.loadAd(facebookAdViewLoadConfig);
-            }
-        }
-    };
-    private final int maxNumberLoadingFacebookBannerAd = 10;
-    private int numberOfLoadingFacebookBannerAd = 0;
-
-    private void setFacebookAudienceNetworkBannerAdView() {
-        Log.d(TAG, "Starting the initialization for Banner Ad of Facebook.");
-        String testString = "";
-        // for debug mode
-        if (com.smile.colorballs.BuildConfig.DEBUG) {
-            testString = "IMG_16_9_APP_INSTALL#";
-        }
-        //
-        numberOfLoadingFacebookBannerAd = 0;
-        facebookAdView = new com.facebook.ads.AdView(this, testString+ColorBallsApp.facebookBannerID, com.facebook.ads.AdSize.BANNER_HEIGHT_50);
-        com.facebook.ads.AdListener facebookAdListener = new com.facebook.ads.AdListener() {
-            @Override
-            public void onError(Ad ad, AdError adError) {
-                // Ad error callback
-                Log.d(TAG, "Could not load Facebook Banner ad.");
-                numberOfLoadingFacebookBannerAd++;
-                loggingFacebookImpressionHandler.removeCallbacksAndMessages(null);
-                if (numberOfLoadingFacebookBannerAd>=maxNumberLoadingFacebookBannerAd) {
-                    if (facebookAdView != null) {
-                        facebookAdView.setVisibility(View.GONE);
-                        bannerLinearLayout.removeView(facebookAdView);
-                        facebookAdView.destroy();
-                        facebookAdView = null;
-                        facebookAdViewLoadConfig = null;
-                        if (numberOfLoadingGoogleAdMobBannerAd < maxNumberLoadingGoogleAdMobBannerAd) {
-                            setGoogleAdMobBannerAdView();   // switch to Google AdMob
-                        }
-                    }
-                } else {
-                    loggingFacebookImpressionHandler.postDelayed(loggingFaceboookImpressionRunnable, 2000); // 2 seconds
-                }
-            }
-
-            @Override
-            public void onAdLoaded(Ad ad) {
-                // Ad loaded callback
-                Log.d(TAG, "Succeeded to load Facebook Banner ad.");
-                numberOfLoadingFacebookBannerAd = 0;
-                loggingFacebookImpressionHandler.removeCallbacksAndMessages(null);
-            }
-
-            @Override
-            public void onAdClicked(Ad ad) {
-                // Ad clicked callback
-                Log.d(TAG, "Clicked Facebook Banner ad.");
-                loggingFacebookImpressionHandler.removeCallbacksAndMessages(null);
-                loggingFacebookImpressionHandler.postDelayed(loggingFaceboookImpressionRunnable, 120000); // 2 minute
-            }
-
-            @Override
-            public void onLoggingImpression(Ad ad) {
-                // Ad impression logged callback
-                Log.d(TAG, "Logging impression of Facebook Banner ad.");
-                loggingFacebookImpressionHandler.postDelayed(loggingFaceboookImpressionRunnable, 120000); // 2 minute
-            }
-        };
-
-        facebookAdViewLoadConfig = facebookAdView.buildLoadAdConfig()
-                .withAdListener(facebookAdListener).build();
-
-        bannerLinearLayout.addView(facebookAdView);
-
-        facebookAdView.loadAd(facebookAdViewLoadConfig);
     }
 
     private class MyBroadcastReceiver extends BroadcastReceiver {
