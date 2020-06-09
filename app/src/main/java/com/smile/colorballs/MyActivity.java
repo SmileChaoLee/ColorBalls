@@ -19,22 +19,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
 
-import android.os.Looper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.ads.Ad;
-import com.facebook.ads.AdError;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
 import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
+import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate;
 import com.smile.smilelibraries.Models.ExitAppTimer;
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil;
 import com.smile.smilelibraries.showing_banner_ads_utility.SetBannerAdViewForAdMobOrFacebook;
@@ -70,9 +66,9 @@ public class MyActivity extends AppCompatActivity {
     private MyBroadcastReceiver myReceiver;
     private IntentFilter myIntentFilter;
 
-    private LinearLayout companyInfoLayout;
     private LinearLayout bannerLinearLayout;
     private SetBannerAdViewForAdMobOrFacebook myBannerAdView;
+    private GoogleAdMobNativeTemplate nativeTemplate;
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -112,21 +108,6 @@ public class MyActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_my);
 
-        TextView companyDescriptionTextView = findViewById(R.id.companyDescriptionTextView);
-        if (companyDescriptionTextView != null) {
-            ScreenUtil.resizeTextSize(companyDescriptionTextView, textSizeCompInfo, ColorBallsApp.FontSize_Scale_Type);
-        }
-
-        TextView companyNameTextView = findViewById(R.id.companyNameTextView);
-        if (companyNameTextView != null) {
-            ScreenUtil.resizeTextSize(companyNameTextView, textSizeCompInfo, ColorBallsApp.FontSize_Scale_Type);
-        }
-
-        TextView companyContactEmailTextView = findViewById(R.id.companyContactEmailTextView);
-        if (companyContactEmailTextView != null) {
-            ScreenUtil.resizeTextSize(companyContactEmailTextView, textSizeCompInfo, ColorBallsApp.FontSize_Scale_Type);
-        }
-
         supportToolbar = findViewById(R.id.colorballs_toolbar);
         setSupportActionBar(supportToolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -163,7 +144,6 @@ public class MyActivity extends AppCompatActivity {
         }
 
         bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
-        companyInfoLayout = findViewById(R.id.linearlayout_for_company_information);
 
         String testString = "";
         // for debug mode
@@ -172,9 +152,19 @@ public class MyActivity extends AppCompatActivity {
         }
         String facebookBannerID = testString + ColorBallsApp.facebookBannerID;
         //
-        myBannerAdView = new SetBannerAdViewForAdMobOrFacebook(this, companyInfoLayout, bannerLinearLayout
+        myBannerAdView = new SetBannerAdViewForAdMobOrFacebook(this, null, bannerLinearLayout
                 , ColorBallsApp.googleAdMobBannerID, facebookBannerID);
         myBannerAdView.showBannerAdViewFromAdMobOrFacebook(ColorBallsApp.AdProvider);
+
+        // show AdMob native ad if the device is tablet
+        if (ScreenUtil.isTablet(this)) {
+            String nativeAdvancedId0 = ColorBallsApp.googleAdMobNativeID;     // real native ad unit id
+            FrameLayout nativeAdsFrameLayout = findViewById(R.id.nativeAdsFrameLayout);
+            com.google.android.ads.nativetemplates.TemplateView nativeAdTemplateView = findViewById(R.id.nativeAdTemplateView);
+            nativeTemplate = new GoogleAdMobNativeTemplate(this, nativeAdsFrameLayout
+                    , nativeAdvancedId0, nativeAdTemplateView);
+            nativeTemplate.showNativeAd();
+        }
 
         myReceiver = new MyBroadcastReceiver();
         myIntentFilter = new IntentFilter();
@@ -375,6 +365,9 @@ public class MyActivity extends AppCompatActivity {
         if (myBannerAdView != null) {
             myBannerAdView.destroy();
             myBannerAdView = null;
+        }
+        if (nativeTemplate != null) {
+            nativeTemplate.release();
         }
         /*
         // the following were removed on 2019-06-25

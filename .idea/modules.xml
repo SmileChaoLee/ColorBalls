@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ColorBalls.iml" filepath="$PROJECT_DIR$/ColorBalls.iml" group="ColorBalls" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/NativeTemplatesModels/NativeTemplatesModels.iml" filepath="$PROJECT_DIR$/.idea/modules/NativeTemplatesModels/NativeTemplatesModels.iml" group="ColorBalls/NativeTemplatesModels" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="ColorBalls/app" />
       <module fileurl="file://$PROJECT_DIR$/smilelibraries/smilelibraries.iml" filepath="$PROJECT_DIR$/smilelibraries/smilelibraries.iml" group="ColorBalls/smilelibraries" />
     </modules>

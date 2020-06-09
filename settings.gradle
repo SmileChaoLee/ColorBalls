@@ -1,1 +1,1 @@
-include ':app', ':smilelibraries'
+include ':app', ':smilelibraries', ':NativeTemplatesModels'
