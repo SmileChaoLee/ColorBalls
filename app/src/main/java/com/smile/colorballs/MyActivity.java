@@ -25,7 +25,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.smile.Service.MyGlobalTop10IntentService;
@@ -69,6 +68,8 @@ public class MyActivity extends AppCompatActivity {
     private LinearLayout bannerLinearLayout;
     private SetBannerAdViewForAdMobOrFacebook myBannerAdView;
     private GoogleAdMobNativeTemplate nativeTemplate;
+
+    private ShowingInterstitialAdsUtil.ShowInterstitialAdThread showInterstitialAdThread = null;
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -369,6 +370,11 @@ public class MyActivity extends AppCompatActivity {
         if (nativeTemplate != null) {
             nativeTemplate.release();
         }
+
+        if (showInterstitialAdThread != null) {
+            // avoiding memory leak
+            showInterstitialAdThread.finishThread();
+        }
         /*
         // the following were removed on 2019-06-25
         // int pid = android.os.Process.myPid();
@@ -424,9 +430,14 @@ public class MyActivity extends AppCompatActivity {
             return;
         }
 
+        /*
         ShowingInterstitialAdsUtil.ShowAdAsyncTask showAdAsyncTask =
                 ColorBallsApp.InterstitialAd.new ShowAdAsyncTask(0, ColorBallsApp.AdProvider);
         showAdAsyncTask.execute();
+        */
+
+        showInterstitialAdThread = ColorBallsApp.InterstitialAd.new ShowInterstitialAdThread(0, ColorBallsApp.AdProvider);
+        showInterstitialAdThread.startShowAd();
     }
     public float getMainFragmentWidth() {
         return this.mainFragmentWidth;

@@ -67,7 +67,7 @@ public class MainUiFragment extends Fragment {
     private final String savedGameFileName = "saved_game";
     private OnFragmentInteractionListener mListener;
 
-    private Context context = null;
+    private Context callingContext = null;
     private MyActivity myActivity = null;
     private float textFontSize;
     private View uiFragmentView = null;
@@ -117,6 +117,8 @@ public class MainUiFragment extends Fragment {
     private String sureToLoadGameString;
     private String warningSaveGameString;
 
+    private ShowingInterstitialAdsUtil.ShowInterstitialAdThread showInterstitialAdThread = null;
+
     public MainUiFragment() {
         // Required empty public constructor
     }
@@ -147,11 +149,11 @@ public class MainUiFragment extends Fragment {
             };
         }
 
-        this.context = context;
-        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this.context, ColorBallsApp.FontSize_Scale_Type, null);
-        textFontSize = ScreenUtil.suitableFontSize(this.context, defaultTextFontSize, ColorBallsApp.FontSize_Scale_Type, 0.0f);
+        this.callingContext = context;
+        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this.callingContext, ColorBallsApp.FontSize_Scale_Type, null);
+        textFontSize = ScreenUtil.suitableFontSize(this.callingContext, defaultTextFontSize, ColorBallsApp.FontSize_Scale_Type, 0.0f);
 
-        myActivity = (MyActivity)this.context;
+        myActivity = (MyActivity)this.callingContext;
 
 
         soundPoolUtil = new SoundPoolUtil(context, R.raw.uhoh);
@@ -392,6 +394,14 @@ public class MainUiFragment extends Fragment {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (showInterstitialAdThread != null) {
+            showInterstitialAdThread.finishThread();
+        }
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
@@ -443,6 +453,8 @@ public class MainUiFragment extends Fragment {
 
         displayGameView();
         displayGridDataNextCells();
+
+        Log.d(TAG, "createNewGame() is called.");
     }
 
     private boolean completedAll() {
@@ -722,7 +734,7 @@ public class MainUiFragment extends Fragment {
 
     private void flushALLandBegin() {
         // myActivity.reStartApplication();   // restart the game
-
+        Log.d(TAG, "flushALLandBegin() is called.");
         createNewGame();
     }
 
@@ -804,35 +816,36 @@ public class MainUiFragment extends Fragment {
         displayNextBallsView();
     }
 
+    private void quitOrNewGame(final int entryPoint) {
+        if (entryPoint==0) {
+            //  END PROGRAM
+            myActivity.exitApplication();
+        } else if (entryPoint==1) {
+            //  NEW GAME
+            flushALLandBegin();
+        }
+        ColorBallsApp.isProcessingJob = false;
+    }
     private void showInterstitialAdAndNewGameOrQuit(final int entryPoint) {
 
         if (ColorBallsApp.InterstitialAd == null) {
-            if (entryPoint==0) {
-                //  END PROGRAM
-                myActivity.exitApplication();
-            } else if (entryPoint==1) {
-                //  NEW GAME
-                flushALLandBegin();
-            }
-            ColorBallsApp.isProcessingJob = false;
-            return;
-        }
-
-        ShowingInterstitialAdsUtil.ShowAdAsyncTask showAdAsyncTask =
-                ColorBallsApp.InterstitialAd.new ShowAdAsyncTask(entryPoint, ColorBallsApp.AdProvider, new ShowingInterstitialAdsUtil.AfterDismissFunctionOfShowAd() {
-            @Override
-            public void executeAfterDismissAds(int endPoint) {
-                ColorBallsApp.isProcessingJob = false;
-                if (endPoint==0) {          // added on 2019-12-22
-                    //  END PROGRAM
-                    myActivity.exitApplication();
-                } else if (endPoint==1) {       // added on 2019-12-22
-                    //  NEW GAME
-                    flushALLandBegin();
+            quitOrNewGame(entryPoint);
+        } else {
+            showInterstitialAdThread = ColorBallsApp.InterstitialAd.new
+                    ShowInterstitialAdThread(entryPoint, ColorBallsApp.AdProvider, new ShowingInterstitialAdsUtil.AfterDismissFunctionOfShowAd() {
+                @Override
+                public void executeAfterDismissAds(int endPoint) {
+                    // update the main UI
+                    myActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            quitOrNewGame(endPoint);
+                        }
+                    });
                 }
-            }
-        });
-        showAdAsyncTask.execute();
+            });
+            showInterstitialAdThread.startShowAd();
+        }
     }
 
     private boolean startSavingGame(int numOfSaved, final boolean isShowAd) {

@@ -8,15 +8,14 @@
 
     <application>
         <service
-            android:name="com.smile.smilelibraries.services.MusicBoundService"
+            android:name=".services.MusicBoundService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <activity
-            android:name="com.smile.smilelibraries.privacy_policy.PrivacyPolicyActivity"
+            android:name=".privacy_policy.PrivacyPolicyActivity"
             android:label="@string/privacyPolicyString"
-            android:theme="@style/PrivacyPolicyTheme">
-        </activity>
+            android:theme="@style/PrivacyPolicyTheme"></activity>
     </application>
 
 </manifest>

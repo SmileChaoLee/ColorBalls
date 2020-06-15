@@ -1,23 +1,26 @@
 package com.smile.smilelibraries.utilities;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Point;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.PopupMenu;
+
+import android.os.Build;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +30,7 @@ import android.widget.Toast;
 
 public class ScreenUtil {
 
+    public static final String TAG = new String("ScreenUtil");
     public static final int fontSize_Sp_Type = 1;
     public static final int FontSize_Dip_Type = 2;
     public static final int FontSize_Pixel_Type = 3;
@@ -60,18 +64,36 @@ public class ScreenUtil {
     }
 
     public static Point getScreenSize(Context context) {
-        Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        // Display display =  ((Activity)context).getWindowManager().getDefaultDisplay();
+        /*
+        Display display =  ((Activity)context).getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
+        Log.d(TAG, "display.getSize(size) --> size.x = " + size.x);
+        Log.d(TAG,"display.getSize(size) --> size.y = " + size.y);
+        */
+
+        Point size = new Point();
+        // size.x = context.getResources().getSystem().getDisplayMetrics().widthPixels;
+        size.x = Resources.getSystem().getDisplayMetrics().widthPixels;
+        // size.y = context.getResources().getSystem().getDisplayMetrics().heightPixels;
+        size.y = Resources.getSystem().getDisplayMetrics().heightPixels;
+
+        Log.d(TAG, "Resources.getSystem().getDisplayMetrics() --> size.x = " + size.x);
+        Log.d(TAG,"Resources.getSystem().getDisplayMetrics() --> size.y = " + size.y);
 
         return size;
     }
 
     public static int dpToPixel(Context context, int dp) {
+        /*
+        // deprecated
+        // Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
         Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         DisplayMetrics displayMetrics = new DisplayMetrics();
         display.getMetrics(displayMetrics);
+        */
+
+        DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
 
         float density = displayMetrics.density;
         int pixels = (int)((float)dp * density);
@@ -80,10 +102,15 @@ public class ScreenUtil {
     }
 
     public static int pixelToDp(Context context, int pixel) {
+        /*
+        // deprecated
+        // Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
         Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         DisplayMetrics displayMetrics = new DisplayMetrics();
         display.getMetrics(displayMetrics);
+        */
 
+        DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
         float density = displayMetrics.density;
         int dp = 0;
         if (density != 0) {
@@ -94,10 +121,15 @@ public class ScreenUtil {
     }
 
     public static float getDefaultTextSizeFromTheme(Context context, int fontSize_Type, @Nullable Integer themeId) {
+        /*
+        // deprecated
+        // Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
         Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         DisplayMetrics displayMetrics = new DisplayMetrics();
         display.getMetrics(displayMetrics);
+        */
 
+        DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
         TypedArray typedArray;
         int[] attrs = {android.R.attr.textSize}; // retrieve text size from style.xml
         if (themeId == null) {
@@ -162,10 +194,15 @@ public class ScreenUtil {
                 baseWidthPixels = baseScreenWidth;
             }
 
-            Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+            /*
+            // deprecated
+            // Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
+            Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
             DisplayMetrics displayMetrics = new DisplayMetrics();
             display.getMetrics(displayMetrics);
+            */
 
+            DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
             float wPixels = displayMetrics.widthPixels;
             float hPixels = displayMetrics.heightPixels;
             fontScale = wPixels / baseWidthPixels;
@@ -190,33 +227,45 @@ public class ScreenUtil {
     }
 
     public static float screenWidthInches(Context context) {
+        /*
+        // deprecated
         // Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
         Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         DisplayMetrics displayMetrics = new DisplayMetrics();
         display.getMetrics(displayMetrics);
+        */
 
+        DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
         float wInches = (float)(displayMetrics.widthPixels) / (float)(displayMetrics.xdpi);
 
         return wInches;
     }
 
     public static float screenHeightInches(Context context) {
+        /*
+        // deprecated
         // Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
         Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         DisplayMetrics displayMetrics = new DisplayMetrics();
         display.getMetrics(displayMetrics);
+        */
 
+        DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
         float hInches = (float)(displayMetrics.heightPixels) / (float)(displayMetrics.ydpi);
 
         return hInches;
     }
 
     public static float screenSizeInches(Context context) {
+        /*
+        // deprecated
         // Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
         Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         DisplayMetrics displayMetrics = new DisplayMetrics();
         display.getMetrics(displayMetrics);
+        */
 
+        DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
         float wInches = (float)(displayMetrics.widthPixels) / (float)(displayMetrics.xdpi);
         float hInches = (float)(displayMetrics.heightPixels) / (float)(displayMetrics.ydpi);
 
@@ -346,9 +395,13 @@ public class ScreenUtil {
 
     public static void showToast(Context context, String content, float textFontSize, int fontSize_Type, int showPeriod) {
         Toast toast = Toast.makeText(context, content, showPeriod);
-        ViewGroup toastView = (ViewGroup) toast.getView();
-        TextView messageTextView = (TextView) toastView.getChildAt(0);
-        ScreenUtil.resizeTextSize(messageTextView, textFontSize, fontSize_Type);
+        // getView() is deprected in API level 30
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
+            // resize the font size of toast when under API level 30
+            ViewGroup toastView = (ViewGroup) toast.getView();
+            TextView messageTextView = (TextView) toastView.getChildAt(0);
+            ScreenUtil.resizeTextSize(messageTextView, textFontSize, fontSize_Type);
+        }
         toast.show();
     }
 }

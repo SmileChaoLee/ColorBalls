@@ -1,6 +1,5 @@
 package com.smile.smilelibraries.showing_instertitial_ads_utility;
-
-import android.os.AsyncTask;
+import android.app.Activity;
 import android.os.SystemClock;
 import android.util.Log;
 import com.smile.smilelibraries.facebook_ads_util.FacebookInterstitialAds;
@@ -112,90 +111,90 @@ public class ShowingInterstitialAdsUtil {
     public interface AfterDismissFunctionOfShowAd {
         void executeAfterDismissAds(int endPoint);
     }
-    public class ShowAdAsyncTask extends AsyncTask<Void, Integer, Void> {
 
+    public class ShowInterstitialAdThread extends Thread {
         private final int endPoint;
         private final AfterDismissFunctionOfShowAd afterDismissFunction;
         private boolean isAdShown = false;
         private int adProvider;
+        private boolean keepRunning = true;
 
-        public ShowAdAsyncTask(final int endPoint) {
+        public ShowInterstitialAdThread(final int endPoint) {
             this.endPoint = endPoint;
             this.afterDismissFunction = null;
             isAdShown = false;
             this.adProvider = GoogleAdMobAdProvider; // default is Google AdMob
+            keepRunning = true;
         }
 
-        public ShowAdAsyncTask(final int endPoint, int adProvider) {
+        public ShowInterstitialAdThread(final int endPoint, int adProvider) {
             this.endPoint = endPoint;
             this.afterDismissFunction = null;
             isAdShown = false;
             this.adProvider = adProvider;
+            keepRunning = true;
         }
 
-        public ShowAdAsyncTask(final int endPoint, final AfterDismissFunctionOfShowAd afterDismissFunction) {
+        public ShowInterstitialAdThread(final int endPoint, final AfterDismissFunctionOfShowAd afterDismissFunction) {
             this.endPoint = endPoint;
             this.afterDismissFunction = afterDismissFunction;
             isAdShown = false;
             this.adProvider = GoogleAdMobAdProvider; // default is Google AdMob
+            keepRunning = true;
         }
 
-        public ShowAdAsyncTask(final int endPoint, int adProvider, final AfterDismissFunctionOfShowAd afterDismissFunction) {
+        public ShowInterstitialAdThread(final int endPoint, int adProvider, final AfterDismissFunctionOfShowAd afterDismissFunction) {
             this.endPoint = endPoint;
             this.afterDismissFunction = afterDismissFunction;
             isAdShown = false;
             this.adProvider = adProvider;
+            keepRunning = true;
         }
 
-        @Override
-        protected void onPreExecute() {
+        private synchronized void onPreExecute() {
             switch (adProvider) {
                 case FacebookAdProvider:
                     // facebook ad
                     isAdShown = showFacebookAdFirst();
-                    Log.d(TAG, "Started showing Facebook Ad.");
+                    Log.d(TAG, "ShowInterstitialAdThread --> Started showing Facebook Ad.");
                     break;
                 default:
                     // Google AdMob for 0 or others
                     isAdShown = showGoogleAdMobAdFirst();
-                    Log.d(TAG, "Started showing Google AdMob Ad.");
+                    Log.d(TAG, "ShowInterstitialAdThread --> Started showing Google AdMob Ad.");
                     break;
             }
         }
 
-        @Override
-        protected Void doInBackground(Void... voids) {
-
+        private synchronized void doInBackground() {
             final int timeDelay = 300;
             int i = 0;
             if (isAdShown) {
+                Log.d(TAG, "ShowInterstitialAdThread --> Ad is showing.");
                 try {
                     if (isShowingFacebookAd) {
-                        Log.d(TAG, "Facebook Ads was shown.");
-                        while (!facebookAd.adsShowDismissedOrStopped()) {
+                        Log.d(TAG, "ShowInterstitialAdThread --> Facebook Ad was shown.");
+                        while (!facebookAd.adsShowDismissedOrStopped() && keepRunning) {
                             SystemClock.sleep(timeDelay);
                         }
+                        Log.d(TAG, "ShowInterstitialAdThread --> Facebook Ad dismissed.");
                     } else {
                         // is showing google AdMob ad
-                        Log.d(TAG, "Google Ads was shown.");
-                        while (!adMobAd.adsShowDismissedOrStopped()) {
+                        Log.d(TAG, "ShowInterstitialAdThread --> Google Ad was shown.");
+                        while (!adMobAd.adsShowDismissedOrStopped() && keepRunning) {
                             SystemClock.sleep(timeDelay);
                         }
+                        Log.d(TAG, "ShowInterstitialAdThread --> Google Ad dismissed.");
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
+            } else {
+                Log.d(TAG, "ShowInterstitialAdThread --> Ad is not showing.");
             }
-
-            return null;
         }
 
-        @Override
-        protected void onProgressUpdate(Integer... progress) {
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
+        private synchronized void onPostExecute() {
             try {
                 if (afterDismissFunction != null) {
                     afterDismissFunction.executeAfterDismissAds(endPoint);
@@ -203,6 +202,25 @@ public class ShowingInterstitialAdsUtil {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+            Log.d(TAG, "ShowInterstitialAdThread --> onPostExecute().");
+        }
+
+        public void startShowAd() {
+            keepRunning = true;
+            start();
+            Log.d(TAG, "ShowInterstitialAdThread started.");
+        }
+        public void finishThread() {
+            keepRunning = false;
+            Log.d(TAG, "ShowInterstitialAdThread finished.");
+        }
+
+        @Override
+        public synchronized void run() {
+            super.run();
+            onPreExecute();
+            doInBackground();
+            onPostExecute();
         }
     }
 }
