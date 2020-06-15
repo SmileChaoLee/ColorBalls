@@ -2,7 +2,6 @@ package com.smile.smilelibraries.showing_instertitial_ads_utility;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;

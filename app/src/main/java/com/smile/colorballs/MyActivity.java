@@ -432,12 +432,6 @@ public class MyActivity extends AppCompatActivity {
             return;
         }
 
-        /*
-        ShowingInterstitialAdsUtil.ShowAdAsyncTask showAdAsyncTask =
-                ColorBallsApp.InterstitialAd.new ShowAdAsyncTask(0, ColorBallsApp.AdProvider);
-        showAdAsyncTask.execute();
-        */
-
         showInterstitialAdThread = ColorBallsApp.InterstitialAd.new ShowInterstitialAdThread(0, ColorBallsApp.AdProvider);
         showInterstitialAdThread.startShowAd();
     }
