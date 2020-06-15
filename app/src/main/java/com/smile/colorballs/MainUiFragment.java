@@ -836,12 +836,7 @@ public class MainUiFragment extends Fragment {
                 @Override
                 public void executeAfterDismissAds(int endPoint) {
                     // update the main UI
-                    myActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            quitOrNewGame(endPoint);
-                        }
-                    });
+                    quitOrNewGame(endPoint);
                 }
             });
             showInterstitialAdThread.startShowAd();

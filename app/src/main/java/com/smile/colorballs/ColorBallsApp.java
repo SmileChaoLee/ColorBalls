@@ -60,9 +60,8 @@ public class ColorBallsApp extends MultiDexApplication {
     public static String googleAdMobBannerID = "";
     public static String googleAdMobNativeID = "";
     public static int AdProvider = ShowingInterstitialAdsUtil.FacebookAdProvider;    // default is Facebook Ad
-
-    private static FacebookInterstitialAds facebookAds;
-    private static GoogleAdMobInterstitial googleInterstitialAd;
+    public static FacebookInterstitialAds facebookAds;
+    public static GoogleAdMobInterstitial googleInterstitialAd;
     private static final String TAG = new String("SmileApplication");
 
     @Override
@@ -154,7 +153,8 @@ public class ColorBallsApp extends MultiDexApplication {
             });
             googleInterstitialAd = new GoogleAdMobInterstitial(AppContext, googleAdMobInterstitialID);
 
-            InterstitialAd = new ShowingInterstitialAdsUtil(facebookAds, googleInterstitialAd);
+            // Moved to MyActivity.class on 2020-06-15 because need to convert context to activity
+            // InterstitialAd = new ShowingInterstitialAdsUtil(AppContext, facebookAds, googleInterstitialAd);
 
             final Handler adHandler = new Handler(Looper.getMainLooper());
             final Runnable adRunnable = new Runnable() {
