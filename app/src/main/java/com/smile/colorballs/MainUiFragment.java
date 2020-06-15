@@ -397,7 +397,7 @@ public class MainUiFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         if (showInterstitialAdThread != null) {
-            showInterstitialAdThread.finishThread();
+            showInterstitialAdThread.releaseShowInterstitialAdThread();
         }
     }
 

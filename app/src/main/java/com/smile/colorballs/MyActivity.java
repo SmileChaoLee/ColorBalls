@@ -375,7 +375,7 @@ public class MyActivity extends AppCompatActivity {
 
         if (showInterstitialAdThread != null) {
             // avoiding memory leak
-            showInterstitialAdThread.finishThread();
+            showInterstitialAdThread.releaseShowInterstitialAdThread();
         }
         /*
         // the following were removed on 2019-06-25

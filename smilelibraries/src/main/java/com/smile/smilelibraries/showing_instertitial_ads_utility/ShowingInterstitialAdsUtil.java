@@ -33,158 +33,7 @@ public class ShowingInterstitialAdsUtil {
         isShowingFacebookAd = false;
     }
 
-    public boolean showFacebookAdFirst() {
-        succeededAdMob = false;
-        succeededFacebook = false;
-        finishedPreviousStep = false;
-
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                synchronized (synchronizedHandler) {
-                    try {
-                        Log.d(TAG, "showFacebookAdFirst() --> Checking to show Facebook Ad.");
-                        if (facebookAd.isLoaded() && (!facebookAd.isError())) {
-                            Log.d(TAG, "showFacebookAdFirst() --> Started to show Facebook Ad.");
-                            // facebook ad is loaded, then show facebook
-                            isShowingFacebookAd = true;
-                            succeededFacebook = facebookAd.showAd();
-                            if (!succeededFacebook) {
-                                // If no facebook ad showing
-                                // then load next facebook ad
-                                facebookAd.loadAd();
-                                Log.d(TAG, "showFacebookAdFirst() --> Failed to show FacebookAd Ad.");
-                            } else {
-                                Log.d(TAG, "showFacebookAdFirst() --> Succeeded to show FacebookAd Ad.");
-                            }
-                            if (!adMobAd.isLoading()) {
-                                // not loading
-                                adMobAd.loadAd();
-                            }
-                        } else {
-                            // if facebook ad is not loaded, then show AdMob ad
-                            Log.d(TAG, "showFacebookAdFirst() --> Checking to show Google Ad.");
-                            isShowingFacebookAd = false;
-                            if (adMobAd.isLoaded()) {
-                                Log.d(TAG, "showFacebookAdFirst() --> Started to show Google Ad.");
-                                succeededAdMob = adMobAd.showAd();
-                            }
-                            if (!succeededAdMob) {
-                                // If no AdMob ad showing
-                                // then load the next AdMob ad
-                                adMobAd.loadAd();
-                                Log.d(TAG, "showFacebookAdFirst() --> Failed to show Google Ad.");
-                            } else {
-                                Log.d(TAG, "showFacebookAdFirst() --> Succeeded to show Google Ad.");
-                            }
-                            if (facebookAd.isError()) {
-                                facebookAd.loadAd();    // load the next facebook ad
-                            }
-                        }
-                    } catch (Exception ex) {
-                        Log.d(TAG, "Exception on showFacebookAdFirst().");
-                        ex.printStackTrace();
-                    }
-
-                    finishedPreviousStep = true;
-                    synchronizedHandler.notifyAll();
-                    Log.d(TAG, "showFacebookAdFirst() -- >synchronizedHandler.notifyAll()");
-                }
-            }
-        });
-
-        synchronized (synchronizedHandler) {
-            while (!finishedPreviousStep) {
-                try {
-                    synchronizedHandler.wait();
-                } catch (InterruptedException e) {
-                    Log.d(TAG, "showFacebookAdFirst() --> synchronizedHandler.wait() exception");
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        Log.d(TAG, "showFacebookAdFirst() --> return value = " + (succeededAdMob || succeededFacebook));
-
-        return (succeededAdMob || succeededFacebook);
-    }
-
-    public boolean showGoogleAdMobAdFirst() {
-        succeededAdMob = false;
-        succeededFacebook = false;
-        finishedPreviousStep = false;
-
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                synchronized (synchronizedHandler) {
-                    try {
-                        Log.d(TAG, "showGoogleAdMobAdFirst() -->Checking to show Google Ad.");
-                        if (adMobAd.isLoaded()) {
-                            isShowingFacebookAd = false;
-                            Log.d(TAG, "showGoogleAdMobAdFirst() --> Starting to show Google Ad.");
-                            succeededAdMob = adMobAd.showAd();
-                            if (!succeededAdMob) {
-                                // if no AdMob ad showing
-                                // then load next AdMob ad
-                                adMobAd.loadAd();
-                                Log.d(TAG, "showGoogleAdMobAdFirst() --> Failed to show Google Ad.");
-                            } else {
-                                Log.d(TAG, "showGoogleAdMobAdFirst() --> Succeeded to show Google Ad.");
-                            }
-                            if (facebookAd.isError()) {
-                                facebookAd.loadAd();    // load the next facebook ad
-                            }
-                        } else {
-                            // AdMob ad is not loaded, then show facebook
-                            Log.d(TAG, "showGoogleAdMobAdFirst() --> Checking to show Facebook Ad.");
-                            isShowingFacebookAd = true;
-                            if (facebookAd.isLoaded() && (!facebookAd.isError())) {
-                                Log.d(TAG, "showGoogleAdMobAdFirst() --> Starting to show Facebook Ad.");
-                                succeededFacebook = facebookAd.showAd();
-                            }
-                            if (!succeededFacebook) {
-                                // If no facebook ad showing
-                                // load next facebook ad
-                                facebookAd.loadAd();
-                                Log.d(TAG, "showGoogleAdMobAdFirst() --> Failed to show FacebookAd Ad.");
-                            } else {
-                                Log.d(TAG, "showGoogleAdMobAdFirst() --> Succeeded to show FacebookAd Ad.");
-                            }
-                            if (!adMobAd.isLoading()) {
-                                // not loading
-                                adMobAd.loadAd();   // load next AdMob ad
-                            }
-                        }
-                    } catch (Exception ex) {
-                        Log.d(TAG, "showGoogleAdMobAdFirst() --> Exception on showGoogleAdMobAdFirst().");
-                        ex.printStackTrace();
-                    }
-
-                    finishedPreviousStep = true;
-                    synchronizedHandler.notifyAll();
-                    Log.d(TAG, "showGoogleAdMobAdFirst() --> synchronizedHandler.notifyAll()");
-                }
-            }
-        });
-
-        synchronized (synchronizedHandler) {
-            while (!finishedPreviousStep) {
-                try {
-                    synchronizedHandler.wait();
-                } catch (InterruptedException e) {
-                    Log.d(TAG, "showGoogleAdMobAdFirst() --> synchronizedHandler.wait() exception");
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        Log.d(TAG, "showGoogleAdMobAdFirst() --> return value = " + (succeededAdMob || succeededFacebook));
-
-        return (succeededAdMob || succeededFacebook);
-    }
-
-    public void close() {
+    private void close() {
         try {
             facebookAd.close();
         } catch (Exception ex) {
@@ -234,6 +83,157 @@ public class ShowingInterstitialAdsUtil {
             isAdShown = false;
             this.adProvider = adProvider;
             keepRunning = true;
+        }
+
+        private boolean showFacebookAdFirst() {
+            succeededAdMob = false;
+            succeededFacebook = false;
+            finishedPreviousStep = false;
+
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized (synchronizedHandler) {
+                        try {
+                            Log.d(TAG, "showFacebookAdFirst() --> Checking to show Facebook Ad.");
+                            if (facebookAd.isLoaded() && (!facebookAd.isError())) {
+                                Log.d(TAG, "showFacebookAdFirst() --> Started to show Facebook Ad.");
+                                // facebook ad is loaded, then show facebook
+                                isShowingFacebookAd = true;
+                                succeededFacebook = facebookAd.showAd();
+                                if (!succeededFacebook) {
+                                    // If no facebook ad showing
+                                    // then load next facebook ad
+                                    facebookAd.loadAd();
+                                    Log.d(TAG, "showFacebookAdFirst() --> Failed to show FacebookAd Ad.");
+                                } else {
+                                    Log.d(TAG, "showFacebookAdFirst() --> Succeeded to show FacebookAd Ad.");
+                                }
+                                if (!adMobAd.isLoading()) {
+                                    // not loading
+                                    adMobAd.loadAd();
+                                }
+                            } else {
+                                // if facebook ad is not loaded, then show AdMob ad
+                                Log.d(TAG, "showFacebookAdFirst() --> Checking to show Google Ad.");
+                                isShowingFacebookAd = false;
+                                if (adMobAd.isLoaded()) {
+                                    Log.d(TAG, "showFacebookAdFirst() --> Started to show Google Ad.");
+                                    succeededAdMob = adMobAd.showAd();
+                                }
+                                if (!succeededAdMob) {
+                                    // If no AdMob ad showing
+                                    // then load the next AdMob ad
+                                    adMobAd.loadAd();
+                                    Log.d(TAG, "showFacebookAdFirst() --> Failed to show Google Ad.");
+                                } else {
+                                    Log.d(TAG, "showFacebookAdFirst() --> Succeeded to show Google Ad.");
+                                }
+                                if (facebookAd.isError()) {
+                                    facebookAd.loadAd();    // load the next facebook ad
+                                }
+                            }
+                        } catch (Exception ex) {
+                            Log.d(TAG, "Exception on showFacebookAdFirst().");
+                            ex.printStackTrace();
+                        }
+
+                        finishedPreviousStep = true;
+                        synchronizedHandler.notifyAll();
+                        Log.d(TAG, "showFacebookAdFirst() -- >synchronizedHandler.notifyAll()");
+                    }
+                }
+            });
+
+            synchronized (synchronizedHandler) {
+                while (!finishedPreviousStep) {
+                    try {
+                        synchronizedHandler.wait();
+                    } catch (InterruptedException e) {
+                        Log.d(TAG, "showFacebookAdFirst() --> synchronizedHandler.wait() exception");
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            Log.d(TAG, "showFacebookAdFirst() --> return value = " + (succeededAdMob || succeededFacebook));
+
+            return (succeededAdMob || succeededFacebook);
+        }
+
+        private boolean showGoogleAdMobAdFirst() {
+            succeededAdMob = false;
+            succeededFacebook = false;
+            finishedPreviousStep = false;
+
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized (synchronizedHandler) {
+                        try {
+                            Log.d(TAG, "showGoogleAdMobAdFirst() -->Checking to show Google Ad.");
+                            if (adMobAd.isLoaded()) {
+                                isShowingFacebookAd = false;
+                                Log.d(TAG, "showGoogleAdMobAdFirst() --> Starting to show Google Ad.");
+                                succeededAdMob = adMobAd.showAd();
+                                if (!succeededAdMob) {
+                                    // if no AdMob ad showing
+                                    // then load next AdMob ad
+                                    adMobAd.loadAd();
+                                    Log.d(TAG, "showGoogleAdMobAdFirst() --> Failed to show Google Ad.");
+                                } else {
+                                    Log.d(TAG, "showGoogleAdMobAdFirst() --> Succeeded to show Google Ad.");
+                                }
+                                if (facebookAd.isError()) {
+                                    facebookAd.loadAd();    // load the next facebook ad
+                                }
+                            } else {
+                                // AdMob ad is not loaded, then show facebook
+                                Log.d(TAG, "showGoogleAdMobAdFirst() --> Checking to show Facebook Ad.");
+                                isShowingFacebookAd = true;
+                                if (facebookAd.isLoaded() && (!facebookAd.isError())) {
+                                    Log.d(TAG, "showGoogleAdMobAdFirst() --> Starting to show Facebook Ad.");
+                                    succeededFacebook = facebookAd.showAd();
+                                }
+                                if (!succeededFacebook) {
+                                    // If no facebook ad showing
+                                    // load next facebook ad
+                                    facebookAd.loadAd();
+                                    Log.d(TAG, "showGoogleAdMobAdFirst() --> Failed to show FacebookAd Ad.");
+                                } else {
+                                    Log.d(TAG, "showGoogleAdMobAdFirst() --> Succeeded to show FacebookAd Ad.");
+                                }
+                                if (!adMobAd.isLoading()) {
+                                    // not loading
+                                    adMobAd.loadAd();   // load next AdMob ad
+                                }
+                            }
+                        } catch (Exception ex) {
+                            Log.d(TAG, "showGoogleAdMobAdFirst() --> Exception on showGoogleAdMobAdFirst().");
+                            ex.printStackTrace();
+                        }
+
+                        finishedPreviousStep = true;
+                        synchronizedHandler.notifyAll();
+                        Log.d(TAG, "showGoogleAdMobAdFirst() --> synchronizedHandler.notifyAll()");
+                    }
+                }
+            });
+
+            synchronized (synchronizedHandler) {
+                while (!finishedPreviousStep) {
+                    try {
+                        synchronizedHandler.wait();
+                    } catch (InterruptedException e) {
+                        Log.d(TAG, "showGoogleAdMobAdFirst() --> synchronizedHandler.wait() exception");
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            Log.d(TAG, "showGoogleAdMobAdFirst() --> return value = " + (succeededAdMob || succeededFacebook));
+
+            return (succeededAdMob || succeededFacebook);
         }
 
         private synchronized void onPreExecute() {
@@ -304,9 +304,16 @@ public class ShowingInterstitialAdsUtil {
             start();
             Log.d(TAG, "ShowInterstitialAdThread started.");
         }
-        public void finishThread() {
+
+        public void finishShowInterstitialAdThread() {
             keepRunning = false;
-            Log.d(TAG, "ShowInterstitialAdThread finished.");
+            Log.d(TAG, "Ending ShowInterstitialAdThread .");
+        }
+
+        public void releaseShowInterstitialAdThread() {
+            keepRunning = false;
+            close();
+            Log.d(TAG, "Releasing ShowInterstitialAdThread.");
         }
 
         @Override
