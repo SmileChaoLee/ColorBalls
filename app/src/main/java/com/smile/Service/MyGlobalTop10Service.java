@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -19,12 +20,17 @@ import java.util.ArrayList;
 public class MyGlobalTop10Service extends Service {
 
     public final static String Action_Name = "com.smile.Service.MyGlobalTop10Service";
-    private final static String TAG = new String("MyGlobalTop10Service");
+    private final static String TAG = "MyGlobalTop10Service";
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "MyGlobalTop10Service --> onStartCommand() is called.");
+
         getDataAndSendBack(intent);
+
+        stopSelf();
+        Log.d(TAG, "MyGlobalTop10Service --> stopSelf() is called.");
+
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -41,14 +47,12 @@ public class MyGlobalTop10Service extends Service {
         final String webUrl = intent.getStringExtra("WebUrl");
         final Handler getDataHandler = new Handler(Looper.getMainLooper());
 
-        Thread getDataThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                synchronized (getDataHandler) {
-                    String status = PlayerRecordRest.GetGlobalTop10Scores(webUrl, playerNames, playerScores);
-                    getDataHandler.notifyAll();
-                    Log.d(TAG, "MyGlobalTop10Service-->getDataAndSendBack()-->getDataThread-->notifyAll().");
-                }
+        Thread getDataThread = new Thread( () -> {
+            SystemClock.sleep(100);
+            synchronized (getDataHandler) {
+                String status = PlayerRecordRest.GetGlobalTop10Scores(webUrl, playerNames, playerScores);
+                getDataHandler.notifyAll();
+                Log.d(TAG, "MyGlobalTop10Service-->getDataAndSendBack()-->getDataThread-->notifyAll().");
             }
         });
         getDataThread.start();
@@ -77,9 +81,5 @@ public class MyGlobalTop10Service extends Service {
         ColorBallsApp.isProcessingJob = false;
 
         Log.d(TAG, "MyGlobalTop10Service --> sent result.");
-
-        stopSelf();
-        Log.d(TAG, "MyGlobalTop10Service --> stopSelf() is called.");
-
     }
 }
