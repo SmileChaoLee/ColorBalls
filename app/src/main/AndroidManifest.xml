@@ -42,12 +42,12 @@
             android:label="@string/title_activity_history"></activity>
 
         <service
-            android:name="com.smile.Service.MyTop10ScoresIntentService"
+            android:name="com.smile.Service.MyTop10ScoresService"
             android:enabled="true"
             android:exported="false">
         </service>
         <service
-            android:name="com.smile.Service.MyGlobalTop10IntentService"
+            android:name="com.smile.Service.MyGlobalTop10Service"
             android:enabled="true"
             android:exported="false">
         </service>

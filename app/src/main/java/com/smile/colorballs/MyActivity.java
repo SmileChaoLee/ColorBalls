@@ -19,16 +19,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
 
+import android.os.Looper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
-import com.smile.Service.MyGlobalTop10IntentService;
-import com.smile.Service.MyTop10ScoresIntentService;
+import com.smile.Service.MyGlobalTop10Service;
+import com.smile.Service.MyTop10ScoresService;
 import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate;
 import com.smile.smilelibraries.Models.ExitAppTimer;
 import com.smile.smilelibraries.Models.ShowToastMessage;
@@ -172,8 +172,8 @@ public class MyActivity extends AppCompatActivity {
 
         myReceiver = new MyBroadcastReceiver();
         myIntentFilter = new IntentFilter();
-        myIntentFilter.addAction(MyTop10ScoresIntentService.Action_Name);
-        myIntentFilter.addAction(MyGlobalTop10IntentService.Action_Name);
+        myIntentFilter.addAction(MyTop10ScoresService.Action_Name);
+        myIntentFilter.addAction(MyGlobalTop10Service.Action_Name);
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.registerReceiver(myReceiver, myIntentFilter);
 
@@ -249,8 +249,6 @@ public class MyActivity extends AppCompatActivity {
 
         int id = item.getItemId();
         if (id == R.id.quitGame) {
-            // removed on 2017-10-24
-            // Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, autoRotate);
             mainUiFragment.recordScore(0);   //   from   END PROGRAM
             return true;
         }
@@ -421,7 +419,7 @@ public class MyActivity extends AppCompatActivity {
     }
 
     public void exitApplication() {
-        final Handler handlerClose = new Handler();
+        final Handler handlerClose = new Handler(Looper.getMainLooper());
         final int timeDelay = 200;
         handlerClose.postDelayed(new Runnable() {
             public void run() {
@@ -453,7 +451,7 @@ public class MyActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
 
-            System.out.println("MyActivity.MyBroadcastReceiver.onReceive() is called.");
+            Log.d(TAG, "MyActivity.MyBroadcastReceiver.onReceive() is called.");
 
             String actionName = intent.getAction();
             Bundle extras;
@@ -461,7 +459,7 @@ public class MyActivity extends AppCompatActivity {
             ArrayList<Integer> playerScores = new ArrayList<>();
             View historyView;
             switch (actionName) {
-                case MyTop10ScoresIntentService.Action_Name:
+                case MyTop10ScoresService.Action_Name:
 
                     String top10ScoreTitle = getString(R.string.top10Score);
                     extras = intent.getExtras();
@@ -519,7 +517,7 @@ public class MyActivity extends AppCompatActivity {
                     ColorBallsApp.isProcessingJob = false;
                     break;
 
-                case MyGlobalTop10IntentService.Action_Name:
+                case MyGlobalTop10Service.Action_Name:
 
                     String globalTop10ScoreTitle = getString(R.string.globalTop10Score);
                     extras = intent.getExtras();

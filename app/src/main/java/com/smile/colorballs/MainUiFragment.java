@@ -14,9 +14,9 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -37,8 +37,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.smile.Service.MyGlobalTop10IntentService;
-import com.smile.Service.MyTop10ScoresIntentService;
+import com.smile.Service.MyGlobalTop10Service;
+import com.smile.Service.MyTop10ScoresService;
 import com.smile.model.GridData;
 import com.smile.smilelibraries.player_record_rest.PlayerRecordRest;
 import com.smile.smilelibraries.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
@@ -509,8 +509,8 @@ public class MainUiFragment extends Fragment {
         }
 
         if (hasMoreFive) {
-            CalculateScore calculateScore = new CalculateScore(linkedPoint, true);
-            calculateScore.execute();
+            CalculateScoreThread calculateScoreThread = new CalculateScoreThread(linkedPoint, true);
+            calculateScoreThread.startCalculate();
         } else {
             // check if game over
             boolean gameOverYn = gridData.getGameOver();
@@ -619,7 +619,7 @@ public class MainUiFragment extends Fragment {
     }
 
     private void drawBouncyBall(final ImageView v, final int color) {
-        bouncyHandler = new Handler();
+        bouncyHandler = new Handler(Looper.getMainLooper());
         bouncyRunnable = new Runnable() {
             boolean ballYN = false;
             @Override
@@ -661,7 +661,7 @@ public class MainUiFragment extends Fragment {
         }
 
         final List<Point> tempList = new ArrayList<>(gridData.getPathPoint());
-        final Handler drawHandler = new Handler();
+        final Handler drawHandler = new Handler(Looper.getMainLooper());
         Runnable runnablePath = new Runnable() {
             boolean ballYN = true;
             ImageView imageView = null;
@@ -699,8 +699,8 @@ public class MainUiFragment extends Fragment {
         drawBall(v, gridData.getCellValue(i, j));
         //  check if there are more than five balls with same color connected together
         if (gridData.check_moreThanFive(i, j) == 1) {
-            CalculateScore calculateScore = new CalculateScore(gridData.getLight_line(), false);
-            calculateScore.execute();
+            CalculateScoreThread calculateScoreThread = new CalculateScoreThread(gridData.getLight_line(), false);
+            calculateScoreThread.startCalculate();
         } else {
             displayGridDataNextCells();   // has a problem
         }
@@ -1130,18 +1130,18 @@ public class MainUiFragment extends Fragment {
         ColorBallsApp.isProcessingJob = true;
         ColorBallsApp.isShowingLoadingMessage = true;
         showMessageOnScreen(loadingString);
-        Intent myIntentService = new Intent(myActivity, MyTop10ScoresIntentService.class);
-        myActivity.startService(myIntentService);
+        Intent myService = new Intent(myActivity, MyTop10ScoresService.class);
+        myActivity.startService(myService);
     }
     public void showGlobalTop10History() {
         ColorBallsApp.isProcessingJob = true;
         ColorBallsApp.isShowingLoadingMessage = true;
         showMessageOnScreen(loadingString);
-        Intent myIntentService = new Intent(myActivity, MyGlobalTop10IntentService.class);
+        Intent myService = new Intent(myActivity, MyGlobalTop10Service.class);
         String webUrl = ColorBallsApp.REST_Website + "/GetTop10PlayerscoresREST";  // ASP.NET Core
         webUrl += "?gameId=" + ColorBallsApp.GameId;   // parameters
-        myIntentService.putExtra("WebUrl", webUrl);
-        myActivity.startService(myIntentService);
+        myService.putExtra("WebUrl", webUrl);
+        myActivity.startService(myService);
     }
     public void newGame() {
         recordScore(1);   //   START A NEW GAME
@@ -1347,7 +1347,7 @@ public class MainUiFragment extends Fragment {
         scoreImageView.setVisibility(View.GONE);
     }
 
-    private class CalculateScore extends AsyncTask<Point, Integer, String[]> {
+    private class CalculateScoreThread extends Thread {
 
         // private final String ScoreDialogTag = new String("ScoreDialogFragment");
         private int numBalls = 0;
@@ -1357,7 +1357,10 @@ public class MainUiFragment extends Fragment {
         private boolean isNextBalls;
         private Bitmap scoreBitmap;
 
-        public CalculateScore(HashSet<Point> linkedPoint, boolean isNextBalls) {
+        private final Handler calculateScoreHandler = new Handler(Looper.getMainLooper());
+        private boolean isSynchronizeFinished = false;
+
+        public CalculateScoreThread(HashSet<Point> linkedPoint, boolean isNextBalls) {
             this.isNextBalls = isNextBalls;
             if (linkedPoint != null) {
                 hasPoint = new HashSet<>(linkedPoint);
@@ -1372,95 +1375,152 @@ public class MainUiFragment extends Fragment {
             }
         }
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
+        private synchronized void onPreExecute() {
             threadCompleted[1] = false;
-            scoreImageView.setVisibility(View.VISIBLE);
+
+            isSynchronizeFinished = false;
+
+            myActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized (calculateScoreHandler) {
+                        scoreImageView.setVisibility(View.VISIBLE);
+                        isSynchronizeFinished = true;
+                        calculateScoreHandler.notifyAll();
+                        Log.d(TAG, "CalculateScoreThread-->onPreExecute() --> notifyAll()");
+                    }
+                }
+            });
+            synchronized (calculateScoreHandler) {
+                while (!isSynchronizeFinished) {
+                    try {
+                        Log.d(TAG, "CalculateScoreThread-->onPreExecute() --> wait()");
+                        calculateScoreHandler.wait();
+                    } catch (InterruptedException e) {
+                        Log.d(TAG, "CalculateScoreThread-->onPreExecute() wait exception");
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            Log.d(TAG, "CalculateScoreThread-->onPreExecute() is finished.");
         }
 
-        @Override
-        protected String[] doInBackground(Point... params) {
-
+        private synchronized void doInBackground() {
             if (hasPoint != null) {
                 int twinkleCountDown = 5;
                 for (int i = 1; i <= twinkleCountDown; i++) {
                     int md = i % 2; // modulus
-                    publishProgress(md);
+                    onProgressUpdate(md);
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException ex) {
                         ex.printStackTrace();
                     }
                 }
-                publishProgress(2);
+                onProgressUpdate(2);
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException ex) {
                     ex.printStackTrace();
                 }
-
-                publishProgress(3);
+                onProgressUpdate(3);
+            } else {
+                Log.d(TAG, "CalculateScoreThread-->doInBackground()-->hasPoint is null.");
             }
-
-            return null;
+            Log.d(TAG, "CalculateScoreThread-->doInBackground() is finished.");
         }
 
-        @Override
-        protected void onProgressUpdate(Integer... status) {
+        private synchronized void onProgressUpdate(int status) {
             if (hasPoint != null) {
-                switch (status[0]) {
-                    case 0:
-                        for (Point item : hasPoint) {
-                            ImageView v = uiFragmentView.findViewById(item.x * rowCounts + item.y);
-                            drawBall(v, color);
+                isSynchronizeFinished = false;
+                myActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        synchronized (calculateScoreHandler) {
+                            switch (status) {
+                                case 0:
+                                    for (Point item : hasPoint) {
+                                        ImageView v = uiFragmentView.findViewById(item.x * rowCounts + item.y);
+                                        drawBall(v, color);
+                                    }
+                                    break;
+                                case 1:
+                                    for (Point item : hasPoint) {
+                                        ImageView v = uiFragmentView.findViewById(item.x * rowCounts + item.y);
+                                        drawOval(v, color);
+                                    }
+                                    break;
+                                case 2:
+                                case 3:
+                                    scoreImageView.setImageBitmap(scoreBitmap);
+                                    break;
+                            }
+                            isSynchronizeFinished = true;
+                            calculateScoreHandler.notifyAll();
+                            Log.d(TAG, "CalculateScoreThread-->onProgressUpdate() --> notifyAll()");
                         }
-                        break;
-                    case 1:
-                        for (Point item : hasPoint) {
-                            ImageView v = uiFragmentView.findViewById(item.x * rowCounts + item.y);
-                            drawOval(v, color);
+                    }
+                });
+                synchronized (calculateScoreHandler) {
+                    while (!isSynchronizeFinished) {
+                        try {
+                            Log.d(TAG, "CalculateScoreThread-->onProgressUpdate() --> wait()");
+                            calculateScoreHandler.wait();
+                        } catch (InterruptedException e) {
+                            Log.d(TAG, "CalculateScoreThread-->onProgressUpdate() wait exception");
+                            e.printStackTrace();
                         }
-                        break;
-                    case 2:
-                    case 3:
+                    }
+                }
+            } else {
+                Log.d(TAG, "CalculateScoreThread-->onProgressUpdate()-->hasPoint is null.");
+            }
+            Log.d(TAG, "CalculateScoreThread-->onProgressUpdate() is finished.");
+        }
+
+        private synchronized void onPostExecute() {
+            if (hasPoint != null) {
+                myActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
                         scoreImageView.setImageBitmap(scoreBitmap);
-                        break;
-                }
+                        // clear values of cells
+                        for (Point item : hasPoint) {
+                            clearCell(item.x, item.y);
+                        }
+                        // update the UI
+                        undoScore = currentScore;
+                        currentScore = currentScore + score;
+                        currentScoreView.setText(String.format(Locale.getDefault(), "%8d", currentScore));
+                        // hide score ImageView
+                        scoreImageView.setImageBitmap(null);
+                        scoreImageView.setVisibility(View.GONE);
+                        // added on 2019-03-30
+                        if (isNextBalls) {
+                            displayNextColorBalls();
+                        }
+                    }
+                });
+            } else {
+                Log.d(TAG, "CalculateScoreThread-->onPostExecute()-->hasPoint is null.");
             }
 
-            return ;
+            threadCompleted[1] = true;  // user can start input command
+
+            Log.d(TAG, "CalculateScoreThread-->onPostExecute() is finished.");
         }
 
         @Override
-        protected void onPostExecute(String[] result) {
-            super.onPostExecute(result);
+        public synchronized void run() {
+            super.run();
+            onPreExecute();
+            doInBackground();
+            onPostExecute();
+        }
 
-            if (hasPoint != null) {
-                scoreImageView.setImageBitmap(scoreBitmap);
-
-                // clear values of cells
-                for (Point item : hasPoint) {
-                    clearCell(item.x, item.y);
-                }
-
-                // update the UI
-                undoScore = currentScore;
-                currentScore = currentScore + score;
-                currentScoreView.setText(String.format(Locale.getDefault(), "%8d", currentScore));
-
-                // hide score ImageView
-                scoreImageView.setImageBitmap(null);
-                scoreImageView.setVisibility(View.GONE);
-
-                // added on 2019-03-30
-                if (isNextBalls) {
-                    displayNextColorBalls();
-                }
-            }
-
-            threadCompleted[1] = true;
+        public void startCalculate() {
+            start();
         }
     }
 }
