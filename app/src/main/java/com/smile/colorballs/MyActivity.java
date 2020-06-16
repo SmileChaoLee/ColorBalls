@@ -31,6 +31,7 @@ import com.smile.Service.MyGlobalTop10IntentService;
 import com.smile.Service.MyTop10ScoresIntentService;
 import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate;
 import com.smile.smilelibraries.Models.ExitAppTimer;
+import com.smile.smilelibraries.Models.ShowToastMessage;
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil;
 import com.smile.smilelibraries.showing_banner_ads_utility.SetBannerAdViewForAdMobOrFacebook;
 import com.smile.smilelibraries.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
@@ -412,7 +413,10 @@ public class MyActivity extends AppCompatActivity {
             mainUiFragment.recordScore(0);   //   from   END PROGRAM
         } else {
             exitAppTimer.start();
-            ScreenUtil.showToast(this, getString(R.string.backKeyToExitApp), textFontSize*0.7f, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_SHORT);
+            float toastFontSize = textFontSize*0.7f;
+            Log.d(TAG, "toastFontSize = " + toastFontSize);
+            // ScreenUtil.showToast(this, getString(R.string.backKeyToExitApp), toastFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_SHORT);
+            ShowToastMessage.showToast(this, getString(R.string.backKeyToExitApp), toastFontSize, ColorBallsApp.FontSize_Scale_Type, 2000);  // 2 seconds
         }
     }
 

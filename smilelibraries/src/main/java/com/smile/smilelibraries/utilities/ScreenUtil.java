@@ -1,6 +1,5 @@
 package com.smile.smilelibraries.utilities;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -23,6 +22,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.smile.smilelibraries.Models.ShowToastMessage;
 
 /**
  * Created by chaolee on 2017-10-24.
@@ -266,10 +267,24 @@ public class ScreenUtil {
         */
 
         DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
-        float wInches = (float)(displayMetrics.widthPixels) / (float)(displayMetrics.xdpi);
-        float hInches = (float)(displayMetrics.heightPixels) / (float)(displayMetrics.ydpi);
 
-        float screenDiagonal = (float) (Math.sqrt(Math.pow(wInches, 2) + Math.pow(hInches, 2)) );
+        float widthPixels = (float)(displayMetrics.widthPixels);
+        Log.d(TAG, "widthPixels = " + widthPixels);
+        float xdpi = (float)displayMetrics.xdpi;
+        Log.d(TAG, "xdpi = " + xdpi);
+        float wInches = widthPixels / xdpi;
+        Log.d(TAG, "wInches = " + wInches);
+
+        float heightPixels = (float)displayMetrics.heightPixels;
+        Log.d(TAG, "heightPixels = " + heightPixels);
+        float ydpi = (float)displayMetrics.ydpi;
+        Log.d(TAG, "ydpi = " + ydpi);
+        float hInches = heightPixels / ydpi;
+        Log.d(TAG, "hInches = " + hInches);
+
+        float screenDiagonal = (float) (Math.sqrt( Math.pow(wInches, 2) + Math.pow(hInches, 2 )) );
+
+        Log.d(TAG, "screenDiagonal Size = " + screenDiagonal);
 
         return screenDiagonal;
     }
@@ -390,18 +405,27 @@ public class ScreenUtil {
                 textView.setTextSize(textFontSize);
                 break;
         }
-
     }
 
     public static void showToast(Context context, String content, float textFontSize, int fontSize_Type, int showPeriod) {
         Toast toast = Toast.makeText(context, content, showPeriod);
         // getView() is deprected in API level 30
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             // resize the font size of toast when under API level 30
             ViewGroup toastView = (ViewGroup) toast.getView();
             TextView messageTextView = (TextView) toastView.getChildAt(0);
             ScreenUtil.resizeTextSize(messageTextView, textFontSize, fontSize_Type);
+        } else {
+            if (context != null) {
+                Activity activity = (Activity)context;
+                if (activity != null) {
+                    int duration = 2000;    // 2 seconds for Toast.LENGTH_SHORT
+                    if (showPeriod == Toast.LENGTH_LONG) {
+                        duration = 3500;    // 3.5 seconds
+                    }
+                    ShowToastMessage.showToast(activity, content, textFontSize, fontSize_Type, duration);
+                }
+            }
         }
-        toast.show();
     }
 }
