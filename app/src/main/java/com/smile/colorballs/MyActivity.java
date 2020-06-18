@@ -399,7 +399,7 @@ public class MyActivity extends AppCompatActivity {
             //
         }
         */
-
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         super.onDestroy();
 
     }

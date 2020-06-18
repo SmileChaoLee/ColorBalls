@@ -29,10 +29,10 @@ public class SettingActivity extends AppCompatActivity {
             // Oreo on API 26. Under Full Screen and Translucent, the orientation cannot be changed
             if (ScreenUtil.isTablet(this)) {
                 // Table then change orientation to Landscape
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             } else {
                 // phone then change orientation to Portrait
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             }
         }
 
