@@ -31,7 +31,7 @@ import com.smile.smilelibraries.Models.ShowToastMessage;
 
 public class ScreenUtil {
 
-    public static final String TAG = new String("ScreenUtil");
+    public static final String TAG = "ScreenUtil";
     public static final int fontSize_Sp_Type = 1;
     public static final int FontSize_Dip_Type = 2;
     public static final int FontSize_Pixel_Type = 3;
@@ -97,9 +97,8 @@ public class ScreenUtil {
         DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
 
         float density = displayMetrics.density;
-        int pixels = (int)((float)dp * density);
 
-        return pixels;
+        return  (int)((float)dp * density);
     }
 
     public static int pixelToDp(Context context, int pixel) {
@@ -144,11 +143,10 @@ public class ScreenUtil {
         float density = displayMetrics.density;
         System.out.println("getDefaultTextSizeFromTheme().density = " + density);
 
-        float defaultTextFontSize = dimension / density;
+        float defaultTextFontSize;
         if (fontSize_Type == FontSize_Pixel_Type) {
             defaultTextFontSize = dimension;
         } else {
-
             defaultTextFontSize = dimension / density;
         }
         typedArray.recycle();
@@ -237,9 +235,8 @@ public class ScreenUtil {
         */
 
         DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
-        float wInches = (float)(displayMetrics.widthPixels) / (float)(displayMetrics.xdpi);
 
-        return wInches;
+        return (float)(displayMetrics.widthPixels) / (float)(displayMetrics.xdpi);
     }
 
     public static float screenHeightInches(Context context) {
@@ -252,9 +249,8 @@ public class ScreenUtil {
         */
 
         DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
-        float hInches = (float)(displayMetrics.heightPixels) / (float)(displayMetrics.ydpi);
 
-        return hInches;
+        return (float)(displayMetrics.heightPixels) / (float)(displayMetrics.ydpi);
     }
 
     public static float screenSizeInches(Context context) {
@@ -289,8 +285,7 @@ public class ScreenUtil {
         return screenDiagonal;
     }
 
-    public static boolean isTablet(Context context)
-    {
+    public static boolean isTablet(Context context) {
         double screenDiagonal = screenSizeInches(context);
         return (screenDiagonal >= 7.0);
     }
@@ -413,18 +408,22 @@ public class ScreenUtil {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             // resize the font size of toast when under API level 30
             ViewGroup toastView = (ViewGroup) toast.getView();
-            TextView messageTextView = (TextView) toastView.getChildAt(0);
-            ScreenUtil.resizeTextSize(messageTextView, textFontSize, fontSize_Type);
+            try {
+                TextView messageTextView = (TextView) toastView.getChildAt(0);
+                if (messageTextView != null) {
+                    ScreenUtil.resizeTextSize(messageTextView, textFontSize, fontSize_Type);
+                }
+            } catch ( Exception e) {
+                e.printStackTrace();
+            }
         } else {
             if (context != null) {
                 Activity activity = (Activity)context;
-                if (activity != null) {
-                    int duration = 2000;    // 2 seconds for Toast.LENGTH_SHORT
-                    if (showPeriod == Toast.LENGTH_LONG) {
-                        duration = 3500;    // 3.5 seconds
-                    }
-                    ShowToastMessage.showToast(activity, content, textFontSize, fontSize_Type, duration);
+                int duration = 2000;    // 2 seconds for Toast.LENGTH_SHORT
+                if (showPeriod == Toast.LENGTH_LONG) {
+                    duration = 3500;    // 3.5 seconds
                 }
+                ShowToastMessage.showToast(activity, content, textFontSize, fontSize_Type, duration);
             }
         }
     }

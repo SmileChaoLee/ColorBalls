@@ -24,18 +24,11 @@ public class SettingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        /*
         if (Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
             // Oreo on API 26. Under Full Screen and Translucent, the orientation cannot be changed
-            if (ScreenUtil.isTablet(this)) {
-                // Table then change orientation to Landscape
-                // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            } else {
-                // phone then change orientation to Portrait
-                // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            }
         }
-
+        */
         float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this, ColorBallsApp.FontSize_Scale_Type, null);
         textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, ColorBallsApp.FontSize_Scale_Type, 0.0f);
 
@@ -59,12 +52,7 @@ public class SettingActivity extends AppCompatActivity {
         soundSwitch = findViewById(R.id.soundSwitch);
         ScreenUtil.resizeTextSize(soundSwitch, textFontSize, ColorBallsApp.FontSize_Scale_Type);
         soundSwitch.setChecked(hasSound);
-        soundSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                hasSound = ((ToggleButton)view).isChecked();
-            }
-        });
+        soundSwitch.setOnClickListener( (View view)-> hasSound = ((ToggleButton)view).isChecked());
 
         TextView levelSettingTitle = findViewById(R.id.levelSettingTitle);
         ScreenUtil.resizeTextSize(levelSettingTitle, textFontSize, ColorBallsApp.FontSize_Scale_Type);
@@ -72,31 +60,15 @@ public class SettingActivity extends AppCompatActivity {
         easyLevelSwitch = findViewById(R.id.easyLevelSwitch);
         ScreenUtil.resizeTextSize(easyLevelSwitch, textFontSize, ColorBallsApp.FontSize_Scale_Type);
         easyLevelSwitch.setChecked(isEasyLevel);
-        easyLevelSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                isEasyLevel = ((ToggleButton)view).isChecked();
-            }
-        });
+        easyLevelSwitch.setOnClickListener( (View view)-> isEasyLevel = ((ToggleButton)view).isChecked());
 
         Button confirmButton = findViewById(R.id.confirmSettingButton);
         ScreenUtil.resizeTextSize(confirmButton, textFontSize, ColorBallsApp.FontSize_Scale_Type);
-        confirmButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                returnToPrevious(true);
-            }
-        });
+        confirmButton.setOnClickListener( (View view)-> returnToPrevious(true) );
 
         Button cancelButton = findViewById(R.id.cancelSettingButton);
         ScreenUtil.resizeTextSize(cancelButton, textFontSize, ColorBallsApp.FontSize_Scale_Type);
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                returnToPrevious(false);
-            }
-        });
-
+        cancelButton.setOnClickListener( (View view)-> returnToPrevious(false) );
     }
 
     @Override

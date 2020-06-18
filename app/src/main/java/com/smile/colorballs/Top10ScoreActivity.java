@@ -3,6 +3,8 @@ package com.smile.colorballs;
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -14,7 +16,7 @@ import java.util.ArrayList;
 
 public class Top10ScoreActivity extends AppCompatActivity {
 
-    private static final String TAG = new String("Top10ScoreActivity");
+    private static final String TAG = "Top10ScoreActivity";
     private final String Top10ScoreFragmentTag = "Top10ScoreFragmentTag";
 
     private ArrayList<String> top10Players = new ArrayList<>();
@@ -44,14 +46,6 @@ public class Top10ScoreActivity extends AppCompatActivity {
         }
         */
 
-        if (ScreenUtil.isTablet(this)) {
-            // Table then change orientation to Landscape
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        } else {
-            // phone then change orientation to Portrait
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
-
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             top10TitleName = extras.getString("Top10TitleName");
@@ -63,7 +57,8 @@ public class Top10ScoreActivity extends AppCompatActivity {
 
         top10LayoutId = R.id.top10_score_linear_layout;
 
-        top10ScoreFragment = Top10ScoreFragment.newInstance(top10TitleName, top10Players, top10Scores, new Top10ScoreFragment.Top10OkButtonListener() {
+        top10ScoreFragment = Top10ScoreFragment.newInstance(top10TitleName, top10Players, top10Scores,
+                new Top10ScoreFragment.Top10OkButtonListener() {
             @Override
             public void buttonOkClick(Activity activity) {
                 // Intent returnIntent = new Intent();
@@ -96,6 +91,7 @@ public class Top10ScoreActivity extends AppCompatActivity {
 
     }
 
+    @NonNull
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);

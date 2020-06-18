@@ -1,16 +1,18 @@
 package com.smile.colorballs;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Handler;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -42,7 +44,7 @@ import java.util.ArrayList;
 public class MyActivity extends AppCompatActivity {
 
     // private properties
-    private final String TAG = new String("com.smile.colorballs.MyActivity");
+    private final String TAG = "MyActivity";
     private final String GlobalTop10FragmentTag = "GlobalTop10FragmentTag";
     private final String LocalTop10FragmentTag = "LocalTop10FragmentTag";
     private final int SettingActivityRequestCode = 1;
@@ -90,17 +92,15 @@ public class MyActivity extends AppCompatActivity {
         textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, ColorBallsApp.FontSize_Scale_Type, 0.0f);
         fontScale = ScreenUtil.suitableFontScale(this, ColorBallsApp.FontSize_Scale_Type, 0.0f);
 
-        float textSizeCompInfo;
-        // if (ScreenUtil.isTablet(this)) {
+        /*
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // Table then change orientation to Landscape
             // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            textSizeCompInfo = textFontSize * 0.6f;
         } else {
             // phone then change orientation to Portrait
             // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            textSizeCompInfo = textFontSize;
         }
+        */
 
         Point size = ScreenUtil.getScreenSize(this);
         float screenWidth = size.x;
@@ -115,7 +115,10 @@ public class MyActivity extends AppCompatActivity {
 
         supportToolbar = findViewById(R.id.colorballs_toolbar);
         setSupportActionBar(supportToolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        androidx.appcompat.app.ActionBar supportActionBar = getSupportActionBar();
+        if (supportActionBar != null) {
+            supportActionBar.setDisplayShowTitleEnabled(false);
+        }
 
         LinearLayout linearLayout_myActivity = findViewById(R.id.linearLayout_myActivity);
         float main_WeightSum = linearLayout_myActivity.getWeightSum();
@@ -162,7 +165,6 @@ public class MyActivity extends AppCompatActivity {
         myBannerAdView.showBannerAdViewFromAdMobOrFacebook(ColorBallsApp.AdProvider);
 
         // show AdMob native ad if the device is tablet
-        // if (ScreenUtil.isTablet(this)) {
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             String nativeAdvancedId0 = ColorBallsApp.googleAdMobNativeID;     // real native ad unit id
             FrameLayout nativeAdsFrameLayout = findViewById(R.id.nativeAdsFrameLayout);
@@ -302,7 +304,7 @@ public class MyActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
 
         if (isChangingConfigurations()) {
             // configuration is changing then remove top10ScoreFragment and globalTop10Fragment
@@ -337,9 +339,6 @@ public class MyActivity extends AppCompatActivity {
                 ColorBallsApp.isShowingLoadingMessage = false;
                 ColorBallsApp.isProcessingJob = false;
             }
-        } else {
-            // if configuration is not changing (still landscape because portrait does not have this fragment)
-            // keep top10ScoreFragment on screen (on right side)
         }
 
         Log.d(TAG, "MyActivity.onSaveInstanceState() is called");
@@ -399,7 +398,7 @@ public class MyActivity extends AppCompatActivity {
             //
         }
         */
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+
         super.onDestroy();
 
     }
@@ -423,11 +422,9 @@ public class MyActivity extends AppCompatActivity {
     public void exitApplication() {
         final Handler handlerClose = new Handler(Looper.getMainLooper());
         final int timeDelay = 200;
-        handlerClose.postDelayed(new Runnable() {
-            public void run() {
-                // exit application
-                finish();
-            }
+        handlerClose.postDelayed( ()-> {
+            // exit application
+            finish();
         },timeDelay);
     }
 
@@ -456,6 +453,10 @@ public class MyActivity extends AppCompatActivity {
             Log.d(TAG, "MyActivity.MyBroadcastReceiver.onReceive() is called.");
 
             String actionName = intent.getAction();
+            if (actionName == null) {
+                return;
+            }
+
             Bundle extras;
             ArrayList<String> playerNames = new ArrayList<>();
             ArrayList<Integer> playerScores = new ArrayList<>();
@@ -493,7 +494,6 @@ public class MyActivity extends AppCompatActivity {
                             });
                             FragmentManager fmManager = getSupportFragmentManager();
                             FragmentTransaction ft = fmManager.beginTransaction();
-                            ft = fmManager.beginTransaction();
                             Fragment currentTop10ScoreFragment = fmManager.findFragmentByTag(LocalTop10FragmentTag);
                             if (currentTop10ScoreFragment == null) {
                                 ft.add(top10LayoutId, top10ScoreFragment, LocalTop10FragmentTag);
@@ -551,7 +551,6 @@ public class MyActivity extends AppCompatActivity {
                             });
                             FragmentManager fmManager = getSupportFragmentManager();
                             FragmentTransaction ft = fmManager.beginTransaction();
-                            ft = fmManager.beginTransaction();
                             Fragment currentGlobalTop10Fragment = fmManager.findFragmentByTag(GlobalTop10FragmentTag);
                             if (currentGlobalTop10Fragment == null) {
                                 ft.add(top10LayoutId, globalTop10Fragment, GlobalTop10FragmentTag);
