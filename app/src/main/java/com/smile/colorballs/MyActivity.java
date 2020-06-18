@@ -91,13 +91,14 @@ public class MyActivity extends AppCompatActivity {
         fontScale = ScreenUtil.suitableFontScale(this, ColorBallsApp.FontSize_Scale_Type, 0.0f);
 
         float textSizeCompInfo;
-        if (ScreenUtil.isTablet(this)) {
+        // if (ScreenUtil.isTablet(this)) {
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // Table then change orientation to Landscape
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             textSizeCompInfo = textFontSize * 0.6f;
         } else {
             // phone then change orientation to Portrait
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             textSizeCompInfo = textFontSize;
         }
 
@@ -161,7 +162,8 @@ public class MyActivity extends AppCompatActivity {
         myBannerAdView.showBannerAdViewFromAdMobOrFacebook(ColorBallsApp.AdProvider);
 
         // show AdMob native ad if the device is tablet
-        if (ScreenUtil.isTablet(this)) {
+        // if (ScreenUtil.isTablet(this)) {
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             String nativeAdvancedId0 = ColorBallsApp.googleAdMobNativeID;     // real native ad unit id
             FrameLayout nativeAdsFrameLayout = findViewById(R.id.nativeAdsFrameLayout);
             com.google.android.ads.nativetemplates.TemplateView nativeAdTemplateView = findViewById(R.id.nativeAdTemplateView);
