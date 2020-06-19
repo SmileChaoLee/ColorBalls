@@ -58,7 +58,7 @@ import java.util.Locale;
 public class MainUiFragment extends Fragment {
 
     // public properties
-    public static final String MainUiFragmentTag = new String("MainUiFragmentTag");
+    public static final String MainUiFragmentTag = "MainUiFragmentTag";
 
     // private properties for this color balls game
     private final static String TAG = new String("MainUiFragment");
@@ -144,7 +144,7 @@ public class MainUiFragment extends Fragment {
             mListener = new OnFragmentInteractionListener() {
                 @Override
                 public void onFragmentInteraction(Uri uri) {
-                    System.out.println("must implement OnFragmentInteractionListener --> Uri = " + uri);
+                    Log.d(TAG, "must implement OnFragmentInteractionListener --> Uri = " + uri);
                 }
             };
         }
@@ -158,7 +158,7 @@ public class MainUiFragment extends Fragment {
 
         soundPoolUtil = new SoundPoolUtil(context, R.raw.uhoh);
 
-        System.out.println("MainUiFragment onAttach() is called.");
+        Log.d(TAG, "MainUiFragment onAttach() is called.");
     }
 
     @Override
@@ -186,14 +186,14 @@ public class MainUiFragment extends Fragment {
                                 + ColorBallsApp.AppResources.getString(R.string.howManyTimesString) + " )"
                                 + "\n" + ColorBallsApp.AppResources.getString(R.string.continueString) + "?";
 
-        System.out.println("MainUiFragment onCreate() is called.");
+        Log.d(TAG, "MainUiFragment onCreate() is called.");
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        System.out.println("MainUiFragment onCreateView() is called.");
+        Log.d(TAG, "MainUiFragment onCreateView() is called.");
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.layout_for_main_ui_fragment, container, false);
 
@@ -203,7 +203,7 @@ public class MainUiFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        System.out.println("MainUiFragment onViewCreated() is called.");
+        Log.d(TAG, "MainUiFragment onViewCreated() is called.");
         uiFragmentView = view;
     }
 
@@ -211,7 +211,7 @@ public class MainUiFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        System.out.println("MainUiFragment onActivityCreated() is called.");
+        Log.d(TAG, "MainUiFragment onActivityCreated() is called.");
 
         // starting the game
         // the object gotten from getActivity() in onActivityCreated() is different from gotten in onCreate()
@@ -238,7 +238,7 @@ public class MainUiFragment extends Fragment {
                 height_weightSum_uiFragmentView = temp;
             }
         } catch (Exception ex) {
-            System.out.println("Getting weightSum of Layout for uiFragmentView was failed.");
+            Log.d(TAG, "Getting weightSum of Layout for uiFragmentView was failed.");
             ex.printStackTrace();
         }
 
@@ -543,7 +543,7 @@ public class MainUiFragment extends Fragment {
                 gameOverDialog.setArguments(args);
                 gameOverDialog.show(getActivity().getSupportFragmentManager(), GameOverDialogTag);
 
-                System.out.println("gameOverDialog.show() has been called.");
+                Log.d(TAG, "gameOverDialog.show() has been called.");
             } else {
                 // game has not been over yet
                 displayNextColorBalls();

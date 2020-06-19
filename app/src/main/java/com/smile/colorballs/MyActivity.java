@@ -28,6 +28,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.smile.Service.MyGlobalTop10Service;
 import com.smile.Service.MyTop10ScoresService;
@@ -414,8 +415,7 @@ public class MyActivity extends AppCompatActivity {
             exitAppTimer.start();
             float toastFontSize = textFontSize*0.7f;
             Log.d(TAG, "toastFontSize = " + toastFontSize);
-            // ScreenUtil.showToast(this, getString(R.string.backKeyToExitApp), toastFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_SHORT);
-            ShowToastMessage.showToast(this, getString(R.string.backKeyToExitApp), toastFontSize, ColorBallsApp.FontSize_Scale_Type, 2000);  // 2 seconds
+            ScreenUtil.showToast(this, getString(R.string.backKeyToExitApp), toastFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_SHORT);
         }
     }
 

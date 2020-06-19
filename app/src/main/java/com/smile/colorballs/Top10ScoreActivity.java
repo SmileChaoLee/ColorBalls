@@ -56,19 +56,22 @@ public class Top10ScoreActivity extends AppCompatActivity {
         setContentView(R.layout.activity_top10_score);
 
         top10LayoutId = R.id.top10_score_linear_layout;
-
+        /*
         top10ScoreFragment = Top10ScoreFragment.newInstance(top10TitleName, top10Players, top10Scores,
                 new Top10ScoreFragment.Top10OkButtonListener() {
             @Override
             public void buttonOkClick(Activity activity) {
-                // Intent returnIntent = new Intent();
-                // setResult(Activity.RESULT_OK, returnIntent);
-                // activity.finish();
-                // or
                 setResult(Activity.RESULT_OK);
                 activity.finish();
             }
         });
+        */
+        // or
+        top10ScoreFragment = Top10ScoreFragment.newInstance(top10TitleName, top10Players, top10Scores,
+                activity -> {
+                    setResult(Activity.RESULT_OK);
+                    activity.finish();
+                });
 
         fmManager = getSupportFragmentManager();
         FragmentTransaction ft = fmManager.beginTransaction();
