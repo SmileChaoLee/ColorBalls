@@ -422,15 +422,17 @@ public class ScreenUtil {
         // getView() is deprected in API level 30
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             // resize the font size of toast when under API level 30
-            ViewGroup toastView = (ViewGroup) toast.getView();
             try {
+                ViewGroup toastView = (ViewGroup) toast.getView();
                 TextView messageTextView = (TextView) toastView.getChildAt(0);
-                if (messageTextView != null) {
-                    ScreenUtil.resizeTextSize(messageTextView, textFontSize, fontSize_Type);
-                }
-            } catch ( Exception e) {
+                ScreenUtil.resizeTextSize(messageTextView, textFontSize, fontSize_Type);
+                toast.show();
+                Log.d(TAG, "toast.show()");
+            } catch (Exception e) {
+                Log.d(TAG, "ScreenUtil.showToast() exception occurred");
                 e.printStackTrace();
             }
+
         } else {
             if (context != null) {
                 Activity activity = (Activity)context;
@@ -439,6 +441,7 @@ public class ScreenUtil {
                     duration = 3500;    // 3.5 seconds
                 }
                 ShowToastMessage.showToast(activity, content, textFontSize, fontSize_Type, duration);
+                Log.d(TAG, "ShowToastMessage.showToast()");
             }
         }
     }
