@@ -138,10 +138,10 @@ public class ScreenUtil {
             typedArray = context.obtainStyledAttributes(themeId, attrs);
         }
         float dimension = typedArray.getDimension(0,0);
-        System.out.println("getDefaultTextSizeFromTheme().dimension = " + dimension);
+        Log.d(TAG, "getDefaultTextSizeFromTheme().dimension = " + dimension);
 
         float density = displayMetrics.density;
-        System.out.println("getDefaultTextSizeFromTheme().density = " + density);
+        Log.d(TAG, "getDefaultTextSizeFromTheme().density = " + density);
 
         float defaultTextFontSize;
         if (fontSize_Type == FontSize_Pixel_Type) {
@@ -234,9 +234,25 @@ public class ScreenUtil {
         display.getMetrics(displayMetrics);
         */
 
-        DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
+        // DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
 
-        return (float)(displayMetrics.widthPixels) / (float)(displayMetrics.xdpi);
+        float widthPixels = (float)(displayMetrics.widthPixels);
+        Log.d(TAG, "widthPixels = " + widthPixels);
+
+        Log.d(TAG, "displayMetrics.density = " + displayMetrics.density);
+        Log.d(TAG, "displayMetrics.densityDpi = " + displayMetrics.densityDpi);
+
+        float xdpi = (float)displayMetrics.xdpi;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            xdpi = (float)displayMetrics.densityDpi;
+            Log.d(TAG, "xdpi ( =  displayMetrics.densityDpi ) = " + xdpi);
+        } else {
+            xdpi = (float)displayMetrics.xdpi;
+            Log.d(TAG, "xdpi ( =  displayMetrics.xdpi ) = " + xdpi);
+        }
+
+        return widthPixels / xdpi;
     }
 
     public static float screenHeightInches(Context context) {
@@ -248,34 +264,33 @@ public class ScreenUtil {
         display.getMetrics(displayMetrics);
         */
 
-        DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
-
-        return (float)(displayMetrics.heightPixels) / (float)(displayMetrics.ydpi);
-    }
-
-    public static float screenSizeInches(Context context) {
-        /*
-        // deprecated
-        // Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
-        Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        display.getMetrics(displayMetrics);
-        */
-
-        DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
-
-        float widthPixels = (float)(displayMetrics.widthPixels);
-        Log.d(TAG, "widthPixels = " + widthPixels);
-        float xdpi = (float)displayMetrics.xdpi;
-        Log.d(TAG, "xdpi = " + xdpi);
-        float wInches = widthPixels / xdpi;
-        Log.d(TAG, "wInches = " + wInches);
+        // DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
 
         float heightPixels = (float)displayMetrics.heightPixels;
         Log.d(TAG, "heightPixels = " + heightPixels);
-        float ydpi = (float)displayMetrics.ydpi;
-        Log.d(TAG, "ydpi = " + ydpi);
-        float hInches = heightPixels / ydpi;
+
+        Log.d(TAG, "displayMetrics.density = " + displayMetrics.density);
+        Log.d(TAG, "displayMetrics.densityDpi = " + displayMetrics.densityDpi);
+
+        float ydpi;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            ydpi = (float) displayMetrics.densityDpi;
+            Log.d(TAG, "ydpi (= displayMetrics.densityDpi )  = " + ydpi);
+        } else {
+            ydpi = (float) displayMetrics.ydpi;
+            Log.d(TAG, "ydpi (= displayMetrics.ydpi )  = " + ydpi);
+        }
+
+        return heightPixels / ydpi;
+    }
+
+    public static float screenSizeInches(Context context) {
+
+        float wInches = screenWidthInches(context);
+        Log.d(TAG, "wInches = " + wInches);
+
+        float hInches = screenHeightInches(context);
         Log.d(TAG, "hInches = " + hInches);
 
         float screenDiagonal = (float) (Math.sqrt( Math.pow(wInches, 2) + Math.pow(hInches, 2 )) );

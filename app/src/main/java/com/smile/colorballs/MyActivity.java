@@ -1,12 +1,12 @@
 package com.smile.colorballs;
 
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Build;
@@ -34,7 +34,6 @@ import com.smile.Service.MyGlobalTop10Service;
 import com.smile.Service.MyTop10ScoresService;
 import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate;
 import com.smile.smilelibraries.Models.ExitAppTimer;
-import com.smile.smilelibraries.Models.ShowToastMessage;
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil;
 import com.smile.smilelibraries.showing_banner_ads_utility.SetBannerAdViewForAdMobOrFacebook;
 import com.smile.smilelibraries.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
@@ -56,11 +55,14 @@ public class MyActivity extends AppCompatActivity {
     private float textFontSize;
     private float fontScale;
 
+    private float screenWidth;
+    private float screenHeight;
+
     private Toolbar supportToolbar;
-    private int mainUiFragmentLayoutId = -1;
+    private int mainFragmentUILayoutId = -1;
     private int top10LayoutId = -1;
 
-    private MainUiFragment mainUiFragment = null;
+    private MainFragmentUI mainFragmentUI = null;
     private Top10ScoreFragment top10ScoreFragment = null;
     private Top10ScoreFragment globalTop10Fragment = null;
     private float mainFragmentHeight;
@@ -81,106 +83,24 @@ public class MyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         Log.d(TAG, "onCreate() is called");
-        /*
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN ,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        */
 
         ColorBallsApp.InterstitialAd = new ShowingInterstitialAdsUtil(this, ColorBallsApp.facebookAds, ColorBallsApp.googleInterstitialAd);
 
-        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this, ColorBallsApp.FontSize_Scale_Type, null);
-        textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, ColorBallsApp.FontSize_Scale_Type, 0.0f);
-        fontScale = ScreenUtil.suitableFontScale(this, ColorBallsApp.FontSize_Scale_Type, 0.0f);
-
-        /*
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        if (ScreenUtil.isTablet(this)) {
             // Table then change orientation to Landscape
-            // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         } else {
             // phone then change orientation to Portrait
-            // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
-        */
-
-        Point size = ScreenUtil.getScreenSize(this);
-        float screenWidth = size.x;
-        float screenHeight = size.y;
-
-        float statusBarHeight = ScreenUtil.getStatusBarHeight(this);
-        float actionBarHeight = ScreenUtil.getActionBarHeight(this);
-        // keep navigation bar
-        screenHeight = screenHeight - statusBarHeight - actionBarHeight;
 
         setContentView(R.layout.activity_my);
 
-        supportToolbar = findViewById(R.id.colorballs_toolbar);
-        setSupportActionBar(supportToolbar);
-        androidx.appcompat.app.ActionBar supportActionBar = getSupportActionBar();
-        if (supportActionBar != null) {
-            supportActionBar.setDisplayShowTitleEnabled(false);
-        }
+        createActivityUI();
 
-        LinearLayout linearLayout_myActivity = findViewById(R.id.linearLayout_myActivity);
-        float main_WeightSum = linearLayout_myActivity.getWeightSum();
+        createMainFragmentUI();
 
-        mainUiFragmentLayoutId = R.id.mainUiFragmentLayout;
-        top10LayoutId = R.id.top10Layout;
-
-        LinearLayout gameViewLinearLayout = findViewById(R.id.gameViewLinearLayout);
-        float gameViewWeightSum = gameViewLinearLayout.getWeightSum();
-        LinearLayout.LayoutParams gameViewLp = (LinearLayout.LayoutParams) gameViewLinearLayout.getLayoutParams();
-        float mainFragment_Weight = gameViewLp.weight;
-        mainFragmentHeight = screenHeight * mainFragment_Weight / main_WeightSum;
-
-        LinearLayout mainUiFragmentLayout = findViewById(mainUiFragmentLayoutId);
-        LinearLayout.LayoutParams mainUiFragmentLayoutParams = (LinearLayout.LayoutParams)mainUiFragmentLayout.getLayoutParams();
-        float mainUiFragment_weight = mainUiFragmentLayoutParams.weight;
-        mainFragmentWidth = screenWidth * (mainUiFragment_weight / gameViewWeightSum);
-
-        FragmentManager fmManager = getSupportFragmentManager();
-        mainUiFragment = (MainUiFragment) fmManager.findFragmentByTag(MainUiFragment.MainUiFragmentTag);
-
-        if (mainUiFragment == null) {
-            mainUiFragment = MainUiFragment.newInstance();
-            FragmentTransaction ft = fmManager.beginTransaction();
-            ft.add(mainUiFragmentLayoutId, mainUiFragment, MainUiFragment.MainUiFragmentTag);
-            if (mainUiFragment.isStateSaved()) {
-                ft.commitAllowingStateLoss();
-            } else {
-                ft.commit();
-            }
-        }
-
-        bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
-
-        String testString = "";
-        // for debug mode
-        if (com.smile.colorballs.BuildConfig.DEBUG) {
-            testString = "IMG_16_9_APP_INSTALL#";
-        }
-        String facebookBannerID = testString + ColorBallsApp.facebookBannerID;
-        //
-        myBannerAdView = new SetBannerAdViewForAdMobOrFacebook(this, null, bannerLinearLayout
-                , ColorBallsApp.googleAdMobBannerID, facebookBannerID);
-        myBannerAdView.showBannerAdViewFromAdMobOrFacebook(ColorBallsApp.AdProvider);
-
-        // show AdMob native ad if the device is tablet
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            String nativeAdvancedId0 = ColorBallsApp.googleAdMobNativeID;     // real native ad unit id
-            FrameLayout nativeAdsFrameLayout = findViewById(R.id.nativeAdsFrameLayout);
-            com.google.android.ads.nativetemplates.TemplateView nativeAdTemplateView = findViewById(R.id.nativeAdTemplateView);
-            nativeTemplate = new GoogleAdMobNativeTemplate(this, nativeAdsFrameLayout
-                    , nativeAdvancedId0, nativeAdTemplateView);
-            nativeTemplate.showNativeAd();
-        }
-
-        myReceiver = new MyBroadcastReceiver();
-        myIntentFilter = new IntentFilter();
-        myIntentFilter.addAction(MyTop10ScoresService.Action_Name);
-        myIntentFilter.addAction(MyGlobalTop10Service.Action_Name);
-        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
-        localBroadcastManager.registerReceiver(myReceiver, myIntentFilter);
+        setBroadcastReceiver();
 
         Log.d(TAG, "onCreate() is finished.");
     }
@@ -194,9 +114,9 @@ public class MyActivity extends AppCompatActivity {
                     Bundle extras = data.getExtras();
                     if (extras != null) {
                         boolean hasSound = extras.getBoolean("HasSound");
-                        mainUiFragment.setHasSound(hasSound);
+                        mainFragmentUI.setHasSound(hasSound);
                         boolean isEasyLevel = extras.getBoolean("IsEasyLevel");
-                        mainUiFragment.setIsEasyLevel(isEasyLevel);
+                        mainFragmentUI.setIsEasyLevel(isEasyLevel);
                     }
                 }
                 break;
@@ -254,41 +174,41 @@ public class MyActivity extends AppCompatActivity {
 
         int id = item.getItemId();
         if (id == R.id.quitGame) {
-            mainUiFragment.recordScore(0);   //   from   END PROGRAM
+            mainFragmentUI.recordScore(0);   //   from   END PROGRAM
             return true;
         }
         if (id == R.id.newGame) {
-            mainUiFragment.newGame();
+            mainFragmentUI.newGame();
             return true;
         }
 
         if (!isProcessingJob) {
             if (id == R.id.undoGame) {
-                mainUiFragment.undoTheLast();
+                mainFragmentUI.undoTheLast();
                 return super.onOptionsItemSelected(item);
             }
             if (id == R.id.top10) {
-                mainUiFragment.showTop10ScoreHistory();
+                mainFragmentUI.showTop10ScoreHistory();
                 return super.onOptionsItemSelected(item);
             }
             if (id == R.id.globalTop10) {
-                mainUiFragment.showGlobalTop10History();
+                mainFragmentUI.showGlobalTop10History();
                 return super.onOptionsItemSelected(item);
             }
             if (id == R.id.saveGame) {
-                mainUiFragment.saveGame();
+                mainFragmentUI.saveGame();
                 return super.onOptionsItemSelected(item);
             }
             if (id == R.id.loadGame) {
-                mainUiFragment.loadGame();
+                mainFragmentUI.loadGame();
                 return true;
             }
             if (id == R.id.setting) {
                 ColorBallsApp.isProcessingJob = true;    // started procession job
                 Intent intent = new Intent(this, SettingActivity.class);
                 Bundle extras = new Bundle();
-                extras.putBoolean("HasSound", mainUiFragment.getHasSound());
-                extras.putBoolean("IsEasyLevel", mainUiFragment.getIsEasyLevel());
+                extras.putBoolean("HasSound", mainFragmentUI.getHasSound());
+                extras.putBoolean("IsEasyLevel", mainFragmentUI.getIsEasyLevel());
                 intent.putExtras(extras);
                 startActivityForResult(intent, SettingActivityRequestCode);
                 ColorBallsApp.isProcessingJob = false;
@@ -306,7 +226,6 @@ public class MyActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
-
         if (isChangingConfigurations()) {
             // configuration is changing then remove top10ScoreFragment and globalTop10Fragment
             if (top10ScoreFragment != null) {
@@ -410,13 +329,117 @@ public class MyActivity extends AppCompatActivity {
         // change back button behavior
         ExitAppTimer exitAppTimer = ExitAppTimer.getInstance(1000); // singleton class
         if (exitAppTimer.canExit()) {
-            mainUiFragment.recordScore(0);   //   from   END PROGRAM
+            mainFragmentUI.recordScore(0);   //   from   END PROGRAM
         } else {
             exitAppTimer.start();
             float toastFontSize = textFontSize*0.7f;
             Log.d(TAG, "toastFontSize = " + toastFontSize);
             ScreenUtil.showToast(this, getString(R.string.backKeyToExitApp), toastFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_SHORT);
         }
+    }
+
+    private void createActivityUI() {
+        findOutTextFontSize();
+        findOutScreenSize();
+        setUpSupportActionBar();
+        setBannerAndNativeAdUI();
+        findOutFragmentWidthHeight();
+    }
+
+    private void findOutTextFontSize() {
+        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this, ColorBallsApp.FontSize_Scale_Type, null);
+        textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, ColorBallsApp.FontSize_Scale_Type, 0.0f);
+        fontScale = ScreenUtil.suitableFontScale(this, ColorBallsApp.FontSize_Scale_Type, 0.0f);
+    }
+
+    private void findOutScreenSize() {
+        Point size = ScreenUtil.getScreenSize(this);
+        screenWidth = size.x;
+        screenHeight = size.y;
+        float statusBarHeight = ScreenUtil.getStatusBarHeight(this);
+        float actionBarHeight = ScreenUtil.getActionBarHeight(this);
+        // keep navigation bar
+        screenHeight = screenHeight - statusBarHeight - actionBarHeight;
+    }
+
+    private void setUpSupportActionBar() {
+        supportToolbar = findViewById(R.id.colorballs_toolbar);
+        setSupportActionBar(supportToolbar);
+        androidx.appcompat.app.ActionBar supportActionBar = getSupportActionBar();
+        if (supportActionBar != null) {
+            supportActionBar.setDisplayShowTitleEnabled(false);
+        }
+    }
+
+    private void findOutFragmentWidthHeight() {
+        LinearLayout linearLayout_myActivity = findViewById(R.id.linearLayout_myActivity);
+        float main_WeightSum = linearLayout_myActivity.getWeightSum();
+
+        mainFragmentUILayoutId = R.id.mainFragmentUILayout;
+        top10LayoutId = R.id.top10Layout;
+
+        LinearLayout gameViewLinearLayout = findViewById(R.id.gameViewLinearLayout);
+        float gameViewWeightSum = gameViewLinearLayout.getWeightSum();
+        LinearLayout.LayoutParams gameViewLp = (LinearLayout.LayoutParams) gameViewLinearLayout.getLayoutParams();
+        float mainFragment_Weight = gameViewLp.weight;
+        mainFragmentHeight = screenHeight * mainFragment_Weight / main_WeightSum;
+
+        LinearLayout mainFragmentUILayout = findViewById(mainFragmentUILayoutId);
+        LinearLayout.LayoutParams mainFragmentUILayoutParams = (LinearLayout.LayoutParams)mainFragmentUILayout.getLayoutParams();
+        float mainFragmentUI_weight = mainFragmentUILayoutParams.weight;
+        mainFragmentWidth = screenWidth * (mainFragmentUI_weight / gameViewWeightSum);
+    }
+
+    private void createMainFragmentUI() {
+        FragmentManager fmManager = getSupportFragmentManager();
+        mainFragmentUI = (MainFragmentUI) fmManager.findFragmentByTag(MainFragmentUI.MainFragmentUITag);
+
+        if (mainFragmentUI == null) {
+            Log.d(TAG, "mainFragmentUI is null");
+            mainFragmentUI = MainFragmentUI.newInstance();
+            FragmentTransaction ft = fmManager.beginTransaction();
+            ft.add(mainFragmentUILayoutId, mainFragmentUI, MainFragmentUI.MainFragmentUITag);
+            if (mainFragmentUI.isStateSaved()) {
+                ft.commitAllowingStateLoss();
+            } else {
+                ft.commit();
+            }
+        } else {
+            Log.d(TAG, "mainFragmentUI is not null");
+        }
+    }
+
+    private void setBannerAndNativeAdUI() {
+        bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
+        String testString = "";
+        // for debug mode
+        if (com.smile.colorballs.BuildConfig.DEBUG) {
+            testString = "IMG_16_9_APP_INSTALL#";
+        }
+        String facebookBannerID = testString + ColorBallsApp.facebookBannerID;
+        //
+        myBannerAdView = new SetBannerAdViewForAdMobOrFacebook(this, null, bannerLinearLayout
+                , ColorBallsApp.googleAdMobBannerID, facebookBannerID);
+        myBannerAdView.showBannerAdViewFromAdMobOrFacebook(ColorBallsApp.AdProvider);
+
+        // show AdMob native ad if the device is tablet
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            String nativeAdvancedId0 = ColorBallsApp.googleAdMobNativeID;     // real native ad unit id
+            FrameLayout nativeAdsFrameLayout = findViewById(R.id.nativeAdsFrameLayout);
+            com.google.android.ads.nativetemplates.TemplateView nativeAdTemplateView = findViewById(R.id.nativeAdTemplateView);
+            nativeTemplate = new GoogleAdMobNativeTemplate(this, nativeAdsFrameLayout
+                    , nativeAdvancedId0, nativeAdTemplateView);
+            nativeTemplate.showNativeAd();
+        }
+    }
+
+    private void setBroadcastReceiver() {
+        myReceiver = new MyBroadcastReceiver();
+        myIntentFilter = new IntentFilter();
+        myIntentFilter.addAction(MyTop10ScoresService.Action_Name);
+        myIntentFilter.addAction(MyGlobalTop10Service.Action_Name);
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        localBroadcastManager.registerReceiver(myReceiver, myIntentFilter);
     }
 
     public void exitApplication() {
@@ -514,7 +537,7 @@ public class MyActivity extends AppCompatActivity {
                         top10Intent.putExtras(top10Extras);
                         startActivityForResult(top10Intent, Top10ScoreActivityRequestCode);
                     }
-                    mainUiFragment.dismissShowMessageOnScreen();
+                    mainFragmentUI.dismissShowMessageOnScreen();
                     ColorBallsApp.isShowingLoadingMessage = false;
                     ColorBallsApp.isProcessingJob = false;
                     break;
@@ -571,7 +594,7 @@ public class MyActivity extends AppCompatActivity {
                         globalTop10Intent.putExtras(globalTop10Extras);
                         startActivityForResult(globalTop10Intent, GlobalTop10ActivityRequestCode);
                     }
-                    mainUiFragment.dismissShowMessageOnScreen();
+                    mainFragmentUI.dismissShowMessageOnScreen();
                     ColorBallsApp.isShowingLoadingMessage = false;
                     ColorBallsApp.isProcessingJob = false;
                     break;

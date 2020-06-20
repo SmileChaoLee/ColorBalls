@@ -8,12 +8,14 @@ import com.smile.smilelibraries.utilities.SoundPoolUtil;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -22,6 +24,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -49,20 +54,24 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
-public class MainUiFragment extends Fragment {
+public class MainFragmentUI extends Fragment {
 
     // public properties
-    public static final String MainUiFragmentTag = "MainUiFragmentTag";
+    public static final String MainFragmentUITag = "MainFragmentUITag";
 
     // private properties for this color balls game
-    private final static String TAG = new String("MainUiFragment");
+    private final static String TAG = "MainFragmentUI";
     private final static String GameOverDialogTag = "GameOverDialogFragmentTag";
+    private final static String MainFragmentWidthState = "MainFragmentWidth";
+    private final static String MainFragmentHeightState = "MainFragmentHeight";
     private final int nextBallsViewIdStart = 100;
     private final String savedGameFileName = "saved_game";
     private OnFragmentInteractionListener mListener;
@@ -99,12 +108,12 @@ public class MainUiFragment extends Fragment {
     private boolean hasSound = true;    // has sound effect
 
     private SoundPoolUtil soundPoolUtil;
-    private String yesStr = new String("");
-    private String noStr = new String("");
-    private String nameStr = new String("");
-    private String submitStr = new String("");
-    private String cancelStr = new String("");
-    private String gameOverStr = new String("");
+    private String yesStr = "";
+    private String noStr = "";
+    private String nameStr = "";
+    private String submitStr = "";
+    private String cancelStr = "";
+    private String gameOverStr = "";
 
     private String loadingString;
     private String savingGameString;
@@ -119,7 +128,7 @@ public class MainUiFragment extends Fragment {
 
     private ShowingInterstitialAdsUtil.ShowInterstitialAdThread showInterstitialAdThread = null;
 
-    public MainUiFragment() {
+    public MainFragmentUI() {
         // Required empty public constructor
     }
 
@@ -127,16 +136,15 @@ public class MainUiFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @return A new instance of fragment MainUiFragment.
+     * @return A new instance of fragment MainFragmentUI.
      */
     // TODO: Rename and change types and number of parameters
-    public static MainUiFragment newInstance() {
-        MainUiFragment fragment = new MainUiFragment();
-        return fragment;
+    public static MainFragmentUI newInstance() {
+        return new MainFragmentUI();
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
@@ -158,7 +166,7 @@ public class MainUiFragment extends Fragment {
 
         soundPoolUtil = new SoundPoolUtil(context, R.raw.uhoh);
 
-        Log.d(TAG, "MainUiFragment onAttach() is called.");
+        Log.d(TAG, "MainFragmentUi onAttach() is called.");
     }
 
     @Override
@@ -186,24 +194,24 @@ public class MainUiFragment extends Fragment {
                                 + ColorBallsApp.AppResources.getString(R.string.howManyTimesString) + " )"
                                 + "\n" + ColorBallsApp.AppResources.getString(R.string.continueString) + "?";
 
-        Log.d(TAG, "MainUiFragment onCreate() is called.");
+        Log.d(TAG, "MainFragmentUI onCreate() is called.");
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        Log.d(TAG, "MainUiFragment onCreateView() is called.");
+        Log.d(TAG, "MainFragmentUI onCreateView() is called.");
+        Log.d(TAG, "MainFragmentUI onCreateView()->container = " + container);
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.layout_for_main_ui_fragment, container, false);
 
-        return view;
+        return inflater.inflate(R.layout.layout_for_main_fragment_ui, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Log.d(TAG, "MainUiFragment onViewCreated() is called.");
+        Log.d(TAG, "MainFragmentUI onViewCreated() is called.");
         uiFragmentView = view;
     }
 
@@ -211,24 +219,20 @@ public class MainUiFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        Log.d(TAG, "MainUiFragment onActivityCreated() is called.");
+        Log.d(TAG, "MainFragmentUI onActivityCreated() is called.");
 
-        // starting the game
-        // the object gotten from getActivity() in onActivityCreated() is different from gotten in onCreate()
-        // this context should be used in all scope, especially in AsyncTask
+        boolean isNewGame = false;
+        if ( (savedInstanceState == null) || (gridData == null) ) {
+            isNewGame = true;
+        }
 
-        // context = getActivity();
-        // myActivity = (MyActivity)context;
+        createFragmentUI(isNewGame);
+    }
+
+    private void createFragmentUI(boolean isNewGame) {
 
         fragmentWidth = myActivity.getMainFragmentWidth();
         fragmentHeight = myActivity.getMainFragmentHeight();
-
-        /*
-        if (ColorBallsApp.AppResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            // Landscape
-            fragmentWidth = fragmentWidth / 2;  // for this fragment is half a fragmentWidth
-        }
-        */
 
         float height_weightSum_uiFragmentView = 100;    // default
         try {
@@ -290,7 +294,9 @@ public class MainUiFragment extends Fragment {
         // for 9 x 9 grid: main part of this game
         GridLayout gridCellsLayout = uiFragmentView.findViewById(R.id.gridCellsLayout);
         rowCounts = gridCellsLayout.getRowCount();
+        Log.d(TAG, "createFragmentUI()-->rowCounts = " + rowCounts);
         colCounts = gridCellsLayout.getColumnCount();
+        Log.d(TAG, "createFragmentUI()-->colCounts = " + colCounts);
         // LinearLayout.LayoutParams gridLp = (LinearLayout.LayoutParams) gridCellsLayout.getLayoutParams();
         // float height_weight_gridCellsLayout = gridLp.weight;
 
@@ -347,13 +353,8 @@ public class MainUiFragment extends Fragment {
         scoreImageView.setVisibility(View.GONE);
         //
 
-        if ( (savedInstanceState == null) || (gridData == null) ) {
-            // start a new game (no savedInstanceState)
-            // or gridData is null (for some unknown reason)
-            // AdMob ads
-
+        if (isNewGame) {
             createNewGame();
-
         } else {
             // fragment recreated (keep the original state)
             // display the original state before changing configuration
@@ -384,6 +385,7 @@ public class MainUiFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
+        Log.d(TAG, "MainFragmentUI.onSaveInstanceState() is called");
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -429,9 +431,12 @@ public class MainUiFragment extends Fragment {
         ColorBallsApp.isShowingLoadingGameMessage = false;
         ColorBallsApp.isProcessingJob = false;
 
+        /*
         for (int i = 0; i<threadCompleted.length; i++) {
             threadCompleted[i] = true;
         }
+        */
+        Arrays.fill(threadCompleted, true);
 
         bouncyBallIndexI = -1;
         bouncyBallIndexJ = -1;  // the array index that the ball has been selected
@@ -470,13 +475,14 @@ public class MainUiFragment extends Fragment {
 
         gridData.randCells();
 
-        int numOneTime = gridData.ballNumOneTime;
+        // int numOneTime = gridData.ballNumOneTime;
+        int numOneTime = GridData.ballNumOneTime;
 
         int[] indexi = gridData.getNextCellIndexI();
         int[] indexj = gridData.getNextCellIndexJ();
 
         int id, n1, n2;
-        ImageView imageView = null;
+        ImageView imageView;
         for (int i = 0; i < numOneTime; i++) {
             n1 = indexi[i];
             n2 = indexj[i];
@@ -499,9 +505,9 @@ public class MainUiFragment extends Fragment {
                     if (gridData.check_moreThanFive(n1, n2) == 1) {
                         hasMoreFive = true;
                         for (Point point : gridData.getLight_line()) {
-                            if (!linkedPoint.contains(point)) {
+                            // if (!linkedPoint.contains(point)) {
                                 linkedPoint.add(point);
-                            }
+                            // }
                         }
                     }
                 }
@@ -566,7 +572,7 @@ public class MainUiFragment extends Fragment {
         id = v.getId();
         i = id / rowCounts;
         j = id % rowCounts;
-        ImageView imageView = null;
+        ImageView imageView;
         if (bouncingStatus == 0) {
             if (gridData.getCellValue(i, j) != 0) {
                 if ((bouncyBallIndexI == -1) && (bouncyBallIndexJ == -1)) {
@@ -717,9 +723,9 @@ public class MainUiFragment extends Fragment {
         int score = minScore;
         if (numBalls > minScore) {
             // greater than 5 balls
-            int rate  = 1;
+            int rate  = 2;
             for (int i=1 ; i<=Math.abs(numBalls-minBalls) ; i++) {
-                rate = 2;   // added on 2018-10-02
+                // rate = 2;   // added on 2018-10-02
                 score += i * rate ;
             }
         }
@@ -771,8 +777,9 @@ public class MainUiFragment extends Fragment {
 
     private void displayNextBallsView() {
         // display the view of next balls
-        ImageView imageView = null;
-        int numOneTime = gridData.ballNumOneTime;
+        ImageView imageView;
+        // int numOneTime = gridData.ballNumOneTime;
+        int numOneTime = GridData.ballNumOneTime;
         for (int i = 0; i < numOneTime; i++) {
             imageView = uiFragmentView.findViewById(nextBallsViewIdStart + i);
             drawBall(imageView, gridData.getNextBalls()[i]);
@@ -781,7 +788,9 @@ public class MainUiFragment extends Fragment {
 
     private void displayGameGridView() {
         // display the 9 x 9 game view
-        ImageView imageView = null;
+        ImageView imageView;
+        Log.d(TAG, "rowCounts = " + rowCounts);
+        Log.d(TAG, "colCounts = " + colCounts);
         for (int i = 0; i < rowCounts; i++) {
             for (int j = 0; j < colCounts; j++) {
                 int id = i * rowCounts + j;
@@ -864,7 +873,8 @@ public class MainUiFragment extends Fragment {
                 foStream.write(0);
             }
             // save next balls
-            foStream.write(gridData.ballNumOneTime);
+            // foStream.write(gridData.ballNumOneTime);
+            foStream.write(GridData.ballNumOneTime);
             for (int i=0; i<ColorBallsApp.NumOfColorsUsedByDifficult; i++) {
                 foStream.write(gridData.getNextBalls()[i]);
             }
@@ -881,7 +891,8 @@ public class MainUiFragment extends Fragment {
             if (undoEnable) {
                 // can undo
                 foStream.write(1);
-                foStream.write(gridData.ballNumOneTime);
+                // foStream.write(gridData.ballNumOneTime);
+                foStream.write(GridData.ballNumOneTime);
                 // save undoNextBalls
                 for (int i=0; i<ColorBallsApp.NumOfColorsUsedByDifficult; i++) {
                     foStream.write(gridData.getUndoNextBalls()[i]);
@@ -914,17 +925,15 @@ public class MainUiFragment extends Fragment {
         String textContent;
         if (succeeded) {
             textContent = succeededSaveGameString;
-            if (succeeded) {
-                numOfSaved++;
-                // save numOfSaved back to file (ColorBallsApp.NumOfSavedGameFileName)
-                try {
-                    File outputFile = new File(ColorBallsApp.AppContext.getFilesDir(), ColorBallsApp.NumOfSavedGameFileName);
-                    FileOutputStream foStream = new FileOutputStream(outputFile);
-                    foStream.write(numOfSaved);
-                    foStream.close();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+            numOfSaved++;
+            // save numOfSaved back to file (ColorBallsApp.NumOfSavedGameFileName)
+            try {
+                File outputFile = new File(ColorBallsApp.AppContext.getFilesDir(), ColorBallsApp.NumOfSavedGameFileName);
+                FileOutputStream foStream = new FileOutputStream(outputFile);
+                foStream.write(numOfSaved);
+                foStream.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
         } else {
             textContent = failedSaveGameString;
@@ -969,12 +978,14 @@ public class MainUiFragment extends Fragment {
         boolean succeeded = true;
         boolean soundYn = hasSound;
         boolean easyYn = isEasyLevel;
-        int ballNumOneTime = gridData.ballNumOneTime;
+        // int ballNumOneTime = GridData.ballNumOneTime;
+        int ballNumOneTime;
         int[] nextBalls = new int[ColorBallsApp.NumOfColorsUsedByDifficult];
         int[][] gameCells = new int[rowCounts][colCounts];
         int cScore = currentScore;
         boolean undoYn = undoEnable;
-        int undoNumOneTime = gridData.ballNumOneTime;
+        // int undoNumOneTime = gridData.ballNumOneTime;
+        // int undoNumOneTime = GridData.ballNumOneTime;
         int[] undoNextBalls = new int[ColorBallsApp.NumOfColorsUsedByDifficult];
         int[][] backupCells = new int[rowCounts][colCounts];
         int unScore = undoScore;
@@ -1027,7 +1038,8 @@ public class MainUiFragment extends Fragment {
                 // has undo data
                 Log.i(TAG, "FileInputStream Read: Game has undo data");
                 undoYn = true;
-                undoNumOneTime = fiStream.read();
+                // undoNumOneTime = fiStream.read();
+                fiStream.read();
                 for (int i=0; i<ColorBallsApp.NumOfColorsUsedByDifficult; i++) {
                     undoNextBalls[i] = fiStream.read();
                 }
@@ -1271,7 +1283,7 @@ public class MainUiFragment extends Fragment {
                     @Override
                     public void run() {
                         try {
-                            String webUrl = new String(ColorBallsApp.REST_Website + "/AddOneRecordREST");   // ASP.NET Cor
+                            String webUrl = ColorBallsApp.REST_Website + "/AddOneRecordREST";   // ASP.NET Cor
                             JSONObject jsonObject = new JSONObject();
                             jsonObject.put("PlayerName", et.getText().toString());
                             jsonObject.put("Score", currentScore);
