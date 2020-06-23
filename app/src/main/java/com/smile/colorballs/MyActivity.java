@@ -86,6 +86,7 @@ public class MyActivity extends AppCompatActivity {
 
         ColorBallsApp.InterstitialAd = new ShowingInterstitialAdsUtil(this, ColorBallsApp.facebookAds, ColorBallsApp.googleInterstitialAd);
 
+        /*
         if (ScreenUtil.isTablet(this)) {
             // Table then change orientation to Landscape
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -93,6 +94,7 @@ public class MyActivity extends AppCompatActivity {
             // phone then change orientation to Portrait
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
+         */
 
         setContentView(R.layout.activity_my);
 
