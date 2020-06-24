@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="transparentDark">#BB000000</color>
+    <color name="transparentDark">#E5000000</color>
     <color name="transparentMediumDark">#80000000</color>
     <color name="transparentLightDark">#33000000</color>
-    <color name="transparentDarkGray">#B3D5D5D5</color>
-    <color name="transparentMediumGray">#80D5D5D5</color>
-    <color name="transparentLightGray">#33D5D5D5</color>
+    <color name="transparentDarkGray">#E5504C4C</color>
+    <color name="transparentMediumGray">#80504C4C</color>
+    <color name="transparentLightGray">#33504C4C</color>
 </resources>
