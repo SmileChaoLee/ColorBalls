@@ -34,6 +34,7 @@ import com.smile.Service.MyGlobalTop10Service;
 import com.smile.Service.MyTop10ScoresService;
 import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate;
 import com.smile.smilelibraries.Models.ExitAppTimer;
+import com.smile.smilelibraries.Models.ShowToastMessage;
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil;
 import com.smile.smilelibraries.showing_banner_ads_utility.SetBannerAdViewForAdMobOrFacebook;
 import com.smile.smilelibraries.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
@@ -337,6 +338,7 @@ public class MyActivity extends AppCompatActivity {
             float toastFontSize = textFontSize*0.7f;
             Log.d(TAG, "toastFontSize = " + toastFontSize);
             ScreenUtil.showToast(this, getString(R.string.backKeyToExitApp), toastFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_SHORT);
+            // ShowToastMessage.showToast(this, getString(R.string.backKeyToExitApp), toastFontSize, ColorBallsApp.FontSize_Scale_Type, 2000);
         }
     }
 

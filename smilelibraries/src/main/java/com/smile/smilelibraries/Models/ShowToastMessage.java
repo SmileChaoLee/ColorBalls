@@ -21,8 +21,8 @@ import static com.smile.smilelibraries.utilities.ScreenUtil.TAG;
 public class ShowToastMessage {
 
     private static ShowToastMessage showToastMessage;
-    private final Context mContext;
-    private final Activity mActivity;
+    private static Context mContext;
+    private static Activity mActivity;
     private final Handler mHandler;
     private final ViewGroup mRootView;
     private final View layoutForTextView;
@@ -33,10 +33,58 @@ public class ShowToastMessage {
     private boolean isRunnableRunning;
 
     public static synchronized  ShowToastMessage getInstance(final Activity activity) {
+        if (activity == null) {
+            return null;
+        }
+        if (!activity.equals(mActivity)) {
+            Log.d(TAG, "Activity has changed.");
+            if (showToastMessage != null) {
+                showToastMessage.releaseMessageView();
+            }
+        }
+
         if (showToastMessage == null) {
+            Log.d(TAG, "showToastMessagev is null.");
             showToastMessage = new ShowToastMessage(activity);
+        } else {
+            Log.d(TAG, "showToastMessagev is not null.");
         }
         return showToastMessage;
+    }
+
+    public static void showToast(final Activity activity, final String message, final float textFontSize, final int fontSize_Type, final int duration) {
+        if (activity == null) {
+            return;
+        }
+        showToastMessage = ShowToastMessage.getInstance(activity);
+        showToastMessage.showMessageInTextView(message, textFontSize, fontSize_Type, duration);
+    }
+
+    public void showMessageInTextView(final String message, final float textFontSize, final int fontSize_Type, final int duration) {
+        Log.d(TAG, "showMessageInTextView() --> mTextView = " + mTextView);
+        if (mTextView == null) {
+            return;
+        }
+
+        final Runnable setMessageToTextView = new Runnable() {
+            @Override
+            public void run() {
+                isRunnableRunning = true;
+                mTextView.setText(message);
+                ScreenUtil.resizeTextSize(mTextView, textFontSize, fontSize_Type);
+                mTextView.setVisibility(View.VISIBLE);
+                mHandler.postDelayed(setTextViewInvisible, duration);
+            }
+        };
+
+        runnableQueue.add(setMessageToTextView);
+        Log.d(TAG, "isRunnableRunning = " + isRunnableRunning);
+        if (!isRunnableRunning) {
+            isRunnableRunning = true;
+            mActivity.runOnUiThread(setMessageToTextView);
+        } else {
+            runnableQueue.add(setMessageToTextView);
+        }
     }
 
     private ShowToastMessage(final Activity activity) {
@@ -89,46 +137,12 @@ public class ShowToastMessage {
         }
     }
 
-    public static void showToast(final Activity activity, final String message, final float textFontSize, final int fontSize_Type, final int duration) {
-        if (activity == null) {
-            return;
-        }
-        showToastMessage = ShowToastMessage.getInstance(activity);
-        showToastMessage.showMessageInTextView(message, textFontSize, fontSize_Type, duration);
-    }
-
-    public void showMessageInTextView(final String message, final float textFontSize, final int fontSize_Type, final int duration) {
-        Log.d(TAG, "showMessageInTextView() --> mTextView = " + mTextView);
-        if (mTextView == null) {
-            return;
-        }
-
-        final Runnable setMessageToTextView = new Runnable() {
-            @Override
-            public void run() {
-                isRunnableRunning = true;
-                mTextView.setText(message);
-                ScreenUtil.resizeTextSize(mTextView, textFontSize, fontSize_Type);
-                mTextView.setVisibility(View.VISIBLE);
-                mHandler.postDelayed(setTextViewInvisible, duration);
-            }
-        };
-
-        runnableQueue.add(setMessageToTextView);
-        if (!isRunnableRunning) {
-            isRunnableRunning = true;
-            mActivity.runOnUiThread(setMessageToTextView);
-        } else {
-            runnableQueue.add(setMessageToTextView);
-        }
-    }
-
-    public void releaseMessageView() {
+    private void releaseMessageView() {
         if ( (mRootView != null) && (layoutForTextView != null) && (mTextView != null) ) {
             mTextView.setVisibility(View.INVISIBLE);
             mRootView.removeView(layoutForTextView);
             mTextView = null;
-            showToastMessage = null;
         }
+        showToastMessage = null;
     }
 }

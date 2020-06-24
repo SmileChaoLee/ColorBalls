@@ -26,6 +26,7 @@
             android:layout_height="wrap_content"
             android:background="@color/transparentDark"
             android:textColor="@android:color/white"
+            android:padding="20dp"
             android:visibility="invisible">
         </TextView>
     </LinearLayout>
