@@ -161,8 +161,12 @@ public class ColorBallsApp extends MultiDexApplication {
                 @Override
                 public void run() {
                     adHandler.removeCallbacksAndMessages(null);
-                    googleInterstitialAd.loadAd(); // load first google ad
-                    facebookAds.loadAd();   // load first facebook ad
+                    if (googleInterstitialAd != null) {
+                        googleInterstitialAd.loadAd(); // load first google ad
+                    }
+                    if (facebookAds != null) {
+                        facebookAds.loadAd();   // load first facebook ad
+                    }
                 }
             };
             adHandler.postDelayed(adRunnable, 1000);
