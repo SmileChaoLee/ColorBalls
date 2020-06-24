@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="transparentDark">#E5000000</color>
-    <color name="transparentMediumDark">#80000000</color>
-    <color name="transparentLightDark">#33000000</color>
-    <color name="transparentDarkGray">#E5504C4C</color>
-    <color name="transparentMediumGray">#80504C4C</color>
-    <color name="transparentLightGray">#33504C4C</color>
+    <color name="transparentDark">#FA000000</color>
+    <color name="transparentMediumDark">#8A000000</color>
+    <color name="transparentLightDark">#3A000000</color>
+    <color name="transparentDarkGray">#FA504C4C</color>
+    <color name="transparentMediumGray">#8A504C4C</color>
+    <color name="transparentLightGray">#3A504C4C</color>
+    <color name="darkGray">#FF504C4C</color>
 </resources>
