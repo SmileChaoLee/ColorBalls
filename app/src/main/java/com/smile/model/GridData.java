@@ -5,6 +5,7 @@ package com.smile.model;
  */
 
 import android.graphics.Point;
+import android.util.Log;
 
 import com.smile.colorballs.ColorBallsApp;
 
@@ -12,13 +13,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
-import java.util.Vector;
+import java.util.Stack;
 
 public class GridData {
+
+    private static final String TAG = "GridData";
+
     public static final int ballNumOneTime = 3;
-
     private final int ballNumCompleted = 5;
-
     private int rowCounts=0, colCounts=0;
     private int cellValues[][];
     private int backupCells[][];
@@ -433,42 +435,47 @@ public class GridData {
 
     private boolean findPath(Point source,Point target) {
 
-        boolean found = false;
-
         HashSet<Point> traversed = new HashSet<>();
 
-        Vector<Vector<Cell>> vPath  = new Vector<>();
-        Vector<Cell> cellVector0  = new Vector<>();
-        cellVector0.addElement(new Cell(source,null));
-        vPath.addElement(cellVector0);
+        Stack<Stack<Cell>> pathStack  = new Stack<>();
+        Stack<Cell> cellStack = new Stack();
+        cellStack.push(new Cell(source,null));
+        pathStack.push(cellStack);
 
-        while(!found && (cellVector0.size()!=0)) {
-            Vector<Cell> vTemp = new Vector<>();
-            for(int i=0; i<cellVector0.size(); i++) {
-                Cell cell = cellVector0.elementAt(i);
-                found = addCell(vTemp, cell,  0,  1,target, traversed);
+        int shortestPathLength = 0; // the length of the shortest path
+        boolean found = false;
+        while(!found && (cellStack.size()!=0)) {
+            shortestPathLength++;
+            Stack<Cell> tempStack = new Stack();
+            do {
+                Cell tempCell = cellStack.pop();
+                found = addCellToStack(tempStack, tempCell,  0,  1,target, traversed);
                 if (found) break;
-                found = addCell(vTemp, cell,  0, -1,target, traversed);
+                found = addCellToStack(tempStack, tempCell,  0, -1,target, traversed);
                 if (found) break;
-                found = addCell(vTemp, cell,  1,  0,target, traversed);
+                found = addCellToStack(tempStack, tempCell,  1,  0,target, traversed);
                 if (found) break;
-                found = addCell(vTemp, cell, -1,  0,target, traversed);
+                found = addCellToStack(tempStack, tempCell, -1,  0,target, traversed);
                 if (found) break;
-            }
+            } while (cellStack.size()!=0);
 
-            vPath.addElement(vTemp);
-            cellVector0 = vTemp;
+            pathStack.push(tempStack);
+            cellStack = tempStack;
         }
 
         pathPoint.clear();  // added at 10:43 pm on 2017-10-19
         if (found) {
-            int vLength = vPath.size();
-            Vector<Cell> v =  vPath.elementAt(vLength-1);
-            Cell c = v.elementAt(v.size()-1);
-            if (c!=null) {
-                for (int i = vLength-1 ; i>=0; i--) {
-                    pathPoint.add(c.getCoordinate());
-                    c = c.getParentCell();
+            int vLength = pathStack.size();
+            Log.d(TAG, "vLength = " + vLength);
+            Log.d(TAG, "shortestPathLength = " + shortestPathLength);
+            if (vLength != 0) {
+                Stack<Cell> lastCellStack = pathStack.pop();
+                Cell c = lastCellStack.pop();
+                if (c!=null) {
+                    for (int i = shortestPathLength-1 ; i>=0; i--) {
+                        pathPoint.add(c.getCoordinate());
+                        c = c.getParentCell();
+                    }
                 }
             }
         }
@@ -476,7 +483,7 @@ public class GridData {
         return found;
     }
 
-    private boolean addCell(Vector<Cell> vector, Cell parent, int dx, int dy, Point target, HashSet<Point> traversed) {
+    private boolean addCellToStack(Stack<Cell> stack, Cell parent, int dx, int dy, Point target, HashSet<Point> traversed) {
         Point pTemp = new Point(parent.getCoordinate());
         pTemp.set(pTemp.x+dx,pTemp.y+dy);
 
@@ -484,7 +491,7 @@ public class GridData {
             // has not been checked
             if ((pTemp.x >= 0 && pTemp.x < rowCounts) && (pTemp.y >= 0 && pTemp.y < colCounts) && (cellValues[pTemp.x][pTemp.y] == 0)) {
                 Cell temp = new Cell(pTemp, parent);
-                vector.addElement(temp);
+                stack.push(temp);
                 traversed.add(pTemp);
             }
         }
