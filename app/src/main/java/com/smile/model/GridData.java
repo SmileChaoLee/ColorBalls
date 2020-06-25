@@ -437,10 +437,9 @@ public class GridData {
 
         HashSet<Point> traversed = new HashSet<>();
 
-        Stack<Stack<Cell>> pathStack  = new Stack<>();
+        Stack<Cell> lastCellStack = new Stack<>();
         Stack<Cell> cellStack = new Stack();
         cellStack.push(new Cell(source,null));
-        pathStack.push(cellStack);
 
         int shortestPathLength = 0; // the length of the shortest path
         boolean found = false;
@@ -459,23 +458,18 @@ public class GridData {
                 if (found) break;
             } while (cellStack.size()!=0);
 
-            pathStack.push(tempStack);
             cellStack = tempStack;
         }
+        lastCellStack = cellStack;
 
         pathPoint.clear();  // added at 10:43 pm on 2017-10-19
         if (found) {
-            int vLength = pathStack.size();
-            Log.d(TAG, "vLength = " + vLength);
             Log.d(TAG, "shortestPathLength = " + shortestPathLength);
-            if (vLength != 0) {
-                Stack<Cell> lastCellStack = pathStack.pop();
-                Cell c = lastCellStack.pop();
-                if (c!=null) {
-                    for (int i = shortestPathLength-1 ; i>=0; i--) {
-                        pathPoint.add(c.getCoordinate());
-                        c = c.getParentCell();
-                    }
+            Cell c = lastCellStack.pop();
+            if (c!=null) {
+                for (int i = shortestPathLength-1 ; i>=0; i--) {
+                    pathPoint.add(c.getCoordinate());
+                    c = c.getParentCell();
                 }
             }
         }
