@@ -437,15 +437,15 @@ public class GridData {
 
         HashSet<Point> traversed = new HashSet<>();
 
-        Stack<Cell> lastCellStack = new Stack<>();
-        Stack<Cell> cellStack = new Stack();
+        Stack<Cell> lastCellStack;
+        Stack<Cell> cellStack = new Stack<>();
         cellStack.push(new Cell(source,null));
 
         int shortestPathLength = 0; // the length of the shortest path
         boolean found = false;
         while(!found && (cellStack.size()!=0)) {
             shortestPathLength++;
-            Stack<Cell> tempStack = new Stack();
+            Stack<Cell> tempStack = new Stack<>();
             do {
                 Cell tempCell = cellStack.pop();
                 found = addCellToStack(tempStack, tempCell,  0,  1,target, traversed);
