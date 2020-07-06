@@ -24,11 +24,12 @@
             android:weightSum="2">
 
             <LinearLayout
-                android:id="@+id/mainFragmentUILayout"
+                android:id="@+id/gameViewLayout"
                 android:orientation="vertical"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1" >
+                <include layout="@layout/layout_for_game_view" />
             </LinearLayout>
 
             <LinearLayout

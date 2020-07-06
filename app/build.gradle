@@ -10,14 +10,14 @@ android {
         }
     }
     compileSdkVersion 30
-    buildToolsVersion '30.0.0'
+    // buildToolsVersion '30.0.0'
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 30
         multiDexEnabled true
 
-        versionCode 3501
-        versionName "3.501"
+        versionCode 3502
+        versionName "3.502"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         applicationId "com.smile.colorballs"
@@ -48,6 +48,14 @@ android {
         debug {
             minifyEnabled false
             signingConfig signingConfigs.config
+        }
+    }
+
+    sourceSets {
+        main {
+            java {
+                exclude "**/MainFragmentUI.java"
+            }
         }
     }
 
