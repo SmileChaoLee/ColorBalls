@@ -629,23 +629,37 @@ public class MyActivity extends AppCompatActivity {
         scoreImageView = findViewById(R.id.scoreImageView);
         scoreImageView.setVisibility(View.GONE);
         //
+        createColorBallsGame(savedInstanceState);
+    }
 
+    private void createColorBallsGame(Bundle savedInstanceState) {
         if (ColorBallsApp.ScoreSQLiteDB != null) {
             highestScore = ColorBallsApp.ScoreSQLiteDB.readHighestScore();
         }
+        saveScoreAlertDialog = null;
 
+        boolean isNewGame = true;
         if (savedInstanceState == null) {
             // activity just started so new game
-            createNewGame();
+            Log.d(TAG, "Created new game.");
+            gameProperties = new GameProperties(rowCounts, colCounts);
         } else {
             Log.d(TAG, "Configuration changed and restore the original UI.");
+            isNewGame = false;
             gameProperties = savedInstanceState.getParcelable(GamePropertiesTag);
-            ColorBallsApp.isShowingLoadingMessage = gameProperties.isShowingLoadingMessage();
-            ColorBallsApp.isShowingSavingGameMessage = gameProperties.isShowingSavingGameMessage();
-            ColorBallsApp.isShowingLoadingGameMessage = gameProperties.isShowingLoadingGameMessage();
-            ColorBallsApp.isProcessingJob = gameProperties.isProcessingJob();
-            gridData = gameProperties.getGridData();
-            Log.d(TAG, "gridData.getLight_line().size() = " + gridData.getLight_line().size()) ;
+        }
+        ColorBallsApp.isShowingLoadingMessage = gameProperties.isShowingLoadingMessage();
+        ColorBallsApp.isShowingSavingGameMessage = gameProperties.isShowingSavingGameMessage();
+        ColorBallsApp.isShowingLoadingGameMessage = gameProperties.isShowingLoadingGameMessage();
+        ColorBallsApp.isProcessingJob = gameProperties.isProcessingJob();
+        gridData = gameProperties.getGridData();
+        toolbarTitleTextView.setText(String.format(Locale.getDefault(), "%8d", highestScore));
+        currentScoreView.setText(String.format(Locale.getDefault(), "%8d", gameProperties.getCurrentScore()));
+
+        if (isNewGame) {
+            displayGameView();
+            displayGridDataNextCells();
+        } else {
             // display the original state before changing configuration
             displayGameView();
             if (ColorBallsApp.isShowingLoadingMessage) {
@@ -663,8 +677,6 @@ public class MyActivity extends AppCompatActivity {
                 ImageView v = findViewById(bouncyBallIndexI * rowCounts + bouncyBallIndexJ);
                 drawBouncyBall(v, gridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
             }
-            toolbarTitleTextView.setText(String.format(Locale.getDefault(), "%8d", highestScore));
-            currentScoreView.setText(String.format(Locale.getDefault(), "%8d", gameProperties.getCurrentScore()));
 
             if (gameProperties.isShowingNewGameDialog()) {
                 Log.d(TAG, "createGameViewUI() --> show new game dialog by calling newGame()");
@@ -675,27 +687,6 @@ public class MyActivity extends AppCompatActivity {
                 quitGame();
             }
         }
-    }
-
-    private void createNewGame() {
-        Log.d(TAG, "createNewGame() --> new GameProperties(rowCounts, colCounts)");
-
-        saveScoreAlertDialog = null;
-
-        gameProperties = new GameProperties(rowCounts, colCounts);
-        ColorBallsApp.isShowingLoadingMessage = gameProperties.isShowingLoadingMessage();
-        ColorBallsApp.isShowingSavingGameMessage = gameProperties.isShowingSavingGameMessage();
-        ColorBallsApp.isShowingLoadingGameMessage = gameProperties.isShowingLoadingGameMessage();
-        ColorBallsApp.isProcessingJob = gameProperties.isProcessingJob();
-        gridData = gameProperties.getGridData();
-
-        displayGameView();
-        displayGridDataNextCells();
-
-        toolbarTitleTextView.setText(String.format(Locale.getDefault(), "%8d", highestScore));
-        currentScoreView.setText(String.format(Locale.getDefault(), "%8d", gameProperties.getCurrentScore()));
-
-        Log.d(TAG, "createNewGame() is called.");
     }
 
     private boolean completedAll() {
@@ -1074,7 +1065,8 @@ public class MyActivity extends AppCompatActivity {
             exitApplication();
         } else if (entryPoint==1) {
             //  NEW GAME
-            createNewGame();
+            // createNewGame();
+            createColorBallsGame(null);
         }
         ColorBallsApp.isProcessingJob = false;
     }
