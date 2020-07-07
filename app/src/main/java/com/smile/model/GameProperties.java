@@ -9,6 +9,7 @@ public class GameProperties implements Parcelable {
     private boolean isShowingLoadingMessage;
     private boolean isShowingSavingGameMessage;
     private boolean isShowingLoadingGameMessage;
+    private boolean isShowingScoreMessage;
     private boolean isProcessingJob;
     private boolean isShowingNewGameDialog;
     private boolean isShowingQuitGameDialog;
@@ -19,6 +20,7 @@ public class GameProperties implements Parcelable {
     private boolean undoEnable;
     private int currentScore;
     private int undoScore;
+    private int lastGotScore;
     private boolean isEasyLevel;
     private boolean hasSound;
     private GridData gridData;
@@ -45,6 +47,14 @@ public class GameProperties implements Parcelable {
 
     public void setShowingLoadingGameMessage(boolean showingLoadingGameMessage) {
         isShowingLoadingGameMessage = showingLoadingGameMessage;
+    }
+
+    public boolean isShowingScoreMessage() {
+        return isShowingScoreMessage;
+    }
+
+    public void setShowingScoreMessage(boolean isShowingScoreMessage) {
+        this.isShowingScoreMessage = isShowingScoreMessage;
     }
 
     public boolean isProcessingJob() {
@@ -127,6 +137,14 @@ public class GameProperties implements Parcelable {
         this.undoScore = undoScore;
     }
 
+    public int getLastGotScore() {
+        return lastGotScore;
+    }
+
+    public void setLastGotScore(int lastGotScore) {
+        this.lastGotScore = lastGotScore;
+    }
+
     public boolean isEasyLevel() {
         return isEasyLevel;
     }
@@ -161,6 +179,7 @@ public class GameProperties implements Parcelable {
         dest.writeByte(this.isShowingLoadingMessage ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isShowingSavingGameMessage ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isShowingLoadingGameMessage ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isShowingScoreMessage ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isProcessingJob ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isShowingNewGameDialog ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isShowingQuitGameDialog ? (byte) 1 : (byte) 0);
@@ -171,6 +190,7 @@ public class GameProperties implements Parcelable {
         dest.writeByte(this.undoEnable ? (byte) 1 : (byte) 0);
         dest.writeInt(this.currentScore);
         dest.writeInt(this.undoScore);
+        dest.writeInt(this.lastGotScore);
         dest.writeByte(this.isEasyLevel ? (byte) 1 : (byte) 0);
         dest.writeByte(this.hasSound ? (byte) 1 : (byte) 0);
         dest.writeParcelable(this.gridData, flags);
@@ -180,6 +200,7 @@ public class GameProperties implements Parcelable {
         isShowingLoadingMessage = false;
         isShowingSavingGameMessage = false;
         isShowingLoadingGameMessage = false;
+        isShowingScoreMessage = false;
         isProcessingJob = false;
         isShowingNewGameDialog = false;
         isShowingQuitGameDialog = false;
@@ -190,6 +211,7 @@ public class GameProperties implements Parcelable {
         undoEnable = false;
         currentScore = 0;
         undoScore = 0;
+        lastGotScore = 0;
         isEasyLevel = true; // start with easy level
         hasSound = true;    // has sound effect
         gridData = new GridData(rowCounts, colCounts, ColorBallsApp.NumOfColorsUsedByEasy);
@@ -199,6 +221,7 @@ public class GameProperties implements Parcelable {
         this.isShowingLoadingMessage = in.readByte() != 0;
         this.isShowingSavingGameMessage = in.readByte() != 0;
         this.isShowingLoadingGameMessage = in.readByte() != 0;
+        this.isShowingScoreMessage = in.readByte() != 0;
         this.isProcessingJob = in.readByte() != 0;
         this.isShowingNewGameDialog = in.readByte() != 0;
         this.isShowingQuitGameDialog = in.readByte() != 0;
@@ -209,6 +232,7 @@ public class GameProperties implements Parcelable {
         this.undoEnable = in.readByte() != 0;
         this.currentScore = in.readInt();
         this.undoScore = in.readInt();
+        this.lastGotScore = in.readInt();
         this.isEasyLevel = in.readByte() != 0;
         this.hasSound = in.readByte() != 0;
         this.gridData = in.readParcelable(GridData.class.getClassLoader());

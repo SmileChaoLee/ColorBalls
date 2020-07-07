@@ -668,6 +668,12 @@ public class MyActivity extends AppCompatActivity {
             if (gameProperties.isShowingLoadingGameMessage()) {
                 showMessageOnScreen(loadingGameString);
             }
+            if (gameProperties.isShowingScoreMessage()) {
+                // String scoreString = String.valueOf(gameProperties.getLastGotScore());
+                // showMessageOnScreen(scoreString);
+                ShowScoreThread showScoreThread = new ShowScoreThread(gridData.getLight_line(), false);
+                showScoreThread.startShow();
+            }
             if (gameProperties.getBouncingStatus() == 1) {
                 int bouncyBallIndexI = gameProperties.getBouncyBallIndexI();
                 int bouncyBallIndexJ = gameProperties.getBouncyBallIndexJ();
@@ -739,8 +745,9 @@ public class MyActivity extends AppCompatActivity {
         }
 
         if (hasMoreFive) {
-            CalculateScoreThread calculateScoreThread = new CalculateScoreThread(linkedPoint, true);
-            calculateScoreThread.startCalculate();
+            gameProperties.setLastGotScore(calculateScore(linkedPoint.size()));
+            ShowScoreThread showScoreThread = new ShowScoreThread(linkedPoint, true);
+            showScoreThread.startShow();
         } else {
             // check if game over
             boolean gameOverYn = gridData.getGameOver();
@@ -899,8 +906,8 @@ public class MyActivity extends AppCompatActivity {
         }
 
         // lock the orientation
-        ScreenUtil.freezeScreenRotation(myActivity);
-        Log.d(TAG, "drawBallAlongPath()-->ScreenUtil.unfreezeScreenRotation()");
+        Log.d(TAG, "drawBallAlongPath()-->ScreenUtil.freezeScreenRotation()");
+        // ScreenUtil.freezeScreenRotation(myActivity);
 
         gameProperties.getThreadCompleted()[0] = false;
 
@@ -927,8 +934,8 @@ public class MyActivity extends AppCompatActivity {
                 } else {
                     drawHandler.removeCallbacksAndMessages(null);
                     // unlock the orientation
-                    ScreenUtil.unfreezeScreenRotation(myActivity);
                     Log.d(TAG, "drawBallAlongPath()-->ScreenUtil.unfreezeScreenRotation()");
+                    // ScreenUtil.unfreezeScreenRotation(myActivity);
 
                     // do the next
                     // doNextAction(ii,jj);
@@ -936,11 +943,11 @@ public class MyActivity extends AppCompatActivity {
                     drawBall(v, gridData.getCellValue(ii, jj));
                     //  check if there are more than five balls with same color connected together
                     if (gridData.check_moreThanFive(ii, jj) == 1) {
-                        CalculateScoreThread calculateScoreThread = new CalculateScoreThread(gridData.getLight_line(), false);
-                        calculateScoreThread.startCalculate();
+                        gameProperties.setLastGotScore(calculateScore(gridData.getLight_line().size()));
+                        ShowScoreThread showScoreThread = new ShowScoreThread(gridData.getLight_line(), false);
+                        showScoreThread.startShow();
 
                         // added for testing
-                        /*
                         Configuration configuration = getResources().getConfiguration();
                         if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE ) {
                             Log.d(TAG, "drawBallAlongPath()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)");
@@ -949,7 +956,6 @@ public class MyActivity extends AppCompatActivity {
                             Log.d(TAG, "drawBallAlongPath()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)");
                             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                         }
-                        */
                         //
 
                     } else {
@@ -963,7 +969,7 @@ public class MyActivity extends AppCompatActivity {
         drawHandler.post(runnablePath);
     }
 
-    private int scoreCalculate(int numBalls) {
+    private int calculateScore(int numBalls) {
         // 5 balls --> 5
         // 6 balls --> 5 + (6-5)*2
         // 7 balls --> 5 + (6-5)*2 + (7-5)*2
@@ -1165,8 +1171,8 @@ public class MyActivity extends AppCompatActivity {
         }
 
         dismissShowMessageOnScreen();
-        gameProperties.setShowingSavingGameMessage(false);
-        ColorBallsApp.isProcessingJob = false;
+        // gameProperties.setShowingSavingGameMessage(false);
+        // ColorBallsApp.isProcessingJob = false;
 
         String textContent;
         if (succeeded) {
@@ -1188,6 +1194,8 @@ public class MyActivity extends AppCompatActivity {
             @Override
             public void noButtonOnClick(AlertDialogFragment dialogFragment) {
                 dialogFragment.dismissAllowingStateLoss();
+                gameProperties.setShowingSavingGameMessage(false);
+                ColorBallsApp.isProcessingJob = false;
             }
 
             @Override
@@ -1197,6 +1205,8 @@ public class MyActivity extends AppCompatActivity {
                     // excess 5 times saving game, then show ad
                     showAdUntilDismissed(MyActivity.this);
                 }
+                gameProperties.setShowingSavingGameMessage(false);
+                ColorBallsApp.isProcessingJob = false;
             }
         });
         Bundle args = new Bundle();
@@ -1209,6 +1219,7 @@ public class MyActivity extends AppCompatActivity {
         args.putInt("NumButtons", 1);
         args.putBoolean("IsAnimation", false);
         gameSavedDialog.setArguments(args);
+
         gameSavedDialog.show(getSupportFragmentManager(), "GameSavedDialogTag");
 
         return succeeded;
@@ -1308,8 +1319,8 @@ public class MyActivity extends AppCompatActivity {
         }
 
         dismissShowMessageOnScreen();
-        gameProperties.setShowingLoadingGameMessage(false);
-        ColorBallsApp.isProcessingJob = false;
+        // gameProperties.setShowingLoadingGameMessage(false);
+        // ColorBallsApp.isProcessingJob = false;
 
         String textContent;
         if (succeeded) {
@@ -1334,11 +1345,15 @@ public class MyActivity extends AppCompatActivity {
             @Override
             public void noButtonOnClick(AlertDialogFragment dialogFragment) {
                 dialogFragment.dismissAllowingStateLoss();
+                gameProperties.setShowingLoadingGameMessage(false);
+                ColorBallsApp.isProcessingJob = false;
             }
 
             @Override
             public void okButtonOnClick(AlertDialogFragment dialogFragment) {
                 dialogFragment.dismissAllowingStateLoss();
+                gameProperties.setShowingLoadingGameMessage(false);
+                ColorBallsApp.isProcessingJob = false;
             }
         });
         Bundle args = new Bundle();
@@ -1351,6 +1366,7 @@ public class MyActivity extends AppCompatActivity {
         args.putInt("NumButtons", 1);
         args.putBoolean("IsAnimation", false);
         gameLoadedDialog.setArguments(args);
+
         gameLoadedDialog.show(getSupportFragmentManager(), "GameLoadedDialogTag");
     }
 
@@ -1600,49 +1616,38 @@ public class MyActivity extends AppCompatActivity {
     public void setHasSound(boolean hasSound) {
         gameProperties.setHasSound(hasSound);
     }
-    public ImageView getScoreImageView() {
-        return scoreImageView;
-    }
-    public void showMessageOnScreen(String messageString) {
+    private void showMessageOnScreen(String messageString) {
         Bitmap dialog_board_image = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
         Bitmap showBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(dialog_board_image, messageString, Color.RED);
         scoreImageView.setVisibility(View.VISIBLE);
         scoreImageView.setImageBitmap(showBitmap);
     }
-    public void dismissShowMessageOnScreen() {
+    private void dismissShowMessageOnScreen() {
         scoreImageView.setImageBitmap(null);
         scoreImageView.setVisibility(View.GONE);
     }
 
-    private class CalculateScoreThread extends Thread {
+    private class ShowScoreThread extends Thread {
 
         // private final String ScoreDialogTag = new String("ScoreDialogFragment");
         private int numBalls = 0;
         private int color = 0;
-        private int score = 0;
         private HashSet<Point> hasPoint = null;
         private boolean isNextBalls;
-        private Bitmap scoreBitmap;
 
-        private final Handler calculateScoreHandler = new Handler(Looper.getMainLooper());
+        private final Handler showScoreHandler = new Handler(Looper.getMainLooper());
         private boolean isSynchronizeFinished = false;
 
-        public CalculateScoreThread(HashSet<Point> linkedPoint, boolean isNextBalls) {
+        public ShowScoreThread(HashSet<Point> linkedPoint, boolean isNextBalls) {
             // lock the orientation
-            Log.d(TAG, "CalculateScoreThread-->ScreenUtil.freezeScreenRotation(myActivity)");
-            ScreenUtil.freezeScreenRotation(myActivity);
+            Log.d(TAG, "ShowScoreThread-->ScreenUtil.freezeScreenRotation(myActivity)");
+            // ScreenUtil.freezeScreenRotation(myActivity);
 
             this.isNextBalls = isNextBalls;
             if (linkedPoint != null) {
                 hasPoint = new HashSet<>(linkedPoint);
                 Point point = hasPoint.iterator().next();
                 color = gridData.getCellValue(point.x, point.y);
-
-                numBalls = hasPoint.size();
-                score = scoreCalculate(numBalls);
-                String scoreString = String.valueOf(score);
-                Bitmap dialog_board_image = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
-                scoreBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(dialog_board_image, scoreString, Color.BLACK);
             }
         }
 
@@ -1652,27 +1657,26 @@ public class MyActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    synchronized (calculateScoreHandler) {
-                        scoreImageView.setVisibility(View.VISIBLE);
+                    synchronized (showScoreHandler) {
                         isSynchronizeFinished = true;
-                        calculateScoreHandler.notifyAll();
-                        Log.d(TAG, "CalculateScoreThread-->onPreExecute() --> notifyAll()");
+                        showScoreHandler.notifyAll();
+                        Log.d(TAG, "ShowScoreThread-->onPreExecute() --> notifyAll()");
                     }
                 }
             });
-            synchronized (calculateScoreHandler) {
+            synchronized (showScoreHandler) {
                 while (!isSynchronizeFinished) {
                     try {
-                        Log.d(TAG, "CalculateScoreThread-->onPreExecute() --> wait()");
-                        calculateScoreHandler.wait();
+                        Log.d(TAG, "ShowScoreThread-->onPreExecute() --> wait()");
+                        showScoreHandler.wait();
                     } catch (InterruptedException e) {
-                        Log.d(TAG, "CalculateScoreThread-->onPreExecute() wait exception");
+                        Log.d(TAG, "ShowScoreThread-->onPreExecute() wait exception");
                         e.printStackTrace();
                     }
                 }
             }
 
-            Log.d(TAG, "CalculateScoreThread-->onPreExecute() is finished.");
+            Log.d(TAG, "ShowScoreThread-->onPreExecute() is finished.");
         }
 
         private synchronized void doInBackground() {
@@ -1695,9 +1699,9 @@ public class MyActivity extends AppCompatActivity {
                 }
                 onProgressUpdate(3);
             } else {
-                Log.d(TAG, "CalculateScoreThread-->doInBackground()-->hasPoint is null.");
+                Log.d(TAG, "ShowScoreThread-->doInBackground()-->hasPoint is null.");
             }
-            Log.d(TAG, "CalculateScoreThread-->doInBackground() is finished.");
+            Log.d(TAG, "ShowScoreThread-->doInBackground() is finished.");
         }
 
         private synchronized void onProgressUpdate(int status) {
@@ -1706,7 +1710,7 @@ public class MyActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        synchronized (calculateScoreHandler) {
+                        synchronized (showScoreHandler) {
                             switch (status) {
                                 case 0:
                                     for (Point item : hasPoint) {
@@ -1722,30 +1726,32 @@ public class MyActivity extends AppCompatActivity {
                                     break;
                                 case 2:
                                 case 3:
-                                    scoreImageView.setImageBitmap(scoreBitmap);
+                                    // show the score
+                                    String scoreString = String.valueOf(gameProperties.getLastGotScore());
+                                    showMessageOnScreen(scoreString);
                                     break;
                             }
                             isSynchronizeFinished = true;
-                            calculateScoreHandler.notifyAll();
-                            Log.d(TAG, "CalculateScoreThread-->onProgressUpdate() --> notifyAll()");
+                            showScoreHandler.notifyAll();
+                            Log.d(TAG, "ShowScoreThread-->onProgressUpdate() --> notifyAll()");
                         }
                     }
                 });
-                synchronized (calculateScoreHandler) {
+                synchronized (showScoreHandler) {
                     while (!isSynchronizeFinished) {
                         try {
-                            Log.d(TAG, "CalculateScoreThread-->onProgressUpdate() --> wait()");
-                            calculateScoreHandler.wait();
+                            Log.d(TAG, "ShowScoreThread-->onProgressUpdate() --> wait()");
+                            showScoreHandler.wait();
                         } catch (InterruptedException e) {
-                            Log.d(TAG, "CalculateScoreThread-->onProgressUpdate() wait exception");
+                            Log.d(TAG, "ShowScoreThread-->onProgressUpdate() wait exception");
                             e.printStackTrace();
                         }
                     }
                 }
             } else {
-                Log.d(TAG, "CalculateScoreThread-->onProgressUpdate()-->hasPoint is null.");
+                Log.d(TAG, "ShowScoreThread-->onProgressUpdate()-->hasPoint is null.");
             }
-            Log.d(TAG, "CalculateScoreThread-->onProgressUpdate() is finished.");
+            Log.d(TAG, "ShowScoreThread-->onProgressUpdate() is finished.");
         }
 
         private synchronized void onPostExecute() {
@@ -1753,40 +1759,40 @@ public class MyActivity extends AppCompatActivity {
                 myActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        scoreImageView.setImageBitmap(scoreBitmap);
                         // clear values of cells
                         for (Point item : hasPoint) {
                             clearCell(item.x, item.y);
                         }
                         // update the UI
                         gameProperties.setUndoScore(gameProperties.getCurrentScore());
-                        gameProperties.setCurrentScore(gameProperties.getCurrentScore() + score);
+                        gameProperties.setCurrentScore(gameProperties.getCurrentScore() + gameProperties.getLastGotScore());
                         currentScoreView.setText(String.format(Locale.getDefault(), "%8d", gameProperties.getCurrentScore()));
                         // hide score ImageView
-                        scoreImageView.setImageBitmap(null);
-                        scoreImageView.setVisibility(View.GONE);
+                        dismissShowMessageOnScreen();
                         // added on 2019-03-30
                         if (isNextBalls) {
                             displayNextColorBalls();
                         }
 
                         gameProperties.getThreadCompleted()[1] = true;  // user can start input command
+                        gameProperties.setShowingScoreMessage(false);
                         // unlock the orientation
-                        Log.d(TAG, "CalculateScoreThread-->ScreenUtil.unfreezeScreenRotation(myActivity)");
-                        ScreenUtil.unfreezeScreenRotation(myActivity);
+                        Log.d(TAG, "ShowScoreThread-->ScreenUtil.unfreezeScreenRotation(myActivity)");
+                        // ScreenUtil.unfreezeScreenRotation(myActivity);
 
-                        Log.d(TAG, "CalculateScoreThread-->onPostExecute()-->hasPoint is not null.");
-                        Log.d(TAG, "CalculateScoreThread-->onPostExecute() is finished.");
+                        Log.d(TAG, "ShowScoreThread-->onPostExecute()-->hasPoint is not null.");
+                        Log.d(TAG, "ShowScoreThread-->onPostExecute() is finished.");
                     }
                 });
             } else {
                 gameProperties.getThreadCompleted()[1] = true;  // user can start input command
+                gameProperties.setShowingScoreMessage(false);
                 // unlock the orientation
-                Log.d(TAG, "CalculateScoreThread-->ScreenUtil.unfreezeScreenRotation(myActivity)");
-                ScreenUtil.unfreezeScreenRotation(myActivity);
+                Log.d(TAG, "ShowScoreThread-->ScreenUtil.unfreezeScreenRotation(myActivity)");
+                // ScreenUtil.unfreezeScreenRotation(myActivity);
 
-                Log.d(TAG, "CalculateScoreThread-->onPostExecute()-->hasPoint is null.");
-                Log.d(TAG, "CalculateScoreThread-->onPostExecute() is finished.");
+                Log.d(TAG, "ShowScoreThread-->onPostExecute()-->hasPoint is null.");
+                Log.d(TAG, "ShowScoreThread-->onPostExecute() is finished.");
             }
         }
 
@@ -1798,7 +1804,8 @@ public class MyActivity extends AppCompatActivity {
             onPostExecute();
         }
 
-        public void startCalculate() {
+        public void startShow() {
+            gameProperties.setShowingScoreMessage(true);
             start();
         }
     }
