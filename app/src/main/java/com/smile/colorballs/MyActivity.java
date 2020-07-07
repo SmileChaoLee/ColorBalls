@@ -641,15 +641,16 @@ public class MyActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             // activity just started so new game
             Log.d(TAG, "Created new game.");
-            gameProperties = new GameProperties(rowCounts, colCounts);
+            gridData = new GridData(rowCounts, colCounts, ColorBallsApp.NumOfColorsUsedByEasy);
+            gameProperties = new GameProperties(gridData);
         } else {
             Log.d(TAG, "Configuration changed and restore the original UI.");
             isNewGame = false;
             gameProperties = savedInstanceState.getParcelable(GamePropertiesTag);
+            gridData = gameProperties.getGridData();
         }
         ColorBallsApp.isShowingLoadingMessage = gameProperties.isShowingLoadingMessage();
         ColorBallsApp.isProcessingJob = gameProperties.isProcessingJob();
-        gridData = gameProperties.getGridData();
         toolbarTitleTextView.setText(String.format(Locale.getDefault(), "%8d", highestScore));
         currentScoreView.setText(String.format(Locale.getDefault(), "%8d", gameProperties.getCurrentScore()));
 

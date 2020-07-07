@@ -3,8 +3,6 @@ package com.smile.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.smile.colorballs.ColorBallsApp;
-
 public class GameProperties implements Parcelable {
     private boolean isShowingLoadingMessage;
     private boolean isShowingSavingGameMessage;
@@ -196,7 +194,7 @@ public class GameProperties implements Parcelable {
         dest.writeParcelable(this.gridData, flags);
     }
 
-    public GameProperties(int rowCounts, int colCounts) {
+    public GameProperties(GridData gridData) {
         isShowingLoadingMessage = false;
         isShowingSavingGameMessage = false;
         isShowingLoadingGameMessage = false;
@@ -214,7 +212,7 @@ public class GameProperties implements Parcelable {
         lastGotScore = 0;
         isEasyLevel = true; // start with easy level
         hasSound = true;    // has sound effect
-        gridData = new GridData(rowCounts, colCounts, ColorBallsApp.NumOfColorsUsedByEasy);
+        setGridData(gridData);
     }
 
     protected GameProperties(Parcel in) {
