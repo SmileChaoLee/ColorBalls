@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -47,6 +46,7 @@ import android.widget.Toast;
 
 import com.smile.Service.MyGlobalTop10Service;
 import com.smile.Service.MyTop10ScoresService;
+import com.smile.model.GameProperties;
 import com.smile.model.GridData;
 import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate;
 import com.smile.smilelibraries.Models.ExitAppTimer;
@@ -67,7 +67,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -75,13 +74,16 @@ import java.util.Locale;
 public class MyActivity extends AppCompatActivity {
 
     // private properties
-    private final String TAG = "MyActivity";
-    private final String GlobalTop10FragmentTag = "GlobalTop10FragmentTag";
-    private final String LocalTop10FragmentTag = "LocalTop10FragmentTag";
+    private static final String TAG = "MyActivity";
+    private static final String GamePropertiesTag = "GameProperties";
+    private static final String GlobalTop10FragmentTag = "GlobalTop10FragmentTag";
+    private static final String LocalTop10FragmentTag = "LocalTop10FragmentTag";
     private final int SettingActivityRequestCode = 1;
     private final int Top10ScoreActivityRequestCode = 2;
     private final int GlobalTop10ActivityRequestCode = 3;
     private final int PrivacyPolicyActivityRequestCode = 10;
+
+    private MyActivity myActivity;
 
     private float textFontSize;
     private float fontScale;
@@ -114,7 +116,6 @@ public class MyActivity extends AppCompatActivity {
 
     private Runnable bouncyRunnable; // needed to be tested 2018-0609
     private Handler bouncyHandler;   // needed to be tested
-    private GridData gridData;
 
     private int highestScore;
     private TextView toolbarTitleTextView;
@@ -125,15 +126,9 @@ public class MyActivity extends AppCompatActivity {
     private int cellWidth = 0;
     private int cellHeight = 0;
 
-    private final boolean[] threadCompleted =  {true,true,true,true,true,true,true,true,true,true};
-    private int bouncyBallIndexI = -1, bouncyBallIndexJ = -1;   // the array index that the ball has been selected
-    private int bouncingStatus = 0; //  no cell selected
-    //  one cell with a ball selected
-    private boolean undoEnable = false;
-    private int currentScore = 0;
-    private int undoScore = 0;
-    private boolean isEasyLevel = true;
-    private boolean hasSound = true;    // has sound effect
+    private GameProperties gameProperties;
+    private GridData gridData;
+    private AlertDialog saveScoreAlertDialog;
 
     private SoundPoolUtil soundPoolUtil;
     private String yesStr = "";
@@ -161,14 +156,17 @@ public class MyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate() is called");
 
+        myActivity = this;
+        // ScreenUtil.freezeScreenRotation(myActivity);
+
         ColorBallsApp.InterstitialAd = new ShowingInterstitialAdsUtil(this, ColorBallsApp.facebookAds, ColorBallsApp.googleInterstitialAd);
 
         if (ScreenUtil.isTablet(this)) {
             // Table then change orientation to Landscape
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         } else {
             // phone then change orientation to Portrait
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
 
         yesStr = ColorBallsApp.AppResources.getString(R.string.yesStr);
@@ -273,7 +271,7 @@ public class MyActivity extends AppCompatActivity {
 
         int id = item.getItemId();
         if (id == R.id.quitGame) {
-            recordScore(0);   //   from   END PROGRAM
+            quitGame(); //  exit game
             return true;
         }
         if (id == R.id.newGame) {
@@ -325,6 +323,8 @@ public class MyActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
+        Log.d(TAG, "MyActivity.onSaveInstanceState() is called");
+
         if (isChangingConfigurations()) {
             // configuration is changing then remove top10ScoreFragment and globalTop10Fragment
             if (top10ScoreFragment != null) {
@@ -360,7 +360,16 @@ public class MyActivity extends AppCompatActivity {
             }
         }
 
-        Log.d(TAG, "MyActivity.onSaveInstanceState() is called");
+        if (saveScoreAlertDialog != null) {
+            saveScoreAlertDialog.dismiss();
+        }
+
+        gameProperties.setShowingLoadingMessage(ColorBallsApp.isShowingLoadingMessage);
+        gameProperties.setShowingSavingGameMessage(ColorBallsApp.isShowingSavingGameMessage);
+        gameProperties.setShowingLoadingGameMessage(ColorBallsApp.isShowingLoadingGameMessage);
+        gameProperties.setProcessingJob(ColorBallsApp.isProcessingJob);
+
+        outState.putParcelable(GamePropertiesTag, gameProperties);
 
         super.onSaveInstanceState(outState);
     }
@@ -396,6 +405,8 @@ public class MyActivity extends AppCompatActivity {
             // avoiding memory leak
             showInterstitialAdThread.releaseShowInterstitialAdThread();
         }
+
+        // ScreenUtil.unfreezeScreenRotation(myActivity);
         /*
         // the following were removed on 2019-06-25
         // int pid = android.os.Process.myPid();
@@ -490,20 +501,15 @@ public class MyActivity extends AppCompatActivity {
 
     private void createGameView(Bundle savedInstanceState) {
         // original from MainFragmentUI.java
-        boolean isNewGame = false;
-        if ( (savedInstanceState == null) || (gridData == null) ) {
-            isNewGame = true;
-        }
-
         findOutGameViewWidthHeight();
-        createGameViewUI(isNewGame);
+        createGameViewUI(savedInstanceState);
         // end of original from MainFragmentUI.java
     }
 
 
     // original from MainFragmentUI.java
 
-    private void createGameViewUI(boolean isNewGame) {
+    private void createGameViewUI(Bundle savedInstanceState) {
         // layout_for_game_view.xml
         float height_weightSum_GameViewUi = 100;    // default
         try {
@@ -624,17 +630,24 @@ public class MyActivity extends AppCompatActivity {
         scoreImageView.setVisibility(View.GONE);
         //
 
-        if (isNewGame) {
+        if (ColorBallsApp.ScoreSQLiteDB != null) {
+            highestScore = ColorBallsApp.ScoreSQLiteDB.readHighestScore();
+        }
+
+        if (savedInstanceState == null) {
+            // activity just started so new game
             createNewGame();
         } else {
-            // fragment recreated (keep the original state)
+            Log.d(TAG, "Configuration changed and restore the original UI.");
+            gameProperties = savedInstanceState.getParcelable(GamePropertiesTag);
+            ColorBallsApp.isShowingLoadingMessage = gameProperties.isShowingLoadingMessage();
+            ColorBallsApp.isShowingSavingGameMessage = gameProperties.isShowingSavingGameMessage();
+            ColorBallsApp.isShowingLoadingGameMessage = gameProperties.isShowingLoadingGameMessage();
+            ColorBallsApp.isProcessingJob = gameProperties.isProcessingJob();
+            gridData = gameProperties.getGridData();
+            Log.d(TAG, "gridData.getLight_line().size() = " + gridData.getLight_line().size()) ;
             // display the original state before changing configuration
-
-            toolbarTitleTextView.setText(String.format(Locale.getDefault(), "%8d", highestScore));
-            currentScoreView.setText(String.format(Locale.getDefault(), "%8d", currentScore));
-
             displayGameView();
-
             if (ColorBallsApp.isShowingLoadingMessage) {
                 showMessageOnScreen(loadingString);
             }
@@ -644,52 +657,56 @@ public class MyActivity extends AppCompatActivity {
             if (ColorBallsApp.isShowingLoadingGameMessage) {
                 showMessageOnScreen(loadingGameString);
             }
-
-            if (bouncingStatus == 1) {
+            if (gameProperties.getBouncingStatus() == 1) {
+                int bouncyBallIndexI = gameProperties.getBouncyBallIndexI();
+                int bouncyBallIndexJ = gameProperties.getBouncyBallIndexJ();
                 ImageView v = findViewById(bouncyBallIndexI * rowCounts + bouncyBallIndexJ);
                 drawBouncyBall(v, gridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
             }
+            toolbarTitleTextView.setText(String.format(Locale.getDefault(), "%8d", highestScore));
+            currentScoreView.setText(String.format(Locale.getDefault(), "%8d", gameProperties.getCurrentScore()));
+
+            if (gameProperties.isShowingNewGameDialog()) {
+                Log.d(TAG, "createGameViewUI() --> show new game dialog by calling newGame()");
+                newGame();
+            }
+            if (gameProperties.isShowingQuitGameDialog()) {
+                Log.d(TAG, "createGameViewUI() --> show quit game dialog by calling quitGame()");
+                quitGame();
+            }
         }
     }
+
     private void createNewGame() {
-        ColorBallsApp.isShowingLoadingMessage = false;
-        ColorBallsApp.isShowingSavingGameMessage = false;
-        ColorBallsApp.isShowingLoadingGameMessage = false;
-        ColorBallsApp.isProcessingJob = false;
+        Log.d(TAG, "createNewGame() --> new GameProperties(rowCounts, colCounts)");
 
-        Arrays.fill(threadCompleted, true);
+        saveScoreAlertDialog = null;
 
-        bouncyBallIndexI = -1;
-        bouncyBallIndexJ = -1;  // the array index that the ball has been selected
-        bouncingStatus = 0;     //  no cell selected
-        undoEnable = false;
-        currentScore = 0;
-        undoScore = 0;
-        isEasyLevel = true; // start with easy level
-        hasSound = true;    // has sound effect
-
-        if (ColorBallsApp.ScoreSQLiteDB != null) {
-            highestScore = ColorBallsApp.ScoreSQLiteDB.readHighestScore();
-        }
-
-        toolbarTitleTextView.setText(String.format(Locale.getDefault(), "%8d", highestScore));
-        currentScoreView.setText(String.format(Locale.getDefault(), "%8d", currentScore));
-
-        gridData = new GridData(rowCounts, colCounts, ColorBallsApp.NumOfColorsUsedByEasy);
+        gameProperties = new GameProperties(rowCounts, colCounts);
+        ColorBallsApp.isShowingLoadingMessage = gameProperties.isShowingLoadingMessage();
+        ColorBallsApp.isShowingSavingGameMessage = gameProperties.isShowingSavingGameMessage();
+        ColorBallsApp.isShowingLoadingGameMessage = gameProperties.isShowingLoadingGameMessage();
+        ColorBallsApp.isProcessingJob = gameProperties.isProcessingJob();
+        gridData = gameProperties.getGridData();
 
         displayGameView();
         displayGridDataNextCells();
 
+        toolbarTitleTextView.setText(String.format(Locale.getDefault(), "%8d", highestScore));
+        currentScoreView.setText(String.format(Locale.getDefault(), "%8d", gameProperties.getCurrentScore()));
+
         Log.d(TAG, "createNewGame() is called.");
     }
+
     private boolean completedAll() {
-        for (boolean thCompleted : threadCompleted) {
+        for (boolean thCompleted : gameProperties.getThreadCompleted()) {
             if (!thCompleted) {
                 return false;
             }
         }
         return true;
     }
+
     private void displayGridDataNextCells() {
 
         gridData.randCells();
@@ -792,52 +809,60 @@ public class MyActivity extends AppCompatActivity {
         i = id / rowCounts;
         j = id % rowCounts;
         ImageView imageView;
-        if (bouncingStatus == 0) {
+        if (gameProperties.getBouncingStatus() == 0) {
             if (gridData.getCellValue(i, j) != 0) {
-                if ((bouncyBallIndexI == -1) && (bouncyBallIndexJ == -1)) {
-                    bouncingStatus = 1;
+                if ((gameProperties.getBouncyBallIndexI() == -1) && (gameProperties.getBouncyBallIndexJ() == -1)) {
+                    gameProperties.setBouncingStatus(1);
                     drawBouncyBall((ImageView) v, gridData.getCellValue(i, j));
-                    bouncyBallIndexI = i;
-                    bouncyBallIndexJ = j;
+                    gameProperties.setBouncyBallIndexI(i);
+                    gameProperties.setBouncyBallIndexJ(j);
                 }
             }
         } else {
             // cancel the timer
             if (gridData.getCellValue(i, j) == 0) {
                 //   blank cell
-                if ((bouncyBallIndexI >= 0) && (bouncyBallIndexJ >= 0)) {
-                    if (gridData.moveCellToCell(new Point(bouncyBallIndexI, bouncyBallIndexJ), new Point(i, j))) {
+                int bouncyBallIndexI = gameProperties.getBouncyBallIndexI();
+                int bouncyBallIndexJ = gameProperties.getBouncyBallIndexJ();
+                if ((bouncyBallIndexI >= 0) && (gameProperties.getBouncyBallIndexJ() >= 0)) {
+                    if (gridData.canMoveCellToCell(new Point(bouncyBallIndexI, bouncyBallIndexJ), new Point(i, j))) {
                         // cancel the timer
-                        bouncingStatus = 0;
+                        gameProperties.setBouncingStatus(0);
                         cancelBouncyTimer();
                         int color = gridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ);
                         gridData.setCellValue(i, j, color);
                         clearCell(bouncyBallIndexI, bouncyBallIndexJ);
 
-                        bouncyBallIndexI = -1;
-                        bouncyBallIndexJ = -1;
+                        gameProperties.setBouncyBallIndexI(-1);
+                        gameProperties.setBouncyBallIndexJ(-1);
 
                         drawBallAlongPath(i,j,color);
 
-                        undoEnable = true;
+                        gameProperties.setUndoEnable(true);
                     } else {
                         //    make a sound
-                        if (hasSound) {
+                        if (gameProperties.isHasSound()) {
                             soundPoolUtil.playSound();
                         }
                     }
                 }
             } else {
                 //  cell is not blank
+                int bouncyBallIndexI = gameProperties.getBouncyBallIndexI();
+                int bouncyBallIndexJ = gameProperties.getBouncyBallIndexJ();
                 if ((bouncyBallIndexI >= 0) && (bouncyBallIndexJ >= 0)) {
-                    bouncingStatus = 0;
+
+                    // there bugs here
+                    gameProperties.setBouncingStatus(0);    // this statement should be in cancelBouncyTimer()
                     cancelBouncyTimer();
-                    bouncingStatus = 1;
+                    gameProperties.setBouncingStatus(1);    // this statement should be in cancelBouncyTimer()
+                    //
+
                     imageView = findViewById(bouncyBallIndexI * rowCounts + bouncyBallIndexJ);
                     drawBall(imageView , gridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
                     drawBouncyBall((ImageView) v, gridData.getCellValue(i, j));
-                    bouncyBallIndexI = i;
-                    bouncyBallIndexJ = j;
+                    gameProperties.setBouncyBallIndexI(i);
+                    gameProperties.setBouncyBallIndexJ(j);
                 }
             }
         }
@@ -849,7 +874,7 @@ public class MyActivity extends AppCompatActivity {
             boolean ballYN = false;
             @Override
             public void run() {
-                if (bouncingStatus == 1) {
+                if (gameProperties.getBouncingStatus() == 1) {
                     if (color != 0) {
                         if (ballYN) {
                             drawBall(v , color);
@@ -885,6 +910,12 @@ public class MyActivity extends AppCompatActivity {
             return;
         }
 
+        // lock the orientation
+        ScreenUtil.freezeScreenRotation(myActivity);
+        Log.d(TAG, "drawBallAlongPath()-->ScreenUtil.unfreezeScreenRotation()");
+
+        gameProperties.getThreadCompleted()[0] = false;
+
         final List<Point> tempList = new ArrayList<>(gridData.getPathPoint());
         final Handler drawHandler = new Handler(Looper.getMainLooper());
         Runnable runnablePath = new Runnable() {
@@ -893,7 +924,6 @@ public class MyActivity extends AppCompatActivity {
             int countDown = tempList.size()*2 - 1;
             @Override
             public void run() {
-                threadCompleted[0] = false;
                 if (countDown >= 2) {   // eliminate start point
                     int i = countDown / 2;
                     imageView = findViewById(tempList.get(i).x * rowCounts + tempList.get(i).y);
@@ -908,26 +938,27 @@ public class MyActivity extends AppCompatActivity {
                     drawHandler.postDelayed(this,20);
                 } else {
                     drawHandler.removeCallbacksAndMessages(null);
-                    //   do the next
-                    threadCompleted[0] = true;
-                    doNextAction(ii,jj);
+                    // unlock the orientation
+                    ScreenUtil.unfreezeScreenRotation(myActivity);
+                    Log.d(TAG, "drawBallAlongPath()-->ScreenUtil.unfreezeScreenRotation()");
+
+                    // do the next
+                    // doNextAction(ii,jj);
+                    ImageView v = findViewById(ii * rowCounts + jj);
+                    drawBall(v, gridData.getCellValue(ii, jj));
+                    //  check if there are more than five balls with same color connected together
+                    if (gridData.check_moreThanFive(ii, jj) == 1) {
+                        CalculateScoreThread calculateScoreThread = new CalculateScoreThread(gridData.getLight_line(), false);
+                        calculateScoreThread.startCalculate();
+                    } else {
+                        displayGridDataNextCells();   // has a problem
+                    }
+
+                    gameProperties.getThreadCompleted()[0] = true;
                 }
             }
         };
         drawHandler.post(runnablePath);
-    }
-
-    private void doNextAction(final int i,final int j) {
-        // may need to run runOnUiThread()
-        ImageView v = findViewById(i * rowCounts + j);
-        drawBall(v, gridData.getCellValue(i, j));
-        //  check if there are more than five balls with same color connected together
-        if (gridData.check_moreThanFive(i, j) == 1) {
-            CalculateScoreThread calculateScoreThread = new CalculateScoreThread(gridData.getLight_line(), false);
-            calculateScoreThread.startCalculate();
-        } else {
-            displayGridDataNextCells();   // has a problem
-        }
     }
 
     private int scoreCalculate(int numBalls) {
@@ -948,18 +979,12 @@ public class MyActivity extends AppCompatActivity {
             }
         }
 
-        if (!isEasyLevel) {
+        if (!gameProperties.isEasyLevel()) {
             // difficult level
             score = score * 2;   // double of easy level
         }
 
         return score;
-    }
-
-    private void flushALLandBegin() {
-        // myActivity.reStartApplication();   // restart the game
-        Log.d(TAG, "flushALLandBegin() is called.");
-        createNewGame();
     }
 
     private void setDialogStyle(DialogInterface dialog) {
@@ -1049,12 +1074,12 @@ public class MyActivity extends AppCompatActivity {
             exitApplication();
         } else if (entryPoint==1) {
             //  NEW GAME
-            flushALLandBegin();
+            createNewGame();
         }
         ColorBallsApp.isProcessingJob = false;
     }
-    private void showInterstitialAdAndNewGameOrQuit(final int entryPoint) {
 
+    private void showInterstitialAdAndNewGameOrQuit(final int entryPoint) {
         if (ColorBallsApp.InterstitialAd == null) {
             quitOrNewGame(entryPoint);
         } else {
@@ -1080,12 +1105,12 @@ public class MyActivity extends AppCompatActivity {
             File outputFile = new File(ColorBallsApp.AppContext.getFilesDir(), savedGameFileName);
             FileOutputStream foStream = new FileOutputStream(outputFile);
             // save settings
-            if (hasSound) {
+            if (gameProperties.isHasSound()) {
                 foStream.write(1);
             } else {
                 foStream.write(0);
             }
-            if (isEasyLevel) {
+            if (gameProperties.isEasyLevel()) {
                 foStream.write(1);
             } else {
                 foStream.write(0);
@@ -1103,10 +1128,10 @@ public class MyActivity extends AppCompatActivity {
                 }
             }
             // save current score
-            byte[] scoreByte = ByteBuffer.allocate(4).putInt(currentScore).array();
+            byte[] scoreByte = ByteBuffer.allocate(4).putInt(gameProperties.getCurrentScore()).array();
             foStream.write(scoreByte);
             // save undoEnable
-            if (undoEnable) {
+            if (gameProperties.isUndoEnable()) {
                 // can undo
                 foStream.write(1);
                 // foStream.write(gridData.ballNumOneTime);
@@ -1121,7 +1146,7 @@ public class MyActivity extends AppCompatActivity {
                         foStream.write(gridData.getBackupCells()[i][j]);
                     }
                 }
-                byte[] undoScoreByte = ByteBuffer.allocate(4).putInt(undoScore).array();
+                byte[] undoScoreByte = ByteBuffer.allocate(4).putInt(gameProperties.getUndoScore()).array();
                 foStream.write(undoScoreByte);
                 // end of writing
             } else {
@@ -1194,19 +1219,16 @@ public class MyActivity extends AppCompatActivity {
         showMessageOnScreen(savingGameString);
 
         boolean succeeded = true;
-        boolean soundYn = hasSound;
-        boolean easyYn = isEasyLevel;
-        // int ballNumOneTime = GridData.ballNumOneTime;
+        boolean soundYn = gameProperties.isHasSound();
+        boolean easyYn = gameProperties.isEasyLevel();
         int ballNumOneTime;
         int[] nextBalls = new int[ColorBallsApp.NumOfColorsUsedByDifficult];
         int[][] gameCells = new int[rowCounts][colCounts];
-        int cScore = currentScore;
-        boolean undoYn = undoEnable;
-        // int undoNumOneTime = gridData.ballNumOneTime;
-        // int undoNumOneTime = GridData.ballNumOneTime;
+        int cScore = gameProperties.getCurrentScore();
+        boolean undoYn = gameProperties.isUndoEnable();
         int[] undoNextBalls = new int[ColorBallsApp.NumOfColorsUsedByDifficult];
         int[][] backupCells = new int[rowCounts][colCounts];
-        int unScore = undoScore;
+        int unScore = gameProperties.getUndoScore();
 
         try {
             File inputFile = new File(ColorBallsApp.AppContext.getFilesDir(), savedGameFileName);
@@ -1294,13 +1316,13 @@ public class MyActivity extends AppCompatActivity {
             setIsEasyLevel(easyYn);
             gridData.setNextBalls(nextBalls);
             gridData.setCellValues(gameCells);
-            currentScore = cScore;
-            undoEnable = undoYn;
+            gameProperties.setCurrentScore(cScore);
+            gameProperties.setUndoEnable(undoYn);
             gridData.setUndoNextBalls(undoNextBalls);
             gridData.setBackupCells(backupCells);
-            undoScore = unScore;
+            gameProperties.setUndoScore(unScore);
             // start update UI
-            currentScoreView.setText(String.format(Locale.getDefault(), "%8d", currentScore));
+            currentScoreView.setText(String.format(Locale.getDefault(), "%8d", gameProperties.getCurrentScore()));
             displayGameView();
         } else {
             textContent = failedLoadGameString;
@@ -1332,7 +1354,7 @@ public class MyActivity extends AppCompatActivity {
     // public methods
     public void undoTheLast() {
 
-        if (!undoEnable) {
+        if (!gameProperties.isUndoEnable()) {
             return;
         }
 
@@ -1343,15 +1365,15 @@ public class MyActivity extends AppCompatActivity {
         // restore the screen
         displayGameView();
 
-        bouncingStatus = 0;
-        bouncyBallIndexI = -1;
-        bouncyBallIndexJ = -1;
+        gameProperties.setBouncingStatus(0);
+        gameProperties.setBouncyBallIndexI(-1);
+        gameProperties.setBouncyBallIndexJ(-1);
 
-        currentScore = undoScore;
-        currentScoreView.setText( String.format(Locale.getDefault(), "%8d",currentScore));
+        gameProperties.setCurrentScore(gameProperties.getUndoScore());
+        currentScoreView.setText( String.format(Locale.getDefault(), "%8d",gameProperties.getCurrentScore()));
 
         // completedPath = true;
-        undoEnable = false;
+        gameProperties.setUndoEnable(false);
 
         ColorBallsApp.isProcessingJob = false;    // finished
     }
@@ -1373,10 +1395,15 @@ public class MyActivity extends AppCompatActivity {
         myService.putExtra("WebUrl", webUrl);
         startService(myService);
     }
-    public void newGame() {
+    private void newGame() {
+        gameProperties.setShowingNewGameDialog(true);
         recordScore(1);   //   START A NEW GAME
     }
-    public void saveGame() {
+    private void quitGame() {
+        gameProperties.setShowingQuitGameDialog(true);
+        recordScore(0);   //   Exit game
+    }
+    private void saveGame() {
         AlertDialogFragment sureSaveDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
             @Override
             public void noButtonOnClick(AlertDialogFragment dialogFragment) {
@@ -1440,7 +1467,7 @@ public class MyActivity extends AppCompatActivity {
         sureSaveDialog.setArguments(args);
         sureSaveDialog.show(getSupportFragmentManager(), "SureSaveDialogTag");
     }
-    public void loadGame() {
+    private void loadGame() {
         AlertDialogFragment sureLoadDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
             @Override
             public void noButtonOnClick(AlertDialogFragment dialogFragment) {
@@ -1471,6 +1498,7 @@ public class MyActivity extends AppCompatActivity {
     public void recordScore(final int entryPoint) {
 
         ColorBallsApp.isProcessingJob = true;
+        gameProperties.setShowingNewGameDialog(true);
 
         final EditText et = new EditText(this);
         et.setTextColor(Color.BLUE);
@@ -1479,19 +1507,23 @@ public class MyActivity extends AppCompatActivity {
         et.setHint(nameStr);
         ScreenUtil.resizeTextSize(et, textFontSize, ColorBallsApp.FontSize_Scale_Type);
         et.setGravity(Gravity.CENTER);
-        AlertDialog alertD = new AlertDialog.Builder(this).create();
-        alertD.setTitle(null);
-        alertD.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        alertD.setCancelable(false);
-        alertD.setView(et);
-        alertD.setButton(DialogInterface.BUTTON_NEGATIVE, cancelStr, new DialogInterface.OnClickListener() {
+        saveScoreAlertDialog = new AlertDialog.Builder(this).create();
+        saveScoreAlertDialog.setTitle(null);
+        saveScoreAlertDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        saveScoreAlertDialog.setCancelable(false);
+        saveScoreAlertDialog.setView(et);
+        saveScoreAlertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, cancelStr, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 showInterstitialAdAndNewGameOrQuit(entryPoint);
+                ColorBallsApp.isProcessingJob = false;
+                gameProperties.setShowingNewGameDialog(false);
+                gameProperties.setShowingQuitGameDialog(false);
+                saveScoreAlertDialog = null;
             }
         });
-        alertD.setButton(DialogInterface.BUTTON_POSITIVE, submitStr, new DialogInterface.OnClickListener() {
+        saveScoreAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE, submitStr, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
@@ -1504,7 +1536,7 @@ public class MyActivity extends AppCompatActivity {
                             String webUrl = ColorBallsApp.REST_Website + "/AddOneRecordREST";   // ASP.NET Cor
                             JSONObject jsonObject = new JSONObject();
                             jsonObject.put("PlayerName", et.getText().toString());
-                            jsonObject.put("Score", currentScore);
+                            jsonObject.put("Score", gameProperties.getCurrentScore());
                             jsonObject.put("GameId", ColorBallsApp.GameId);
                             PlayerRecordRest.addOneRecord(webUrl, jsonObject);
                         } catch (Exception ex) {
@@ -1516,38 +1548,40 @@ public class MyActivity extends AppCompatActivity {
                 restThread.start();
 
                 // modified on 2018-11-07
-                boolean isInTop10 = ColorBallsApp.ScoreSQLiteDB.isInTop10(currentScore);
+                boolean isInTop10 = ColorBallsApp.ScoreSQLiteDB.isInTop10(gameProperties.getCurrentScore());
                 if (isInTop10) {
                     // inside top 10
                     // record the current score
-                    ColorBallsApp.ScoreSQLiteDB.addScore(et.getText().toString(),currentScore);
+                    ColorBallsApp.ScoreSQLiteDB.addScore(et.getText().toString(),gameProperties.getCurrentScore());
                     ColorBallsApp.ScoreSQLiteDB.deleteAllAfterTop10();  // only keep the top 10
                 }
                 //
 
                 showInterstitialAdAndNewGameOrQuit(entryPoint);
+                ColorBallsApp.isProcessingJob = false;
+                gameProperties.setShowingNewGameDialog(false);
+                gameProperties.setShowingQuitGameDialog(false);
+                saveScoreAlertDialog = null;
             }
         });
 
-        alertD.setOnShowListener(new DialogInterface.OnShowListener() {
+        saveScoreAlertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog) {
                 setDialogStyle(dialog);
             }
         });
 
-        alertD.show();
-
-        ColorBallsApp.isProcessingJob = false;
+        saveScoreAlertDialog.show();
     }
 
     public boolean getIsEasyLevel() {
-        return this.isEasyLevel;
+        return gameProperties.isEasyLevel();
     }
 
     public void setIsEasyLevel(boolean yn) {
-        this.isEasyLevel = yn;
-        if (this.isEasyLevel) {
+        gameProperties.setEasyLevel(yn);
+        if (gameProperties.isEasyLevel()) {
             // easy level
             getGridData().setNumOfColorsUsed(ColorBallsApp.NumOfColorsUsedByEasy);
         } else {
@@ -1558,10 +1592,10 @@ public class MyActivity extends AppCompatActivity {
     }
 
     public boolean getHasSound() {
-        return hasSound;
+        return gameProperties.isHasSound();
     }
     public void setHasSound(boolean hasSound) {
-        this.hasSound = hasSound;
+        gameProperties.setHasSound(hasSound);
     }
     public ImageView getScoreImageView() {
         return scoreImageView;
@@ -1591,6 +1625,9 @@ public class MyActivity extends AppCompatActivity {
         private boolean isSynchronizeFinished = false;
 
         public CalculateScoreThread(HashSet<Point> linkedPoint, boolean isNextBalls) {
+            // lock the orientation
+            ScreenUtil.freezeScreenRotation(myActivity);
+
             this.isNextBalls = isNextBalls;
             if (linkedPoint != null) {
                 hasPoint = new HashSet<>(linkedPoint);
@@ -1606,10 +1643,8 @@ public class MyActivity extends AppCompatActivity {
         }
 
         private synchronized void onPreExecute() {
-            threadCompleted[1] = false;
-
+            gameProperties.getThreadCompleted()[1] = false;
             isSynchronizeFinished = false;
-
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -1711,7 +1746,7 @@ public class MyActivity extends AppCompatActivity {
 
         private synchronized void onPostExecute() {
             if (hasPoint != null) {
-                runOnUiThread(new Runnable() {
+                myActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         scoreImageView.setImageBitmap(scoreBitmap);
@@ -1720,9 +1755,9 @@ public class MyActivity extends AppCompatActivity {
                             clearCell(item.x, item.y);
                         }
                         // update the UI
-                        undoScore = currentScore;
-                        currentScore = currentScore + score;
-                        currentScoreView.setText(String.format(Locale.getDefault(), "%8d", currentScore));
+                        gameProperties.setUndoScore(gameProperties.getCurrentScore());
+                        gameProperties.setCurrentScore(gameProperties.getCurrentScore() + score);
+                        currentScoreView.setText(String.format(Locale.getDefault(), "%8d", gameProperties.getCurrentScore()));
                         // hide score ImageView
                         scoreImageView.setImageBitmap(null);
                         scoreImageView.setVisibility(View.GONE);
@@ -1730,15 +1765,23 @@ public class MyActivity extends AppCompatActivity {
                         if (isNextBalls) {
                             displayNextColorBalls();
                         }
+
+                        gameProperties.getThreadCompleted()[1] = true;  // user can start input command
+                        // unlock the orientation
+                        ScreenUtil.unfreezeScreenRotation(myActivity);
+
+                        Log.d(TAG, "CalculateScoreThread-->onPostExecute()-->hasPoint is not null.");
+                        Log.d(TAG, "CalculateScoreThread-->onPostExecute() is finished.");
                     }
                 });
             } else {
+                gameProperties.getThreadCompleted()[1] = true;  // user can start input command
+                // unlock the orientation
+                ScreenUtil.unfreezeScreenRotation(myActivity);
+
                 Log.d(TAG, "CalculateScoreThread-->onPostExecute()-->hasPoint is null.");
+                Log.d(TAG, "CalculateScoreThread-->onPostExecute() is finished.");
             }
-
-            threadCompleted[1] = true;  // user can start input command
-
-            Log.d(TAG, "CalculateScoreThread-->onPostExecute() is finished.");
         }
 
         @Override

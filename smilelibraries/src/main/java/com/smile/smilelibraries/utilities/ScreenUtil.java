@@ -2,6 +2,7 @@ package com.smile.smilelibraries.utilities;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -16,10 +17,13 @@ import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -444,5 +448,63 @@ public class ScreenUtil {
                 Log.d(TAG, "ShowToastMessage.showToast()");
             }
         }
+    }
+
+    public static void freezeScreenRotation(Activity activity) {
+        if (Build.VERSION.SDK_INT >= 18) {
+            Log.d(TAG, "SDK version is at least 18, using SCREEN_ORIENTATION_LOCKED");
+            activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
+        } else {
+            int windowOrientation = activity.getDisplay().getRotation();
+            boolean isLandscapeDefault = isDeviceDefaultOrientationLandscape(activity);
+            Log.d(TAG, "isLandscapeDefault: " + isLandscapeDefault);
+            switch (windowOrientation) {
+                case Surface.ROTATION_0:
+                    if (isLandscapeDefault) {
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                    } else {
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                    }
+                    break;
+                case Surface.ROTATION_180:
+                    if (isLandscapeDefault) {
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+                    } else {
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
+                    }
+                    break;
+                case Surface.ROTATION_270:
+                    if (isLandscapeDefault) {
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                    } else {
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+                    }
+                    break;
+                case Surface.ROTATION_90:
+                    if (isLandscapeDefault) {
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
+                    } else {
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                    }
+                    break;
+            }
+        }
+    }
+
+    public static void unfreezeScreenRotation(Activity activity) {
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+    }
+
+    public static boolean isDeviceDefaultOrientationLandscape(Activity activity) {
+        Configuration config = activity.getResources().getConfiguration();
+        int rotation = activity.getDisplay().getRotation();
+        boolean defaultLandscapeAndIsInLandscape = (rotation == Surface.ROTATION_0 ||
+                rotation == Surface.ROTATION_180) &&
+                config.orientation == Configuration.ORIENTATION_LANDSCAPE;
+        boolean defaultLandscapeAndIsInPortrait = (rotation == Surface.ROTATION_90 ||
+                rotation == Surface.ROTATION_270) &&
+                config.orientation == Configuration.ORIENTATION_PORTRAIT;
+
+        return defaultLandscapeAndIsInLandscape || defaultLandscapeAndIsInPortrait;
     }
 }

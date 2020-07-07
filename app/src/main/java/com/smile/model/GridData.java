@@ -5,6 +5,8 @@ package com.smile.model;
  */
 
 import android.graphics.Point;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import com.smile.colorballs.ColorBallsApp;
@@ -15,12 +17,11 @@ import java.util.List;
 import java.util.Random;
 import java.util.Stack;
 
-public class GridData {
-
+public class GridData implements Parcelable {
+    public static final int ballNumOneTime = 3;
     private static final String TAG = "GridData";
 
-    public static final int ballNumOneTime = 3;
-    private final int ballNumCompleted = 5;
+    private int ballNumCompleted = 5;
     private int rowCounts=0, colCounts=0;
     private int cellValues[][];
     private int backupCells[][];
@@ -73,6 +74,9 @@ public class GridData {
         for (int i=0; i<rowCounts; i++) {
             this.cellValues[i] = cellValues[i].clone();
         }
+    }
+    public int[][] getCellValues() {
+        return this.cellValues;
     }
 
     public void randColors() {
@@ -399,7 +403,7 @@ public class GridData {
         return pathPoint;
     }
 
-    public boolean moveCellToCell(Point sourcePoint, Point targetPoint) {
+    public boolean canMoveCellToCell(Point sourcePoint, Point targetPoint) {
         boolean result = false;
 
         if (cellValues[sourcePoint.x][sourcePoint.y] == 0) {
@@ -492,5 +496,106 @@ public class GridData {
 
         return (pTemp.equals(target));
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.ballNumCompleted);
+        dest.writeInt(this.rowCounts);
+        dest.writeInt(this.colCounts);
+
+        // dest.writeParcelable(this.cellValues, flags); // error
+        int numOfArrays = this.cellValues.length;
+        dest.writeInt(numOfArrays); // save number of arrays
+        for (int i = 0; i < numOfArrays; i++) {
+            dest.writeIntArray(this.cellValues[i]);
+        }
+        //
+
+        // dest.writeParcelable(this.backupCells, flags); // error
+        numOfArrays = this.backupCells.length;
+        dest.writeInt(numOfArrays); // save number of arrays
+        for (int i = 0; i < numOfArrays; i++) {
+            dest.writeIntArray(this.backupCells[i]);
+        }
+        //
+
+        dest.writeIntArray(this.nextBalls);
+        dest.writeIntArray(this.nextCellIndexI);
+        dest.writeIntArray(this.nextCellIndexJ);
+        dest.writeIntArray(this.undoNextBalls);
+
+        // dest.writeSerializable(this.Light_line); // IOException
+        int sizeOfHashSet = this.Light_line.size();
+        dest.writeInt(sizeOfHashSet);
+        for (Point point:this.Light_line) {
+            dest.writeParcelable(point, flags);
+        }
+        //
+
+        dest.writeTypedList(this.pathPoint);
+        dest.writeSerializable(this.random);
+        dest.writeInt(this.numOfTotalBalls);
+        dest.writeInt(this.numOfColorsUsed);
+        dest.writeByte(this.gameOver ? (byte) 1 : (byte) 0);
+    }
+
+    protected GridData(Parcel in) {
+        this.ballNumCompleted = in.readInt();
+        this.rowCounts = in.readInt();
+        this.colCounts = in.readInt();
+
+        // this.cellValues = in.readParcelable(int[][].class.getClassLoader()); // error
+        int numOfArrays = in.readInt();
+        this.cellValues = new int[numOfArrays][];
+        for (int i=0; i<numOfArrays; i++) {
+            this.cellValues[i] = in.createIntArray();
+        }
+        //
+
+        // this.backupCells = in.readParcelable(int[][].class.getClassLoader());
+        numOfArrays = in.readInt();
+        this.backupCells = new int[numOfArrays][];
+        for (int i=0; i<numOfArrays; i++) {
+            this.backupCells[i] = in.createIntArray();
+        }
+        //
+
+        this.nextBalls = in.createIntArray();
+        this.nextCellIndexI = in.createIntArray();
+        this.nextCellIndexJ = in.createIntArray();
+        this.undoNextBalls = in.createIntArray();
+
+        // this.Light_line = (HashSet<Point>) in.readSerializable();
+        this.Light_line = new HashSet<>();
+        int sizeOfHashSet = in.readInt();
+        for (int i=0; i<sizeOfHashSet; i++) {
+            Point point = in.readParcelable(Point.class.getClassLoader());
+            this.Light_line.add(point);
+        }
+        //
+
+        this.pathPoint = in.createTypedArrayList(Point.CREATOR);
+        this.random = (Random) in.readSerializable();
+        this.numOfTotalBalls = in.readInt();
+        this.numOfColorsUsed = in.readInt();
+        this.gameOver = in.readByte() != 0;
+    }
+
+    public static final Creator<GridData> CREATOR = new Creator<GridData>() {
+        @Override
+        public GridData createFromParcel(Parcel source) {
+            return new GridData(source);
+        }
+
+        @Override
+        public GridData[] newArray(int size) {
+            return new GridData[size];
+        }
+    };
 }
 
