@@ -51,8 +51,6 @@ public class ColorBallsApp extends MultiDexApplication {
 
     public static boolean isProcessingJob;
     public static boolean isShowingLoadingMessage;
-    public static boolean isShowingSavingGameMessage;
-    public static boolean isShowingLoadingGameMessage;
     public static boolean isProVersion = false;
 
     public static ShowingInterstitialAdsUtil InterstitialAd;
@@ -102,8 +100,6 @@ public class ColorBallsApp extends MultiDexApplication {
 
         isProcessingJob = false;
         isShowingLoadingMessage = false;
-        isShowingSavingGameMessage = false;
-        isShowingLoadingGameMessage = false;
 
         String facebookInterstitialID = ""; // for colorballs
         facebookBannerID = "";

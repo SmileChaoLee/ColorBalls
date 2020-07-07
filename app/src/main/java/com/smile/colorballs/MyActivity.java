@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -365,8 +366,6 @@ public class MyActivity extends AppCompatActivity {
         }
 
         gameProperties.setShowingLoadingMessage(ColorBallsApp.isShowingLoadingMessage);
-        gameProperties.setShowingSavingGameMessage(ColorBallsApp.isShowingSavingGameMessage);
-        gameProperties.setShowingLoadingGameMessage(ColorBallsApp.isShowingLoadingGameMessage);
         gameProperties.setProcessingJob(ColorBallsApp.isProcessingJob);
 
         outState.putParcelable(GamePropertiesTag, gameProperties);
@@ -649,8 +648,6 @@ public class MyActivity extends AppCompatActivity {
             gameProperties = savedInstanceState.getParcelable(GamePropertiesTag);
         }
         ColorBallsApp.isShowingLoadingMessage = gameProperties.isShowingLoadingMessage();
-        ColorBallsApp.isShowingSavingGameMessage = gameProperties.isShowingSavingGameMessage();
-        ColorBallsApp.isShowingLoadingGameMessage = gameProperties.isShowingLoadingGameMessage();
         ColorBallsApp.isProcessingJob = gameProperties.isProcessingJob();
         gridData = gameProperties.getGridData();
         toolbarTitleTextView.setText(String.format(Locale.getDefault(), "%8d", highestScore));
@@ -665,10 +662,10 @@ public class MyActivity extends AppCompatActivity {
             if (ColorBallsApp.isShowingLoadingMessage) {
                 showMessageOnScreen(loadingString);
             }
-            if (ColorBallsApp.isShowingSavingGameMessage) {
+            if (gameProperties.isShowingSavingGameMessage()) {
                 showMessageOnScreen(savingGameString);
             }
-            if (ColorBallsApp.isShowingLoadingGameMessage) {
+            if (gameProperties.isShowingLoadingGameMessage()) {
                 showMessageOnScreen(loadingGameString);
             }
             if (gameProperties.getBouncingStatus() == 1) {
@@ -941,6 +938,20 @@ public class MyActivity extends AppCompatActivity {
                     if (gridData.check_moreThanFive(ii, jj) == 1) {
                         CalculateScoreThread calculateScoreThread = new CalculateScoreThread(gridData.getLight_line(), false);
                         calculateScoreThread.startCalculate();
+
+                        // added for testing
+                        /*
+                        Configuration configuration = getResources().getConfiguration();
+                        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE ) {
+                            Log.d(TAG, "drawBallAlongPath()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)");
+                            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                        } else {
+                            Log.d(TAG, "drawBallAlongPath()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)");
+                            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                        }
+                        */
+                        //
+
                     } else {
                         displayGridDataNextCells();   // has a problem
                     }
@@ -1089,7 +1100,7 @@ public class MyActivity extends AppCompatActivity {
 
     private boolean startSavingGame(int numOfSaved, final boolean isShowAd) {
         ColorBallsApp.isProcessingJob = true;
-        ColorBallsApp.isShowingSavingGameMessage = true;
+        gameProperties.setShowingSavingGameMessage(true);
         showMessageOnScreen(savingGameString);
 
         boolean succeeded = true;
@@ -1154,7 +1165,7 @@ public class MyActivity extends AppCompatActivity {
         }
 
         dismissShowMessageOnScreen();
-        ColorBallsApp.isShowingSavingGameMessage = false;
+        gameProperties.setShowingSavingGameMessage(false);
         ColorBallsApp.isProcessingJob = false;
 
         String textContent;
@@ -1207,7 +1218,7 @@ public class MyActivity extends AppCompatActivity {
 
         ColorBallsApp.isProcessingJob = true;
 
-        ColorBallsApp.isShowingLoadingGameMessage = true;
+        gameProperties.setShowingLoadingGameMessage(true);
         showMessageOnScreen(savingGameString);
 
         boolean succeeded = true;
@@ -1297,7 +1308,7 @@ public class MyActivity extends AppCompatActivity {
         }
 
         dismissShowMessageOnScreen();
-        ColorBallsApp.isShowingLoadingGameMessage = false;
+        gameProperties.setShowingLoadingGameMessage(false);
         ColorBallsApp.isProcessingJob = false;
 
         String textContent;
@@ -1618,6 +1629,7 @@ public class MyActivity extends AppCompatActivity {
 
         public CalculateScoreThread(HashSet<Point> linkedPoint, boolean isNextBalls) {
             // lock the orientation
+            Log.d(TAG, "CalculateScoreThread-->ScreenUtil.freezeScreenRotation(myActivity)");
             ScreenUtil.freezeScreenRotation(myActivity);
 
             this.isNextBalls = isNextBalls;
@@ -1760,6 +1772,7 @@ public class MyActivity extends AppCompatActivity {
 
                         gameProperties.getThreadCompleted()[1] = true;  // user can start input command
                         // unlock the orientation
+                        Log.d(TAG, "CalculateScoreThread-->ScreenUtil.unfreezeScreenRotation(myActivity)");
                         ScreenUtil.unfreezeScreenRotation(myActivity);
 
                         Log.d(TAG, "CalculateScoreThread-->onPostExecute()-->hasPoint is not null.");
@@ -1769,6 +1782,7 @@ public class MyActivity extends AppCompatActivity {
             } else {
                 gameProperties.getThreadCompleted()[1] = true;  // user can start input command
                 // unlock the orientation
+                Log.d(TAG, "CalculateScoreThread-->ScreenUtil.unfreezeScreenRotation(myActivity)");
                 ScreenUtil.unfreezeScreenRotation(myActivity);
 
                 Log.d(TAG, "CalculateScoreThread-->onPostExecute()-->hasPoint is null.");
