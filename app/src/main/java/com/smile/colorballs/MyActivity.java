@@ -1090,9 +1090,8 @@ public class MyActivity extends AppCompatActivity {
     }
 
     private void showInterstitialAdAndNewGameOrQuit(final int entryPoint) {
-        if (ColorBallsApp.InterstitialAd == null) {
-            quitOrNewGame(entryPoint);
-        } else {
+        if (ColorBallsApp.InterstitialAd != null) {
+            /*
             showInterstitialAdThread = ColorBallsApp.InterstitialAd.new
                     ShowInterstitialAdThread(entryPoint, ColorBallsApp.AdProvider, new ShowingInterstitialAdsUtil.AfterDismissFunctionOfShowAd() {
                 @Override
@@ -1102,7 +1101,12 @@ public class MyActivity extends AppCompatActivity {
                 }
             });
             showInterstitialAdThread.startShowAd();
+            */
+            showInterstitialAdThread = ColorBallsApp.InterstitialAd.new
+                    ShowInterstitialAdThread(entryPoint, ColorBallsApp.AdProvider);
+            showInterstitialAdThread.startShowAd();
         }
+        quitOrNewGame(entryPoint);
     }
 
     private boolean startSavingGame(int numOfSaved, final boolean isShowAd) {
