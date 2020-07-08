@@ -158,16 +158,15 @@ public class MyActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate() is called");
 
         myActivity = this;
-        // ScreenUtil.freezeScreenRotation(myActivity);
 
         ColorBallsApp.InterstitialAd = new ShowingInterstitialAdsUtil(this, ColorBallsApp.facebookAds, ColorBallsApp.googleInterstitialAd);
 
         if (ScreenUtil.isTablet(this)) {
             // Table then change orientation to Landscape
-            // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         } else {
             // phone then change orientation to Portrait
-            // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
 
         yesStr = ColorBallsApp.AppResources.getString(R.string.yesStr);
@@ -405,7 +404,6 @@ public class MyActivity extends AppCompatActivity {
             showInterstitialAdThread.releaseShowInterstitialAdThread();
         }
 
-        // ScreenUtil.unfreezeScreenRotation(myActivity);
         /*
         // the following were removed on 2019-06-25
         // int pid = android.os.Process.myPid();
@@ -906,10 +904,6 @@ public class MyActivity extends AppCompatActivity {
             return;
         }
 
-        // lock the orientation
-        Log.d(TAG, "drawBallAlongPath()-->ScreenUtil.freezeScreenRotation()");
-        // ScreenUtil.freezeScreenRotation(myActivity);
-
         gameProperties.getThreadCompleted()[0] = false;
 
         final List<Point> tempList = new ArrayList<>(gridData.getPathPoint());
@@ -934,12 +928,6 @@ public class MyActivity extends AppCompatActivity {
                     drawHandler.postDelayed(this,20);
                 } else {
                     drawHandler.removeCallbacksAndMessages(null);
-                    // unlock the orientation
-                    Log.d(TAG, "drawBallAlongPath()-->ScreenUtil.unfreezeScreenRotation()");
-                    // ScreenUtil.unfreezeScreenRotation(myActivity);
-
-                    // do the next
-                    // doNextAction(ii,jj);
                     ImageView v = findViewById(ii * rowCounts + jj);
                     drawBall(v, gridData.getCellValue(ii, jj));
                     //  check if there are more than five balls with same color connected together
@@ -1644,10 +1632,6 @@ public class MyActivity extends AppCompatActivity {
         private boolean isSynchronizeFinished = false;
 
         public ShowScoreThread(HashSet<Point> linkedPoint, boolean isNextBalls) {
-            // lock the orientation
-            Log.d(TAG, "ShowScoreThread-->ScreenUtil.freezeScreenRotation(myActivity)");
-            // ScreenUtil.freezeScreenRotation(myActivity);
-
             this.isNextBalls = isNextBalls;
             if (linkedPoint != null) {
                 hasPoint = new HashSet<>(linkedPoint);
@@ -1781,9 +1765,6 @@ public class MyActivity extends AppCompatActivity {
 
                         gameProperties.getThreadCompleted()[1] = true;  // user can start input command
                         gameProperties.setShowingScoreMessage(false);
-                        // unlock the orientation
-                        Log.d(TAG, "ShowScoreThread-->ScreenUtil.unfreezeScreenRotation(myActivity)");
-                        // ScreenUtil.unfreezeScreenRotation(myActivity);
 
                         Log.d(TAG, "ShowScoreThread-->onPostExecute()-->hasPoint is not null.");
                         Log.d(TAG, "ShowScoreThread-->onPostExecute() is finished.");
@@ -1792,9 +1773,6 @@ public class MyActivity extends AppCompatActivity {
             } else {
                 gameProperties.getThreadCompleted()[1] = true;  // user can start input command
                 gameProperties.setShowingScoreMessage(false);
-                // unlock the orientation
-                Log.d(TAG, "ShowScoreThread-->ScreenUtil.unfreezeScreenRotation(myActivity)");
-                // ScreenUtil.unfreezeScreenRotation(myActivity);
 
                 Log.d(TAG, "ShowScoreThread-->onPostExecute()-->hasPoint is null.");
                 Log.d(TAG, "ShowScoreThread-->onPostExecute() is finished.");
