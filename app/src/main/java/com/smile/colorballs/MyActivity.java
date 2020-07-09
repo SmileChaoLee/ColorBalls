@@ -385,6 +385,12 @@ public class MyActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "MyActivity.onStop() is called");
+    }
+
+    @Override
     public void onDestroy() {
         Log.d(TAG, "MyActivity.onDestroy() is called");
 
@@ -937,6 +943,7 @@ public class MyActivity extends AppCompatActivity {
                         showScoreThread.startShow();
 
                         // added for testing
+                        /*
                         Configuration configuration = getResources().getConfiguration();
                         if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE ) {
                             Log.d(TAG, "drawBallAlongPath()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)");
@@ -946,7 +953,7 @@ public class MyActivity extends AppCompatActivity {
                             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                         }
                         //
-
+                        */
                     } else {
                         displayGridDataNextCells();   // has a problem
                     }
