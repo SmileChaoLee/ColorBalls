@@ -2,6 +2,8 @@ package com.smile.presenters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
@@ -53,8 +55,8 @@ public class MyActivityPresenter {
 
     public interface PresentView {
         ImageView getImageViewById(int id);
-        void updateToolbarTitleTextView(int highestScore);
-        void updateCurrentScoreView(int score);
+        void updateHighestScoreOnUi(int highestScore);
+        void updateCurrentScoreOnUi(int score);
         void showMessageOnScreen(String message);
         void dismissShowMessageOnScreen();
         void showGameOverDialog();
@@ -154,8 +156,8 @@ public class MyActivityPresenter {
         ColorBallsApp.isShowingLoadingMessage = gameProperties.isShowingLoadingMessage();
         ColorBallsApp.isProcessingJob = gameProperties.isProcessingJob();
 
-        presentView.updateToolbarTitleTextView(highestScore);
-        presentView.updateCurrentScoreView(gameProperties.getCurrentScore());
+        presentView.updateHighestScoreOnUi(highestScore);
+        presentView.updateCurrentScoreOnUi(gameProperties.getCurrentScore());
 
         if (isNewGame) {
             displayGameView();
@@ -163,18 +165,12 @@ public class MyActivityPresenter {
         } else {
             // display the original state before changing configuration
             displayGameView();
+            // need to be tested
             if (ColorBallsApp.isShowingLoadingMessage) {
                 presentView.showMessageOnScreen(context.getString(R.string.loadingString));
             }
-            if (gameProperties.isShowingSavingGameMessage()) {
-                presentView.showMessageOnScreen(context.getString(R.string.savingGameString));
-            }
-            if (gameProperties.isShowingLoadingGameMessage()) {
-                presentView.showMessageOnScreen(context.getString(R.string.loadingGameString));
-            }
+            //
             if (gameProperties.isShowingScoreMessage()) {
-                // String scoreString = String.valueOf(gameProperties.getLastGotScore());
-                // showMessageOnScreen(scoreString);
                 ShowScoreThread showScoreThread = new ShowScoreThread(gridData.getLight_line(), false);
                 showScoreThread.startShow();
             }
@@ -195,7 +191,6 @@ public class MyActivityPresenter {
             }
         }
 
-
         return isNewGame;
     }
 
@@ -203,10 +198,6 @@ public class MyActivityPresenter {
         gameProperties.setShowingLoadingMessage(ColorBallsApp.isShowingLoadingMessage);
         gameProperties.setProcessingJob(ColorBallsApp.isProcessingJob);
         outState.putParcelable(GamePropertiesTag, gameProperties);
-    }
-
-    public int getHighestScore() {
-        return highestScore;
     }
 
     public boolean completedAll() {
@@ -266,7 +257,7 @@ public class MyActivityPresenter {
         gameProperties.setBouncyBallIndexJ(-1);
 
         gameProperties.setCurrentScore(gameProperties.getUndoScore());
-        presentView.updateCurrentScoreView(gameProperties.getCurrentScore());
+        presentView.updateCurrentScoreOnUi(gameProperties.getCurrentScore());
 
         // completedPath = true;
         gameProperties.setUndoEnable(false);
@@ -339,8 +330,9 @@ public class MyActivityPresenter {
     }
 
     public boolean startSavingGame(int numOfSaved) {
+        Log.d(TAG, "Started to startSavingGame().");
+
         ColorBallsApp.isProcessingJob = true;
-        gameProperties.setShowingSavingGameMessage(true);
         presentView.showMessageOnScreen(context.getString(R.string.savingGameString));
 
         boolean succeeded = true;
@@ -405,23 +397,24 @@ public class MyActivityPresenter {
                 foStream.write(0);
                 // end of writing
             }
-
             foStream.close();
+            Log.d(TAG, "Succeeded to startSavingGame().");
         } catch (IOException ex) {
             ex.printStackTrace();
             succeeded = false;
+            Log.d(TAG, "Failed to startSavingGame().");
         }
 
         ColorBallsApp.isProcessingJob = false;
-        gameProperties.setShowingSavingGameMessage(false);
         presentView.dismissShowMessageOnScreen();
+
+        Log.d(TAG, "startSavingGame() finished");
 
         return succeeded;
     }
 
     public boolean startLoadingGame() {
         ColorBallsApp.isProcessingJob = true;
-        gameProperties.setShowingLoadingGameMessage(true);
         presentView.showMessageOnScreen(context.getString(R.string.loadingGameString));
 
         boolean succeeded = true;
@@ -511,7 +504,6 @@ public class MyActivityPresenter {
         }
 
         ColorBallsApp.isProcessingJob = false;
-        gameProperties.setShowingLoadingGameMessage(false);
         presentView.dismissShowMessageOnScreen();
 
         if (succeeded) {
@@ -526,7 +518,7 @@ public class MyActivityPresenter {
             gridData.setBackupCells(backupCells);
             gameProperties.setUndoScore(unScore);
             // start update UI
-            presentView.updateCurrentScoreView(gameProperties.getCurrentScore());
+            presentView.updateCurrentScoreOnUi(gameProperties.getCurrentScore());
             displayGameView();
         }
 
@@ -714,19 +706,6 @@ public class MyActivityPresenter {
                         gameProperties.setLastGotScore(calculateScore(gridData.getLight_line().size()));
                         ShowScoreThread showScoreThread = new ShowScoreThread(gridData.getLight_line(), false);
                         showScoreThread.startShow();
-
-                        // added for testing
-                        /*
-                        Configuration configuration = getResources().getConfiguration();
-                        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE ) {
-                            Log.d(TAG, "drawBallAlongPath()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)");
-                            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                        } else {
-                            Log.d(TAG, "drawBallAlongPath()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)");
-                            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                        }
-                        //
-                        */
                     } else {
                         displayGridDataNextCells();   // has a problem
                     }
@@ -736,6 +715,18 @@ public class MyActivityPresenter {
             }
         };
         drawHandler.post(runnablePath);
+        // added for testing
+        /*
+        Configuration configuration = context.getResources().getConfiguration();
+        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE ) {
+            Log.d(TAG, "drawBallAlongPath()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)");
+            myActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        } else {
+            Log.d(TAG, "drawBallAlongPath()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)");
+            myActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+         */
+        //
     }
 
     private void drawBouncyBall(final ImageView v, final int color) {
@@ -903,7 +894,7 @@ public class MyActivityPresenter {
                         // update the UI
                         gameProperties.setUndoScore(gameProperties.getCurrentScore());
                         gameProperties.setCurrentScore(gameProperties.getCurrentScore() + gameProperties.getLastGotScore());
-                        presentView.updateCurrentScoreView(gameProperties.getCurrentScore());
+                        presentView.updateCurrentScoreOnUi(gameProperties.getCurrentScore());
                         // hide score ImageView
                         presentView.dismissShowMessageOnScreen();
                         // added on 2019-03-30

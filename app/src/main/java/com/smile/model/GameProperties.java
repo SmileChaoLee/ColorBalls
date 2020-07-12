@@ -5,8 +5,6 @@ import android.os.Parcelable;
 
 public class GameProperties implements Parcelable {
     private boolean isShowingLoadingMessage;
-    private boolean isShowingSavingGameMessage;
-    private boolean isShowingLoadingGameMessage;
     private boolean isShowingScoreMessage;
     private boolean isProcessingJob;
     private boolean isShowingNewGameDialog;
@@ -29,22 +27,6 @@ public class GameProperties implements Parcelable {
 
     public void setShowingLoadingMessage(boolean showingLoadingMessage) {
         isShowingLoadingMessage = showingLoadingMessage;
-    }
-
-    public boolean isShowingSavingGameMessage() {
-        return isShowingSavingGameMessage;
-    }
-
-    public void setShowingSavingGameMessage(boolean showingSavingGameMessage) {
-        isShowingSavingGameMessage = showingSavingGameMessage;
-    }
-
-    public boolean isShowingLoadingGameMessage() {
-        return isShowingLoadingGameMessage;
-    }
-
-    public void setShowingLoadingGameMessage(boolean showingLoadingGameMessage) {
-        isShowingLoadingGameMessage = showingLoadingGameMessage;
     }
 
     public boolean isShowingScoreMessage() {
@@ -175,8 +157,6 @@ public class GameProperties implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeByte(this.isShowingLoadingMessage ? (byte) 1 : (byte) 0);
-        dest.writeByte(this.isShowingSavingGameMessage ? (byte) 1 : (byte) 0);
-        dest.writeByte(this.isShowingLoadingGameMessage ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isShowingScoreMessage ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isProcessingJob ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isShowingNewGameDialog ? (byte) 1 : (byte) 0);
@@ -196,8 +176,6 @@ public class GameProperties implements Parcelable {
 
     public GameProperties(GridData gridData) {
         isShowingLoadingMessage = false;
-        isShowingSavingGameMessage = false;
-        isShowingLoadingGameMessage = false;
         isShowingScoreMessage = false;
         isProcessingJob = false;
         isShowingNewGameDialog = false;
@@ -217,8 +195,6 @@ public class GameProperties implements Parcelable {
 
     protected GameProperties(Parcel in) {
         this.isShowingLoadingMessage = in.readByte() != 0;
-        this.isShowingSavingGameMessage = in.readByte() != 0;
-        this.isShowingLoadingGameMessage = in.readByte() != 0;
         this.isShowingScoreMessage = in.readByte() != 0;
         this.isProcessingJob = in.readByte() != 0;
         this.isShowingNewGameDialog = in.readByte() != 0;
