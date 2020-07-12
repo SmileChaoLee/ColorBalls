@@ -28,7 +28,6 @@ import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
 
 import android.os.Looper;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -47,36 +46,23 @@ import android.widget.Toast;
 
 import com.smile.Service.MyGlobalTop10Service;
 import com.smile.Service.MyTop10ScoresService;
-import com.smile.model.GameProperties;
-import com.smile.model.GridData;
 import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate;
+import com.smile.presenters.MyActivityPresenter;
 import com.smile.smilelibraries.Models.ExitAppTimer;
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment;
-import com.smile.smilelibraries.player_record_rest.PlayerRecordRest;
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil;
 import com.smile.smilelibraries.showing_banner_ads_utility.SetBannerAdViewForAdMobOrFacebook;
 import com.smile.smilelibraries.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
 import com.smile.smilelibraries.utilities.FontAndBitmapUtil;
 import com.smile.smilelibraries.utilities.ScreenUtil;
-import com.smile.smilelibraries.utilities.SoundPoolUtil;
 
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 
-public class MyActivity extends AppCompatActivity {
+public class MyActivity extends AppCompatActivity implements MyActivityPresenter.PresentView {
 
     // private properties
     private static final String TAG = "MyActivity";
-    private static final String GamePropertiesTag = "GameProperties";
     private static final String GlobalTop10FragmentTag = "GlobalTop10FragmentTag";
     private static final String LocalTop10FragmentTag = "LocalTop10FragmentTag";
     private final int SettingActivityRequestCode = 1;
@@ -84,6 +70,7 @@ public class MyActivity extends AppCompatActivity {
     private final int GlobalTop10ActivityRequestCode = 3;
     private final int PrivacyPolicyActivityRequestCode = 10;
 
+    private MyActivityPresenter mPresenter;
     private MyActivity myActivity;
 
     private float textFontSize;
@@ -96,8 +83,6 @@ public class MyActivity extends AppCompatActivity {
 
     private Top10ScoreFragment top10ScoreFragment = null;
     private Top10ScoreFragment globalTop10Fragment = null;
-    private float mainGameViewHeight;
-    private float mainGameViewWidth;
 
     private MyBroadcastReceiver myReceiver;
     private IntentFilter myIntentFilter;
@@ -108,56 +93,31 @@ public class MyActivity extends AppCompatActivity {
 
     private ShowingInterstitialAdsUtil.ShowInterstitialAdThread showInterstitialAdThread = null;
 
-    // original from MainFragmentUI.java
     private final static String GameOverDialogTag = "GameOverDialogFragmentTag";
-    private final int nextBallsViewIdStart = 100;
-    private final String savedGameFileName = "saved_game";
 
     private ImageView scoreImageView = null;
 
-    private Runnable bouncyRunnable; // needed to be tested 2018-0609
-    private Handler bouncyHandler;   // needed to be tested
-
-    private int highestScore;
     private TextView toolbarTitleTextView;
     private TextView currentScoreView;
 
     private int rowCounts = 9;
     private int colCounts = 9;
-    private int cellWidth = 0;
-    private int cellHeight = 0;
+    // private int cellWidth = 0;
+    // private int cellHeight = 0;
 
-    private GameProperties gameProperties;
-    private GridData gridData;
+    // private GameProperties gameProperties;
+    // private GridData gridData;
     private AlertDialog saveScoreAlertDialog;
-
-    private SoundPoolUtil soundPoolUtil;
-    private String yesStr = "";
-    private String noStr = "";
-    private String nameStr = "";
-    private String submitStr = "";
-    private String cancelStr = "";
-    private String gameOverStr = "";
-
-    private String loadingString;
-    private String savingGameString;
-    private String succeededSaveGameString;
-    private String failedSaveGameString;
-    private String loadingGameString;
-    private String succeededLoadGameString;
-    private String failedLoadGameString;
-    private String sureToSaveGameString;
-    private String sureToLoadGameString;
-    private String warningSaveGameString;
-    // end of original from MainFragmentUI.java
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate() is called");
 
         myActivity = this;
+        mPresenter = new MyActivityPresenter(this, this);
+
+        super.onCreate(savedInstanceState);
 
         ColorBallsApp.InterstitialAd = new ShowingInterstitialAdsUtil(this, ColorBallsApp.facebookAds, ColorBallsApp.googleInterstitialAd);
 
@@ -168,28 +128,6 @@ public class MyActivity extends AppCompatActivity {
             // phone then change orientation to Portrait
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
-
-        yesStr = ColorBallsApp.AppResources.getString(R.string.yesStr);
-        noStr = ColorBallsApp.AppResources.getString(R.string.noStr);
-        nameStr = ColorBallsApp.AppResources.getString(R.string.nameStr);
-        submitStr = ColorBallsApp.AppResources.getString(R.string.submitStr);
-        cancelStr = ColorBallsApp.AppResources.getString(R.string.cancelStr);
-        gameOverStr = ColorBallsApp.AppResources.getString(R.string.gameOverStr);
-        loadingString = ColorBallsApp.AppResources.getString(R.string.loadingString);
-        savingGameString = ColorBallsApp.AppResources.getString(R.string.savingGameString);
-        loadingGameString = ColorBallsApp.AppResources.getString(R.string.loadingGameString);
-        succeededSaveGameString = ColorBallsApp.AppResources.getString(R.string.succeededSaveGameString);
-        failedSaveGameString = ColorBallsApp.AppResources.getString(R.string.failedSaveGameString);
-        succeededLoadGameString = ColorBallsApp.AppResources.getString(R.string.succeededLoadGameString);
-        failedLoadGameString = ColorBallsApp.AppResources.getString(R.string.failedLoadGameString);
-        sureToSaveGameString = ColorBallsApp.AppResources.getString(R.string.sureToSaveGameString);
-        sureToLoadGameString = ColorBallsApp.AppResources.getString(R.string.sureToLoadGameString);
-        warningSaveGameString = ColorBallsApp.AppResources.getString(R.string.warningSaveGameString) + " ("
-                + ColorBallsApp.Max_Saved_Games + " "
-                + ColorBallsApp.AppResources.getString(R.string.howManyTimesString) + " )"
-                + "\n" + ColorBallsApp.AppResources.getString(R.string.continueString) + "?";
-
-        soundPoolUtil = new SoundPoolUtil(this, R.raw.uhoh);
 
         setContentView(R.layout.activity_my);
 
@@ -205,15 +143,15 @@ public class MyActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch(requestCode) {
+        switch (requestCode) {
             case SettingActivityRequestCode:
                 if (resultCode == Activity.RESULT_OK) {
                     Bundle extras = data.getExtras();
                     if (extras != null) {
                         boolean hasSound = extras.getBoolean("HasSound");
-                        setHasSound(hasSound);
+                        mPresenter.setHasSound(hasSound);
                         boolean isEasyLevel = extras.getBoolean("IsEasyLevel");
-                        setIsEasyLevel(isEasyLevel);
+                        mPresenter.setIsEasyLevel(isEasyLevel);
                     }
                 }
                 break;
@@ -252,7 +190,7 @@ public class MyActivity extends AppCompatActivity {
             // Text size of Menu items use dimens
             int menuSize = menu.size();
             Menu subMenu;
-            for (int i=0; i<menuSize; i++) {
+            for (int i = 0; i < menuSize; i++) {
                 subMenu = menu.getItem(i).getSubMenu();
                 ScreenUtil.resizeMenuTextSize(subMenu, fScale);
             }
@@ -271,17 +209,17 @@ public class MyActivity extends AppCompatActivity {
 
         int id = item.getItemId();
         if (id == R.id.quitGame) {
-            quitGame(); //  exit game
+            mPresenter.quitGame(); //  exit game
             return true;
         }
         if (id == R.id.newGame) {
-            newGame();
+            mPresenter.newGame();
             return true;
         }
 
         if (!isProcessingJob) {
             if (id == R.id.undoGame) {
-                undoTheLast();
+                mPresenter.undoTheLast();
                 return super.onOptionsItemSelected(item);
             }
             if (id == R.id.top10) {
@@ -304,8 +242,8 @@ public class MyActivity extends AppCompatActivity {
                 ColorBallsApp.isProcessingJob = true;    // started procession job
                 Intent intent = new Intent(this, SettingActivity.class);
                 Bundle extras = new Bundle();
-                extras.putBoolean("HasSound", getHasSound());
-                extras.putBoolean("IsEasyLevel", getIsEasyLevel());
+                extras.putBoolean("HasSound", mPresenter.getHasSound());
+                extras.putBoolean("IsEasyLevel", mPresenter.getIsEasyLevel());
                 intent.putExtras(extras);
                 startActivityForResult(intent, SettingActivityRequestCode);
                 ColorBallsApp.isProcessingJob = false;
@@ -364,10 +302,7 @@ public class MyActivity extends AppCompatActivity {
             saveScoreAlertDialog.dismiss();
         }
 
-        gameProperties.setShowingLoadingMessage(ColorBallsApp.isShowingLoadingMessage);
-        gameProperties.setProcessingJob(ColorBallsApp.isProcessingJob);
-
-        outState.putParcelable(GamePropertiesTag, gameProperties);
+        mPresenter.onSaveInstanceState(outState);
 
         super.onSaveInstanceState(outState);
     }
@@ -433,7 +368,6 @@ public class MyActivity extends AppCompatActivity {
         */
 
         super.onDestroy();
-
     }
 
     @Override
@@ -442,10 +376,10 @@ public class MyActivity extends AppCompatActivity {
         // change back button behavior
         ExitAppTimer exitAppTimer = ExitAppTimer.getInstance(1000); // singleton class
         if (exitAppTimer.canExit()) {
-            recordScore(0);   //   from   END PROGRAM
+            mPresenter.quitGame();   //   from   END PROGRAM
         } else {
             exitAppTimer.start();
-            float toastFontSize = textFontSize*0.7f;
+            float toastFontSize = textFontSize * 0.7f;
             Log.d(TAG, "toastFontSize = " + toastFontSize);
             ScreenUtil.showToast(this, getString(R.string.backKeyToExitApp), toastFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_SHORT);
             // ShowToastMessage.showToast(this, getString(R.string.backKeyToExitApp), toastFontSize, ColorBallsApp.FontSize_Scale_Type, 2000);
@@ -484,35 +418,25 @@ public class MyActivity extends AppCompatActivity {
         }
     }
 
-    private void findOutGameViewWidthHeight() {
+    private void createGameView(Bundle savedInstanceState) {
+        // find Out Width and Height of GameView
         LinearLayout linearLayout_myActivity = findViewById(R.id.linearLayout_myActivity);
         float main_WeightSum = linearLayout_myActivity.getWeightSum();
 
         LinearLayout gameViewLinearLayout = findViewById(R.id.gameViewLinearLayout);
         LinearLayout.LayoutParams gameViewLp = (LinearLayout.LayoutParams) gameViewLinearLayout.getLayoutParams();
         float gameView_Weight = gameViewLp.weight;
-        mainGameViewHeight = screenHeight * gameView_Weight / main_WeightSum;
+        float mainGameViewHeight = screenHeight * gameView_Weight / main_WeightSum;
         Log.d(TAG, "mainGameViewHeight = " + mainGameViewHeight);
 
         float gameViewWeightSum = gameViewLinearLayout.getWeightSum();
         LinearLayout mainGameViewUiLayout = findViewById(R.id.gameViewLayout);
-        LinearLayout.LayoutParams mainGameViewtUiLayoutParams = (LinearLayout.LayoutParams)mainGameViewUiLayout.getLayoutParams();
+        LinearLayout.LayoutParams mainGameViewtUiLayoutParams = (LinearLayout.LayoutParams) mainGameViewUiLayout.getLayoutParams();
         float mainGameViewUi_weight = mainGameViewtUiLayoutParams.weight;
-        mainGameViewWidth = screenWidth * (mainGameViewUi_weight / gameViewWeightSum);
+        float mainGameViewWidth = screenWidth * (mainGameViewUi_weight / gameViewWeightSum);
         Log.d(TAG, "mainGameViewWidth = " + mainGameViewWidth);
-    }
+        //
 
-    private void createGameView(Bundle savedInstanceState) {
-        // original from MainFragmentUI.java
-        findOutGameViewWidthHeight();
-        createGameViewUI(savedInstanceState);
-        // end of original from MainFragmentUI.java
-    }
-
-
-    // original from MainFragmentUI.java
-
-    private void createGameViewUI(Bundle savedInstanceState) {
         // layout_for_game_view.xml
         float height_weightSum_GameViewUi = 100;    // default
         try {
@@ -542,23 +466,23 @@ public class MyActivity extends AppCompatActivity {
         GridLayout nextBallsLayout = findViewById(R.id.nextBallsLayout);
         int nextBallsRow = nextBallsLayout.getRowCount();
         int nextBallsColumn = nextBallsLayout.getColumnCount();
-        LinearLayout.LayoutParams nextBallsLayoutParams = (LinearLayout.LayoutParams)nextBallsLayout.getLayoutParams();
+        LinearLayout.LayoutParams nextBallsLayoutParams = (LinearLayout.LayoutParams) nextBallsLayout.getLayoutParams();
         float width_weight_nextBalls = nextBallsLayoutParams.weight;
 
-        int nextBallsViewWidth = (int)((float) mainGameViewWidth * width_weight_nextBalls / width_weightSum_scoreNextBallsLayout);   // 3/5 of screen width
+        int nextBallsViewWidth = (int) (mainGameViewWidth * width_weight_nextBalls / width_weightSum_scoreNextBallsLayout);   // 3/5 of screen width
 
         LinearLayout.LayoutParams oneNextBallLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         oneNextBallLp.width = nextBallsViewWidth / nextBallsColumn;
         // the layout_weight for height is 1
-        oneNextBallLp.height = (int)((float) mainGameViewHeight * height_weight_scoreNextBallsLayout / height_weightSum_GameViewUi);
+        oneNextBallLp.height = (int) (mainGameViewHeight * height_weight_scoreNextBallsLayout / height_weightSum_GameViewUi);
         oneNextBallLp.gravity = Gravity.CENTER;
 
         ImageView imageView;
         for (int i = 0; i < nextBallsRow; i++) {
             for (int j = 0; j < nextBallsColumn; j++) {
                 imageView = new ImageView(this);
-                imageView.setId(nextBallsViewIdStart + (nextBallsColumn * i + j));
+                imageView.setId(MyActivityPresenter.nextBallsViewIdStart + (nextBallsColumn * i + j));
                 imageView.setClickable(false);
                 imageView.setAdjustViewBounds(true);
                 imageView.setScaleType(ImageView.ScaleType.FIT_XY);
@@ -574,19 +498,19 @@ public class MyActivity extends AppCompatActivity {
         // for 9 x 9 grid: main part of this game
         GridLayout gridCellsLayout = findViewById(R.id.gridCellsLayout);
         rowCounts = gridCellsLayout.getRowCount();
-        Log.d(TAG, "createGameViewUI()-->rowCounts = " + rowCounts);
+        Log.d(TAG, "createGameView()-->rowCounts = " + rowCounts);
         colCounts = gridCellsLayout.getColumnCount();
-        Log.d(TAG, "createGameViewUI()-->colCounts = " + colCounts);
+        Log.d(TAG, "createGameView()-->colCounts = " + colCounts);
         // LinearLayout.LayoutParams gridLp = (LinearLayout.LayoutParams) gridCellsLayout.getLayoutParams();
         // float height_weight_gridCellsLayout = gridLp.weight;
 
-        cellWidth = (int)(mainGameViewWidth / colCounts);
-        int eight10thOfHeight = (int)( (float) mainGameViewHeight / height_weightSum_GameViewUi * height_weight_gridCellsLayout);
-        if ( mainGameViewWidth >  eight10thOfHeight) {
+        int cellWidth = (int) (mainGameViewWidth / colCounts);
+        int eight10thOfHeight = (int) (mainGameViewHeight / height_weightSum_GameViewUi * height_weight_gridCellsLayout);
+        if (mainGameViewWidth > eight10thOfHeight) {
             // if screen width greater than 8-10th of screen height
             cellWidth = eight10thOfHeight / rowCounts;
         }
-        cellHeight = cellWidth;
+        int cellHeight = cellWidth;
 
         // added on 2018-10-02 to test and it works
         // setting the width and the height of GridLayout by using the FrameLayout that is on top of it
@@ -617,8 +541,8 @@ public class MyActivity extends AppCompatActivity {
                 imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if ( (completedAll()) && (!ColorBallsApp.isProcessingJob) ) {
-                            doDrawBallsAndCheckListener(v);
+                        if ((mPresenter.completedAll()) && (!ColorBallsApp.isProcessingJob)) {
+                            mPresenter.doDrawBallsAndCheckListener(v);
                         }
                     }
                 });
@@ -636,359 +560,8 @@ public class MyActivity extends AppCompatActivity {
     }
 
     private void createColorBallsGame(Bundle savedInstanceState) {
-        if (ColorBallsApp.ScoreSQLiteDB != null) {
-            highestScore = ColorBallsApp.ScoreSQLiteDB.readHighestScore();
-        }
         saveScoreAlertDialog = null;
-
-        boolean isNewGame = true;
-        if (savedInstanceState == null) {
-            // activity just started so new game
-            Log.d(TAG, "Created new game.");
-            gridData = new GridData(rowCounts, colCounts, ColorBallsApp.NumOfColorsUsedByEasy);
-            gameProperties = new GameProperties(gridData);
-        } else {
-            Log.d(TAG, "Configuration changed and restore the original UI.");
-            isNewGame = false;
-            gameProperties = savedInstanceState.getParcelable(GamePropertiesTag);
-            gridData = gameProperties.getGridData();
-        }
-        ColorBallsApp.isShowingLoadingMessage = gameProperties.isShowingLoadingMessage();
-        ColorBallsApp.isProcessingJob = gameProperties.isProcessingJob();
-        toolbarTitleTextView.setText(String.format(Locale.getDefault(), "%8d", highestScore));
-        currentScoreView.setText(String.format(Locale.getDefault(), "%8d", gameProperties.getCurrentScore()));
-
-        if (isNewGame) {
-            displayGameView();
-            displayGridDataNextCells();
-        } else {
-            // display the original state before changing configuration
-            displayGameView();
-            if (ColorBallsApp.isShowingLoadingMessage) {
-                showMessageOnScreen(loadingString);
-            }
-            if (gameProperties.isShowingSavingGameMessage()) {
-                showMessageOnScreen(savingGameString);
-            }
-            if (gameProperties.isShowingLoadingGameMessage()) {
-                showMessageOnScreen(loadingGameString);
-            }
-            if (gameProperties.isShowingScoreMessage()) {
-                // String scoreString = String.valueOf(gameProperties.getLastGotScore());
-                // showMessageOnScreen(scoreString);
-                ShowScoreThread showScoreThread = new ShowScoreThread(gridData.getLight_line(), false);
-                showScoreThread.startShow();
-            }
-            if (gameProperties.getBouncingStatus() == 1) {
-                int bouncyBallIndexI = gameProperties.getBouncyBallIndexI();
-                int bouncyBallIndexJ = gameProperties.getBouncyBallIndexJ();
-                ImageView v = findViewById(bouncyBallIndexI * rowCounts + bouncyBallIndexJ);
-                drawBouncyBall(v, gridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
-            }
-
-            if (gameProperties.isShowingNewGameDialog()) {
-                Log.d(TAG, "createGameViewUI() --> show new game dialog by calling newGame()");
-                newGame();
-            }
-            if (gameProperties.isShowingQuitGameDialog()) {
-                Log.d(TAG, "createGameViewUI() --> show quit game dialog by calling quitGame()");
-                quitGame();
-            }
-        }
-    }
-
-    private boolean completedAll() {
-        for (boolean thCompleted : gameProperties.getThreadCompleted()) {
-            if (!thCompleted) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private void displayGridDataNextCells() {
-
-        gridData.randCells();
-
-        // int numOneTime = gridData.ballNumOneTime;
-        int numOneTime = GridData.ballNumOneTime;
-
-        int[] indexi = gridData.getNextCellIndexI();
-        int[] indexj = gridData.getNextCellIndexJ();
-
-        int id, n1, n2;
-        ImageView imageView;
-        for (int i = 0; i < numOneTime; i++) {
-            n1 = indexi[i];
-            n2 = indexj[i];
-            if ((n1 >= 0) && (n2 >= 0)) {
-                // id = n1 * colCounts + n2;
-                id = n1 * rowCounts + n2;
-                imageView = findViewById(id);
-                drawBall(imageView,gridData.getCellValue(n1, n2));
-            }
-        }
-
-        boolean hasMoreFive = false;
-        HashSet<Point> linkedPoint = new HashSet<>();
-        for (int i = 0; i < numOneTime; i++) {
-            n1 = indexi[i];
-            n2 = indexj[i];
-            if ((n1 >= 0) && (n2 >= 0)) {
-                if (gridData.getCellValue(n1, n2) != 0) {
-                    //   has  color in this cell
-                    if (gridData.check_moreThanFive(n1, n2) == 1) {
-                        hasMoreFive = true;
-                        for (Point point : gridData.getLight_line()) {
-                            // if (!linkedPoint.contains(point)) {
-                            linkedPoint.add(point);
-                            // }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (hasMoreFive) {
-            gameProperties.setLastGotScore(calculateScore(linkedPoint.size()));
-            ShowScoreThread showScoreThread = new ShowScoreThread(linkedPoint, true);
-            showScoreThread.startShow();
-        } else {
-            // check if game over
-            boolean gameOverYn = gridData.getGameOver();
-            if (gameOverYn) {
-                //  game over
-                AlertDialogFragment gameOverDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
-                    @Override
-                    public void noButtonOnClick(AlertDialogFragment dialogFragment) {
-                        // dialogFragment.dismiss();
-                        dialogFragment.dismissAllowingStateLoss();
-                        recordScore(0);   //   Ending the game
-                    }
-
-                    @Override
-                    public void okButtonOnClick(AlertDialogFragment dialogFragment) {
-                        // dialogFragment.dismiss();
-                        dialogFragment.dismissAllowingStateLoss();
-                        newGame();
-                    }
-                });
-                Bundle args = new Bundle();
-                args.putString("TextContent", gameOverStr);
-                args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
-                args.putFloat("TextFontSize", textFontSize);
-                args.putInt("Color", Color.BLUE);
-                args.putInt("Width", 0);    // wrap_content
-                args.putInt("Height", 0);   // wrap_content
-                args.putInt("NumButtons", 2);
-                args.putBoolean("IsAnimation", false);
-                gameOverDialog.setArguments(args);
-                gameOverDialog.show(getSupportFragmentManager(), GameOverDialogTag);
-
-                Log.d(TAG, "gameOverDialog.show() has been called.");
-            } else {
-                // game has not been over yet
-                displayNextColorBalls();
-            }
-        }
-    }
-
-    private void clearCell(int i, int j) {
-        // int id = i * colCounts + j;
-        int id = i * rowCounts + j;
-        ImageView imageView = findViewById(id);
-        // imageView.setImageDrawable(null);
-        imageView.setImageBitmap(null);
-        gridData.setCellValue(i, j, 0);
-    }
-
-    private void doDrawBallsAndCheckListener(View v) {
-
-        int i, j, id;
-        id = v.getId();
-        i = id / rowCounts;
-        j = id % rowCounts;
-        ImageView imageView;
-        if (gameProperties.getBouncingStatus() == 0) {
-            if (gridData.getCellValue(i, j) != 0) {
-                if ((gameProperties.getBouncyBallIndexI() == -1) && (gameProperties.getBouncyBallIndexJ() == -1)) {
-                    gameProperties.setBouncingStatus(1);
-                    drawBouncyBall((ImageView) v, gridData.getCellValue(i, j));
-                    gameProperties.setBouncyBallIndexI(i);
-                    gameProperties.setBouncyBallIndexJ(j);
-                }
-            }
-        } else {
-            // cancel the timer
-            if (gridData.getCellValue(i, j) == 0) {
-                //   blank cell
-                int bouncyBallIndexI = gameProperties.getBouncyBallIndexI();
-                int bouncyBallIndexJ = gameProperties.getBouncyBallIndexJ();
-                if ((bouncyBallIndexI >= 0) && (gameProperties.getBouncyBallIndexJ() >= 0)) {
-                    if (gridData.canMoveCellToCell(new Point(bouncyBallIndexI, bouncyBallIndexJ), new Point(i, j))) {
-                        // cancel the timer
-                        gameProperties.setBouncingStatus(0);
-                        cancelBouncyTimer();
-                        int color = gridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ);
-                        gridData.setCellValue(i, j, color);
-                        clearCell(bouncyBallIndexI, bouncyBallIndexJ);
-
-                        gameProperties.setBouncyBallIndexI(-1);
-                        gameProperties.setBouncyBallIndexJ(-1);
-
-                        drawBallAlongPath(i,j,color);
-
-                        gameProperties.setUndoEnable(true);
-                    } else {
-                        //    make a sound
-                        if (gameProperties.isHasSound()) {
-                            soundPoolUtil.playSound();
-                        }
-                    }
-                }
-            } else {
-                //  cell is not blank
-                int bouncyBallIndexI = gameProperties.getBouncyBallIndexI();
-                int bouncyBallIndexJ = gameProperties.getBouncyBallIndexJ();
-                if ((bouncyBallIndexI >= 0) && (bouncyBallIndexJ >= 0)) {
-
-                    // there bugs here
-                    gameProperties.setBouncingStatus(0);    // this statement should be in cancelBouncyTimer()
-                    cancelBouncyTimer();
-                    gameProperties.setBouncingStatus(1);    // this statement should be in cancelBouncyTimer()
-                    //
-
-                    imageView = findViewById(bouncyBallIndexI * rowCounts + bouncyBallIndexJ);
-                    drawBall(imageView , gridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
-                    drawBouncyBall((ImageView) v, gridData.getCellValue(i, j));
-                    gameProperties.setBouncyBallIndexI(i);
-                    gameProperties.setBouncyBallIndexJ(j);
-                }
-            }
-        }
-    }
-
-    private void drawBouncyBall(final ImageView v, final int color) {
-        bouncyHandler = new Handler(Looper.getMainLooper());
-        bouncyRunnable = new Runnable() {
-            boolean ballYN = false;
-            @Override
-            public void run() {
-                if (gameProperties.getBouncingStatus() == 1) {
-                    if (color != 0) {
-                        if (ballYN) {
-                            drawBall(v , color);
-                        } else {
-                            drawOval(v , color);
-                        }
-                        ballYN = !ballYN;
-                        bouncyHandler.postDelayed(this, 200);
-                    } else {
-                        // v.setImageResource(R.drawable.boximage);
-                        v.setImageDrawable(null);
-                    }
-                } else {
-                    cancelBouncyTimer();
-                }
-            }
-        };
-        bouncyHandler.post(bouncyRunnable);
-    }
-
-    private void cancelBouncyTimer() {
-        if (bouncyHandler != null) {
-            bouncyHandler.removeCallbacksAndMessages(null);
-            // bouncyHandler.removeCallbacks(bouncyRunnable);
-            bouncyRunnable = null;
-            bouncyHandler = null;
-        }
-        SystemClock.sleep(20);
-    }
-
-    private void drawBallAlongPath(final int ii , final int jj,final int color) {
-        if (gridData.getPathPoint().size()<=0) {
-            return;
-        }
-
-        gameProperties.getThreadCompleted()[0] = false;
-
-        final List<Point> tempList = new ArrayList<>(gridData.getPathPoint());
-        final Handler drawHandler = new Handler(Looper.getMainLooper());
-        Runnable runnablePath = new Runnable() {
-            boolean ballYN = true;
-            ImageView imageView = null;
-            int countDown = tempList.size()*2 - 1;
-            @Override
-            public void run() {
-                if (countDown >= 2) {   // eliminate start point
-                    int i = countDown / 2;
-                    imageView = findViewById(tempList.get(i).x * rowCounts + tempList.get(i).y);
-                    if (ballYN) {
-                        drawBall(imageView, color);
-                    } else {
-                        // imageView.setImageDrawable(null);
-                        imageView.setImageBitmap(null);
-                    }
-                    ballYN = !ballYN;
-                    countDown--;
-                    drawHandler.postDelayed(this,20);
-                } else {
-                    drawHandler.removeCallbacksAndMessages(null);
-                    ImageView v = findViewById(ii * rowCounts + jj);
-                    drawBall(v, gridData.getCellValue(ii, jj));
-                    //  check if there are more than five balls with same color connected together
-                    if (gridData.check_moreThanFive(ii, jj) == 1) {
-                        gameProperties.setLastGotScore(calculateScore(gridData.getLight_line().size()));
-                        ShowScoreThread showScoreThread = new ShowScoreThread(gridData.getLight_line(), false);
-                        showScoreThread.startShow();
-
-                        // added for testing
-                        /*
-                        Configuration configuration = getResources().getConfiguration();
-                        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE ) {
-                            Log.d(TAG, "drawBallAlongPath()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)");
-                            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                        } else {
-                            Log.d(TAG, "drawBallAlongPath()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)");
-                            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                        }
-                        //
-                        */
-                    } else {
-                        displayGridDataNextCells();   // has a problem
-                    }
-
-                    gameProperties.getThreadCompleted()[0] = true;
-                }
-            }
-        };
-        drawHandler.post(runnablePath);
-    }
-
-    private int calculateScore(int numBalls) {
-        // 5 balls --> 5
-        // 6 balls --> 5 + (6-5)*2
-        // 7 balls --> 5 + (6-5)*2 + (7-5)*2
-        // 8 balls --> 5 + (6-5)*2 + (7-5)*2 + (8-5)*2
-        // n balls --> 5 + (6-5)*2 + (7-5)*5 + ... + (n-5)*2
-        int minBalls = 5;
-        int minScore = 5;
-        int score = minScore;
-        if (numBalls > minScore) {
-            // greater than 5 balls
-            int rate  = 2;
-            for (int i=1 ; i<=Math.abs(numBalls-minBalls) ; i++) {
-                // rate = 2;   // added on 2018-10-02
-                score += i * rate ;
-            }
-        }
-
-        if (!gameProperties.isEasyLevel()) {
-            // difficult level
-            score = score * 2;   // double of easy level
-        }
-
-        return score;
+        boolean isNewGame = mPresenter.initializeColorBallsGame(rowCounts, colCounts, savedInstanceState);
     }
 
     private void setDialogStyle(DialogInterface dialog) {
@@ -1014,71 +587,12 @@ public class MyActivity extends AppCompatActivity {
         pBtn.setLayoutParams(layoutParams);
     }
 
-    private void drawBall(ImageView imageView, int color) {
-        imageView.setImageBitmap(ColorBallsApp.colorBallMap.get(color));
-    }
-
-    private void drawOval(ImageView imageView,int color) {
-        imageView.setImageBitmap(ColorBallsApp.colorOvalBallMap.get(color));
-    }
-
-    private void displayNextBallsView() {
-        // display the view of next balls
-        ImageView imageView;
-        // int numOneTime = gridData.ballNumOneTime;
-        int numOneTime = GridData.ballNumOneTime;
-        for (int i = 0; i < numOneTime; i++) {
-            imageView = findViewById(nextBallsViewIdStart + i);
-            drawBall(imageView, gridData.getNextBalls()[i]);
-        }
-    }
-
-    private void displayGameGridView() {
-        // display the 9 x 9 game view
-        ImageView imageView;
-        Log.d(TAG, "rowCounts = " + rowCounts);
-        Log.d(TAG, "colCounts = " + colCounts);
-        for (int i = 0; i < rowCounts; i++) {
-            for (int j = 0; j < colCounts; j++) {
-                int id = i * rowCounts + j;
-                imageView = findViewById(id);
-                int color = gridData.getCellValue(i, j);
-                if (color == 0) {
-                    // imageView.setImageDrawable(null);
-                    imageView.setImageBitmap(null);
-                } else {
-                    drawBall(imageView, color);
-                }
-            }
-        }
-    }
-
-    private void displayGameView() {
-
-        // display the view of next balls
-        displayNextBallsView();
-
-        // display the 9 x 9 game view
-        displayGameGridView();
-    }
-
-    private GridData getGridData() {
-        return this.gridData;
-    }
-
-    private void displayNextColorBalls() {
-        gridData.randColors();  //   next  balls
-        //   display the balls on the nextBallsView
-        displayNextBallsView();
-    }
-
     private void quitOrNewGame(final int entryPoint) {
         if (entryPoint==0) {
             //  END PROGRAM
             exitApplication();
         } else if (entryPoint==1) {
             //  NEW GAME
-            // createNewGame();
             createColorBallsGame(null);
         }
         ColorBallsApp.isProcessingJob = false;
@@ -1086,17 +600,6 @@ public class MyActivity extends AppCompatActivity {
 
     private void showInterstitialAdAndNewGameOrQuit(final int entryPoint) {
         if (ColorBallsApp.InterstitialAd != null) {
-            /*
-            showInterstitialAdThread = ColorBallsApp.InterstitialAd.new
-                    ShowInterstitialAdThread(entryPoint, ColorBallsApp.AdProvider, new ShowingInterstitialAdsUtil.AfterDismissFunctionOfShowAd() {
-                @Override
-                public void executeAfterDismissAds(int endPoint) {
-                    // update the main UI
-                    quitOrNewGame(endPoint);
-                }
-            });
-            showInterstitialAdThread.startShowAd();
-            */
             showInterstitialAdThread = ColorBallsApp.InterstitialAd.new
                     ShowInterstitialAdThread(entryPoint, ColorBallsApp.AdProvider);
             showInterstitialAdThread.startShowAd();
@@ -1104,324 +607,25 @@ public class MyActivity extends AppCompatActivity {
         quitOrNewGame(entryPoint);
     }
 
-    private boolean startSavingGame(int numOfSaved, final boolean isShowAd) {
-        ColorBallsApp.isProcessingJob = true;
-        gameProperties.setShowingSavingGameMessage(true);
-        showMessageOnScreen(savingGameString);
-
-        boolean succeeded = true;
-        try {
-            File outputFile = new File(ColorBallsApp.AppContext.getFilesDir(), savedGameFileName);
-            FileOutputStream foStream = new FileOutputStream(outputFile);
-            // save settings
-            if (gameProperties.isHasSound()) {
-                foStream.write(1);
-            } else {
-                foStream.write(0);
-            }
-            if (gameProperties.isEasyLevel()) {
-                foStream.write(1);
-            } else {
-                foStream.write(0);
-            }
-            // save next balls
-            // foStream.write(gridData.ballNumOneTime);
-            foStream.write(GridData.ballNumOneTime);
-            for (int i=0; i<ColorBallsApp.NumOfColorsUsedByDifficult; i++) {
-                foStream.write(gridData.getNextBalls()[i]);
-            }
-            // save values on 9x9 grid
-            for (int i=0; i<rowCounts; i++) {
-                for (int j=0; j<colCounts; j++) {
-                    foStream.write(gridData.getCellValue(i, j));
-                }
-            }
-            // save current score
-            byte[] scoreByte = ByteBuffer.allocate(4).putInt(gameProperties.getCurrentScore()).array();
-            foStream.write(scoreByte);
-            // save undoEnable
-            if (gameProperties.isUndoEnable()) {
-                // can undo
-                foStream.write(1);
-                // foStream.write(gridData.ballNumOneTime);
-                foStream.write(GridData.ballNumOneTime);
-                // save undoNextBalls
-                for (int i=0; i<ColorBallsApp.NumOfColorsUsedByDifficult; i++) {
-                    foStream.write(gridData.getUndoNextBalls()[i]);
-                }
-                // save backupCells
-                for (int i=0; i<rowCounts; i++) {
-                    for (int j=0; j<colCounts; j++) {
-                        foStream.write(gridData.getBackupCells()[i][j]);
-                    }
-                }
-                byte[] undoScoreByte = ByteBuffer.allocate(4).putInt(gameProperties.getUndoScore()).array();
-                foStream.write(undoScoreByte);
-                // end of writing
-            } else {
-                // no undo
-                foStream.write(0);
-                // end of writing
-            }
-
-            foStream.close();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            succeeded = false;
-        }
-
-        dismissShowMessageOnScreen();
-        // gameProperties.setShowingSavingGameMessage(false);
-        // ColorBallsApp.isProcessingJob = false;
-
-        String textContent;
-        if (succeeded) {
-            textContent = succeededSaveGameString;
-            numOfSaved++;
-            // save numOfSaved back to file (ColorBallsApp.NumOfSavedGameFileName)
-            try {
-                File outputFile = new File(ColorBallsApp.AppContext.getFilesDir(), ColorBallsApp.NumOfSavedGameFileName);
-                FileOutputStream foStream = new FileOutputStream(outputFile);
-                foStream.write(numOfSaved);
-                foStream.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        } else {
-            textContent = failedSaveGameString;
-        }
-        AlertDialogFragment gameSavedDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
-            @Override
-            public void noButtonOnClick(AlertDialogFragment dialogFragment) {
-                dialogFragment.dismissAllowingStateLoss();
-                gameProperties.setShowingSavingGameMessage(false);
-                ColorBallsApp.isProcessingJob = false;
-            }
-
-            @Override
-            public void okButtonOnClick(AlertDialogFragment dialogFragment) {
-                dialogFragment.dismissAllowingStateLoss();
-                if (isShowAd) {
-                    // excess 5 times saving game, then show ad
-                    showAdUntilDismissed(MyActivity.this);
-                }
-                gameProperties.setShowingSavingGameMessage(false);
-                ColorBallsApp.isProcessingJob = false;
-            }
-        });
-        Bundle args = new Bundle();
-        args.putString("TextContent", textContent);
-        args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
-        args.putFloat("TextFontSize", textFontSize);
-        args.putInt("Color", Color.BLUE);
-        args.putInt("Width", 0);    // wrap_content
-        args.putInt("Height", 0);   // wrap_content
-        args.putInt("NumButtons", 1);
-        args.putBoolean("IsAnimation", false);
-        gameSavedDialog.setArguments(args);
-
-        gameSavedDialog.show(getSupportFragmentManager(), "GameSavedDialogTag");
-
-        return succeeded;
-    }
-
-    private void startLoadingGame() {
-
-        ColorBallsApp.isProcessingJob = true;
-
-        gameProperties.setShowingLoadingGameMessage(true);
-        showMessageOnScreen(savingGameString);
-
-        boolean succeeded = true;
-        boolean soundYn = gameProperties.isHasSound();
-        boolean easyYn = gameProperties.isEasyLevel();
-        int ballNumOneTime;
-        int[] nextBalls = new int[ColorBallsApp.NumOfColorsUsedByDifficult];
-        int[][] gameCells = new int[rowCounts][colCounts];
-        int cScore = gameProperties.getCurrentScore();
-        boolean undoYn = gameProperties.isUndoEnable();
-        int[] undoNextBalls = new int[ColorBallsApp.NumOfColorsUsedByDifficult];
-        int[][] backupCells = new int[rowCounts][colCounts];
-        int unScore = gameProperties.getUndoScore();
-
-        try {
-            File inputFile = new File(ColorBallsApp.AppContext.getFilesDir(), savedGameFileName);
-            FileInputStream fiStream = new FileInputStream(inputFile);
-            int bValue = fiStream.read();
-            if (bValue == 1) {
-                // has sound
-                Log.i(TAG, "FileInputStream Read: Game has sound");
-                soundYn = true;
-            } else {
-                // has no sound
-                Log.i(TAG, "FileInputStream Read: Game has no sound");
-                soundYn = true;
-            }
-            bValue = fiStream.read();
-            if (bValue == 1) {
-                // easy level
-                Log.i(TAG, "FileInputStream Read: Game is easy level");
-                easyYn = true;
-
-            } else {
-                // difficult level
-                Log.i(TAG, "FileInputStream Read: Game is difficult level");
-                easyYn = false;
-            }
-            ballNumOneTime = fiStream.read();
-            Log.i(TAG, "FileInputStream Read: Game has " + ballNumOneTime + " next balls");
-            int ballValue;
-            for (int i=0; i<ColorBallsApp.NumOfColorsUsedByDifficult; i++) {
-                nextBalls[i] = fiStream.read();
-                Log.i(TAG, "FileInputStream Read: Next ball value = " + nextBalls[i]);
-            }
-            for (int i=0; i<rowCounts; i++) {
-                for (int j=0; j<colCounts; j++) {
-                    gameCells[i][j] = fiStream.read();
-                    Log.i(TAG, "FileInputStream Read: Value of ball at (" + i + ", " + j + ") = " + gameCells[i][j]);
-                }
-            }
-            // reading current score
-            byte[] scoreByte = new byte[4];
-            fiStream.read(scoreByte);
-            cScore = ByteBuffer.wrap(scoreByte).getInt();
-            Log.i(TAG, "FileInputStream Read: Current score = " + cScore);
-            // reading undoEnable
-            bValue = fiStream.read();
-            if (bValue == 1) {
-                // has undo data
-                Log.i(TAG, "FileInputStream Read: Game has undo data");
-                undoYn = true;
-                // undoNumOneTime = fiStream.read();
-                fiStream.read();
-                for (int i=0; i<ColorBallsApp.NumOfColorsUsedByDifficult; i++) {
-                    undoNextBalls[i] = fiStream.read();
-                }
-                // save backupCells
-                for (int i=0; i<rowCounts; i++) {
-                    for (int j=0; j<colCounts; j++) {
-                        backupCells[i][j] = fiStream.read();
-                    }
-                }
-                byte[] undoScoreByte = new byte[4];
-                fiStream.read(undoScoreByte);
-                unScore = ByteBuffer.wrap(undoScoreByte).getInt();
-                Log.i(TAG, "FileInputStream Read: undoScore = " + unScore);
-            } else {
-                // does not has undo data
-                Log.i(TAG, "FileInputStream Read: Game does not has undo data");
-                undoYn = false;
-            }
-            fiStream.close();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            succeeded = false;
-        }
-
-        dismissShowMessageOnScreen();
-        // gameProperties.setShowingLoadingGameMessage(false);
-        // ColorBallsApp.isProcessingJob = false;
-
-        String textContent;
-        if (succeeded) {
-            // reflesh Main UI with loaded data
-            textContent = succeededLoadGameString;
-            setHasSound(soundYn);
-            setIsEasyLevel(easyYn);
-            gridData.setNextBalls(nextBalls);
-            gridData.setCellValues(gameCells);
-            gameProperties.setCurrentScore(cScore);
-            gameProperties.setUndoEnable(undoYn);
-            gridData.setUndoNextBalls(undoNextBalls);
-            gridData.setBackupCells(backupCells);
-            gameProperties.setUndoScore(unScore);
-            // start update UI
-            currentScoreView.setText(String.format(Locale.getDefault(), "%8d", gameProperties.getCurrentScore()));
-            displayGameView();
-        } else {
-            textContent = failedLoadGameString;
-        }
-        AlertDialogFragment gameLoadedDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
-            @Override
-            public void noButtonOnClick(AlertDialogFragment dialogFragment) {
-                dialogFragment.dismissAllowingStateLoss();
-                gameProperties.setShowingLoadingGameMessage(false);
-                ColorBallsApp.isProcessingJob = false;
-            }
-
-            @Override
-            public void okButtonOnClick(AlertDialogFragment dialogFragment) {
-                dialogFragment.dismissAllowingStateLoss();
-                gameProperties.setShowingLoadingGameMessage(false);
-                ColorBallsApp.isProcessingJob = false;
-            }
-        });
-        Bundle args = new Bundle();
-        args.putString("TextContent", textContent);
-        args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
-        args.putFloat("TextFontSize", textFontSize);
-        args.putInt("Color", Color.BLUE);
-        args.putInt("Width", 0);    // wrap_content
-        args.putInt("Height", 0);   // wrap_content
-        args.putInt("NumButtons", 1);
-        args.putBoolean("IsAnimation", false);
-        gameLoadedDialog.setArguments(args);
-
-        gameLoadedDialog.show(getSupportFragmentManager(), "GameLoadedDialogTag");
-    }
-
-    // public methods
-    public void undoTheLast() {
-
-        if (!gameProperties.isUndoEnable()) {
-            return;
-        }
-
-        ColorBallsApp.isProcessingJob = true; // started undoing
-
-        gridData.undoTheLast();
-
-        // restore the screen
-        displayGameView();
-
-        gameProperties.setBouncingStatus(0);
-        gameProperties.setBouncyBallIndexI(-1);
-        gameProperties.setBouncyBallIndexJ(-1);
-
-        gameProperties.setCurrentScore(gameProperties.getUndoScore());
-        currentScoreView.setText( String.format(Locale.getDefault(), "%8d",gameProperties.getCurrentScore()));
-
-        // completedPath = true;
-        gameProperties.setUndoEnable(false);
-
-        ColorBallsApp.isProcessingJob = false;    // finished
-    }
-
-    public void showTop10ScoreHistory() {
+    private void showTop10ScoreHistory() {
         ColorBallsApp.isProcessingJob = true;
         ColorBallsApp.isShowingLoadingMessage = true;
-        showMessageOnScreen(loadingString);
+        showMessageOnScreen(getString(R.string.loadingString));
         Intent myService = new Intent(this, MyTop10ScoresService.class);
         startService(myService);
     }
-    public void showGlobalTop10History() {
+
+    private void showGlobalTop10History() {
         ColorBallsApp.isProcessingJob = true;
         ColorBallsApp.isShowingLoadingMessage = true;
-        showMessageOnScreen(loadingString);
+        showMessageOnScreen(getString(R.string.loadingString));
         Intent myService = new Intent(this, MyGlobalTop10Service.class);
         String webUrl = ColorBallsApp.REST_Website + "/GetTop10PlayerscoresREST";  // ASP.NET Core
         webUrl += "?gameId=" + ColorBallsApp.GameId;   // parameters
         myService.putExtra("WebUrl", webUrl);
         startService(myService);
     }
-    private void newGame() {
-        gameProperties.setShowingNewGameDialog(true);
-        recordScore(1);   //   START A NEW GAME
-    }
-    private void quitGame() {
-        gameProperties.setShowingQuitGameDialog(true);
-        recordScore(0);   //   Exit game
-    }
+
     private void saveGame() {
         AlertDialogFragment sureSaveDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
             @Override
@@ -1434,17 +638,14 @@ public class MyActivity extends AppCompatActivity {
             public void okButtonOnClick(AlertDialogFragment dialogFragment) {
                 // start saving game to internal storage
                 dialogFragment.dismissAllowingStateLoss();
-                int numOfSaved = 0;
-                try {
-                    File inputFile = new File(ColorBallsApp.AppContext.getFilesDir(), ColorBallsApp.NumOfSavedGameFileName);
-                    FileInputStream fiStream = new FileInputStream(inputFile);
-                    numOfSaved = fiStream.read();
-                    fiStream.close();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+                int numOfSaved = mPresenter.readNumberOfSaved();
                 if (numOfSaved < ColorBallsApp.Max_Saved_Games) {
-                    boolean succeeded = startSavingGame(numOfSaved, false);
+                    boolean succeeded = mPresenter.startSavingGame(numOfSaved);
+                    if (succeeded) {
+                        ScreenUtil.showToast(getApplicationContext(), getString(R.string.succeededSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                    } else {
+                        ScreenUtil.showToast(getApplicationContext(), getString(R.string.failedSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                    }
                 } else {
                     // display warning to users
                     final int finalNumOfSaved = numOfSaved;
@@ -1457,11 +658,21 @@ public class MyActivity extends AppCompatActivity {
                         @Override
                         public void okButtonOnClick(AlertDialogFragment dialogFragment) {
                             dialogFragment.dismissAllowingStateLoss();
-                            boolean succeeded = startSavingGame(finalNumOfSaved, true);
+                            boolean succeeded = mPresenter.startSavingGame(finalNumOfSaved);
+                            if (succeeded) {
+                                ScreenUtil.showToast(getApplicationContext(), getString(R.string.succeededSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                            } else {
+                                ScreenUtil.showToast(getApplicationContext(), getString(R.string.failedSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                            }
+                            showAdUntilDismissed(MyActivity.this);
                         }
                     });
                     Bundle args = new Bundle();
-                    args.putString("TextContent", warningSaveGameString); // excessive the number (5)
+                    String warningSaveGameString0 = getString(R.string.warningSaveGameString) + " ("
+                            + ColorBallsApp.Max_Saved_Games + " "
+                            + getString(R.string.howManyTimesString) + " )"
+                            + "\n" + getString(R.string.continueString) + "?";
+                    args.putString("TextContent", warningSaveGameString0); // excessive the number (5)
                     args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
                     args.putFloat("TextFontSize", textFontSize);
                     args.putInt("Color", Color.BLUE);
@@ -1475,7 +686,7 @@ public class MyActivity extends AppCompatActivity {
             }
         });
         Bundle args = new Bundle();
-        args.putString("TextContent", sureToSaveGameString);
+        args.putString("TextContent", getString(R.string.sureToSaveGameString));
         args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
         args.putFloat("TextFontSize", textFontSize);
         args.putInt("Color", Color.BLUE);
@@ -1486,6 +697,7 @@ public class MyActivity extends AppCompatActivity {
         sureSaveDialog.setArguments(args);
         sureSaveDialog.show(getSupportFragmentManager(), "SureSaveDialogTag");
     }
+
     private void loadGame() {
         AlertDialogFragment sureLoadDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
             @Override
@@ -1498,11 +710,16 @@ public class MyActivity extends AppCompatActivity {
             public void okButtonOnClick(AlertDialogFragment dialogFragment) {
                 // start loading game to internal storage
                 dialogFragment.dismissAllowingStateLoss();
-                startLoadingGame();
+                boolean succeeded = mPresenter.startLoadingGame();
+                if (succeeded) {
+                    ScreenUtil.showToast(getApplicationContext(), getString(R.string.succeededLoadGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                } else {
+                    ScreenUtil.showToast(getApplicationContext(), getString(R.string.failedLoadGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                }
             }
         });
         Bundle args = new Bundle();
-        args.putString("TextContent", sureToLoadGameString);
+        args.putString("TextContent", getString(R.string.sureToLoadGameString));
         args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
         args.putFloat("TextFontSize", textFontSize);
         args.putInt("Color", Color.BLUE);
@@ -1513,295 +730,6 @@ public class MyActivity extends AppCompatActivity {
         sureLoadDialog.setArguments(args);
         sureLoadDialog.show(getSupportFragmentManager(), "SureLoadDialogTag");
     }
-
-    public void recordScore(final int entryPoint) {
-
-        ColorBallsApp.isProcessingJob = true;
-        gameProperties.setShowingNewGameDialog(true);
-
-        final EditText et = new EditText(this);
-        et.setTextColor(Color.BLUE);
-        // et.setBackground(new ColorDrawable(Color.TRANSPARENT));
-        // et.setBackgroundColor(Color.TRANSPARENT);
-        et.setHint(nameStr);
-        ScreenUtil.resizeTextSize(et, textFontSize, ColorBallsApp.FontSize_Scale_Type);
-        et.setGravity(Gravity.CENTER);
-        saveScoreAlertDialog = new AlertDialog.Builder(this).create();
-        saveScoreAlertDialog.setTitle(null);
-        saveScoreAlertDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        saveScoreAlertDialog.setCancelable(false);
-        saveScoreAlertDialog.setView(et);
-        saveScoreAlertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, cancelStr, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                showInterstitialAdAndNewGameOrQuit(entryPoint);
-                ColorBallsApp.isProcessingJob = false;
-                gameProperties.setShowingNewGameDialog(false);
-                gameProperties.setShowingQuitGameDialog(false);
-                saveScoreAlertDialog = null;
-            }
-        });
-        saveScoreAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE, submitStr, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                // removed on 2019-02-20 no global ranking any more
-                // use thread to add a record to database (remote database on AWS-EC2)
-                Thread restThread = new Thread() {
-                    @Override
-                    public void run() {
-                        try {
-                            String webUrl = ColorBallsApp.REST_Website + "/AddOneRecordREST";   // ASP.NET Cor
-                            JSONObject jsonObject = new JSONObject();
-                            jsonObject.put("PlayerName", et.getText().toString());
-                            jsonObject.put("Score", gameProperties.getCurrentScore());
-                            jsonObject.put("GameId", ColorBallsApp.GameId);
-                            PlayerRecordRest.addOneRecord(webUrl, jsonObject);
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                            Log.d(TAG, "Failed to add one record to Playerscore table.");
-                        }
-                    }
-                };
-                restThread.start();
-
-                // modified on 2018-11-07
-                boolean isInTop10 = ColorBallsApp.ScoreSQLiteDB.isInTop10(gameProperties.getCurrentScore());
-                if (isInTop10) {
-                    // inside top 10
-                    // record the current score
-                    ColorBallsApp.ScoreSQLiteDB.addScore(et.getText().toString(),gameProperties.getCurrentScore());
-                    ColorBallsApp.ScoreSQLiteDB.deleteAllAfterTop10();  // only keep the top 10
-                }
-                //
-
-                showInterstitialAdAndNewGameOrQuit(entryPoint);
-                ColorBallsApp.isProcessingJob = false;
-                gameProperties.setShowingNewGameDialog(false);
-                gameProperties.setShowingQuitGameDialog(false);
-                saveScoreAlertDialog = null;
-            }
-        });
-
-        saveScoreAlertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                setDialogStyle(dialog);
-            }
-        });
-
-        saveScoreAlertDialog.show();
-    }
-
-    public boolean getIsEasyLevel() {
-        return gameProperties.isEasyLevel();
-    }
-
-    public void setIsEasyLevel(boolean yn) {
-        gameProperties.setEasyLevel(yn);
-        if (gameProperties.isEasyLevel()) {
-            // easy level
-            getGridData().setNumOfColorsUsed(ColorBallsApp.NumOfColorsUsedByEasy);
-        } else {
-            // difficult
-            getGridData().setNumOfColorsUsed(ColorBallsApp.NumOfColorsUsedByDifficult);
-        }
-        // displayNextColorBalls(); // removed on 2019-01-22
-    }
-
-    public boolean getHasSound() {
-        return gameProperties.isHasSound();
-    }
-    public void setHasSound(boolean hasSound) {
-        gameProperties.setHasSound(hasSound);
-    }
-    private void showMessageOnScreen(String messageString) {
-        Bitmap dialog_board_image = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
-        Bitmap showBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(dialog_board_image, messageString, Color.RED);
-        scoreImageView.setVisibility(View.VISIBLE);
-        scoreImageView.setImageBitmap(showBitmap);
-    }
-    private void dismissShowMessageOnScreen() {
-        scoreImageView.setImageBitmap(null);
-        scoreImageView.setVisibility(View.GONE);
-    }
-
-    private class ShowScoreThread extends Thread {
-
-        // private final String ScoreDialogTag = new String("ScoreDialogFragment");
-        private int numBalls = 0;
-        private int color = 0;
-        private HashSet<Point> hasPoint = null;
-        private boolean isNextBalls;
-
-        private final Handler showScoreHandler = new Handler(Looper.getMainLooper());
-        private boolean isSynchronizeFinished = false;
-
-        public ShowScoreThread(HashSet<Point> linkedPoint, boolean isNextBalls) {
-            this.isNextBalls = isNextBalls;
-            if (linkedPoint != null) {
-                hasPoint = new HashSet<>(linkedPoint);
-                Point point = hasPoint.iterator().next();
-                color = gridData.getCellValue(point.x, point.y);
-            }
-        }
-
-        private synchronized void onPreExecute() {
-            gameProperties.getThreadCompleted()[1] = false;
-            isSynchronizeFinished = false;
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    synchronized (showScoreHandler) {
-                        isSynchronizeFinished = true;
-                        showScoreHandler.notifyAll();
-                        Log.d(TAG, "ShowScoreThread-->onPreExecute() --> notifyAll()");
-                    }
-                }
-            });
-            synchronized (showScoreHandler) {
-                while (!isSynchronizeFinished) {
-                    try {
-                        Log.d(TAG, "ShowScoreThread-->onPreExecute() --> wait()");
-                        showScoreHandler.wait();
-                    } catch (InterruptedException e) {
-                        Log.d(TAG, "ShowScoreThread-->onPreExecute() wait exception");
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            Log.d(TAG, "ShowScoreThread-->onPreExecute() is finished.");
-        }
-
-        private synchronized void doInBackground() {
-            if (hasPoint != null) {
-                int twinkleCountDown = 5;
-                for (int i = 1; i <= twinkleCountDown; i++) {
-                    int md = i % 2; // modulus
-                    onProgressUpdate(md);
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-                onProgressUpdate(2);
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-                onProgressUpdate(3);
-            } else {
-                Log.d(TAG, "ShowScoreThread-->doInBackground()-->hasPoint is null.");
-            }
-            Log.d(TAG, "ShowScoreThread-->doInBackground() is finished.");
-        }
-
-        private synchronized void onProgressUpdate(int status) {
-            if (hasPoint != null) {
-                isSynchronizeFinished = false;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        synchronized (showScoreHandler) {
-                            switch (status) {
-                                case 0:
-                                    for (Point item : hasPoint) {
-                                        ImageView v = findViewById(item.x * rowCounts + item.y);
-                                        drawBall(v, color);
-                                    }
-                                    break;
-                                case 1:
-                                    for (Point item : hasPoint) {
-                                        ImageView v = findViewById(item.x * rowCounts + item.y);
-                                        drawOval(v, color);
-                                    }
-                                    break;
-                                case 2:
-                                case 3:
-                                    // show the score
-                                    String scoreString = String.valueOf(gameProperties.getLastGotScore());
-                                    showMessageOnScreen(scoreString);
-                                    break;
-                            }
-                            isSynchronizeFinished = true;
-                            showScoreHandler.notifyAll();
-                            Log.d(TAG, "ShowScoreThread-->onProgressUpdate() --> notifyAll()");
-                        }
-                    }
-                });
-                synchronized (showScoreHandler) {
-                    while (!isSynchronizeFinished) {
-                        try {
-                            Log.d(TAG, "ShowScoreThread-->onProgressUpdate() --> wait()");
-                            showScoreHandler.wait();
-                        } catch (InterruptedException e) {
-                            Log.d(TAG, "ShowScoreThread-->onProgressUpdate() wait exception");
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            } else {
-                Log.d(TAG, "ShowScoreThread-->onProgressUpdate()-->hasPoint is null.");
-            }
-            Log.d(TAG, "ShowScoreThread-->onProgressUpdate() is finished.");
-        }
-
-        private synchronized void onPostExecute() {
-            if (hasPoint != null) {
-                myActivity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // clear values of cells
-                        for (Point item : hasPoint) {
-                            clearCell(item.x, item.y);
-                        }
-                        // update the UI
-                        gameProperties.setUndoScore(gameProperties.getCurrentScore());
-                        gameProperties.setCurrentScore(gameProperties.getCurrentScore() + gameProperties.getLastGotScore());
-                        currentScoreView.setText(String.format(Locale.getDefault(), "%8d", gameProperties.getCurrentScore()));
-                        // hide score ImageView
-                        dismissShowMessageOnScreen();
-                        // added on 2019-03-30
-                        if (isNextBalls) {
-                            displayNextColorBalls();
-                        }
-
-                        gameProperties.getThreadCompleted()[1] = true;  // user can start input command
-                        gameProperties.setShowingScoreMessage(false);
-
-                        Log.d(TAG, "ShowScoreThread-->onPostExecute()-->hasPoint is not null.");
-                        Log.d(TAG, "ShowScoreThread-->onPostExecute() is finished.");
-                    }
-                });
-            } else {
-                gameProperties.getThreadCompleted()[1] = true;  // user can start input command
-                gameProperties.setShowingScoreMessage(false);
-
-                Log.d(TAG, "ShowScoreThread-->onPostExecute()-->hasPoint is null.");
-                Log.d(TAG, "ShowScoreThread-->onPostExecute() is finished.");
-            }
-        }
-
-        @Override
-        public synchronized void run() {
-            super.run();
-            onPreExecute();
-            doInBackground();
-            onPostExecute();
-        }
-
-        public void startShow() {
-            gameProperties.setShowingScoreMessage(true);
-            start();
-        }
-    }
-
-    // end of original from MainFragmentUI.java
-
 
     private void setBannerAndNativeAdUI() {
         bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
@@ -1836,7 +764,7 @@ public class MyActivity extends AppCompatActivity {
         localBroadcastManager.registerReceiver(myReceiver, myIntentFilter);
     }
 
-    public void exitApplication() {
+    private void exitApplication() {
         final Handler handlerClose = new Handler(Looper.getMainLooper());
         final int timeDelay = 200;
         handlerClose.postDelayed( ()-> {
@@ -1845,7 +773,7 @@ public class MyActivity extends AppCompatActivity {
         },timeDelay);
     }
 
-    public void showAdUntilDismissed(Activity activity) {
+    private void showAdUntilDismissed(Activity activity) {
         if (ColorBallsApp.InterstitialAd == null) {
             return;
         }
@@ -1853,6 +781,114 @@ public class MyActivity extends AppCompatActivity {
         showInterstitialAdThread = ColorBallsApp.InterstitialAd.new ShowInterstitialAdThread(0, ColorBallsApp.AdProvider);
         showInterstitialAdThread.startShowAd();
     }
+
+    // implementing MyActivity.PresentView
+
+    @Override
+    public ImageView getImageViewById(int id) {
+        return findViewById(id);
+    }
+
+    public void updateToolbarTitleTextView(int highestScore) {
+        toolbarTitleTextView.setText(String.format(Locale.getDefault(), "%8d", highestScore));
+    }
+
+    @Override
+    public void updateCurrentScoreView(int score) {
+        currentScoreView.setText(String.format(Locale.getDefault(), "%8d", score));
+    }
+
+    @Override
+    public void showMessageOnScreen(String messageString) {
+        Bitmap dialog_board_image = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
+        Bitmap showBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(dialog_board_image, messageString, Color.RED);
+        scoreImageView.setVisibility(View.VISIBLE);
+        scoreImageView.setImageBitmap(showBitmap);
+    }
+
+    @Override
+    public void dismissShowMessageOnScreen() {
+        scoreImageView.setImageBitmap(null);
+        scoreImageView.setVisibility(View.GONE);
+    }
+
+    public void showGameOverDialog() {
+        AlertDialogFragment gameOverDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
+            @Override
+            public void noButtonOnClick(AlertDialogFragment dialogFragment) {
+                // dialogFragment.dismiss();
+                dialogFragment.dismissAllowingStateLoss();
+                mPresenter.quitGame();   //   Ending the game
+            }
+
+            @Override
+            public void okButtonOnClick(AlertDialogFragment dialogFragment) {
+                // dialogFragment.dismiss();
+                dialogFragment.dismissAllowingStateLoss();
+                mPresenter.newGame();
+            }
+        });
+        Bundle args = new Bundle();
+        args.putString("TextContent", getString(R.string.gameOverStr));
+        args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
+        args.putFloat("TextFontSize", textFontSize);
+        args.putInt("Color", Color.BLUE);
+        args.putInt("Width", 0);    // wrap_content
+        args.putInt("Height", 0);   // wrap_content
+        args.putInt("NumButtons", 2);
+        args.putBoolean("IsAnimation", false);
+        gameOverDialog.setArguments(args);
+        gameOverDialog.show(getSupportFragmentManager(), GameOverDialogTag);
+
+        Log.d(TAG, "gameOverDialog.show() has been called.");
+    }
+
+    @Override
+    public void showSaveScoreAlertDialog(final int entryPoint, final int score) {
+        mPresenter.setSaveScoreAlertDialogState(entryPoint, true);
+        final EditText et = new EditText(this);
+        et.setTextColor(Color.BLUE);
+        // et.setBackground(new ColorDrawable(Color.TRANSPARENT));
+        // et.setBackgroundColor(Color.TRANSPARENT);
+        et.setHint(getString(R.string.nameStr));
+        ScreenUtil.resizeTextSize(et, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        et.setGravity(Gravity.CENTER);
+        saveScoreAlertDialog = new AlertDialog.Builder(this).create();
+        saveScoreAlertDialog.setTitle(null);
+        saveScoreAlertDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        saveScoreAlertDialog.setCancelable(false);
+        saveScoreAlertDialog.setView(et);
+        saveScoreAlertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancelStr), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                showInterstitialAdAndNewGameOrQuit(entryPoint);
+                mPresenter.setSaveScoreAlertDialogState(entryPoint, false);
+                saveScoreAlertDialog = null;
+            }
+        });
+        saveScoreAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.submitStr), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                mPresenter.saveScore(et.getText().toString(), score);
+                dialog.dismiss();
+                showInterstitialAdAndNewGameOrQuit(entryPoint);
+                mPresenter.setSaveScoreAlertDialogState(entryPoint, false);
+                saveScoreAlertDialog = null;
+            }
+        });
+
+        saveScoreAlertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                setDialogStyle(dialog);
+            }
+        });
+
+        saveScoreAlertDialog.show();
+    }
+
+    // end of implementing
 
     private class MyBroadcastReceiver extends BroadcastReceiver {
         private final String SUCCEEDED = "0";
