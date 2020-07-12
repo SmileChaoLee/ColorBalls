@@ -71,7 +71,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     private final int PrivacyPolicyActivityRequestCode = 10;
 
     private MyActivityPresenter mPresenter;
-    private MyActivity myActivity;
 
     private float textFontSize;
     private float fontScale;
@@ -114,7 +113,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate() is called");
 
-        myActivity = this;
         mPresenter = new MyActivityPresenter(this, this);
 
         super.onCreate(savedInstanceState);
@@ -123,10 +121,10 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
         if (ScreenUtil.isTablet(this)) {
             // Table then change orientation to Landscape
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         } else {
             // phone then change orientation to Portrait
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
 
         setContentView(R.layout.activity_my);
@@ -789,12 +787,12 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         return findViewById(id);
     }
 
-    public void updateToolbarTitleTextView(int highestScore) {
+    public void updateHighestScoreOnUi(int highestScore) {
         toolbarTitleTextView.setText(String.format(Locale.getDefault(), "%8d", highestScore));
     }
 
     @Override
-    public void updateCurrentScoreView(int score) {
+    public void updateCurrentScoreOnUi(int score) {
         currentScoreView.setText(String.format(Locale.getDefault(), "%8d", score));
     }
 

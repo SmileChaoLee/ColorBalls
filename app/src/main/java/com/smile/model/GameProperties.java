@@ -6,6 +6,7 @@ import android.os.Parcelable;
 public class GameProperties implements Parcelable {
     private boolean isShowingLoadingMessage;
     private boolean isShowingScoreMessage;
+    private boolean isShowNextBallsAfterBlinking;
     private boolean isProcessingJob;
     private boolean isShowingNewGameDialog;
     private boolean isShowingQuitGameDialog;
@@ -35,6 +36,14 @@ public class GameProperties implements Parcelable {
 
     public void setShowingScoreMessage(boolean isShowingScoreMessage) {
         this.isShowingScoreMessage = isShowingScoreMessage;
+    }
+
+    public boolean isShowNextBallsAfterBlinking() {
+        return isShowNextBallsAfterBlinking;
+    }
+
+    public void setShowNextBallsAfterBlinking(boolean isShowNextBallsAfterBlinking) {
+        this.isShowNextBallsAfterBlinking = isShowNextBallsAfterBlinking;
     }
 
     public boolean isProcessingJob() {
@@ -158,6 +167,7 @@ public class GameProperties implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeByte(this.isShowingLoadingMessage ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isShowingScoreMessage ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isShowNextBallsAfterBlinking ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isProcessingJob ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isShowingNewGameDialog ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isShowingQuitGameDialog ? (byte) 1 : (byte) 0);
@@ -177,6 +187,7 @@ public class GameProperties implements Parcelable {
     public GameProperties(GridData gridData) {
         isShowingLoadingMessage = false;
         isShowingScoreMessage = false;
+        isShowNextBallsAfterBlinking = false;
         isProcessingJob = false;
         isShowingNewGameDialog = false;
         isShowingQuitGameDialog = false;
@@ -196,6 +207,7 @@ public class GameProperties implements Parcelable {
     protected GameProperties(Parcel in) {
         this.isShowingLoadingMessage = in.readByte() != 0;
         this.isShowingScoreMessage = in.readByte() != 0;
+        this.isShowNextBallsAfterBlinking = in.readByte() != 0;
         this.isProcessingJob = in.readByte() != 0;
         this.isShowingNewGameDialog = in.readByte() != 0;
         this.isShowingQuitGameDialog = in.readByte() != 0;

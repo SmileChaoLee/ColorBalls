@@ -171,7 +171,7 @@ public class MyActivityPresenter {
             }
             //
             if (gameProperties.isShowingScoreMessage()) {
-                ShowScoreThread showScoreThread = new ShowScoreThread(gridData.getLight_line(), false);
+                ShowScoreThread showScoreThread = new ShowScoreThread(gridData.getLight_line(), gameProperties.isShowNextBallsAfterBlinking());
                 showScoreThread.startShow();
             }
             if (gameProperties.getBouncingStatus() == 1) {
@@ -777,6 +777,7 @@ public class MyActivityPresenter {
                 Point point = hasPoint.iterator().next();
                 color = gridData.getCellValue(point.x, point.y);
             }
+            gameProperties.setShowNextBallsAfterBlinking(this.isNextBalls);
         }
 
         private synchronized void onPreExecute() {
