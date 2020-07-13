@@ -13,7 +13,8 @@ public class GameProperties implements Parcelable {
     private boolean[] threadCompleted;
     private int bouncyBallIndexI;
     private int bouncyBallIndexJ;
-    private int bouncingStatus;
+    private boolean isBallBouncing;
+    private boolean isBallMoving;
     private boolean undoEnable;
     private int currentScore;
     private int undoScore;
@@ -94,12 +95,20 @@ public class GameProperties implements Parcelable {
         this.bouncyBallIndexJ = bouncyBallIndexJ;
     }
 
-    public int getBouncingStatus() {
-        return bouncingStatus;
+    public boolean isBallBouncing() {
+        return isBallBouncing;
     }
 
-    public void setBouncingStatus(int bouncingStatus) {
-        this.bouncingStatus = bouncingStatus;
+    public void setBallBouncing(boolean isBallBouncing) {
+        this.isBallBouncing = isBallBouncing;
+    }
+
+    public boolean isBallMoving() {
+        return isBallMoving;
+    }
+
+    public void setBallMoving(boolean isBallMoving) {
+        this.isBallMoving = isBallMoving;
     }
 
     public boolean isUndoEnable() {
@@ -174,7 +183,8 @@ public class GameProperties implements Parcelable {
         dest.writeBooleanArray(this.threadCompleted);
         dest.writeInt(this.bouncyBallIndexI);
         dest.writeInt(this.bouncyBallIndexJ);
-        dest.writeInt(this.bouncingStatus);
+        dest.writeByte(this.isBallBouncing ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isBallMoving ? (byte) 1 : (byte) 0);
         dest.writeByte(this.undoEnable ? (byte) 1 : (byte) 0);
         dest.writeInt(this.currentScore);
         dest.writeInt(this.undoScore);
@@ -194,7 +204,8 @@ public class GameProperties implements Parcelable {
         threadCompleted = new boolean[] {true,true,true,true,true,true,true,true,true,true};
         bouncyBallIndexI = -1;
         bouncyBallIndexJ = -1;  // the array index that the ball has been selected
-        bouncingStatus = 0;     //  no cell selected
+        isBallBouncing = false;     //  no cell selected
+        isBallMoving = false;
         undoEnable = false;
         currentScore = 0;
         undoScore = 0;
@@ -214,7 +225,8 @@ public class GameProperties implements Parcelable {
         this.threadCompleted = in.createBooleanArray();
         this.bouncyBallIndexI = in.readInt();
         this.bouncyBallIndexJ = in.readInt();
-        this.bouncingStatus = in.readInt();
+        this.isBallBouncing = in.readByte() != 0;
+        this.isBallMoving = in.readByte() != 0;
         this.undoEnable = in.readByte() != 0;
         this.currentScore = in.readInt();
         this.undoScore = in.readInt();

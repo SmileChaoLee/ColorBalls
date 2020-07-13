@@ -47,6 +47,8 @@ public class MyActivityPresenter {
     private final Activity myActivity;
     private final SoundPoolUtil soundPoolUtil;
     private final Handler bouncyHandler = new Handler(Looper.getMainLooper());
+    private final Handler movingBallHandler = new Handler(Looper.getMainLooper());
+    private final Handler showingScoreHandler = new Handler(Looper.getMainLooper());
 
     private int rowCounts, colCounts;
     private GameProperties gameProperties;
@@ -76,10 +78,10 @@ public class MyActivityPresenter {
         i = id / rowCounts;
         j = id % rowCounts;
         ImageView imageView;
-        if (gameProperties.getBouncingStatus() == 0) {
+        if (!gameProperties.isBallBouncing()) {
             if (gridData.getCellValue(i, j) != 0) {
                 if ((gameProperties.getBouncyBallIndexI() == -1) && (gameProperties.getBouncyBallIndexJ() == -1)) {
-                    gameProperties.setBouncingStatus(1);
+                    gameProperties.setBallBouncing(true);
                     drawBouncyBall((ImageView) v, gridData.getCellValue(i, j));
                     gameProperties.setBouncyBallIndexI(i);
                     gameProperties.setBouncyBallIndexJ(j);
@@ -91,19 +93,24 @@ public class MyActivityPresenter {
                 //   blank cell
                 int bouncyBallIndexI = gameProperties.getBouncyBallIndexI();
                 int bouncyBallIndexJ = gameProperties.getBouncyBallIndexJ();
-                if ((bouncyBallIndexI >= 0) && (gameProperties.getBouncyBallIndexJ() >= 0)) {
+                if ((bouncyBallIndexI >= 0) && (bouncyBallIndexJ >= 0)) {
                     if (gridData.canMoveCellToCell(new Point(bouncyBallIndexI, bouncyBallIndexJ), new Point(i, j))) {
                         // cancel the timer
-                        gameProperties.setBouncingStatus(0);
+                        gameProperties.setBallBouncing(false);
                         cancelBouncyTimer();
+
+                        // moved drawBallAlongPath() on 2020-07-12
+                        /*
                         int color = gridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ);
                         gridData.setCellValue(i, j, color);
                         clearCell(bouncyBallIndexI, bouncyBallIndexJ);
+                        */
 
                         gameProperties.setBouncyBallIndexI(-1);
                         gameProperties.setBouncyBallIndexJ(-1);
 
-                        drawBallAlongPath(i,j,color);
+                        // drawBallAlongPath(i,j,color);
+                        drawBallAlongPath();
 
                         gameProperties.setUndoEnable(true);
                     } else {
@@ -118,13 +125,7 @@ public class MyActivityPresenter {
                 int bouncyBallIndexI = gameProperties.getBouncyBallIndexI();
                 int bouncyBallIndexJ = gameProperties.getBouncyBallIndexJ();
                 if ((bouncyBallIndexI >= 0) && (bouncyBallIndexJ >= 0)) {
-
-                    // there bugs here
-                    gameProperties.setBouncingStatus(0);    // this statement should be in cancelBouncyTimer()
                     cancelBouncyTimer();
-                    gameProperties.setBouncingStatus(1);    // this statement should be in cancelBouncyTimer()
-                    //
-
                     imageView = presentView.getImageViewById(bouncyBallIndexI * rowCounts + bouncyBallIndexJ);
                     drawBall(imageView , gridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
                     drawBouncyBall((ImageView) v, gridData.getCellValue(i, j));
@@ -170,11 +171,17 @@ public class MyActivityPresenter {
                 presentView.showMessageOnScreen(context.getString(R.string.loadingString));
             }
             //
-            if (gameProperties.isShowingScoreMessage()) {
-                ShowScoreThread showScoreThread = new ShowScoreThread(gridData.getLight_line(), gameProperties.isShowNextBallsAfterBlinking());
-                showScoreThread.startShow();
+            if (gameProperties.isBallMoving()) {
+                Log.d(TAG, "initializeColorBallsGame() --> gameProperties.isBallMoving() is true");
+                drawBallAlongPath();
             }
-            if (gameProperties.getBouncingStatus() == 1) {
+            if (gameProperties.isShowingScoreMessage()) {
+                Log.d(TAG, "initializeColorBallsGame() --> gameProperties.isShowingScoreMessage() is true");
+                ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(gameProperties.getLastGotScore(), gameProperties.getCurrentScore(), gridData.getLight_line(), gameProperties.isShowNextBallsAfterBlinking());
+                showingScoreHandler.post(showScoreRunnable);
+                Log.d(TAG,"initializeColorBallsGame() --> showingScoreHandler.post(showScoreRunnable).");
+            }
+            if (gameProperties.isBallBouncing()) {
                 int bouncyBallIndexI = gameProperties.getBouncyBallIndexI();
                 int bouncyBallIndexJ = gameProperties.getBouncyBallIndexJ();
                 ImageView v = presentView.getImageViewById(bouncyBallIndexI * rowCounts + bouncyBallIndexJ);
@@ -182,11 +189,11 @@ public class MyActivityPresenter {
             }
 
             if (gameProperties.isShowingNewGameDialog()) {
-                Log.d(TAG, "createGameView() --> show new game dialog by calling newGame()");
+                Log.d(TAG, "initializeColorBallsGame() --> show new game dialog by calling newGame()");
                 newGame();
             }
             if (gameProperties.isShowingQuitGameDialog()) {
-                Log.d(TAG, "createGameView() --> show quit game dialog by calling quitGame()");
+                Log.d(TAG, "initializeColorBallsGame() --> show quit game dialog by calling quitGame()");
                 quitGame();
             }
         }
@@ -252,7 +259,7 @@ public class MyActivityPresenter {
         // restore the screen
         displayGameView();
 
-        gameProperties.setBouncingStatus(0);
+        gameProperties.setBallBouncing(false);
         gameProperties.setBouncyBallIndexI(-1);
         gameProperties.setBouncyBallIndexJ(-1);
 
@@ -525,6 +532,23 @@ public class MyActivityPresenter {
         return succeeded;
     }
 
+    public void release() {
+
+        cancelBouncyTimer();
+
+        if (showingScoreHandler != null) {
+            showingScoreHandler.removeCallbacksAndMessages(null);
+        }
+
+        if (movingBallHandler != null) {
+            movingBallHandler.removeCallbacksAndMessages(null);
+        }
+
+        if (soundPoolUtil != null) {
+            soundPoolUtil.release();
+        }
+    }
+
     private int calculateScore(int numBalls) {
         // 5 balls --> 5
         // 6 balls --> 5 + (6-5)*2
@@ -616,9 +640,7 @@ public class MyActivityPresenter {
                     if (gridData.check_moreThanFive(n1, n2) == 1) {
                         hasMoreFive = true;
                         for (Point point : gridData.getLight_line()) {
-                            // if (!linkedPoint.contains(point)) {
                             linkedPoint.add(point);
-                            // }
                         }
                     }
                 }
@@ -626,9 +648,16 @@ public class MyActivityPresenter {
         }
 
         if (hasMoreFive) {
-            gameProperties.setLastGotScore(calculateScore(linkedPoint.size()));
-            ShowScoreThread showScoreThread = new ShowScoreThread(linkedPoint, true);
-            showScoreThread.startShow();
+            gridData.setLight_line(linkedPoint);    // added on 2020-07-13
+            // gameProperties.setLastGotScore(calculateScore(linkedPoint.size()));
+            gameProperties.setLastGotScore(calculateScore(gridData.getLight_line().size()));
+            gameProperties.setUndoScore(gameProperties.getCurrentScore());
+            gameProperties.setCurrentScore(gameProperties.getCurrentScore() + gameProperties.getLastGotScore());
+            presentView.updateCurrentScoreOnUi(gameProperties.getCurrentScore());
+            // ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(gameProperties.getLastGotScore(), gameProperties.getCurrentScore(), linkedPoint, true);
+            ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(gameProperties.getLastGotScore(), gameProperties.getCurrentScore(), gridData.getLight_line(), true);
+            showingScoreHandler.post(showScoreRunnable);
+            Log.d(TAG,"displayGridDataNextCells() --> showingScoreHandler.post(showScoreRunnable).");
         } else {
             // check if game over
             boolean gameOverYn = gridData.getGameOver();
@@ -671,14 +700,23 @@ public class MyActivityPresenter {
         displayGameGridView();
     }
 
-    private void drawBallAlongPath(final int ii , final int jj,final int color) {
-        if (gridData.getPathPoint().size()<=0) {
+    // private void drawBallAlongPath(final int i , final int j, final int col) {
+    private void drawBallAlongPath() {
+        int sizeOfPathPoint = gridData.getPathPoint().size();
+        if (sizeOfPathPoint<=0) {
             return;
         }
+
+        final int ii = gridData.getPathPoint().get(0).x;  // the target point
+        final int jj = gridData.getPathPoint().get(0).y;  // the target point
+        final int beginI = gridData.getPathPoint().get(sizeOfPathPoint-1).x;
+        final int beginJ = gridData.getPathPoint().get(sizeOfPathPoint-1).y;
+        final int color = gridData.getCellValue(beginI, beginJ);
+        Log.d(TAG,"drawBallAlongPath() --> gridData.getCellValue(gridData.getPathPoint().get(sizeOfPathPoint-1).x, gridData.getPathPoint().get(sizeOfPathPoint-1).y) = " + color);
         gameProperties.getThreadCompleted()[0] = false;
+        gameProperties.setBallMoving(true);
 
         final List<Point> tempList = new ArrayList<>(gridData.getPathPoint());
-        final Handler drawHandler = new Handler(Looper.getMainLooper());
         Runnable runnablePath = new Runnable() {
             boolean ballYN = true;
             ImageView imageView = null;
@@ -691,42 +729,58 @@ public class MyActivityPresenter {
                     if (ballYN) {
                         drawBall(imageView, color);
                     } else {
-                        // imageView.setImageDrawable(null);
                         imageView.setImageBitmap(null);
                     }
                     ballYN = !ballYN;
                     countDown--;
-                    drawHandler.postDelayed(this,20);
+                    movingBallHandler.postDelayed(this,20);
+                    Log.d(TAG,"drawBallAlongPath() --> ballMovingHandler.postDelayed()");
                 } else {
-                    drawHandler.removeCallbacksAndMessages(null);
+                    movingBallHandler.removeCallbacksAndMessages(null);
+
+                    clearCell(beginI, beginJ);
                     ImageView v = presentView.getImageViewById(ii * rowCounts + jj);
-                    drawBall(v, gridData.getCellValue(ii, jj));
+                    gridData.setCellValue(ii, jj, color);
+                    drawBall(v, color);
+                    // drawBall(v, gridData.getCellValue(ii, jj));
+
                     //  check if there are more than five balls with same color connected together
                     if (gridData.check_moreThanFive(ii, jj) == 1) {
                         gameProperties.setLastGotScore(calculateScore(gridData.getLight_line().size()));
-                        ShowScoreThread showScoreThread = new ShowScoreThread(gridData.getLight_line(), false);
-                        showScoreThread.startShow();
+                        gameProperties.setUndoScore(gameProperties.getCurrentScore());
+                        gameProperties.setCurrentScore(gameProperties.getCurrentScore() + gameProperties.getLastGotScore());
+                        presentView.updateCurrentScoreOnUi(gameProperties.getCurrentScore());
+                        ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(gameProperties.getLastGotScore(), gameProperties.getCurrentScore(), gridData.getLight_line(), false);
+                        showingScoreHandler.post(showScoreRunnable);
+                        Log.d(TAG,"drawBallAlongPath() --> showingScoreHandler.post(showScoreRunnable).");
+
+                        // added for testing
+                        /*
+                        SystemClock.sleep(200);
+                        Configuration configuration = context.getResources().getConfiguration();
+                        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                            Log.d(TAG, "drawBallAlongPath()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)");
+                            myActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                        } else {
+                            Log.d(TAG, "drawBallAlongPath()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)");
+                            myActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                        }
+                        */
+                        //
                     } else {
                         displayGridDataNextCells();   // has a problem
+                        Log.d(TAG,"drawBallAlongPath() --> displayGridDataNextCells().");
                     }
 
                     gameProperties.getThreadCompleted()[0] = true;
+                    gameProperties.setBallMoving(false);
+
+                    Log.d(TAG,"drawBallAlongPath() --> run() finished.");
                 }
             }
         };
-        drawHandler.post(runnablePath);
-        // added for testing
-        /*
-        Configuration configuration = context.getResources().getConfiguration();
-        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE ) {
-            Log.d(TAG, "drawBallAlongPath()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)");
-            myActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        } else {
-            Log.d(TAG, "drawBallAlongPath()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)");
-            myActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        }
-         */
-        //
+        movingBallHandler.post(runnablePath);
+        Log.d(TAG,"drawBallAlongPath() --> ballMovingHandler.post()");
     }
 
     private void drawBouncyBall(final ImageView v, final int color) {
@@ -734,7 +788,7 @@ public class MyActivityPresenter {
             boolean ballYN = false;
             @Override
             public void run() {
-                if (gameProperties.getBouncingStatus() == 1) {
+                // if (gameProperties.isBallBouncing()) {   // no need
                     if (color != 0) {
                         if (ballYN) {
                             drawBall(v , color);
@@ -747,9 +801,9 @@ public class MyActivityPresenter {
                         // v.setImageResource(R.drawable.boximage);
                         v.setImageDrawable(null);
                     }
-                } else {
-                    cancelBouncyTimer();
-                }
+                // } else {
+                //     cancelBouncyTimer();
+                // }
             }
         };
         bouncyHandler.post(bouncyRunnable);
@@ -762,174 +816,92 @@ public class MyActivityPresenter {
         SystemClock.sleep(20);
     }
 
-    private class ShowScoreThread extends Thread {
-        private int color = 0;
+    private class ShowScoreRunnable implements Runnable {
+        private final int color;
+        private final int lastGotScore;
+        private final int currentScore;
         private HashSet<Point> hasPoint = null;
         private boolean isNextBalls;
 
-        private final Handler showScoreHandler = new Handler(Looper.getMainLooper());
-        private boolean isSynchronizeFinished = false;
+        private int twinkleCountDown = 5;
+        private int counter = 0;
 
-        public ShowScoreThread(HashSet<Point> linkedPoint, boolean isNextBalls) {
+        public ShowScoreRunnable(int lastGotScore, int currentScore, HashSet<Point> linkedPoint, boolean isNextBalls) {
+            this.lastGotScore = lastGotScore;
+            this.currentScore = currentScore;
             this.isNextBalls = isNextBalls;
+            int colorTmp = 0;
             if (linkedPoint != null) {
                 hasPoint = new HashSet<>(linkedPoint);
                 Point point = hasPoint.iterator().next();
-                color = gridData.getCellValue(point.x, point.y);
+                colorTmp = gridData.getCellValue(point.x, point.y);
             }
+            color = colorTmp;
+
             gameProperties.setShowNextBallsAfterBlinking(this.isNextBalls);
-        }
-
-        private synchronized void onPreExecute() {
             gameProperties.getThreadCompleted()[1] = false;
-            isSynchronizeFinished = false;
-            myActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    synchronized (showScoreHandler) {
-                        isSynchronizeFinished = true;
-                        showScoreHandler.notifyAll();
-                        Log.d(TAG, "ShowScoreThread-->onPreExecute() --> notifyAll()");
-                    }
-                }
-            });
-            synchronized (showScoreHandler) {
-                while (!isSynchronizeFinished) {
-                    try {
-                        Log.d(TAG, "ShowScoreThread-->onPreExecute() --> wait()");
-                        showScoreHandler.wait();
-                    } catch (InterruptedException e) {
-                        Log.d(TAG, "ShowScoreThread-->onPreExecute() wait exception");
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            Log.d(TAG, "ShowScoreThread-->onPreExecute() is finished.");
-        }
-
-        private synchronized void doInBackground() {
-            if (hasPoint != null) {
-                int twinkleCountDown = 5;
-                for (int i = 1; i <= twinkleCountDown; i++) {
-                    int md = i % 2; // modulus
-                    onProgressUpdate(md);
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-                onProgressUpdate(2);
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-                onProgressUpdate(3);
-            } else {
-                Log.d(TAG, "ShowScoreThread-->doInBackground()-->hasPoint is null.");
-            }
-            Log.d(TAG, "ShowScoreThread-->doInBackground() is finished.");
+            gameProperties.setShowingScoreMessage(true);
         }
 
         private synchronized void onProgressUpdate(int status) {
-            if (hasPoint != null) {
-                isSynchronizeFinished = false;
-                myActivity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        synchronized (showScoreHandler) {
-                            switch (status) {
-                                case 0:
-                                    for (Point item : hasPoint) {
-                                        ImageView v = presentView.getImageViewById(item.x * rowCounts + item.y);
-                                        drawBall(v, color);
-                                    }
-                                    break;
-                                case 1:
-                                    for (Point item : hasPoint) {
-                                        ImageView v = presentView.getImageViewById(item.x * rowCounts + item.y);
-                                        drawOval(v, color);
-                                    }
-                                    break;
-                                case 2:
-                                case 3:
-                                    // show the score
-                                    String scoreString = String.valueOf(gameProperties.getLastGotScore());
-                                    presentView.showMessageOnScreen(scoreString);
-                                    break;
-                            }
-                            isSynchronizeFinished = true;
-                            showScoreHandler.notifyAll();
-                            Log.d(TAG, "ShowScoreThread-->onProgressUpdate() --> notifyAll()");
-                        }
+            switch (status) {
+                case 0:
+                    for (Point item : hasPoint) {
+                        ImageView v = presentView.getImageViewById(item.x * rowCounts + item.y);
+                        drawBall(v, color);
                     }
-                });
-                synchronized (showScoreHandler) {
-                    while (!isSynchronizeFinished) {
-                        try {
-                            Log.d(TAG, "ShowScoreThread-->onProgressUpdate() --> wait()");
-                            showScoreHandler.wait();
-                        } catch (InterruptedException e) {
-                            Log.d(TAG, "ShowScoreThread-->onProgressUpdate() wait exception");
-                            e.printStackTrace();
-                        }
+                    break;
+                case 1:
+                    for (Point item : hasPoint) {
+                        ImageView v = presentView.getImageViewById(item.x * rowCounts + item.y);
+                        drawOval(v, color);
                     }
-                }
-            } else {
-                Log.d(TAG, "ShowScoreThread-->onProgressUpdate()-->hasPoint is null.");
-            }
-            Log.d(TAG, "ShowScoreThread-->onProgressUpdate() is finished.");
-        }
-
-        private synchronized void onPostExecute() {
-            if (hasPoint != null) {
-                myActivity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // clear values of cells
-                        for (Point item : hasPoint) {
-                            clearCell(item.x, item.y);
-                        }
-                        // update the UI
-                        gameProperties.setUndoScore(gameProperties.getCurrentScore());
-                        gameProperties.setCurrentScore(gameProperties.getCurrentScore() + gameProperties.getLastGotScore());
-                        presentView.updateCurrentScoreOnUi(gameProperties.getCurrentScore());
-                        // hide score ImageView
-                        presentView.dismissShowMessageOnScreen();
-                        // added on 2019-03-30
-                        if (isNextBalls) {
-                            displayNextColorBalls();
-                        }
-
-                        gameProperties.getThreadCompleted()[1] = true;  // user can start input command
-                        gameProperties.setShowingScoreMessage(false);
-
-                        Log.d(TAG, "ShowScoreThread-->onPostExecute()-->hasPoint is not null.");
-                        Log.d(TAG, "ShowScoreThread-->onPostExecute() is finished.");
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    // show the score
+                    String scoreString = String.valueOf(lastGotScore);
+                    presentView.showMessageOnScreen(scoreString);
+                    SystemClock.sleep(200);
+                    for (Point item : hasPoint) {
+                        clearCell(item.x, item.y);
                     }
-                });
-            } else {
-                gameProperties.getThreadCompleted()[1] = true;  // user can start input command
-                gameProperties.setShowingScoreMessage(false);
-
-                Log.d(TAG, "ShowScoreThread-->onPostExecute()-->hasPoint is null.");
-                Log.d(TAG, "ShowScoreThread-->onPostExecute() is finished.");
+                    // added on 2019-03-30
+                    if (isNextBalls) {
+                        displayNextColorBalls();
+                    }
+                    //
+                    gameProperties.getThreadCompleted()[1] = true;  // user can start input command
+                    gameProperties.setShowingScoreMessage(false);
+                    break;
+                case 4:
+                    presentView.dismissShowMessageOnScreen();
+                    break;
             }
         }
 
         @Override
         public synchronized void run() {
-            super.run();
-            onPreExecute();
-            doInBackground();
-            onPostExecute();
-        }
-
-        public void startShow() {
-            gameProperties.setShowingScoreMessage(true);
-            start();
+            if (hasPoint == null) {
+                Log.d(TAG, "ShowScoreRunnable-->onProgressUpdate()-->hasPoint is null.");
+                showingScoreHandler.removeCallbacksAndMessages(null);
+            } else {
+                counter++;
+                if (counter <= twinkleCountDown) {
+                    int md = counter % 2; // modulus
+                    onProgressUpdate(md);
+                    showingScoreHandler.postDelayed(this, 100);
+                } else {
+                    if (counter == twinkleCountDown+1) {
+                        onProgressUpdate(3);    // show score
+                        showingScoreHandler.postDelayed(this, 500);
+                    } else {
+                        showingScoreHandler.removeCallbacksAndMessages(null);
+                        onProgressUpdate(4);    // dismiss showing message
+                    }
+                }
+            }
         }
     }
 }

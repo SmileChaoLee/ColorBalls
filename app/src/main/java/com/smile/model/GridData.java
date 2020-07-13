@@ -174,6 +174,15 @@ public class GridData implements Parcelable {
         return this.Light_line;
     }
 
+    public void setLight_line(HashSet<Point> light_line) {
+        if (light_line != null ) {
+            this.Light_line.clear();
+            for (Point point : light_line) {
+                this.Light_line.add(point);
+            }
+        }
+    }
+
     public int check_moreThanFive(int x,int y) {
 
         Light_line.clear();
@@ -469,12 +478,27 @@ public class GridData implements Parcelable {
         pathPoint.clear();  // added at 10:43 pm on 2017-10-19
         if (found) {
             Log.d(TAG, "shortestPathLength = " + shortestPathLength);
+            Log.d(TAG, "lastCellStack.size() = " + lastCellStack.size());
             Cell c = lastCellStack.pop();
+            /*
             if (c!=null) {
-                for (int i = shortestPathLength-1 ; i>=0; i--) {
+                for (int i = shortestPathLength-1 ; i>=0; i--) { // ok but no beginning point
                     pathPoint.add(c.getCoordinate());
                     c = c.getParentCell();
                 }
+            }
+            */
+            while (c!=null) {
+                pathPoint.add(c.getCoordinate());
+                c = c.getParentCell();
+            }
+            int sizePathPoint = pathPoint.size();
+            Log.d(TAG, "pathPoint.size() = " + sizePathPoint);
+            if (sizePathPoint>0) {
+                Log.d(TAG, "pathPoint(0) = " + pathPoint.get(0));
+                Log.d(TAG, "pathPoint(pathPoint.size()-1) = " + pathPoint.get(sizePathPoint - 1));
+            } else {
+                found = false;
             }
         }
 

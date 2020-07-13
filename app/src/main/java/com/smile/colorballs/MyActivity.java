@@ -343,6 +343,10 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             showInterstitialAdThread.releaseShowInterstitialAdThread();
         }
 
+        if (mPresenter != null) {
+            mPresenter.release();
+        }
+
         /*
         // the following were removed on 2019-06-25
         // int pid = android.os.Process.myPid();
