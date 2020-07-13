@@ -10,6 +10,10 @@ public class GameProperties implements Parcelable {
     private boolean isProcessingJob;
     private boolean isShowingNewGameDialog;
     private boolean isShowingQuitGameDialog;
+    private boolean isShowingSureSaveDialog;
+    private boolean isShowingWarningSaveGameDialog;
+    private boolean isShowingSureLoadDialog;
+    private boolean isShowingGameOverDialog;
     private boolean[] threadCompleted;
     private int bouncyBallIndexI;
     private int bouncyBallIndexJ;
@@ -69,6 +73,38 @@ public class GameProperties implements Parcelable {
 
     public void setShowingQuitGameDialog(boolean isShowingQuitGameDialog) {
         this.isShowingQuitGameDialog = isShowingQuitGameDialog;
+    }
+
+    public boolean isShowingSureSaveDialog() {
+        return isShowingSureSaveDialog;
+    }
+
+    public void setShowingSureSaveDialog(boolean isShowingSureSaveDialog) {
+        this.isShowingSureSaveDialog = isShowingSureSaveDialog;
+    }
+
+    public boolean isShowingWarningSaveGameDialog() {
+        return isShowingWarningSaveGameDialog;
+    }
+
+    public void setShowingWarningSaveGameDialog(boolean isShowingWarningSaveGameDialog) {
+        this.isShowingWarningSaveGameDialog = isShowingWarningSaveGameDialog;
+    }
+
+    public boolean isShowingSureLoadDialog() {
+        return isShowingSureLoadDialog;
+    }
+
+    public void setShowingSureLoadDialog(boolean isShowingSureLoadDialog) {
+        this.isShowingSureLoadDialog = isShowingSureLoadDialog;
+    }
+
+    public boolean isShowingGameOverDialog() {
+        return isShowingGameOverDialog;
+    }
+
+    public void setShowingGameOverDialog(boolean isShowingGameOverDialog) {
+        this.isShowingGameOverDialog = isShowingGameOverDialog;
     }
 
     public boolean[] getThreadCompleted() {
@@ -180,6 +216,10 @@ public class GameProperties implements Parcelable {
         dest.writeByte(this.isProcessingJob ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isShowingNewGameDialog ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isShowingQuitGameDialog ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isShowingSureSaveDialog ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isShowingWarningSaveGameDialog ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isShowingSureLoadDialog ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isShowingGameOverDialog ? (byte) 1 : (byte) 0);
         dest.writeBooleanArray(this.threadCompleted);
         dest.writeInt(this.bouncyBallIndexI);
         dest.writeInt(this.bouncyBallIndexJ);
@@ -201,6 +241,10 @@ public class GameProperties implements Parcelable {
         isProcessingJob = false;
         isShowingNewGameDialog = false;
         isShowingQuitGameDialog = false;
+        isShowingSureSaveDialog = false;
+        isShowingWarningSaveGameDialog = false;
+        isShowingSureLoadDialog = false;
+        isShowingGameOverDialog = false;
         threadCompleted = new boolean[] {true,true,true,true,true,true,true,true,true,true};
         bouncyBallIndexI = -1;
         bouncyBallIndexJ = -1;  // the array index that the ball has been selected
@@ -222,6 +266,10 @@ public class GameProperties implements Parcelable {
         this.isProcessingJob = in.readByte() != 0;
         this.isShowingNewGameDialog = in.readByte() != 0;
         this.isShowingQuitGameDialog = in.readByte() != 0;
+        this.isShowingSureSaveDialog = in.readByte() != 0;
+        this.isShowingWarningSaveGameDialog = in.readByte() != 0;
+        this.isShowingSureLoadDialog = in.readByte() != 0;
+        this.isShowingGameOverDialog = in.readByte() != 0;
         this.threadCompleted = in.createBooleanArray();
         this.bouncyBallIndexI = in.readInt();
         this.bouncyBallIndexJ = in.readInt();

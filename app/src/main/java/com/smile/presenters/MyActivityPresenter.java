@@ -61,8 +61,11 @@ public class MyActivityPresenter {
         void updateCurrentScoreOnUi(int score);
         void showMessageOnScreen(String message);
         void dismissShowMessageOnScreen();
-        void showGameOverDialog();
         void showSaveScoreAlertDialog(final int entryPoint, final int score);
+        void showSaveGameDialog();
+        void showingWarningSaveGameDialog(int finalNumOfSaved);
+        void showLoadGameDialog();
+        void showGameOverDialog();
     }
 
     public MyActivityPresenter(Context context, PresentView presentView) {
@@ -192,9 +195,30 @@ public class MyActivityPresenter {
                 Log.d(TAG, "initializeColorBallsGame() --> show new game dialog by calling newGame()");
                 newGame();
             }
+
             if (gameProperties.isShowingQuitGameDialog()) {
                 Log.d(TAG, "initializeColorBallsGame() --> show quit game dialog by calling quitGame()");
                 quitGame();
+            }
+
+            if (gameProperties.isShowingSureSaveDialog()) {
+                Log.d(TAG, "initializeColorBallsGame() --> isShowingSureSaveDialog()");
+                saveGame();
+            }
+
+            if (gameProperties.isShowingWarningSaveGameDialog()) {
+                Log.d(TAG, "initializeColorBallsGame() --> isShowingWarningSaveGameDialog()");
+                presentView.showingWarningSaveGameDialog(readNumberOfSaved());
+            }
+
+            if (gameProperties.isShowingSureLoadDialog()) {
+                Log.d(TAG, "initializeColorBallsGame() --> isShowingSureLoadDialog()");
+                loadGame();
+            }
+
+            if (gameProperties.isShowingGameOverDialog()) {
+                Log.d(TAG, "initializeColorBallsGame() --> isShowingGameOverDialog()");
+                gameOver();
             }
         }
 
@@ -283,6 +307,22 @@ public class MyActivityPresenter {
         }
     }
 
+    public void setShowingSureSaveDialog(boolean isShowingSureSaveDialog) {
+        gameProperties.setShowingSureSaveDialog(isShowingSureSaveDialog);
+    }
+
+    public void setShowingSureLoadDialog(boolean isShowingSureLoadDialog) {
+        gameProperties.setShowingSureLoadDialog(isShowingSureLoadDialog);
+    }
+
+    public void setShowingGameOverDialog(boolean isShowingGameOverDialog) {
+        gameProperties.setShowingGameOverDialog(isShowingGameOverDialog);
+    }
+
+    public void setShowingWarningSaveGameDialog(boolean isShowingWarningSaveGameDialog) {
+        gameProperties.setShowingWarningSaveGameDialog(isShowingWarningSaveGameDialog);
+    }
+
     public void saveScore(String playerName, int score) {
         // removed on 2019-02-20 no global ranking any more
         // use thread to add a record to database (remote database on AWS-EC2)
@@ -321,6 +361,14 @@ public class MyActivityPresenter {
 
     public void quitGame() {
         presentView.showSaveScoreAlertDialog(0, gameProperties.getCurrentScore());
+    }
+
+    public void saveGame() {
+        presentView.showSaveGameDialog();
+    }
+
+    public void loadGame() {
+        presentView.showLoadGameDialog();
     }
 
     public int readNumberOfSaved() {
@@ -533,20 +581,20 @@ public class MyActivityPresenter {
     }
 
     public void release() {
-
         cancelBouncyTimer();
-
         if (showingScoreHandler != null) {
             showingScoreHandler.removeCallbacksAndMessages(null);
         }
-
         if (movingBallHandler != null) {
             movingBallHandler.removeCallbacksAndMessages(null);
         }
-
         if (soundPoolUtil != null) {
             soundPoolUtil.release();
         }
+    }
+
+    private void gameOver() {
+        presentView.showGameOverDialog();
     }
 
     private int calculateScore(int numBalls) {
@@ -649,7 +697,7 @@ public class MyActivityPresenter {
 
         if (hasMoreFive) {
             gridData.setLight_line(linkedPoint);    // added on 2020-07-13
-            // gameProperties.setLastGotScore(calculateScore(linkedPoint.size()));
+            // gameProperties.setLastGotScore(calculateScore(linkedPoint.size()));    // removed on 2020-07-13
             gameProperties.setLastGotScore(calculateScore(gridData.getLight_line().size()));
             gameProperties.setUndoScore(gameProperties.getCurrentScore());
             gameProperties.setCurrentScore(gameProperties.getCurrentScore() + gameProperties.getLastGotScore());
@@ -663,7 +711,7 @@ public class MyActivityPresenter {
             boolean gameOverYn = gridData.getGameOver();
             if (gameOverYn) {
                 //  game over
-                presentView.showGameOverDialog();
+                gameOver();
             } else {
                 // game has not been over yet
                 displayNextColorBalls();

@@ -101,12 +101,12 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
     private int rowCounts = 9;
     private int colCounts = 9;
-    // private int cellWidth = 0;
-    // private int cellHeight = 0;
 
-    // private GameProperties gameProperties;
-    // private GridData gridData;
     private AlertDialog saveScoreAlertDialog;
+    private AlertDialogFragment sureSaveDialog;
+    private AlertDialogFragment warningSaveGameDialog;
+    private AlertDialogFragment sureLoadDialog;
+    private AlertDialogFragment gameOverDialog;
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -229,11 +229,11 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 return super.onOptionsItemSelected(item);
             }
             if (id == R.id.saveGame) {
-                saveGame();
+                mPresenter.saveGame();
                 return super.onOptionsItemSelected(item);
             }
             if (id == R.id.loadGame) {
-                loadGame();
+                mPresenter.loadGame();
                 return true;
             }
             if (id == R.id.setting) {
@@ -327,6 +327,10 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     public void onDestroy() {
         Log.d(TAG, "MyActivity.onDestroy() is called");
 
+        if (mPresenter != null) {
+            mPresenter.release();
+        }
+
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.unregisterReceiver(myReceiver);
 
@@ -343,8 +347,20 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             showInterstitialAdThread.releaseShowInterstitialAdThread();
         }
 
-        if (mPresenter != null) {
-            mPresenter.release();
+        if (sureSaveDialog != null) {
+            sureSaveDialog.dismissAllowingStateLoss();
+        }
+
+        if (warningSaveGameDialog != null) {
+            warningSaveGameDialog.dismissAllowingStateLoss();
+        }
+
+        if (sureLoadDialog != null) {
+            sureLoadDialog.dismissAllowingStateLoss();
+        }
+
+        if (gameOverDialog != null) {
+            gameOverDialog.dismissAllowingStateLoss();
         }
 
         /*
@@ -628,111 +644,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         startService(myService);
     }
 
-    private void saveGame() {
-        AlertDialogFragment sureSaveDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
-            @Override
-            public void noButtonOnClick(AlertDialogFragment dialogFragment) {
-                // cancel the action of saving game
-                dialogFragment.dismissAllowingStateLoss();
-            }
-
-            @Override
-            public void okButtonOnClick(AlertDialogFragment dialogFragment) {
-                // start saving game to internal storage
-                dialogFragment.dismissAllowingStateLoss();
-                int numOfSaved = mPresenter.readNumberOfSaved();
-                if (numOfSaved < ColorBallsApp.Max_Saved_Games) {
-                    boolean succeeded = mPresenter.startSavingGame(numOfSaved);
-                    if (succeeded) {
-                        ScreenUtil.showToast(getApplicationContext(), getString(R.string.succeededSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
-                    } else {
-                        ScreenUtil.showToast(getApplicationContext(), getString(R.string.failedSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
-                    }
-                } else {
-                    // display warning to users
-                    final int finalNumOfSaved = numOfSaved;
-                    AlertDialogFragment warningSaveGameDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
-                        @Override
-                        public void noButtonOnClick(AlertDialogFragment dialogFragment) {
-                            dialogFragment.dismissAllowingStateLoss();
-                        }
-
-                        @Override
-                        public void okButtonOnClick(AlertDialogFragment dialogFragment) {
-                            dialogFragment.dismissAllowingStateLoss();
-                            boolean succeeded = mPresenter.startSavingGame(finalNumOfSaved);
-                            if (succeeded) {
-                                ScreenUtil.showToast(getApplicationContext(), getString(R.string.succeededSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
-                            } else {
-                                ScreenUtil.showToast(getApplicationContext(), getString(R.string.failedSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
-                            }
-                            showAdUntilDismissed(MyActivity.this);
-                        }
-                    });
-                    Bundle args = new Bundle();
-                    String warningSaveGameString0 = getString(R.string.warningSaveGameString) + " ("
-                            + ColorBallsApp.Max_Saved_Games + " "
-                            + getString(R.string.howManyTimesString) + " )"
-                            + "\n" + getString(R.string.continueString) + "?";
-                    args.putString("TextContent", warningSaveGameString0); // excessive the number (5)
-                    args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
-                    args.putFloat("TextFontSize", textFontSize);
-                    args.putInt("Color", Color.BLUE);
-                    args.putInt("Width", 0);    // wrap_content
-                    args.putInt("Height", 0);   // wrap_content
-                    args.putInt("NumButtons", 2);
-                    args.putBoolean("IsAnimation", false);
-                    warningSaveGameDialog.setArguments(args);
-                    warningSaveGameDialog.show(getSupportFragmentManager(), "SaveGameWarningDialogTag");
-                }
-            }
-        });
-        Bundle args = new Bundle();
-        args.putString("TextContent", getString(R.string.sureToSaveGameString));
-        args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
-        args.putFloat("TextFontSize", textFontSize);
-        args.putInt("Color", Color.BLUE);
-        args.putInt("Width", 0);    // wrap_content
-        args.putInt("Height", 0);   // wrap_content
-        args.putInt("NumButtons", 2);
-        args.putBoolean("IsAnimation", false);
-        sureSaveDialog.setArguments(args);
-        sureSaveDialog.show(getSupportFragmentManager(), "SureSaveDialogTag");
-    }
-
-    private void loadGame() {
-        AlertDialogFragment sureLoadDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
-            @Override
-            public void noButtonOnClick(AlertDialogFragment dialogFragment) {
-                // cancel the action of loading game
-                dialogFragment.dismissAllowingStateLoss();
-            }
-
-            @Override
-            public void okButtonOnClick(AlertDialogFragment dialogFragment) {
-                // start loading game to internal storage
-                dialogFragment.dismissAllowingStateLoss();
-                boolean succeeded = mPresenter.startLoadingGame();
-                if (succeeded) {
-                    ScreenUtil.showToast(getApplicationContext(), getString(R.string.succeededLoadGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
-                } else {
-                    ScreenUtil.showToast(getApplicationContext(), getString(R.string.failedLoadGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
-                }
-            }
-        });
-        Bundle args = new Bundle();
-        args.putString("TextContent", getString(R.string.sureToLoadGameString));
-        args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
-        args.putFloat("TextFontSize", textFontSize);
-        args.putInt("Color", Color.BLUE);
-        args.putInt("Width", 0);    // wrap_content
-        args.putInt("Height", 0);   // wrap_content
-        args.putInt("NumButtons", 2);
-        args.putBoolean("IsAnimation", false);
-        sureLoadDialog.setArguments(args);
-        sureLoadDialog.show(getSupportFragmentManager(), "SureLoadDialogTag");
-    }
-
     private void setBannerAndNativeAdUI() {
         bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
         String testString = "";
@@ -814,12 +725,138 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         scoreImageView.setVisibility(View.GONE);
     }
 
+    @Override
+    public void showSaveGameDialog() {
+        sureSaveDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
+            @Override
+            public void noButtonOnClick(AlertDialogFragment dialogFragment) {
+                // cancel the action of saving game
+                dialogFragment.dismissAllowingStateLoss();
+                mPresenter.setShowingSureSaveDialog(false);
+            }
+
+            @Override
+            public void okButtonOnClick(AlertDialogFragment dialogFragment) {
+                // start saving game to internal storage
+                dialogFragment.dismissAllowingStateLoss();
+                mPresenter.setShowingSureSaveDialog(false);
+                int numOfSaved = mPresenter.readNumberOfSaved();
+                if (numOfSaved < ColorBallsApp.Max_Saved_Games) {
+                    boolean succeeded = mPresenter.startSavingGame(numOfSaved);
+                    if (succeeded) {
+                        ScreenUtil.showToast(getApplicationContext(), getString(R.string.succeededSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                    } else {
+                        ScreenUtil.showToast(getApplicationContext(), getString(R.string.failedSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                    }
+                } else {
+                    // display warning to users
+                    final int finalNumOfSaved = numOfSaved;
+                    showingWarningSaveGameDialog(finalNumOfSaved);
+                }
+            }
+        });
+        Bundle args = new Bundle();
+        args.putString("TextContent", getString(R.string.sureToSaveGameString));
+        args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
+        args.putFloat("TextFontSize", textFontSize);
+        args.putInt("Color", Color.BLUE);
+        args.putInt("Width", 0);    // wrap_content
+        args.putInt("Height", 0);   // wrap_content
+        args.putInt("NumButtons", 2);
+        args.putBoolean("IsAnimation", false);
+
+        mPresenter.setShowingSureSaveDialog(true);
+        sureSaveDialog.setArguments(args);
+        sureSaveDialog.show(getSupportFragmentManager(), "SureSaveDialogTag");
+    }
+
+    @Override
+    public void showingWarningSaveGameDialog(int finalNumOfSaved) {
+        warningSaveGameDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
+            @Override
+            public void noButtonOnClick(AlertDialogFragment dialogFragment) {
+                dialogFragment.dismissAllowingStateLoss();
+                mPresenter.setShowingWarningSaveGameDialog(false);
+            }
+
+            @Override
+            public void okButtonOnClick(AlertDialogFragment dialogFragment) {
+                dialogFragment.dismissAllowingStateLoss();
+                mPresenter.setShowingWarningSaveGameDialog(false);
+                boolean succeeded = mPresenter.startSavingGame(finalNumOfSaved);
+                if (succeeded) {
+                    ScreenUtil.showToast(getApplicationContext(), getString(R.string.succeededSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                } else {
+                    ScreenUtil.showToast(getApplicationContext(), getString(R.string.failedSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                }
+                showAdUntilDismissed(MyActivity.this);
+            }
+        });
+        Bundle args = new Bundle();
+        String warningSaveGameString0 = getString(R.string.warningSaveGameString) + " ("
+                + ColorBallsApp.Max_Saved_Games + " "
+                + getString(R.string.howManyTimesString) + " )"
+                + "\n" + getString(R.string.continueString) + "?";
+        args.putString("TextContent", warningSaveGameString0); // excessive the number (5)
+        args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
+        args.putFloat("TextFontSize", textFontSize);
+        args.putInt("Color", Color.BLUE);
+        args.putInt("Width", 0);    // wrap_content
+        args.putInt("Height", 0);   // wrap_content
+        args.putInt("NumButtons", 2);
+        args.putBoolean("IsAnimation", false);
+
+        mPresenter.setShowingWarningSaveGameDialog(true);
+        warningSaveGameDialog.setArguments(args);
+        warningSaveGameDialog.show(getSupportFragmentManager(), "SaveGameWarningDialogTag");
+    }
+
+    @Override
+    public void showLoadGameDialog() {
+        sureLoadDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
+            @Override
+            public void noButtonOnClick(AlertDialogFragment dialogFragment) {
+                // cancel the action of loading game
+                dialogFragment.dismissAllowingStateLoss();
+                mPresenter.setShowingSureLoadDialog(false);
+            }
+
+            @Override
+            public void okButtonOnClick(AlertDialogFragment dialogFragment) {
+                // start loading game to internal storage
+                dialogFragment.dismissAllowingStateLoss();
+                mPresenter.setShowingSureLoadDialog(false);
+                boolean succeeded = mPresenter.startLoadingGame();
+                if (succeeded) {
+                    ScreenUtil.showToast(getApplicationContext(), getString(R.string.succeededLoadGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                } else {
+                    ScreenUtil.showToast(getApplicationContext(), getString(R.string.failedLoadGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                }
+            }
+        });
+        Bundle args = new Bundle();
+        args.putString("TextContent", getString(R.string.sureToLoadGameString));
+        args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
+        args.putFloat("TextFontSize", textFontSize);
+        args.putInt("Color", Color.BLUE);
+        args.putInt("Width", 0);    // wrap_content
+        args.putInt("Height", 0);   // wrap_content
+        args.putInt("NumButtons", 2);
+        args.putBoolean("IsAnimation", false);
+
+        mPresenter.setShowingSureLoadDialog(true);
+        sureLoadDialog.setArguments(args);
+        sureLoadDialog.show(getSupportFragmentManager(), "SureLoadDialogTag");
+    }
+
+    @Override
     public void showGameOverDialog() {
-        AlertDialogFragment gameOverDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
+        gameOverDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
             @Override
             public void noButtonOnClick(AlertDialogFragment dialogFragment) {
                 // dialogFragment.dismiss();
                 dialogFragment.dismissAllowingStateLoss();
+                mPresenter.setShowingGameOverDialog(false);
                 mPresenter.quitGame();   //   Ending the game
             }
 
@@ -827,6 +864,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             public void okButtonOnClick(AlertDialogFragment dialogFragment) {
                 // dialogFragment.dismiss();
                 dialogFragment.dismissAllowingStateLoss();
+                mPresenter.setShowingGameOverDialog(false);
                 mPresenter.newGame();
             }
         });
@@ -839,6 +877,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         args.putInt("Height", 0);   // wrap_content
         args.putInt("NumButtons", 2);
         args.putBoolean("IsAnimation", false);
+
+        mPresenter.setShowingGameOverDialog(true);
         gameOverDialog.setArguments(args);
         gameOverDialog.show(getSupportFragmentManager(), GameOverDialogTag);
 
