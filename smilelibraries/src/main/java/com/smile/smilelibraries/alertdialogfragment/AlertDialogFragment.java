@@ -14,6 +14,8 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +32,7 @@ import android.widget.TextView;
 
 public class AlertDialogFragment extends DialogFragment {
 
+    private final String TAG = "AlertDialogFragment";
     private TextView text_shown = null;
     private EditText text_edit = null;
     private Button noButton = null;
@@ -57,9 +60,19 @@ public class AlertDialogFragment extends DialogFragment {
     public AlertDialogFragment() {
     }
     @SuppressLint("ValidFragment")
-    public AlertDialogFragment(DialogButtonListener ndl) {
+    private AlertDialogFragment(DialogButtonListener ndl) {
         super();
         this.ndl = ndl;
+    }
+    public static AlertDialogFragment newInstance(DialogButtonListener ndl) {
+        AlertDialogFragment modalDialog;
+        if (ndl == null) {
+            modalDialog = new AlertDialogFragment();
+        } else {
+            modalDialog = new AlertDialogFragment(ndl);
+        }
+
+        return modalDialog;
     }
     public static AlertDialogFragment newInstance(String textContent,int fontSize_Type, float textFontSize, int color, int width, int height, boolean isAnimation) {
         AlertDialogFragment modalDialog = new AlertDialogFragment();
@@ -93,7 +106,7 @@ public class AlertDialogFragment extends DialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        System.out.println("AlertDialogFragment.onCreate() is called");
+        Log.d(TAG, "AlertDialogFragment.onCreate() is called");
 
         // if statement was added on 2018-06-14 for avoiding to reset the parameters and values of
         // properties because of configuration changing
@@ -146,7 +159,7 @@ public class AlertDialogFragment extends DialogFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        System.out.println("AlertDialogFragment.onCreateView() is called.");
+        Log.d(TAG, "AlertDialogFragment.onCreateView() is called.");
 
         // View view = inflater.inflate(R.layout.modal_dialogfragment, container, false);
         // Changed to
@@ -158,7 +171,7 @@ public class AlertDialogFragment extends DialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        System.out.println("AlertDialogFragment.onViewCreated() is called.");
+        Log.d(TAG, "AlertDialogFragment.onViewCreated() is called.");
 
         Window window = getDialog().getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
@@ -244,12 +257,19 @@ public class AlertDialogFragment extends DialogFragment {
     // due to the bugs of Android SDK, this override to onDestroyView() has to be done. Added on 2018-06-19 11:50pm
     @Override
     public void onDestroyView() {
+        Log.d(TAG, "AlertDialogFragment.onDestroyView() is called.");
         Dialog dialog = getDialog();
         // handles https://code.google.com/p/android/issues/detail?id=17423
         if ( (dialog != null) && getRetainInstance()) {
             dialog.setDismissMessage(null);
         }
         super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "AlertDialogFragment.onDestroy() is called.");
+        super.onDestroy();
     }
 
     public TextView getText_shown() {

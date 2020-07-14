@@ -347,6 +347,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             showInterstitialAdThread.releaseShowInterstitialAdThread();
         }
 
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction ft = fragmentManager.beginTransaction();
         if (sureSaveDialog != null) {
             sureSaveDialog.dismissAllowingStateLoss();
         }
@@ -727,7 +729,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
     @Override
     public void showSaveGameDialog() {
-        sureSaveDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
+        sureSaveDialog = AlertDialogFragment.newInstance(new AlertDialogFragment.DialogButtonListener() {
             @Override
             public void noButtonOnClick(AlertDialogFragment dialogFragment) {
                 // cancel the action of saving game
@@ -772,7 +774,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
     @Override
     public void showingWarningSaveGameDialog(int finalNumOfSaved) {
-        warningSaveGameDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
+        warningSaveGameDialog = AlertDialogFragment.newInstance(new AlertDialogFragment.DialogButtonListener() {
             @Override
             public void noButtonOnClick(AlertDialogFragment dialogFragment) {
                 dialogFragment.dismissAllowingStateLoss();
@@ -813,7 +815,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
     @Override
     public void showLoadGameDialog() {
-        sureLoadDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
+        sureLoadDialog = AlertDialogFragment.newInstance(new AlertDialogFragment.DialogButtonListener() {
             @Override
             public void noButtonOnClick(AlertDialogFragment dialogFragment) {
                 // cancel the action of loading game
@@ -851,7 +853,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
     @Override
     public void showGameOverDialog() {
-        gameOverDialog = new AlertDialogFragment(new AlertDialogFragment.DialogButtonListener() {
+        gameOverDialog = AlertDialogFragment.newInstance(new AlertDialogFragment.DialogButtonListener() {
             @Override
             public void noButtonOnClick(AlertDialogFragment dialogFragment) {
                 // dialogFragment.dismiss();
