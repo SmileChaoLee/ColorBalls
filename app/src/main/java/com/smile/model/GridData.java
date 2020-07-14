@@ -12,28 +12,27 @@ import android.util.Log;
 import com.smile.colorballs.ColorBallsApp;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Stack;
 
 public class GridData implements Parcelable {
-    public static final int ballNumOneTime = 3;
     private static final String TAG = "GridData";
 
+    public static final int ballNumOneTime = 3;
     private int ballNumCompleted = 5;
     private int rowCounts=0, colCounts=0;
     private int cellValues[][];
     private int backupCells[][];
-    private int[] nextBalls = null;
-    private int[] nextCellIndexI = null;
-    private int[] nextCellIndexJ = null;
-    private int[] undoNextBalls = null;
-
+    private int[] nextBalls;
+    private int[] undoNextBalls;
+    private ArrayList<Point> nextCellIndex;
     private HashSet<Point> Light_line;
     private List<Point> pathPoint;
 
-    private Random random = null;
+    private Random random;
 
     private int numOfTotalBalls = 0;
     private int numOfColorsUsed = 5;    // 5 colors for easy level, 6 colors for difficult level
@@ -45,18 +44,15 @@ public class GridData implements Parcelable {
         this.numOfColorsUsed = numOfColorsUsed;
 
         nextBalls = new int[ColorBallsApp.NumOfColorsUsedByDifficult];
-        nextCellIndexI = new int[ColorBallsApp.NumOfColorsUsedByDifficult];
-        nextCellIndexJ = new int[ColorBallsApp.NumOfColorsUsedByDifficult];
         undoNextBalls = new int[ColorBallsApp.NumOfColorsUsedByDifficult];
         cellValues = new int[rowCounts][colCounts];
         backupCells = new int[rowCounts][colCounts];
+        nextCellIndex = new ArrayList<>();
         Light_line = new HashSet<>();
         pathPoint   = new ArrayList<>();
         for (int i=0 ; i<rowCounts ; i++) {
-            for (int j=0 ; j<colCounts ; j++) {
-                cellValues[i][j] = 0;
-                backupCells[i][j] = 0;
-            }
+            Arrays.fill(cellValues[i],0);
+            Arrays.fill(backupCells[i],0);
         }
         gameOver = false;   // new Game
         numOfTotalBalls = 0;
@@ -106,35 +102,32 @@ public class GridData implements Parcelable {
             this.backupCells[i] = backupCells[i].clone();
         }
     }
-    public int getNumOfColorsUsed() {
-        return this.numOfColorsUsed;
-    }
+
     public void setNumOfColorsUsed(int numOfColorsUsed) {
         this.numOfColorsUsed = numOfColorsUsed;
     }
 
     public void randCells() {
-        int n1,n2;
-        for (int i=0 ; i<ballNumOneTime ; i++) {
-            nextCellIndexI[i] = -1;
-            nextCellIndexJ[i] = -1;
+        numOfTotalBalls = getTotalBalls();
+        if (numOfTotalBalls >= rowCounts*colCounts) {
+            // no empty cells for next
+            return;
         }
 
-        for (int i=0 ; i<ballNumOneTime ; i++) {
+        nextCellIndex.clear();
+        int n1,n2;
+        int i = 0;
+        while (i<ballNumOneTime){
             n1 = random.nextInt(rowCounts);
             n2 = random.nextInt(colCounts);
-
             if (cellValues[n1][n2] == 0) {
-                nextCellIndexI[i] = n1;
-                nextCellIndexJ[i] = n2;
+                nextCellIndex.add((new Point(n1,n2)));
                 cellValues[n1][n2] = nextBalls[i];
-            } else {
-                i--;
+                i++;
+                numOfTotalBalls++;
             }
-
-            numOfTotalBalls = getTotalBalls();
             if (numOfTotalBalls >= (rowCounts*colCounts)) {
-                i = ballNumOneTime;
+                break;
             }
         }
     }
@@ -162,12 +155,8 @@ public class GridData implements Parcelable {
         return gameOver;
     }
 
-    public int[] getNextCellIndexI() {
-        return this.nextCellIndexI;
-    }
-
-    public int[] getNextCellIndexJ()  {
-        return this.nextCellIndexJ;
+    public ArrayList<Point> getNextCellIndex() {
+        return nextCellIndex;
     }
 
     public HashSet<Point> getLight_line() {
@@ -178,12 +167,12 @@ public class GridData implements Parcelable {
         if (light_line != null ) {
             this.Light_line.clear();
             for (Point point : light_line) {
-                this.Light_line.add(point);
+                this.Light_line.add(new Point(point));
             }
         }
     }
 
-    public int check_moreThanFive(int x,int y) {
+    public boolean check_moreThanFive(int x,int y) {
 
         Light_line.clear();
         Light_line.add(new Point(x,y));
@@ -194,13 +183,14 @@ public class GridData implements Parcelable {
         int  cellColor;
 
         List<Point> tempList = new ArrayList<>();
-        // tempList.clear();    // no need, removed on 2019-06-17
 
         cellColor = cellValues[x][y];
 
         //first
-        first_i = Math.max(x-(rowCounts-1),0);
-        end_i   = Math.min(x+(rowCounts-1),(rowCounts-1));
+        // first_i = Math.max(x-(rowCounts-1),0);
+        // end_i   = Math.min(x+(rowCounts-1),(rowCounts-1));
+        first_i = 0;
+        end_i   = rowCounts - 1;
         num_b = 0 ;
 
         for (i=x-1;i>=first_i;i--) {
@@ -217,7 +207,7 @@ public class GridData implements Parcelable {
             // end
             for (Point temp : tempList) {
                 if (!Light_line.contains(temp)) {
-                    Light_line.add(temp);
+                    Light_line.add(new Point(temp));
                 }
             }
             tempList.clear();
@@ -228,8 +218,7 @@ public class GridData implements Parcelable {
             if (cellValues[i][y] == cellColor) {
                 num_b++ ;
                 tempList.add(new Point(i,y));
-            }
-            else {
+            } else {
                 i = end_i ;
             }
         }
@@ -238,7 +227,7 @@ public class GridData implements Parcelable {
             // end
             for (Point temp : tempList) {
                 if (!Light_line.contains(temp)) {
-                    Light_line.add(temp);
+                    Light_line.add(new Point(temp));
                 }
             }
             firstResult = 1;
@@ -246,21 +235,22 @@ public class GridData implements Parcelable {
         tempList.clear();
 
         //second
-        first_i = Math.max(x-(rowCounts-1), 0) ;
-        end_i   = Math.min(x+(rowCounts-1), rowCounts - 1) ;
+        // first_i = Math.max(x-(rowCounts-1), 0);
+        // end_i   = Math.min(x+(rowCounts-1), rowCounts - 1);
+        first_i = 0;
+        end_i   = rowCounts - 1;
 
-        first_j = Math.min(y+(colCounts-1) , colCounts - 1) ;
-        end_j   = Math.max(y-(colCounts-1) , 0) ;
+        // first_j = Math.min(y+(colCounts-1) , colCounts - 1);
+        // end_j   = Math.max(y-(colCounts-1) , 0);
+        first_j = colCounts - 1;
+        end_j   = 0;
 
         num_b = 0 ;
         for (i=x-1, j=y+1;(i>=first_i)&&(j<=first_j) ;i--,j++) {
-            if (cellValues[i][j] == cellColor)
-            {
+            if (cellValues[i][j] == cellColor) {
                 num_b++ ;
                 tempList.add(new Point(i,j));
-            }
-            else
-            {
+            } else {
                 i = first_i ;
                 j = first_j ;
             }
@@ -270,7 +260,7 @@ public class GridData implements Parcelable {
             // end
             for (Point temp : tempList) {
                 if (!Light_line.contains(temp)) {
-                    Light_line.add(temp);
+                    Light_line.add(new Point(temp));
                 }
             }
             tempList.clear();
@@ -281,8 +271,7 @@ public class GridData implements Parcelable {
             if (cellValues[i][j] == cellColor) {
                 num_b++ ;
                 tempList.add(new Point(i,j));
-            }
-            else {
+            } else {
                 i = end_i ;
                 j = end_j ;
             }
@@ -292,7 +281,7 @@ public class GridData implements Parcelable {
             // end
             for (Point temp : tempList) {
                 if (!Light_line.contains(temp)) {
-                    Light_line.add(temp);
+                    Light_line.add(new Point(temp));
                 }
             }
             secondResult = 1;
@@ -300,16 +289,17 @@ public class GridData implements Parcelable {
         tempList.clear();
 
         //third
-        first_j = Math.min(y+(colCounts-1), colCounts-1 ) ;
-        end_j   = Math.max(y-(colCounts-1) , 0) ;
+        // first_j = Math.min(y+(colCounts-1), colCounts-1 );
+        // end_j   = Math.max(y-(colCounts-1) , 0);
+        first_j = colCounts - 1;
+        end_j   = 0;
 
         num_b = 0 ;
         for (j=y+1;j<=first_j;j++) {
             if (cellValues[x][j] == cellColor) {
                 num_b++ ;
                 tempList.add(new Point(x,j));
-            }
-            else {
+            } else {
                 j = first_j ;
             }
         }
@@ -318,7 +308,7 @@ public class GridData implements Parcelable {
             // end
             for (Point temp : tempList) {
                 if (!Light_line.contains(temp)) {
-                    Light_line.add(temp);
+                    Light_line.add(new Point(temp));
                 }
             }
             tempList.clear();
@@ -326,13 +316,10 @@ public class GridData implements Parcelable {
         }
 
         for (j=y-1;j>=end_j;j--) {
-            if (cellValues[x][j] == cellColor)
-            {
+            if (cellValues[x][j] == cellColor) {
                 num_b++ ;
                 tempList.add(new Point(x,j));
-            }
-            else
-            {
+            } else {
                 j = end_j ;
             }
         }
@@ -341,7 +328,7 @@ public class GridData implements Parcelable {
             // end
             for (Point temp : tempList) {
                 if (!Light_line.contains(temp)) {
-                    Light_line.add(temp);
+                    Light_line.add(new Point(temp));
                 }
             }
             thirdResult = 1;
@@ -349,8 +336,10 @@ public class GridData implements Parcelable {
         tempList.clear();
 
         //forth
-        first_i = Math.min(x+(rowCounts-1), rowCounts-1) ;
-        end_i   = Math.max(x-(rowCounts-1), 0) ;
+        // first_i = Math.min(x+(rowCounts-1), rowCounts-1);
+        // end_i   = Math.max(x-(rowCounts-1), 0);
+        first_i = rowCounts - 1;
+        end_i   = 0;
 
         first_j = Math.min(y+(colCounts-1) , colCounts - 1) ;
         end_j   = Math.max(y-(colCounts-1) , 0) ;
@@ -360,8 +349,7 @@ public class GridData implements Parcelable {
             if (cellValues[i][j] == cellColor) {
                 num_b++ ;
                 tempList.add(new Point(i,j));
-            }
-            else {
+            } else {
                 i = first_i ;
                 j = first_j ;
             }
@@ -371,7 +359,7 @@ public class GridData implements Parcelable {
             // end
             for (Point temp : tempList) {
                 if (!Light_line.contains(temp)) {
-                    Light_line.add(temp);
+                    Light_line.add(new Point(temp));
                 }
             }
             tempList.clear();
@@ -382,8 +370,7 @@ public class GridData implements Parcelable {
             if (cellValues[i][j] == cellColor) {
                 num_b++ ;
                 tempList.add(new Point(i,j));
-            }
-            else {
+            } else {
                 i = end_i ;
                 j = end_j ;
             }
@@ -393,7 +380,7 @@ public class GridData implements Parcelable {
             // end
             for (Point temp : tempList) {
                 if (!Light_line.contains(temp)) {
-                    Light_line.add(temp);
+                    Light_line.add(new Point(temp));
                 }
             }
             forthResult = 1;
@@ -401,10 +388,10 @@ public class GridData implements Parcelable {
         tempList.clear();
 
         if ( (firstResult==1) || (secondResult==1) || (thirdResult==1) || (forthResult==1) ) {
-            return 1;
+            return true;
         } else {
             Light_line.clear();
-            return 0;
+            return false;
         }
     }
 
@@ -480,16 +467,8 @@ public class GridData implements Parcelable {
             Log.d(TAG, "shortestPathLength = " + shortestPathLength);
             Log.d(TAG, "lastCellStack.size() = " + lastCellStack.size());
             Cell c = lastCellStack.pop();
-            /*
-            if (c!=null) {
-                for (int i = shortestPathLength-1 ; i>=0; i--) { // ok but no beginning point
-                    pathPoint.add(c.getCoordinate());
-                    c = c.getParentCell();
-                }
-            }
-            */
             while (c!=null) {
-                pathPoint.add(c.getCoordinate());
+                pathPoint.add(new Point(c.getCoordinate()));
                 c = c.getParentCell();
             }
             int sizePathPoint = pathPoint.size();
@@ -508,7 +487,6 @@ public class GridData implements Parcelable {
     private boolean addCellToStack(Stack<Cell> stack, Cell parent, int dx, int dy, Point target, HashSet<Point> traversed) {
         Point pTemp = new Point(parent.getCoordinate());
         pTemp.set(pTemp.x+dx,pTemp.y+dy);
-
         if (!traversed.contains(pTemp)) {
             // has not been checked
             if ((pTemp.x >= 0 && pTemp.x < rowCounts) && (pTemp.y >= 0 && pTemp.y < colCounts) && (cellValues[pTemp.x][pTemp.y] == 0)) {
@@ -549,9 +527,8 @@ public class GridData implements Parcelable {
         //
 
         dest.writeIntArray(this.nextBalls);
-        dest.writeIntArray(this.nextCellIndexI);
-        dest.writeIntArray(this.nextCellIndexJ);
         dest.writeIntArray(this.undoNextBalls);
+        dest.writeTypedList(this.nextCellIndex);
 
         // dest.writeSerializable(this.Light_line); // IOException
         int sizeOfHashSet = this.Light_line.size();
@@ -590,9 +567,8 @@ public class GridData implements Parcelable {
         //
 
         this.nextBalls = in.createIntArray();
-        this.nextCellIndexI = in.createIntArray();
-        this.nextCellIndexJ = in.createIntArray();
         this.undoNextBalls = in.createIntArray();
+        this.nextCellIndex = in.createTypedArrayList(Point.CREATOR);
 
         // this.Light_line = (HashSet<Point>) in.readSerializable();
         this.Light_line = new HashSet<>();

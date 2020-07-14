@@ -51,14 +51,6 @@ android {
         }
     }
 
-    sourceSets {
-        main {
-            java {
-                exclude "**/MainFragmentUI.java"
-            }
-        }
-    }
-
     compileOptions {
         sourceCompatibility = '1.8'
         targetCompatibility = '1.8'

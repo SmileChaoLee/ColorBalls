@@ -180,7 +180,7 @@ public class MyActivityPresenter {
             }
             if (gameProperties.isShowingScoreMessage()) {
                 Log.d(TAG, "initializeColorBallsGame() --> gameProperties.isShowingScoreMessage() is true");
-                ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(gameProperties.getLastGotScore(), gameProperties.getCurrentScore(), gridData.getLight_line(), gameProperties.isShowNextBallsAfterBlinking());
+                ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(gameProperties.getLastGotScore(), gridData.getLight_line(), gameProperties.isShowNextBallsAfterBlinking());
                 showingScoreHandler.post(showScoreRunnable);
                 Log.d(TAG,"initializeColorBallsGame() --> showingScoreHandler.post(showScoreRunnable).");
             }
@@ -280,12 +280,13 @@ public class MyActivityPresenter {
 
         gridData.undoTheLast();
 
-        // restore the screen
-        displayGameView();
-
+        cancelBouncyTimer();
         gameProperties.setBallBouncing(false);
         gameProperties.setBouncyBallIndexI(-1);
         gameProperties.setBouncyBallIndexJ(-1);
+
+        // restore the screen
+        displayGameView();
 
         gameProperties.setCurrentScore(gameProperties.getUndoScore());
         presentView.updateCurrentScoreOnUi(gameProperties.getCurrentScore());
@@ -602,14 +603,15 @@ public class MyActivityPresenter {
         // 6 balls --> 5 + (6-5)*2
         // 7 balls --> 5 + (6-5)*2 + (7-5)*2
         // 8 balls --> 5 + (6-5)*2 + (7-5)*2 + (8-5)*2
-        // n balls --> 5 + (6-5)*2 + (7-5)*5 + ... + (n-5)*2
+        // n balls --> 5 + (6-5)*2 + (7-5)*2 + ... + (n-5)*2
         int minBalls = 5;
         int minScore = 5;
         int score = minScore;
-        if (numBalls > minScore) {
+        int extraBalls = numBalls - minBalls;
+        if (extraBalls > 0) {
             // greater than 5 balls
             int rate  = 2;
-            for (int i=1 ; i<=Math.abs(numBalls-minBalls) ; i++) {
+            for (int i=1 ; i<=extraBalls ; i++) {
                 // rate = 2;   // added on 2018-10-02
                 score += i * rate ;
             }
@@ -659,37 +661,21 @@ public class MyActivityPresenter {
 
     private void displayGridDataNextCells() {
         gridData.randCells();
-        int numOneTime = GridData.ballNumOneTime;
-
-        int[] indexi = gridData.getNextCellIndexI();
-        int[] indexj = gridData.getNextCellIndexJ();
-
         int id, n1, n2;
         ImageView imageView;
-        for (int i = 0; i < numOneTime; i++) {
-            n1 = indexi[i];
-            n2 = indexj[i];
-            if ((n1 >= 0) && (n2 >= 0)) {
-                // id = n1 * colCounts + n2;
-                id = n1 * rowCounts + n2;
-                imageView = presentView.getImageViewById(id);
-                drawBall(imageView,gridData.getCellValue(n1, n2));
-            }
-        }
-
         boolean hasMoreFive = false;
         HashSet<Point> linkedPoint = new HashSet<>();
-        for (int i = 0; i < numOneTime; i++) {
-            n1 = indexi[i];
-            n2 = indexj[i];
-            if ((n1 >= 0) && (n2 >= 0)) {
-                if (gridData.getCellValue(n1, n2) != 0) {
-                    //   has  color in this cell
-                    if (gridData.check_moreThanFive(n1, n2) == 1) {
-                        hasMoreFive = true;
-                        for (Point point : gridData.getLight_line()) {
-                            linkedPoint.add(point);
-                        }
+        for (Point nextCellIndex : gridData.getNextCellIndex()) {
+            n1 = nextCellIndex.x;
+            n2 = nextCellIndex.y;
+            id = n1 * rowCounts + n2;
+            imageView = presentView.getImageViewById(id);
+            drawBall(imageView,gridData.getCellValue(n1, n2));
+            if (gridData.check_moreThanFive(n1, n2)) {
+                hasMoreFive = true;
+                for (Point point : gridData.getLight_line()) {
+                    if (!linkedPoint.contains(point)) {
+                        linkedPoint.add(new Point(point));
                     }
                 }
             }
@@ -702,8 +688,8 @@ public class MyActivityPresenter {
             gameProperties.setUndoScore(gameProperties.getCurrentScore());
             gameProperties.setCurrentScore(gameProperties.getCurrentScore() + gameProperties.getLastGotScore());
             presentView.updateCurrentScoreOnUi(gameProperties.getCurrentScore());
-            // ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(gameProperties.getLastGotScore(), gameProperties.getCurrentScore(), linkedPoint, true);
-            ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(gameProperties.getLastGotScore(), gameProperties.getCurrentScore(), gridData.getLight_line(), true);
+            // ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(gameProperties.getLastGotScore(), linkedPoint, true);
+            ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(gameProperties.getLastGotScore(), gridData.getLight_line(), true);
             showingScoreHandler.post(showScoreRunnable);
             Log.d(TAG,"displayGridDataNextCells() --> showingScoreHandler.post(showScoreRunnable).");
         } else {
@@ -793,18 +779,18 @@ public class MyActivityPresenter {
                     // drawBall(v, gridData.getCellValue(ii, jj));
 
                     //  check if there are more than five balls with same color connected together
-                    if (gridData.check_moreThanFive(ii, jj) == 1) {
+                    if (gridData.check_moreThanFive(ii, jj)) {
                         gameProperties.setLastGotScore(calculateScore(gridData.getLight_line().size()));
                         gameProperties.setUndoScore(gameProperties.getCurrentScore());
                         gameProperties.setCurrentScore(gameProperties.getCurrentScore() + gameProperties.getLastGotScore());
                         presentView.updateCurrentScoreOnUi(gameProperties.getCurrentScore());
-                        ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(gameProperties.getLastGotScore(), gameProperties.getCurrentScore(), gridData.getLight_line(), false);
+                        ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(gameProperties.getLastGotScore(), gridData.getLight_line(), false);
                         showingScoreHandler.post(showScoreRunnable);
                         Log.d(TAG,"drawBallAlongPath() --> showingScoreHandler.post(showScoreRunnable).");
 
                         // added for testing
-                        /*
-                        SystemClock.sleep(200);
+
+                        //SystemClock.sleep(200);
                         Configuration configuration = context.getResources().getConfiguration();
                         if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
                             Log.d(TAG, "drawBallAlongPath()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)");
@@ -813,7 +799,7 @@ public class MyActivityPresenter {
                             Log.d(TAG, "drawBallAlongPath()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)");
                             myActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                         }
-                        */
+
                         //
                     } else {
                         displayGridDataNextCells();   // has a problem
@@ -836,22 +822,18 @@ public class MyActivityPresenter {
             boolean ballYN = false;
             @Override
             public void run() {
-                // if (gameProperties.isBallBouncing()) {   // no need
-                    if (color != 0) {
-                        if (ballYN) {
-                            drawBall(v , color);
-                        } else {
-                            drawOval(v , color);
-                        }
-                        ballYN = !ballYN;
-                        bouncyHandler.postDelayed(this, 200);
+                if (color != 0) {
+                    if (ballYN) {
+                        drawBall(v , color);
                     } else {
-                        // v.setImageResource(R.drawable.boximage);
-                        v.setImageDrawable(null);
+                        drawOval(v , color);
                     }
-                // } else {
-                //     cancelBouncyTimer();
-                // }
+                    ballYN = !ballYN;
+                    bouncyHandler.postDelayed(this, 200);
+                } else {
+                    // v.setImageResource(R.drawable.boximage);
+                    v.setImageDrawable(null);
+                }
             }
         };
         bouncyHandler.post(bouncyRunnable);
@@ -867,16 +849,14 @@ public class MyActivityPresenter {
     private class ShowScoreRunnable implements Runnable {
         private final int color;
         private final int lastGotScore;
-        private final int currentScore;
         private HashSet<Point> hasPoint = null;
         private boolean isNextBalls;
 
         private int twinkleCountDown = 5;
         private int counter = 0;
 
-        public ShowScoreRunnable(int lastGotScore, int currentScore, HashSet<Point> linkedPoint, boolean isNextBalls) {
+        public ShowScoreRunnable(int lastGotScore, HashSet<Point> linkedPoint, boolean isNextBalls) {
             this.lastGotScore = lastGotScore;
-            this.currentScore = currentScore;
             this.isNextBalls = isNextBalls;
             int colorTmp = 0;
             if (linkedPoint != null) {
@@ -911,7 +891,6 @@ public class MyActivityPresenter {
                     // show the score
                     String scoreString = String.valueOf(lastGotScore);
                     presentView.showMessageOnScreen(scoreString);
-                    SystemClock.sleep(200);
                     for (Point item : hasPoint) {
                         clearCell(item.x, item.y);
                     }
@@ -939,7 +918,7 @@ public class MyActivityPresenter {
                 if (counter <= twinkleCountDown) {
                     int md = counter % 2; // modulus
                     onProgressUpdate(md);
-                    showingScoreHandler.postDelayed(this, 100);
+                    showingScoreHandler.postDelayed(this, 200);
                 } else {
                     if (counter == twinkleCountDown+1) {
                         onProgressUpdate(3);    // show score
