@@ -692,6 +692,19 @@ public class MyActivityPresenter {
             ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(gameProperties.getLastGotScore(), gridData.getLight_line(), true);
             showingScoreHandler.post(showScoreRunnable);
             Log.d(TAG,"displayGridDataNextCells() --> showingScoreHandler.post(showScoreRunnable).");
+
+            // added for testing
+            /*
+            Configuration configuration = context.getResources().getConfiguration();
+            if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                Log.d(TAG, "displayGridDataNextCells()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)");
+                myActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            } else {
+                Log.d(TAG, "displayGridDataNextCells()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)");
+                myActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            }
+            */
+            //
         } else {
             // check if game over
             boolean gameOverYn = gridData.getGameOver();
@@ -787,20 +800,6 @@ public class MyActivityPresenter {
                         ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(gameProperties.getLastGotScore(), gridData.getLight_line(), false);
                         showingScoreHandler.post(showScoreRunnable);
                         Log.d(TAG,"drawBallAlongPath() --> showingScoreHandler.post(showScoreRunnable).");
-
-                        // added for testing
-
-                        //SystemClock.sleep(200);
-                        Configuration configuration = context.getResources().getConfiguration();
-                        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                            Log.d(TAG, "drawBallAlongPath()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)");
-                            myActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                        } else {
-                            Log.d(TAG, "drawBallAlongPath()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)");
-                            myActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                        }
-
-                        //
                     } else {
                         displayGridDataNextCells();   // has a problem
                         Log.d(TAG,"drawBallAlongPath() --> displayGridDataNextCells().");
@@ -918,7 +917,7 @@ public class MyActivityPresenter {
                 if (counter <= twinkleCountDown) {
                     int md = counter % 2; // modulus
                     onProgressUpdate(md);
-                    showingScoreHandler.postDelayed(this, 200);
+                    showingScoreHandler.postDelayed(this, 100);
                 } else {
                     if (counter == twinkleCountDown+1) {
                         onProgressUpdate(3);    // show score

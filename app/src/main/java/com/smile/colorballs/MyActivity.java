@@ -121,10 +121,10 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
         if (ScreenUtil.isTablet(this)) {
             // Table then change orientation to Landscape
-            // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         } else {
             // phone then change orientation to Portrait
-            // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
 
         setContentView(R.layout.activity_my);
@@ -248,8 +248,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 return true;
             }
             if (id == R.id.privacyPolicy) {
-                // Intent privacyPolicyIntent = new Intent(this, PrivacyPolicyActivity.class);
-                // startActivity(privacyPolicyIntent);
                 PrivacyPolicyUtil.startPrivacyPolicyActivity(this, ColorBallsApp.PrivacyPolicyUrl, PrivacyPolicyActivityRequestCode);
             }
         }
@@ -364,28 +362,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         if (gameOverDialog != null) {
             gameOverDialog.dismissAllowingStateLoss();
         }
-
-        /*
-        // the following were removed on 2019-06-25
-        // int pid = android.os.Process.myPid();
-        if (isQuitOrNewGame == QuitGame) {
-            // Kill Current Process
-            //  removed for testing (UI test)
-            // android.os.Process.killProcess(pid);
-            // System.exit(0);
-        } else {
-            // create a new game
-            String packageName = getBaseContext().getPackageName();
-            Intent myIntent = getBaseContext().getPackageManager().getLaunchIntentForPackage(packageName);
-            myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(myIntent);
-
-            // Kill Current Process
-            // removed for testing (UI test)
-            // android.os.Process.killProcess(pid);
-            //
-        }
-        */
 
         super.onDestroy();
     }
