@@ -692,19 +692,6 @@ public class MyActivityPresenter {
             ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(gameProperties.getLastGotScore(), gridData.getLight_line(), true);
             showingScoreHandler.post(showScoreRunnable);
             Log.d(TAG,"displayGridDataNextCells() --> showingScoreHandler.post(showScoreRunnable).");
-
-            // added for testing
-            /*
-            Configuration configuration = context.getResources().getConfiguration();
-            if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                Log.d(TAG, "displayGridDataNextCells()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)");
-                myActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            } else {
-                Log.d(TAG, "displayGridDataNextCells()-->setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)");
-                myActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            }
-            */
-            //
         } else {
             // check if game over
             boolean gameOverYn = gridData.getGameOver();
@@ -759,9 +746,11 @@ public class MyActivityPresenter {
         final int beginI = gridData.getPathPoint().get(sizeOfPathPoint-1).x;
         final int beginJ = gridData.getPathPoint().get(sizeOfPathPoint-1).y;
         final int color = gridData.getCellValue(beginI, beginJ);
-        Log.d(TAG,"drawBallAlongPath() --> gridData.getCellValue(gridData.getPathPoint().get(sizeOfPathPoint-1).x, gridData.getPathPoint().get(sizeOfPathPoint-1).y) = " + color);
+
         gameProperties.getThreadCompleted()[0] = false;
         gameProperties.setBallMoving(true);
+
+        clearCell(beginI, beginJ);
 
         final List<Point> tempList = new ArrayList<>(gridData.getPathPoint());
         Runnable runnablePath = new Runnable() {
@@ -769,7 +758,7 @@ public class MyActivityPresenter {
             ImageView imageView = null;
             int countDown = tempList.size()*2 - 1;
             @Override
-            public void run() {
+            public synchronized void run() {
                 if (countDown >= 2) {   // eliminate start point
                     int i = countDown / 2;
                     imageView = presentView.getImageViewById(tempList.get(i).x * rowCounts + tempList.get(i).y);
@@ -783,14 +772,10 @@ public class MyActivityPresenter {
                     movingBallHandler.postDelayed(this,20);
                     Log.d(TAG,"drawBallAlongPath() --> ballMovingHandler.postDelayed()");
                 } else {
-                    movingBallHandler.removeCallbacksAndMessages(null);
-
-                    clearCell(beginI, beginJ);
+                    // movingBallHandler.removeCallbacksAndMessages(null);
                     ImageView v = presentView.getImageViewById(ii * rowCounts + jj);
                     gridData.setCellValue(ii, jj, color);
                     drawBall(v, color);
-                    // drawBall(v, gridData.getCellValue(ii, jj));
-
                     //  check if there are more than five balls with same color connected together
                     if (gridData.check_moreThanFive(ii, jj)) {
                         gameProperties.setLastGotScore(calculateScore(gridData.getLight_line().size()));
@@ -887,22 +872,28 @@ public class MyActivityPresenter {
                 case 2:
                     break;
                 case 3:
+                    //
                     // show the score
                     String scoreString = String.valueOf(lastGotScore);
                     presentView.showMessageOnScreen(scoreString);
+                    Log.d(TAG, "ShowScoreRunnable-->onProgressUpdate()-->presentView.showMessageOnScreen(scoreString).");
                     for (Point item : hasPoint) {
                         clearCell(item.x, item.y);
                     }
+                    Log.d(TAG, "ShowScoreRunnable-->onProgressUpdate()-->clearCell(item.x, item.y)");
                     // added on 2019-03-30
                     if (isNextBalls) {
                         displayNextColorBalls();
+                        Log.d(TAG, "ShowScoreRunnable-->onProgressUpdate()-->displayNextColorBalls()");
                     }
                     //
                     gameProperties.getThreadCompleted()[1] = true;  // user can start input command
                     gameProperties.setShowingScoreMessage(false);
+                    Log.d(TAG, "ShowScoreRunnable-->onProgressUpdate()-->gameProperties.setShowingScoreMessage(false)");
                     break;
                 case 4:
                     presentView.dismissShowMessageOnScreen();
+                    Log.d(TAG, "ShowScoreRunnable-->onProgressUpdate()-->presentView.dismissShowMessageOnScreen().");
                     break;
             }
         }
@@ -910,7 +901,7 @@ public class MyActivityPresenter {
         @Override
         public synchronized void run() {
             if (hasPoint == null) {
-                Log.d(TAG, "ShowScoreRunnable-->onProgressUpdate()-->hasPoint is null.");
+                Log.d(TAG, "ShowScoreRunnable-->run()-->hasPoint is null.");
                 showingScoreHandler.removeCallbacksAndMessages(null);
             } else {
                 counter++;
@@ -923,7 +914,7 @@ public class MyActivityPresenter {
                         onProgressUpdate(3);    // show score
                         showingScoreHandler.postDelayed(this, 500);
                     } else {
-                        showingScoreHandler.removeCallbacksAndMessages(null);
+                        // showingScoreHandler.removeCallbacksAndMessages(null);
                         onProgressUpdate(4);    // dismiss showing message
                     }
                 }
