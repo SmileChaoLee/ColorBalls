@@ -86,6 +86,9 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     private MyBroadcastReceiver myReceiver;
     private IntentFilter myIntentFilter;
 
+    private float mainGameViewHeight;
+    private float mainGameViewWidth;
+
     private LinearLayout bannerLinearLayout;
     private SetBannerAdViewForAdMobOrFacebook myBannerAdView;
     private GoogleAdMobNativeTemplate nativeTemplate;
@@ -132,6 +135,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         createActivityUI();
 
         createGameView(savedInstanceState);
+
+        setBannerAndNativeAdUI();
 
         setBroadcastReceiver();
 
@@ -386,7 +391,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         findOutTextFontSize();
         findOutScreenSize();
         setUpSupportActionBar();
-        setBannerAndNativeAdUI();
     }
 
     private void findOutTextFontSize() {
@@ -422,14 +426,14 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         LinearLayout gameViewLinearLayout = findViewById(R.id.gameViewLinearLayout);
         LinearLayout.LayoutParams gameViewLp = (LinearLayout.LayoutParams) gameViewLinearLayout.getLayoutParams();
         float gameView_Weight = gameViewLp.weight;
-        float mainGameViewHeight = screenHeight * gameView_Weight / main_WeightSum;
+        mainGameViewHeight = screenHeight * gameView_Weight / main_WeightSum;
         Log.d(TAG, "mainGameViewHeight = " + mainGameViewHeight);
 
         float gameViewWeightSum = gameViewLinearLayout.getWeightSum();
         LinearLayout mainGameViewUiLayout = findViewById(R.id.gameViewLayout);
         LinearLayout.LayoutParams mainGameViewtUiLayoutParams = (LinearLayout.LayoutParams) mainGameViewUiLayout.getLayoutParams();
         float mainGameViewUi_weight = mainGameViewtUiLayoutParams.weight;
-        float mainGameViewWidth = screenWidth * (mainGameViewUi_weight / gameViewWeightSum);
+        mainGameViewWidth = screenWidth * (mainGameViewUi_weight / gameViewWeightSum);
         Log.d(TAG, "mainGameViewWidth = " + mainGameViewWidth);
         //
 
@@ -494,9 +498,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         // for 9 x 9 grid: main part of this game
         GridLayout gridCellsLayout = findViewById(R.id.gridCellsLayout);
         rowCounts = gridCellsLayout.getRowCount();
-        Log.d(TAG, "createGameView()-->rowCounts = " + rowCounts);
         colCounts = gridCellsLayout.getColumnCount();
-        Log.d(TAG, "createGameView()-->colCounts = " + colCounts);
         // LinearLayout.LayoutParams gridLp = (LinearLayout.LayoutParams) gridCellsLayout.getLayoutParams();
         // float height_weight_gridCellsLayout = gridLp.weight;
 
@@ -631,9 +633,14 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         }
         String facebookBannerID = testString + ColorBallsApp.facebookBannerID;
         //
+        int bannerWidth = (int)mainGameViewWidth;
+        Configuration configuration = getResources().getConfiguration();
+        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            bannerWidth = (int)(screenWidth - mainGameViewWidth);
+        }
         myBannerAdView = new SetBannerAdViewForAdMobOrFacebook(this, null, bannerLinearLayout
                 , ColorBallsApp.googleAdMobBannerID, facebookBannerID);
-        myBannerAdView.showBannerAdViewFromAdMobOrFacebook(ColorBallsApp.AdProvider);
+        myBannerAdView.showBannerAdViewFromAdMobOrFacebook(ShowingInterstitialAdsUtil.GoogleAdMobAdProvider);
 
         // show AdMob native ad if the device is tablet
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {

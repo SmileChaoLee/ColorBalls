@@ -21,6 +21,7 @@ public class SetBannerAdViewForAdMobOrFacebook {
     private final LinearLayout bannerLinearLayout;
     private final String googleAdMobBannerID;
     private final String facebookBannerID;
+    private final int bannerWidth;
     private com.google.android.gms.ads.AdView adMobBannerAdView;
     private com.facebook.ads.AdView facebookAdView;
     private com.facebook.ads.AdView.AdViewLoadConfig facebookAdViewLoadConfig;
@@ -59,15 +60,31 @@ public class SetBannerAdViewForAdMobOrFacebook {
     public SetBannerAdViewForAdMobOrFacebook(Context context, LinearLayout companyInfoLayout
             , LinearLayout bannerLinearLayout
             , String googleAdMobBannerID, String facebookBannerID) {
+        this(context, companyInfoLayout, bannerLinearLayout, googleAdMobBannerID, facebookBannerID, 0);
+    }
+
+    public SetBannerAdViewForAdMobOrFacebook(Context context, LinearLayout companyInfoLayout
+            , LinearLayout bannerLinearLayout
+            , String googleAdMobBannerID, String facebookBannerID
+            , int bannerWidth) {
         this.context = context;
         this.companyInfoLayout = companyInfoLayout;
         this.bannerLinearLayout = bannerLinearLayout;
         this.googleAdMobBannerID = googleAdMobBannerID;
         this.facebookBannerID = facebookBannerID;
+        this.bannerWidth = bannerWidth;
     }
 
     public void showBannerAdViewFromAdMobOrFacebook(int adProvider) {
-        if (!googleAdMobBannerID.isEmpty() || !facebookBannerID.isEmpty()) {
+        boolean isGoogleAdMobBannerAvaiable = true;
+        if (googleAdMobBannerID == null || googleAdMobBannerID.isEmpty()) {
+            isGoogleAdMobBannerAvaiable = false;
+        }
+        boolean isFacebookBannerAvaiable = true;
+        if (facebookBannerID == null || facebookBannerID.isEmpty()) {
+            isFacebookBannerAvaiable = false;
+        }
+        if (isGoogleAdMobBannerAvaiable || isFacebookBannerAvaiable) {
             if (companyInfoLayout != null) {
                 companyInfoLayout.setVisibility(View.GONE);
             }
@@ -75,7 +92,7 @@ public class SetBannerAdViewForAdMobOrFacebook {
             boolean adMobFirst = true;    // true for google, false for facebook
             if (adProvider == ShowingInterstitialAdsUtil.FacebookAdProvider) {
                 Log.d(TAG, "ShowingInterstitialAdsUtil.FacebookAdProvider.");
-                if (!facebookBannerID.isEmpty()) {
+                if (isFacebookBannerAvaiable) {
                     adMobFirst = false;   // facebook first
                     Log.d(TAG, "facebookBannerID is not empty.");
                 } else {
@@ -85,7 +102,7 @@ public class SetBannerAdViewForAdMobOrFacebook {
             if (adMobFirst) {
                 Log.d(TAG, "ShowingInterstitialAdsUtil.GoogleAdMobAdProvider.");
                 // google first
-                if (googleAdMobBannerID.isEmpty()) {
+                if (!isGoogleAdMobBannerAvaiable) {
                     // google is is empty so facebook id will not be empty
                     adMobFirst = false;    // no google so facebook first
                 }
@@ -136,7 +153,13 @@ public class SetBannerAdViewForAdMobOrFacebook {
         Log.d(TAG, "Starting the initialization for Banner Ad of Google AdMob.");
         numberOfLoadingGoogleAdMobBannerAd = 0;
         adMobBannerAdView = new com.google.android.gms.ads.AdView(context);
-        adMobBannerAdView.setAdSize(AdSize.BANNER);
+        if (bannerWidth <= 0) {
+            adMobBannerAdView.setAdSize(AdSize.BANNER);
+        } else {
+            // adaptive banner
+            AdSize adMobAdSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize (context, bannerWidth);
+            adMobBannerAdView.setAdSize(adMobAdSize);
+        }
         adMobBannerAdView.setAdUnitId(googleAdMobBannerID);
         bannerLinearLayout.addView(adMobBannerAdView);
         AdListener adMobBannerListener = new AdListener() {
