@@ -640,7 +640,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         }
         myBannerAdView = new SetBannerAdViewForAdMobOrFacebook(this, null, bannerLinearLayout
                 , ColorBallsApp.googleAdMobBannerID, facebookBannerID);
-        myBannerAdView.showBannerAdViewFromAdMobOrFacebook(ShowingInterstitialAdsUtil.GoogleAdMobAdProvider);
+        myBannerAdView.showBannerAdViewFromAdMobOrFacebook(ColorBallsApp.AdProvider);
 
         // show AdMob native ad if the device is tablet
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
