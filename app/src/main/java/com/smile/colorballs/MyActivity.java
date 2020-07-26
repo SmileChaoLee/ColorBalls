@@ -487,7 +487,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 imageView.setId(MyActivityPresenter.nextBallsViewIdStart + (nextBallsColumn * i + j));
                 imageView.setClickable(false);
                 imageView.setAdjustViewBounds(true);
-                imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+                imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 imageView.setBackgroundResource(R.drawable.next_ball_background_image);
                 nextBallsLayout.addView(imageView, oneNextBallLp);
             }
@@ -535,7 +535,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 imageView = new ImageView(this);
                 imageView.setId(imId);
                 imageView.setAdjustViewBounds(true);
-                imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+                imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 imageView.setBackgroundResource(R.drawable.boximage);
                 imageView.setClickable(true);
                 imageView.setOnClickListener(new View.OnClickListener() {
