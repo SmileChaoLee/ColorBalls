@@ -2,8 +2,6 @@ package com.smile.presenters;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
@@ -44,7 +42,6 @@ public class MyActivityPresenter {
 
     private final Context context;
     private final PresentView presentView;
-    private final Activity myActivity;
     private final SoundPoolUtil soundPoolUtil;
     private final Handler bouncyHandler = new Handler(Looper.getMainLooper());
     private final Handler movingBallHandler = new Handler(Looper.getMainLooper());
@@ -71,7 +68,6 @@ public class MyActivityPresenter {
     public MyActivityPresenter(Context context, PresentView presentView) {
         this.context = context;
         this.presentView = presentView;
-        this.myActivity = (MyActivity)context;
         soundPoolUtil = new SoundPoolUtil(this.context, R.raw.uhoh);
     }
 
