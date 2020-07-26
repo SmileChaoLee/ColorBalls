@@ -7,18 +7,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -99,8 +98,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
     private ImageView scoreImageView = null;
 
-    private TextView toolbarTitleTextView;
-    private TextView currentScoreView;
+    private TextView highestScoreTextView;
+    private TextView currentScoreTextView;
 
     private int rowCounts = 9;
     private int colCounts = 9;
@@ -176,17 +175,19 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.my, menu);
 
-        /*
-        final int popupThemeId = supportToolbar.getPopupTheme();
         // final Context wrapper = new ContextThemeWrapper(this, R.style.menu_text_style);
+        // or
+        final int popupThemeId = supportToolbar.getPopupTheme();
         final Context wrapper = new ContextThemeWrapper(this, popupThemeId);
-        */
+        //
 
-        final float fScale = fontScale;
         // ScreenUtil.buildActionViewClassMenu(this, wrapper, menu, fScale, ColorBallsApp.FontSize_Scale_Type);
+        ScreenUtil.resizeMenuTextIconSize(wrapper, menu, fontScale);
+
+        /*
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             // API >= 18 works on SpannableString on Main menu items
-            ScreenUtil.resizeMenuTextSize(menu, fScale);
+            ScreenUtil.resizeMenuTextIconSize(wrapper, menu, fScale);
         } else {
             // API < 18 does not work on SpannableString on Main menu
             // only sub menu works on SpannableString
@@ -195,9 +196,10 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             Menu subMenu;
             for (int i = 0; i < menuSize; i++) {
                 subMenu = menu.getItem(i).getSubMenu();
-                ScreenUtil.resizeMenuTextSize(subMenu, fScale);
+                ScreenUtil.resizeMenuTextIconSize(wrapper, subMenu, fScale);
             }
         }
+        */
 
         return true;
     }
@@ -456,11 +458,11 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         float height_weight_scoreNextBallsLayout = scoreNextBallsLayoutParams.weight;
 
         // display the highest score and current score
-        toolbarTitleTextView = findViewById(R.id.toolbarTitleTextView);
-        ScreenUtil.resizeTextSize(toolbarTitleTextView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        highestScoreTextView = supportToolbar.findViewById(R.id.highestScoreTextView);
+        ScreenUtil.resizeTextSize(highestScoreTextView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
 
-        currentScoreView = findViewById(R.id.currentScoreTextView);
-        ScreenUtil.resizeTextSize(currentScoreView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        currentScoreTextView = supportToolbar.findViewById(R.id.currentScoreTextView);
+        ScreenUtil.resizeTextSize(currentScoreTextView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
 
         // display the view of next balls
         GridLayout nextBallsLayout = findViewById(R.id.nextBallsLayout);
@@ -688,12 +690,18 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     }
 
     public void updateHighestScoreOnUi(int highestScore) {
-        toolbarTitleTextView.setText(String.format(Locale.getDefault(), "%8d", highestScore));
+        // added for testing
+        highestScore = 99999999;
+        //
+        highestScoreTextView.setText(String.format(Locale.getDefault(), "%8d", highestScore));
     }
 
     @Override
     public void updateCurrentScoreOnUi(int score) {
-        currentScoreView.setText(String.format(Locale.getDefault(), "%8d", score));
+        // added for testing
+        score = 99999999;
+        //
+        currentScoreTextView.setText(String.format(Locale.getDefault(), "%8d", score));
     }
 
     @Override

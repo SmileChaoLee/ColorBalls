@@ -4,26 +4,19 @@
     tools:context=".MyActivity" >
     <item android:id="@+id/undoGame"
         android:title="@string/undoStr"
+        android:icon="@drawable/undo"
         android:orderInCategory="1"
-        app:showAsAction="always">
-    </item>
-    <item android:id="@+id/newGame"
-        android:title="@string/newGame"
-        android:orderInCategory="2"
-        app:showAsAction="always">
-    </item>
-    <item android:id="@+id/quitGame"
-        android:title="@string/quitGame"
-        android:orderInCategory="3"
         app:showAsAction="always">
     </item>
     <item android:id="@+id/setting"
         android:title="@string/settingStr"
+        android:icon="@drawable/setting"
         android:orderInCategory="4"
         app:showAsAction="always">
     </item>
     <item android:id="@+id/gameAction"
         android:title="@string/moreActionString"
+        android:icon="@drawable/circle_and_three_dots"
         android:orderInCategory="5"
         app:showAsAction="always">
         <menu>
@@ -50,6 +43,16 @@
             <item android:id="@+id/privacyPolicy"
                 android:title="@string/privacyPolicyString"
                 android:orderInCategory="5"
+                app:showAsAction="never">
+            </item>
+            <item android:id="@+id/newGame"
+                android:title="@string/newGame"
+                android:orderInCategory="6"
+                app:showAsAction="never">
+            </item>
+            <item android:id="@+id/quitGame"
+                android:title="@string/quitGame"
+                android:orderInCategory="7"
                 app:showAsAction="never">
             </item>
         </menu>

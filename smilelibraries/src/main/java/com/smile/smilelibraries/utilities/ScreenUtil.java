@@ -6,10 +6,13 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.graphics.Point;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.PopupMenu;
 
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -17,13 +20,11 @@ import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -309,23 +310,16 @@ public class ScreenUtil {
         return (screenDiagonal >= 7.0);
     }
 
-    public static void resizeMenuTextSize(Menu menu, float fontScale) {
-        if (menu != null) {
-            int mSize = menu.size();
-            MenuItem mItem;
-            SpannableString spanString;
-            int sLen;
-            for (int i=0; i<mSize; i++) {
-                mItem = menu.getItem(i);
-                spanString = new SpannableString(mItem.getTitle().toString());
-                sLen = spanString.length();
-                spanString.setSpan(new RelativeSizeSpan(fontScale), 0, sLen, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                mItem.setTitle(spanString);
-
-                // submenus
-                resizeMenuTextSize(mItem.getSubMenu(), fontScale);
-            }
+    public static void resizeMenuTextIconSize(Context wrapper, Menu menu, float fontScale) {
+        if (wrapper == null) {
+            return;
         }
+        if (menu == null) {
+            return;
+        }
+
+        float defaultMenuTextSize = getDefaultTextSizeFromTheme(wrapper, FontSize_Pixel_Type, null);
+        resizeMenuTextIconSize0(wrapper, menu, defaultMenuTextSize, fontScale);
     }
 
     public static void buildActionViewClassMenu(final Activity activity, final Context wrapper, final Menu menu, final float fontScale, final int fontSize_Type) {
@@ -334,7 +328,7 @@ public class ScreenUtil {
             return;
         }
 
-        float originalMenuTextSize;
+        float defaultMenuTextSize = getDefaultTextSizeFromTheme(wrapper, fontSize_Type, null);
         int menuSize = menu.size(); // for the main menu that is always showing
 
         for (int i = 0; i < menuSize; i++) {
@@ -345,14 +339,13 @@ public class ScreenUtil {
                 TextView mItemTextView = (TextView) view;
                 // mItemTextView.setPadding(0, 0, 10, 0);  // has been set in styles.xml
                 mItemTextView.setText(mItem.getTitle());
-                originalMenuTextSize = mItemTextView.getTextSize();
-                ScreenUtil.resizeTextSize(mItemTextView, originalMenuTextSize * fontScale, fontSize_Type);
+                resizeTextSize(mItemTextView, defaultMenuTextSize * fontScale, fontSize_Type);
                 mItemTextView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         if (mItem.hasSubMenu()) {
                             Menu subMenu = mItem.getSubMenu();
-                            ScreenUtil.buildMenuInPopupMenuByView(activity, wrapper, subMenu, view, fontScale);
+                            buildMenuInPopupMenuByView(activity, wrapper, subMenu, view, fontScale);
                         } else {
                             activity.onOptionsItemSelected(mItem);
                         }
@@ -365,7 +358,7 @@ public class ScreenUtil {
                 mItem.setTitle(spanString);
                 if (mItem.hasSubMenu()) {
                     Menu subMenu = mItem.getSubMenu();
-                    ScreenUtil.resizeMenuTextSize(subMenu, fontScale);
+                    resizeMenuTextIconSize(wrapper, subMenu, fontScale);
                 }
             }
         }
@@ -429,7 +422,7 @@ public class ScreenUtil {
             try {
                 ViewGroup toastView = (ViewGroup) toast.getView();
                 TextView messageTextView = (TextView) toastView.getChildAt(0);
-                ScreenUtil.resizeTextSize(messageTextView, textFontSize, fontSize_Type);
+                resizeTextSize(messageTextView, textFontSize, fontSize_Type);
                 toast.show();
                 Log.d(TAG, "toast.show()");
             } catch (Exception e) {
@@ -507,4 +500,34 @@ public class ScreenUtil {
 
         return defaultLandscapeAndIsInLandscape || defaultLandscapeAndIsInPortrait;
     }
+
+    // private methods
+
+    private static void resizeMenuTextIconSize0(Context context, Menu menu, float defaultMenuTextSize, float fontScale) {
+        if (menu == null) {
+            return;
+        }
+
+        int mSize = menu.size();
+        MenuItem mItem;
+        SpannableString spanString;
+        int sLen;
+        for (int i=0; i<mSize; i++) {
+            mItem = menu.getItem(i);
+            spanString = new SpannableString(mItem.getTitle().toString());
+            sLen = spanString.length();
+            spanString.setSpan(new RelativeSizeSpan(fontScale), 0, sLen, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            mItem.setTitle(spanString);
+            Drawable icon = mItem.getIcon();
+            if (icon != null) {
+                int iconSize = (int)(defaultMenuTextSize * fontScale);
+                Bitmap tempBitmap = ((BitmapDrawable) icon).getBitmap();
+                Drawable iconDrawable = new BitmapDrawable(context.getResources(), Bitmap.createScaledBitmap(tempBitmap, iconSize, iconSize, true));
+                mItem.setIcon(iconDrawable);
+            }
+            // submenus
+            resizeMenuTextIconSize0(context, mItem.getSubMenu(), defaultMenuTextSize, fontScale);
+        }
+    }
+    // end of private methods
 }

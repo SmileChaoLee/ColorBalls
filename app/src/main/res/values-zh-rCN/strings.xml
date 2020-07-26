@@ -6,7 +6,7 @@
     <string name="easyStr">容易</string>
     <string name="difficultStr">困难</string>
     <string name="playerLevelStr">难易程度</string>
-    <string name="quitGame">结束</string>
+    <string name="quitGame">结束游戏</string>
     <string name="newGame">新游戏</string>
     <string name="optionButton">选项</string>
     <string name="title_activity_history">前10名高分</string>
