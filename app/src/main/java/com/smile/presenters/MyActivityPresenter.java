@@ -1,8 +1,11 @@
 package com.smile.presenters;
 
-import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -14,11 +17,11 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 
 import com.smile.colorballs.ColorBallsApp;
-import com.smile.colorballs.MyActivity;
 import com.smile.colorballs.R;
 import com.smile.model.GameProperties;
 import com.smile.model.GridData;
 import com.smile.smilelibraries.player_record_rest.PlayerRecordRest;
+import com.smile.smilelibraries.utilities.FontAndBitmapUtil;
 import com.smile.smilelibraries.utilities.SoundPoolUtil;
 
 import org.json.JSONObject;
@@ -29,12 +32,26 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
 public class MyActivityPresenter {
 
-    public static final int nextBallsViewIdStart = 100;
+    public static final int NumOfColorsUsedByEasy = 5;          // 5 colors for easy level
+    public static final int NumOfColorsUsedByDifficult = 6;    // 6 colors for difficult level
+
+    // 10->RED, 20->GREEN, 30->BLUE, 40->MAGENTA, 50->YELLOW, 60->Cyan
+    public static final int ColorRED = 10;
+    public static final int ColorGREEN = 20;
+    public static final int ColorBLUE = 30;
+    public static final int ColorMAGENTA = 40;
+    public static final int ColorYELLOW = 50;
+    public static final int ColorCyan = 60;
+    public static final int[] ballColor = new int[] {ColorRED, ColorGREEN, ColorBLUE, ColorMAGENTA, ColorYELLOW, ColorCyan};
+    public static HashMap<Integer, Bitmap> colorBallMap;
+    public static HashMap<Integer, Bitmap> colorOvalBallMap;
+    public static HashMap<Integer, Drawable> colorNextBallMap;
 
     private final String TAG = "MyActivityPresenter";
     private final String GamePropertiesTag = "GameProperties";
@@ -69,6 +86,10 @@ public class MyActivityPresenter {
         this.context = context;
         this.presentView = presentView;
         soundPoolUtil = new SoundPoolUtil(this.context, R.raw.uhoh);
+
+        colorBallMap = new HashMap<>();
+        colorOvalBallMap = new HashMap<>();
+        colorNextBallMap = new HashMap<>();
     }
 
     public void doDrawBallsAndCheckListener(View v) {
@@ -108,7 +129,6 @@ public class MyActivityPresenter {
                         gameProperties.setBouncyBallIndexI(-1);
                         gameProperties.setBouncyBallIndexJ(-1);
 
-                        // drawBallAlongPath(i,j,color);
                         drawBallAlongPath();
 
                         gameProperties.setUndoEnable(true);
@@ -135,17 +155,21 @@ public class MyActivityPresenter {
         }
     }
 
-    public boolean initializeColorBallsGame(int rowCounts, int colCounts, Bundle savedInstanceState) {
+    public boolean initializeColorBallsGame(int rowCounts, int colCounts, int cellWidth, int cellHeight, Bundle savedInstanceState) {
+
+        createBitmapsAndDrawableResources(cellWidth, cellHeight);
+
         this.rowCounts = rowCounts;
         this.colCounts = colCounts;
         if (ColorBallsApp.ScoreSQLiteDB != null) {
             highestScore = ColorBallsApp.ScoreSQLiteDB.readHighestScore();
         }
+
         boolean isNewGame = true;
         if (savedInstanceState == null) {
             // activity just started so new game
             Log.d(TAG, "Created new game.");
-            gridData = new GridData(this.rowCounts, this.colCounts, ColorBallsApp.NumOfColorsUsedByEasy);
+            gridData = new GridData(this.rowCounts, this.colCounts, NumOfColorsUsedByEasy);
             gameProperties = new GameProperties(gridData);
         } else {
             Log.d(TAG, "Configuration changed and restore the original UI.");
@@ -244,10 +268,10 @@ public class MyActivityPresenter {
         gameProperties.setEasyLevel(yn);
         if (gameProperties.isEasyLevel()) {
             // easy level
-            gridData.setNumOfColorsUsed(ColorBallsApp.NumOfColorsUsedByEasy);
+            gridData.setNumOfColorsUsed(NumOfColorsUsedByEasy);
         } else {
             // difficult
-            gridData.setNumOfColorsUsed(ColorBallsApp.NumOfColorsUsedByDifficult);
+            gridData.setNumOfColorsUsed(NumOfColorsUsedByDifficult);
         }
     }
 
@@ -405,7 +429,7 @@ public class MyActivityPresenter {
             // save next balls
             // foStream.write(gridData.ballNumOneTime);
             foStream.write(GridData.ballNumOneTime);
-            for (int i=0; i<ColorBallsApp.NumOfColorsUsedByDifficult; i++) {
+            for (int i=0; i<NumOfColorsUsedByDifficult; i++) {
                 foStream.write(gridData.getNextBalls()[i]);
             }
             // save values on 9x9 grid
@@ -424,7 +448,7 @@ public class MyActivityPresenter {
                 // foStream.write(gridData.ballNumOneTime);
                 foStream.write(GridData.ballNumOneTime);
                 // save undoNextBalls
-                for (int i=0; i<ColorBallsApp.NumOfColorsUsedByDifficult; i++) {
+                for (int i=0; i<NumOfColorsUsedByDifficult; i++) {
                     foStream.write(gridData.getUndoNextBalls()[i]);
                 }
                 // save backupCells
@@ -473,11 +497,11 @@ public class MyActivityPresenter {
         boolean soundYn = gameProperties.isHasSound();
         boolean easyYn = gameProperties.isEasyLevel();
         int ballNumOneTime;
-        int[] nextBalls = new int[ColorBallsApp.NumOfColorsUsedByDifficult];
+        int[] nextBalls = new int[NumOfColorsUsedByDifficult];
         int[][] gameCells = new int[rowCounts][colCounts];
         int cScore = gameProperties.getCurrentScore();
         boolean undoYn = gameProperties.isUndoEnable();
-        int[] undoNextBalls = new int[ColorBallsApp.NumOfColorsUsedByDifficult];
+        int[] undoNextBalls = new int[NumOfColorsUsedByDifficult];
         int[][] backupCells = new int[rowCounts][colCounts];
         int unScore = gameProperties.getUndoScore();
 
@@ -508,7 +532,7 @@ public class MyActivityPresenter {
             ballNumOneTime = fiStream.read();
             Log.i(TAG, "FileInputStream Read: Game has " + ballNumOneTime + " next balls");
             int ballValue;
-            for (int i=0; i<ColorBallsApp.NumOfColorsUsedByDifficult; i++) {
+            for (int i=0; i<NumOfColorsUsedByDifficult; i++) {
                 nextBalls[i] = fiStream.read();
                 Log.i(TAG, "FileInputStream Read: Next ball value = " + nextBalls[i]);
             }
@@ -531,7 +555,7 @@ public class MyActivityPresenter {
                 undoYn = true;
                 // undoNumOneTime = fiStream.read();
                 fiStream.read();
-                for (int i=0; i<ColorBallsApp.NumOfColorsUsedByDifficult; i++) {
+                for (int i=0; i<NumOfColorsUsedByDifficult; i++) {
                     undoNextBalls[i] = fiStream.read();
                 }
                 // save backupCells
@@ -590,6 +614,59 @@ public class MyActivityPresenter {
         }
     }
 
+    private void createBitmapsAndDrawableResources(int cellWidth, int cellHeight) {
+        if (cellWidth<=0 || cellHeight<=0) {
+            throw new IllegalArgumentException("cellWidth and cellHeight must be > 0");
+        }
+
+        Resources resources = context.getResources();
+
+        int nextBallWidth = (int)(cellWidth * 0.5f);
+        int nextBallHeight = (int)(cellHeight *  0.5f);
+
+        Bitmap bm = BitmapFactory.decodeResource(resources, R.drawable.redball);
+        colorBallMap.put(ColorRED, bm);
+        Drawable drawable = FontAndBitmapUtil.convertBitmapToDrawable(context, bm, nextBallWidth, nextBallHeight);
+        colorNextBallMap.put(ColorRED, drawable);
+        bm = BitmapFactory.decodeResource(resources, R.drawable.redball_o);
+        colorOvalBallMap.put(ColorRED, bm);
+
+        bm = BitmapFactory.decodeResource(resources, R.drawable.greenball);
+        colorBallMap.put(ColorGREEN, bm);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(context, bm, nextBallWidth, nextBallHeight);
+        colorNextBallMap.put(ColorGREEN, drawable);
+        bm = BitmapFactory.decodeResource(resources, R.drawable.greenball_o);
+        colorOvalBallMap.put(ColorGREEN, bm);
+
+        bm = BitmapFactory.decodeResource(resources, R.drawable.blueball);
+        colorBallMap.put(ColorBLUE, bm);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(context, bm, nextBallWidth, nextBallHeight);
+        colorNextBallMap.put(ColorBLUE, drawable);
+        bm = BitmapFactory.decodeResource(resources, R.drawable.blueball_o);
+        colorOvalBallMap.put(ColorBLUE, bm);
+
+        bm = BitmapFactory.decodeResource(resources, R.drawable.magentaball);
+        colorBallMap.put(ColorMAGENTA, bm);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(context, bm, nextBallWidth, nextBallHeight);
+        colorNextBallMap.put(ColorMAGENTA, drawable);
+        bm = BitmapFactory.decodeResource(resources, R.drawable.magentaball_o);
+        colorOvalBallMap.put(ColorMAGENTA, bm);
+
+        bm = BitmapFactory.decodeResource(resources, R.drawable.yellowball);
+        colorBallMap.put(ColorYELLOW, bm);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(context, bm, nextBallWidth, nextBallHeight);
+        colorNextBallMap.put(ColorYELLOW, drawable);
+        bm = BitmapFactory.decodeResource(resources, R.drawable.yellowball_o);
+        colorOvalBallMap.put(ColorYELLOW, bm);
+
+        bm = BitmapFactory.decodeResource(resources, R.drawable.cyanball);
+        colorBallMap.put(ColorCyan, bm);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(context, bm, nextBallWidth, nextBallHeight);
+        colorNextBallMap.put(ColorCyan, drawable);
+        bm = BitmapFactory.decodeResource(resources, R.drawable.cyanball_o);
+        colorOvalBallMap.put(ColorCyan, bm);
+    }
+
     private void gameOver() {
         presentView.showGameOverDialog();
     }
@@ -622,26 +699,32 @@ public class MyActivityPresenter {
     }
 
     private void drawBall(ImageView imageView, int color) {
-        imageView.setImageBitmap(ColorBallsApp.colorBallMap.get(color));
+        imageView.setImageBitmap(colorBallMap.get(color));
     }
 
     private void drawOval(ImageView imageView,int color) {
-        imageView.setImageBitmap(ColorBallsApp.colorOvalBallMap.get(color));
+        imageView.setImageBitmap(colorOvalBallMap.get(color));
+    }
+
+    private void drawNextBall(ImageView imageView,int color) {
+        imageView.setImageDrawable(colorNextBallMap.get(color));
     }
 
     private void displayNextBallsView() {
         // display the view of next balls
         ImageView imageView;
-        // int numOneTime = gridData.ballNumOneTime;
-        int numOneTime = GridData.ballNumOneTime;
-        for (int i = 0; i < numOneTime; i++) {
-            imageView = presentView.getImageViewById(nextBallsViewIdStart + i);
-            drawBall(imageView, gridData.getNextBalls()[i]);
+        int i = 0;
+        for (Point cell : gridData.getNextCellIndices()) {
+            int imageViewId = rowCounts * cell.x + cell.y;
+            imageView = presentView.getImageViewById(imageViewId);
+            drawNextBall(imageView, gridData.getNextBalls()[i]);    // oval balls for next balls' version
+            i++;
         }
     }
 
     private void displayNextColorBalls() {
-        gridData.randColors();  //   next  balls
+        gridData.randColors();  // next balls' colors
+        gridData.randCells();   // next balls' positions
         //   display the balls on the nextBallsView
         displayNextBallsView();
     }
@@ -656,17 +739,32 @@ public class MyActivityPresenter {
     }
 
     private void displayGridDataNextCells() {
-        gridData.randCells();
-        int id, n1, n2;
+        // gridData.randCells();    // removed for new algorithm
+        int id, n1, n2, nextBallIndex;
         ImageView imageView;
         boolean hasMoreFive = false;
         HashSet<Point> linkedPoint = new HashSet<>();
-        for (Point nextCellIndex : gridData.getNextCellIndex()) {
+        nextBallIndex = 0;
+        for (Point nextCellIndex : gridData.getNextCellIndices()) {
             n1 = nextCellIndex.x;
             n2 = nextCellIndex.y;
+            int ballColor = gridData.getCellValue(n1, n2);
+            while (ballColor != 0) {
+                // this cell is already occupied
+                // have to regenerate another one
+                // this loop will not be infinite loop
+                Point nextCell = gridData.generateNextCell();
+                if (nextCell != null) {
+                    n1 = nextCell.x;
+                    n2 = nextCell.y;
+                    ballColor = 0;
+                }
+            }
+            gridData.setCellValue(n1, n2, gridData.getNextBalls()[nextBallIndex]);
+
             id = n1 * rowCounts + n2;
             imageView = presentView.getImageViewById(id);
-            drawBall(imageView,gridData.getCellValue(n1, n2));
+            drawBall(imageView, gridData.getCellValue(n1, n2));
             if (gridData.check_moreThanFive(n1, n2)) {
                 hasMoreFive = true;
                 for (Point point : gridData.getLight_line()) {
@@ -675,6 +773,7 @@ public class MyActivityPresenter {
                     }
                 }
             }
+            nextBallIndex++;
         }
 
         if (hasMoreFive) {
@@ -684,7 +783,6 @@ public class MyActivityPresenter {
             gameProperties.setUndoScore(gameProperties.getCurrentScore());
             gameProperties.setCurrentScore(gameProperties.getCurrentScore() + gameProperties.getLastGotScore());
             presentView.updateCurrentScoreOnUi(gameProperties.getCurrentScore());
-            // ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(gameProperties.getLastGotScore(), linkedPoint, true);
             ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(gameProperties.getLastGotScore(), gridData.getLight_line(), true);
             showingScoreHandler.post(showScoreRunnable);
             Log.d(TAG,"displayGridDataNextCells() --> showingScoreHandler.post(showScoreRunnable).");
@@ -722,15 +820,12 @@ public class MyActivityPresenter {
     }
 
     private void displayGameView() {
-
-        // display the view of next balls
-        displayNextBallsView();
-
         // display the 9 x 9 game view
         displayGameGridView();
+        // display the view of next balls
+        displayNextBallsView();
     }
 
-    // private void drawBallAlongPath(final int i , final int j, final int col) {
     private void drawBallAlongPath() {
         int sizeOfPathPoint = gridData.getPathPoint().size();
         if (sizeOfPathPoint<=0) {
@@ -881,8 +976,12 @@ public class MyActivityPresenter {
                     if (isNextBalls) {
                         displayNextColorBalls();
                         Log.d(TAG, "ShowScoreRunnable-->onProgressUpdate()-->displayNextColorBalls()");
+                    } else {
+                        // added on 2020-07-26 17:06
+                        displayNextBallsView();
+                        Log.d(TAG, "ShowScoreRunnable-->onProgressUpdate()-->displayNextBallsView()");
+                        //
                     }
-                    //
                     gameProperties.getThreadCompleted()[1] = true;  // user can start input command
                     gameProperties.setShowingScoreMessage(false);
                     Log.d(TAG, "ShowScoreRunnable-->onProgressUpdate()-->gameProperties.setShowingScoreMessage(false)");

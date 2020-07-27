@@ -85,8 +85,10 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     private MyBroadcastReceiver myReceiver;
     private IntentFilter myIntentFilter;
 
-    private float mainGameViewHeight;
     private float mainGameViewWidth;
+    private float mainGameViewHeight;
+    private int cellWidth;
+    private int cellHeight;
 
     private LinearLayout bannerLinearLayout;
     private SetBannerAdViewForAdMobOrFacebook myBannerAdView;
@@ -388,13 +390,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             // ShowToastMessage.showToast(this, getString(R.string.backKeyToExitApp), toastFontSize, ColorBallsApp.FontSize_Scale_Type, 2000);
         }
     }
-
-    private void createActivityUI() {
-        findOutTextFontSize();
-        findOutScreenSize();
-        setUpSupportActionBar();
-    }
-
     private void findOutTextFontSize() {
         float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this, ColorBallsApp.FontSize_Scale_Type, null);
         textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, ColorBallsApp.FontSize_Scale_Type, 0.0f);
@@ -420,6 +415,12 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         }
     }
 
+    private void createActivityUI() {
+        findOutTextFontSize();
+        findOutScreenSize();
+        setUpSupportActionBar();
+    }
+
     private void createGameView(Bundle savedInstanceState) {
         // find Out Width and Height of GameView
         LinearLayout linearLayout_myActivity = findViewById(R.id.linearLayout_myActivity);
@@ -437,25 +438,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         float mainGameViewUi_weight = mainGameViewtUiLayoutParams.weight;
         mainGameViewWidth = screenWidth * (mainGameViewUi_weight / gameViewWeightSum);
         Log.d(TAG, "mainGameViewWidth = " + mainGameViewWidth);
-        //
-
-        // layout_for_game_view.xml
-        float height_weightSum_GameViewUi = 100;    // default
-        try {
-            LinearLayout gameViewUiLayout = findViewById(R.id.linearlayout_for_game_view_ui);
-            float temp = gameViewUiLayout.getWeightSum();
-            if (temp != 0) {
-                height_weightSum_GameViewUi = temp;
-            }
-        } catch (Exception ex) {
-            Log.d(TAG, "Getting weightSum of Layout for Game View Ui was failed.");
-            ex.printStackTrace();
-        }
-
-        LinearLayout scoreNextBallsLayout = findViewById(R.id.score_next_balls_layout);
-        float width_weightSum_scoreNextBallsLayout = scoreNextBallsLayout.getWeightSum();
-        LinearLayout.LayoutParams scoreNextBallsLayoutParams = (LinearLayout.LayoutParams) scoreNextBallsLayout.getLayoutParams();
-        float height_weight_scoreNextBallsLayout = scoreNextBallsLayoutParams.weight;
 
         // display the highest score and current score
         highestScoreTextView = supportToolbar.findViewById(R.id.highestScoreTextView);
@@ -464,38 +446,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         currentScoreTextView = supportToolbar.findViewById(R.id.currentScoreTextView);
         ScreenUtil.resizeTextSize(currentScoreTextView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
 
-        // display the view of next balls
-        GridLayout nextBallsLayout = findViewById(R.id.nextBallsLayout);
-        int nextBallsRow = nextBallsLayout.getRowCount();
-        int nextBallsColumn = nextBallsLayout.getColumnCount();
-        LinearLayout.LayoutParams nextBallsLayoutParams = (LinearLayout.LayoutParams) nextBallsLayout.getLayoutParams();
-        float width_weight_nextBalls = nextBallsLayoutParams.weight;
-
-        int nextBallsViewWidth = (int) (mainGameViewWidth * width_weight_nextBalls / width_weightSum_scoreNextBallsLayout);   // 3/5 of screen width
-
-        LinearLayout.LayoutParams oneNextBallLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        oneNextBallLp.width = nextBallsViewWidth / nextBallsColumn;
-        // the layout_weight for height is 1
-        oneNextBallLp.height = (int) (mainGameViewHeight * height_weight_scoreNextBallsLayout / height_weightSum_GameViewUi);
-        oneNextBallLp.gravity = Gravity.CENTER;
-
-        ImageView imageView;
-        for (int i = 0; i < nextBallsRow; i++) {
-            for (int j = 0; j < nextBallsColumn; j++) {
-                imageView = new ImageView(this);
-                imageView.setId(MyActivityPresenter.nextBallsViewIdStart + (nextBallsColumn * i + j));
-                imageView.setClickable(false);
-                imageView.setAdjustViewBounds(true);
-                imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-                imageView.setBackgroundResource(R.drawable.next_ball_background_image);
-                nextBallsLayout.addView(imageView, oneNextBallLp);
-            }
-        }
-
         FrameLayout gridPartFrameLayout = findViewById(R.id.gridPartFrameLayout);
         LinearLayout.LayoutParams frameLp = (LinearLayout.LayoutParams) gridPartFrameLayout.getLayoutParams();
-        float height_weight_gridCellsLayout = frameLp.weight;
 
         // for 9 x 9 grid: main part of this game
         GridLayout gridCellsLayout = findViewById(R.id.gridCellsLayout);
@@ -504,20 +456,20 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         // LinearLayout.LayoutParams gridLp = (LinearLayout.LayoutParams) gridCellsLayout.getLayoutParams();
         // float height_weight_gridCellsLayout = gridLp.weight;
 
-        int cellWidth = (int) (mainGameViewWidth / colCounts);
-        int eight10thOfHeight = (int) (mainGameViewHeight / height_weightSum_GameViewUi * height_weight_gridCellsLayout);
-        if (mainGameViewWidth > eight10thOfHeight) {
+        cellWidth = (int) (mainGameViewWidth / colCounts);
+        Log.d(TAG, "cellWidth = " + cellWidth);
+        if (mainGameViewWidth > mainGameViewHeight) {
             // if screen width greater than 8-10th of screen height
-            cellWidth = eight10thOfHeight / rowCounts;
+            cellWidth = (int)(mainGameViewHeight / rowCounts);
         }
-        int cellHeight = cellWidth;
+        cellHeight = cellWidth;
+        Log.d(TAG, "cellHeight = " + cellHeight);
 
         // added on 2018-10-02 to test and it works
         // setting the width and the height of GridLayout by using the FrameLayout that is on top of it
         frameLp.width = cellWidth * colCounts;
         frameLp.topMargin = 20;
         frameLp.gravity = Gravity.CENTER;
-        //
 
         LinearLayout.LayoutParams oneBallLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -526,7 +478,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         oneBallLp.gravity = Gravity.CENTER;
 
         // set listener for each ImageView
-        // ImageView imageView;
+        ImageView imageView;
         int imId;
         for (int i = 0; i < rowCounts; i++) {
             for (int j = 0; j < colCounts; j++) {
@@ -547,21 +499,18 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                     }
                 });
                 gridCellsLayout.addView(imageView, imId, oneBallLp);
-                // gridCellsLayout.addView(imageView, imId);
-
             }
         }
 
-        // For testing to display score using ImageView
         scoreImageView = findViewById(R.id.scoreImageView);
         scoreImageView.setVisibility(View.GONE);
-        //
+
         createColorBallsGame(savedInstanceState);
     }
 
     private void createColorBallsGame(Bundle savedInstanceState) {
         saveScoreAlertDialog = null;
-        boolean isNewGame = mPresenter.initializeColorBallsGame(rowCounts, colCounts, savedInstanceState);
+        boolean isNewGame = mPresenter.initializeColorBallsGame(rowCounts, colCounts, cellWidth, cellHeight, savedInstanceState);
     }
 
     private void setDialogStyle(DialogInterface dialog) {
@@ -690,17 +639,11 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     }
 
     public void updateHighestScoreOnUi(int highestScore) {
-        // added for testing
-        highestScore = 99999999;
-        //
         highestScoreTextView.setText(String.format(Locale.getDefault(), "%8d", highestScore));
     }
 
     @Override
     public void updateCurrentScoreOnUi(int score) {
-        // added for testing
-        score = 99999999;
-        //
         currentScoreTextView.setText(String.format(Locale.getDefault(), "%8d", score));
     }
 
