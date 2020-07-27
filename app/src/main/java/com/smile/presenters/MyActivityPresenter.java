@@ -50,7 +50,7 @@ public class MyActivityPresenter {
     public static final int ColorCyan = 60;
     public static final int[] ballColor = new int[] {ColorRED, ColorGREEN, ColorBLUE, ColorMAGENTA, ColorYELLOW, ColorCyan};
     public static HashMap<Integer, Bitmap> colorBallMap;
-    public static HashMap<Integer, Bitmap> colorOvalBallMap;
+    public static HashMap<Integer, Drawable> colorOvalBallMap;
     public static HashMap<Integer, Drawable> colorNextBallMap;
 
     private final String TAG = "MyActivityPresenter";
@@ -622,49 +622,63 @@ public class MyActivityPresenter {
         Resources resources = context.getResources();
 
         int nextBallWidth = (int)(cellWidth * 0.5f);
-        int nextBallHeight = (int)(cellHeight *  0.5f);
+        int nextBallHeight = (int)(cellHeight * 0.5f);
+        int ovalBallWidth = (int)(cellWidth * 0.9f);
+        int ovalBallHeight = (int)(cellHeight * 0.7f);
 
         Bitmap bm = BitmapFactory.decodeResource(resources, R.drawable.redball);
         colorBallMap.put(ColorRED, bm);
         Drawable drawable = FontAndBitmapUtil.convertBitmapToDrawable(context, bm, nextBallWidth, nextBallHeight);
         colorNextBallMap.put(ColorRED, drawable);
-        bm = BitmapFactory.decodeResource(resources, R.drawable.redball_o);
-        colorOvalBallMap.put(ColorRED, bm);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(context, bm, ovalBallWidth, ovalBallHeight);
+        colorOvalBallMap.put(ColorRED, drawable);
+        // bm = BitmapFactory.decodeResource(resources, R.drawable.redball_o);
+        // colorOvalBallMap.put(ColorRED, bm);
 
         bm = BitmapFactory.decodeResource(resources, R.drawable.greenball);
         colorBallMap.put(ColorGREEN, bm);
         drawable = FontAndBitmapUtil.convertBitmapToDrawable(context, bm, nextBallWidth, nextBallHeight);
         colorNextBallMap.put(ColorGREEN, drawable);
-        bm = BitmapFactory.decodeResource(resources, R.drawable.greenball_o);
-        colorOvalBallMap.put(ColorGREEN, bm);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(context, bm, ovalBallWidth, ovalBallHeight);
+        colorOvalBallMap.put(ColorGREEN, drawable);
+        // bm = BitmapFactory.decodeResource(resources, R.drawable.greenball_o);
+        // colorOvalBallMap.put(ColorGREEN, bm);
 
         bm = BitmapFactory.decodeResource(resources, R.drawable.blueball);
         colorBallMap.put(ColorBLUE, bm);
         drawable = FontAndBitmapUtil.convertBitmapToDrawable(context, bm, nextBallWidth, nextBallHeight);
         colorNextBallMap.put(ColorBLUE, drawable);
-        bm = BitmapFactory.decodeResource(resources, R.drawable.blueball_o);
-        colorOvalBallMap.put(ColorBLUE, bm);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(context, bm, ovalBallWidth, ovalBallHeight);
+        colorOvalBallMap.put(ColorBLUE, drawable);
+        // bm = BitmapFactory.decodeResource(resources, R.drawable.blueball_o);
+        // colorOvalBallMap.put(ColorBLUE, bm);
 
         bm = BitmapFactory.decodeResource(resources, R.drawable.magentaball);
         colorBallMap.put(ColorMAGENTA, bm);
         drawable = FontAndBitmapUtil.convertBitmapToDrawable(context, bm, nextBallWidth, nextBallHeight);
         colorNextBallMap.put(ColorMAGENTA, drawable);
-        bm = BitmapFactory.decodeResource(resources, R.drawable.magentaball_o);
-        colorOvalBallMap.put(ColorMAGENTA, bm);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(context, bm, ovalBallWidth, ovalBallHeight);
+        colorOvalBallMap.put(ColorMAGENTA, drawable);
+        // bm = BitmapFactory.decodeResource(resources, R.drawable.magentaball_o);
+        // colorOvalBallMap.put(ColorMAGENTA, bm);
 
         bm = BitmapFactory.decodeResource(resources, R.drawable.yellowball);
         colorBallMap.put(ColorYELLOW, bm);
         drawable = FontAndBitmapUtil.convertBitmapToDrawable(context, bm, nextBallWidth, nextBallHeight);
         colorNextBallMap.put(ColorYELLOW, drawable);
-        bm = BitmapFactory.decodeResource(resources, R.drawable.yellowball_o);
-        colorOvalBallMap.put(ColorYELLOW, bm);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(context, bm, ovalBallWidth, ovalBallHeight);
+        colorOvalBallMap.put(ColorYELLOW, drawable);
+        // bm = BitmapFactory.decodeResource(resources, R.drawable.yellowball_o);
+        // colorOvalBallMap.put(ColorYELLOW, bm);
 
         bm = BitmapFactory.decodeResource(resources, R.drawable.cyanball);
         colorBallMap.put(ColorCyan, bm);
         drawable = FontAndBitmapUtil.convertBitmapToDrawable(context, bm, nextBallWidth, nextBallHeight);
         colorNextBallMap.put(ColorCyan, drawable);
-        bm = BitmapFactory.decodeResource(resources, R.drawable.cyanball_o);
-        colorOvalBallMap.put(ColorCyan, bm);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(context, bm, ovalBallWidth, ovalBallHeight);
+        colorOvalBallMap.put(ColorCyan, drawable);
+        // bm = BitmapFactory.decodeResource(resources, R.drawable.cyanball_o);
+        // colorOvalBallMap.put(ColorCyan, bm);
     }
 
     private void gameOver() {
@@ -703,7 +717,7 @@ public class MyActivityPresenter {
     }
 
     private void drawOval(ImageView imageView,int color) {
-        imageView.setImageBitmap(colorOvalBallMap.get(color));
+        imageView.setImageDrawable(colorOvalBallMap.get(color));
     }
 
     private void drawNextBall(ImageView imageView,int color) {
