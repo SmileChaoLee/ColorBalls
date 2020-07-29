@@ -152,10 +152,12 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 if (resultCode == Activity.RESULT_OK) {
                     Bundle extras = data.getExtras();
                     if (extras != null) {
-                        boolean hasSound = extras.getBoolean("HasSound");
+                        boolean hasSound = extras.getBoolean(SettingActivity.HasSoundKey);
                         mPresenter.setHasSound(hasSound);
-                        boolean isEasyLevel = extras.getBoolean("IsEasyLevel");
-                        mPresenter.setIsEasyLevel(isEasyLevel);
+                        boolean isEasyLevel = extras.getBoolean(SettingActivity.IsEasyLevelKey);
+                        mPresenter.setEasyLevel(isEasyLevel);
+                        boolean hasNextBall = extras.getBoolean(SettingActivity.HasNextBallKey);
+                        mPresenter.setHasNextBall(hasNextBall);
                     }
                 }
                 break;
@@ -249,8 +251,9 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 ColorBallsApp.isProcessingJob = true;    // started procession job
                 Intent intent = new Intent(this, SettingActivity.class);
                 Bundle extras = new Bundle();
-                extras.putBoolean("HasSound", mPresenter.getHasSound());
-                extras.putBoolean("IsEasyLevel", mPresenter.getIsEasyLevel());
+                extras.putBoolean(SettingActivity.HasSoundKey, mPresenter.hasSound());
+                extras.putBoolean(SettingActivity.IsEasyLevelKey, mPresenter.isEasyLevel());
+                extras.putBoolean(SettingActivity.HasNextBallKey, mPresenter.hasNextBall());
                 intent.putExtras(extras);
                 startActivityForResult(intent, SettingActivityRequestCode);
                 ColorBallsApp.isProcessingJob = false;

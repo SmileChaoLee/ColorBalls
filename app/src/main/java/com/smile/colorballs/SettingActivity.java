@@ -2,8 +2,6 @@ package com.smile.colorballs;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.os.Build;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
@@ -15,11 +13,17 @@ import com.smile.smilelibraries.utilities.ScreenUtil;
 
 public class SettingActivity extends AppCompatActivity {
 
+    public static final String HasSoundKey = "HasSound";
+    public static final String IsEasyLevelKey = "IsEasyLevel";
+    public static final String HasNextBallKey = "HasNextBall";
+
     private float textFontSize;
     private ToggleButton soundSwitch;
     private boolean hasSound;
     private ToggleButton easyLevelSwitch;
     private boolean isEasyLevel;
+    private ToggleButton nextBallSettingSwitch;
+    private boolean hasNextBall;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,11 +38,13 @@ public class SettingActivity extends AppCompatActivity {
 
         hasSound = true;
         isEasyLevel = true;
+        hasNextBall = true;
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            hasSound = extras.getBoolean("HasSound");
-            isEasyLevel = extras.getBoolean("IsEasyLevel");
+            hasSound = extras.getBoolean(HasSoundKey);
+            isEasyLevel = extras.getBoolean(IsEasyLevelKey);
+            hasNextBall = extras.getBoolean(HasNextBallKey);
         }
 
         setContentView(R.layout.activity_setting);
@@ -48,7 +54,6 @@ public class SettingActivity extends AppCompatActivity {
 
         TextView soundSettingTitle = findViewById(R.id.soundSettingTitle);
         ScreenUtil.resizeTextSize(soundSettingTitle, textFontSize, ColorBallsApp.FontSize_Scale_Type);
-
         soundSwitch = findViewById(R.id.soundSwitch);
         ScreenUtil.resizeTextSize(soundSwitch, textFontSize, ColorBallsApp.FontSize_Scale_Type);
         soundSwitch.setChecked(hasSound);
@@ -56,11 +61,17 @@ public class SettingActivity extends AppCompatActivity {
 
         TextView levelSettingTitle = findViewById(R.id.levelSettingTitle);
         ScreenUtil.resizeTextSize(levelSettingTitle, textFontSize, ColorBallsApp.FontSize_Scale_Type);
-
         easyLevelSwitch = findViewById(R.id.easyLevelSwitch);
         ScreenUtil.resizeTextSize(easyLevelSwitch, textFontSize, ColorBallsApp.FontSize_Scale_Type);
         easyLevelSwitch.setChecked(isEasyLevel);
         easyLevelSwitch.setOnClickListener( (View view)-> isEasyLevel = ((ToggleButton)view).isChecked());
+
+        TextView nextBallSettingTitle = findViewById(R.id.nextBallSettingTitle);
+        ScreenUtil.resizeTextSize(nextBallSettingTitle, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        nextBallSettingSwitch = findViewById(R.id.nextBallSettingSwitch);
+        ScreenUtil.resizeTextSize(nextBallSettingSwitch, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        nextBallSettingSwitch.setChecked(hasNextBall);
+        nextBallSettingSwitch.setOnClickListener( (View view)-> hasNextBall = ((ToggleButton)view).isChecked());
 
         Button confirmButton = findViewById(R.id.confirmSettingButton);
         ScreenUtil.resizeTextSize(confirmButton, textFontSize, ColorBallsApp.FontSize_Scale_Type);
@@ -80,8 +91,9 @@ public class SettingActivity extends AppCompatActivity {
 
         Intent returnIntent = new Intent();
         Bundle extras = new Bundle();
-        extras.putBoolean("HasSound", hasSound);
-        extras.putBoolean("IsEasyLevel", isEasyLevel);
+        extras.putBoolean(HasSoundKey, hasSound);
+        extras.putBoolean(IsEasyLevelKey, isEasyLevel);
+        extras.putBoolean(HasNextBallKey, hasNextBall);
         returnIntent.putExtras(extras);
 
         int resultYn = Activity.RESULT_OK;

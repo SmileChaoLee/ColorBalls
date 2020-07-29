@@ -25,6 +25,7 @@ public class GameProperties implements Parcelable {
     private int lastGotScore;
     private boolean isEasyLevel;
     private boolean hasSound;
+    private boolean hasNextBall;
     private GridData gridData;
 
     public boolean isShowingLoadingMessage() {
@@ -187,12 +188,20 @@ public class GameProperties implements Parcelable {
         isEasyLevel = easyLevel;
     }
 
-    public boolean isHasSound() {
+    public boolean hasSound() {
         return hasSound;
     }
 
     public void setHasSound(boolean hasSound) {
         this.hasSound = hasSound;
+    }
+
+    public boolean hasNextBall() {
+        return hasNextBall;
+    }
+
+    public void setHasNextBall(boolean hasNextBall) {
+        this.hasNextBall = hasNextBall;
     }
 
     public GridData getGridData() {
@@ -231,6 +240,7 @@ public class GameProperties implements Parcelable {
         dest.writeInt(this.lastGotScore);
         dest.writeByte(this.isEasyLevel ? (byte) 1 : (byte) 0);
         dest.writeByte(this.hasSound ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.hasNextBall ? (byte) 1 : (byte) 0);
         dest.writeParcelable(this.gridData, flags);
     }
 
@@ -256,6 +266,7 @@ public class GameProperties implements Parcelable {
         lastGotScore = 0;
         isEasyLevel = true; // start with easy level
         hasSound = true;    // has sound effect
+        hasNextBall = true;    // has next balls showing
         setGridData(gridData);
     }
 
@@ -281,6 +292,7 @@ public class GameProperties implements Parcelable {
         this.lastGotScore = in.readInt();
         this.isEasyLevel = in.readByte() != 0;
         this.hasSound = in.readByte() != 0;
+        this.hasNextBall = in.readByte() != 0;
         this.gridData = in.readParcelable(GridData.class.getClassLoader());
     }
 

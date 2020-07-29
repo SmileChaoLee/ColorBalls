@@ -123,6 +123,29 @@
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1">
+                    <TextView
+                        android:id="@+id/nextBallSettingTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="left|center_vertical"
+                        android:layout_alignParentLeft="true"
+                        android:layout_marginLeft="10dp"
+                        android:textColor="#ffffff00"
+                        android:text="@string/nextBallSettingStr">
+                    </TextView>
+                    <ToggleButton
+                        android:id="@+id/nextBallSettingSwitch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right|center_vertical"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginRight="10dp"
+                        android:background="@android:color/transparent"
+                        android:textColor="@color/white"
+                        android:textAllCaps="false"
+                        android:textOn="@string/onStr"
+                        android:textOff="@string/offStr">
+                    </ToggleButton>
                 </RelativeLayout>
 
             </LinearLayout>

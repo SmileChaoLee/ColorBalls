@@ -8,17 +8,18 @@
         android:orderInCategory="1"
         app:showAsAction="always">
     </item>
+    <item android:id="@+id/setting"
+        android:title="@string/settingStr"
+        android:icon="@drawable/setting"
+        android:orderInCategory="2"
+        app:showAsAction="always">
+    </item>
     <item android:id="@+id/gameAction"
         android:title="@string/moreActionString"
         android:icon="@drawable/circle_and_three_dots"
-        android:orderInCategory="2"
+        android:orderInCategory="3"
         app:showAsAction="always">
         <menu>
-            <item android:id="@+id/setting"
-                android:title="@string/settingStr"
-                android:orderInCategory="1"
-                app:showAsAction="never">
-            </item>
             <item android:id="@+id/top10"
                 android:title="@string/top10Str"
                 android:orderInCategory="2"

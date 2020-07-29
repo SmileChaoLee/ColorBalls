@@ -168,6 +168,16 @@ public class GridData implements Parcelable {
     public HashSet<Point> getNextCellIndices() {
         return nextCellIndices;
     }
+    public void setNextCellIndices(HashSet<Point> nextCellIndices) {
+        this.nextCellIndices = new HashSet<>(nextCellIndices);
+    }
+
+    public HashSet<Point> getUndoNextCellIndices() {
+        return undoNextCellIndices;
+    }
+    public void setUndoNextCellIndices(HashSet<Point> undoNextCellIndices) {
+        this.undoNextCellIndices = new HashSet<>(undoNextCellIndices);
+    }
 
     public HashSet<Point> getLight_line() {
         return this.Light_line;
