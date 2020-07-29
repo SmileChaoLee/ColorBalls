@@ -14,7 +14,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
@@ -45,8 +44,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.MobileAds;
 import com.smile.Service.MyGlobalTop10Service;
 import com.smile.Service.MyTop10ScoresService;
 import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate;
@@ -97,7 +94,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     private LinearLayout bannerLinearLayout;
     private GoogleAdMobNativeTemplate nativeTemplate;
     private SetBannerAdViewForAdMobOrFacebook myBannerAdView;
-    private LinearLayout bannerLinearLayout2;
+    private LinearLayout adaptiveBannerLinearLayout;
     private SetBannerAdViewForAdMobOrFacebook myBannerAdView2;
 
     private ShowingInterstitialAdsUtil.ShowInterstitialAdThread showInterstitialAdThread = null;
@@ -587,8 +584,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     }
 
     private void setBannerAndNativeAdUI() {
-        bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
-        bannerLinearLayout2 = findViewById(R.id.linearlayout_for_ads2_in_myActivity);
+        bannerLinearLayout = findViewById(R.id.linearlayout_banner_myActivity);
+        adaptiveBannerLinearLayout = findViewById(R.id.linearlayout_adaptiveBanner_myActivity);
         String testString = "";
         // for debug mode
         if (com.smile.colorballs.BuildConfig.DEBUG) {
@@ -596,11 +593,13 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         }
         String facebookBannerID = testString + ColorBallsApp.facebookBannerID;
         //
-        int bannerWidth = (int)mainGameViewWidth;
+        int adaptiveBannerWidth = (int)mainGameViewWidth;
         Configuration configuration = getResources().getConfiguration();
         if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            bannerWidth = (int)(screenWidth - mainGameViewWidth);
+            adaptiveBannerWidth = (int)(screenWidth - mainGameViewWidth);
         }
+        int adaptiveBannerDpWidth = ScreenUtil.pixelToDp(getApplicationContext(), adaptiveBannerWidth);
+        Log.d(TAG, "adaptiveBannerDpWidth = " + adaptiveBannerDpWidth);
 
         // show AdMob native ad if the device is tablet
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -612,8 +611,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             nativeTemplate.showNativeAd();
         } else {
             // one more banner ad for orientation is portrait
-            myBannerAdView2 = new SetBannerAdViewForAdMobOrFacebook(this, null, bannerLinearLayout2
-                    , ColorBallsApp.googleAdMobBannerID2, facebookBannerID, bannerWidth);
+            myBannerAdView2 = new SetBannerAdViewForAdMobOrFacebook(this, null, adaptiveBannerLinearLayout
+                    , ColorBallsApp.googleAdMobBannerID2, facebookBannerID, adaptiveBannerDpWidth);
             myBannerAdView2.showBannerAdViewFromAdMobOrFacebook(ShowingInterstitialAdsUtil.GoogleAdMobAdProvider);
         }
 

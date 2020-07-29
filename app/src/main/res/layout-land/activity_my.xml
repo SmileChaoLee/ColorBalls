@@ -69,7 +69,7 @@
 
                 <!-- the banner ads showing area -->
                 <LinearLayout
-                    android:id="@+id/linearlayout_for_ads_in_myActivity"
+                    android:id="@+id/linearlayout_banner_myActivity"
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"

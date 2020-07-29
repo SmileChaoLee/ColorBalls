@@ -33,32 +33,31 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- the banner ads showing area 2 -->
-        <LinearLayout
-            android:id="@+id/linearlayout_for_ads2_in_myActivity"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_gravity="center"
-            android:layout_weight="14" >
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_gravity="center"
-            android:layout_weight="1" >
-        </LinearLayout>
-
         <!-- the banner ads showing area -->
         <LinearLayout
-            android:id="@+id/linearlayout_for_ads_in_myActivity"
+            android:id="@+id/linearlayout_banner_myActivity"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_gravity="center"
             android:layout_weight="10" >
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" >
+        </LinearLayout>
+
+        <!-- the adaptive anchored banner ads showing area 2 -->
+        <LinearLayout
+            android:id="@+id/linearlayout_adaptiveBanner_myActivity"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_weight="14" >
         </LinearLayout>
 
     </LinearLayout>

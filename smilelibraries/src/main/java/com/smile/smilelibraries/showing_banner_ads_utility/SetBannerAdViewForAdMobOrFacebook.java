@@ -12,6 +12,7 @@ import com.facebook.ads.AdError;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.LoadAdError;
 import com.smile.smilelibraries.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
 
 public class SetBannerAdViewForAdMobOrFacebook {
@@ -21,7 +22,7 @@ public class SetBannerAdViewForAdMobOrFacebook {
     private final LinearLayout bannerLinearLayout;
     private final String googleAdMobBannerID;
     private final String facebookBannerID;
-    private final int bannerWidth;
+    private final int bannerDpWidth;
     private com.google.android.gms.ads.AdView adMobBannerAdView;
     private com.facebook.ads.AdView facebookAdView;
     private com.facebook.ads.AdView.AdViewLoadConfig facebookAdViewLoadConfig;
@@ -66,13 +67,13 @@ public class SetBannerAdViewForAdMobOrFacebook {
     public SetBannerAdViewForAdMobOrFacebook(Context context, LinearLayout companyInfoLayout
             , LinearLayout bannerLinearLayout
             , String googleAdMobBannerID, String facebookBannerID
-            , int bannerWidth) {
+            , int bannerDpWidth) {
         this.context = context;
         this.companyInfoLayout = companyInfoLayout;
         this.bannerLinearLayout = bannerLinearLayout;
         this.googleAdMobBannerID = googleAdMobBannerID;
         this.facebookBannerID = facebookBannerID;
-        this.bannerWidth = bannerWidth;
+        this.bannerDpWidth = bannerDpWidth;
     }
 
     public void showBannerAdViewFromAdMobOrFacebook(int adProvider) {
@@ -153,19 +154,19 @@ public class SetBannerAdViewForAdMobOrFacebook {
         Log.d(TAG, "Starting the initialization for Banner Ad of Google AdMob.");
         numberOfLoadingGoogleAdMobBannerAd = 0;
         adMobBannerAdView = new com.google.android.gms.ads.AdView(context);
-        if (bannerWidth <= 0) {
+        if (bannerDpWidth <= 0) {
             adMobBannerAdView.setAdSize(AdSize.BANNER);
         } else {
             // adaptive banner
-            AdSize adMobAdSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize (context, bannerWidth);
+            AdSize adMobAdSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize (context, bannerDpWidth);
             adMobBannerAdView.setAdSize(adMobAdSize);
         }
         adMobBannerAdView.setAdUnitId(googleAdMobBannerID);
         bannerLinearLayout.addView(adMobBannerAdView);
         AdListener adMobBannerListener = new AdListener() {
             @Override
-            public void onAdFailedToLoad(int i) {
-                super.onAdFailedToLoad(i);
+            public void onAdFailedToLoad(LoadAdError loadAdError) {
+                super.onAdFailedToLoad(loadAdError);
                 Log.d(TAG, "Could not load Google AdMob Banner ad.");
                 numberOfLoadingGoogleAdMobBannerAd++;
                 loggingGoogleImpressionHandler.removeCallbacksAndMessages(null);
@@ -183,6 +184,7 @@ public class SetBannerAdViewForAdMobOrFacebook {
                     loggingGoogleImpressionHandler.postDelayed(loggingGoogleImpressionRunnable, secondsToRetryAdMob);
                 }
             }
+
             @Override
             public void onAdLoaded() {
                 super.onAdLoaded();
