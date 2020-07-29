@@ -7,12 +7,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
@@ -43,6 +45,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.MobileAds;
 import com.smile.Service.MyGlobalTop10Service;
 import com.smile.Service.MyTop10ScoresService;
 import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate;
@@ -91,8 +95,10 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     private int cellHeight;
 
     private LinearLayout bannerLinearLayout;
-    private SetBannerAdViewForAdMobOrFacebook myBannerAdView;
     private GoogleAdMobNativeTemplate nativeTemplate;
+    private SetBannerAdViewForAdMobOrFacebook myBannerAdView;
+    private LinearLayout bannerLinearLayout2;
+    private SetBannerAdViewForAdMobOrFacebook myBannerAdView2;
 
     private ShowingInterstitialAdsUtil.ShowInterstitialAdThread showInterstitialAdThread = null;
 
@@ -125,10 +131,10 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
         if (ScreenUtil.isTablet(this)) {
             // Table then change orientation to Landscape
-            // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         } else {
             // phone then change orientation to Portrait
-            // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
 
         setContentView(R.layout.activity_my);
@@ -403,6 +409,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         Point size = ScreenUtil.getScreenSize(this);
         screenWidth = size.x;
         screenHeight = size.y;
+        Log.d(TAG, "screenWidth = " + screenWidth);
+        Log.d(TAG, "screenHeight = " + screenHeight);
         float statusBarHeight = ScreenUtil.getStatusBarHeight(this);
         float actionBarHeight = ScreenUtil.getActionBarHeight(this);
         // keep navigation bar
@@ -580,6 +588,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
     private void setBannerAndNativeAdUI() {
         bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
+        bannerLinearLayout2 = findViewById(R.id.linearlayout_for_ads2_in_myActivity);
         String testString = "";
         // for debug mode
         if (com.smile.colorballs.BuildConfig.DEBUG) {
@@ -592,9 +601,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             bannerWidth = (int)(screenWidth - mainGameViewWidth);
         }
-        myBannerAdView = new SetBannerAdViewForAdMobOrFacebook(this, null, bannerLinearLayout
-                , ColorBallsApp.googleAdMobBannerID, facebookBannerID);
-        myBannerAdView.showBannerAdViewFromAdMobOrFacebook(ColorBallsApp.AdProvider);
 
         // show AdMob native ad if the device is tablet
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -604,7 +610,16 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             nativeTemplate = new GoogleAdMobNativeTemplate(this, nativeAdsFrameLayout
                     , nativeAdvancedId0, nativeAdTemplateView);
             nativeTemplate.showNativeAd();
+        } else {
+            // one more banner ad for orientation is portrait
+            myBannerAdView2 = new SetBannerAdViewForAdMobOrFacebook(this, null, bannerLinearLayout2
+                    , ColorBallsApp.googleAdMobBannerID2, facebookBannerID, bannerWidth);
+            myBannerAdView2.showBannerAdViewFromAdMobOrFacebook(ShowingInterstitialAdsUtil.GoogleAdMobAdProvider);
         }
+
+        myBannerAdView = new SetBannerAdViewForAdMobOrFacebook(this, null, bannerLinearLayout
+                , ColorBallsApp.googleAdMobBannerID, facebookBannerID);
+        myBannerAdView.showBannerAdViewFromAdMobOrFacebook(ColorBallsApp.AdProvider);
     }
 
     private void setBroadcastReceiver() {

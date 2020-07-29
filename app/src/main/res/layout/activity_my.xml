@@ -20,7 +20,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="90"
+            android:layout_weight="75"
             android:weightSum="1">
 
             <LinearLayout
@@ -33,13 +33,31 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- the banner ads showing area 2 -->
+        <LinearLayout
+            android:id="@+id/linearlayout_for_ads2_in_myActivity"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_weight="14" >
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_weight="1" >
+        </LinearLayout>
+
         <!-- the banner ads showing area -->
         <LinearLayout
             android:id="@+id/linearlayout_for_ads_in_myActivity"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:gravity="center"
+            android:layout_gravity="center"
             android:layout_weight="10" >
         </LinearLayout>
 

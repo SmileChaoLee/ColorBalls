@@ -46,6 +46,7 @@ public class ColorBallsApp extends MultiDexApplication {
     public static ShowingInterstitialAdsUtil InterstitialAd;
     public static String facebookBannerID = "";
     public static String googleAdMobBannerID = "";
+    public static String googleAdMobBannerID2 = "";
     public static String googleAdMobNativeID = "";
     public static int AdProvider = ShowingInterstitialAdsUtil.FacebookAdProvider;    // default is Facebook Ad
     public static FacebookInterstitialAds facebookAds;
@@ -67,6 +68,7 @@ public class ColorBallsApp extends MultiDexApplication {
         facebookBannerID = "";
         String googleAdMobAppID = "";
         googleAdMobBannerID = "";
+        googleAdMobBannerID2 = "";
         googleAdMobNativeID = "";
         String googleAdMobInterstitialID = "";
         isProVersion = false;
@@ -76,6 +78,7 @@ public class ColorBallsApp extends MultiDexApplication {
             // Google AdMob
             googleAdMobAppID = getString(R.string.google_AdMobAppID);
             googleAdMobBannerID = "ca-app-pub-8354869049759576/3904969730";
+            googleAdMobBannerID2 = "ca-app-pub-8354869049759576/9583367128";
             googleAdMobInterstitialID = "ca-app-pub-8354869049759576/1276882569";
             googleAdMobNativeID = "ca-app-pub-8354869049759576/2356386907";
         } else if (BuildConfig.APPLICATION_ID.equals("com.smile.fivecolorballs")) {
@@ -84,6 +87,7 @@ public class ColorBallsApp extends MultiDexApplication {
             // Google AdMob
             googleAdMobAppID = getString(R.string.google_AdMobAppID_2);
             googleAdMobBannerID = "ca-app-pub-8354869049759576/7162646323";
+            googleAdMobBannerID2 = "ca-app-pub-8354869049759576/5784271650";
             googleAdMobInterstitialID = "ca-app-pub-8354869049759576/2174745857";
             googleAdMobNativeID = "ca-app-pub-8354869049759576/8621863614";
         } else {
