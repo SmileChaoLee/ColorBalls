@@ -797,10 +797,21 @@ public class MyActivityPresenter {
     }
 
     private void drawNextBall(ImageView imageView,int color) {
-        if (gameProperties.hasNextBall()) {
-            imageView.setImageDrawable(colorNextBallMap.get(color));
-        } else {
-            imageView.setImageDrawable(null);
+        Log.d(TAG, "drawNextBall --> imageView = " + imageView);
+        Log.d(TAG, "drawNextBall --> color = " + color);
+        try {
+            if (imageView!=null && colorNextBallMap.get(color)==null) {
+                imageView.setImageDrawable(null);
+            } else {
+                if (gameProperties.hasNextBall()) {
+                    imageView.setImageDrawable(colorNextBallMap.get(color));
+                } else {
+                    imageView.setImageDrawable(null);
+                }
+            }
+        } catch (Exception ex) {
+            Log.d(TAG, "DrawNextBall Exception: ");
+            ex.printStackTrace();
         }
     }
 

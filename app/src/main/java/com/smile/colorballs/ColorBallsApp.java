@@ -2,10 +2,6 @@ package com.smile.colorballs;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -20,10 +16,7 @@ import com.smile.smilelibraries.facebook_ads_util.FacebookInterstitialAds;
 import com.smile.smilelibraries.google_admob_ads_util.GoogleAdMobInterstitial;
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite;
 import com.smile.smilelibraries.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
-import com.smile.smilelibraries.utilities.FontAndBitmapUtil;
 import com.smile.smilelibraries.utilities.ScreenUtil;
-
-import java.util.HashMap;
 
 public class ColorBallsApp extends MultiDexApplication {
 

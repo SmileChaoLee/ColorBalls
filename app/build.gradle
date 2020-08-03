@@ -16,8 +16,8 @@ android {
         targetSdkVersion 30
         multiDexEnabled true
 
-        versionCode 3605
-        versionName "3.605"
+        versionCode 3607
+        versionName "3.607"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         applicationId "com.smile.colorballs"
