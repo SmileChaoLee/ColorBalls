@@ -5,6 +5,7 @@ import android.util.Log;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.LoadAdError;
 
 public class GoogleAdMobInterstitial {
 
@@ -42,7 +43,8 @@ public class GoogleAdMobInterstitial {
             }
 
             @Override
-            public void onAdFailedToLoad(int errorCode) {
+            public void onAdFailedToLoad(LoadAdError loadAdError) {
+                super.onAdFailedToLoad(loadAdError);
                 // Code to be executed when an ad request fails.
                 Log.e(TAG, "Interstitial ad failed to load.");
                 isLoaded = false;
