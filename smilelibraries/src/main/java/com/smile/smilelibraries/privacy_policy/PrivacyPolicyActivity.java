@@ -10,25 +10,12 @@ import com.smile.smilelibraries.R;
 
 public class PrivacyPolicyActivity extends AppCompatActivity {
 
+    private final String privacyPolicyUrl = "http://ec2-13-59-195-3.us-east-2.compute.amazonaws.com/PrivacyPolicy";
     private WebView privacyPolicyWebView;
-    private String privacyPolicyUrl;
-    private Intent callingIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        privacyPolicyUrl = "";
-        callingIntent = getIntent();
-        privacyPolicyUrl = callingIntent.getStringExtra("PrivacyPolicyWebsite");
-        if (privacyPolicyUrl == null) {
-            returnToCallingIntent();
-            return;
-        }
-        if (privacyPolicyUrl.isEmpty()) {
-            returnToCallingIntent();
-            return;
-        }
 
         setContentView(R.layout.activity_privacy_policy);
 

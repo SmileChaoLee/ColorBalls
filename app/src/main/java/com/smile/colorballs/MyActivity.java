@@ -65,6 +65,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     private static final String TAG = "MyActivity";
     private static final String GlobalTop10FragmentTag = "GlobalTop10FragmentTag";
     private static final String LocalTop10FragmentTag = "LocalTop10FragmentTag";
+
+    private final int Max_Saved_Games = 5;
     private final int SettingActivityRequestCode = 1;
     private final int Top10ScoreActivityRequestCode = 2;
     private final int GlobalTop10ActivityRequestCode = 3;
@@ -263,7 +265,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 return true;
             }
             if (id == R.id.privacyPolicy) {
-                PrivacyPolicyUtil.startPrivacyPolicyActivity(this, ColorBallsApp.PrivacyPolicyUrl, PrivacyPolicyActivityRequestCode);
+                PrivacyPolicyUtil.startPrivacyPolicyActivity(this, PrivacyPolicyActivityRequestCode);
             }
         }
 
@@ -700,7 +702,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 dialogFragment.dismissAllowingStateLoss();
                 mPresenter.setShowingSureSaveDialog(false);
                 int numOfSaved = mPresenter.readNumberOfSaved();
-                if (numOfSaved < ColorBallsApp.Max_Saved_Games) {
+                if (numOfSaved < Max_Saved_Games) {
                     boolean succeeded = mPresenter.startSavingGame(numOfSaved);
                     if (succeeded) {
                         ScreenUtil.showToast(getApplicationContext(), getString(R.string.succeededSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
@@ -753,7 +755,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         });
         Bundle args = new Bundle();
         String warningSaveGameString0 = getString(R.string.warningSaveGameString) + " ("
-                + ColorBallsApp.Max_Saved_Games + " "
+                + Max_Saved_Games + " "
                 + getString(R.string.howManyTimesString) + " )"
                 + "\n" + getString(R.string.continueString) + "?";
         args.putString("TextContent", warningSaveGameString0); // excessive the number (5)

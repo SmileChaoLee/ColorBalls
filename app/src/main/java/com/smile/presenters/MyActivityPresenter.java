@@ -53,6 +53,8 @@ public class MyActivityPresenter {
     public static HashMap<Integer, Drawable> colorOvalBallMap;
     public static HashMap<Integer, Drawable> colorNextBallMap;
 
+    private final String NumOfSavedGameFileName = "num_saved_game";
+
     private final String TAG = "MyActivityPresenter";
     private final String GamePropertiesTag = "GameProperties";
     private final String savedGameFileName = "saved_game";
@@ -406,7 +408,7 @@ public class MyActivityPresenter {
     public int readNumberOfSaved() {
         int numOfSaved = 0;
         try {
-            File inputFile = new File(ColorBallsApp.AppContext.getFilesDir(), ColorBallsApp.NumOfSavedGameFileName);
+            File inputFile = new File(ColorBallsApp.AppContext.getFilesDir(), NumOfSavedGameFileName);
             FileInputStream fiStream = new FileInputStream(inputFile);
             numOfSaved = fiStream.read();
             fiStream.close();
@@ -489,7 +491,7 @@ public class MyActivityPresenter {
 
                 numOfSaved++;
                 // save numOfSaved back to file (ColorBallsApp.NumOfSavedGameFileName)
-                outputFile = new File(ColorBallsApp.AppContext.getFilesDir(), ColorBallsApp.NumOfSavedGameFileName);
+                outputFile = new File(ColorBallsApp.AppContext.getFilesDir(), NumOfSavedGameFileName);
                 foStream = new FileOutputStream(outputFile);
                 foStream.write(numOfSaved);
                 foStream.close();
