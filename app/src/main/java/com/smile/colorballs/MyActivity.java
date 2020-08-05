@@ -319,6 +319,12 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "MyActivity.onStart() is called");
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "MyActivity.onResume() is called");

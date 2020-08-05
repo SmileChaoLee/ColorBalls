@@ -9,6 +9,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -87,6 +89,7 @@ public class Top10ScoreFragment extends Fragment {
 
     @Override
     public void onAttach(Context context) {
+        Log.d(TAG, "Top10ScoreFragment.onAttach() is called. ");
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
@@ -94,7 +97,7 @@ public class Top10ScoreFragment extends Fragment {
             mListener = new Top10ScoreFragment.OnFragmentInteractionListener() {
                 @Override
                 public void onFragmentInteraction(Uri uri) {
-                    System.out.println("must implement OnFragmentInteractionListener --> Uri = " + uri);
+                    Log.d(TAG, "must implement OnFragmentInteractionListener --> Uri = " + uri);
                 }
             };
         }
@@ -106,6 +109,7 @@ public class Top10ScoreFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "Top10ScoreFragment.onCreate() is called. ");
         super.onCreate(savedInstanceState);
         setRetainInstance(true);    // added on 2018-06-14
 
@@ -123,6 +127,7 @@ public class Top10ScoreFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.d(TAG, "Top10ScoreFragment.onCreateView() is called. ");
         // Inflate the layout for this fragment
         // historyView = inflater.inflate(R.layout.fragment_score_history, container, false);
         View view = inflater.inflate(R.layout.layout_for_top10_score_fragment, container, false);
@@ -131,20 +136,19 @@ public class Top10ScoreFragment extends Fragment {
         top10TitleTextView.setText(top10TitleName);
         ScreenUtil.resizeTextSize(top10TitleTextView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
 
-        System.out.println("Top10ScoreFragment ---> onCreateView() method. ");
-
         return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "Top10ScoreFragment.onViewCreated() is called.");
         super.onViewCreated(view, savedInstanceState);
-        System.out.println("Top10ScoreFragment onViewCreated() is called.");
         top10ScoreFragmentView = view;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "Top10ScoreFragment.onActivityCreated() is called.");
         super.onActivityCreated(savedInstanceState);
 
         if (savedInstanceState == null) {   // new Fragment instance
@@ -196,6 +200,7 @@ public class Top10ScoreFragment extends Fragment {
 
     @Override
     public void onDetach() {
+        Log.d(TAG, "Top10ScoreFragment.onDetach() is called.");
         super.onDetach();
         mListener = null;
     }

@@ -1,16 +1,14 @@
 package com.smile.colorballs;
 
 import android.app.Activity;
-import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.smile.smilelibraries.utilities.ScreenUtil;
 
 import java.util.ArrayList;
 
@@ -29,6 +27,8 @@ public class Top10ScoreActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG,"Top10ScoreActivity.onCreate() is called.");
+
         super.onCreate(savedInstanceState);
 
         /*
@@ -83,20 +83,44 @@ public class Top10ScoreActivity extends AppCompatActivity {
         }
         ft.commit();
 
-        System.out.println("Top10ScoreActivity.onCreate() -----> top10ScoreFragment is created.");
-        System.out.println("Top10ScoreActivity.onCreate().");
+        Log.d(TAG, "Top10ScoreActivity.onCreate() -----> top10ScoreFragment is created.");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG,"Top10ScoreActivity.onStart() is called.");
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        System.out.println("Top10ScoreActivity.onResume().");
+        Log.d(TAG,"Top10ScoreActivity.onResume() is called.");
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG,"Top10ScoreActivity.onPause() is called.");
     }
 
     @NonNull
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        Log.d(TAG,"Top10ScoreActivity.onSaveInstanceState() is called.");
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG,"Top10ScoreActivity.onStop() is called.");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG,"Top10ScoreActivity.onDestroy() is called.");
     }
 }
