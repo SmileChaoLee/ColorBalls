@@ -287,9 +287,11 @@ public class MyActivityPresenter {
         return gameProperties.hasNextBall();
     }
 
-    public void setHasNextBall(boolean hasNextBall) {
+    public void setHasNextBall(boolean hasNextBall, boolean isNextBalls) {
         gameProperties.setHasNextBall(hasNextBall);
-        displayNextBallsView();
+        if (isNextBalls) {
+            displayNextBallsView();
+        }
     }
 
     public void setShowingNewGameDialog(boolean showingNewGameDialog) {
@@ -534,8 +536,240 @@ public class MyActivityPresenter {
 
         try {
             File inputFile = new File(ColorBallsApp.AppContext.getFilesDir(), savedGameFileName);
+            long fileSizeInByte = inputFile.length();
+            Log.d(TAG, "File size of savedGameFileName = " + fileSizeInByte);
+            if (fileSizeInByte <= 188)  {
+                // file size of old version is 187
+                Log.d(TAG,"Old version savedGameFileName file");
+                FileInputStream fiStream = new FileInputStream(inputFile);
+                int bValue = fiStream.read();
+                if (bValue == 1) {
+                    // has sound
+                    Log.i(TAG, "FileInputStream Read: Game has sound");
+                    soundYn = true;
+                } else {
+                    // has no sound
+                    Log.i(TAG, "FileInputStream Read: Game has no sound");
+                    soundYn = true;
+                }
+                bValue = fiStream.read();
+                if (bValue == 1) {
+                    // easy level
+                    Log.i(TAG, "FileInputStream Read: Game is easy level");
+                    easyYn = true;
+
+                } else {
+                    // difficult level
+                    Log.i(TAG, "FileInputStream Read: Game is difficult level");
+                    easyYn = false;
+                }
+                ballNumOneTime = fiStream.read();
+                Log.i(TAG, "FileInputStream Read: Game has " + ballNumOneTime + " next balls");
+                int ballValue;
+                for (int i=0; i<NumOfColorsUsedByDifficult; i++) {
+                    nextBalls[i] = fiStream.read();
+                    Log.i(TAG, "FileInputStream Read: Next ball value = " + nextBalls[i]);
+                }
+                for (int i=0; i<rowCounts; i++) {
+                    for (int j=0; j<colCounts; j++) {
+                        gameCells[i][j] = fiStream.read();
+                        Log.i(TAG, "FileInputStream Read: Value of ball at (" + i + ", " + j + ") = " + gameCells[i][j]);
+                    }
+                }
+                // reading current score
+                byte[] scoreByte = new byte[4];
+                fiStream.read(scoreByte);
+                cScore = ByteBuffer.wrap(scoreByte).getInt();
+                Log.i(TAG, "FileInputStream Read: Current score = " + cScore);
+                // reading undoEnable
+                bValue = fiStream.read();
+                if (bValue == 1) {
+                    // has undo data
+                    Log.i(TAG, "FileInputStream Read: Game has undo data");
+                    undoYn = true;
+                    // undoNumOneTime = fiStream.read();
+                    fiStream.read();
+                    for (int i=0; i<NumOfColorsUsedByDifficult; i++) {
+                        undoNextBalls[i] = fiStream.read();
+                    }
+                    // save backupCells
+                    for (int i=0; i<rowCounts; i++) {
+                        for (int j=0; j<colCounts; j++) {
+                            backupCells[i][j] = fiStream.read();
+                        }
+                    }
+                    byte[] undoScoreByte = new byte[4];
+                    fiStream.read(undoScoreByte);
+                    unScore = ByteBuffer.wrap(undoScoreByte).getInt();
+                    Log.i(TAG, "FileInputStream Read: undoScore = " + unScore);
+                } else {
+                    // does not has undo data
+                    Log.i(TAG, "FileInputStream Read: Game does not has undo data");
+                    undoYn = false;
+                }
+                fiStream.close();
+
+                // reflesh Main UI with loaded data
+                setHasSound(soundYn);
+                setEasyLevel(easyYn);
+                gridData.setNextBalls(nextBalls);
+                gridData.setCellValues(gameCells);
+                gameProperties.setCurrentScore(cScore);
+                gameProperties.setUndoEnable(undoYn);
+                gridData.setUndoNextBalls(undoNextBalls);
+                gridData.setBackupCells(backupCells);
+                gameProperties.setUndoScore(unScore);
+                // for new version part
+                setHasNextBall(nextBallYn, false);
+                gridData.setNextCellIndices(new HashSet<>());
+                gridData.setUndoNextCellIndices(new HashSet<>());
+                // start update UI
+                presentView.updateCurrentScoreOnUi(gameProperties.getCurrentScore());
+                displayGameView();
+            } else {
+                // file size of new version is 190 ~ 202
+                Log.d(TAG,"New version savedGameFileName file");
+                FileInputStream fiStream = new FileInputStream(inputFile);
+                // game sound
+                int bValue = fiStream.read();
+                if (bValue == 1) {
+                    // has sound
+                    Log.i(TAG, "FileInputStream Read: Game has sound");
+                    soundYn = true;
+                } else {
+                    // has no sound
+                    Log.i(TAG, "FileInputStream Read: Game has no sound");
+                    soundYn = true;
+                }
+                // game level
+                bValue = fiStream.read();
+                if (bValue == 1) {
+                    // easy level
+                    Log.i(TAG, "FileInputStream Read: Game is easy level");
+                    easyYn = true;
+
+                } else {
+                    // difficult level
+                    Log.i(TAG, "FileInputStream Read: Game is difficult level");
+                    easyYn = false;
+                }
+                // next balls
+                bValue = fiStream.read();
+                if (bValue == 1) {
+                    // has next balls
+                    Log.i(TAG, "FileInputStream Read: Game has next balls");
+                    nextBallYn = true;
+                } else {
+                    // has no next balls
+                    Log.i(TAG, "FileInputStream Read: Game has no next balls");
+                    nextBallYn = true;
+                }
+                ballNumOneTime = fiStream.read();
+                Log.i(TAG, "FileInputStream Read: Game has " + ballNumOneTime + " next balls");
+                for (int i=0; i<NumOfColorsUsedByDifficult; i++) {
+                    nextBalls[i] = fiStream.read();
+                    Log.i(TAG, "FileInputStream Read: Next ball value = " + nextBalls[i]);
+                }
+                int nextCellIndicesSize = fiStream.read();
+                for (int i=0; i<nextCellIndicesSize; i++) {
+                    int x = fiStream.read();
+                    int y = fiStream.read();
+                    nextCellIndices.add(new Point(x, y));
+                }
+                int undoNextCellIndicesSize = fiStream.read();
+                for (int i=0; i<undoNextCellIndicesSize; i++) {
+                    int x = fiStream.read();
+                    int y = fiStream.read();
+                    undoNextCellIndices.add(new Point(x, y));
+                }
+                // load values on 9x9 grid
+                for (int i=0; i<rowCounts; i++) {
+                    for (int j=0; j<colCounts; j++) {
+                        gameCells[i][j] = fiStream.read();
+                        Log.i(TAG, "FileInputStream Read: Value of ball at (" + i + ", " + j + ") = " + gameCells[i][j]);
+                    }
+                }
+                // reading current score
+                byte[] scoreByte = new byte[4];
+                fiStream.read(scoreByte);
+                cScore = ByteBuffer.wrap(scoreByte).getInt();
+                Log.i(TAG, "FileInputStream Read: Current score = " + cScore);
+                // reading undoEnable
+                bValue = fiStream.read();
+                if (bValue == 1) {
+                    // has undo data
+                    Log.i(TAG, "FileInputStream Read: Game has undo data");
+                    undoYn = true;
+                    // undoNumOneTime = fiStream.read();
+                    fiStream.read();
+                    for (int i=0; i<NumOfColorsUsedByDifficult; i++) {
+                        undoNextBalls[i] = fiStream.read();
+                    }
+                    // save backupCells
+                    for (int i=0; i<rowCounts; i++) {
+                        for (int j=0; j<colCounts; j++) {
+                            backupCells[i][j] = fiStream.read();
+                        }
+                    }
+                    byte[] undoScoreByte = new byte[4];
+                    fiStream.read(undoScoreByte);
+                    unScore = ByteBuffer.wrap(undoScoreByte).getInt();
+                    Log.i(TAG, "FileInputStream Read: undoScore = " + unScore);
+                } else {
+                    // does not has undo data
+                    Log.i(TAG, "FileInputStream Read: Game does not has undo data");
+                    undoYn = false;
+                }
+                fiStream.close();
+
+                // reflesh Main UI with loaded data
+                setHasSound(soundYn);
+                setEasyLevel(easyYn);
+                setHasNextBall(nextBallYn, false);
+                gridData.setNextBalls(nextBalls);
+                gridData.setNextCellIndices(nextCellIndices);
+                gridData.setUndoNextCellIndices(undoNextCellIndices);
+                gridData.setCellValues(gameCells);
+                gameProperties.setCurrentScore(cScore);
+                gameProperties.setUndoEnable(undoYn);
+                gridData.setUndoNextBalls(undoNextBalls);
+                gridData.setBackupCells(backupCells);
+                gameProperties.setUndoScore(unScore);
+                // start update UI
+                presentView.updateCurrentScoreOnUi(gameProperties.getCurrentScore());
+                Log.d(TAG, "startLoadingGame() --> starting displayGameView().");
+                displayGameView();
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            succeeded = false;
+        }
+
+        ColorBallsApp.isProcessingJob = false;
+        presentView.dismissShowMessageOnScreen();
+
+        return succeeded;
+    }
+
+    public boolean startLoadingGameOld() {
+        ColorBallsApp.isProcessingJob = true;
+        presentView.showMessageOnScreen(context.getString(R.string.loadingGameString));
+
+        boolean succeeded = true;
+        boolean soundYn = gameProperties.hasSound();
+        boolean easyYn = gameProperties.isEasyLevel();
+        int ballNumOneTime;
+        int[] nextBalls = new int[NumOfColorsUsedByDifficult];
+        int[][] gameCells = new int[rowCounts][colCounts];
+        int cScore = gameProperties.getCurrentScore();
+        boolean undoYn = gameProperties.isUndoEnable();
+        int[] undoNextBalls = new int[NumOfColorsUsedByDifficult];
+        int[][] backupCells = new int[rowCounts][colCounts];
+        int unScore = gameProperties.getUndoScore();
+
+        try {
+            File inputFile = new File(ColorBallsApp.AppContext.getFilesDir(), savedGameFileName);
             FileInputStream fiStream = new FileInputStream(inputFile);
-            // game sound
             int bValue = fiStream.read();
             if (bValue == 1) {
                 // has sound
@@ -546,7 +780,6 @@ public class MyActivityPresenter {
                 Log.i(TAG, "FileInputStream Read: Game has no sound");
                 soundYn = true;
             }
-            // game level
             bValue = fiStream.read();
             if (bValue == 1) {
                 // easy level
@@ -558,36 +791,13 @@ public class MyActivityPresenter {
                 Log.i(TAG, "FileInputStream Read: Game is difficult level");
                 easyYn = false;
             }
-            // next balls
-            bValue = fiStream.read();
-            if (bValue == 1) {
-                // has next balls
-                Log.i(TAG, "FileInputStream Read: Game has next balls");
-                nextBallYn = true;
-            } else {
-                // has no next balls
-                Log.i(TAG, "FileInputStream Read: Game has no next balls");
-                nextBallYn = true;
-            }
             ballNumOneTime = fiStream.read();
             Log.i(TAG, "FileInputStream Read: Game has " + ballNumOneTime + " next balls");
+            int ballValue;
             for (int i=0; i<NumOfColorsUsedByDifficult; i++) {
                 nextBalls[i] = fiStream.read();
                 Log.i(TAG, "FileInputStream Read: Next ball value = " + nextBalls[i]);
             }
-            int nextCellIndicesSize = fiStream.read();
-            for (int i=0; i<nextCellIndicesSize; i++) {
-                int x = fiStream.read();
-                int y = fiStream.read();
-                nextCellIndices.add(new Point(x, y));
-            }
-            int undoNextCellIndicesSize = fiStream.read();
-            for (int i=0; i<undoNextCellIndicesSize; i++) {
-                int x = fiStream.read();
-                int y = fiStream.read();
-                undoNextCellIndices.add(new Point(x, y));
-            }
-            // load values on 9x9 grid
             for (int i=0; i<rowCounts; i++) {
                 for (int j=0; j<colCounts; j++) {
                     gameCells[i][j] = fiStream.read();
@@ -638,10 +848,7 @@ public class MyActivityPresenter {
             // reflesh Main UI with loaded data
             setHasSound(soundYn);
             setEasyLevel(easyYn);
-            setHasNextBall(nextBallYn);
             gridData.setNextBalls(nextBalls);
-            gridData.setNextCellIndices(nextCellIndices);
-            gridData.setUndoNextCellIndices(undoNextCellIndices);
             gridData.setCellValues(gameCells);
             gameProperties.setCurrentScore(cScore);
             gameProperties.setUndoEnable(undoYn);
@@ -797,6 +1004,7 @@ public class MyActivityPresenter {
     }
 
     private void drawNextBall(ImageView imageView,int color) {
+        Log.d(TAG, "drawNextBall() is called");
         Log.d(TAG, "drawNextBall --> imageView = " + imageView);
         Log.d(TAG, "drawNextBall --> color = " + color);
         try {
@@ -817,9 +1025,11 @@ public class MyActivityPresenter {
 
     private void displayNextBallsView() {
         // display the view of next balls
+        Log.d(TAG, "displayNextBallsView() is called");
         ImageView imageView;
         int i = 0;
         try {
+            Log.d(TAG, "displayNextBallsView() --> try block is called");
             for (Point cell : gridData.getNextCellIndices()) {
                 int imageViewId = rowCounts * cell.x + cell.y;
                 imageView = presentView.getImageViewById(imageViewId);
@@ -933,8 +1143,10 @@ public class MyActivityPresenter {
 
     private void displayGameView() {
         // display the 9 x 9 game view
+        Log.d(TAG, "displayGameView() --> starting displayGameGridView().");
         displayGameGridView();
         // display the view of next balls
+        Log.d(TAG, "displayGameView() --> starting displayNextBallsView().");
         displayNextBallsView();
     }
 

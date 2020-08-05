@@ -160,7 +160,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                         boolean isEasyLevel = extras.getBoolean(SettingActivity.IsEasyLevelKey);
                         mPresenter.setEasyLevel(isEasyLevel);
                         boolean hasNextBall = extras.getBoolean(SettingActivity.HasNextBallKey);
-                        mPresenter.setHasNextBall(hasNextBall);
+                        mPresenter.setHasNextBall(hasNextBall, true);
                     }
                 }
                 break;
