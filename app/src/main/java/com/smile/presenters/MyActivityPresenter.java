@@ -819,11 +819,16 @@ public class MyActivityPresenter {
         // display the view of next balls
         ImageView imageView;
         int i = 0;
-        for (Point cell : gridData.getNextCellIndices()) {
-            int imageViewId = rowCounts * cell.x + cell.y;
-            imageView = presentView.getImageViewById(imageViewId);
-            drawNextBall(imageView, gridData.getNextBalls()[i]);
-            i++;
+        try {
+            for (Point cell : gridData.getNextCellIndices()) {
+                int imageViewId = rowCounts * cell.x + cell.y;
+                imageView = presentView.getImageViewById(imageViewId);
+                drawNextBall(imageView, gridData.getNextBalls()[i]);
+                i++;
+            }
+        } catch (Exception ex) {
+            Log.d(TAG, "displayNextBallsView exception: ");
+            ex.printStackTrace();
         }
     }
 
@@ -906,20 +911,23 @@ public class MyActivityPresenter {
     private void displayGameGridView() {
         // display the 9 x 9 game view
         ImageView imageView;
-        Log.d(TAG, "rowCounts = " + rowCounts);
-        Log.d(TAG, "colCounts = " + colCounts);
-        for (int i = 0; i < rowCounts; i++) {
-            for (int j = 0; j < colCounts; j++) {
-                int id = i * rowCounts + j;
-                imageView = presentView.getImageViewById(id);
-                int color = gridData.getCellValue(i, j);
-                if (color == 0) {
-                    // imageView.setImageDrawable(null);
-                    imageView.setImageBitmap(null);
-                } else {
-                    drawBall(imageView, color);
+        try {
+            for (int i = 0; i < rowCounts; i++) {
+                for (int j = 0; j < colCounts; j++) {
+                    int id = i * rowCounts + j;
+                    imageView = presentView.getImageViewById(id);
+                    int color = gridData.getCellValue(i, j);
+                    if (color == 0) {
+                        // imageView.setImageDrawable(null);
+                        imageView.setImageBitmap(null);
+                    } else {
+                        drawBall(imageView, color);
+                    }
                 }
             }
+        } catch (Exception ex) {
+            Log.d(TAG, "displayGameGridView exception: ");
+            ex.printStackTrace();
         }
     }
 
