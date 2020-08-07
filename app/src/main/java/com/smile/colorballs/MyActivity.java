@@ -359,6 +359,10 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             myBannerAdView.destroy();
             myBannerAdView = null;
         }
+        if (myBannerAdView2 != null) {
+            myBannerAdView2.destroy();
+            myBannerAdView2 = null;
+        }
         if (nativeTemplate != null) {
             nativeTemplate.release();
         }
@@ -600,6 +604,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             testString = "IMG_16_9_APP_INSTALL#";
         }
         String facebookBannerID = testString + ColorBallsApp.facebookBannerID;
+        String facebookBannerID2 = testString + ColorBallsApp.facebookBannerID2;
         //
         int adaptiveBannerWidth = (int)mainGameViewWidth;
         Configuration configuration = getResources().getConfiguration();
@@ -620,8 +625,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         } else {
             // one more banner ad for orientation is portrait
             myBannerAdView2 = new SetBannerAdViewForAdMobOrFacebook(this, null, adaptiveBannerLinearLayout
-                    , ColorBallsApp.googleAdMobBannerID2, facebookBannerID, adaptiveBannerDpWidth);
-            myBannerAdView2.showBannerAdViewFromAdMobOrFacebook(ShowingInterstitialAdsUtil.GoogleAdMobAdProvider);
+                    , ColorBallsApp.googleAdMobBannerID2, facebookBannerID2, adaptiveBannerDpWidth);
+            myBannerAdView2.showBannerAdViewFromAdMobOrFacebook(ColorBallsApp.AdProvider);
         }
 
         myBannerAdView = new SetBannerAdViewForAdMobOrFacebook(this, null, bannerLinearLayout
