@@ -10,14 +10,13 @@ android {
         }
     }
     compileSdkVersion 30
-    // buildToolsVersion '30.0.0'
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 30
         multiDexEnabled true
 
-        versionCode 3612
-        versionName "3.612"
+        versionCode 3613
+        versionName "3.613"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         applicationId "com.smile.colorballs"

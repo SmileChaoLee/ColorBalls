@@ -626,7 +626,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             // one more banner ad for orientation is portrait
             myBannerAdView2 = new SetBannerAdViewForAdMobOrFacebook(this, null, adaptiveBannerLinearLayout
                     , ColorBallsApp.googleAdMobBannerID2, facebookBannerID2, adaptiveBannerDpWidth);
-            myBannerAdView2.showBannerAdViewFromAdMobOrFacebook(ColorBallsApp.AdProvider);
+            // AdMob ad first
+            myBannerAdView2.showBannerAdViewFromAdMobOrFacebook(ShowingInterstitialAdsUtil.GoogleAdMobAdProvider);
         }
 
         myBannerAdView = new SetBannerAdViewForAdMobOrFacebook(this, null, bannerLinearLayout
