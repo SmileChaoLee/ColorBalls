@@ -9,6 +9,7 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.PopupMenu;
 
 import android.graphics.drawable.BitmapDrawable;
@@ -37,7 +38,7 @@ import com.smile.smilelibraries.Models.ShowToastMessage;
 public class ScreenUtil {
 
     public static final String TAG = "ScreenUtil";
-    public static final int fontSize_Sp_Type = 1;
+    public static final int FontSize_Sp_Type = 1;
     public static final int FontSize_Dip_Type = 2;
     public static final int FontSize_Pixel_Type = 3;
 
@@ -405,7 +406,7 @@ public class ScreenUtil {
             case FontSize_Dip_Type:
                 textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, textFontSize);
                 break;
-            case fontSize_Sp_Type:
+            case FontSize_Sp_Type:
                 textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textFontSize);
                 break;
             default:
@@ -441,64 +442,6 @@ public class ScreenUtil {
                 Log.d(TAG, "ShowToastMessage.showToast()");
             }
         }
-    }
-
-    public static void freezeScreenRotation(Activity activity) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            Log.d(TAG, "SDK version is at least 18, using SCREEN_ORIENTATION_LOCKED");
-            activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
-        } else {
-            int windowOrientation = activity.getDisplay().getRotation();
-            boolean isLandscapeDefault = isDeviceDefaultOrientationLandscape(activity);
-            Log.d(TAG, "isLandscapeDefault: " + isLandscapeDefault);
-            switch (windowOrientation) {
-                case Surface.ROTATION_0:
-                    if (isLandscapeDefault) {
-                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                    } else {
-                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                    }
-                    break;
-                case Surface.ROTATION_180:
-                    if (isLandscapeDefault) {
-                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
-                    } else {
-                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
-                    }
-                    break;
-                case Surface.ROTATION_270:
-                    if (isLandscapeDefault) {
-                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                    } else {
-                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
-                    }
-                    break;
-                case Surface.ROTATION_90:
-                    if (isLandscapeDefault) {
-                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
-                    } else {
-                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                    }
-                    break;
-            }
-        }
-    }
-
-    public static void unfreezeScreenRotation(Activity activity) {
-        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-    }
-
-    public static boolean isDeviceDefaultOrientationLandscape(Activity activity) {
-        Configuration config = activity.getResources().getConfiguration();
-        int rotation = activity.getDisplay().getRotation();
-        boolean defaultLandscapeAndIsInLandscape = (rotation == Surface.ROTATION_0 ||
-                rotation == Surface.ROTATION_180) &&
-                config.orientation == Configuration.ORIENTATION_LANDSCAPE;
-        boolean defaultLandscapeAndIsInPortrait = (rotation == Surface.ROTATION_90 ||
-                rotation == Surface.ROTATION_270) &&
-                config.orientation == Configuration.ORIENTATION_PORTRAIT;
-
-        return defaultLandscapeAndIsInLandscape || defaultLandscapeAndIsInPortrait;
     }
 
     // private methods
