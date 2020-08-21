@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 public final class ContentUriAccessUtil {
 
-    private static final String TAG = "DataOrContentAccessUtil";
+    private static final String TAG = "ContentUriAccessUtil";
 
     private ContentUriAccessUtil() {}
 
@@ -54,14 +54,17 @@ public final class ContentUriAccessUtil {
         ArrayList<Uri> urisList = new ArrayList<>();
         Uri contentUri;
         if (data != null) {
+            boolean isPermitted;
             if (data.getClipData() != null) {
                 // multiple files
                 for (int i = 0; i < data.getClipData().getItemCount(); i++) {
                     try {
                         contentUri = data.getClipData().getItemAt(i).getUri();
                         if ((contentUri != null) && (!Uri.EMPTY.equals(contentUri))) {
-                            getPermissionForContentUri(context, data, contentUri);
-                            urisList.add(contentUri);
+                            isPermitted = getPermissionForContentUri(context, data, contentUri);
+                            if (isPermitted) {
+                                urisList.add(contentUri);
+                            }
                         }
                     } catch(Exception e) {
                         Log.d(TAG, "data.getClipData exception: ");
@@ -72,8 +75,10 @@ public final class ContentUriAccessUtil {
                 // single file
                 contentUri = data.getData();
                 if ( (contentUri != null) && (!Uri.EMPTY.equals(contentUri)) ) {
-                    getPermissionForContentUri(context, data, contentUri);
-                    urisList.add(data.getData());
+                    isPermitted = getPermissionForContentUri(context, data, contentUri);
+                    if (isPermitted) {
+                        urisList.add(data.getData());
+                    }
                 }
             }
         }
@@ -81,10 +86,18 @@ public final class ContentUriAccessUtil {
         return urisList;
     }
 
-    public static void getPermissionForContentUri(Context context, Intent data, Uri contentUri) {
+    public static boolean getPermissionForContentUri(Context context, Intent data, Uri contentUri) {
+        boolean isPermitted = true;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            int takeFlags = data.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-            context.getContentResolver().takePersistableUriPermission(contentUri, takeFlags);
+            try {
+                int takeFlags = data.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                context.getContentResolver().takePersistableUriPermission(contentUri, takeFlags);
+            } catch (Exception e) {
+                e.printStackTrace();
+                isPermitted = false;
+            }
         }
+
+        return isPermitted;
     }
 }
