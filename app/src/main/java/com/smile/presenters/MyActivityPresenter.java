@@ -473,35 +473,32 @@ public class MyActivityPresenter {
             if (gameProperties.isUndoEnable()) {
                 // can undo
                 foStream.write(1);
-                // foStream.write(gridData.ballNumOneTime);
-                foStream.write(GridData.ballNumOneTime);
-                // save undoNextBalls
-                for (int i=0; i<NumOfColorsUsedByDifficult; i++) {
-                    foStream.write(gridData.getUndoNextBalls()[i]);
-                }
-                // save backupCells
-                for (int i=0; i<rowCounts; i++) {
-                    for (int j=0; j<colCounts; j++) {
-                        foStream.write(gridData.getBackupCells()[i][j]);
-                    }
-                }
-                byte[] undoScoreByte = ByteBuffer.allocate(4).putInt(gameProperties.getUndoScore()).array();
-                foStream.write(undoScoreByte);
-                // end of writing
-
-                numOfSaved++;
-                // save numOfSaved back to file (ColorBallsApp.NumOfSavedGameFileName)
-                outputFile = new File(ColorBallsApp.AppContext.getFilesDir(), NumOfSavedGameFileName);
-                foStream = new FileOutputStream(outputFile);
-                foStream.write(numOfSaved);
-                foStream.close();
-                //
             } else {
                 // no undo
                 foStream.write(0);
-                // end of writing
             }
+            foStream.write(GridData.ballNumOneTime);
+            // save undoNextBalls
+            for (int i=0; i<NumOfColorsUsedByDifficult; i++) {
+                foStream.write(gridData.getUndoNextBalls()[i]);
+            }
+            // save backupCells
+            for (int i=0; i<rowCounts; i++) {
+                for (int j=0; j<colCounts; j++) {
+                    foStream.write(gridData.getBackupCells()[i][j]);
+                }
+            }
+            byte[] undoScoreByte = ByteBuffer.allocate(4).putInt(gameProperties.getUndoScore()).array();
+            foStream.write(undoScoreByte);
+            // end of writing
+
+            numOfSaved++;
+            // save numOfSaved back to file (ColorBallsApp.NumOfSavedGameFileName)
+            outputFile = new File(ColorBallsApp.AppContext.getFilesDir(), NumOfSavedGameFileName);
+            foStream = new FileOutputStream(outputFile);
+            foStream.write(numOfSaved);
             foStream.close();
+            //
             Log.d(TAG, "Succeeded to startSavingGame().");
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -527,8 +524,8 @@ public class MyActivityPresenter {
         boolean nextBallYn = gameProperties.hasNextBall();
         int ballNumOneTime;
         int[] nextBalls = new int[NumOfColorsUsedByDifficult];
-        HashSet<Point> nextCellIndices = new HashSet<>();
-        HashSet<Point> undoNextCellIndices = new HashSet<>();
+        ArrayList<Point> nextCellIndices = new ArrayList<>();
+        ArrayList<Point> undoNextCellIndices = new ArrayList<>();
         int[][] gameCells = new int[rowCounts][colCounts];
         int cScore = gameProperties.getCurrentScore();
         boolean undoYn = gameProperties.isUndoEnable();
@@ -623,8 +620,8 @@ public class MyActivityPresenter {
                 gameProperties.setUndoScore(unScore);
                 // for new version part
                 setHasNextBall(nextBallYn, false);
-                gridData.setNextCellIndices(new HashSet<>());
-                gridData.setUndoNextCellIndices(new HashSet<>());
+                gridData.setNextCellIndices(new ArrayList<>());
+                gridData.setUndoNextCellIndices(new ArrayList<>());
                 // start update UI
                 presentView.updateCurrentScoreOnUi(gameProperties.getCurrentScore());
                 displayGameView();
