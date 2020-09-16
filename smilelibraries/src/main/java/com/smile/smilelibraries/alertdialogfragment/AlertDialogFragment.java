@@ -161,6 +161,9 @@ public class AlertDialogFragment extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "AlertDialogFragment.onCreateView() is called.");
 
+        // remove the background of DialogFragment
+        getDialog().requestWindowFeature(Window.FEATURE_NO_TITLE);
+
         // View view = inflater.inflate(R.layout.modal_dialogfragment, container, false);
         // Changed to
         View view = inflater.inflate(R.layout.modal_dialogfragment, container);
@@ -177,7 +180,7 @@ public class AlertDialogFragment extends DialogFragment {
         window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         window.setDimAmount(0.0f);
         // remove the background of DialogFragment
-        getDialog().requestWindowFeature(Window.FEATURE_NO_TITLE);
+        // getDialog().requestWindowFeature(Window.FEATURE_NO_TITLE);   // removed on 2020-09-16
         // setStyle(DialogFragment.STYLE_NO_FRAME, android.R.style.Theme);  // removed on 2018-11-09 at 7:72am
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
