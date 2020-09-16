@@ -30,7 +30,7 @@ public class GridData implements Parcelable {
     private ArrayList<Point> nextCellIndices;
     private ArrayList<Point> undoNextCellIndices;
     private HashSet<Point> Light_line;
-    private List<Point> pathPoint;
+    private ArrayList<Point> pathPoint;
 
     private Random random;
 
@@ -202,6 +202,7 @@ public class GridData implements Parcelable {
         List<Point> tempList = new ArrayList<>();
 
         cellColor = cellValues[x][y];
+        Log.d(TAG, "check_moreThanFive() --> cellColor = " + cellColor);
 
         //first
         // first_i = Math.max(x-(rowCounts-1),0);
@@ -414,7 +415,7 @@ public class GridData implements Parcelable {
         }
     }
 
-    public List<Point> getPathPoint() {
+    public ArrayList<Point> getPathPoint() {
         return pathPoint;
     }
 

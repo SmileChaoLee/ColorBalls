@@ -1150,6 +1150,7 @@ public class MyActivityPresenter {
     }
 
     private void drawBallAlongPath() {
+        Log.d(TAG, "drawBallAlongPath() is called.");
         int sizeOfPathPoint = gridData.getPathPoint().size();
         if (sizeOfPathPoint<=0) {
             return;
@@ -1157,16 +1158,19 @@ public class MyActivityPresenter {
 
         final int ii = gridData.getPathPoint().get(0).x;  // the target point
         final int jj = gridData.getPathPoint().get(0).y;  // the target point
+        Log.d(TAG, "drawBallAlongPath() --> ii = " + ii);
+        Log.d(TAG, "drawBallAlongPath() --> jj = " + jj);
         final int beginI = gridData.getPathPoint().get(sizeOfPathPoint-1).x;
         final int beginJ = gridData.getPathPoint().get(sizeOfPathPoint-1).y;
         final int color = gridData.getCellValue(beginI, beginJ);
+        Log.d(TAG, "gridData.getCellValue(beginI, beginJ) = " + color);
 
         gameProperties.getThreadCompleted()[0] = false;
         gameProperties.setBallMoving(true);
 
-        clearCell(beginI, beginJ);
+        // clearCell(beginI, beginJ);   // removed on 2020-09-16. It is a bug
 
-        final List<Point> tempList = new ArrayList<>(gridData.getPathPoint());
+        final ArrayList<Point> tempList = new ArrayList<>(gridData.getPathPoint());
         Runnable runnablePath = new Runnable() {
             boolean ballYN = true;
             ImageView imageView = null;
@@ -1187,7 +1191,9 @@ public class MyActivityPresenter {
                     Log.d(TAG,"drawBallAlongPath() --> ballMovingHandler.postDelayed()");
                 } else {
                     // movingBallHandler.removeCallbacksAndMessages(null);
+                    clearCell(beginI, beginJ);  // blank the original cell. Added on 2020-09-16
                     ImageView v = presentView.getImageViewById(ii * rowCounts + jj);
+                    Log.d(TAG, "gridData.setCellValue(ii, jj, color) = " + color);
                     gridData.setCellValue(ii, jj, color);
                     drawBall(v, color);
                     //  check if there are more than five balls with same color connected together
