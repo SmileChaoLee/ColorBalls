@@ -11,7 +11,7 @@
         android:allowBackup="true"
         android:fullBackupContent="true"
         android:icon="@drawable/app_icon"
-        android:label="${appName}${appNameSuffix}"
+        android:label="${appName}"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
@@ -26,7 +26,7 @@
 
         <activity
             android:name=".MyActivity"
-            android:label="${appName}${appNameSuffix}">
+            android:label="${appName}">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

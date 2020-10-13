@@ -28,7 +28,6 @@ public class MyGlobalTop10Service extends Service {
 
         getDataAndSendBack(intent);
 
-        stopSelf();
         Log.d(TAG, "MyGlobalTop10Service --> stopSelf() is called.");
 
         return super.onStartCommand(intent, flags, startId);
@@ -81,5 +80,7 @@ public class MyGlobalTop10Service extends Service {
         ColorBallsApp.isProcessingJob = false;
 
         Log.d(TAG, "MyGlobalTop10Service --> sent result.");
+
+        stopSelf();
     }
 }

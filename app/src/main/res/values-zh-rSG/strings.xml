@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">色球</string>
-    <string name="app_name_2">色球_2</string>
+    <string name="app_name_2">五球</string>
     <string name="app_name_pro">色球_pro</string>
     <string name="easyStr">容易</string>
     <string name="difficultStr">困难</string>

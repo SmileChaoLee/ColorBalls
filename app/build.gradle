@@ -20,7 +20,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         applicationId "com.smile.colorballs"
-        manifestPlaceholders = [appName: "@string/app_name", googleAdMobAppID: "@string/google_AdMobAppID"]
+        manifestPlaceholders = [googleAdMobAppID: "@string/google_AdMobAppID"]
     }
 
     flavorDimensions("colorballs")
@@ -28,12 +28,12 @@ android {
         colorballs {
             dimension "colorballs"
             applicationId "com.smile.colorballs"
-            manifestPlaceholders = [appNameSuffix: ""]
+            manifestPlaceholders = [appName: "@string/app_name", appNameSuffix: ""]
         }
         fivecolorballs {
             dimension "colorballs"
             applicationId "com.smile.fivecolorballs"
-            manifestPlaceholders = [appNameSuffix: "_2"]
+            manifestPlaceholders = [appName: "@string/app_name_2", appNameSuffix: "_2"]
         }
     }
 

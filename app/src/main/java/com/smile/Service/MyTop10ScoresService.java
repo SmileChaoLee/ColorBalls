@@ -22,7 +22,7 @@ public class MyTop10ScoresService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "MyTop10ScoresService --> onStartCommand() is called.");
         getDataAndSendBack();
-        stopSelf();
+
         Log.d(TAG, "MyTop10ScoresService --> stopSelf() is called.");
         return super.onStartCommand(intent, flags, startId);
     }
@@ -52,5 +52,7 @@ public class MyTop10ScoresService extends Service {
         ColorBallsApp.isProcessingJob = false;
 
         Log.d(TAG, "MyTop10ScoresService --> sent result.");
+
+        stopSelf();
     }
 }

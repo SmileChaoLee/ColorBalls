@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">ColorBalls</string>
-    <string name="app_name_2">ColorBalls_2</string>
+    <string name="app_name_2">FiveBalls</string>
     <string name="app_name_pro">ColorBalls_pro</string>
     <string name="easyStr">Easy</string>
     <string name="difficultStr">Difficult</string>
