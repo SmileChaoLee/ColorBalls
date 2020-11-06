@@ -22,10 +22,14 @@ public final class ContentUriAccessUtil {
         activity.startActivityForResult(intent, requestCode);
     }
 
+    /*
+    // removed on 2020-10-14 because fragment.startActivityForResult() has been deprecated
+    // and this function is not used any more
     public static void selectFileToOpen(Fragment fragment, int requestCode, boolean isSingleFile) {
         Intent intent = createIntentForSelectingFile(isSingleFile);
         fragment.startActivityForResult(intent, requestCode);
     }
+    */
 
     public static Intent createIntentForSelectingFile(boolean isSingleFile) {
         // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file

@@ -32,7 +32,7 @@ public class ShowToastMessage {
     private Queue<Runnable> runnableQueue;
     private boolean isRunnableRunning;
 
-    public static synchronized  ShowToastMessage getInstance(final Activity activity) {
+    public static synchronized ShowToastMessage getInstance(final Activity activity) {
         if (activity == null) {
             return null;
         }
@@ -52,7 +52,7 @@ public class ShowToastMessage {
         return showToastMessage;
     }
 
-    public static void showToast(final Activity activity, final String message, final float textFontSize, final int fontSize_Type, final int duration) {
+    public static synchronized void showToast(final Activity activity, final String message, final float textFontSize, final int fontSize_Type, final int duration) {
         if (activity == null) {
             return;
         }
@@ -60,7 +60,7 @@ public class ShowToastMessage {
         showToastMessage.showMessageInTextView(message, textFontSize, fontSize_Type, duration);
     }
 
-    public void showMessageInTextView(final String message, final float textFontSize, final int fontSize_Type, final int duration) {
+    private synchronized void showMessageInTextView(final String message, final float textFontSize, final int fontSize_Type, final int duration) {
         Log.d(TAG, "showMessageInTextView() --> mTextView = " + mTextView);
         if (mTextView == null) {
             return;
@@ -137,11 +137,11 @@ public class ShowToastMessage {
         }
     }
 
-    private void releaseMessageView() {
+    private synchronized void releaseMessageView() {
         if ( (mRootView != null) && (layoutForTextView != null) && (mTextView != null) ) {
             mTextView.setVisibility(View.INVISIBLE);
             mRootView.removeView(layoutForTextView);
-            mTextView = null;
+            // mTextView = null;
         }
         showToastMessage = null;
     }
