@@ -73,7 +73,10 @@ public class GridData implements Parcelable {
     }
     public void setCellValues(int[][] cellValues) {
         for (int i=0; i<rowCounts; i++) {
-            this.cellValues[i] = cellValues[i].clone();
+            // removed on 2021-01-11
+            // this.cellValues[i] = cellValues[i].clone();
+            // replaced by
+            System.arraycopy(cellValues[i], 0, this.cellValues[i], 0, cellValues[i].length);
         }
     }
     public int[][] getCellValues() {
@@ -91,20 +94,26 @@ public class GridData implements Parcelable {
         return this.nextBalls;
     }
     public void setNextBalls(int[] nextBalls) {
-        this.nextBalls = nextBalls.clone();
+        // this.nextBalls = nextBalls.clone();  // removed on 2021-01-11
+        // replaced by
+        System.arraycopy(nextBalls, 0, this.nextBalls, 0, nextBalls.length);
     }
     public int[] getUndoNextBalls() {
         return this.undoNextBalls;
     }
     public void setUndoNextBalls(int[] undoNextBalls) {
-        this.undoNextBalls = undoNextBalls.clone();
+        // this.undoNextBalls = undoNextBalls.clone();  // removed on 2021-01-11
+        // replaced by
+        System.arraycopy(undoNextBalls, 0, this.undoNextBalls, 0, undoNextBalls.length);
     }
     public int[][] getBackupCells() {
         return backupCells;
     }
     public void setBackupCells(int[][] backupCells) {
         for (int i=0 ; i<rowCounts ; i++) {
-            this.backupCells[i] = backupCells[i].clone();
+            // this.backupCells[i] = backupCells[i].clone();    // removed on 2021-01-11
+            // replaced by
+            System.arraycopy(backupCells[i], 0, this.backupCells[i], 0, backupCells[i].length);
         }
     }
 
@@ -140,12 +149,15 @@ public class GridData implements Parcelable {
 
     public void undoTheLast() {
 
-        nextBalls = undoNextBalls.clone();
+        // nextBalls = undoNextBalls.clone();  // removed on 2021-01-11
+        // replaced by
+        System.arraycopy(undoNextBalls, 0, nextBalls, 0, undoNextBalls.length);
         nextCellIndices = new ArrayList<>(undoNextCellIndices);
 
         // restore CellValues;
         for (int i=0 ; i<rowCounts ; i++) {
-            cellValues[i] = backupCells[i].clone();
+            // cellValues[i] = backupCells[i].clone();  // removed on 2021-01-11
+            System.arraycopy(backupCells[i], 0, cellValues[i], 0, backupCells[i].length);
         }
 
         numOfTotalBalls = getTotalBalls();
@@ -429,11 +441,16 @@ public class GridData implements Parcelable {
             return result;
         }
 
-        undoNextBalls = nextBalls.clone();
+        // undoNextBalls = nextBalls.clone();   // removed on 2021-01-11
+        // replaced by
+        System.arraycopy(nextBalls, 0, undoNextBalls, 0, nextBalls.length);
+
         undoNextCellIndices = new ArrayList<>(nextCellIndices);
         // backup CellValues;
         for (int i=0 ; i<rowCounts ; i++) {
-            backupCells[i] = cellValues[i].clone();
+            // backupCells[i] = cellValues[i].clone(); // removed on 2021-01-11
+            // replaced by
+            System.arraycopy(cellValues[i], 0, backupCells[i],0, cellValues[i].length);
         }
 
         result = findPath(sourcePoint,targetPoint);
@@ -443,6 +460,7 @@ public class GridData implements Parcelable {
 
     private int getTotalBalls() {
         int nb=0;
+        /*  removed on 2021-01-11
         for (int i=0 ; i<rowCounts ; i++) {
             for (int j=0 ; j<colCounts; j++) {
                 if (cellValues[i][j] != 0) {
@@ -450,6 +468,16 @@ public class GridData implements Parcelable {
                 }
             }
         }
+        */
+        // replaced by
+        for (int[] rowArr : cellValues) {
+            for (int cellValue : rowArr) {
+                if (cellValue != 0) {
+                    nb++;
+                }
+            }
+        }
+        Log.d(TAG, "getTotalBalls()--> nb = " + nb);
         return nb;
     }
 

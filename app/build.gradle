@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
+    /*
     signingConfigs {
         config {
             keyAlias 'chaolee'
@@ -9,6 +10,7 @@ android {
             storePassword '86637971'
         }
     }
+    */
     compileSdkVersion 30
     defaultConfig {
         minSdkVersion 16
@@ -42,11 +44,11 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.config
+            // signingConfig signingConfigs.config
         }
         debug {
             minifyEnabled false
-            signingConfig signingConfigs.config
+            // signingConfig signingConfigs.config
         }
     }
 
