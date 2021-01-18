@@ -20,14 +20,15 @@ import com.smile.smilelibraries.utilities.ScreenUtil;
 
 public class ColorBallsApp extends MultiDexApplication {
 
+    private static final String TAG = "ColorBallsApp";
+
     public static final String REST_Website = "http://ec2-13-59-195-3.us-east-2.compute.amazonaws.com/Playerscore";
     public static final int GameId = 1; // this GameId is for backend game_id in playerscore table
+    public static final int FontSize_Scale_Type = ScreenUtil.FontSize_Pixel_Type;
 
     public static Resources AppResources;
     public static Context AppContext;
     public static ScoreSQLite ScoreSQLiteDB;
-
-    public static final int FontSize_Scale_Type = ScreenUtil.FontSize_Pixel_Type;
 
     public static boolean isProcessingJob;
     public static boolean isShowingLoadingMessage;
@@ -42,7 +43,6 @@ public class ColorBallsApp extends MultiDexApplication {
     public static int AdProvider = ShowingInterstitialAdsUtil.FacebookAdProvider;    // default is Facebook Ad
     public static FacebookInterstitialAds facebookAds;
     public static GoogleAdMobInterstitial googleInterstitialAd;
-    private static final String TAG = new String("SmileApplication");
 
     @Override
     public void onCreate() {
@@ -127,5 +127,11 @@ public class ColorBallsApp extends MultiDexApplication {
             };
             adHandler.postDelayed(adRunnable, 1000);
         }
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        Log.d(TAG, "onTrimMemory() is called.");
     }
 }
