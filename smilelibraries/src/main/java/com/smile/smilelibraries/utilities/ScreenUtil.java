@@ -417,7 +417,7 @@ public class ScreenUtil {
 
     public static void showToast(Context context, String content, float textFontSize, int fontSize_Type, int showPeriod) {
         Toast toast = Toast.makeText(context, content, showPeriod);
-        // getView() is deprected in API level 30
+        // getView() is deprecated in API level 30
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             // resize the font size of toast when under API level 30
             try {

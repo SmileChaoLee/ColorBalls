@@ -16,6 +16,11 @@ import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Handler;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultCaller;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.view.ContextThemeWrapper;
@@ -150,36 +155,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case SettingActivityRequestCode:
-                if (resultCode == Activity.RESULT_OK) {
-                    Bundle extras = data.getExtras();
-                    if (extras != null) {
-                        boolean hasSound = extras.getBoolean(SettingActivity.HasSoundKey);
-                        mPresenter.setHasSound(hasSound);
-                        boolean isEasyLevel = extras.getBoolean(SettingActivity.IsEasyLevelKey);
-                        mPresenter.setEasyLevel(isEasyLevel);
-                        boolean hasNextBall = extras.getBoolean(SettingActivity.HasNextBallKey);
-                        mPresenter.setHasNextBall(hasNextBall, true);
-                    }
-                }
-                break;
-            case Top10ScoreActivityRequestCode:
-                showAdUntilDismissed(this);
-                ColorBallsApp.isShowingLoadingMessage = false;
-                ColorBallsApp.isProcessingJob = false;
-                break;
-            case GlobalTop10ActivityRequestCode:
-                showAdUntilDismissed(this);
-                ColorBallsApp.isShowingLoadingMessage = false;
-                ColorBallsApp.isProcessingJob = false;
-                break;
-        }
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.my, menu);
@@ -254,13 +229,34 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             }
             if (id == R.id.setting) {
                 ColorBallsApp.isProcessingJob = true;    // started procession job
+                ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                        new ActivityResultCallback<ActivityResult>() {
+                                @Override
+                                public void onActivityResult(ActivityResult result) {
+                                    int resultCode = result.getResultCode();
+                                    if (resultCode == Activity.RESULT_OK) {
+                                        Intent data = result.getData();
+                                        Bundle extras = data.getExtras();
+                                        if (extras != null) {
+                                            boolean hasSound = extras.getBoolean(SettingActivity.HasSoundKey);
+                                            mPresenter.setHasSound(hasSound);
+                                            boolean isEasyLevel = extras.getBoolean(SettingActivity.IsEasyLevelKey);
+                                            mPresenter.setEasyLevel(isEasyLevel);
+                                            boolean hasNextBall = extras.getBoolean(SettingActivity.HasNextBallKey);
+                                            mPresenter.setHasNextBall(hasNextBall, true);
+                                        }
+                                    }
+                                }
+                        });
+
                 Intent intent = new Intent(this, SettingActivity.class);
                 Bundle extras = new Bundle();
                 extras.putBoolean(SettingActivity.HasSoundKey, mPresenter.hasSound());
                 extras.putBoolean(SettingActivity.IsEasyLevelKey, mPresenter.isEasyLevel());
                 extras.putBoolean(SettingActivity.HasNextBallKey, mPresenter.hasNextBall());
                 intent.putExtras(extras);
-                startActivityForResult(intent, SettingActivityRequestCode);
+                activityResultLauncher.launch(intent);
+
                 ColorBallsApp.isProcessingJob = false;
                 return true;
             }
@@ -963,13 +959,25 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                     } else {
                         // for Portrait
                         top10ScoreFragment = null;
+                        ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                                new ActivityResultCallback<ActivityResult>() {
+                                    @Override
+                                    public void onActivityResult(ActivityResult result) {
+                                        int resultCode = result.getResultCode();
+                                        if (resultCode == Activity.RESULT_OK) {
+                                            showAdUntilDismissed(MyActivity.this);
+                                            ColorBallsApp.isShowingLoadingMessage = false;
+                                            ColorBallsApp.isProcessingJob = false;
+                                        }
+                                    }
+                                });
                         Intent top10Intent = new Intent(getApplicationContext(), Top10ScoreActivity.class);
                         Bundle top10Extras = new Bundle();
                         top10Extras.putString("Top10TitleName", top10ScoreTitle);
                         top10Extras.putStringArrayList("Top10Players", playerNames);
                         top10Extras.putIntegerArrayList("Top10Scores", playerScores);
                         top10Intent.putExtras(top10Extras);
-                        startActivityForResult(top10Intent, Top10ScoreActivityRequestCode);
+                        activityResultLauncher.launch(top10Intent);
                     }
                     dismissShowMessageOnScreen();
                     ColorBallsApp.isShowingLoadingMessage = false;
@@ -1020,13 +1028,22 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                     } else {
                         // for Portrait
                         globalTop10Fragment = null;
+                        ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                                new ActivityResultCallback<ActivityResult>() {
+                                    @Override
+                                    public void onActivityResult(ActivityResult result) {
+                                        showAdUntilDismissed(MyActivity.this);
+                                        ColorBallsApp.isShowingLoadingMessage = false;
+                                        ColorBallsApp.isProcessingJob = false;
+                                    }
+                                });
                         Intent globalTop10Intent = new Intent(getApplicationContext(), Top10ScoreActivity.class);
                         Bundle globalTop10Extras = new Bundle();
                         globalTop10Extras.putString("Top10TitleName", globalTop10ScoreTitle);
                         globalTop10Extras.putStringArrayList("Top10Players", playerNames);
                         globalTop10Extras.putIntegerArrayList("Top10Scores", playerScores);
                         globalTop10Intent.putExtras(globalTop10Extras);
-                        startActivityForResult(globalTop10Intent, GlobalTop10ActivityRequestCode);
+                        activityResultLauncher.launch(globalTop10Intent);
                     }
                     dismissShowMessageOnScreen();
                     ColorBallsApp.isShowingLoadingMessage = false;
