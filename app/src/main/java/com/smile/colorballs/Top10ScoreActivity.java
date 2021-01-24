@@ -33,15 +33,6 @@ public class Top10ScoreActivity extends AppCompatActivity {
         Log.d(TAG,"Top10ScoreActivity.onCreate() is called.");
 
         super.onCreate(savedInstanceState);
-
-        if (ScreenUtil.isTablet(this)) {
-            // Table then change orientation to Landscape
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        } else {
-            // phone then change orientation to Portrait
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
-
         /*
         try {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
