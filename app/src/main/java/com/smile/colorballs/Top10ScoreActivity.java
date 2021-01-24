@@ -1,6 +1,7 @@
 package com.smile.colorballs;
 
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -9,6 +10,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.smile.smilelibraries.utilities.ScreenUtil;
 
 import java.util.ArrayList;
 
@@ -30,6 +33,14 @@ public class Top10ScoreActivity extends AppCompatActivity {
         Log.d(TAG,"Top10ScoreActivity.onCreate() is called.");
 
         super.onCreate(savedInstanceState);
+
+        if (ScreenUtil.isTablet(this)) {
+            // Table then change orientation to Landscape
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else {
+            // phone then change orientation to Portrait
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
 
         /*
         try {

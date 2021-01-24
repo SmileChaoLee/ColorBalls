@@ -18,7 +18,6 @@ import android.os.Handler;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultCaller;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -57,7 +56,7 @@ import com.smile.smilelibraries.Models.ExitAppTimer;
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment;
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil;
 import com.smile.smilelibraries.showing_banner_ads_utility.SetBannerAdViewForAdMobOrFacebook;
-import com.smile.smilelibraries.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
+import com.smile.smilelibraries.showing_interstitial_ads_utility.ShowingInterstitialAdsUtil;
 import com.smile.smilelibraries.utilities.FontAndBitmapUtil;
 import com.smile.smilelibraries.utilities.ScreenUtil;
 
@@ -72,9 +71,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     private static final String LocalTop10FragmentTag = "LocalTop10FragmentTag";
 
     private final int Max_Saved_Games = 5;
-    private final int SettingActivityRequestCode = 1;
-    private final int Top10ScoreActivityRequestCode = 2;
-    private final int GlobalTop10ActivityRequestCode = 3;
     private final int PrivacyPolicyActivityRequestCode = 10;
 
     private MyActivityPresenter mPresenter;
@@ -122,6 +118,10 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     private AlertDialogFragment sureLoadDialog;
     private AlertDialogFragment gameOverDialog;
 
+    private ActivityResultLauncher<Intent> settingActivityResultLauncher;
+    private ActivityResultLauncher<Intent> localTop10ActivityResultLauncher;
+    private ActivityResultLauncher<Intent> globalTop10ActivityResultLauncher;
+
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,7 +132,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         super.onCreate(savedInstanceState);
 
         ColorBallsApp.InterstitialAd = new ShowingInterstitialAdsUtil(this, ColorBallsApp.facebookAds, ColorBallsApp.googleInterstitialAd);
-
+        /*
         if (ScreenUtil.isTablet(this)) {
             // Table then change orientation to Landscape
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -140,7 +140,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             // phone then change orientation to Portrait
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
-
+        */
         setContentView(R.layout.activity_my);
 
         createActivityUI();
@@ -150,6 +150,49 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         setBannerAndNativeAdUI();
 
         setBroadcastReceiver();
+
+        settingActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        int resultCode = result.getResultCode();
+                        if (resultCode == Activity.RESULT_OK) {
+                            Intent data = result.getData();
+                            Bundle extras = data.getExtras();
+                            if (extras != null) {
+                                boolean hasSound = extras.getBoolean(SettingActivity.HasSoundKey);
+                                mPresenter.setHasSound(hasSound);
+                                boolean isEasyLevel = extras.getBoolean(SettingActivity.IsEasyLevelKey);
+                                mPresenter.setEasyLevel(isEasyLevel);
+                                boolean hasNextBall = extras.getBoolean(SettingActivity.HasNextBallKey);
+                                mPresenter.setHasNextBall(hasNextBall, true);
+                            }
+                        }
+                    }
+                });
+        localTop10ActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        int resultCode = result.getResultCode();
+                        if (resultCode == Activity.RESULT_OK) {
+                            Log.d(TAG, "localTop10ActivityResultLauncher --> Showing interstitial ads");
+                            showAdUntilDismissed(MyActivity.this);   // removed for tesing
+                            ColorBallsApp.isShowingLoadingMessage = false;
+                            ColorBallsApp.isProcessingJob = false;
+                        }
+                    }
+                });
+
+        globalTop10ActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        showAdUntilDismissed(MyActivity.this);
+                        ColorBallsApp.isShowingLoadingMessage = false;
+                        ColorBallsApp.isProcessingJob = false;
+                    }
+                });
 
         Log.d(TAG, "onCreate() is finished.");
     }
@@ -229,33 +272,13 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             }
             if (id == R.id.setting) {
                 ColorBallsApp.isProcessingJob = true;    // started procession job
-                ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                        new ActivityResultCallback<ActivityResult>() {
-                                @Override
-                                public void onActivityResult(ActivityResult result) {
-                                    int resultCode = result.getResultCode();
-                                    if (resultCode == Activity.RESULT_OK) {
-                                        Intent data = result.getData();
-                                        Bundle extras = data.getExtras();
-                                        if (extras != null) {
-                                            boolean hasSound = extras.getBoolean(SettingActivity.HasSoundKey);
-                                            mPresenter.setHasSound(hasSound);
-                                            boolean isEasyLevel = extras.getBoolean(SettingActivity.IsEasyLevelKey);
-                                            mPresenter.setEasyLevel(isEasyLevel);
-                                            boolean hasNextBall = extras.getBoolean(SettingActivity.HasNextBallKey);
-                                            mPresenter.setHasNextBall(hasNextBall, true);
-                                        }
-                                    }
-                                }
-                        });
-
                 Intent intent = new Intent(this, SettingActivity.class);
                 Bundle extras = new Bundle();
                 extras.putBoolean(SettingActivity.HasSoundKey, mPresenter.hasSound());
                 extras.putBoolean(SettingActivity.IsEasyLevelKey, mPresenter.isEasyLevel());
                 extras.putBoolean(SettingActivity.HasNextBallKey, mPresenter.hasNextBall());
                 intent.putExtras(extras);
-                activityResultLauncher.launch(intent);
+                settingActivityResultLauncher.launch(intent);
 
                 ColorBallsApp.isProcessingJob = false;
                 return true;
@@ -284,7 +307,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                     ft.commitAllowingStateLoss();   // temporarily solved
                 } else {
                     Log.d(TAG, "top10ScoreFragment.isStateSaved() = false");
-                    ft.commit();
+                    // ft.commit(); // removed on 2021-01-24
+                    ft.commitAllowingStateLoss();   // added on 2021-01-24
                 }
                 ColorBallsApp.isShowingLoadingMessage = false;
                 ColorBallsApp.isProcessingJob = false;
@@ -299,7 +323,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                     ft.commitAllowingStateLoss();   // temporarily solved
                 } else {
                     Log.d(TAG, "globalTop10Fragment.isStateSaved() = false");
-                    ft.commit();
+                    // ft.commit(); // removed on 2021-01-24
+                    ft.commitAllowingStateLoss();   // added on 2021-01-24
                 }
 
                 ColorBallsApp.isShowingLoadingMessage = false;
@@ -400,7 +425,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             exitAppTimer.start();
             float toastFontSize = textFontSize * 0.7f;
             Log.d(TAG, "toastFontSize = " + toastFontSize);
-            ScreenUtil.showToast(this, getString(R.string.backKeyToExitApp), toastFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_SHORT);
+            ScreenUtil.showToast(MyActivity.this, getString(R.string.backKeyToExitApp), toastFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_SHORT);
             // ShowToastMessage.showToast(this, getString(R.string.backKeyToExitApp), toastFontSize, ColorBallsApp.FontSize_Scale_Type, 2000);
         }
     }
@@ -417,7 +442,11 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         Log.d(TAG, "screenWidth = " + screenWidth);
         Log.d(TAG, "screenHeight = " + screenHeight);
         float statusBarHeight = ScreenUtil.getStatusBarHeight(this);
+        Log.d(TAG, "statusBarHeight = " + statusBarHeight);
         float actionBarHeight = ScreenUtil.getActionBarHeight(this);
+        Log.d(TAG, "actionBarHeight = " + actionBarHeight);
+        float navigationBarHeight = ScreenUtil.getNavigationBarHeight(this);
+        Log.d(TAG, "navigationBarHeight = " + navigationBarHeight);
         // keep navigation bar
         screenHeight = screenHeight - statusBarHeight - actionBarHeight;
     }
@@ -441,17 +470,21 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         // find Out Width and Height of GameView
         LinearLayout linearLayout_myActivity = findViewById(R.id.linearLayout_myActivity);
         float main_WeightSum = linearLayout_myActivity.getWeightSum();
+        Log.d(TAG, "main_WeightSum = " + main_WeightSum);
 
         LinearLayout gameViewLinearLayout = findViewById(R.id.gameViewLinearLayout);
         LinearLayout.LayoutParams gameViewLp = (LinearLayout.LayoutParams) gameViewLinearLayout.getLayoutParams();
         float gameView_Weight = gameViewLp.weight;
+        Log.d(TAG, "gameView_Weight = " + gameView_Weight);
         mainGameViewHeight = screenHeight * gameView_Weight / main_WeightSum;
         Log.d(TAG, "mainGameViewHeight = " + mainGameViewHeight);
 
         float gameViewWeightSum = gameViewLinearLayout.getWeightSum();
+        Log.d(TAG, "gameViewWeightSum = " + gameViewWeightSum);
         LinearLayout mainGameViewUiLayout = findViewById(R.id.gameViewLayout);
         LinearLayout.LayoutParams mainGameViewtUiLayoutParams = (LinearLayout.LayoutParams) mainGameViewUiLayout.getLayoutParams();
         float mainGameViewUi_weight = mainGameViewtUiLayoutParams.weight;
+        Log.d(TAG, "mainGameViewUi_weight = " + mainGameViewUi_weight);
         mainGameViewWidth = screenWidth * (mainGameViewUi_weight / gameViewWeightSum);
         Log.d(TAG, "mainGameViewWidth = " + mainGameViewWidth);
 
@@ -607,7 +640,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             adaptiveBannerWidth = (int)(screenWidth - mainGameViewWidth);
         }
-        int adaptiveBannerDpWidth = ScreenUtil.pixelToDp(getApplicationContext(), adaptiveBannerWidth);
+        int adaptiveBannerDpWidth = ScreenUtil.pixelToDp(this, adaptiveBannerWidth);
         Log.d(TAG, "adaptiveBannerDpWidth = " + adaptiveBannerDpWidth);
 
         // show AdMob native ad if the device is tablet
@@ -707,9 +740,9 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 if (numOfSaved < Max_Saved_Games) {
                     boolean succeeded = mPresenter.startSavingGame(numOfSaved);
                     if (succeeded) {
-                        ScreenUtil.showToast(getApplicationContext(), getString(R.string.succeededSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                        ScreenUtil.showToast(MyActivity.this, getString(R.string.succeededSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
                     } else {
-                        ScreenUtil.showToast(getApplicationContext(), getString(R.string.failedSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                        ScreenUtil.showToast(MyActivity.this, getString(R.string.failedSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
                     }
                 } else {
                     // display warning to users
@@ -748,9 +781,9 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 mPresenter.setShowingWarningSaveGameDialog(false);
                 boolean succeeded = mPresenter.startSavingGame(finalNumOfSaved);
                 if (succeeded) {
-                    ScreenUtil.showToast(getApplicationContext(), getString(R.string.succeededSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                    ScreenUtil.showToast(MyActivity.this, getString(R.string.succeededSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
                 } else {
-                    ScreenUtil.showToast(getApplicationContext(), getString(R.string.failedSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                    ScreenUtil.showToast(MyActivity.this, getString(R.string.failedSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
                 }
                 showAdUntilDismissed(MyActivity.this);
             }
@@ -791,9 +824,9 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 mPresenter.setShowingSureLoadDialog(false);
                 boolean succeeded = mPresenter.startLoadingGame();
                 if (succeeded) {
-                    ScreenUtil.showToast(getApplicationContext(), getString(R.string.succeededLoadGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                    ScreenUtil.showToast(MyActivity.this, getString(R.string.succeededLoadGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
                 } else {
-                    ScreenUtil.showToast(getApplicationContext(), getString(R.string.failedLoadGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                    ScreenUtil.showToast(MyActivity.this, getString(R.string.failedLoadGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
                 }
             }
         });
@@ -959,25 +992,13 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                     } else {
                         // for Portrait
                         top10ScoreFragment = null;
-                        ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                                new ActivityResultCallback<ActivityResult>() {
-                                    @Override
-                                    public void onActivityResult(ActivityResult result) {
-                                        int resultCode = result.getResultCode();
-                                        if (resultCode == Activity.RESULT_OK) {
-                                            showAdUntilDismissed(MyActivity.this);
-                                            ColorBallsApp.isShowingLoadingMessage = false;
-                                            ColorBallsApp.isProcessingJob = false;
-                                        }
-                                    }
-                                });
                         Intent top10Intent = new Intent(getApplicationContext(), Top10ScoreActivity.class);
                         Bundle top10Extras = new Bundle();
                         top10Extras.putString("Top10TitleName", top10ScoreTitle);
                         top10Extras.putStringArrayList("Top10Players", playerNames);
                         top10Extras.putIntegerArrayList("Top10Scores", playerScores);
                         top10Intent.putExtras(top10Extras);
-                        activityResultLauncher.launch(top10Intent);
+                        localTop10ActivityResultLauncher.launch(top10Intent);
                     }
                     dismissShowMessageOnScreen();
                     ColorBallsApp.isShowingLoadingMessage = false;
@@ -1028,22 +1049,13 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                     } else {
                         // for Portrait
                         globalTop10Fragment = null;
-                        ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                                new ActivityResultCallback<ActivityResult>() {
-                                    @Override
-                                    public void onActivityResult(ActivityResult result) {
-                                        showAdUntilDismissed(MyActivity.this);
-                                        ColorBallsApp.isShowingLoadingMessage = false;
-                                        ColorBallsApp.isProcessingJob = false;
-                                    }
-                                });
                         Intent globalTop10Intent = new Intent(getApplicationContext(), Top10ScoreActivity.class);
                         Bundle globalTop10Extras = new Bundle();
                         globalTop10Extras.putString("Top10TitleName", globalTop10ScoreTitle);
                         globalTop10Extras.putStringArrayList("Top10Players", playerNames);
                         globalTop10Extras.putIntegerArrayList("Top10Scores", playerScores);
                         globalTop10Intent.putExtras(globalTop10Extras);
-                        activityResultLauncher.launch(globalTop10Intent);
+                        globalTop10ActivityResultLauncher.launch(globalTop10Intent);
                     }
                     dismissShowMessageOnScreen();
                     ColorBallsApp.isShowingLoadingMessage = false;

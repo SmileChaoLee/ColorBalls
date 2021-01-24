@@ -15,7 +15,7 @@ import com.google.android.gms.ads.initialization.OnInitializationCompleteListene
 import com.smile.smilelibraries.facebook_ads_util.FacebookInterstitialAds;
 import com.smile.smilelibraries.google_admob_ads_util.GoogleAdMobInterstitial;
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite;
-import com.smile.smilelibraries.showing_instertitial_ads_utility.ShowingInterstitialAdsUtil;
+import com.smile.smilelibraries.showing_interstitial_ads_utility.ShowingInterstitialAdsUtil;
 import com.smile.smilelibraries.utilities.ScreenUtil;
 
 public class ColorBallsApp extends MultiDexApplication {

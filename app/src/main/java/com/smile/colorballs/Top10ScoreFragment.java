@@ -103,15 +103,15 @@ public class Top10ScoreFragment extends Fragment {
         }
 
         this.context = context;
-        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this.context, ColorBallsApp.FontSize_Scale_Type, null);
-        textFontSize = ScreenUtil.suitableFontSize(this.context, defaultTextFontSize, ColorBallsApp.FontSize_Scale_Type,0.0f);
+        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(getActivity(), ColorBallsApp.FontSize_Scale_Type, null);
+        textFontSize = ScreenUtil.suitableFontSize(getActivity(), defaultTextFontSize, ColorBallsApp.FontSize_Scale_Type,0.0f);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "Top10ScoreFragment.onCreate() is called. ");
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);    // added on 2018-06-14
+        // setRetainInstance(true);    // deprecated
 
         // if statement was added on 2018-06-14
         if (savedInstanceState == null) {   // if new Fragment instance
@@ -144,13 +144,8 @@ public class Top10ScoreFragment extends Fragment {
         Log.d(TAG, "Top10ScoreFragment.onViewCreated() is called.");
         super.onViewCreated(view, savedInstanceState);
         top10ScoreFragmentView = view;
-    }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "Top10ScoreFragment.onActivityCreated() is called.");
-        super.onActivityCreated(savedInstanceState);
-
+        // moved here from onActivityCreated() because onActivityCreated() is deprecated
         if (savedInstanceState == null) {   // new Fragment instance
             titleForTop10ListView = top10ScoreFragmentView.findViewById(R.id.top10ScoreTitle);
             ScreenUtil.resizeTextSize(titleForTop10ListView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
@@ -188,6 +183,7 @@ public class Top10ScoreFragment extends Fragment {
 
                 }
             });
+            //
         }
     }
 
