@@ -1,4 +1,4 @@
-package com.smile.smilelibraries.showing_instertitial_ads_utility;
+package com.smile.smilelibraries.showing_interstitial_ads_utility;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;

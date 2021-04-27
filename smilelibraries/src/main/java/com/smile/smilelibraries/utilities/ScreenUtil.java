@@ -2,14 +2,12 @@ package com.smile.smilelibraries.utilities;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.PopupMenu;
 
 import android.graphics.drawable.BitmapDrawable;
@@ -23,7 +21,6 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -42,81 +39,76 @@ public class ScreenUtil {
     public static final int FontSize_Dip_Type = 2;
     public static final int FontSize_Pixel_Type = 3;
 
-    public static int getStatusBarHeight(Context context) {
+    public static int getStatusBarHeight(Activity activity) {
         int height = 0;
-        int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        int resourceId = activity.getResources().getIdentifier("status_bar_height", "dimen", "android");
         if (resourceId > 0) {
-            height = context.getResources().getDimensionPixelSize(resourceId);
+            height = activity.getResources().getDimensionPixelSize(resourceId);
         }
         return height;
     }
 
-    public static int getNavigationBarHeight(Context context) {
+    public static int getNavigationBarHeight(Activity activity) {
         int height = 0;
-        int resourceId = context.getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+        int resourceId = activity.getResources().getIdentifier("navigation_bar_height", "dimen", "android");
         if (resourceId > 0) {
-            height = context.getResources().getDimensionPixelSize(resourceId);
+            height = activity.getResources().getDimensionPixelSize(resourceId);
         }
         return height;
     }
 
-    public static int getActionBarHeight(Context context) {
+    public static int getActionBarHeight(Activity activity) {
         int height = 0;
         TypedValue tv = new TypedValue();
-        if (context.getTheme().resolveAttribute(android.R.attr.actionBarSize,tv, true))
+        if (activity.getTheme().resolveAttribute(android.R.attr.actionBarSize,tv, true))
         {
-            height = TypedValue.complexToDimensionPixelSize(tv.data,context.getResources().getDisplayMetrics());
+            height = TypedValue.complexToDimensionPixelSize(tv.data, activity.getResources().getDisplayMetrics());
         }
         return height;
     }
 
-    public static Point getScreenSize(Context context) {
-        /*
-        Display display =  ((Activity)context).getWindowManager().getDefaultDisplay();
+    public static Point getScreenSize(Activity activity) {
+        // exclude the height of Navigation Bar
         Point size = new Point();
-        display.getSize(size);
-        Log.d(TAG, "display.getSize(size) --> size.x = " + size.x);
-        Log.d(TAG,"display.getSize(size) --> size.y = " + size.y);
-        */
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            int top = activity.getWindowManager().getCurrentWindowMetrics().getBounds().top;
+            int left = activity.getWindowManager().getCurrentWindowMetrics().getBounds().left;
+            int bottom = activity.getWindowManager().getCurrentWindowMetrics().getBounds().bottom;
+            int right = activity.getWindowManager().getCurrentWindowMetrics().getBounds().right;
+            Log.d(TAG, "right - left = " + (right - left));
+            Log.d(TAG, "bottom - top = " + (bottom - top));
+            size.x = right - left;
+            size.y = bottom - top;
+            if (size.x > size.y) {
+                size.x = size.x - getNavigationBarHeight(activity);
+            } else {
+                size.y = size.y - getNavigationBarHeight(activity);
+            }
+        } else {
+            size.x = activity.getResources().getSystem().getDisplayMetrics().widthPixels;
+            // size.x = Resources.getSystem().getDisplayMetrics().widthPixels;
+            size.y = activity.getResources().getSystem().getDisplayMetrics().heightPixels;
+            // size.y = Resources.getSystem().getDisplayMetrics().heightPixels;
+        }
 
-        Point size = new Point();
-        // size.x = context.getResources().getSystem().getDisplayMetrics().widthPixels;
-        size.x = Resources.getSystem().getDisplayMetrics().widthPixels;
-        // size.y = context.getResources().getSystem().getDisplayMetrics().heightPixels;
-        size.y = Resources.getSystem().getDisplayMetrics().heightPixels;
-
-        Log.d(TAG, "Resources.getSystem().getDisplayMetrics() --> size.x = " + size.x);
-        Log.d(TAG,"Resources.getSystem().getDisplayMetrics() --> size.y = " + size.y);
+        Log.d(TAG,"size.x = " + size.x);
+        Log.d(TAG,"size.y = " + size.y);
 
         return size;
     }
 
-    public static int dpToPixel(Context context, int dp) {
-        /*
-        // deprecated
-        // Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
-        Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        display.getMetrics(displayMetrics);
-        */
-
-        DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
+    public static int dpToPixel(Activity activity, int dp) {
+        // DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
+        DisplayMetrics displayMetrics = activity.getResources().getSystem().getDisplayMetrics();
 
         float density = displayMetrics.density;
 
         return  (int)((float)dp * density);
     }
 
-    public static int pixelToDp(Context context, int pixel) {
-        /*
-        // deprecated
-        // Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
-        Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        display.getMetrics(displayMetrics);
-        */
-
-        DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
+    public static int pixelToDp(Activity activity, int pixel) {
+        // DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
+        DisplayMetrics displayMetrics = activity.getResources().getSystem().getDisplayMetrics();
         float density = displayMetrics.density;
         int dp = 0;
         if (density != 0) {
@@ -127,14 +119,6 @@ public class ScreenUtil {
     }
 
     public static float getDefaultTextSizeFromTheme(Context context, int fontSize_Type, @Nullable Integer themeId) {
-        /*
-        // deprecated
-        // Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
-        Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        display.getMetrics(displayMetrics);
-        */
-
         DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
         TypedArray typedArray;
         int[] attrs = {android.R.attr.textSize}; // retrieve text size from style.xml
@@ -160,14 +144,11 @@ public class ScreenUtil {
         return defaultTextFontSize;
     }
 
-    public static float suitableFontSize(Context context, float defaultFontSize, int fontSize_Type, float baseScreenWidth) {
+    public static float suitableFontSize(Activity activity, float defaultFontSize, int fontSize_Type) {
+        return suitableFontSize(activity, defaultFontSize, fontSize_Type, 0);
+    }
 
-        // this method based on Nexus 5 device
-        // 1080 x 1776 pixels
-        // screen width in inches = 2.25
-        // screen height in inches = 3.7
-        // screen size = 4.330415725176914 inches (diagonal)
-
+    public static float suitableFontSize(Activity activity, float defaultFontSize, int fontSize_Type, float baseScreenWidth) {
         float fontSize;
         if (fontSize_Type == FontSize_Pixel_Type) {
             fontSize = 75; // default font size in pixels setting for Nexus 5
@@ -178,40 +159,31 @@ public class ScreenUtil {
             fontSize = defaultFontSize;
         }
 
-        float fontScale = suitableFontScale(context, fontSize_Type, baseScreenWidth);
+        float fontScale = suitableFontScale(activity, fontSize_Type, baseScreenWidth);
         fontSize = fontSize * fontScale;
 
         return fontSize;
     }
 
-    public static float suitableFontScale(Context context, int fontSize_Type, float baseScreenWidth) {
+    public static float suitableFontScale(Activity activity, int fontSize_Type) {
+        return suitableFontScale(activity, fontSize_Type, 0);
+    }
 
-        // this method based on Nexus 5 device
-        // 1080 x 1776 pixels
-        // screen width in inches = 2.25
-        // screen height in inches = 3.7
-        // screen size = 4.330415725176914 inches (diagonal)
-
+    public static float suitableFontScale(Activity activity, int fontSize_Type, float baseScreenWidth) {
         float fontScale;
         if (fontSize_Type == FontSize_Pixel_Type) {
             float baseWidthPixels = 1080.0f;    // the width (pixels) of Nexus 5
             if (baseScreenWidth > 0) {
                 baseWidthPixels = baseScreenWidth;
             }
-
-            /*
-            // deprecated
-            // Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
-            Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-            DisplayMetrics displayMetrics = new DisplayMetrics();
-            display.getMetrics(displayMetrics);
-            */
-
-            DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
-            float wPixels = displayMetrics.widthPixels;
-            float hPixels = displayMetrics.heightPixels;
+            // DisplayMetrics displayMetrics = activity.getResources().getSystem().getDisplayMetrics();
+            // float wPixels = displayMetrics.widthPixels;
+            // float hPixels = displayMetrics.heightPixels;
+            Point size = getScreenSize(activity);
+            float wPixels = size.x;
+            float hPixels = size.y;
             fontScale = wPixels / baseWidthPixels;
-            if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            if (activity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 fontScale = hPixels / baseWidthPixels;
             }
         } else {
@@ -220,10 +192,10 @@ public class ScreenUtil {
                 baseWidthSize = baseScreenWidth;
             }
 
-            float wInches = screenWidthInches(context);
-            float hInches = screenHeightInches(context);
+            float wInches = screenWidthInches(activity);
+            float hInches = screenHeightInches(activity);
             fontScale = wInches / baseWidthSize;
-            if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            if (activity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 fontScale = hInches / baseWidthSize;
             }
         }
@@ -231,21 +203,13 @@ public class ScreenUtil {
         return fontScale;
     }
 
-    public static float screenWidthInches(Context context) {
-        /*
-        // deprecated
-        // Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
-        Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        display.getMetrics(displayMetrics);
-        */
+    public static float screenWidthInches(Activity activity) {
+        DisplayMetrics displayMetrics = activity.getResources().getDisplayMetrics();
+        //float widthPixels = (float)(displayMetrics.widthPixels);
 
-        // DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-
-        float widthPixels = (float)(displayMetrics.widthPixels);
+        Point size = getScreenSize(activity);
+        float widthPixels = size.x;
         Log.d(TAG, "widthPixels = " + widthPixels);
-
         Log.d(TAG, "displayMetrics.density = " + displayMetrics.density);
         Log.d(TAG, "displayMetrics.densityDpi = " + displayMetrics.densityDpi);
 
@@ -261,21 +225,15 @@ public class ScreenUtil {
         return widthPixels / xdpi;
     }
 
-    public static float screenHeightInches(Context context) {
-        /*
-        // deprecated
-        // Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
-        Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        display.getMetrics(displayMetrics);
-        */
+    public static float screenHeightInches(Activity activity) {
 
         // DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        DisplayMetrics displayMetrics = activity.getResources().getDisplayMetrics();
+        // float heightPixels = (float)displayMetrics.heightPixels;
 
-        float heightPixels = (float)displayMetrics.heightPixels;
+        Point size = getScreenSize(activity);
+        float heightPixels = size.y;
         Log.d(TAG, "heightPixels = " + heightPixels);
-
         Log.d(TAG, "displayMetrics.density = " + displayMetrics.density);
         Log.d(TAG, "displayMetrics.densityDpi = " + displayMetrics.densityDpi);
 
@@ -291,12 +249,12 @@ public class ScreenUtil {
         return heightPixels / ydpi;
     }
 
-    public static float screenSizeInches(Context context) {
+    public static float screenSizeInches(Activity activity) {
 
-        float wInches = screenWidthInches(context);
+        float wInches = screenWidthInches(activity);
         Log.d(TAG, "wInches = " + wInches);
 
-        float hInches = screenHeightInches(context);
+        float hInches = screenHeightInches(activity);
         Log.d(TAG, "hInches = " + hInches);
 
         float screenDiagonal = (float) (Math.sqrt( Math.pow(wInches, 2) + Math.pow(hInches, 2 )) );
@@ -306,8 +264,8 @@ public class ScreenUtil {
         return screenDiagonal;
     }
 
-    public static boolean isTablet(Context context) {
-        double screenDiagonal = screenSizeInches(context);
+    public static boolean isTablet(Activity activity) {
+        double screenDiagonal = screenSizeInches(activity);
         return (screenDiagonal >= 7.0);
     }
 
@@ -323,7 +281,7 @@ public class ScreenUtil {
         resizeMenuTextIconSize0(wrapper, menu, defaultMenuTextSize, fontScale);
     }
 
-    public static void buildActionViewClassMenu(final Activity activity, final Context wrapper, final Menu menu, final float fontScale, final int fontSize_Type) {
+    public static void buildActionViewClassMenu(final Activity activity, final Activity wrapper, final Menu menu, final float fontScale, final int fontSize_Type) {
 
         if (menu == null) {
             return;
@@ -365,7 +323,7 @@ public class ScreenUtil {
         }
     }
 
-    public static void buildMenuInPopupMenuByView(final Activity activity, final Context wrapper, Menu menu, View view, final float fontScale) {
+    public static void buildMenuInPopupMenuByView(final Activity activity, final Activity wrapper, Menu menu, View view, final float fontScale) {
 
         if (menu == null) {
             return;
@@ -415,9 +373,9 @@ public class ScreenUtil {
         }
     }
 
-    public static void showToast(Context context, String content, float textFontSize, int fontSize_Type, int showPeriod) {
-        Toast toast = Toast.makeText(context, content, showPeriod);
-        // getView() is deprected in API level 30
+    public static void showToast(Activity activity, String content, float textFontSize, int fontSize_Type, int showPeriod) {
+        Toast toast = Toast.makeText(activity, content, showPeriod);
+        // getView() is deprecated in API level 30
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             // resize the font size of toast when under API level 30
             try {
@@ -432,8 +390,7 @@ public class ScreenUtil {
             }
 
         } else {
-            if (context != null) {
-                Activity activity = (Activity)context;
+            if (activity != null) {
                 int duration = 2000;    // 2 seconds for Toast.LENGTH_SHORT
                 if (showPeriod == Toast.LENGTH_LONG) {
                     duration = 3500;    // 3.5 seconds

@@ -1,6 +1,7 @@
 package com.smile.colorballs;
 
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -9,6 +10,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.smile.smilelibraries.utilities.ScreenUtil;
 
 import java.util.ArrayList;
 
@@ -30,7 +33,6 @@ public class Top10ScoreActivity extends AppCompatActivity {
         Log.d(TAG,"Top10ScoreActivity.onCreate() is called.");
 
         super.onCreate(savedInstanceState);
-
         /*
         try {
             requestWindowFeature(Window.FEATURE_NO_TITLE);

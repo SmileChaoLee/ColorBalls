@@ -63,6 +63,9 @@ public class GoogleAdMobInterstitial {
                 isError = false;
             }
 
+            /*
+            // removed because onAdLeftApplication() is deprecated
+            // and this method might not be necessary
             @Override
             public void onAdLeftApplication() {
                 // Code to be executed when the user has left the app.
@@ -72,6 +75,7 @@ public class GoogleAdMobInterstitial {
                 isDismissed = false;
                 isError = false;
             }
+            */
 
             @Override
             public void onAdClosed() {

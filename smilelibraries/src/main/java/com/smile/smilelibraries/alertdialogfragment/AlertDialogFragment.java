@@ -105,7 +105,7 @@ public class AlertDialogFragment extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
+        // setRetainInstance(true); // deprecated
         Log.d(TAG, "AlertDialogFragment.onCreate() is called");
 
         // if statement was added on 2018-06-14 for avoiding to reset the parameters and values of
@@ -263,7 +263,8 @@ public class AlertDialogFragment extends DialogFragment {
         Log.d(TAG, "AlertDialogFragment.onDestroyView() is called.");
         Dialog dialog = getDialog();
         // handles https://code.google.com/p/android/issues/detail?id=17423
-        if ( (dialog != null) && getRetainInstance()) {
+        // if ( (dialog != null) && getRetainInstance()) {  // getRetainInstance() is deprecated
+        if (dialog != null) {
             dialog.setDismissMessage(null);
         }
         super.onDestroyView();
