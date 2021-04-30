@@ -16,7 +16,7 @@ public class ShowingInterstitialAdsUtil {
     private final static String TAG = new String(".ShowingInterstitialAdsUtil");
     private final FacebookInterstitialAds facebookAd;
     private final GoogleAdMobInterstitial adMobAd;
-    private final Context mContext;
+    // private final Context mContext;
     private final Activity mActivity;
     private final Handler synchronizedHandler = new Handler(Looper.getMainLooper());
 
@@ -25,9 +25,9 @@ public class ShowingInterstitialAdsUtil {
     private boolean succeededFacebook = false;
     private boolean finishedPreviousStep = false;
 
-    public ShowingInterstitialAdsUtil(Context context, FacebookInterstitialAds facebookAd, GoogleAdMobInterstitial adMobAd) {
-        this.mContext = context;
-        this.mActivity = (Activity)mContext;
+    public ShowingInterstitialAdsUtil(Activity activity, FacebookInterstitialAds facebookAd, GoogleAdMobInterstitial adMobAd) {
+        // this.mContext = context;
+        this.mActivity = activity;
         this.facebookAd = facebookAd;
         this.adMobAd = adMobAd;
         isShowingFacebookAd = false;
@@ -120,7 +120,7 @@ public class ShowingInterstitialAdsUtil {
                                 if (adMobAd != null) {
                                     if (adMobAd.isLoaded()) {
                                         Log.d(TAG, "showFacebookAdFirst() --> Started to show Google Ad.");
-                                        succeededAdMob = adMobAd.showAd();
+                                        succeededAdMob = adMobAd.showAd(mActivity);
                                     }
                                     if (!succeededAdMob) {
                                         // If no AdMob ad showing
@@ -179,7 +179,7 @@ public class ShowingInterstitialAdsUtil {
                             if ( (adMobAd!=null) && adMobAd.isLoaded()) {
                                 isShowingFacebookAd = false;
                                 Log.d(TAG, "showGoogleAdMobAdFirst() --> Starting to show Google Ad.");
-                                succeededAdMob = adMobAd.showAd();
+                                succeededAdMob = adMobAd.showAd(mActivity);
                                 if (!succeededAdMob) {
                                     // if no AdMob ad showing
                                     // then load next AdMob ad
@@ -270,16 +270,20 @@ public class ShowingInterstitialAdsUtil {
                 try {
                     if (isShowingFacebookAd) {
                         Log.d(TAG, "ShowInterstitialAdThread --> Facebook Ad was shown.");
+                        /*  removed on 2021-04-29 for monitoring
                         while (!facebookAd.adsShowDismissedOrStopped() && keepRunning) {
                             SystemClock.sleep(timeDelay);
                         }
+                         */
                         Log.d(TAG, "ShowInterstitialAdThread --> Facebook Ad dismissed.");
                     } else {
                         // is showing google AdMob ad
                         Log.d(TAG, "ShowInterstitialAdThread --> Google Ad was shown.");
+                        /*  removed on 2021-04-29 for monitoring
                         while (!adMobAd.adsShowDismissedOrStopped() && keepRunning) {
                             SystemClock.sleep(timeDelay);
                         }
+                         */
                         Log.d(TAG, "ShowInterstitialAdThread --> Google Ad dismissed.");
                     }
                 } catch (Exception ex) {

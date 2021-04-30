@@ -8,6 +8,7 @@ import android.util.Log;
 
 import androidx.multidex.MultiDexApplication;
 
+import com.facebook.ads.AdSettings;
 import com.facebook.ads.AudienceNetworkAds;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
@@ -17,6 +18,8 @@ import com.smile.smilelibraries.google_admob_ads_util.GoogleAdMobInterstitial;
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite;
 import com.smile.smilelibraries.showing_interstitial_ads_utility.ShowingInterstitialAdsUtil;
 import com.smile.smilelibraries.utilities.ScreenUtil;
+
+import static com.smile.colorballs.BuildConfig.DEBUG;
 
 public class ColorBallsApp extends MultiDexApplication {
 
@@ -90,10 +93,24 @@ public class ColorBallsApp extends MultiDexApplication {
         }
 
         if (!isProVersion) {
-            AudienceNetworkAds.initialize(this);
+            if (!AudienceNetworkAds.isInitialized(this)) {
+                if (DEBUG) {
+                    AdSettings.turnOnSDKDebugger(this);
+                }
+                AudienceNetworkAds
+                        .buildInitSettings(this)
+                        .withInitListener(new  AudienceNetworkAds.InitListener() {
+                            @Override
+                            public void onInitialized(AudienceNetworkAds.InitResult initResult) {
+                                Log.d(AudienceNetworkAds.TAG, initResult.getMessage());
+                            }
+                        })
+                        .initialize();
+            }
+            // AudienceNetworkAds.initialize(this);
             String testString = "";
             // for debug mode
-            if (com.smile.colorballs.BuildConfig.DEBUG) {
+            if (DEBUG) {
                 testString = "IMG_16_9_APP_INSTALL#";
             }
             facebookInterstitialID = testString + facebookInterstitialID;

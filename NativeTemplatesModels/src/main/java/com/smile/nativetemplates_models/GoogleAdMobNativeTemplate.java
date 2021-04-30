@@ -7,24 +7,24 @@ import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import com.smile.nativetemplates_models.NativeTemplateAd;
+// import com.smile.nativetemplates_models.NativeTemplateAd;
 
 public class GoogleAdMobNativeTemplate {
     private static final String TAG = new String(".GoogleAdMobNativeTemplate");
-    private final Context context;
-    private final FrameLayout nativeAdsFrameLayout;
-    private final String nativeAdvancedId0;
-    private final NativeTemplateAd nativeTemplateAd;
-    private final com.google.android.ads.nativetemplates.TemplateView nativeAdTemplateView;
+    private final Context mContext;
+    private final FrameLayout mNativeAdsFrameLayout;
+    private final String mNativeAdvancedId0;
+    private final NativeTemplateAd mNativeTemplateAd;
+    private final com.google.android.ads.nativetemplates.TemplateView mNativeAdTemplateView;
 
     private final Handler showNativeAdTimerHandler = new Handler(Looper.getMainLooper());
     private final Runnable showNativeAdTimerRunnable = new Runnable() {
         @Override
         public void run() {
             showNativeAdTimerHandler.removeCallbacksAndMessages(null);
-            if (nativeTemplateAd != null) {
-                Log.d(TAG, "Loading AdMob native ad.");
-                nativeTemplateAd.loadOneAd();
+            if (mNativeTemplateAd != null) {
+                Log.d(TAG, "showNativeAdTimerRunnable() --> Loading AdMob native ad.");
+                mNativeTemplateAd.loadOneAd();
                 showNativeAdTimerHandler.postDelayed(this, 300000); // 5 minutes
             }
         }
@@ -32,10 +32,10 @@ public class GoogleAdMobNativeTemplate {
 
     public GoogleAdMobNativeTemplate(Context context, FrameLayout nativeAdsFrameLayout, String nativeAdvancedId0
             ,com.google.android.ads.nativetemplates.TemplateView nativeAdTemplateView) {
-        this.context = context;
-        this.nativeAdsFrameLayout = nativeAdsFrameLayout;
-        this.nativeAdvancedId0 = nativeAdvancedId0;
-        this.nativeAdTemplateView = nativeAdTemplateView;
+        this.mContext = context;
+        this.mNativeAdsFrameLayout = nativeAdsFrameLayout;
+        this.mNativeAdvancedId0 = nativeAdvancedId0;
+        this.mNativeAdTemplateView = nativeAdTemplateView;
         boolean hasNativeId = false;
         if (nativeAdvancedId0 != null) {
             if (!nativeAdvancedId0.isEmpty()) {
@@ -43,18 +43,19 @@ public class GoogleAdMobNativeTemplate {
             }
         }
         if (hasNativeId) {
-            this.nativeTemplateAd = new NativeTemplateAd(context, nativeAdvancedId0
+            this.mNativeTemplateAd = new NativeTemplateAd(context, nativeAdvancedId0
                     , nativeAdTemplateView);
         } else {
-            this.nativeTemplateAd = null;
+            this.mNativeTemplateAd = null;
             hideNativeAd();
         }
     }
 
     public void showNativeAd() {
         Log.d(TAG, "showNativeAd() is called.");
-        if ( (nativeAdsFrameLayout != null) && (nativeTemplateAd != null) ) {
-            nativeAdsFrameLayout.setVisibility(View.VISIBLE);
+        if ( (mNativeAdsFrameLayout != null) && (mNativeTemplateAd != null) ) {
+            Log.d(TAG, "showNativeAd() --> nativeAdsFrameLayout.setVisibility(View.VISIBLE)");
+            mNativeAdsFrameLayout.setVisibility(View.VISIBLE);
             if (showNativeAdTimerHandler != null) {
                 showNativeAdTimerHandler.post(showNativeAdTimerRunnable);
             }
@@ -63,8 +64,8 @@ public class GoogleAdMobNativeTemplate {
 
     public void hideNativeAd() {
         Log.d(TAG, "hideNativeAd() is called.");
-        if (nativeAdsFrameLayout != null) {
-            nativeAdsFrameLayout.setVisibility(View.GONE);
+        if (mNativeAdsFrameLayout != null) {
+            mNativeAdsFrameLayout.setVisibility(View.GONE);
         }
         if (showNativeAdTimerHandler != null) {
             showNativeAdTimerHandler.removeCallbacksAndMessages(null);
@@ -72,8 +73,8 @@ public class GoogleAdMobNativeTemplate {
     }
 
     public void release() {
-        if (nativeTemplateAd != null) {
-            nativeTemplateAd.releaseNativeAd();
+        if (mNativeTemplateAd != null) {
+            mNativeTemplateAd.releaseNativeAd();
         }
         if (showNativeAdTimerHandler != null) {
             showNativeAdTimerHandler.removeCallbacksAndMessages(null);

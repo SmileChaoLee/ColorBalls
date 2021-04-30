@@ -5,70 +5,72 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
 import android.view.View;
+import androidx.annotation.NonNull;
 
 import com.google.android.ads.nativetemplates.NativeTemplateStyle;
 import com.google.android.ads.nativetemplates.TemplateView;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdLoader;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.VideoOptions;
-import com.google.android.gms.ads.formats.NativeAdOptions;
-import com.google.android.gms.ads.formats.UnifiedNativeAd;
+import com.google.android.gms.ads.nativead.NativeAdOptions;
+import com.google.android.gms.ads.nativead.NativeAd;
 
 public class NativeTemplateAd {
     private static final String TAG = new String("NativeTemplateAd");
 
     private final Context mContext;
-    private final String adUnitId;
-    private final int maxNumberOfLoad = 15;
-    private final TemplateView nativeAdTemplateView;
-    private final AdLoader nativeAdLoader;
-    private UnifiedNativeAd nativeAd;
+    private final String mAdUnitId;
+    private final int mMaxNumberOfLoad = 15;
+    private final TemplateView mNativeAdTemplateView;
+    private final AdLoader mNativeAdLoader;
+    private NativeAd mNativeAd;
     private boolean isNativeAdLoaded;
-    private int numberOfLoad;
+    private int mNumberOfLoad;
 
     public NativeTemplateAd(Context context, String nativeAdID, TemplateView templateView) {
         mContext = context;
-        adUnitId = nativeAdID;
-        this.nativeAdTemplateView = templateView;
-        nativeAd = null;
-        numberOfLoad = 0;
+        mAdUnitId = nativeAdID;
+        mNativeAdTemplateView = templateView;
+        mNativeAd = null;
+        mNumberOfLoad = 0;
         AdLoader.Builder builder = null;
         boolean isInitialized = true;
         try {
-            if (adUnitId != null) {
-                if (!adUnitId.isEmpty()) {
-                    builder = new AdLoader.Builder(mContext, adUnitId);
-                    builder.forUnifiedNativeAd(new UnifiedNativeAd.OnUnifiedNativeAdLoadedListener() {
-                        // OnUnifiedNativeAdLoadedListener implementation.
+            if (mAdUnitId != null) {
+                if (!mAdUnitId.isEmpty()) {
+                    builder = new AdLoader.Builder(mContext, mAdUnitId);
+                    builder.forNativeAd(new NativeAd.OnNativeAdLoadedListener() {
+                        // OnNativeAdLoadedListener implementation.
                         @Override
-                        public void onUnifiedNativeAdLoaded(UnifiedNativeAd unifiedNativeAd) {
+                        public void onNativeAdLoaded(NativeAd nativeAd) {
                             // You must call destroy on old ads when you are done with them,
                             // otherwise you will have a memory leak.
-                            if (nativeAd != null) {
-                                nativeAd.destroy();
+                            if (mNativeAd != null) {
+                                mNativeAd.destroy();
                             }
-                            nativeAd = unifiedNativeAd;
+                            mNativeAd = nativeAd;
                             isNativeAdLoaded = true;
-                            numberOfLoad = 0;
+                            mNumberOfLoad = 0;
 
                             // start to show ad
-                            nativeAdTemplateView.setVisibility(View.VISIBLE);
+                            mNativeAdTemplateView.setVisibility(View.VISIBLE);
                             ColorDrawable background = new ColorDrawable(Color.WHITE);
                             NativeTemplateStyle styles = new
                                     NativeTemplateStyle.Builder().withMainBackgroundColor(background).build();
 
-                            nativeAdTemplateView.setStyles(styles);
-                            nativeAdTemplateView.setNativeAd(unifiedNativeAd);
+                            mNativeAdTemplateView.setStyles(styles);
+                            mNativeAdTemplateView.setNativeAd(nativeAd);
                             //
 
-                            Log.d(TAG, "Succeeded to load unifiedNativeAd.");
+                            Log.d(TAG, "onNativeAdLoaded() --> Succeeded to load NativeAd.");
                         }
                     });
                 }
             }
         } catch (Exception ex) {
-            Log.d(TAG, "Failed to initialize unifiedNativeAd.");
+            Log.d(TAG, "Failed to initialize NativeAd.");
             ex.printStackTrace();
             isInitialized = false;
         }
@@ -83,39 +85,48 @@ public class NativeTemplateAd {
 
             builder.withNativeAdOptions(adOptions);
 
-            nativeAdLoader = builder.withAdListener(new AdListener() {
+            mNativeAdLoader = builder.withAdListener(new AdListener() {
                 @Override
-                public void onAdFailedToLoad(int errorCode) {
-                    Log.d(TAG, "Failed to load unifiedNativeAd.");
-                    Log.d(TAG, "numberOfLoad = " + numberOfLoad);
+                public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                    super.onAdFailedToLoad(loadAdError);
+                    Log.d(TAG, "onAdFailedToLoad() --> Failed to load NativeAd.");
+                    Log.d(TAG, "onAdFailedToLoad() --> mMaxNumberOfLoad = " + mMaxNumberOfLoad + ", mNumberOfLoad = " + mNumberOfLoad);
                     isNativeAdLoaded = false;
-                    if (numberOfLoad<maxNumberOfLoad) {
+                    if (mNumberOfLoad<mMaxNumberOfLoad) {
                         loadOneAd();
-                        Log.d(TAG, "Load again --> numberOfLoad = " + numberOfLoad);
+                        Log.d(TAG, "onAdFailedToLoad() --> Load again --> mNumberOfLoad = " + mNumberOfLoad);
                     } else {
-                        numberOfLoad = 0;   // set back to zero
-                        Log.d(TAG, "Failed to load unifiedNativeAd more than 5.\nSo stopped loading this time. ");
+                        mNumberOfLoad = 0;   // set back to zero
+                        Log.d(TAG, "onAdFailedToLoad() --> Failed to load NativeAd more than" + mMaxNumberOfLoad + ".\n So stopped loading this time.");
                     }
+                }
+
+                @Override
+                public void onAdLoaded() {
+                    Log.d(TAG, "onAdLoaded() --> Succeeded to load NativeAd.");
+                    Log.d(TAG, "onAdLoaded() --> mMaxNumberOfLoad = " + mMaxNumberOfLoad + ", mNumberOfLoad = " + mNumberOfLoad);
                 }
             }).build();
         } else {
-            nativeAdLoader = null;
+            mNativeAdLoader = null;
         }
     }
 
     public void loadOneAd() {
-        if (nativeAdLoader != null) {
-            nativeAdLoader.loadAd(new AdRequest.Builder().build());
-            numberOfLoad++;
+        Log.d(TAG, "loadOneAd() is called.");
+        if (mNativeAdLoader != null) {
+            mNativeAdLoader.loadAd(new AdRequest.Builder().build());
+            Log.d(TAG, "loadOneAd() --> mNumberOfLoad = " + mNumberOfLoad);
+            mNumberOfLoad++;
         }
     }
 
     public AdLoader getNativeAdLoader() {
-        return nativeAdLoader;
+        return mNativeAdLoader;
     }
 
-    public UnifiedNativeAd getNativeAd() {
-        return nativeAd;
+    public NativeAd getNativeAd() {
+        return mNativeAd;
     }
 
     public boolean isNativeAdLoaded() {
@@ -123,8 +134,8 @@ public class NativeTemplateAd {
     }
 
     public void releaseNativeAd() {
-        if (nativeAd != null) {
-            nativeAd.destroy();
+        if (mNativeAd != null) {
+            mNativeAd.destroy();
         }
     }
 }

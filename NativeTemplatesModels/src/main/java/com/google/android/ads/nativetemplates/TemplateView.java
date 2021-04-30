@@ -19,7 +19,10 @@ import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
+
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -28,18 +31,18 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import com.google.android.gms.ads.formats.MediaView;
-import com.google.android.gms.ads.formats.NativeAd.Image;
-import com.google.android.gms.ads.formats.UnifiedNativeAd;
-import com.google.android.gms.ads.formats.UnifiedNativeAdView;
+import com.google.android.gms.ads.nativead.MediaView;
+import com.google.android.gms.ads.nativead.NativeAd.Image;
+import com.google.android.gms.ads.nativead.NativeAd;
+import com.google.android.gms.ads.nativead.NativeAdView;
 
 /** Base class for a template view. * */
 public class TemplateView extends FrameLayout {
 
   private int templateType;
   private NativeTemplateStyle styles;
-  private UnifiedNativeAd nativeAd;
-  private UnifiedNativeAdView nativeAdView;
+  private NativeAd nativeAd;
+  private NativeAdView nativeAdView;
 
   private TextView primaryView;
   private TextView secondaryView;
@@ -67,6 +70,7 @@ public class TemplateView extends FrameLayout {
     initView(context, attrs);
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
   public TemplateView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
     super(context, attrs, defStyleAttr, defStyleRes);
     initView(context, attrs);
@@ -77,7 +81,7 @@ public class TemplateView extends FrameLayout {
     this.applyStyles();
   }
 
-  public UnifiedNativeAdView getNativeAdView() {
+  public NativeAdView getNativeAdView() {
     return nativeAdView;
   }
 
@@ -181,13 +185,13 @@ public class TemplateView extends FrameLayout {
     requestLayout();
   }
 
-  private boolean adHasOnlyStore(UnifiedNativeAd nativeAd) {
+  private boolean adHasOnlyStore(NativeAd nativeAd) {
     String store = nativeAd.getStore();
     String advertiser = nativeAd.getAdvertiser();
     return !TextUtils.isEmpty(store) && TextUtils.isEmpty(advertiser);
   }
 
-  public void setNativeAd(UnifiedNativeAd nativeAd) {
+  public void setNativeAd(NativeAd nativeAd) {
     this.nativeAd = nativeAd;
 
     String store = nativeAd.getStore();
@@ -282,7 +286,7 @@ public class TemplateView extends FrameLayout {
   @Override
   public void onFinishInflate() {
     super.onFinishInflate();
-    nativeAdView = (UnifiedNativeAdView) findViewById(R.id.native_ad_view);
+    nativeAdView = (NativeAdView) findViewById(R.id.native_ad_view);
     primaryView = (TextView) findViewById(R.id.primary);
     secondaryView = (TextView) findViewById(R.id.secondary);
     tertiaryView = (TextView) findViewById(R.id.body);
