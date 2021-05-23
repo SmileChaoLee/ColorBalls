@@ -5,7 +5,7 @@ android {
         config {
             keyAlias 'chaolee'
             keyPassword '86637971'
-            storeFile file('C:\\AndroidStudio\\keystore\\key.jks')
+            storeFile file('/home/chaolee/AndroidStudioProjects/keystore/key.jks')
             storePassword '86637971'
         }
     }
