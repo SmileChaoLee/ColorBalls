@@ -37,7 +37,7 @@ public class ColorBallsApp extends MultiDexApplication {
     public static boolean isShowingLoadingMessage;
     public static boolean isProVersion = false;
 
-    public static ShowingInterstitialAdsUtil InterstitialAd;
+    // public static ShowingInterstitialAdsUtil InterstitialAd;
     public static String facebookBannerID = "";
     public static String facebookBannerID2 = "";
     public static String googleAdMobBannerID = "";

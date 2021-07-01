@@ -13,7 +13,7 @@ public class ShowingInterstitialAdsUtil {
     public final static int GoogleAdMobAdProvider = 0;
     public final static int FacebookAdProvider = 1;
 
-    private final static String TAG = new String(".ShowingInterstitialAdsUtil");
+    private final static String TAG = ShowingInterstitialAdsUtil.class.getName();
     private final FacebookInterstitialAds facebookAd;
     private final GoogleAdMobInterstitial adMobAd;
     // private final Context mContext;
@@ -33,7 +33,7 @@ public class ShowingInterstitialAdsUtil {
         isShowingFacebookAd = false;
     }
 
-    private void close() {
+    public void close() {
         try {
             facebookAd.close();
         } catch (Exception ex) {

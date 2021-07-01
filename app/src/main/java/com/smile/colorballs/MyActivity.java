@@ -73,6 +73,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     private final int Max_Saved_Games = 5;
     private final int PrivacyPolicyActivityRequestCode = 10;
 
+    private ShowingInterstitialAdsUtil interstitialAd;
     private MyActivityPresenter mPresenter;
 
     private float textFontSize;
@@ -131,7 +132,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
         super.onCreate(savedInstanceState);
 
-        ColorBallsApp.InterstitialAd = new ShowingInterstitialAdsUtil(this, ColorBallsApp.facebookAds, ColorBallsApp.googleInterstitialAd);
+        interstitialAd = new ShowingInterstitialAdsUtil(this, ColorBallsApp.facebookAds, ColorBallsApp.googleInterstitialAd);
 
         if (ScreenUtil.isTablet(this)) {
             // Table then change orientation to Landscape
@@ -387,6 +388,10 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         if (nativeTemplate != null) {
             nativeTemplate.release();
         }
+        if (interstitialAd != null) {
+            interstitialAd.close();
+            interstitialAd = null;
+        }
 
         if (showInterstitialAdThread != null) {
             // avoiding memory leak
@@ -597,8 +602,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     }
 
     private void showInterstitialAdAndNewGameOrQuit(final int entryPoint) {
-        if (ColorBallsApp.InterstitialAd != null) {
-            showInterstitialAdThread = ColorBallsApp.InterstitialAd.new
+        if (interstitialAd != null) {
+            showInterstitialAdThread = interstitialAd.new
                     ShowInterstitialAdThread(entryPoint, ColorBallsApp.AdProvider);
             showInterstitialAdThread.startShowAd();
         }
@@ -683,11 +688,11 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     }
 
     private void showAdUntilDismissed(Activity activity) {
-        if (ColorBallsApp.InterstitialAd == null) {
+        if (interstitialAd == null) {
             return;
         }
 
-        showInterstitialAdThread = ColorBallsApp.InterstitialAd.new ShowInterstitialAdThread(0, ColorBallsApp.AdProvider);
+        showInterstitialAdThread = interstitialAd.new ShowInterstitialAdThread(0, ColorBallsApp.AdProvider);
         showInterstitialAdThread.startShowAd();
     }
 
