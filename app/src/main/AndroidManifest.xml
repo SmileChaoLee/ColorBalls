@@ -26,7 +26,8 @@
 
         <activity
             android:name=".MyActivity"
-            android:label="${appName}">
+            android:label="${appName}"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -39,7 +40,9 @@
             android:theme="@style/AppThemeTransparent" />
         <activity
             android:name=".Top10ScoreActivity"
-            android:label="@string/title_activity_history"></activity>
+            android:label="@string/title_activity_history"
+            android:exported="true">
+        </activity>
 
         <service
             android:name="com.smile.Service.MyTop10ScoresService"

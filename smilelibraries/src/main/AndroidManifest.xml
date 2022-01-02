@@ -15,7 +15,9 @@
         <activity
             android:name=".privacy_policy.PrivacyPolicyActivity"
             android:label="@string/privacyPolicyString"
-            android:theme="@style/PrivacyPolicyTheme"></activity>
+            android:theme="@style/PrivacyPolicyTheme"
+            android:exported="true">
+        </activity>
     </application>
 
 </manifest>
