@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.multidex.MultiDexApplication;
 
 import com.facebook.ads.AdSettings;
@@ -35,7 +36,6 @@ public class ColorBallsApp extends MultiDexApplication {
 
     public static boolean isProcessingJob;
     public static boolean isShowingLoadingMessage;
-    public static boolean isProVersion = false;
 
     // public static ShowingInterstitialAdsUtil InterstitialAd;
     public static String facebookBannerID = "";
@@ -58,92 +58,66 @@ public class ColorBallsApp extends MultiDexApplication {
         isProcessingJob = false;
         isShowingLoadingMessage = false;
 
-        String facebookInterstitialID = ""; // for colorballs
-        facebookBannerID = "";
-        facebookBannerID2 = "";
-        String googleAdMobAppID = "";
-        googleAdMobBannerID = "";
-        googleAdMobBannerID2 = "";
-        googleAdMobNativeID = "";
-        String googleAdMobInterstitialID = "";
-        isProVersion = false;
-        if (BuildConfig.APPLICATION_ID.equals("com.smile.colorballs")) {
-            facebookInterstitialID = new String("200699663911258_200701030577788"); // for colorballs
-            facebookBannerID = "200699663911258_423008208347068";
-            facebookBannerID2 = "200699663911258_619846328663254";
-            // Google AdMob
-            googleAdMobAppID = getString(R.string.google_AdMobAppID);
-            googleAdMobBannerID = "ca-app-pub-8354869049759576/3904969730";
-            googleAdMobBannerID2 = "ca-app-pub-8354869049759576/9583367128";
-            googleAdMobInterstitialID = "ca-app-pub-8354869049759576/1276882569";
-            googleAdMobNativeID = "ca-app-pub-8354869049759576/2356386907";
-        } else if (BuildConfig.APPLICATION_ID.equals("com.smile.fivecolorballs")) {
-            facebookInterstitialID = new String("241884113266033_241884616599316"); // for fivecolorballs
-            facebookBannerID = "241884113266033_515925465861895";   // 241884113266033_515925465861895
-            facebookBannerID2 = "241884113266033_749644445823328";
-            // Google AdMob
-            googleAdMobAppID = getString(R.string.google_AdMobAppID_2);
-            googleAdMobBannerID = "ca-app-pub-8354869049759576/7162646323";
-            googleAdMobBannerID2 = "ca-app-pub-8354869049759576/5784271650";
-            googleAdMobInterstitialID = "ca-app-pub-8354869049759576/2174745857";
-            googleAdMobNativeID = "ca-app-pub-8354869049759576/8621863614";
-        } else {
-            // default for professional version
-            isProVersion = true;
-        }
+        String googleAdMobInterstitialID = "ca-app-pub-8354869049759576/1276882569";
+        String facebookInterstitialID = "200699663911258_200701030577788"; // for colorballs
+        facebookBannerID = "200699663911258_423008208347068";
+        facebookBannerID2 = "200699663911258_619846328663254";
+        // Google AdMob
+        String googleAdMobAppID = getString(R.string.google_AdMobAppID);
+        googleAdMobBannerID = "ca-app-pub-8354869049759576/3904969730";
+        googleAdMobBannerID2 = "ca-app-pub-8354869049759576/9583367128";
+        googleAdMobNativeID = "ca-app-pub-8354869049759576/2356386907";
 
-        if (!isProVersion) {
-            if (!AudienceNetworkAds.isInitialized(this)) {
-                if (DEBUG) {
-                    AdSettings.turnOnSDKDebugger(this);
-                }
-                AudienceNetworkAds
-                        .buildInitSettings(this)
-                        .withInitListener(new  AudienceNetworkAds.InitListener() {
-                            @Override
-                            public void onInitialized(AudienceNetworkAds.InitResult initResult) {
-                                Log.d(AudienceNetworkAds.TAG, initResult.getMessage());
-                            }
-                        })
-                        .initialize();
-            }
-            // AudienceNetworkAds.initialize(this);
-            String testString = "";
-            // for debug mode
+        if (!AudienceNetworkAds.isInitialized(this)) {
             if (DEBUG) {
-                testString = "IMG_16_9_APP_INSTALL#";
+                AdSettings.turnOnSDKDebugger(this);
             }
-            facebookInterstitialID = testString + facebookInterstitialID;
-            //
-            facebookAds = new FacebookInterstitialAds(ColorBallsApp.AppContext, facebookInterstitialID);
-
-            MobileAds.initialize(AppContext, new OnInitializationCompleteListener() {
-                @Override
-                public void onInitializationComplete(InitializationStatus initializationStatus) {
-                    Log.d(TAG, "Google AdMob was initialized successfully.");
-                }
-
-            });
-            googleInterstitialAd = new GoogleAdMobInterstitial(AppContext, googleAdMobInterstitialID);
-
-            // Moved to MyActivity.class on 2020-06-15 because need to convert context to activity
-            // InterstitialAd = new ShowingInterstitialAdsUtil(AppContext, facebookAds, googleInterstitialAd);
-
-            final Handler adHandler = new Handler(Looper.getMainLooper());
-            final Runnable adRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    adHandler.removeCallbacksAndMessages(null);
-                    if (googleInterstitialAd != null) {
-                        googleInterstitialAd.loadAd(); // load first google ad
-                    }
-                    if (facebookAds != null) {
-                        facebookAds.loadAd();   // load first facebook ad
-                    }
-                }
-            };
-            adHandler.postDelayed(adRunnable, 1000);
+            AudienceNetworkAds
+                    .buildInitSettings(this)
+                    .withInitListener(new  AudienceNetworkAds.InitListener() {
+                        @Override
+                        public void onInitialized(AudienceNetworkAds.InitResult initResult) {
+                            Log.d(AudienceNetworkAds.TAG, initResult.getMessage());
+                        }
+                    })
+                    .initialize();
         }
+        // AudienceNetworkAds.initialize(this);
+        String testString = "";
+        // for debug mode
+        if (DEBUG) {
+            testString = "IMG_16_9_APP_INSTALL#";
+        }
+        facebookInterstitialID = testString + facebookInterstitialID;
+        //
+        facebookAds = new FacebookInterstitialAds(ColorBallsApp.AppContext, facebookInterstitialID);
+
+        MobileAds.initialize(AppContext, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+                Log.d(TAG, "Google AdMob was initialized successfully.");
+            }
+
+        });
+        googleInterstitialAd = new GoogleAdMobInterstitial(AppContext, googleAdMobInterstitialID);
+
+        // Moved to MyActivity.class on 2020-06-15 because need to convert context to activity
+        // InterstitialAd = new ShowingInterstitialAdsUtil(AppContext, facebookAds, googleInterstitialAd);
+
+        final Handler adHandler = new Handler(Looper.getMainLooper());
+        final Runnable adRunnable = new Runnable() {
+            @Override
+            public void run() {
+                adHandler.removeCallbacksAndMessages(null);
+                if (googleInterstitialAd != null) {
+                    googleInterstitialAd.loadAd(); // load first google ad
+                }
+                if (facebookAds != null) {
+                    facebookAds.loadAd();   // load first facebook ad
+                }
+            }
+        };
+        adHandler.postDelayed(adRunnable, 1000);
     }
 
     @Override
