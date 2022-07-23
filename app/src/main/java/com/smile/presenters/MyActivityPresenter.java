@@ -121,13 +121,6 @@ public class MyActivityPresenter {
                         gameProperties.setBallBouncing(false);
                         cancelBouncyTimer();
 
-                        // moved drawBallAlongPath() on 2020-07-12
-                        /*
-                        int color = gridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ);
-                        gridData.setCellValue(i, j, color);
-                        clearCell(bouncyBallIndexI, bouncyBallIndexJ);
-                        */
-
                         gameProperties.setBouncyBallIndexI(-1);
                         gameProperties.setBouncyBallIndexJ(-1);
 
@@ -170,27 +163,34 @@ public class MyActivityPresenter {
         boolean isNewGame = true;
         if (savedInstanceState == null) {
             // activity just started so new game
-            Log.d(TAG, "Created new game.");
+            Log.d(TAG, "initializeColorBallsGame.savedInstanceState is null");
+        } else {
+            Log.d(TAG, "initializeColorBallsGame.Configuration changed and restore the original UI.");
+            gameProperties = savedInstanceState.getParcelable(GamePropertiesTag);
+            if (gameProperties != null) {
+                gridData = gameProperties.getGridData();
+                if (gridData != null) {
+                    isNewGame = false;
+                }
+            }
+        }
+        if (isNewGame) {
+            Log.d(TAG, "initializeColorBallsGame.new game.");
             gridData = new GridData(this.rowCounts, this.colCounts, NumOfColorsUsedByEasy);
             gameProperties = new GameProperties(gridData);
-        } else {
-            Log.d(TAG, "Configuration changed and restore the original UI.");
-            isNewGame = false;
-            gameProperties = savedInstanceState.getParcelable(GamePropertiesTag);
-            gridData = gameProperties.getGridData();
         }
+
         ColorBallsApp.isShowingLoadingMessage = gameProperties.isShowingLoadingMessage();
         ColorBallsApp.isProcessingJob = gameProperties.isProcessingJob();
 
         presentView.updateHighestScoreOnUi(highestScore);
         presentView.updateCurrentScoreOnUi(gameProperties.getCurrentScore());
 
+        displayGameView();
         if (isNewGame) {
-            displayGameView();
             displayGridDataNextCells();
         } else {
             // display the original state before changing configuration
-            displayGameView();
             // need to be tested
             if (ColorBallsApp.isShowingLoadingMessage) {
                 presentView.showMessageOnScreen(context.getString(R.string.loadingString));
@@ -547,14 +547,14 @@ public class MyActivityPresenter {
         presentView.showMessageOnScreen(context.getString(R.string.loadingGameString));
 
         boolean succeeded = true;
-        boolean hasSound = gameProperties.hasSound();
-        boolean isEasyLevel = gameProperties.isEasyLevel();
-        boolean hasNextBall = gameProperties.hasNextBall();
+        boolean hasSound;
+        boolean isEasyLevel;
+        boolean hasNextBall;
         int ballNumOneTime;
         int[] nextBalls = new int[NumOfColorsUsedByDifficult];
         int[][] gameCells = new int[rowCounts][colCounts];
-        int cScore = gameProperties.getCurrentScore();
-        boolean isUndoEnable = gameProperties.isUndoEnable();
+        int cScore;
+        boolean isUndoEnable;
         int[] undoNextBalls = new int[NumOfColorsUsedByDifficult];
         int[][] backupCells = new int[rowCounts][colCounts];
         int unScore = gameProperties.getUndoScore();
@@ -570,32 +570,15 @@ public class MyActivityPresenter {
             FileInputStream fiStream = new FileInputStream(inputFile);
             // game sound
             int bValue = fiStream.read();
-            if (bValue == 1) {
-                hasSound = true;
-            } else {
-                hasSound = false;
-            }
+            hasSound = bValue==1;
             Log.d(TAG, "startLoadingGame.hasSound = " + hasSound);
             // game level
             bValue = fiStream.read();
-            if (bValue == 1) {
-                // easy level
-                isEasyLevel = true;
-
-            } else {
-                // difficult level
-                isEasyLevel = false;
-            }
+            isEasyLevel = bValue==1;
             Log.d(TAG, "startLoadingGame.isEasyLevel = " + isEasyLevel);
             // next balls
             bValue = fiStream.read();
-            if (bValue == 1) {
-                // has next balls
-                hasNextBall = true;
-            } else {
-                // has no next balls
-                hasNextBall = false;
-            }
+            hasNextBall = bValue==1;
             Log.d(TAG, "startLoadingGame.hasNextBall = " + hasNextBall);
             ballNumOneTime = fiStream.read();
             Log.i(TAG, "startLoadingGame.ballNumOneTime = " + ballNumOneTime);
@@ -635,7 +618,7 @@ public class MyActivityPresenter {
             cScore = ByteBuffer.wrap(scoreByte).getInt();
             // reading undoEnable
             bValue = fiStream.read();
-            isUndoEnable = bValue==1 ? true : false;
+            isUndoEnable = bValue==1;
             Log.d(TAG, "startLoadingGame.isUndoEnable = " + isUndoEnable);
             if (isUndoEnable) {
                 ballNumOneTime = fiStream.read();
@@ -658,7 +641,7 @@ public class MyActivityPresenter {
             }
             fiStream.close();
 
-            // reflesh Main UI with loaded data
+            // refresh Main UI with loaded data
             setHasSound(hasSound);
             setEasyLevel(isEasyLevel);
             setHasNextBall(hasNextBall, false);
@@ -693,15 +676,9 @@ public class MyActivityPresenter {
 
     public void release() {
         cancelBouncyTimer();
-        if (showingScoreHandler != null) {
-            showingScoreHandler.removeCallbacksAndMessages(null);
-        }
-        if (movingBallHandler != null) {
-            movingBallHandler.removeCallbacksAndMessages(null);
-        }
-        if (soundPoolUtil != null) {
-            soundPoolUtil.release();
-        }
+        showingScoreHandler.removeCallbacksAndMessages(null);
+        movingBallHandler.removeCallbacksAndMessages(null);
+        soundPoolUtil.release();
     }
 
     private void createBitmapsAndDrawableResources(int cellWidth, int cellHeight) {
@@ -799,10 +776,10 @@ public class MyActivityPresenter {
 
         int minScore = 5;
         int totalScore = 0;
-        for (int kk=0; kk<numBalls.length; kk++) {
-            if (numBalls[kk] >= 5) {
+        for (int numBall : numBalls) {
+            if (numBall >= 5) {
                 int score = minScore;
-                int extraBalls = numBalls[kk] - minScore;
+                int extraBalls = numBall - minScore;
                 if (extraBalls > 0) {
                     // greater than 5 balls
                     int rate = 2;
@@ -832,22 +809,15 @@ public class MyActivityPresenter {
     }
 
     private void drawNextBall(ImageView imageView,int color) {
-        Log.d(TAG, "drawNextBall() is called");
-        Log.d(TAG, "drawNextBall --> imageView = " + imageView);
-        Log.d(TAG, "drawNextBall --> color = " + color);
-        try {
-            if (imageView!=null && colorNextBallMap.get(color)==null) {
-                imageView.setImageDrawable(null);
+        Log.d(TAG, "drawNextBall.color = " + color);
+        if (imageView != null) {
+            if (gameProperties.hasNextBall()) {
+                imageView.setImageDrawable(colorNextBallMap.get(color));
             } else {
-                if (gameProperties.hasNextBall()) {
-                    imageView.setImageDrawable(colorNextBallMap.get(color));
-                } else {
-                    imageView.setImageDrawable(null);
-                }
+                imageView.setImageDrawable(null);
             }
-        } catch (Exception ex) {
-            Log.d(TAG, "DrawNextBall Exception: ");
-            ex.printStackTrace();
+        } else {
+            Log.w(TAG, "drawNextBall.imageView = null");
         }
     }
 
@@ -855,13 +825,11 @@ public class MyActivityPresenter {
         // display the view of next balls
         Log.d(TAG, "displayNextBallsView() is called");
         ImageView imageView;
-        int i = 0;
         try {
             for (Cell cell : gridData.getNextCellIndices()) {
                 int imageViewId = rowCounts * cell.getCoordinate().x + cell.getCoordinate().y;
                 imageView = presentView.getImageViewById(imageViewId);
                 drawNextBall(imageView, cell.getColor());
-                i++;
             }
         } catch (Exception ex) {
             Log.d(TAG, "displayNextBallsView exception: ");
@@ -879,14 +847,13 @@ public class MyActivityPresenter {
         // int id = i * colCounts + j;
         int id = i * rowCounts + j;
         ImageView imageView = presentView.getImageViewById(id);
-        // imageView.setImageDrawable(null);
         imageView.setImageBitmap(null);
         gridData.setCellValue(i, j, 0);
     }
 
     private void displayGridDataNextCells() {
         Log.d(TAG,"displayGridDataNextCells");
-        int id, n1, n2, nextBallIndex = 0;
+        int id, n1, n2;
         ImageView imageView;
         boolean hasMoreFive = false;
         HashSet<Point> linkedPoint = new HashSet<>();
@@ -895,20 +862,6 @@ public class MyActivityPresenter {
             n2 = nextCellIndex.getCoordinate().y;
             int ballColor = gridData.getCellValue(n1, n2);
             Log.d(TAG,"displayGridDataNextCells.ballColor = " + ballColor);
-            /*
-            while (ballColor != 0) {
-                // this cell is already occupied
-                // have to regenerate another one
-                // this loop will not be infinite loop
-                Point nextCell = gridData.generateNextCell();
-                Log.d(TAG,"displayGridDataNextCells.nextCell = " + nextCell);
-                if (nextCell != null) {
-                    n1 = nextCell.x;
-                    n2 = nextCell.y;
-                    ballColor = 0;
-                }
-            }
-            */
             // gridData.setCellValue(n1, n2, gridData.getNextBalls()[nextBallIndex]);
             gridData.setCellValue(n1, n2, nextCellIndex.getColor());
             id = n1 * rowCounts + n2;
@@ -922,7 +875,6 @@ public class MyActivityPresenter {
                     }
                 }
             }
-            nextBallIndex++;
         }
 
         if (hasMoreFive) {
@@ -1061,7 +1013,6 @@ public class MyActivityPresenter {
                     ballYN = !ballYN;
                     bouncyHandler.postDelayed(this, 200);
                 } else {
-                    // v.setImageResource(R.drawable.boximage);
                     v.setImageDrawable(null);
                 }
             }
@@ -1070,18 +1021,14 @@ public class MyActivityPresenter {
     }
 
     private void cancelBouncyTimer() {
-        if (bouncyHandler != null) {
-            bouncyHandler.removeCallbacksAndMessages(null);
-        }
+        bouncyHandler.removeCallbacksAndMessages(null);
         SystemClock.sleep(20);
     }
 
     private class ShowScoreRunnable implements Runnable {
         private final int lastGotScore;
         private HashSet<Point> hasPoint = null;
-        private boolean isNextBalls;
-
-        private int twinkleCountDown = 5;
+        private final boolean isNextBalls;
         private int counter = 0;
 
         public ShowScoreRunnable(final int lastGotScore, final HashSet<Point> linkedPoint, final boolean isNextBalls) {
@@ -1146,9 +1093,10 @@ public class MyActivityPresenter {
         @Override
         public synchronized void run() {
             if (hasPoint == null) {
-                Log.d(TAG, "ShowScoreRunnable-->run()-->hasPoint is null.");
+                Log.d(TAG, "ShowScoreRunnable.run().hasPoint is null.");
                 showingScoreHandler.removeCallbacksAndMessages(null);
             } else {
+                final int twinkleCountDown = 5;
                 counter++;
                 if (counter <= twinkleCountDown) {
                     int md = counter % 2; // modulus
