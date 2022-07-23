@@ -548,6 +548,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                     @Override
                     public void onClick(View v) {
                         if ((mPresenter.completedAll()) && (!ColorBallsApp.isProcessingJob)) {
+                            Log.d(TAG, "createGameView.onClick");
                             mPresenter.doDrawBallsAndCheckListener(v);
                         }
                     }

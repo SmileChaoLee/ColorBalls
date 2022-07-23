@@ -203,6 +203,8 @@ public class GridData implements Parcelable {
 
     public boolean check_moreThanFive(int x,int y) {
 
+        Log.d(TAG,"check_moreThanFive.x = " + x + ", y = " + y) ;
+
         Light_line.clear();
         Light_line.add(new Point(x,y));
 
