@@ -23,7 +23,7 @@
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/635609acd998f52b0df087560c69b84a/transformed/jetified-firebase-ads-21.1.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/9c33ff9dc7295ce0ab0afd9b52b5e08e/transformed/jetified-play-services-ads-21.1.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/eee2afd36b0d1d754dd74dd177d13817/transformed/browser-1.4.0-api.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/transforms-3/eca1cdcab5166469f1a731d625a8dccd/transformed/jetified-core-ktx-1.7.0-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/5d27389267eb1c27ab86749b26ac52a3/transformed/jetified-core-ktx-1.8.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/cdc76af4c6761ec96ac0c576d3461c95/transformed/legacy-support-v4-1.0.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/27c83a5d3f4bc43aaa6b4c339b92a923/transformed/jetified-audience-network-sdk-6.11.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/bb4b03a487470d8b959391e578ca87a5/transformed/jetified-firebase-core-21.1.0-api.jar</arg>
@@ -63,7 +63,7 @@
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/3f67ac5d38b59204bed4bec81c49e966/transformed/vectordrawable-1.1.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/f7073aabea7c6968f6a14fd29da6249c/transformed/swiperefreshlayout-1.0.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/722e335fac7f242db4ade62080262b62/transformed/asynclayoutinflater-1.0.0-api.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/transforms-3/22d8ef91c100f439fa4d535a47531bbf/transformed/core-1.7.0-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/2a7f245c8da83b868f90d59eb43a378d/transformed/core-1.8.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/d52dff450bcc63ce39dc19885f30355b/transformed/cursoradapter-1.0.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/9dcb9fe41ab767e7cf2148b3db397b8d/transformed/jetified-lifecycle-viewmodel-savedstate-2.3.1-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/3fe322a2fdb07f45ab75068c4dadb64e/transformed/jetified-savedstate-1.1.0-api.jar</arg>
@@ -108,7 +108,7 @@
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/54ef677841f5d3c8738462c3f34df41a/transformed/jetified-firebase-annotations-16.0.0.jar</arg>
                 <arg>$MODULE_DIR$/../../../smilelibraries/build/intermediates/compile_library_classes_jar/debug/classes.jar</arg>
                 <arg>$MODULE_DIR$/../../../NativeTemplatesModels/build/intermediates/compile_library_classes_jar/debug/classes.jar</arg>
-                <arg>$USER_HOME$/Android/Sdk/platforms/android-32/android.jar</arg>
+                <arg>$USER_HOME$/Android/Sdk/platforms/android-33/android.jar</arg>
                 <arg>$USER_HOME$/Android/Sdk/build-tools/30.0.3/core-lambda-stubs.jar</arg>
               </args>
             </stringArg>
@@ -176,7 +176,7 @@
       <sourceFolder url="file://$MODULE_DIR$/../../../app/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../../app/src/main/res" type="java-resource" />
     </content>
-    <orderEntry type="jdk" jdkName="Android API 32 Platform" jdkType="Android SDK" />
+    <orderEntry type="jdk" jdkName="Android API 33, extension level 3 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="ColorBalls.smilelibraries.main" />
     <orderEntry type="module" module-name="ColorBalls.NativeTemplatesModels.main" />
@@ -208,7 +208,7 @@
     <orderEntry type="library" name="Gradle: com.squareup.leakcanary:leakcanary-object-watcher-android-support-fragments:2.9.1@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.squareup.leakcanary:leakcanary-object-watcher-android:2.9.1@aar" level="project" />
     <orderEntry type="library" name="Gradle: androidx.appcompat:appcompat:1.4.2@aar" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.core:core:1.7.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.core:core:1.8.0@aar" level="project" />
     <orderEntry type="library" name="Gradle: androidx.annotation:annotation-experimental:1.1.0@aar" level="project" />
     <orderEntry type="library" name="Gradle: androidx.lifecycle:lifecycle-runtime:2.4.0@aar" level="project" />
     <orderEntry type="library" name="Gradle: androidx.versionedparcelable:versionedparcelable:1.1.1@aar" level="project" />
@@ -270,6 +270,6 @@
     <orderEntry type="library" name="Gradle: com.google.android.ump:user-messaging-platform:2.0.0@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-appset:16.0.1@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-base:18.0.0@aar" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.core:core-ktx:1.7.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.core:core-ktx:1.8.0@aar" level="project" />
   </component>
 </module>
