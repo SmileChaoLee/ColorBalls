@@ -1,9 +1,5 @@
 package com.smile.model;
 
-/**
- * Created by lee on 9/19/2014.
- */
-
 import android.graphics.Point;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -12,6 +8,7 @@ import com.smile.presenters.MyActivityPresenter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -22,18 +19,18 @@ public class GridData implements Parcelable {
 
     public static final int ballNumOneTime = 3;
     private int ballNumCompleted = 5;
-    private int rowCounts=0, colCounts=0;
-    private int cellValues[][];
-    private int backupCells[][];
-    private ArrayList<Cell> nextCellIndices;
-    private ArrayList<Cell> undoNextCellIndices;
-    private HashSet<Point> Light_line;
-    private ArrayList<Point> pathPoint;
+    private final int rowCounts, colCounts;
+    private final int[][] cellValues;
+    private final int[][] backupCells;
+    private HashMap<Point, Integer> nextCellIndices;
+    private HashMap<Point, Integer> undoNextCellIndices;
+    private final HashSet<Point> Light_line;
+    private final ArrayList<Point> pathPoint;
 
-    private Random random;
+    private final Random random;
 
-    private int numOfColorsUsed = 5;    // 5 colors for easy level, 6 colors for difficult level
-    private boolean gameOver = false;
+    private int numOfColorsUsed;    // 5 colors for easy level, 6 colors for difficult level
+    private boolean gameOver;
 
     public GridData(int rowCounts , int colCounts, int numOfColorsUsed) {
         this.rowCounts = rowCounts;
@@ -42,8 +39,8 @@ public class GridData implements Parcelable {
 
         cellValues = new int[rowCounts][colCounts];
         backupCells = new int[rowCounts][colCounts];
-        nextCellIndices = new ArrayList<>();
-        undoNextCellIndices = new ArrayList<>();
+        nextCellIndices = new HashMap<>();
+        undoNextCellIndices = new HashMap<>();
         Light_line = new HashSet<>();
         pathPoint   = new ArrayList<>();
         for (int i=0 ; i<rowCounts ; i++) {
@@ -72,9 +69,6 @@ public class GridData implements Parcelable {
             System.arraycopy(cellValues[i], 0, this.cellValues[i], 0, cellValues[i].length);
         }
     }
-    public int[][] getCellValues() {
-        return this.cellValues;
-    }
 
     public int[][] getBackupCells() {
         return backupCells;
@@ -93,34 +87,46 @@ public class GridData implements Parcelable {
 
     public void randCells() {
         nextCellIndices.clear();
-        generateNextCellIndices(0);
+        generateNextCellIndices(0, 0);
     }
 
     public void regenerateNextCellIndices(Point point) {
-        nextCellIndices.remove(point);
-        generateNextCellIndices(nextCellIndices.size());
-    }
-
-    private void generateNextCellIndices(int start) {
-        Log.d(TAG, "generateNextCellIndices.start = " + start);
-        int i = start, n1, n2, nn;
-        Cell nextCell;
-        int numOfTotalBalls = getTotalBalls();
-        while (i<ballNumOneTime && numOfTotalBalls<(rowCounts*colCounts)){
-            n1 = random.nextInt(rowCounts);
-            n2 = random.nextInt(colCounts);
-            nn = random.nextInt(numOfColorsUsed);
-            nextCell = new Cell(new Point(n1, n2), MyActivityPresenter.ballColor[nn], null);
-            if (cellValues[n1][n2]==0 && !nextCellIndices.contains(nextCell)) {
-                nextCellIndices.add(nextCell);
-                i++;
-                numOfTotalBalls++;
-            }
+        Log.d(TAG, "regenerateNextCellIndices");
+        if (nextCellIndices.containsKey(point)) {
+            // if nextCellIndices contains the target cell
+            int cellColor = nextCellIndices.remove(point);
+            Log.d(TAG, "regenerateNextCellIndices.cellColor = " + cellColor);
+            // generate only one next cell index
+            generateNextCellIndices(nextCellIndices.size(), cellColor);
         }
     }
 
+    private void generateNextCellIndices(int start, int cColor) {
+        Log.d(TAG, "generateNextCellIndices.start = " + start);
+        int i = start, n1, n2, nn;
+        Point point;
+        int numOfTotalBalls = getTotalBalls();
+        while (i<ballNumOneTime && (i+numOfTotalBalls)<(rowCounts*colCounts)){
+            Log.d(TAG, "generateNextCellIndices.i = " + i + ", numOfTotalBalls = " + numOfTotalBalls);
+            n1 = random.nextInt(rowCounts);
+            n2 = random.nextInt(colCounts);
+            point = new Point(n1, n2);
+            if (cellValues[n1][n2]==0 && !nextCellIndices.containsKey(point)) {
+                if (cColor == 0) {
+                    nn = random.nextInt(numOfColorsUsed);
+                    nextCellIndices.put(point, MyActivityPresenter.ballColor[nn]);
+                    i++;
+                } else {
+                    nextCellIndices.put(point, cColor);
+                    break;
+                }
+            }
+        }
+        Log.d(TAG, "generateNextCellIndices.i = " + i + ", numOfTotalBalls = " + numOfTotalBalls);
+    }
+
     public void undoTheLast() {
-        nextCellIndices = new ArrayList<>(undoNextCellIndices);
+        nextCellIndices = new HashMap<>(undoNextCellIndices);
         // restore CellValues;
         for (int i=0 ; i<rowCounts ; i++) {
             // cellValues[i] = backupCells[i].clone();  // removed on 2021-01-11
@@ -129,6 +135,7 @@ public class GridData implements Parcelable {
     }
 
     public boolean getGameOver() {
+        Log.d(TAG,"getGameOver") ;
         int numOfTotalBalls = getTotalBalls();
         if (numOfTotalBalls >= (rowCounts*colCounts)) {
             gameOver = true;
@@ -138,24 +145,24 @@ public class GridData implements Parcelable {
         return gameOver;
     }
 
-    public ArrayList<Cell> getNextCellIndices() {
+    public HashMap<Point, Integer> getNextCellIndices() {
         return nextCellIndices;
     }
-    public void setNextCellIndices(ArrayList<Cell> nextCellIndices) {
-        this.nextCellIndices = new ArrayList<>(nextCellIndices);
+    public void setNextCellIndices(HashMap<Point, Integer> nextCellIndices) {
+        this.nextCellIndices = new HashMap<>(nextCellIndices);
     }
     public void addNextCellIndices(Point point) {
-        nextCellIndices.add(new Cell(point, cellValues[point.x][point.y], null));
+        nextCellIndices.put(point, cellValues[point.x][point.y]);
     }
 
-    public ArrayList<Cell> getUndoNextCellIndices() {
+    public HashMap<Point,Integer> getUndoNextCellIndices() {
         return undoNextCellIndices;
     }
-    public void setUndoNextCellIndices(ArrayList<Cell> undoNextCellIndices) {
-        this.undoNextCellIndices = new ArrayList<>(undoNextCellIndices);
+    public void setUndoNextCellIndices(HashMap<Point, Integer> undoNextCellIndices) {
+        this.undoNextCellIndices = new HashMap<>(undoNextCellIndices);
     }
     public void addUndoNextCellIndices(Point point) {
-        undoNextCellIndices.add(new Cell(point, cellValues[point.x][point.y], null));
+        undoNextCellIndices.put(point, cellValues[point.x][point.y]);
     }
 
     public HashSet<Point> getLight_line() {
@@ -413,7 +420,7 @@ public class GridData implements Parcelable {
             return result;
         }
 
-        undoNextCellIndices = new ArrayList<>(nextCellIndices);
+        undoNextCellIndices = new HashMap<>(nextCellIndices);
         // backup CellValues;
         for (int i=0 ; i<rowCounts ; i++) {
             // backupCells[i] = cellValues[i].clone(); // removed on 2021-01-11
@@ -544,14 +551,15 @@ public class GridData implements Parcelable {
 
         int sizeOfHashSet = this.nextCellIndices.size();
         dest.writeInt(sizeOfHashSet);
-        for (Cell cell:this.nextCellIndices) {
-            dest.writeParcelable(cell, flags);
+        for (HashMap.Entry<Point, Integer> entry : this.nextCellIndices.entrySet()) {
+            dest.writeParcelable(entry.getKey(), flags);
+            dest.writeInt(entry.getValue());
         }
-
         sizeOfHashSet = this.undoNextCellIndices.size();
         dest.writeInt(sizeOfHashSet);
-        for (Cell cell:this.undoNextCellIndices) {
-            dest.writeParcelable(cell, flags);
+        for (HashMap.Entry<Point, Integer> entry : this.undoNextCellIndices.entrySet()) {
+            dest.writeParcelable(entry.getKey(), flags);
+            dest.writeInt(entry.getValue());
         }
 
         // dest.writeSerializable(this.Light_line); // IOException
@@ -589,18 +597,20 @@ public class GridData implements Parcelable {
         }
         //
 
-        this.nextCellIndices = new ArrayList<>();
+        this.nextCellIndices = new HashMap<>();
         int sizeOfHashSet = in.readInt();
         for (int i=0; i<sizeOfHashSet; i++) {
-            Cell cell = in.readParcelable(Point.class.getClassLoader());
-            nextCellIndices.add(cell);
+            Point point = in.readParcelable(Point.class.getClassLoader());
+            int cellColor = in.readInt();
+            this.nextCellIndices.put(point, cellColor);
         }
 
-        this.undoNextCellIndices = new ArrayList<>();
+        this.undoNextCellIndices = new HashMap<>();
         sizeOfHashSet = in.readInt();
         for (int i=0; i<sizeOfHashSet; i++) {
-            Cell cell = in.readParcelable(Point.class.getClassLoader());
-            undoNextCellIndices.add(cell);
+            Point point = in.readParcelable(Point.class.getClassLoader());
+            int cellColor = in.readInt();
+            this.undoNextCellIndices.put(point, cellColor);
         }
 
         // this.Light_line = (HashSet<Point>) in.readSerializable();

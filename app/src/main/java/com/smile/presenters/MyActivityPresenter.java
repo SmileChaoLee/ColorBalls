@@ -18,7 +18,6 @@ import androidx.annotation.NonNull;
 
 import com.smile.colorballs.ColorBallsApp;
 import com.smile.colorballs.R;
-import com.smile.model.Cell;
 import com.smile.model.GameProperties;
 import com.smile.model.GridData;
 import com.smile.smilelibraries.player_record_rest.PlayerRecordRest;
@@ -451,30 +450,30 @@ public class MyActivityPresenter {
             // foStream.write(gridData.ballNumOneTime);
             Log.d(TAG, "startSavingGame.ballNumOneTime = " + GridData.ballNumOneTime);
             foStream.write(GridData.ballNumOneTime);
-            for (Cell cell : gridData.getNextCellIndices()) {
-                Log.d(TAG, "startSavingGame.nextCellIndices.cell.getColor() = " + cell.getColor());
-                foStream.write(cell.getColor());
+            for (HashMap.Entry<Point, Integer> entry : gridData.getNextCellIndices().entrySet()) {
+                Log.d(TAG, "startSavingGame.nextCellIndices.getValue() = " + entry.getValue());
+                foStream.write(entry.getValue());
             }
             int sz = gridData.getNextCellIndices().size();
             for (int i = sz; i<NumOfColorsUsedByDifficult; i++) {
-                Log.d(TAG, "startSavingGame.nextCellIndices.cell.getColor() = " + 0);
+                Log.d(TAG, "startSavingGame.nextCellIndices.getValue() = " + 0);
                 foStream.write(0);
             }
             Log.d(TAG, "startSavingGame.getNextCellIndices.size() = " + sz);
             foStream.write(sz);
-            for (Cell cell : gridData.getNextCellIndices()) {
-                Log.d(TAG, "startSavingGame.nextCellIndices.cell.getCoordinate().x = " + cell.getCoordinate().x);
-                Log.d(TAG, "startSavingGame.nextCellIndices.cell.getCoordinate().y = " + cell.getCoordinate().y);
-                foStream.write(cell.getCoordinate().x);
-                foStream.write(cell.getCoordinate().y);
+            for (HashMap.Entry<Point, Integer> entry : gridData.getNextCellIndices().entrySet()) {
+                Log.d(TAG, "startSavingGame.nextCellIndices.getKey().x = " + entry.getKey().x);
+                Log.d(TAG, "startSavingGame.nextCellIndices.getKey().y = " + entry.getKey().y);
+                foStream.write(entry.getKey().x);
+                foStream.write(entry.getKey().y);
             }
             Log.d(TAG, "startSavingGame.getUndoNextCellIndices().size() = " + gridData.getUndoNextCellIndices().size());
             foStream.write(gridData.getUndoNextCellIndices().size());
-            for (Cell cell : gridData.getUndoNextCellIndices()) {
-                Log.d(TAG, "startSavingGame.undoNextCellIndices.cell.getCoordinate().x = " + cell.getCoordinate().x);
-                Log.d(TAG, "startSavingGame.undoNextCellIndices.cell.getCoordinate().y = " + cell.getCoordinate().y);
-                foStream.write(cell.getCoordinate().x);
-                foStream.write(cell.getCoordinate().y);
+            for (HashMap.Entry<Point, Integer> entry : gridData.getUndoNextCellIndices().entrySet()) {
+                Log.d(TAG, "startSavingGame.undoNextCellIndices.getKey().x = " + entry.getKey().x);
+                Log.d(TAG, "startSavingGame.undoNextCellIndices.getKey().y = " + entry.getKey().y);
+                foStream.write(entry.getKey().x);
+                foStream.write(entry.getKey().y);
             }
             // save values on 9x9 grid
             for (int i=0; i<rowCounts; i++) {
@@ -499,13 +498,13 @@ public class MyActivityPresenter {
             Log.d(TAG, "startSavingGame.ballNumOneTime = " + GridData.ballNumOneTime);
             foStream.write(GridData.ballNumOneTime);
             // save undoNextBalls
-            for (Cell cell : gridData.getUndoNextCellIndices()) {
-                Log.d(TAG, "startSavingGame.undoNextCellIndices.cell.getColor() = " + cell.getColor());
-                foStream.write(cell.getColor());
+            for (HashMap.Entry<Point, Integer> entry : gridData.getUndoNextCellIndices().entrySet()) {
+                Log.d(TAG, "startSavingGame.undoNextCellIndices.getValue() = " + entry.getValue());
+                foStream.write(entry.getValue());
             }
             sz = gridData.getUndoNextCellIndices().size();
             for (int i = sz; i<NumOfColorsUsedByDifficult; i++) {
-                Log.d(TAG, "startSavingGame.undoNextCellIndices.cell.getColor() = " + 0);
+                Log.d(TAG, "startSavingGame.undoNextCellIndices.getValue() = " + 0);
                 foStream.write(0);
             }
             // save backupCells
@@ -561,8 +560,8 @@ public class MyActivityPresenter {
 
         try {
             // clear nextCellIndices and undoNextCellIndices
-            gridData.setNextCellIndices(new ArrayList<>());
-            gridData.setUndoNextCellIndices(new ArrayList<>());
+            gridData.setNextCellIndices(new HashMap<>());
+            gridData.setUndoNextCellIndices(new HashMap<>());
 
             File inputFile = new File(ColorBallsApp.AppContext.getFilesDir(), savedGameFileName);
             long fileSizeInByte = inputFile.length();
@@ -591,8 +590,8 @@ public class MyActivityPresenter {
             for (int i=0; i<nextCellIndicesSize; i++) {
                 int x = fiStream.read();
                 int y = fiStream.read();
-                Log.d(TAG, "startLoadingGame.nextCellIndices.cell.getCoordinate().x = " + x);
-                Log.d(TAG, "startLoadingGame.nextCellIndices.cell.getCoordinate().y = " + y);
+                Log.d(TAG, "startLoadingGame.nextCellIndices.getKey().x = " + x);
+                Log.d(TAG, "startLoadingGame.nextCellIndices.getKey().y = " + y);
                 gridData.addNextCellIndices(new Point(x, y));
             }
             int undoNextCellIndicesSize = fiStream.read();
@@ -600,8 +599,8 @@ public class MyActivityPresenter {
             for (int i=0; i<undoNextCellIndicesSize; i++) {
                 int x = fiStream.read();
                 int y = fiStream.read();
-                Log.d(TAG, "startLoadingGame.undoNextCellIndices.cell.getCoordinate().x = " + x);
-                Log.d(TAG, "startLoadingGame.undoNextCellIndices.cell.getCoordinate().y = " + y);
+                Log.d(TAG, "startLoadingGame.undoNextCellIndices.getKey().x = " + x);
+                Log.d(TAG, "startLoadingGame.undoNextCellIndices.geyKey().y = " + y);
                 gridData.addUndoNextCellIndices(new Point(x, y));
             }
             // load values on 9x9 grid
@@ -625,7 +624,7 @@ public class MyActivityPresenter {
                 Log.d(TAG, "startLoadingGame.ballNumOneTime = " + ballNumOneTime);
                 for (int i=0; i<NumOfColorsUsedByDifficult; i++) {
                     undoNextBalls[i] = fiStream.read();
-                    Log.d(TAG, "startLoadingGame.undoNextCellIndices.cell.getColor() = " + undoNextBalls[i]);
+                    Log.d(TAG, "startLoadingGame.undoNextCellIndices.getValue() = " + undoNextBalls[i]);
                 }
                 // save backupCells
                 for (int i=0; i<rowCounts; i++) {
@@ -647,15 +646,16 @@ public class MyActivityPresenter {
             setHasNextBall(hasNextBall, false);
             // gridData.setNextBalls(nextBalls);
             int kk = 0;
-            for (Cell cell : gridData.getNextCellIndices()) {
-                cell.setColor(nextBalls[kk]);
+            for (HashMap.Entry<Point, Integer> entry : gridData.getNextCellIndices().entrySet()) {
+                entry.setValue(nextBalls[kk++]);
             }
             gridData.setCellValues(gameCells);
             gameProperties.setCurrentScore(cScore);
             gameProperties.setUndoEnable(isUndoEnable);
             // gridData.setUndoNextBalls(undoNextBalls);
-            for (Cell cell : gridData.getUndoNextCellIndices()) {
-                cell.setColor(undoNextBalls[kk]);
+            kk = 0;
+            for (HashMap.Entry<Point, Integer> entry : gridData.getUndoNextCellIndices().entrySet()) {
+                entry.setValue(undoNextBalls[kk++]);
             }
             gridData.setBackupCells(backupCells);
             gameProperties.setUndoScore(unScore);
@@ -826,10 +826,10 @@ public class MyActivityPresenter {
         Log.d(TAG, "displayNextBallsView() is called");
         ImageView imageView;
         try {
-            for (Cell cell : gridData.getNextCellIndices()) {
-                int imageViewId = rowCounts * cell.getCoordinate().x + cell.getCoordinate().y;
+            for (HashMap.Entry<Point, Integer> entry : gridData.getNextCellIndices().entrySet()) {
+                int imageViewId = rowCounts * entry.getKey().x + entry.getKey().y;
                 imageView = presentView.getImageViewById(imageViewId);
-                drawNextBall(imageView, cell.getColor());
+                drawNextBall(imageView, entry.getValue());
             }
         } catch (Exception ex) {
             Log.d(TAG, "displayNextBallsView exception: ");
@@ -857,13 +857,12 @@ public class MyActivityPresenter {
         ImageView imageView;
         boolean hasMoreFive = false;
         HashSet<Point> linkedPoint = new HashSet<>();
-        for (Cell nextCellIndex : gridData.getNextCellIndices()) {
-            n1 = nextCellIndex.getCoordinate().x;
-            n2 = nextCellIndex.getCoordinate().y;
+        for (HashMap.Entry<Point, Integer> entry : gridData.getNextCellIndices().entrySet()) {
+            n1 = entry.getKey().x;
+            n2 = entry.getKey().y;
             int ballColor = gridData.getCellValue(n1, n2);
             Log.d(TAG,"displayGridDataNextCells.ballColor = " + ballColor);
-            // gridData.setCellValue(n1, n2, gridData.getNextBalls()[nextBallIndex]);
-            gridData.setCellValue(n1, n2, nextCellIndex.getColor());
+            gridData.setCellValue(n1, n2, entry.getValue());
             id = n1 * rowCounts + n2;
             imageView = presentView.getImageViewById(id);
             drawBall(imageView, gridData.getCellValue(n1, n2));
@@ -889,10 +888,8 @@ public class MyActivityPresenter {
         } else {
             // check if game over
             if (gridData.getGameOver()) {
-                //  game over
                 gameOver();
             } else {
-                // game has not been over yet
                 displayNextColorBalls();
             }
         }
@@ -934,6 +931,7 @@ public class MyActivityPresenter {
         Log.d(TAG, "drawBallAlongPath");
         int sizeOfPathPoint = gridData.getPathPoint().size();
         if (sizeOfPathPoint<=0) {
+            Log.w(TAG, "drawBallAlongPath.sizeOfPathPoint<=0");
             return;
         }
 
