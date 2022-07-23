@@ -25,16 +25,13 @@ public class GridData implements Parcelable {
     private int rowCounts=0, colCounts=0;
     private int cellValues[][];
     private int backupCells[][];
-    private int[] nextBalls;
-    private int[] undoNextBalls;
-    private ArrayList<Point> nextCellIndices;
-    private ArrayList<Point> undoNextCellIndices;
+    private ArrayList<Cell> nextCellIndices;
+    private ArrayList<Cell> undoNextCellIndices;
     private HashSet<Point> Light_line;
     private ArrayList<Point> pathPoint;
 
     private Random random;
 
-    private int numOfTotalBalls = 0;
     private int numOfColorsUsed = 5;    // 5 colors for easy level, 6 colors for difficult level
     private boolean gameOver = false;
 
@@ -43,8 +40,6 @@ public class GridData implements Parcelable {
         this.colCounts = colCounts;
         this.numOfColorsUsed = numOfColorsUsed;
 
-        nextBalls = new int[MyActivityPresenter.NumOfColorsUsedByDifficult];
-        undoNextBalls = new int[MyActivityPresenter.NumOfColorsUsedByDifficult];
         cellValues = new int[rowCounts][colCounts];
         backupCells = new int[rowCounts][colCounts];
         nextCellIndices = new ArrayList<>();
@@ -56,11 +51,9 @@ public class GridData implements Parcelable {
             Arrays.fill(backupCells[i],0);
         }
         gameOver = false;   // new Game
-        numOfTotalBalls = 0;
         random = new Random(System.currentTimeMillis());
 
         // next ball colors and their positions
-        randColors();
         randCells();
         //
     }
@@ -83,29 +76,6 @@ public class GridData implements Parcelable {
         return this.cellValues;
     }
 
-    public void randColors() {
-        for (int i=0 ; i<ballNumOneTime ; i++) {
-            // int nn = random.nextInt(ColorBallsApp.MaxBalls);
-            int nn = random.nextInt(numOfColorsUsed);
-            nextBalls[i] = MyActivityPresenter.ballColor[nn];
-        }
-    }
-    public int[] getNextBalls() {
-        return this.nextBalls;
-    }
-    public void setNextBalls(int[] nextBalls) {
-        // this.nextBalls = nextBalls.clone();  // removed on 2021-01-11
-        // replaced by
-        System.arraycopy(nextBalls, 0, this.nextBalls, 0, nextBalls.length);
-    }
-    public int[] getUndoNextBalls() {
-        return this.undoNextBalls;
-    }
-    public void setUndoNextBalls(int[] undoNextBalls) {
-        // this.undoNextBalls = undoNextBalls.clone();  // removed on 2021-01-11
-        // replaced by
-        System.arraycopy(undoNextBalls, 0, this.undoNextBalls, 0, undoNextBalls.length);
-    }
     public int[][] getBackupCells() {
         return backupCells;
     }
@@ -121,26 +91,28 @@ public class GridData implements Parcelable {
         this.numOfColorsUsed = numOfColorsUsed;
     }
 
-    public Point generateNextCell() {
-        int n1 = random.nextInt(rowCounts);
-        int n2 = random.nextInt(colCounts);
-        Point nextCell = new Point(n1, n2);
-        if (cellValues[n1][n2]==0 && !nextCellIndices.contains(nextCell)) {
-            return nextCell;
-        }
-        return null;
+    public void randCells() {
+        nextCellIndices.clear();
+        generateNextCellIndices(0);
     }
 
-    public void randCells() {
-        numOfTotalBalls = getTotalBalls();
-        nextCellIndices.clear();
+    public void regenerateNextCellIndices(Point point) {
+        nextCellIndices.remove(point);
+        generateNextCellIndices(nextCellIndices.size());
+    }
 
-        int i = 0;
+    private void generateNextCellIndices(int start) {
+        Log.d(TAG, "generateNextCellIndices.start = " + start);
+        int i = start, n1, n2, nn;
+        Cell nextCell;
+        int numOfTotalBalls = getTotalBalls();
         while (i<ballNumOneTime && numOfTotalBalls<(rowCounts*colCounts)){
-            Point cell = generateNextCell();
-            if (cell != null) {
-                nextCellIndices.add(cell);
-                // cellValues[n1][n2] = nextBalls[i];   // only generated not to display
+            n1 = random.nextInt(rowCounts);
+            n2 = random.nextInt(colCounts);
+            nn = random.nextInt(numOfColorsUsed);
+            nextCell = new Cell(new Point(n1, n2), MyActivityPresenter.ballColor[nn], null);
+            if (cellValues[n1][n2]==0 && !nextCellIndices.contains(nextCell)) {
+                nextCellIndices.add(nextCell);
                 i++;
                 numOfTotalBalls++;
             }
@@ -148,25 +120,17 @@ public class GridData implements Parcelable {
     }
 
     public void undoTheLast() {
-
-        // nextBalls = undoNextBalls.clone();  // removed on 2021-01-11
-        // replaced by
-        System.arraycopy(undoNextBalls, 0, nextBalls, 0, undoNextBalls.length);
         nextCellIndices = new ArrayList<>(undoNextCellIndices);
-
         // restore CellValues;
         for (int i=0 ; i<rowCounts ; i++) {
             // cellValues[i] = backupCells[i].clone();  // removed on 2021-01-11
             System.arraycopy(backupCells[i], 0, cellValues[i], 0, backupCells[i].length);
         }
-
-        numOfTotalBalls = getTotalBalls();
     }
 
     public boolean getGameOver() {
-        numOfTotalBalls = getTotalBalls();
+        int numOfTotalBalls = getTotalBalls();
         if (numOfTotalBalls >= (rowCounts*colCounts)) {
-            // Game over
             gameOver = true;
         } else {
             gameOver = false;
@@ -174,18 +138,24 @@ public class GridData implements Parcelable {
         return gameOver;
     }
 
-    public ArrayList<Point> getNextCellIndices() {
+    public ArrayList<Cell> getNextCellIndices() {
         return nextCellIndices;
     }
-    public void setNextCellIndices(ArrayList<Point> nextCellIndices) {
+    public void setNextCellIndices(ArrayList<Cell> nextCellIndices) {
         this.nextCellIndices = new ArrayList<>(nextCellIndices);
     }
+    public void addNextCellIndices(Point point) {
+        nextCellIndices.add(new Cell(point, cellValues[point.x][point.y], null));
+    }
 
-    public ArrayList<Point> getUndoNextCellIndices() {
+    public ArrayList<Cell> getUndoNextCellIndices() {
         return undoNextCellIndices;
     }
-    public void setUndoNextCellIndices(ArrayList<Point> undoNextCellIndices) {
+    public void setUndoNextCellIndices(ArrayList<Cell> undoNextCellIndices) {
         this.undoNextCellIndices = new ArrayList<>(undoNextCellIndices);
+    }
+    public void addUndoNextCellIndices(Point point) {
+        undoNextCellIndices.add(new Cell(point, cellValues[point.x][point.y], null));
     }
 
     public HashSet<Point> getLight_line() {
@@ -443,10 +413,6 @@ public class GridData implements Parcelable {
             return result;
         }
 
-        // undoNextBalls = nextBalls.clone();   // removed on 2021-01-11
-        // replaced by
-        System.arraycopy(nextBalls, 0, undoNextBalls, 0, nextBalls.length);
-
         undoNextCellIndices = new ArrayList<>(nextCellIndices);
         // backup CellValues;
         for (int i=0 ; i<rowCounts ; i++) {
@@ -489,7 +455,7 @@ public class GridData implements Parcelable {
 
         Stack<Cell> lastCellStack;
         Stack<Cell> cellStack = new Stack<>();
-        cellStack.push(new Cell(source,null));
+        cellStack.push(new Cell(source, cellValues[source.x][source.y],null));
 
         int shortestPathLength = 0; // the length of the shortest path
         boolean found = false;
@@ -540,7 +506,7 @@ public class GridData implements Parcelable {
         if (!traversed.contains(pTemp)) {
             // has not been checked
             if ((pTemp.x >= 0 && pTemp.x < rowCounts) && (pTemp.y >= 0 && pTemp.y < colCounts) && (cellValues[pTemp.x][pTemp.y] == 0)) {
-                Cell temp = new Cell(pTemp, parent);
+                Cell temp = new Cell(pTemp, cellValues[pTemp.x][pTemp.y], parent);
                 stack.push(temp);
                 traversed.add(pTemp);
             }
@@ -576,19 +542,16 @@ public class GridData implements Parcelable {
         }
         //
 
-        dest.writeIntArray(this.nextBalls);
-        dest.writeIntArray(this.undoNextBalls);
-
         int sizeOfHashSet = this.nextCellIndices.size();
         dest.writeInt(sizeOfHashSet);
-        for (Point point:this.nextCellIndices) {
-            dest.writeParcelable(point, flags);
+        for (Cell cell:this.nextCellIndices) {
+            dest.writeParcelable(cell, flags);
         }
 
         sizeOfHashSet = this.undoNextCellIndices.size();
         dest.writeInt(sizeOfHashSet);
-        for (Point point:this.undoNextCellIndices) {
-            dest.writeParcelable(point, flags);
+        for (Cell cell:this.undoNextCellIndices) {
+            dest.writeParcelable(cell, flags);
         }
 
         // dest.writeSerializable(this.Light_line); // IOException
@@ -601,7 +564,6 @@ public class GridData implements Parcelable {
 
         dest.writeTypedList(this.pathPoint);
         dest.writeSerializable(this.random);
-        dest.writeInt(this.numOfTotalBalls);
         dest.writeInt(this.numOfColorsUsed);
         dest.writeByte(this.gameOver ? (byte) 1 : (byte) 0);
     }
@@ -627,21 +589,18 @@ public class GridData implements Parcelable {
         }
         //
 
-        this.nextBalls = in.createIntArray();
-        this.undoNextBalls = in.createIntArray();
-
         this.nextCellIndices = new ArrayList<>();
         int sizeOfHashSet = in.readInt();
         for (int i=0; i<sizeOfHashSet; i++) {
-            Point point = in.readParcelable(Point.class.getClassLoader());
-            nextCellIndices.add(point);
+            Cell cell = in.readParcelable(Point.class.getClassLoader());
+            nextCellIndices.add(cell);
         }
 
         this.undoNextCellIndices = new ArrayList<>();
         sizeOfHashSet = in.readInt();
         for (int i=0; i<sizeOfHashSet; i++) {
-            Point point = in.readParcelable(Point.class.getClassLoader());
-            undoNextCellIndices.add(point);
+            Cell cell = in.readParcelable(Point.class.getClassLoader());
+            undoNextCellIndices.add(cell);
         }
 
         // this.Light_line = (HashSet<Point>) in.readSerializable();
@@ -655,7 +614,6 @@ public class GridData implements Parcelable {
 
         this.pathPoint = in.createTypedArrayList(Point.CREATOR);
         this.random = (Random) in.readSerializable();
-        this.numOfTotalBalls = in.readInt();
         this.numOfColorsUsed = in.readInt();
         this.gameOver = in.readByte() != 0;
     }
