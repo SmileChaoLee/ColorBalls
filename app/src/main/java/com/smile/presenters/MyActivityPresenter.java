@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -165,7 +166,9 @@ public class MyActivityPresenter {
             Log.d(TAG, "initializeColorBallsGame.savedInstanceState is null");
         } else {
             Log.d(TAG, "initializeColorBallsGame.Configuration changed and restore the original UI.");
-            gameProperties = savedInstanceState.getParcelable(GamePropertiesTag);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {    // API 33
+                gameProperties = savedInstanceState.getParcelable(GamePropertiesTag, GameProperties.class);
+            } else gameProperties = savedInstanceState.getParcelable(GamePropertiesTag);
             if (gameProperties != null) {
                 gridData = gameProperties.getGridData();
                 if (gridData != null) {
@@ -838,7 +841,11 @@ public class MyActivityPresenter {
     }
 
     private void displayNextColorBalls() {
-        gridData.randCells();   // next balls' positions
+        if (gridData.randCells() == 0) {
+            // no vacant, game over
+            gameOver();
+            return;
+        }
         //   display the balls on the nextBallsView
         displayNextBallsView();
     }
@@ -886,12 +893,7 @@ public class MyActivityPresenter {
             showingScoreHandler.post(showScoreRunnable);
             Log.d(TAG,"displayGridDataNextCells.showingScoreHandler.post(showScoreRunnable).");
         } else {
-            // check if game over
-            if (gridData.getGameOver()) {
-                gameOver();
-            } else {
-                displayNextColorBalls();
-            }
+            displayNextColorBalls();
         }
     }
 

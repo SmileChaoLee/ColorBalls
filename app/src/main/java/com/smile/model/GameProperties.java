@@ -1,7 +1,10 @@
 package com.smile.model;
 
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import androidx.annotation.RequiresApi;
 
 public class GameProperties implements Parcelable {
     private boolean isShowingLoadingMessage;
@@ -110,10 +113,6 @@ public class GameProperties implements Parcelable {
 
     public boolean[] getThreadCompleted() {
         return threadCompleted;
-    }
-
-    public void setThreadCompleted(boolean[] threadCompleted) {
-        this.threadCompleted = threadCompleted;
     }
 
     public int getBouncyBallIndexI() {
@@ -293,7 +292,9 @@ public class GameProperties implements Parcelable {
         this.isEasyLevel = in.readByte() != 0;
         this.hasSound = in.readByte() != 0;
         this.hasNextBall = in.readByte() != 0;
-        this.gridData = in.readParcelable(GridData.class.getClassLoader());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            this.gridData = in.readParcelable(GridData.class.getClassLoader(), GridData.class);
+        } else this.gridData = in.readParcelable(GridData.class.getClassLoader());
     }
 
     public static final Creator<GameProperties> CREATOR = new Creator<GameProperties>() {

@@ -134,12 +134,14 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
         interstitialAd = new ShowingInterstitialAdsUtil(this, ColorBallsApp.facebookAds, ColorBallsApp.googleInterstitialAd);
 
-        if (ScreenUtil.isTablet(this)) {
-            // Table then change orientation to Landscape
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        } else {
-            // phone then change orientation to Portrait
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        if (!BuildConfig.DEBUG) {
+            if (ScreenUtil.isTablet(this)) {
+                // Table then change orientation to Landscape
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            } else {
+                // phone then change orientation to Portrait
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            }
         }
 
         setContentView(R.layout.activity_my);
@@ -178,7 +180,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                         int resultCode = result.getResultCode();
                         if (resultCode == Activity.RESULT_OK) {
                             Log.d(TAG, "localTop10ActivityResultLauncher --> Showing interstitial ads");
-                            showAdUntilDismissed(MyActivity.this);   // removed for tesing
+                            showAdUntilDismissed();   // removed for testing
                             ColorBallsApp.isShowingLoadingMessage = false;
                             ColorBallsApp.isProcessingJob = false;
                         }
@@ -189,7 +191,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 new ActivityResultCallback<ActivityResult>() {
                     @Override
                     public void onActivityResult(ActivityResult result) {
-                        showAdUntilDismissed(MyActivity.this);
+                        showAdUntilDismissed();
                         ColorBallsApp.isShowingLoadingMessage = false;
                         ColorBallsApp.isProcessingJob = false;
                     }
@@ -211,23 +213,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
         // ScreenUtil.buildActionViewClassMenu(this, wrapper, menu, fScale, ColorBallsApp.FontSize_Scale_Type);
         ScreenUtil.resizeMenuTextIconSize(wrapper, menu, fontScale);
-
-        /*
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            // API >= 18 works on SpannableString on Main menu items
-            ScreenUtil.resizeMenuTextIconSize(wrapper, menu, fScale);
-        } else {
-            // API < 18 does not work on SpannableString on Main menu
-            // only sub menu works on SpannableString
-            // Text size of Menu items use dimens
-            int menuSize = menu.size();
-            Menu subMenu;
-            for (int i = 0; i < menuSize; i++) {
-                subMenu = menu.getItem(i).getSubMenu();
-                ScreenUtil.resizeMenuTextIconSize(wrapper, subMenu, fScale);
-            }
-        }
-        */
 
         return true;
     }
@@ -305,12 +290,11 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 ft.remove(top10ScoreFragment);
                 if (top10ScoreFragment.isStateSaved()) {
                     Log.d(TAG, "top10ScoreFragment.isStateSaved() = true");
-                    ft.commitAllowingStateLoss();   // temporarily solved
                 } else {
                     Log.d(TAG, "top10ScoreFragment.isStateSaved() = false");
                     // ft.commit(); // removed on 2021-01-24
-                    ft.commitAllowingStateLoss();   // added on 2021-01-24
                 }
+                ft.commitAllowingStateLoss();   // added on 2021-01-24
                 ColorBallsApp.isShowingLoadingMessage = false;
                 ColorBallsApp.isProcessingJob = false;
             }
@@ -321,13 +305,11 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 ft.remove(globalTop10Fragment);
                 if (globalTop10Fragment.isStateSaved()) {
                     Log.d(TAG, "globalTop10Fragment.isStateSaved() = true");
-                    ft.commitAllowingStateLoss();   // temporarily solved
                 } else {
                     Log.d(TAG, "globalTop10Fragment.isStateSaved() = false");
                     // ft.commit(); // removed on 2021-01-24
-                    ft.commitAllowingStateLoss();   // added on 2021-01-24
                 }
-
+                ft.commitAllowingStateLoss();   // added on 2021-01-24
                 ColorBallsApp.isShowingLoadingMessage = false;
                 ColorBallsApp.isProcessingJob = false;
             }
@@ -487,8 +469,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         float gameViewWeightSum = gameViewLinearLayout.getWeightSum();
         Log.d(TAG, "gameViewWeightSum = " + gameViewWeightSum);
         LinearLayout mainGameViewUiLayout = findViewById(R.id.gameViewLayout);
-        LinearLayout.LayoutParams mainGameViewtUiLayoutParams = (LinearLayout.LayoutParams) mainGameViewUiLayout.getLayoutParams();
-        float mainGameViewUi_weight = mainGameViewtUiLayoutParams.weight;
+        LinearLayout.LayoutParams mainGameViewUiLayoutParams = (LinearLayout.LayoutParams) mainGameViewUiLayout.getLayoutParams();
+        float mainGameViewUi_weight = mainGameViewUiLayoutParams.weight;
         Log.d(TAG, "mainGameViewUi_weight = " + mainGameViewUi_weight);
         mainGameViewWidth = screenWidth * (mainGameViewUi_weight / gameViewWeightSum);
         Log.d(TAG, "mainGameViewWidth = " + mainGameViewWidth);
@@ -507,8 +489,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         GridLayout gridCellsLayout = findViewById(R.id.gridCellsLayout);
         rowCounts = gridCellsLayout.getRowCount();
         colCounts = gridCellsLayout.getColumnCount();
-        // LinearLayout.LayoutParams gridLp = (LinearLayout.LayoutParams) gridCellsLayout.getLayoutParams();
-        // float height_weight_gridCellsLayout = gridLp.weight;
 
         cellWidth = (int) (mainGameViewWidth / colCounts);
         Log.d(TAG, "cellWidth = " + cellWidth);
@@ -576,7 +556,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         dlg.getWindow().setBackgroundDrawableResource(R.drawable.dialog_board_image);
 
         Button nBtn = dlg.getButton(DialogInterface.BUTTON_NEGATIVE);
-        ScreenUtil.resizeTextSize((TextView) nBtn, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        ScreenUtil.resizeTextSize(nBtn, textFontSize, ColorBallsApp.FontSize_Scale_Type);
         nBtn.setTypeface(Typeface.DEFAULT_BOLD);
         nBtn.setTextColor(Color.RED);
 
@@ -585,7 +565,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         nBtn.setLayoutParams(layoutParams);
 
         Button pBtn = dlg.getButton(DialogInterface.BUTTON_POSITIVE);
-        ScreenUtil.resizeTextSize((TextView) pBtn, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        ScreenUtil.resizeTextSize(pBtn, textFontSize, ColorBallsApp.FontSize_Scale_Type);
         pBtn.setTypeface(Typeface.DEFAULT_BOLD);
         pBtn.setTextColor(Color.rgb(0x00,0x64,0x00));
         pBtn.setLayoutParams(layoutParams);
@@ -688,7 +668,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         },timeDelay);
     }
 
-    private void showAdUntilDismissed(Activity activity) {
+    private void showAdUntilDismissed() {
         if (interstitialAd == null) {
             return;
         }
@@ -752,8 +732,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                     }
                 } else {
                     // display warning to users
-                    final int finalNumOfSaved = numOfSaved;
-                    showingWarningSaveGameDialog(finalNumOfSaved);
+                    // final int finalNumOfSaved = numOfSaved;
+                    showingWarningSaveGameDialog(numOfSaved);
                 }
             }
         });
@@ -791,7 +771,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 } else {
                     ScreenUtil.showToast(MyActivity.this, getString(R.string.failedSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
                 }
-                showAdUntilDismissed(MyActivity.this);
+                showAdUntilDismissed();
             }
         });
         Bundle args = new Bundle();
@@ -935,7 +915,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     // end of implementing
 
     private class MyBroadcastReceiver extends BroadcastReceiver {
-        private final String SUCCEEDED = "0";
         private final String FAILED = "1";
 
         @Override
@@ -980,7 +959,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                                         ft.remove(top10ScoreFragment);
                                         // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                                         ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-                                        showAdUntilDismissed(activity);
+                                        showAdUntilDismissed();
                                     }
                                 }
                             });
@@ -1037,7 +1016,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                                         ft.remove(globalTop10Fragment);
                                         // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                                         ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-                                        showAdUntilDismissed(activity);
+                                        showAdUntilDismissed();
                                     }
                                 }
                             });
