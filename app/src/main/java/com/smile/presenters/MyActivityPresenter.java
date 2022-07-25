@@ -842,7 +842,7 @@ public class MyActivityPresenter {
 
     private void displayNextColorBalls() {
         if (gridData.randCells() == 0) {
-            // no vacant, game over
+            // no vacants, so game over
             gameOver();
             return;
         }
