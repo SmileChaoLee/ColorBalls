@@ -433,7 +433,7 @@ public class GridData implements Parcelable {
 
         Stack<Cell> lastCellStack;
         Stack<Cell> cellStack = new Stack<>();
-        cellStack.push(new Cell(source, cellValues[source.x][source.y],null));
+        cellStack.push(new Cell(source,null));
 
         int shortestPathLength = 0; // the length of the shortest path
         boolean found = false;
@@ -484,7 +484,7 @@ public class GridData implements Parcelable {
         if (!traversed.contains(pTemp)) {
             // has not been checked
             if ((pTemp.x >= 0 && pTemp.x < rowCounts) && (pTemp.y >= 0 && pTemp.y < colCounts) && (cellValues[pTemp.x][pTemp.y] == 0)) {
-                Cell temp = new Cell(pTemp, cellValues[pTemp.x][pTemp.y], parent);
+                Cell temp = new Cell(pTemp, parent);
                 stack.push(temp);
                 traversed.add(pTemp);
             }

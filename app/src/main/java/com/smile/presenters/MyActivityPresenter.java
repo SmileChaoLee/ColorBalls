@@ -1064,11 +1064,11 @@ public class MyActivityPresenter {
                     // show the score
                     String scoreString = String.valueOf(lastGotScore);
                     presentView.showMessageOnScreen(scoreString);
-                    Log.d(TAG, "ShowScoreRunnable-->onProgressUpdate()-->presentView.showMessageOnScreen(scoreString).");
+                    Log.d(TAG, "ShowScoreRunnable.onProgressUpdate.presentView.showMessageOnScreen(scoreString).");
                     for (Point item : hasPoint) {
                         clearCell(item.x, item.y);
                     }
-                    Log.d(TAG, "ShowScoreRunnable-->onProgressUpdate()-->clearCell(item.x, item.y)");
+                    Log.d(TAG, "ShowScoreRunnable.onProgressUpdate.clearCell(item.x, item.y)");
                     // added on 2019-03-30
                     if (isNextBalls) {
                         displayNextColorBalls();
@@ -1081,11 +1081,11 @@ public class MyActivityPresenter {
                     }
                     gameProperties.getThreadCompleted()[1] = true;  // user can start input command
                     gameProperties.setShowingScoreMessage(false);
-                    Log.d(TAG, "ShowScoreRunnable-->onProgressUpdate()-->gameProperties.setShowingScoreMessage(false)");
+                    Log.d(TAG, "ShowScoreRunnable.onProgressUpdate.gameProperties.setShowingScoreMessage(false)");
                     break;
                 case 4:
                     presentView.dismissShowMessageOnScreen();
-                    Log.d(TAG, "ShowScoreRunnable-->onProgressUpdate()-->presentView.dismissShowMessageOnScreen().");
+                    Log.d(TAG, "ShowScoreRunnable.onProgressUpdate.presentView.dismissShowMessageOnScreen().");
                     break;
             }
         }
