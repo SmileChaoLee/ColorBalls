@@ -87,4 +87,13 @@ public class FontAndBitmapUtil {
 
         return new BitmapDrawable(context.getResources(), Bitmap.createScaledBitmap(bm, width, height, true));
     }
+
+    public static Bitmap rotateDrawable(Context context, int drawable, float degree) {
+        Bitmap bmpOriginal = BitmapFactory.decodeResource(context.getResources(), drawable);
+        Bitmap bmResult = Bitmap.createBitmap(bmpOriginal.getWidth(), bmpOriginal.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas tempCanvas = new Canvas(bmResult);
+        tempCanvas.rotate(degree, bmpOriginal.getWidth()/2, bmpOriginal.getHeight()/2);
+        tempCanvas.drawBitmap(bmpOriginal, 0, 0, null);
+        return bmResult;
+    }
 }
