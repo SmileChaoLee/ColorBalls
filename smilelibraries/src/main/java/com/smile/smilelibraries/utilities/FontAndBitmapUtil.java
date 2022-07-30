@@ -11,7 +11,9 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.TextPaint;
 
-public class FontAndBitmapUtil {
+public final class FontAndBitmapUtil {
+
+    private FontAndBitmapUtil() {}
 
     public static Bitmap getBitmapFromBitmapWithText(Bitmap orgBitmap, String caption, int textColor) {
 

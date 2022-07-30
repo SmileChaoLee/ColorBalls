@@ -28,16 +28,14 @@ import android.widget.Toast;
 
 import com.smile.smilelibraries.Models.ShowToastMessage;
 
-/**
- * Created by chaolee on 2017-10-24.
- */
-
-public class ScreenUtil {
+public final class ScreenUtil {
 
     public static final String TAG = "ScreenUtil";
     public static final int FontSize_Sp_Type = 1;
     public static final int FontSize_Dip_Type = 2;
     public static final int FontSize_Pixel_Type = 3;
+
+    private ScreenUtil() {}
 
     public static int getStatusBarHeight(Activity activity) {
         int height = 0;
@@ -85,10 +83,10 @@ public class ScreenUtil {
                 size.y = size.y - getNavigationBarHeight(activity);
             }
         } else {
-            size.x = activity.getResources().getSystem().getDisplayMetrics().widthPixels;
-            // size.x = Resources.getSystem().getDisplayMetrics().widthPixels;
-            size.y = activity.getResources().getSystem().getDisplayMetrics().heightPixels;
-            // size.y = Resources.getSystem().getDisplayMetrics().heightPixels;
+            // int size.x = activity.getResources().getSystem().getDisplayMetrics().widthPixels;
+            size.x = Resources.getSystem().getDisplayMetrics().widthPixels;
+            // size.y = activity.getResources().getSystem().getDisplayMetrics().heightPixels;
+            size.y = Resources.getSystem().getDisplayMetrics().heightPixels;
         }
 
         Log.d(TAG,"size.x = " + size.x);
@@ -98,8 +96,8 @@ public class ScreenUtil {
     }
 
     public static int dpToPixel(Activity activity, int dp) {
-        // DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
-        DisplayMetrics displayMetrics = activity.getResources().getSystem().getDisplayMetrics();
+        DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
+        // DisplayMetrics displayMetrics = activity.getResources().getSystem().getDisplayMetrics();
 
         float density = displayMetrics.density;
 
@@ -107,8 +105,8 @@ public class ScreenUtil {
     }
 
     public static int pixelToDp(Activity activity, int pixel) {
-        // DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
-        DisplayMetrics displayMetrics = activity.getResources().getSystem().getDisplayMetrics();
+        DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
+        // DisplayMetrics displayMetrics = activity.getResources().getSystem().getDisplayMetrics();
         float density = displayMetrics.density;
         int dp = 0;
         if (density != 0) {
@@ -121,7 +119,7 @@ public class ScreenUtil {
     public static float getDefaultTextSizeFromTheme(Context context, int fontSize_Type, @Nullable Integer themeId) {
         DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
         TypedArray typedArray;
-        int[] attrs = {android.R.attr.textSize}; // retrieve text size from style.xml
+        int[] attrs = new int[] {android.R.attr.textSize}; // retrieve text size from style.xml
         if (themeId == null) {
             typedArray = context.obtainStyledAttributes(attrs);
         } else {
@@ -213,7 +211,7 @@ public class ScreenUtil {
         Log.d(TAG, "displayMetrics.density = " + displayMetrics.density);
         Log.d(TAG, "displayMetrics.densityDpi = " + displayMetrics.densityDpi);
 
-        float xdpi = (float)displayMetrics.xdpi;
+        float xdpi;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             xdpi = (float)displayMetrics.densityDpi;
             Log.d(TAG, "xdpi ( =  displayMetrics.densityDpi ) = " + xdpi);
@@ -299,19 +297,18 @@ public class ScreenUtil {
                 // mItemTextView.setPadding(0, 0, 10, 0);  // has been set in styles.xml
                 mItemTextView.setText(mItem.getTitle());
                 resizeTextSize(mItemTextView, defaultMenuTextSize * fontScale, fontSize_Type);
-                mItemTextView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (mItem.hasSubMenu()) {
-                            Menu subMenu = mItem.getSubMenu();
-                            buildMenuInPopupMenuByView(activity, wrapper, subMenu, view, fontScale);
-                        } else {
-                            activity.onOptionsItemSelected(mItem);
-                        }
+                mItemTextView.setOnClickListener(view1 -> {
+                    if (mItem.hasSubMenu()) {
+                        Menu subMenu = mItem.getSubMenu();
+                        buildMenuInPopupMenuByView(activity, wrapper, subMenu, view1, fontScale);
+                    } else {
+                        activity.onOptionsItemSelected(mItem);
                     }
                 });
             } else {
-                SpannableString spanString = new SpannableString(mItem.getTitle().toString());
+                SpannableString spanString;
+                if (mItem.getTitle() != null) spanString = new SpannableString(mItem.getTitle().toString());
+                else spanString = new SpannableString("");
                 int sLen = spanString.length();
                 spanString.setSpan(new RelativeSizeSpan(fontScale), 0, sLen, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 mItem.setTitle(spanString);
@@ -334,24 +331,23 @@ public class ScreenUtil {
         final int menuSize = menu.size();
         for (int j = 0; j<menuSize; j++) {
             MenuItem menuItem = menu.getItem(j);
-            String title = menuItem.getTitle().toString();
+            String title;
+            if (menuItem.getTitle() != null) title = menuItem.getTitle().toString();
+            else title = "";
             int menuItemId = menuItem.getItemId();
             popupMenu.getMenu().add(1, menuItemId, j, title);
 
             // resize text font size of popup menu items
             MenuItem popupItem = popupMenu.getMenu().getItem(j);
-            SpannableString spanString = new SpannableString(popupItem.getTitle().toString());
+            SpannableString spanString;
+            if (popupItem.getTitle() != null) spanString = new SpannableString(popupItem.getTitle().toString());
+            else spanString = new SpannableString("");
             int sLen = spanString.length();
             spanString.setSpan(new RelativeSizeSpan(fontScale), 0, sLen, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             popupItem.setTitle(spanString);
         }
 
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                return activity.onOptionsItemSelected(menuItem);
-            }
-        });
+        popupMenu.setOnMenuItemClickListener(activity::onOptionsItemSelected);
 
         popupMenu.show();
     }
@@ -373,6 +369,7 @@ public class ScreenUtil {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public static void showToast(Activity activity, String content, float textFontSize, int fontSize_Type, int showPeriod) {
         Toast toast = Toast.makeText(activity, content, showPeriod);
         // getView() is deprecated in API level 30
@@ -380,7 +377,12 @@ public class ScreenUtil {
             // resize the font size of toast when under API level 30
             try {
                 ViewGroup toastView = (ViewGroup) toast.getView();
-                TextView messageTextView = (TextView) toastView.getChildAt(0);
+                TextView messageTextView;
+                if (toastView != null) {
+                    messageTextView = (TextView) toastView.getChildAt(0);
+                } else {
+                    messageTextView = new TextView(activity);
+                }
                 resizeTextSize(messageTextView, textFontSize, fontSize_Type);
                 toast.show();
                 Log.d(TAG, "toast.show()");
@@ -414,7 +416,8 @@ public class ScreenUtil {
         int sLen;
         for (int i=0; i<mSize; i++) {
             mItem = menu.getItem(i);
-            spanString = new SpannableString(mItem.getTitle().toString());
+            if (mItem.getTitle() != null) spanString = new SpannableString(mItem.getTitle().toString());
+            else spanString = new SpannableString("");
             sLen = spanString.length();
             spanString.setSpan(new RelativeSizeSpan(fontScale), 0, sLen, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             mItem.setTitle(spanString);
