@@ -12,15 +12,16 @@ import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+import com.google.android.gms.common.util.VisibleForTesting;
 
 public class GoogleAdMobInterstitial {
 
-    private final String TAG = new String("google_admob_ads_util.GoogleAdMobInterstitial");
+    private final String TAG = "GoogleAdMobInterstitial";
     private final Context mContext;
     private final String mInterstitialID;
-    private boolean isDisplayed;
-    private boolean isDismissed;
-    private boolean isError;
+    // private boolean isDisplayed;
+    // private boolean isDismissed;
+    // private boolean isError;
 
     private InterstitialAd mInterstitialAd;
 
@@ -30,9 +31,9 @@ public class GoogleAdMobInterstitial {
             super.onAdFailedToShowFullScreenContent(adError);
             // Code to be executed when the ad failed to display.
             Log.e(TAG, "Interstitial ad failed to display.");
-            isDisplayed = false;
-            isDismissed = false;
-            isError = true;
+            // isDisplayed = false;
+            // isDismissed = false;
+            // isError = true;
             loadAd();   // load next ad
         }
 
@@ -41,9 +42,9 @@ public class GoogleAdMobInterstitial {
             super.onAdShowedFullScreenContent();
             // Code to be executed when the ad is displayed.
             Log.e(TAG, "Interstitial ad displayed.");
-            isDisplayed = true;
-            isDismissed = false;
-            isError = false;
+            // isDisplayed = true;
+            // isDismissed = false;
+            // isError = false;
         }
 
         @Override
@@ -51,9 +52,9 @@ public class GoogleAdMobInterstitial {
             super.onAdDismissedFullScreenContent();
             // Code to be executed when when the interstitial ad is closed.
             Log.e(TAG, "Interstitial ad dismissed.");
-            isDisplayed = true;
-            isDismissed = true;
-            isError = false;
+            // isDisplayed = true;
+            // isDismissed = true;
+            // isError = false;
             loadAd();   // load next ad
         }
 
@@ -70,9 +71,9 @@ public class GoogleAdMobInterstitial {
             // The mInterstitialAd reference will be null until
             // an ad is loaded.
             Log.e(TAG, "Interstitial onAdLoaded");
-            isDisplayed = false;
-            isDismissed = false;
-            isError = false;
+            // isDisplayed = false;
+            // isDismissed = false;
+            // isError = false;
             mInterstitialAd = interstitialAd;
             mInterstitialAd.setFullScreenContentCallback(mFullScreenContentCallback);
         }
@@ -82,9 +83,9 @@ public class GoogleAdMobInterstitial {
             // Handle the error
             Log.e(TAG, "Interstitial onAdFailedToLoad");
             Log.i(TAG, loadAdError.getMessage());
-            isDisplayed = false;
-            isDismissed = false;
-            isError = true;
+            // isDisplayed = false;
+            // isDismissed = false;
+            // isError = true;
             mInterstitialAd = null;
         }
     };
@@ -92,15 +93,15 @@ public class GoogleAdMobInterstitial {
     public GoogleAdMobInterstitial(Context context, String interstitialID) {
         mContext = context;
         mInterstitialID = interstitialID;
-        isDisplayed = false;
-        isDismissed = false;
-        isError = false;
+        // isDisplayed = false;
+        // isDismissed = false;
+        // isError = false;
     }
-
+    @VisibleForTesting
     public void loadAd() {
-        isDismissed = false;
-        isDisplayed = false;
-        isError = false;
+        // isDismissed = false;
+        // isDisplayed = false;
+        // isError = false;
         mInterstitialAd = null; // set to null to begin to load next ad
         AdRequest adRequest = new AdRequest.Builder().build();
         InterstitialAd.load(mContext, mInterstitialID, adRequest, mInterstitialAdLoadCallback);
@@ -108,15 +109,16 @@ public class GoogleAdMobInterstitial {
 
     public boolean showAd(Activity activity) {
         boolean succeeded = false;
-        isDismissed = false;
-        isDisplayed = false;
+        // isDismissed = false;
+        // isDisplayed = false;
         if (mInterstitialAd != null) {
-            isError = false;
+            // isError = false;
             mInterstitialAd.show(activity);
             succeeded = true;
-        } else {
-            isError = true;
         }
+        // else {
+        // isError = true;
+        // }
 
         return succeeded;
     }
@@ -127,10 +129,12 @@ public class GoogleAdMobInterstitial {
     public boolean isLoading() {
         return (mInterstitialAd == null);
     }
+    /*
     public boolean adsShowDisplayedOrStopped() {
         return (isDisplayed || (isError));
     }
     public boolean adsShowDismissedOrStopped() {
         return (isDismissed || (isError));
     }
+    */
 }

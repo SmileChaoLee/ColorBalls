@@ -7,16 +7,19 @@ import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import androidx.annotation.NonNull;
+
 import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.common.util.VisibleForTesting;
 import com.smile.smilelibraries.showing_interstitial_ads_utility.ShowingInterstitialAdsUtil;
 
-public class SetBannerAdViewForAdMobOrFacebook {
-    private final static String TAG = new String(".SetBannerAdViewForAdMobOrFacebook");
+public class SetBannerAdView {
+    private final static String TAG = "SetBannerAdView";
     private final Context context;
     private final LinearLayout companyInfoLayout;
     private final LinearLayout bannerLinearLayout;
@@ -26,45 +29,47 @@ public class SetBannerAdViewForAdMobOrFacebook {
     private com.google.android.gms.ads.AdView adMobBannerAdView;
     private com.facebook.ads.AdView facebookAdView;
     private com.facebook.ads.AdView.AdViewLoadConfig facebookAdViewLoadConfig;
-
-    private final AdRequest adMobBannerAdRequest = new AdRequest.Builder().build();
-    private final Handler loggingGoogleImpressionHandler = new Handler(Looper.getMainLooper());
-    private final Runnable loggingGoogleImpressionRunnable = new Runnable() {
+    private AdRequest adMobBannerAdRequest;
+    private final Handler loggingAdmobHandler = new Handler(Looper.getMainLooper());
+    @VisibleForTesting
+    private final Runnable loggingAdmobRunnable = new Runnable() {
         @Override
         public void run() {
-            loggingGoogleImpressionHandler.removeCallbacksAndMessages(null);
+            loggingAdmobHandler.removeCallbacksAndMessages(null);
             if (adMobBannerAdView!=null) {
                 Log.d(TAG, "Reloading Banner Ad of Google AdMob.");
+                adMobBannerAdRequest = new AdRequest.Builder().build();
                 adMobBannerAdView.loadAd(adMobBannerAdRequest);
             }
         }
     };
-    private final int maxNumberLoadingGoogleAdMobBannerAd = 10;
-    private int numberOfLoadingGoogleAdMobBannerAd = 0;
-    private int secondsToRetryAdMob = 10000; // 10 seconds
+    private int numberOfLoadingAdMobBannerAd = 0;
+    private final int secondsToReLoadAd = 120000;  // 2 minutes
 
-    private final Handler loggingFacebookImpressionHandler = new Handler(Looper.getMainLooper());
-    private final Runnable loggingFaceboookImpressionRunnable = new Runnable() {
+    private com.facebook.ads.AdListener facebookAdListener;
+    private final Handler loggingFacebookHandler = new Handler(Looper.getMainLooper());
+    private final Runnable loggingFacebookRunnable = new Runnable() {
         @Override
         public void run() {
-            loggingFacebookImpressionHandler.removeCallbacksAndMessages(null);
+            loggingFacebookHandler.removeCallbacksAndMessages(null);
+            facebookAdViewLoadConfig = facebookAdView.buildLoadAdConfig()
+                    .withAdListener(facebookAdListener).build();
             if (facebookAdViewLoadConfig !=null && facebookAdView!=null) {
                 Log.d(TAG, "Reloading Banner Ad of Facebook.");
                 facebookAdView.loadAd(facebookAdViewLoadConfig);
             }
         }
     };
-    private final int maxNumberLoadingFacebookBannerAd = 10;
+    private final int maxNumberLoadingBannerAd = 10;
     private int numberOfLoadingFacebookBannerAd = 0;
-    private int secondsToRetryFacebook = 10000; // 10 seconds
 
-    public SetBannerAdViewForAdMobOrFacebook(Context context, LinearLayout companyInfoLayout
+    public SetBannerAdView(Context context, LinearLayout companyInfoLayout
             , LinearLayout bannerLinearLayout
             , String googleAdMobBannerID, String facebookBannerID) {
         this(context, companyInfoLayout, bannerLinearLayout, googleAdMobBannerID, facebookBannerID, 0);
     }
 
-    public SetBannerAdViewForAdMobOrFacebook(Context context, LinearLayout companyInfoLayout
+    public SetBannerAdView(Context context, LinearLayout companyInfoLayout
             , LinearLayout bannerLinearLayout
             , String googleAdMobBannerID, String facebookBannerID
             , int bannerDpWidth) {
@@ -76,24 +81,18 @@ public class SetBannerAdViewForAdMobOrFacebook {
         this.bannerDpWidth = bannerDpWidth;
     }
 
-    public void showBannerAdViewFromAdMobOrFacebook(int adProvider) {
-        boolean isGoogleAdMobBannerAvaiable = true;
-        if (googleAdMobBannerID == null || googleAdMobBannerID.isEmpty()) {
-            isGoogleAdMobBannerAvaiable = false;
-        }
-        boolean isFacebookBannerAvaiable = true;
-        if (facebookBannerID == null || facebookBannerID.isEmpty()) {
-            isFacebookBannerAvaiable = false;
-        }
-        if (isGoogleAdMobBannerAvaiable || isFacebookBannerAvaiable) {
+    public void showBannerAdView(int adProvider) {
+        boolean isAdMobBannerAvailable = (googleAdMobBannerID!=null && !googleAdMobBannerID.isEmpty());
+        boolean isFacebookBannerAvailable = (facebookBannerID!=null && !facebookBannerID.isEmpty());
+        if (isAdMobBannerAvailable || isFacebookBannerAvailable) {
             if (companyInfoLayout != null) {
                 companyInfoLayout.setVisibility(View.GONE);
             }
 
             boolean adMobFirst = true;    // true for google, false for facebook
             if (adProvider == ShowingInterstitialAdsUtil.FacebookAdProvider) {
-                Log.d(TAG, "ShowingInterstitialAdsUtil.FacebookAdProvider.");
-                if (isFacebookBannerAvaiable) {
+                Log.d(TAG, "FacebookAdProvider.");
+                if (isFacebookBannerAvailable) {
                     adMobFirst = false;   // facebook first
                     Log.d(TAG, "facebookBannerID is not empty.");
                 } else {
@@ -101,19 +100,19 @@ public class SetBannerAdViewForAdMobOrFacebook {
                 }
             }
             if (adMobFirst) {
-                Log.d(TAG, "ShowingInterstitialAdsUtil.GoogleAdMobAdProvider.");
+                Log.d(TAG, "GoogleAdMobAdProvider.");
                 // google first
-                if (!isGoogleAdMobBannerAvaiable) {
+                if (!isAdMobBannerAvailable) {
                     // google is is empty so facebook id will not be empty
                     adMobFirst = false;    // no google so facebook first
                 }
             }
             if (adMobFirst) {
                 // Google AdMob (Banner Ad)
-                setGoogleAdMobBannerAdView();
+                setAdMobBannerAdView();
             } else {
                 // Facebook Ad (Banner Ad)
-                setFacebookAudienceNetworkBannerAdView();
+                setFacebookBannerAdView();
             }
         } else {
             // show company information
@@ -150,9 +149,10 @@ public class SetBannerAdViewForAdMobOrFacebook {
         facebookAdViewLoadConfig = null;
     }
 
-    private void setGoogleAdMobBannerAdView() {
-        Log.d(TAG, "Starting the initialization for Banner Ad of Google AdMob.");
-        numberOfLoadingGoogleAdMobBannerAd = 0;
+    @VisibleForTesting
+    private void setAdMobBannerAdView() {
+        Log.d(TAG, "setAdMobBannerAdView.initialization for Banner Ad of Google AdMob.");
+        numberOfLoadingAdMobBannerAd = 0;
         adMobBannerAdView = new com.google.android.gms.ads.AdView(context);
         if (bannerDpWidth <= 0) {
             adMobBannerAdView.setAdSize(AdSize.BANNER);
@@ -161,96 +161,106 @@ public class SetBannerAdViewForAdMobOrFacebook {
             AdSize adMobAdSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize (context, bannerDpWidth);
             adMobBannerAdView.setAdSize(adMobAdSize);
         }
+        adMobBannerAdView.setVisibility(View.VISIBLE);
         adMobBannerAdView.setAdUnitId(googleAdMobBannerID);
         bannerLinearLayout.addView(adMobBannerAdView);
         AdListener adMobBannerListener = new AdListener() {
             @Override
-            public void onAdFailedToLoad(LoadAdError loadAdError) {
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
                 super.onAdFailedToLoad(loadAdError);
-                Log.d(TAG, "Could not load Google AdMob Banner ad.");
-                numberOfLoadingGoogleAdMobBannerAd++;
-                loggingGoogleImpressionHandler.removeCallbacksAndMessages(null);
-                if (numberOfLoadingGoogleAdMobBannerAd >= maxNumberLoadingGoogleAdMobBannerAd) {
-                    if (adMobBannerAdView != null) {
-                        adMobBannerAdView.setVisibility(View.GONE);
-                        bannerLinearLayout.removeView(adMobBannerAdView);
-                        adMobBannerAdView.destroy();
-                        adMobBannerAdView = null;
-                        if (numberOfLoadingFacebookBannerAd < maxNumberLoadingFacebookBannerAd) {
-                            setFacebookAudienceNetworkBannerAdView();   // switch to Facebook Audience Network
+                Log.d(TAG, "Could not load Google AdMob Banner ad.numberOfLoadingAdMobBannerAd = " +
+                        numberOfLoadingAdMobBannerAd);
+                loggingAdmobHandler.removeCallbacksAndMessages(null);
+                numberOfLoadingAdMobBannerAd++;
+                if (numberOfLoadingAdMobBannerAd >= maxNumberLoadingBannerAd) {
+                    if (numberOfLoadingFacebookBannerAd < maxNumberLoadingBannerAd) {
+                        if (adMobBannerAdView != null) {
+                            adMobBannerAdView.setVisibility(View.GONE);
+                            bannerLinearLayout.removeView(adMobBannerAdView);
+                            adMobBannerAdView.destroy();
+                            adMobBannerAdView = null;
+                            // switch to Facebook Audience Network
+                            setFacebookBannerAdView();
                         }
                     }
+                    numberOfLoadingAdMobBannerAd = 0;   // start over
                 } else {
-                    loggingGoogleImpressionHandler.postDelayed(loggingGoogleImpressionRunnable, secondsToRetryAdMob);
+                    loggingAdmobHandler.postDelayed(loggingAdmobRunnable, 10000);
                 }
             }
 
             @Override
             public void onAdLoaded() {
                 super.onAdLoaded();
-                Log.d(TAG, "Succeeded to load Google AdMob Banner ad.");
-                numberOfLoadingGoogleAdMobBannerAd = 0;
-                loggingGoogleImpressionHandler.removeCallbacksAndMessages(null);
+                Log.d(TAG, "Succeeded to load AdMob Banner ad.googleAdMobBannerID = " + googleAdMobBannerID +
+                        ", facebookBannerID = " + facebookBannerID);
+                numberOfLoadingAdMobBannerAd = 0;
+                loggingAdmobHandler.removeCallbacksAndMessages(null);
+                loggingAdmobHandler.postDelayed(loggingAdmobRunnable, secondsToReLoadAd);
             }
         };
+
         adMobBannerAdView.setAdListener(adMobBannerListener);
+        adMobBannerAdRequest = new AdRequest.Builder().build();
         adMobBannerAdView.loadAd(adMobBannerAdRequest);
     }
 
-    private void setFacebookAudienceNetworkBannerAdView() {
+    private void setFacebookBannerAdView() {
         Log.d(TAG, "Starting the initialization for Banner Ad of Facebook.");
         numberOfLoadingFacebookBannerAd = 0;
         facebookAdView = new com.facebook.ads.AdView(context, facebookBannerID, com.facebook.ads.AdSize.BANNER_HEIGHT_50);
-        com.facebook.ads.AdListener facebookAdListener = new com.facebook.ads.AdListener() {
+        facebookAdView.setVisibility(View.VISIBLE);
+        bannerLinearLayout.addView(facebookAdView);
+        facebookAdListener = new com.facebook.ads.AdListener() {
             @Override
             public void onError(Ad ad, AdError adError) {
                 // Ad error callback
-                Log.d(TAG, "Could not load Facebook Banner ad.");
+                Log.d(TAG, "Could not load Facebook Banner ad.numberOfLoadingFacebookBannerAd = " +
+                        numberOfLoadingFacebookBannerAd);
+                loggingFacebookHandler.removeCallbacksAndMessages(null);
                 numberOfLoadingFacebookBannerAd++;
-                loggingFacebookImpressionHandler.removeCallbacksAndMessages(null);
-                if (numberOfLoadingFacebookBannerAd>=maxNumberLoadingFacebookBannerAd) {
-                    if (facebookAdView != null) {
-                        facebookAdView.setVisibility(View.GONE);
-                        bannerLinearLayout.removeView(facebookAdView);
-                        facebookAdView.destroy();
-                        facebookAdView = null;
-                        facebookAdViewLoadConfig = null;
-                        if (numberOfLoadingGoogleAdMobBannerAd < maxNumberLoadingGoogleAdMobBannerAd) {
-                            setGoogleAdMobBannerAdView();   // switch to Google AdMob
+                if (numberOfLoadingFacebookBannerAd>= maxNumberLoadingBannerAd) {
+                    if (numberOfLoadingAdMobBannerAd < maxNumberLoadingBannerAd) {
+                        if (facebookAdView != null) {
+                            facebookAdView.setVisibility(View.GONE);
+                            bannerLinearLayout.removeView(facebookAdView);
+                            facebookAdView.destroy();
+                            facebookAdView = null;
+                            facebookAdViewLoadConfig = null;
+                            setAdMobBannerAdView();   // switch to Google AdMob
                         }
                     }
+                    numberOfLoadingFacebookBannerAd = 0;
                 } else {
-                    loggingFacebookImpressionHandler.postDelayed(loggingFaceboookImpressionRunnable, secondsToRetryFacebook);
+                    loggingFacebookHandler.postDelayed(loggingFacebookRunnable, 10000);
                 }
             }
 
             @Override
             public void onAdLoaded(Ad ad) {
                 // Ad loaded callback
-                Log.d(TAG, "Succeeded to load Facebook Banner ad.");
+                Log.d(TAG, "Succeeded to load Facebook Banner ad.googleAdMobBannerID = " + googleAdMobBannerID +
+                        ", facebookBannerID = " + facebookBannerID);
                 numberOfLoadingFacebookBannerAd = 0;
-                loggingFacebookImpressionHandler.removeCallbacksAndMessages(null);
+                loggingFacebookHandler.removeCallbacksAndMessages(null);
+                loggingFacebookHandler.postDelayed(loggingFacebookRunnable, secondsToReLoadAd);
             }
 
             @Override
             public void onAdClicked(Ad ad) {
                 // Ad clicked callback
                 Log.d(TAG, "Clicked Facebook Banner ad.");
-                loggingFacebookImpressionHandler.removeCallbacksAndMessages(null);
-                loggingFacebookImpressionHandler.postDelayed(loggingFaceboookImpressionRunnable, 120000); // 2 minute
             }
 
             @Override
             public void onLoggingImpression(Ad ad) {
                 // Ad impression logged callback
                 Log.d(TAG, "Logging impression of Facebook Banner ad.");
-                loggingFacebookImpressionHandler.postDelayed(loggingFaceboookImpressionRunnable, 120000); // 2 minute
             }
         };
 
         facebookAdViewLoadConfig = facebookAdView.buildLoadAdConfig()
                 .withAdListener(facebookAdListener).build();
-        bannerLinearLayout.addView(facebookAdView);
         facebookAdView.loadAd(facebookAdViewLoadConfig);
     }
 }

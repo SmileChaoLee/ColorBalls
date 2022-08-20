@@ -32,7 +32,6 @@ public class ColorBallsApp extends MultiDexApplication {
 
     public static Resources AppResources;
     public static Context AppContext;
-    public static ScoreSQLite ScoreSQLiteDB;
 
     public static boolean isProcessingJob;
     public static boolean isShowingLoadingMessage;
@@ -44,8 +43,9 @@ public class ColorBallsApp extends MultiDexApplication {
     public static String googleAdMobBannerID2 = "";
     public static String googleAdMobNativeID = "";
     public static int AdProvider = ShowingInterstitialAdsUtil.FacebookAdProvider;    // default is Facebook Ad
-    public static FacebookInterstitialAds facebookAds;
-    public static GoogleAdMobInterstitial googleInterstitialAd;
+    public ScoreSQLite scoreSQLiteDB;
+    public FacebookInterstitialAds facebookAds;
+    public GoogleAdMobInterstitial googleInterstitialAd;
 
     @Override
     public void onCreate() {
@@ -53,7 +53,7 @@ public class ColorBallsApp extends MultiDexApplication {
 
         AppResources = getResources();
         AppContext = getApplicationContext();
-        ScoreSQLiteDB = new ScoreSQLite(AppContext);
+        scoreSQLiteDB = new ScoreSQLite(AppContext);
 
         isProcessingJob = false;
         isShowingLoadingMessage = false;

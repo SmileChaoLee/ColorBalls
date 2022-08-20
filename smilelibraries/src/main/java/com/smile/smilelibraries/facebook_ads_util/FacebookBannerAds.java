@@ -1,6 +1,5 @@
 package com.smile.smilelibraries.facebook_ads_util;
 
-
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
@@ -13,17 +12,13 @@ import com.facebook.ads.AdView;
 
 public class FacebookBannerAds {
 
-    private final String TAG = new String("facebook_ads_util.FacebookBannerAds");
+    private final String TAG = "FacebookBannerAds";
     private static boolean shouldLoadAd = true;
-
-    private final Context context;
-    private Handler adHandler;
-    private Runnable adRunnable;
-    private AdView bannerAdView;
+    private final Handler adHandler;
+    private final Runnable adRunnable;
+    private final AdView bannerAdView;
 
     public FacebookBannerAds(Context context, String placementID, int adSizeID) {
-
-        this.context = context;
 
         AdSize adSize = AdSize.BANNER_HEIGHT_50;    // default
         if (adSizeID != 1) {

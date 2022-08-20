@@ -37,7 +37,8 @@ public class MyTop10ScoresService extends Service {
         ArrayList<String> playerNames = new ArrayList<>();
         ArrayList<Integer> playerScores = new ArrayList<>();
 
-        String status = PlayerRecordRest.GetLocalTop10Scores(ColorBallsApp.ScoreSQLiteDB, playerNames, playerScores);
+        ColorBallsApp application = (ColorBallsApp) getApplication();
+        String status = PlayerRecordRest.GetLocalTop10Scores(application.scoreSQLiteDB, playerNames, playerScores);
 
         Intent notificationIntent = new Intent(Action_Name);
         Bundle extras = new Bundle();

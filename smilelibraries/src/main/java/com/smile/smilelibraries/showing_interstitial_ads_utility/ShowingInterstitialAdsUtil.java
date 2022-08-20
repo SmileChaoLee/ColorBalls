@@ -1,10 +1,11 @@
 package com.smile.smilelibraries.showing_interstitial_ads_utility;
+
 import android.app.Activity;
-import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.util.Log;
+
+import com.google.android.gms.common.util.VisibleForTesting;
 import com.smile.smilelibraries.facebook_ads_util.FacebookInterstitialAds;
 import com.smile.smilelibraries.google_admob_ads_util.GoogleAdMobInterstitial;
 
@@ -16,7 +17,6 @@ public class ShowingInterstitialAdsUtil {
     private final static String TAG = ShowingInterstitialAdsUtil.class.getName();
     private final FacebookInterstitialAds facebookAd;
     private final GoogleAdMobInterstitial adMobAd;
-    // private final Context mContext;
     private final Activity mActivity;
     private final Handler synchronizedHandler = new Handler(Looper.getMainLooper());
 
@@ -26,7 +26,6 @@ public class ShowingInterstitialAdsUtil {
     private boolean finishedPreviousStep = false;
 
     public ShowingInterstitialAdsUtil(Activity activity, FacebookInterstitialAds facebookAd, GoogleAdMobInterstitial adMobAd) {
-        // this.mContext = context;
         this.mActivity = activity;
         this.facebookAd = facebookAd;
         this.adMobAd = adMobAd;
@@ -49,16 +48,14 @@ public class ShowingInterstitialAdsUtil {
     public class ShowInterstitialAdThread extends Thread {
         private final int endPoint;
         private final AfterDismissFunctionOfShowAd afterDismissFunction;
-        private boolean isAdShown = false;
-        private int adProvider;
-        private boolean keepRunning = true;
+        private boolean isAdShown;
+        private final int adProvider;
 
         public ShowInterstitialAdThread(final int endPoint) {
             this.endPoint = endPoint;
             this.afterDismissFunction = null;
             isAdShown = false;
             this.adProvider = GoogleAdMobAdProvider; // default is Google AdMob
-            keepRunning = true;
         }
 
         public ShowInterstitialAdThread(final int endPoint, int adProvider) {
@@ -66,7 +63,6 @@ public class ShowingInterstitialAdsUtil {
             this.afterDismissFunction = null;
             isAdShown = false;
             this.adProvider = adProvider;
-            keepRunning = true;
         }
 
         public ShowInterstitialAdThread(final int endPoint, final AfterDismissFunctionOfShowAd afterDismissFunction) {
@@ -74,7 +70,6 @@ public class ShowingInterstitialAdsUtil {
             this.afterDismissFunction = afterDismissFunction;
             isAdShown = false;
             this.adProvider = GoogleAdMobAdProvider; // default is Google AdMob
-            keepRunning = true;
         }
 
         public ShowInterstitialAdThread(final int endPoint, int adProvider, final AfterDismissFunctionOfShowAd afterDismissFunction) {
@@ -82,9 +77,9 @@ public class ShowingInterstitialAdsUtil {
             this.afterDismissFunction = afterDismissFunction;
             isAdShown = false;
             this.adProvider = adProvider;
-            keepRunning = true;
         }
 
+        @VisibleForTesting
         private boolean showFacebookAdFirst() {
             succeededAdMob = false;
             succeededFacebook = false;
@@ -165,6 +160,7 @@ public class ShowingInterstitialAdsUtil {
             return (succeededAdMob || succeededFacebook);
         }
 
+        @VisibleForTesting
         private boolean showGoogleAdMobAdFirst() {
             succeededAdMob = false;
             succeededFacebook = false;
@@ -245,46 +241,27 @@ public class ShowingInterstitialAdsUtil {
         }
 
         private synchronized void onPreExecute() {
-            switch (adProvider) {
-                case FacebookAdProvider:
-                    // facebook ad
-                    isAdShown = showFacebookAdFirst();
-                    Log.d(TAG, "ShowInterstitialAdThread.onPreExecute --> Started showing Facebook Ad.");
-                    break;
-                default:
-                    // Google AdMob for 0 or others
-                    isAdShown = showGoogleAdMobAdFirst();
-                    Log.d(TAG, "ShowInterstitialAdThread.onPreExecute() --> Started showing Google AdMob Ad.");
-                    break;
+            if (adProvider == FacebookAdProvider) {
+                // facebook ad
+                isAdShown = showFacebookAdFirst();
+                Log.d(TAG, "ShowInterstitialAdThread.onPreExecute.Started showing Facebook Ad.");
+            } else {
+                // Google AdMob for 0 or others
+                isAdShown = showGoogleAdMobAdFirst();
+                Log.d(TAG, "ShowInterstitialAdThread.onPreExecute().Started showing Google AdMob Ad.");
             }
-
-            Log.d(TAG, "ShowInterstitialAdThread.onPreExecute() --> isAdShown = " + isAdShown);
+            Log.d(TAG, "ShowInterstitialAdThread.onPreExecute().isAdShown = " + isAdShown);
         }
 
         private synchronized void doInBackground() {
-            final int timeDelay = 300;
-            int i = 0;
-
             if (isAdShown) {
                 Log.d(TAG, "ShowInterstitialAdThread --> Ad is showing.");
                 try {
                     if (isShowingFacebookAd) {
                         Log.d(TAG, "ShowInterstitialAdThread --> Facebook Ad was shown.");
-                        /*  removed on 2021-04-29 for monitoring
-                        while (!facebookAd.adsShowDismissedOrStopped() && keepRunning) {
-                            SystemClock.sleep(timeDelay);
-                        }
-                         */
-                        Log.d(TAG, "ShowInterstitialAdThread --> Facebook Ad dismissed.");
                     } else {
                         // is showing google AdMob ad
                         Log.d(TAG, "ShowInterstitialAdThread --> Google Ad was shown.");
-                        /*  removed on 2021-04-29 for monitoring
-                        while (!adMobAd.adsShowDismissedOrStopped() && keepRunning) {
-                            SystemClock.sleep(timeDelay);
-                        }
-                         */
-                        Log.d(TAG, "ShowInterstitialAdThread --> Google Ad dismissed.");
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -312,18 +289,11 @@ public class ShowingInterstitialAdsUtil {
         }
 
         public void startShowAd() {
-            keepRunning = true;
             start();
             Log.d(TAG, "ShowInterstitialAdThread started.");
         }
 
-        public void finishShowInterstitialAdThread() {
-            keepRunning = false;
-            Log.d(TAG, "Ending ShowInterstitialAdThread .");
-        }
-
         public void releaseShowInterstitialAdThread() {
-            keepRunning = false;
             close();
             Log.d(TAG, "Releasing ShowInterstitialAdThread.");
         }

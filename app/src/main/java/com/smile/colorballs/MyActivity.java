@@ -52,10 +52,10 @@ import com.smile.Service.MyGlobalTop10Service;
 import com.smile.Service.MyTop10ScoresService;
 import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate;
 import com.smile.presenters.MyActivityPresenter;
-import com.smile.smilelibraries.Models.ExitAppTimer;
+import com.smile.smilelibraries.models.ExitAppTimer;
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment;
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil;
-import com.smile.smilelibraries.showing_banner_ads_utility.SetBannerAdViewForAdMobOrFacebook;
+import com.smile.smilelibraries.showing_banner_ads_utility.SetBannerAdView;
 import com.smile.smilelibraries.showing_interstitial_ads_utility.ShowingInterstitialAdsUtil;
 import com.smile.smilelibraries.utilities.FontAndBitmapUtil;
 import com.smile.smilelibraries.utilities.ScreenUtil;
@@ -69,56 +69,40 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     private static final String TAG = "MyActivity";
     private static final String GlobalTop10FragmentTag = "GlobalTop10FragmentTag";
     private static final String LocalTop10FragmentTag = "LocalTop10FragmentTag";
-
     private final int Max_Saved_Games = 5;
     private final int PrivacyPolicyActivityRequestCode = 10;
-
     private ShowingInterstitialAdsUtil interstitialAd;
     private MyActivityPresenter mPresenter;
-
     private float textFontSize;
     private float fontScale;
-
     private float screenWidth;
     private float screenHeight;
-
     private Toolbar supportToolbar;
-
     private Top10ScoreFragment top10ScoreFragment = null;
     private Top10ScoreFragment globalTop10Fragment = null;
-
     private MyBroadcastReceiver myReceiver;
     private IntentFilter myIntentFilter;
-
     private float mainGameViewWidth;
     private float mainGameViewHeight;
     private int cellWidth;
     private int cellHeight;
-
     private LinearLayout bannerLinearLayout;
     private GoogleAdMobNativeTemplate nativeTemplate;
-    private SetBannerAdViewForAdMobOrFacebook myBannerAdView;
+    private SetBannerAdView myBannerAdView;
     private LinearLayout adaptiveBannerLinearLayout;
-    private SetBannerAdViewForAdMobOrFacebook myBannerAdView2;
-
+    private SetBannerAdView myBannerAdView2;
     private ShowingInterstitialAdsUtil.ShowInterstitialAdThread showInterstitialAdThread = null;
-
     private final static String GameOverDialogTag = "GameOverDialogFragmentTag";
-
     private ImageView scoreImageView = null;
-
     private TextView highestScoreTextView;
     private TextView currentScoreTextView;
-
     private int rowCounts = 9;
     private int colCounts = 9;
-
     private AlertDialog saveScoreAlertDialog;
     private AlertDialogFragment sureSaveDialog;
     private AlertDialogFragment warningSaveGameDialog;
     private AlertDialogFragment sureLoadDialog;
     private AlertDialogFragment gameOverDialog;
-
     private ActivityResultLauncher<Intent> settingActivityResultLauncher;
     private ActivityResultLauncher<Intent> localTop10ActivityResultLauncher;
     private ActivityResultLauncher<Intent> globalTop10ActivityResultLauncher;
@@ -132,7 +116,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
         super.onCreate(savedInstanceState);
 
-        interstitialAd = new ShowingInterstitialAdsUtil(this, ColorBallsApp.facebookAds, ColorBallsApp.googleInterstitialAd);
+        ColorBallsApp application = (ColorBallsApp) getApplication();
+        interstitialAd = new ShowingInterstitialAdsUtil(this, application.facebookAds, application.googleInterstitialAd);
 
         if (!BuildConfig.DEBUG) {
             if (ScreenUtil.isTablet(this)) {
@@ -629,8 +614,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         int adaptiveBannerDpWidth = ScreenUtil.pixelToDp(this, adaptiveBannerWidth);
         Log.d(TAG, "adaptiveBannerDpWidth = " + adaptiveBannerDpWidth);
 
-        // show AdMob native ad if the device is tablet
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // show AdMob native ad if the device is tablet
             String nativeAdvancedId0 = ColorBallsApp.googleAdMobNativeID;     // real native ad unit id
             FrameLayout nativeAdsFrameLayout = findViewById(R.id.nativeAdsFrameLayout);
             com.google.android.ads.nativetemplates.TemplateView nativeAdTemplateView = findViewById(R.id.nativeAdTemplateView);
@@ -639,15 +624,15 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             nativeTemplate.showNativeAd();
         } else {
             // one more banner ad for orientation is portrait
-            myBannerAdView2 = new SetBannerAdViewForAdMobOrFacebook(this, null, adaptiveBannerLinearLayout
+            myBannerAdView2 = new SetBannerAdView(this, null, adaptiveBannerLinearLayout
                     , ColorBallsApp.googleAdMobBannerID2, facebookBannerID2, adaptiveBannerDpWidth);
             // AdMob ad first
-            myBannerAdView2.showBannerAdViewFromAdMobOrFacebook(ShowingInterstitialAdsUtil.GoogleAdMobAdProvider);
+            myBannerAdView2.showBannerAdView(ShowingInterstitialAdsUtil.GoogleAdMobAdProvider);
         }
 
-        myBannerAdView = new SetBannerAdViewForAdMobOrFacebook(this, null, bannerLinearLayout
+        myBannerAdView = new SetBannerAdView(this, null, bannerLinearLayout
                 , ColorBallsApp.googleAdMobBannerID, facebookBannerID);
-        myBannerAdView.showBannerAdViewFromAdMobOrFacebook(ColorBallsApp.AdProvider);
+        myBannerAdView.showBannerAdView(ColorBallsApp.AdProvider);
     }
 
     private void setBroadcastReceiver() {

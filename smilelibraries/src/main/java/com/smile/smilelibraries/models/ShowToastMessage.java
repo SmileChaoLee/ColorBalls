@@ -1,4 +1,4 @@
-package com.smile.smilelibraries.Models;
+package com.smile.smilelibraries.models;
 
 import android.app.Activity;
 import android.content.Context;

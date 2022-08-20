@@ -26,7 +26,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.smile.smilelibraries.Models.ShowToastMessage;
+import com.smile.smilelibraries.models.ShowToastMessage;
 
 public final class ScreenUtil {
 

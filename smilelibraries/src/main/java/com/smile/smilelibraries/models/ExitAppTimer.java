@@ -1,4 +1,4 @@
-package com.smile.smilelibraries.Models;
+package com.smile.smilelibraries.models;
 
 import android.os.Handler;
 import android.os.Looper;
