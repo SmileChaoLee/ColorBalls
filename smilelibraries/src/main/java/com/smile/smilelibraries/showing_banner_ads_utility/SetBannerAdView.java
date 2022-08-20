@@ -60,7 +60,7 @@ public class SetBannerAdView {
             }
         }
     };
-    private final int maxNumberLoadingBannerAd = 10;
+    private final int maxNumberLoadingBannerAd = 5;
     private int numberOfLoadingFacebookBannerAd = 0;
 
     public SetBannerAdView(Context context, LinearLayout companyInfoLayout

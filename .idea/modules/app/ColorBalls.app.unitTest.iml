@@ -14,7 +14,6 @@
           <stringArguments>
             <stringArg name="classpath">
               <args>
-                <arg>$MODULE_DIR$/../../../app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/colorballsDebug/R.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/bb8638897f901640f883060b00522b21/transformed/appcompat-1.5.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/4f9ae915687c3ee8d6f9f04f8134b5d3/transformed/legacy-support-v4-1.0.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/0ac9b5b485f4cc0ba6253897f4295001/transformed/jetified-audience-network-sdk-6.11.0-api.jar</arg>
@@ -84,50 +83,35 @@
                 <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-common/2.5.0/1fdb7349701e9cf2f0a69fc10642b6fef6bb3e12/lifecycle-common-2.5.0.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/2242c2194431092bcd43da62fdfce3a2/transformed/jetified-firebase-components-17.0.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/androidx.annotation/annotation/1.4.0/77e7b6bbe9803d890343716dd824dfdbc0f6fe77/annotation-1.4.0.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/transforms-3/a7947452ea53fff2d912b650765f3d64/transformed/jetified-leakcanary-android-2.9.1-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/19856fe96dcb5b1e6806ff5c89396872/transformed/jetified-kotlin-stdlib-jdk7-1.7.10.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/fbeed17df367412bf1db72313d2b4113/transformed/jetified-kotlin-android-extensions-runtime-1.7.10.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/transforms-3/106f609ebaec6ba42eede5ea0ea26224/transformed/jetified-leakcanary-object-watcher-android-2.9.1-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/0b7febb6a8793c1774631ae65963408e/transformed/jetified-kotlin-stdlib-1.7.10.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/3ca3831ddff4802569972177bac7bf7d/transformed/jetified-kotlin-stdlib-common-1.7.10.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/1123654c50bbf9dbf3b9810c39118956/transformed/jetified-annotations-13.0.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/4a789baa0760c00a3d9c26a340eb7a48/transformed/jetified-junit-4.13.2.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/a122a64069ec1f73b6e3e30cb1426385/transformed/jetified-hamcrest-core-1.3.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/f3a4e967e5a1ea6b0bac70d61d21285a/transformed/multidex-2.0.1-api.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/transforms-3/da7499a494d3fa6dfbfb465e23ca6dd9/transformed/jetified-leakcanary-android-core-2.9.1-api.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/transforms-3/3c9718c7fc90b0eb86a4cb5752a16277/transformed/jetified-shark-android-2.9.1.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/transforms-3/d87d4cb7d6f53dd3300a04689e2ed834/transformed/jetified-shark-2.9.1.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/transforms-3/fa1d9c8be09258208f7dfc1691e3b02a/transformed/jetified-shark-graph-2.9.1.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/transforms-3/ca6e0dd83f244f9418d881ad52363e53/transformed/jetified-shark-hprof-2.9.1.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/transforms-3/a62b70fcdcb726e6cef91f4372527724/transformed/jetified-leakcanary-object-watcher-android-androidx-2.9.1-api.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/transforms-3/8ac218698eeec5d5394c9d2b0a0173d9/transformed/jetified-leakcanary-object-watcher-android-support-fragments-2.9.1-api.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/transforms-3/d9905d34cce7d7eba86412c52225d12d/transformed/jetified-leakcanary-object-watcher-android-core-2.9.1-api.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/transforms-3/c3b28a0a084d45497646ff4de3d446a6/transformed/jetified-leakcanary-object-watcher-2.9.1.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/transforms-3/cb84b4b80641d831724cec41822e3ca3/transformed/jetified-leakcanary-android-utils-2.9.1-api.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/transforms-3/6b66f32f2bb4e899930280f61cbd6e34/transformed/jetified-shark-log-2.9.1.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/b016f7ac0c0d42b482e5e15985439aa0/transformed/jetified-annotation-experimental-1.1.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/da5a98cb22ecdd69fe4cf7870a21a4ff/transformed/jetified-listenablefuture-1.0.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/548127a0f86b6ca177113d5a16fd2837/transformed/jetified-startup-runtime-1.1.1-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/f068a4b9b7aaff7ed3de809372aa02c7/transformed/constraintlayout-2.1.4-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/b0121d8a70ed37cfbc5246145e657014/transformed/jetified-firebase-annotations-16.0.0.jar</arg>
-                <arg>$MODULE_DIR$/../../../smilelibraries/build/intermediates/compile_library_classes_jar/debug/classes.jar</arg>
-                <arg>$MODULE_DIR$/../../../NativeTemplatesModels/build/intermediates/compile_library_classes_jar/debug/classes.jar</arg>
                 <arg>$USER_HOME$/Android/Sdk/platforms/android-33/android.jar</arg>
                 <arg>$USER_HOME$/Android/Sdk/build-tools/30.0.3/core-lambda-stubs.jar</arg>
               </args>
             </stringArg>
-            <stringArg name="destination" arg="$MODULE_DIR$/../../../app/build/tmp/kotlin-classes/colorballsDebugUnitTest" />
+            <stringArg name="destination" arg="$MODULE_DIR$/../../../app/build/tmp/kotlin-classes/colorballsReleaseUnitTest" />
             <stringArg name="jvmTarget" arg="1.8" />
-            <stringArg name="moduleName" arg="app_colorballsDebug" />
+            <stringArg name="moduleName" arg="app_colorballsRelease" />
             <stringArg name="apiVersion" arg="1.7" />
             <stringArg name="languageVersion" arg="1.7" />
           </stringArguments>
           <arrayArguments>
             <arrayArg name="friendPaths">
               <args>
-                <arg>$MODULE_DIR$/../../../app/build/tmp/kotlin-classes/colorballsDebug</arg>
-                <arg>$MODULE_DIR$/../../../app/build/intermediates/javac/colorballsDebug/classes</arg>
-                <arg>$MODULE_DIR$/../../../app/build/intermediates/compile_app_classes_jar/colorballsDebug/classes.jar</arg>
+                <arg>$MODULE_DIR$/../../../app/build/tmp/kotlin-classes/colorballsRelease</arg>
+                <arg>$MODULE_DIR$/../../../app/build/intermediates/javac/colorballsRelease/classes</arg>
+                <arg>$MODULE_DIR$/../../../app/build/intermediates/compile_app_classes_jar/colorballsRelease/classes.jar</arg>
               </args>
             </arrayArg>
             <arrayArg name="pluginClasspaths">
@@ -151,25 +135,25 @@
     </facet>
     <facet type="android" name="Android">
       <configuration>
-        <option name="SELECTED_BUILD_VARIANT" value="colorballsDebug" />
+        <option name="SELECTED_BUILD_VARIANT" value="colorballsRelease" />
         <option name="ALLOW_USER_CONFIGURATION" value="false" />
         <option name="MANIFEST_FILE_RELATIVE_PATH" value="/src/main/AndroidManifest.xml" />
         <option name="RES_FOLDER_RELATIVE_PATH" value="/src/main/res" />
-        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/../../../app/src/main/res;file://$MODULE_DIR$/../../../app/src/colorballs/res;file://$MODULE_DIR$/../../../app/src/debug/res;file://$MODULE_DIR$/../../../app/src/colorballsDebug/res;file://$MODULE_DIR$/../../../app/build/generated/res/rs/colorballs/debug;file://$MODULE_DIR$/../../../app/build/generated/res/resValues/colorballs/debug" />
-        <option name="TEST_RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/../../../app/src/androidTest/res;file://$MODULE_DIR$/../../../app/src/androidTestColorballs/res;file://$MODULE_DIR$/../../../app/src/androidTestDebug/res;file://$MODULE_DIR$/../../../app/src/androidTestColorballsDebug/res;file://$MODULE_DIR$/../../../app/build/generated/res/rs/androidTest/colorballs/debug;file://$MODULE_DIR$/../../../app/build/generated/res/resValues/androidTest/colorballs/debug" />
+        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/../../../app/src/main/res;file://$MODULE_DIR$/../../../app/src/colorballs/res;file://$MODULE_DIR$/../../../app/src/release/res;file://$MODULE_DIR$/../../../app/src/colorballsRelease/res;file://$MODULE_DIR$/../../../app/build/generated/res/rs/colorballs/release;file://$MODULE_DIR$/../../../app/build/generated/res/resValues/colorballs/release" />
+        <option name="TEST_RES_FOLDERS_RELATIVE_PATH" value="" />
         <option name="ASSETS_FOLDER_RELATIVE_PATH" value="/src/main/assets" />
       </configuration>
     </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="true">
     <exclude-output />
-    <content url="file://$MODULE_DIR$/../../../app/build/generated/ap_generated_sources/colorballsDebugUnitTest/out" />
+    <content url="file://$MODULE_DIR$/../../../app/build/generated/ap_generated_sources/colorballsReleaseUnitTest/out" />
     <content url="file://$MODULE_DIR$/../../../app/src/test">
       <sourceFolder url="file://$MODULE_DIR$/../../../app/src/test/java" isTestSource="true" />
     </content>
     <content url="file://$MODULE_DIR$/../../../app/src/testColorballs" />
-    <content url="file://$MODULE_DIR$/../../../app/src/testColorballsDebug" />
-    <content url="file://$MODULE_DIR$/../../../app/src/testDebug" />
+    <content url="file://$MODULE_DIR$/../../../app/src/testColorballsRelease" />
+    <content url="file://$MODULE_DIR$/../../../app/src/testRelease" />
     <orderEntry type="jdk" jdkName="Android API 33, extension level 3 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="ColorBalls.app.main" scope="TEST" />
@@ -182,12 +166,6 @@
     <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.10" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains.kotlin:kotlin-parcelize-runtime:1.7.10" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains.kotlin:kotlin-android-extensions-runtime:1.7.10" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.squareup.leakcanary:shark-android:2.9.1" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.squareup.leakcanary:shark:2.9.1" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.squareup.leakcanary:shark-graph:2.9.1" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.squareup.leakcanary:shark-hprof:2.9.1" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.squareup.leakcanary:shark-log:2.9.1" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.squareup.leakcanary:leakcanary-object-watcher:2.9.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.annotation:annotation:1.4.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.arch.core:core-common:2.1.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.lifecycle:lifecycle-common:2.5.0" level="project" />
@@ -198,13 +176,6 @@
     <orderEntry type="library" scope="TEST" name="Gradle: com.google.firebase:firebase-annotations:16.0.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: junit:junit:4.13.2" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.hamcrest:hamcrest-core:1.3" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.squareup.leakcanary:leakcanary-android:2.9.1@aar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.squareup.leakcanary:leakcanary-android-core:2.9.1@aar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.squareup.leakcanary:leakcanary-object-watcher-android-core:2.9.1@aar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.squareup.leakcanary:leakcanary-android-utils:2.9.1@aar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.squareup.leakcanary:leakcanary-object-watcher-android-androidx:2.9.1@aar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.squareup.leakcanary:leakcanary-object-watcher-android-support-fragments:2.9.1@aar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.squareup.leakcanary:leakcanary-object-watcher-android:2.9.1@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.appcompat:appcompat:1.5.0@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.activity:activity:1.5.0@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.core:core:1.8.0@aar" level="project" />
