@@ -28,7 +28,13 @@ public class ShowingInterstitialAdsUtil {
     public ShowingInterstitialAdsUtil(Activity activity, FacebookInterstitialAds facebookAd, GoogleAdMobInterstitial adMobAd) {
         this.mActivity = activity;
         this.facebookAd = facebookAd;
+        if (this.facebookAd != null) {
+            this.facebookAd.loadAd();
+        }
         this.adMobAd = adMobAd;
+        if (this.adMobAd != null) {
+            this.adMobAd.loadAd();
+        }
         isShowingFacebookAd = false;
     }
 
@@ -90,56 +96,76 @@ public class ShowingInterstitialAdsUtil {
                 public void run() {
                     synchronized (synchronizedHandler) {
                         try {
-                            Log.d(TAG, "showFacebookAdFirst() --> Checking to show Facebook Ad.");
+                            Log.d(TAG, "showFacebookAdFirst.Checking to show Facebook Ad.");
+                            isShowingFacebookAd = true;
+                            succeededFacebook = false;
+                            if (facebookAd != null) {
+                                succeededFacebook = facebookAd.showAd();
+                                facebookAd.loadAd();
+                            }
+                            succeededAdMob = false;
+                            if (!succeededFacebook) {
+                                isShowingFacebookAd = false;
+                                if (adMobAd != null) {
+                                    succeededAdMob = adMobAd.showAd(mActivity);
+                                    adMobAd.loadAd();
+                                }
+                            }
+                            /*
                             if ( (facebookAd!=null) && facebookAd.isLoaded() && !facebookAd.isError()) {
-                                Log.d(TAG, "showFacebookAdFirst() --> Started to show Facebook Ad.");
+                                Log.d(TAG, "showFacebookAdFirst.Started to show Facebook Ad.");
                                 // facebook ad is loaded, then show facebook
                                 isShowingFacebookAd = true;
                                 succeededFacebook = facebookAd.showAd();
                                 if (!succeededFacebook) {
                                     // If no facebook ad showing
                                     // then load next facebook ad
-                                    facebookAd.loadAd();
-                                    Log.d(TAG, "showFacebookAdFirst() --> Failed to show FacebookAd Ad.");
+                                    // facebookAd.loadAd();
+                                    Log.d(TAG, "showFacebookAdFirst.Failed to show FacebookAd Ad.");
                                 } else {
-                                    Log.d(TAG, "showFacebookAdFirst() --> Succeeded to show FacebookAd Ad.");
+                                    Log.d(TAG, "showFacebookAdFirst.Succeeded to show FacebookAd Ad.");
                                 }
-                                if (!adMobAd.isLoading()) {
-                                    // not loading
-                                    adMobAd.loadAd();
-                                }
+                                facebookAd.loadAd();
+                                // if (!adMobAd.isLoading()) {
+                                //     // not loading
+                                //     adMobAd.loadAd();
+                                // }
+                                adMobAd.loadAd();
                             } else {
                                 // if facebook ad is not loaded, then show AdMob ad
-                                Log.d(TAG, "showFacebookAdFirst() --> Checking to show Google Ad.");
+                                Log.d(TAG, "showFacebookAdFirst.Checking to show Google Ad.");
                                 isShowingFacebookAd = false;
                                 if (adMobAd != null) {
                                     if (adMobAd.isLoaded()) {
-                                        Log.d(TAG, "showFacebookAdFirst() --> Started to show Google Ad.");
+                                        Log.d(TAG, "showFacebookAdFirst.Started to show Google Ad.");
                                         succeededAdMob = adMobAd.showAd(mActivity);
                                     }
                                     if (!succeededAdMob) {
                                         // If no AdMob ad showing
                                         // then load the next AdMob ad
-                                        adMobAd.loadAd();
-                                        Log.d(TAG, "showFacebookAdFirst() --> Failed to show Google Ad.");
+                                        // adMobAd.loadAd();
+                                        Log.d(TAG, "showFacebookAdFirst.Failed to show Google Ad.");
                                     } else {
-                                        Log.d(TAG, "showFacebookAdFirst() --> Succeeded to show Google Ad.");
+                                        Log.d(TAG, "showFacebookAdFirst.Succeeded to show Google Ad.");
                                     }
+                                    adMobAd.loadAd();
                                 }
-                                if (facebookAd != null) {
-                                    if (facebookAd.isError()) {
-                                        facebookAd.loadAd();    // load the next facebook ad
-                                    }
-                                }
+                                // if (facebookAd != null) {
+                                //     if (facebookAd.isError()) {
+                                //         facebookAd.loadAd();    // load the next facebook ad
+                                //     }
+                                // }
+                                facebookAd.loadAd();    // load the next facebook ad
                             }
+                            */
                         } catch (Exception ex) {
-                            Log.d(TAG, "Exception on showFacebookAdFirst().");
+                            Log.d(TAG, "showFacebookAdFirst.Exception");
                             ex.printStackTrace();
                         }
 
                         finishedPreviousStep = true;
                         synchronizedHandler.notifyAll();
-                        Log.d(TAG, "showFacebookAdFirst() -- >synchronizedHandler.notifyAll()");
+                        Log.d(TAG, "showFacebookAdFirst.synchronizedHandler.notifyAll()");
                     }
                 }
             });
@@ -149,13 +175,13 @@ public class ShowingInterstitialAdsUtil {
                     try {
                         synchronizedHandler.wait();
                     } catch (InterruptedException e) {
-                        Log.d(TAG, "showFacebookAdFirst() --> synchronizedHandler.wait() exception");
+                        Log.d(TAG, "showFacebookAdFirst.synchronizedHandler.wait() exception");
                         e.printStackTrace();
                     }
                 }
             }
 
-            Log.d(TAG, "showFacebookAdFirst() --> return value = " + (succeededAdMob || succeededFacebook));
+            Log.d(TAG, "showFacebookAdFirst.return value = " + (succeededAdMob || succeededFacebook));
 
             return (succeededAdMob || succeededFacebook);
         }
@@ -172,54 +198,74 @@ public class ShowingInterstitialAdsUtil {
                     synchronized (synchronizedHandler) {
                         try {
                             Log.d(TAG, "showGoogleAdMobAdFirst() -->Checking to show Google Ad.");
+                            isShowingFacebookAd = false;
+                            succeededAdMob = false;
+                            if (adMobAd != null) {
+                                succeededAdMob = adMobAd.showAd(mActivity);
+                                adMobAd.loadAd();
+                            }
+                            succeededFacebook = false;
+                            if (!succeededAdMob) {
+                                isShowingFacebookAd = true;
+                                if (facebookAd != null) {
+                                    succeededFacebook = facebookAd.showAd();
+                                    facebookAd.loadAd();
+                                }
+                            }
+                            /*
                             if ( (adMobAd!=null) && adMobAd.isLoaded()) {
                                 isShowingFacebookAd = false;
-                                Log.d(TAG, "showGoogleAdMobAdFirst() --> Starting to show Google Ad.");
+                                Log.d(TAG, "showGoogleAdMobAdFirst.Starting to show Google Ad.");
                                 succeededAdMob = adMobAd.showAd(mActivity);
                                 if (!succeededAdMob) {
                                     // if no AdMob ad showing
                                     // then load next AdMob ad
-                                    adMobAd.loadAd();
-                                    Log.d(TAG, "showGoogleAdMobAdFirst() --> Failed to show Google Ad.");
+                                    // adMobAd.loadAd();
+                                    Log.d(TAG, "showGoogleAdMobAdFirst.Failed to show Google Ad.");
                                 } else {
-                                    Log.d(TAG, "showGoogleAdMobAdFirst() --> Succeeded to show Google Ad.");
+                                    Log.d(TAG, "showGoogleAdMobAdFirst.Succeeded to show Google Ad.");
                                 }
-                                if (facebookAd.isError()) {
-                                    facebookAd.loadAd();    // load the next facebook ad
-                                }
+                                adMobAd.loadAd();
+                                // if (facebookAd.isError()) {
+                                //     facebookAd.loadAd();    // load the next facebook ad
+                                // }
+                                facebookAd.loadAd();    // load the next facebook ad
                             } else {
                                 // AdMob ad is not loaded, then show facebook
-                                Log.d(TAG, "showGoogleAdMobAdFirst() --> Checking to show Facebook Ad.");
+                                Log.d(TAG, "showGoogleAdMobAdFirst.Checking to show Facebook Ad.");
                                 isShowingFacebookAd = true;
                                 if (facebookAd != null) {
                                     if (facebookAd.isLoaded() && (!facebookAd.isError())) {
-                                        Log.d(TAG, "showGoogleAdMobAdFirst() --> Starting to show Facebook Ad.");
+                                        Log.d(TAG, "showGoogleAdMobAdFirst.Starting to show Facebook Ad.");
                                         succeededFacebook = facebookAd.showAd();
                                     }
                                     if (!succeededFacebook) {
                                         // If no facebook ad showing
                                         // load next facebook ad
-                                        facebookAd.loadAd();
-                                        Log.d(TAG, "showGoogleAdMobAdFirst() --> Failed to show FacebookAd Ad.");
+                                        // facebookAd.loadAd();
+                                        Log.d(TAG, "showGoogleAdMobAdFirst.Failed to show FacebookAd Ad.");
                                     } else {
-                                        Log.d(TAG, "showGoogleAdMobAdFirst() --> Succeeded to show FacebookAd Ad.");
+                                        Log.d(TAG, "showGoogleAdMobAdFirst.Succeeded to show FacebookAd Ad.");
                                     }
+                                    facebookAd.loadAd();
                                 }
                                 if (adMobAd != null) {
-                                    if (!adMobAd.isLoading()) {
-                                        // not loading
-                                        adMobAd.loadAd();   // load next AdMob ad
-                                    }
+                                    // if (!adMobAd.isLoading()) {
+                                    //     // not loading
+                                    //     adMobAd.loadAd();   // load next AdMob ad
+                                    // }
+                                    adMobAd.loadAd();   // load next AdMob ad
                                 }
                             }
+                            */
                         } catch (Exception ex) {
-                            Log.d(TAG, "showGoogleAdMobAdFirst() --> Exception on showGoogleAdMobAdFirst().");
+                            Log.d(TAG, "showGoogleAdMobAdFirst.Exception on showGoogleAdMobAdFirst().");
                             ex.printStackTrace();
                         }
 
                         finishedPreviousStep = true;
                         synchronizedHandler.notifyAll();
-                        Log.d(TAG, "showGoogleAdMobAdFirst() --> synchronizedHandler.notifyAll()");
+                        Log.d(TAG, "showGoogleAdMobAdFirst.synchronizedHandler.notifyAll()");
                     }
                 }
             });
@@ -229,49 +275,80 @@ public class ShowingInterstitialAdsUtil {
                     try {
                         synchronizedHandler.wait();
                     } catch (InterruptedException e) {
-                        Log.d(TAG, "showGoogleAdMobAdFirst() --> synchronizedHandler.wait() exception");
+                        Log.d(TAG, "showGoogleAdMobAdFirst.synchronizedHandler.wait() exception");
                         e.printStackTrace();
                     }
                 }
             }
 
-            Log.d(TAG, "showGoogleAdMobAdFirst() --> return value = " + (succeededAdMob || succeededFacebook));
+            Log.d(TAG, "showGoogleAdMobAdFirst.return value = " + (succeededAdMob || succeededFacebook));
+
+            return (succeededAdMob || succeededFacebook);
+        }
+
+        @VisibleForTesting
+        private boolean showAdMobOrFacebookAd() {
+            succeededAdMob = false;
+            succeededFacebook = false;
+            finishedPreviousStep = false;
+
+            mActivity.runOnUiThread(() -> {
+                synchronized (synchronizedHandler) {
+                    try {
+                        Log.d(TAG, "showAdMobOrFacebookAd.Start showing");
+                        isShowingFacebookAd = false;
+                        succeededAdMob = false;
+                        succeededFacebook = false;
+                        if (adMobAd != null) {
+                            if (adMobAd.isLoaded()) succeededAdMob = adMobAd.showAd(mActivity);
+                            adMobAd.loadAd();
+                            if (succeededAdMob) isShowingFacebookAd = false;
+                        } else {
+                            if (facebookAd != null) {
+                                if (facebookAd.isLoaded()) succeededFacebook = facebookAd.showAd();
+                                facebookAd.loadAd();
+                                if (succeededFacebook) isShowingFacebookAd = true;
+                            }
+                        }
+                    } catch (Exception ex) {
+                        Log.d(TAG, "showAdMobOrFacebookAd.Exception");
+                        ex.printStackTrace();
+                    }
+
+                    finishedPreviousStep = true;
+                    synchronizedHandler.notifyAll();
+                    Log.d(TAG, "showAdMobOrFacebookAd.synchronizedHandler.notifyAll()");
+                }
+            });
+
+            synchronized (synchronizedHandler) {
+                while (!finishedPreviousStep) {
+                    try {
+                        synchronizedHandler.wait();
+                    } catch (InterruptedException e) {
+                        Log.d(TAG, "showAdMobOrFacebookAd.synchronizedHandler.exception");
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            Log.d(TAG, "showAdMobOrFacebookAd.succeededAdMob = " + succeededAdMob +
+                    ", succeededFacebook= " + succeededFacebook);
 
             return (succeededAdMob || succeededFacebook);
         }
 
         private synchronized void onPreExecute() {
-            if (adProvider == FacebookAdProvider) {
-                // facebook ad
-                isAdShown = showFacebookAdFirst();
-                Log.d(TAG, "ShowInterstitialAdThread.onPreExecute.Started showing Facebook Ad.");
-            } else {
-                // Google AdMob for 0 or others
-                isAdShown = showGoogleAdMobAdFirst();
-                Log.d(TAG, "ShowInterstitialAdThread.onPreExecute().Started showing Google AdMob Ad.");
-            }
+            isAdShown = showAdMobOrFacebookAd();
             Log.d(TAG, "ShowInterstitialAdThread.onPreExecute().isAdShown = " + isAdShown);
         }
 
         private synchronized void doInBackground() {
-            if (isAdShown) {
-                Log.d(TAG, "ShowInterstitialAdThread --> Ad is showing.");
-                try {
-                    if (isShowingFacebookAd) {
-                        Log.d(TAG, "ShowInterstitialAdThread --> Facebook Ad was shown.");
-                    } else {
-                        // is showing google AdMob ad
-                        Log.d(TAG, "ShowInterstitialAdThread --> Google Ad was shown.");
-                    }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            } else {
-                Log.d(TAG, "ShowInterstitialAdThread --> Ad is not showing.");
-            }
+            Log.d(TAG, "ShowInterstitialAdThread.doInBackground.");
         }
 
         private synchronized void onPostExecute() {
+            Log.d(TAG, "ShowInterstitialAdThread.onPostExecute().");
             try {
                 if (afterDismissFunction != null) {
                     mActivity.runOnUiThread(new Runnable() {
@@ -285,21 +362,21 @@ public class ShowingInterstitialAdsUtil {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-            Log.d(TAG, "ShowInterstitialAdThread --> onPostExecute().");
         }
 
         public void startShowAd() {
             start();
-            Log.d(TAG, "ShowInterstitialAdThread started.");
+            Log.d(TAG, "ShowInterstitialAdThread.startShowAd()");
         }
 
         public void releaseShowInterstitialAdThread() {
             close();
-            Log.d(TAG, "Releasing ShowInterstitialAdThread.");
+            Log.d(TAG, "ShowInterstitialAdThread.releaseShowInterstitialAdThread()");
         }
 
         @Override
         public synchronized void run() {
+            Log.d(TAG, "ShowInterstitialAdThread.run()");
             super.run();
             onPreExecute();
             doInBackground();

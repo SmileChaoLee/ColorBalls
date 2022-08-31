@@ -365,8 +365,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             showInterstitialAdThread.releaseShowInterstitialAdThread();
         }
 
-        // FragmentManager fragmentManager = getSupportFragmentManager();
-        // FragmentTransaction ft = fragmentManager.beginTransaction();
         if (sureSaveDialog != null) {
             sureSaveDialog.dismissAllowingStateLoss();
         }

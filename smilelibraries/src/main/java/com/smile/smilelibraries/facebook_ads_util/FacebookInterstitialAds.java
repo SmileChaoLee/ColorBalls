@@ -8,49 +8,37 @@ public class FacebookInterstitialAds {
 
     private final String TAG = "FacebookInterstitialAds";
     private final InterstitialAd interstitialAd;
-    // private boolean isDisplayed;
-    // private boolean isDismissed;
     private boolean isError;
 
     public FacebookInterstitialAds(final Context context, String placementID) {
-        // isDisplayed = false;
-        // isDismissed = false;
         isError = false;
-
         InterstitialAdListener adListener = new InterstitialAdListener() {
             @Override
             public void onInterstitialDisplayed(Ad ad) {
                 // Interstitial ad displayed callback
                 Log.e(TAG, "Interstitial ad displayed.");
-                // isDisplayed = true;
-                // isDismissed = false;
                 isError = false;
+                interstitialAd.loadAd();    // load next ad
             }
 
             @Override
             public void onInterstitialDismissed(Ad ad) {
                 // Interstitial dismissed callback
                 Log.e(TAG, "Interstitial ad dismissed.");
-                // isDisplayed = true;
-                // isDismissed = true;
                 isError = false;
-                interstitialAd.loadAd();    // load next ad
             }
 
             @Override
             public void onError(Ad ad, AdError adError) {
                 Log.e(TAG, "Interstitial ad failed to load: " + interstitialAd.isAdLoaded() + " - " + adError.getErrorMessage());
-                // isDisplayed = false;
-                // isDismissed = false;
                 isError = true;
+                interstitialAd.loadAd();    // load next ad
             }
 
             @Override
             public void onAdLoaded(Ad ad) {
                 // Interstitial ad is loaded and ready to be displayed
                 Log.d(TAG, "Interstitial ad is loaded and ready to be displayed!");
-                // isDisplayed = false;
-                // isDismissed = false;
                 isError = false;
             }
 
@@ -76,18 +64,11 @@ public class FacebookInterstitialAds {
                 .build()); // builds LoadConfig
     }
     public void loadAd() {
-        if (!interstitialAd.isAdLoaded()) {
-            // isDismissed = false;
-            // isDisplayed = false;
-            isError = false;
-            interstitialAd.loadAd();
-        }
+        interstitialAd.loadAd();
+        isError = false;
     }
     public boolean showAd() {
         boolean succeeded = false;
-
-        // isDisplayed = false;
-        // isDismissed = false;
         if (interstitialAd.isAdLoaded()) {
             isError = false;
             interstitialAd.show();
@@ -95,25 +76,11 @@ public class FacebookInterstitialAds {
         } else {
             isError = true;
         }
-
         return succeeded;
     }
     public boolean isLoaded() {
         return interstitialAd.isAdLoaded();
     }
-
-    public boolean isError() {
-        return isError;
-    }
-
-    /*
-    public boolean adsShowDisplayedOrStopped() {
-        return (isDisplayed || (isError));
-    }
-    public boolean adsShowDismissedOrStopped() {
-        return (isDismissed || (isError));
-    }
-    */
 
     public void close() {
         // destroy the instance of facebook ads

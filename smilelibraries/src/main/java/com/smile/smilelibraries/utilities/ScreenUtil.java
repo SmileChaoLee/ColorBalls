@@ -279,7 +279,7 @@ public final class ScreenUtil {
         resizeMenuTextIconSize0(wrapper, menu, defaultMenuTextSize, fontScale);
     }
 
-    public static void buildActionViewClassMenu(final Activity activity, final Activity wrapper, final Menu menu, final float fontScale, final int fontSize_Type) {
+    public static void buildActionViewClassMenu(final Activity activity, final Context wrapper, final Menu menu, final float fontScale, final int fontSize_Type) {
 
         if (menu == null) {
             return;
@@ -320,7 +320,7 @@ public final class ScreenUtil {
         }
     }
 
-    public static void buildMenuInPopupMenuByView(final Activity activity, final Activity wrapper, Menu menu, View view, final float fontScale) {
+    public static void buildMenuInPopupMenuByView(final Activity activity, final Context wrapper, Menu menu, View view, final float fontScale) {
 
         if (menu == null) {
             return;

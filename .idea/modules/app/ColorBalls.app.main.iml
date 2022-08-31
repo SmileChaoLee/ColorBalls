@@ -14,6 +14,7 @@
           <stringArguments>
             <stringArg name="classpath">
               <args>
+                <arg>$MODULE_DIR$/../../../app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/colorballsRelease/R.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/bb8638897f901640f883060b00522b21/transformed/appcompat-1.5.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/4f9ae915687c3ee8d6f9f04f8134b5d3/transformed/legacy-support-v4-1.0.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/0ac9b5b485f4cc0ba6253897f4295001/transformed/jetified-audience-network-sdk-6.11.0-api.jar</arg>
@@ -94,6 +95,8 @@
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/548127a0f86b6ca177113d5a16fd2837/transformed/jetified-startup-runtime-1.1.1-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/f068a4b9b7aaff7ed3de809372aa02c7/transformed/constraintlayout-2.1.4-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/b0121d8a70ed37cfbc5246145e657014/transformed/jetified-firebase-annotations-16.0.0.jar</arg>
+                <arg>$MODULE_DIR$/../../../smilelibraries/build/intermediates/compile_library_classes_jar/release/classes.jar</arg>
+                <arg>$MODULE_DIR$/../../../NativeTemplatesModels/build/intermediates/compile_library_classes_jar/release/classes.jar</arg>
                 <arg>$USER_HOME$/Android/Sdk/platforms/android-33/android.jar</arg>
                 <arg>$USER_HOME$/Android/Sdk/build-tools/30.0.3/core-lambda-stubs.jar</arg>
               </args>

@@ -196,7 +196,7 @@ public class SetBannerAdView {
                         ", facebookBannerID = " + facebookBannerID);
                 numberOfLoadingAdMobBannerAd = 0;
                 loggingAdmobHandler.removeCallbacksAndMessages(null);
-                loggingAdmobHandler.postDelayed(loggingAdmobRunnable, secondsToReLoadAd);
+                // loggingAdmobHandler.postDelayed(loggingAdmobRunnable, secondsToReLoadAd);
             }
         };
 
@@ -243,7 +243,7 @@ public class SetBannerAdView {
                         ", facebookBannerID = " + facebookBannerID);
                 numberOfLoadingFacebookBannerAd = 0;
                 loggingFacebookHandler.removeCallbacksAndMessages(null);
-                loggingFacebookHandler.postDelayed(loggingFacebookRunnable, secondsToReLoadAd);
+                // loggingFacebookHandler.postDelayed(loggingFacebookRunnable, secondsToReLoadAd);
             }
 
             @Override
