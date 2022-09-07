@@ -1,4 +1,4 @@
-package com.smile.smilelibraries.google_admob_ads_util;
+package com.smile.smilelibraries.google_ads_util;
 
 import android.app.Activity;
 import android.content.Context;
@@ -13,13 +13,16 @@ import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.gms.common.util.VisibleForTesting;
+import com.smile.smilelibraries.interfaces.DismissFunction;
 
-public class GoogleAdMobInterstitial {
+public class AdMobInterstitial {
 
-    private final String TAG = "GoogleAdMobInterstitial";
+    private final String TAG = "AdMobInterstitial";
     private final Context mContext;
     private final String mInterstitialID;
     private InterstitialAd mInterstitialAd;
+    private boolean isDismissed;
+    private DismissFunction mDismissFunction = null;
 
     private final FullScreenContentCallback mFullScreenContentCallback = new FullScreenContentCallback() {
         @Override
@@ -34,21 +37,26 @@ public class GoogleAdMobInterstitial {
         public void onAdShowedFullScreenContent() {
             super.onAdShowedFullScreenContent();
             // Code to be executed when the ad is displayed.
-            Log.e(TAG, "Interstitial ad displayed.");
+            Log.i(TAG, "Interstitial ad displayed.");
         }
 
         @Override
         public void onAdDismissedFullScreenContent() {
             super.onAdDismissedFullScreenContent();
             // Code to be executed when when the interstitial ad is closed.
-            Log.e(TAG, "Interstitial ad dismissed.");
+            Log.i(TAG, "Interstitial ad dismissed.");
+            isDismissed = true;
             loadAd();   // load next ad
+            if (mDismissFunction != null) {
+                mDismissFunction.executeDismiss();
+                mDismissFunction = null;    // one time only
+            }
         }
 
         @Override
         public void onAdImpression() {
             super.onAdImpression();
-            Log.e(TAG, "Interstitial ad impression.");
+            Log.i(TAG, "Interstitial ad impression.");
         }
     };
 
@@ -57,7 +65,7 @@ public class GoogleAdMobInterstitial {
         public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
             // The mInterstitialAd reference will be null until
             // an ad is loaded.
-            Log.e(TAG, "Interstitial onAdLoaded");
+            Log.i(TAG, "Interstitial onAdLoaded");
             mInterstitialAd = interstitialAd;
             mInterstitialAd.setFullScreenContentCallback(mFullScreenContentCallback);
         }
@@ -70,7 +78,7 @@ public class GoogleAdMobInterstitial {
         }
     };
 
-    public GoogleAdMobInterstitial(Context context, String interstitialID) {
+    public AdMobInterstitial(Context context, String interstitialID) {
         mContext = context;
         mInterstitialID = interstitialID;
     }
@@ -83,6 +91,7 @@ public class GoogleAdMobInterstitial {
 
     public boolean showAd(Activity activity) {
         boolean succeeded = false;
+        isDismissed = false;
         if (mInterstitialAd != null) {
             mInterstitialAd.show(activity);
             succeeded = true;
@@ -92,5 +101,13 @@ public class GoogleAdMobInterstitial {
 
     public boolean isLoaded() {
         return (mInterstitialAd != null);
+    }
+
+    public boolean isDismissed() {
+        return isDismissed;
+    }
+
+    public void setDismissFunc(DismissFunction dismissFunc) {
+        mDismissFunction = dismissFunc;
     }
 }

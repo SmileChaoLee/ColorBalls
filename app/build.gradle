@@ -20,8 +20,8 @@ android {
         targetSdkVersion 33
         multiDexEnabled true
 
-        versionCode 5100
-        versionName "5.100"
+        versionCode 5200
+        versionName "5.200"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         applicationId "com.smile.colorballs"
@@ -50,12 +50,12 @@ android {
             // signingConfig signingConfigs.config
         }
     }
-    
+    /*
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
+    */
     kotlinOptions {
         jvmTarget = '1.8'
     }

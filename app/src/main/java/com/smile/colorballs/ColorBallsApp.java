@@ -6,7 +6,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.multidex.MultiDexApplication;
 
 import com.facebook.ads.AdSettings;
@@ -14,10 +13,10 @@ import com.facebook.ads.AudienceNetworkAds;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
-import com.smile.smilelibraries.facebook_ads_util.FacebookInterstitialAds;
-import com.smile.smilelibraries.google_admob_ads_util.GoogleAdMobInterstitial;
+import com.smile.smilelibraries.facebook_ads_util.FacebookInterstitial;
+import com.smile.smilelibraries.google_ads_util.AdMobInterstitial;
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite;
-import com.smile.smilelibraries.showing_interstitial_ads_utility.ShowingInterstitialAdsUtil;
+import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial;
 import com.smile.smilelibraries.utilities.ScreenUtil;
 
 import static com.smile.colorballs.BuildConfig.DEBUG;
@@ -42,10 +41,10 @@ public class ColorBallsApp extends MultiDexApplication {
     public static String googleAdMobBannerID = "";
     public static String googleAdMobBannerID2 = "";
     public static String googleAdMobNativeID = "";
-    public static int AdProvider = ShowingInterstitialAdsUtil.FacebookAdProvider;    // default is Facebook Ad
+    public static int AdProvider = ShowInterstitial.FacebookAdProvider;    // default is Facebook Ad
     public ScoreSQLite scoreSQLiteDB;
-    public FacebookInterstitialAds facebookAds;
-    public GoogleAdMobInterstitial googleInterstitialAd;
+    public FacebookInterstitial facebookAds;
+    public AdMobInterstitial googleInterstitialAd;
 
     @Override
     public void onCreate() {
@@ -90,7 +89,7 @@ public class ColorBallsApp extends MultiDexApplication {
         }
         facebookInterstitialID = testString + facebookInterstitialID;
         //
-        facebookAds = new FacebookInterstitialAds(ColorBallsApp.AppContext, facebookInterstitialID);
+        facebookAds = new FacebookInterstitial(ColorBallsApp.AppContext, facebookInterstitialID);
 
         MobileAds.initialize(AppContext, new OnInitializationCompleteListener() {
             @Override
@@ -99,7 +98,7 @@ public class ColorBallsApp extends MultiDexApplication {
             }
 
         });
-        googleInterstitialAd = new GoogleAdMobInterstitial(AppContext, googleAdMobInterstitialID);
+        googleInterstitialAd = new AdMobInterstitial(AppContext, googleAdMobInterstitialID);
 
         // Moved to MyActivity.class on 2020-06-15 because need to convert context to activity
         // InterstitialAd = new ShowingInterstitialAdsUtil(AppContext, facebookAds, googleInterstitialAd);

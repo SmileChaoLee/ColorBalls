@@ -16,8 +16,6 @@ import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Handler;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -52,11 +50,12 @@ import com.smile.Service.MyGlobalTop10Service;
 import com.smile.Service.MyTop10ScoresService;
 import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate;
 import com.smile.presenters.MyActivityPresenter;
+import com.smile.smilelibraries.interfaces.DismissFunction;
 import com.smile.smilelibraries.models.ExitAppTimer;
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment;
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil;
-import com.smile.smilelibraries.showing_banner_ads_utility.SetBannerAdView;
-import com.smile.smilelibraries.showing_interstitial_ads_utility.ShowingInterstitialAdsUtil;
+import com.smile.smilelibraries.show_banner_ads.SetBannerAdView;
+import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial;
 import com.smile.smilelibraries.utilities.FontAndBitmapUtil;
 import com.smile.smilelibraries.utilities.ScreenUtil;
 
@@ -71,7 +70,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     private static final String LocalTop10FragmentTag = "LocalTop10FragmentTag";
     private final int Max_Saved_Games = 5;
     private final int PrivacyPolicyActivityRequestCode = 10;
-    private ShowingInterstitialAdsUtil interstitialAd;
+    private ShowInterstitial interstitialAd;
     private MyActivityPresenter mPresenter;
     private float textFontSize;
     private float fontScale;
@@ -91,7 +90,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     private SetBannerAdView myBannerAdView;
     private LinearLayout adaptiveBannerLinearLayout;
     private SetBannerAdView myBannerAdView2;
-    private ShowingInterstitialAdsUtil.ShowInterstitialAdThread showInterstitialAdThread = null;
+    private ShowInterstitial.ShowAdThread showAdThread = null;
     private final static String GameOverDialogTag = "GameOverDialogFragmentTag";
     private ImageView scoreImageView = null;
     private TextView highestScoreTextView;
@@ -103,9 +102,9 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     private AlertDialogFragment warningSaveGameDialog;
     private AlertDialogFragment sureLoadDialog;
     private AlertDialogFragment gameOverDialog;
-    private ActivityResultLauncher<Intent> settingActivityResultLauncher;
-    private ActivityResultLauncher<Intent> localTop10ActivityResultLauncher;
-    private ActivityResultLauncher<Intent> globalTop10ActivityResultLauncher;
+    private ActivityResultLauncher<Intent> settingLauncher;
+    private ActivityResultLauncher<Intent> localTop10Launcher;
+    private ActivityResultLauncher<Intent> globalTop10Launcher;
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -117,7 +116,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         super.onCreate(savedInstanceState);
 
         ColorBallsApp application = (ColorBallsApp) getApplication();
-        interstitialAd = new ShowingInterstitialAdsUtil(this, application.facebookAds, application.googleInterstitialAd);
+        interstitialAd = new ShowInterstitial(this, application.facebookAds, application.googleInterstitialAd);
 
         if (!BuildConfig.DEBUG) {
             if (ScreenUtil.isTablet(this)) {
@@ -139,47 +138,39 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
         setBroadcastReceiver();
 
-        settingActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        int resultCode = result.getResultCode();
-                        if (resultCode == Activity.RESULT_OK) {
-                            Intent data = result.getData();
-                            Bundle extras = data.getExtras();
-                            if (extras != null) {
-                                boolean hasSound = extras.getBoolean(SettingActivity.HasSoundKey);
-                                mPresenter.setHasSound(hasSound);
-                                boolean isEasyLevel = extras.getBoolean(SettingActivity.IsEasyLevelKey);
-                                mPresenter.setEasyLevel(isEasyLevel);
-                                boolean hasNextBall = extras.getBoolean(SettingActivity.HasNextBallKey);
-                                mPresenter.setHasNextBall(hasNextBall, true);
-                            }
+        settingLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    int resultCode = result.getResultCode();
+                    if (resultCode == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        Bundle extras = data.getExtras();
+                        if (extras != null) {
+                            boolean hasSound = extras.getBoolean(SettingActivity.HasSoundKey);
+                            mPresenter.setHasSound(hasSound);
+                            boolean isEasyLevel = extras.getBoolean(SettingActivity.IsEasyLevelKey);
+                            mPresenter.setEasyLevel(isEasyLevel);
+                            boolean hasNextBall = extras.getBoolean(SettingActivity.HasNextBallKey);
+                            mPresenter.setHasNextBall(hasNextBall, true);
                         }
                     }
                 });
-        localTop10ActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        int resultCode = result.getResultCode();
-                        if (resultCode == Activity.RESULT_OK) {
-                            Log.d(TAG, "localTop10ActivityResultLauncher --> Showing interstitial ads");
-                            showAdUntilDismissed();   // removed for testing
-                            ColorBallsApp.isShowingLoadingMessage = false;
-                            ColorBallsApp.isProcessingJob = false;
-                        }
-                    }
-                });
-
-        globalTop10ActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        showAdUntilDismissed();
+        localTop10Launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    int resultCode = result.getResultCode();
+                    if (resultCode == Activity.RESULT_OK) {
+                        Log.d(TAG, "localTop10Launcher.Showing interstitial ads");
+                        showAdUntilDismissed();   // removed for testing
                         ColorBallsApp.isShowingLoadingMessage = false;
                         ColorBallsApp.isProcessingJob = false;
                     }
+                });
+
+        globalTop10Launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    Log.d(TAG, "globalTop10Launcher.Showing interstitial ads");
+                    showAdUntilDismissed();
+                    ColorBallsApp.isShowingLoadingMessage = false;
+                    ColorBallsApp.isProcessingJob = false;
                 });
 
         Log.d(TAG, "onCreate() is finished.");
@@ -249,7 +240,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 extras.putBoolean(SettingActivity.IsEasyLevelKey, mPresenter.isEasyLevel());
                 extras.putBoolean(SettingActivity.HasNextBallKey, mPresenter.hasNextBall());
                 intent.putExtras(extras);
-                settingActivityResultLauncher.launch(intent);
+                settingLauncher.launch(intent);
 
                 ColorBallsApp.isProcessingJob = false;
                 return true;
@@ -360,9 +351,9 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             interstitialAd = null;
         }
 
-        if (showInterstitialAdThread != null) {
+        if (showAdThread != null) {
             // avoiding memory leak
-            showInterstitialAdThread.releaseShowInterstitialAdThread();
+            showAdThread.releaseInterstitial();
         }
 
         if (sureSaveDialog != null) {
@@ -567,9 +558,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
     private void showInterstitialAdAndNewGameOrQuit(final int entryPoint) {
         if (interstitialAd != null) {
-            showInterstitialAdThread = interstitialAd.new
-                    ShowInterstitialAdThread(entryPoint, ColorBallsApp.AdProvider);
-            showInterstitialAdThread.startShowAd();
+            showAdThread = interstitialAd.new ShowAdThread();
+            showAdThread.startShowAd();
         }
         quitOrNewGame(entryPoint);
     }
@@ -654,9 +644,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         if (interstitialAd == null) {
             return;
         }
-
-        showInterstitialAdThread = interstitialAd.new ShowInterstitialAdThread(0, ColorBallsApp.AdProvider);
-        showInterstitialAdThread.startShowAd();
+        showAdThread = interstitialAd.new ShowAdThread();
+        showAdThread.startShowAd();
     }
 
     // implementing MyActivity.PresentView
@@ -965,7 +954,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                         top10Extras.putStringArrayList("Top10Players", playerNames);
                         top10Extras.putIntegerArrayList("Top10Scores", playerScores);
                         top10Intent.putExtras(top10Extras);
-                        localTop10ActivityResultLauncher.launch(top10Intent);
+                        localTop10Launcher.launch(top10Intent);
                     }
                     dismissShowMessageOnScreen();
                     ColorBallsApp.isShowingLoadingMessage = false;
@@ -1022,7 +1011,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                         globalTop10Extras.putStringArrayList("Top10Players", playerNames);
                         globalTop10Extras.putIntegerArrayList("Top10Scores", playerScores);
                         globalTop10Intent.putExtras(globalTop10Extras);
-                        globalTop10ActivityResultLauncher.launch(globalTop10Intent);
+                        globalTop10Launcher.launch(globalTop10Intent);
                     }
                     dismissShowMessageOnScreen();
                     ColorBallsApp.isShowingLoadingMessage = false;

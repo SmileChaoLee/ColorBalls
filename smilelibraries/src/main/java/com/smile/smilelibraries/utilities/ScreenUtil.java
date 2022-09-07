@@ -393,9 +393,9 @@ public final class ScreenUtil {
 
         } else {
             if (activity != null) {
-                int duration = 2000;    // 2 seconds for Toast.LENGTH_SHORT
+                int duration = 600;    //  0.6 seconds for Toast.LENGTH_SHORT
                 if (showPeriod == Toast.LENGTH_LONG) {
-                    duration = 3500;    // 3.5 seconds
+                    duration = 1200;    // 1.2 seconds
                 }
                 ShowToastMessage.showToast(activity, content, textFontSize, fontSize_Type, duration);
                 Log.d(TAG, "ShowToastMessage.showToast()");

@@ -1,4 +1,4 @@
-package com.smile.smilelibraries.showing_banner_ads_utility;
+package com.smile.smilelibraries.show_banner_ads;
 
 import android.content.Context;
 import android.os.Handler;
@@ -16,7 +16,7 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.common.util.VisibleForTesting;
-import com.smile.smilelibraries.showing_interstitial_ads_utility.ShowingInterstitialAdsUtil;
+import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial;
 
 public class SetBannerAdView {
     private final static String TAG = "SetBannerAdView";
@@ -90,7 +90,7 @@ public class SetBannerAdView {
             }
 
             boolean adMobFirst = true;    // true for google, false for facebook
-            if (adProvider == ShowingInterstitialAdsUtil.FacebookAdProvider) {
+            if (adProvider == ShowInterstitial.FacebookAdProvider) {
                 Log.d(TAG, "FacebookAdProvider.");
                 if (isFacebookBannerAvailable) {
                     adMobFirst = false;   // facebook first
