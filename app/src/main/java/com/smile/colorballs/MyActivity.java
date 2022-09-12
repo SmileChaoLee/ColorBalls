@@ -50,7 +50,6 @@ import com.smile.Service.MyGlobalTop10Service;
 import com.smile.Service.MyTop10ScoresService;
 import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate;
 import com.smile.presenters.MyActivityPresenter;
-import com.smile.smilelibraries.interfaces.DismissFunction;
 import com.smile.smilelibraries.models.ExitAppTimer;
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment;
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil;
@@ -615,11 +614,11 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             myBannerAdView2 = new SetBannerAdView(this, null, adaptiveBannerLinearLayout
                     , ColorBallsApp.googleAdMobBannerID2, facebookBannerID2, adaptiveBannerDpWidth);
             // AdMob ad first
-            myBannerAdView2.showBannerAdView(ColorBallsApp.AdProvider);
+            myBannerAdView2.showBannerAdView();
         }
         myBannerAdView = new SetBannerAdView(this, null, bannerLinearLayout
                , ColorBallsApp.googleAdMobBannerID, facebookBannerID);
-        myBannerAdView.showBannerAdView(ColorBallsApp.AdProvider);
+        myBannerAdView.showBannerAdView();
     }
 
     private void setBroadcastReceiver() {

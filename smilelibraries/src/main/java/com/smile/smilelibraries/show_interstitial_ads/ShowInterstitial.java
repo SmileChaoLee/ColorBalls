@@ -11,10 +11,6 @@ import com.smile.smilelibraries.google_ads_util.AdMobInterstitial;
 import com.smile.smilelibraries.interfaces.DismissFunction;
 
 public class ShowInterstitial {
-
-    public final static int GoogleAdMobAdProvider = 0;
-    public final static int FacebookAdProvider = 1;
-
     private final static String TAG = ShowInterstitial.class.getName();
     private final FacebookInterstitial facebookAd;
     private final AdMobInterstitial adMobAd;
@@ -45,16 +41,15 @@ public class ShowInterstitial {
     }
 
     public class ShowAdThread extends Thread {
-        private final DismissFunction mDismissFunction;
         private boolean isAdShown;
 
         public ShowAdThread() {
-            this.mDismissFunction = null;
-            isAdShown = false;
+            this(null);
         }
 
         public ShowAdThread(DismissFunction dismissFunction) {
-            this.mDismissFunction = dismissFunction;
+            adMobAd.setDismissFunc(dismissFunction);
+            facebookAd.setDismissFunc(dismissFunction);
             isAdShown = false;
         }
 
@@ -119,18 +114,16 @@ public class ShowInterstitial {
         private synchronized void onPostExecute() {
             Log.d(TAG, "ShowAdThread.onPostExecute.succeededFacebook = " + succeededFacebook +
                     ", succeededAdMob = " + succeededAdMob);
+            /*
             try {
-                if (mDismissFunction != null) {
-                    mActivity.runOnUiThread(() -> {
-                        // may update th main thread (UI)
-                        if (succeededAdMob) adMobAd.setDismissFunc(mDismissFunction);
-                        if (succeededFacebook) facebookAd.setDismissFunc(mDismissFunction);
-                        // mDismissFunction.executeDismiss();
-                    });
-                }
+                mActivity.runOnUiThread(() -> {
+                    // may update th main thread (UI)
+                    // mDismissFunction.executeDismiss();
+                });
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+            */
         }
 
         public void startShowAd() {
