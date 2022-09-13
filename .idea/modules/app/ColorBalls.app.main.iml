@@ -140,7 +140,9 @@
       </configuration>
     </facet>
   </component>
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="true">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
+    <output url="file://$MODULE_DIR$/../../../app/build/intermediates/javac/colorballsRelease/classes" />
+    <output-test url="file://$MODULE_DIR$/../../../app/build/intermediates/javac/colorballsReleaseUnitTest/classes" />
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../app/build/generated/aidl_source_output_dir/colorballsRelease/out" />
     <content url="file://$MODULE_DIR$/../../../app/build/generated/ap_generated_sources/colorballsRelease/out">

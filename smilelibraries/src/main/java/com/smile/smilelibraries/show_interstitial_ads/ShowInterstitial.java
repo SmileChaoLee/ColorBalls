@@ -48,8 +48,8 @@ public class ShowInterstitial {
         }
 
         public ShowAdThread(DismissFunction dismissFunction) {
-            adMobAd.setDismissFunc(dismissFunction);
-            facebookAd.setDismissFunc(dismissFunction);
+            if (adMobAd != null) adMobAd.setDismissFunc(dismissFunction);
+            if (facebookAd != null) facebookAd.setDismissFunc(dismissFunction);
             isAdShown = false;
         }
 

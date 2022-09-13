@@ -14,7 +14,9 @@
       </configuration>
     </facet>
   </component>
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="true">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
+    <output url="file://$MODULE_DIR$/../../../smilelibraries/build/intermediates/javac/release/classes" />
+    <output-test url="file://$MODULE_DIR$/../../../smilelibraries/build/intermediates/javac/releaseUnitTest/classes" />
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../smilelibraries/build/generated/ap_generated_sources/releaseUnitTest/out" />
     <content url="file://$MODULE_DIR$/../../../smilelibraries/src/test">
