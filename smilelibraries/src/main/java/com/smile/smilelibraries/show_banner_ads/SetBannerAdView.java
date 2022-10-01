@@ -16,7 +16,6 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.common.util.VisibleForTesting;
-import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial;
 
 public class SetBannerAdView {
     private final static String TAG = "SetBannerAdView";

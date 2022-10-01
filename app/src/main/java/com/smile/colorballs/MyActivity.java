@@ -79,15 +79,11 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     private Top10ScoreFragment top10ScoreFragment = null;
     private Top10ScoreFragment globalTop10Fragment = null;
     private MyBroadcastReceiver myReceiver;
-    private IntentFilter myIntentFilter;
     private float mainGameViewWidth;
-    private float mainGameViewHeight;
     private int cellWidth;
     private int cellHeight;
-    private LinearLayout bannerLinearLayout;
     private GoogleAdMobNativeTemplate nativeTemplate;
     private SetBannerAdView myBannerAdView;
-    private LinearLayout adaptiveBannerLinearLayout;
     private SetBannerAdView myBannerAdView2;
     private ShowInterstitial.ShowAdThread showAdThread = null;
     private final static String GameOverDialogTag = "GameOverDialogFragmentTag";
@@ -142,6 +138,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                     int resultCode = result.getResultCode();
                     if (resultCode == Activity.RESULT_OK) {
                         Intent data = result.getData();
+                        if (data == null) return;
                         Bundle extras = data.getExtras();
                         if (extras != null) {
                             boolean hasSound = extras.getBoolean(SettingActivity.HasSoundKey);
@@ -436,7 +433,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         LinearLayout.LayoutParams gameViewLp = (LinearLayout.LayoutParams) gameViewLinearLayout.getLayoutParams();
         float gameView_Weight = gameViewLp.weight;
         Log.d(TAG, "gameView_Weight = " + gameView_Weight);
-        mainGameViewHeight = screenHeight * gameView_Weight / main_WeightSum;
+        float mainGameViewHeight = screenHeight * gameView_Weight / main_WeightSum;
         Log.d(TAG, "mainGameViewHeight = " + mainGameViewHeight);
 
         float gameViewWeightSum = gameViewLinearLayout.getWeightSum();
@@ -497,13 +494,10 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 imageView.setBackgroundResource(R.drawable.boximage);
                 imageView.setClickable(true);
-                imageView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if ((mPresenter.completedAll()) && (!ColorBallsApp.isProcessingJob)) {
-                            Log.d(TAG, "createGameView.onClick");
-                            mPresenter.doDrawBallsAndCheckListener(v);
-                        }
+                imageView.setOnClickListener(v -> {
+                    if ((mPresenter.completedAll()) && (!ColorBallsApp.isProcessingJob)) {
+                        Log.d(TAG, "createGameView.onClick");
+                        mPresenter.doDrawBallsAndCheckListener(v);
                     }
                 });
                 gridCellsLayout.addView(imageView, imId, oneBallLp);
@@ -518,15 +512,18 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
     private void createColorBallsGame(Bundle savedInstanceState) {
         saveScoreAlertDialog = null;
-        boolean isNewGame = mPresenter.initializeColorBallsGame(rowCounts, colCounts, cellWidth, cellHeight, savedInstanceState);
+        mPresenter.initializeColorBallsGame(rowCounts, colCounts, cellWidth, cellHeight, savedInstanceState);
     }
 
     private void setDialogStyle(DialogInterface dialog) {
         AlertDialog dlg = (AlertDialog)dialog;
-        dlg.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-        dlg.getWindow().setDimAmount(0.0f); // no dim for background screen
-        dlg.getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT,WindowManager.LayoutParams.WRAP_CONTENT);
-        dlg.getWindow().setBackgroundDrawableResource(R.drawable.dialog_board_image);
+        Window window = dlg.getWindow();
+        if (window != null) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            window.setDimAmount(0.0f); // no dim for background screen
+            window.setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+            window.setBackgroundDrawableResource(R.drawable.dialog_board_image);
+        }
 
         Button nBtn = dlg.getButton(DialogInterface.BUTTON_NEGATIVE);
         ScreenUtil.resizeTextSize(nBtn, textFontSize, ColorBallsApp.FontSize_Scale_Type);
@@ -583,8 +580,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     }
 
     private void setBannerAndNativeAdUI() {
-        bannerLinearLayout = findViewById(R.id.linearlayout_banner_myActivity);
-        adaptiveBannerLinearLayout = findViewById(R.id.linearlayout_adaptiveBanner_myActivity);
+        LinearLayout bannerLinearLayout = findViewById(R.id.linearlayout_banner_myActivity);
+        LinearLayout adaptiveBannerLayout = findViewById(R.id.linearlayout_adaptiveBanner_myActivity);
         String testString = "";
         // for debug mode
         if (com.smile.colorballs.BuildConfig.DEBUG) {
@@ -593,15 +590,10 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         String facebookBannerID = testString + ColorBallsApp.facebookBannerID;
         String facebookBannerID2 = testString + ColorBallsApp.facebookBannerID2;
         //
-        int adaptiveBannerWidth = (int)mainGameViewWidth;
+        int adaptiveBannerWidth, adaptiveBannerDpWidth;
+
         Configuration configuration = getResources().getConfiguration();
         if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            adaptiveBannerWidth = (int)(screenWidth - mainGameViewWidth);
-        }
-        int adaptiveBannerDpWidth = ScreenUtil.pixelToDp(this, adaptiveBannerWidth);
-        Log.d(TAG, "adaptiveBannerDpWidth = " + adaptiveBannerDpWidth);
-
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // show AdMob native ad if the device is tablet
             String nativeAdvancedId0 = ColorBallsApp.googleAdMobNativeID;     // real native ad unit id
             FrameLayout nativeAdsFrameLayout = findViewById(R.id.nativeAdsFrameLayout);
@@ -609,21 +601,26 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             nativeTemplate = new GoogleAdMobNativeTemplate(this, nativeAdsFrameLayout
                     , nativeAdvancedId0, nativeAdTemplateView);
             nativeTemplate.showNativeAd();
+            adaptiveBannerWidth = (int)(screenWidth - mainGameViewWidth);
+            adaptiveBannerDpWidth = ScreenUtil.pixelToDp(this, adaptiveBannerWidth);
         } else {
             // one more banner ad for orientation is portrait
-            myBannerAdView2 = new SetBannerAdView(this, null, adaptiveBannerLinearLayout
+            adaptiveBannerWidth = (int)mainGameViewWidth;
+            adaptiveBannerDpWidth = ScreenUtil.pixelToDp(this, adaptiveBannerWidth);
+            myBannerAdView2 = new SetBannerAdView(this, null, adaptiveBannerLayout
                     , ColorBallsApp.googleAdMobBannerID2, facebookBannerID2, adaptiveBannerDpWidth);
             // AdMob ad first
             myBannerAdView2.showBannerAdView();
         }
+        Log.d(TAG, "adaptiveBannerDpWidth = " + adaptiveBannerDpWidth);
         myBannerAdView = new SetBannerAdView(this, null, bannerLinearLayout
-               , ColorBallsApp.googleAdMobBannerID, facebookBannerID);
+               , ColorBallsApp.googleAdMobBannerID, facebookBannerID, adaptiveBannerDpWidth);
         myBannerAdView.showBannerAdView();
     }
 
     private void setBroadcastReceiver() {
         myReceiver = new MyBroadcastReceiver();
-        myIntentFilter = new IntentFilter();
+        IntentFilter myIntentFilter = new IntentFilter();
         myIntentFilter.addAction(MyTop10ScoresService.Action_Name);
         myIntentFilter.addAction(MyGlobalTop10Service.Action_Name);
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
@@ -633,10 +630,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     private void exitApplication() {
         final Handler handlerClose = new Handler(Looper.getMainLooper());
         final int timeDelay = 200;
-        handlerClose.postDelayed( ()-> {
-            // exit application
-            finish();
-        },timeDelay);
+        // exit application
+        handlerClose.postDelayed(this::finish,timeDelay);
     }
 
     private void showAdUntilDismissed() {
@@ -842,8 +837,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         mPresenter.setSaveScoreAlertDialogState(entryPoint, true);
         final EditText et = new EditText(this);
         et.setTextColor(Color.BLUE);
-        // et.setBackground(new ColorDrawable(Color.TRANSPARENT));
-        // et.setBackgroundColor(Color.TRANSPARENT);
         et.setHint(getString(R.string.nameStr));
         ScreenUtil.resizeTextSize(et, textFontSize, ColorBallsApp.FontSize_Scale_Type);
         et.setGravity(Gravity.CENTER);
@@ -852,32 +845,21 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         saveScoreAlertDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         saveScoreAlertDialog.setCancelable(false);
         saveScoreAlertDialog.setView(et);
-        saveScoreAlertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancelStr), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                showInterstitialAdAndNewGameOrQuit(entryPoint);
-                mPresenter.setSaveScoreAlertDialogState(entryPoint, false);
-                saveScoreAlertDialog = null;
-            }
+        saveScoreAlertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancelStr), (dialog, which) -> {
+            dialog.dismiss();
+            showInterstitialAdAndNewGameOrQuit(entryPoint);
+            mPresenter.setSaveScoreAlertDialogState(entryPoint, false);
+            saveScoreAlertDialog = null;
         });
-        saveScoreAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.submitStr), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                mPresenter.saveScore(et.getText().toString(), score);
-                dialog.dismiss();
-                showInterstitialAdAndNewGameOrQuit(entryPoint);
-                mPresenter.setSaveScoreAlertDialogState(entryPoint, false);
-                saveScoreAlertDialog = null;
-            }
+        saveScoreAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.submitStr), (dialog, which) -> {
+            mPresenter.saveScore(et.getText().toString(), score);
+            dialog.dismiss();
+            showInterstitialAdAndNewGameOrQuit(entryPoint);
+            mPresenter.setSaveScoreAlertDialogState(entryPoint, false);
+            saveScoreAlertDialog = null;
         });
 
-        saveScoreAlertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                setDialogStyle(dialog);
-            }
-        });
+        saveScoreAlertDialog.setOnShowListener(this::setDialogStyle);
 
         saveScoreAlertDialog.show();
     }
@@ -885,7 +867,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     // end of implementing
 
     private class MyBroadcastReceiver extends BroadcastReceiver {
-        private final String FAILED = "1";
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -919,18 +900,15 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                     if (historyView != null) {
                         // if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         if (ColorBallsApp.AppResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                            top10ScoreFragment = Top10ScoreFragment.newInstance(top10ScoreTitle, playerNames, playerScores, new Top10ScoreFragment.Top10OkButtonListener() {
-                                @Override
-                                public void buttonOkClick(Activity activity) {
-                                    if (top10ScoreFragment != null) {
-                                        // remove top10ScoreFragment to dismiss the top 10 score screen
-                                        FragmentManager fmManager = getSupportFragmentManager();
-                                        FragmentTransaction ft = fmManager.beginTransaction();
-                                        ft.remove(top10ScoreFragment);
-                                        // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
-                                        ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-                                        showAdUntilDismissed();
-                                    }
+                            top10ScoreFragment = Top10ScoreFragment.newInstance(top10ScoreTitle, playerNames, playerScores, activity -> {
+                                if (top10ScoreFragment != null) {
+                                    // remove top10ScoreFragment to dismiss the top 10 score screen
+                                    FragmentManager fmManager = getSupportFragmentManager();
+                                    FragmentTransaction ft = fmManager.beginTransaction();
+                                    ft.remove(top10ScoreFragment);
+                                    // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
+                                    ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
+                                    showAdUntilDismissed();
                                 }
                             });
                             FragmentManager fmManager = getSupportFragmentManager();
@@ -977,17 +955,14 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                     if (historyView != null) {
                         // if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         if (ColorBallsApp.AppResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                            globalTop10Fragment = Top10ScoreFragment.newInstance(globalTop10ScoreTitle, playerNames, playerScores, new Top10ScoreFragment.Top10OkButtonListener() {
-                                @Override
-                                public void buttonOkClick(Activity activity) {
-                                    if (globalTop10Fragment != null) {
-                                        FragmentManager fmManager = getSupportFragmentManager();
-                                        FragmentTransaction ft = fmManager.beginTransaction();
-                                        ft.remove(globalTop10Fragment);
-                                        // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
-                                        ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-                                        showAdUntilDismissed();
-                                    }
+                            globalTop10Fragment = Top10ScoreFragment.newInstance(globalTop10ScoreTitle, playerNames, playerScores, activity -> {
+                                if (globalTop10Fragment != null) {
+                                    FragmentManager fmManager = getSupportFragmentManager();
+                                    FragmentTransaction ft = fmManager.beginTransaction();
+                                    ft.remove(globalTop10Fragment);
+                                    // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
+                                    ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
+                                    showAdUntilDismissed();
                                 }
                             });
                             FragmentManager fmManager = getSupportFragmentManager();
