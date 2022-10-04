@@ -82,9 +82,11 @@ public class SetBannerAdView {
         this.bannerDpWidth = bannerDpWidth;
         isAdMobAvailable = (googleAdMobBannerID!=null && !googleAdMobBannerID.isEmpty());
         isFacebookAvailable = (facebookBannerID!=null && !facebookBannerID.isEmpty());
+        if (bannerLinearLayout != null) bannerLinearLayout.removeAllViews();
     }
 
-    public void showBannerAdView() {
+    public void showBannerAdView(int provider) {
+        // provider = 0 --> AdMob first, = 0 --> Facebook first
         if (!isAdMobAvailable && !isFacebookAvailable) {
             // no banner ads so show company information
             if (bannerLinearLayout != null) {
@@ -98,8 +100,8 @@ public class SetBannerAdView {
         if (companyInfoLayout != null) {
             companyInfoLayout.setVisibility(View.GONE);
         }
-        // Google AdMob (Banner Ad) first
-        setAdMobBannerAdView();
+        // Google AdMob (Banner Ad) first if provider = 0
+        if (provider == 0) setAdMobBannerAdView(); else setFacebookBannerAdView();
     }
 
     public void resume() {
@@ -158,7 +160,7 @@ public class SetBannerAdView {
                     if (numberOfLoadingFacebookBannerAd < maxNumberLoadingBannerAd) {
                         if (adMobBannerAdView != null) {
                             adMobBannerAdView.setVisibility(View.GONE);
-                            bannerLinearLayout.removeView(adMobBannerAdView);
+                            bannerLinearLayout.removeAllViews();
                             adMobBannerAdView.destroy();
                             adMobBannerAdView = null;
                             // switch to Facebook Audience Network
@@ -210,7 +212,7 @@ public class SetBannerAdView {
                     if (numberOfLoadingAdMobBannerAd < maxNumberLoadingBannerAd) {
                         if (facebookAdView != null) {
                             facebookAdView.setVisibility(View.GONE);
-                            bannerLinearLayout.removeView(facebookAdView);
+                            bannerLinearLayout.removeAllViews();
                             facebookAdView.destroy();
                             facebookAdView = null;
                             facebookAdViewLoadConfig = null;

@@ -610,12 +610,12 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             myBannerAdView2 = new SetBannerAdView(this, null, adaptiveBannerLayout
                     , ColorBallsApp.googleAdMobBannerID2, facebookBannerID2, adaptiveBannerDpWidth);
             // AdMob ad first
-            myBannerAdView2.showBannerAdView();
+            myBannerAdView2.showBannerAdView(0);    // AdMob first
         }
         Log.d(TAG, "adaptiveBannerDpWidth = " + adaptiveBannerDpWidth);
         myBannerAdView = new SetBannerAdView(this, null, bannerLinearLayout
                , ColorBallsApp.googleAdMobBannerID, facebookBannerID, adaptiveBannerDpWidth);
-        myBannerAdView.showBannerAdView();
+        myBannerAdView.showBannerAdView(0); // AdMob first
     }
 
     private void setBroadcastReceiver() {
