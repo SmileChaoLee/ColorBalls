@@ -34,7 +34,9 @@ public class ShowInterstitial {
 
     public void close() {
         try {
-            facebookAd.close();
+            if (facebookAd != null) {
+                facebookAd.close();
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -42,6 +44,7 @@ public class ShowInterstitial {
 
     public class ShowAdThread extends Thread {
         private boolean isAdShown;
+        private int provider = 0;   // AdMob first
 
         public ShowAdThread() {
             this(null);
@@ -65,13 +68,23 @@ public class ShowInterstitial {
                         Log.d(TAG, "showOneAd.Start showing");
                         succeededAdMob = false;
                         succeededFacebook = false;
-                        if (adMobAd != null) {
-                            if (adMobAd.isLoaded()) succeededAdMob = adMobAd.showAd(mActivity);
-                            adMobAd.loadAd();
+                        if (provider == 0) {
+                            // AdMob first
+                            if (showAdMob()) {
+                                if (!succeededAdMob) {
+                                    showFacebook();
+                                }
+                            } else {
+                                showFacebook();
+                            }
                         } else {
-                            if (facebookAd != null) {
-                                if (facebookAd.isLoaded()) succeededFacebook = facebookAd.showAd();
-                                facebookAd.loadAd();
+                            // provider = 1 // facebook first
+                            if (showFacebook()) {
+                                if (!succeededFacebook) {
+                                    showAdMob();
+                                }
+                            } else {
+                                showAdMob();
                             }
                         }
                     } catch (Exception ex) {
@@ -102,6 +115,29 @@ public class ShowInterstitial {
             return (succeededAdMob || succeededFacebook);
         }
 
+        private boolean showAdMob() {
+            boolean hasAdMob = false;
+            if (adMobAd != null) {
+                if (adMobAd.isLoaded()) {
+                    succeededAdMob = adMobAd.showAd(mActivity);
+                }
+                adMobAd.loadAd();
+                hasAdMob = true;
+            }
+            return hasAdMob;
+        }
+        private boolean showFacebook() {
+            boolean hasFacebook = false;
+            if (facebookAd != null) {
+                if (facebookAd.isLoaded()) {
+                    succeededFacebook = facebookAd.showAd();
+                }
+                facebookAd.loadAd();
+                hasFacebook = true;
+            }
+            return hasFacebook;
+        }
+
         private synchronized void onPreExecute() {
             isAdShown = showOneAd();
             Log.d(TAG, "ShowAdThread.onPreExecute().isAdShown = " + isAdShown);
@@ -126,14 +162,16 @@ public class ShowInterstitial {
             */
         }
 
-        public void startShowAd() {
-            start();
+        public void startShowAd(int provider) {
+            // Google AdMob (Banner Ad) first if provider = 0
             Log.d(TAG, "ShowAdThread.startShowAd()");
+            this.provider = provider;
+            start();
         }
 
         public void releaseInterstitial() {
-            close();
             Log.d(TAG, "ShowAdThread.releaseInterstitial()");
+            close();
         }
 
         @Override

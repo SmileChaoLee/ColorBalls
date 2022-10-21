@@ -45,7 +45,7 @@ public class SetBannerAdView {
         }
     };
     private int numberOfLoadingAdMobBannerAd = 0;
-    private final int secondsToReLoadAd = 180000;  // 3 minutes
+    private final int secondsToReLoadAd = 540000;  // 9 minutes
 
     private com.facebook.ads.AdListener facebookAdListener;
     private final Handler loggingFacebookHandler = new Handler(Looper.getMainLooper());
@@ -86,7 +86,7 @@ public class SetBannerAdView {
     }
 
     public void showBannerAdView(int provider) {
-        // provider = 0 --> AdMob first, = 0 --> Facebook first
+        // provider = 0 --> AdMob first, = 1 --> Facebook first
         if (!isAdMobAvailable && !isFacebookAvailable) {
             // no banner ads so show company information
             if (bannerLinearLayout != null) {

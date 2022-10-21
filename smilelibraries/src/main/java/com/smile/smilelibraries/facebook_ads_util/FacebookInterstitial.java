@@ -20,17 +20,17 @@ public class FacebookInterstitial {
             @Override
             public void onInterstitialDisplayed(Ad ad) {
                 // Interstitial ad displayed callback
-                Log.i(TAG, "Interstitial ad displayed.");
+                Log.d(TAG, "Interstitial ad displayed.");
                 isError = false;
             }
 
             @Override
             public void onInterstitialDismissed(Ad ad) {
                 // Interstitial dismissed callback
-                Log.i(TAG, "Interstitial ad dismissed.");
+                Log.d(TAG, "Interstitial ad dismissed.");
                 isError = false;
                 isDismissed = true;
-                interstitialAd.loadAd();    // load next ad
+                // loadAd();    // load next ad
                 if (mDismissFunction != null) {
                     mDismissFunction.executeDismiss();
                     mDismissFunction = null;    // one time only
@@ -39,29 +39,31 @@ public class FacebookInterstitial {
 
             @Override
             public void onError(Ad ad, AdError adError) {
-                Log.e(TAG, "Interstitial ad failed to load: " + interstitialAd.isAdLoaded() + " - " + adError.getErrorMessage());
+                Log.d(TAG, "Interstitial ad failed to load: " + interstitialAd.isAdLoaded()
+                        + " - " + adError.getErrorMessage());
                 isError = true;
-                interstitialAd.loadAd();    // load next ad
+                // loadAd();    // load next ad
             }
 
             @Override
             public void onAdLoaded(Ad ad) {
                 // Interstitial ad is loaded and ready to be displayed
-                Log.i(TAG, "Interstitial ad is loaded and ready to be displayed!");
+                Log.d(TAG, "Interstitial ad is loaded and ready to be displayed!");
+                // loadAd();    // load next ad
                 isError = false;
             }
 
             @Override
             public void onAdClicked(Ad ad) {
                 // Ad clicked callback
-                Log.i(TAG, "Interstitial ad clicked!");
+                Log.d(TAG, "Interstitial ad clicked!");
             }
 
             @Override
             public void onLoggingImpression(Ad ad) {
                 // Ad impression logged callback
                 // after displayed
-                Log.i(TAG, "Interstitial ad impression logged!");
+                Log.d(TAG, "Interstitial ad impression logged!");
             }
         };
 

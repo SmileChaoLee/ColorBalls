@@ -555,7 +555,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     private void showInterstitialAdAndNewGameOrQuit(final int entryPoint) {
         if (interstitialAd != null) {
             showAdThread = interstitialAd.new ShowAdThread();
-            showAdThread.startShowAd();
+            showAdThread.startShowAd(0);    // AdMob first
         }
         quitOrNewGame(entryPoint);
     }
@@ -609,8 +609,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             adaptiveBannerDpWidth = ScreenUtil.pixelToDp(this, adaptiveBannerWidth);
             myBannerAdView2 = new SetBannerAdView(this, null, adaptiveBannerLayout
                     , ColorBallsApp.googleAdMobBannerID2, facebookBannerID2, adaptiveBannerDpWidth);
-            // AdMob ad first
-            myBannerAdView2.showBannerAdView(0);    // AdMob first
+            myBannerAdView2.showBannerAdView(1);    // Facebook first
         }
         Log.d(TAG, "adaptiveBannerDpWidth = " + adaptiveBannerDpWidth);
         myBannerAdView = new SetBannerAdView(this, null, bannerLinearLayout
@@ -639,7 +638,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             return;
         }
         showAdThread = interstitialAd.new ShowAdThread();
-        showAdThread.startShowAd();
+        showAdThread.startShowAd(0);    // AdMob first
     }
 
     // implementing MyActivity.PresentView

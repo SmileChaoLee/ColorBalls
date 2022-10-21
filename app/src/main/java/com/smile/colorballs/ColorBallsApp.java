@@ -82,18 +82,6 @@ public class ColorBallsApp extends MultiDexApplication {
         MobileAds.initialize(AppContext, initializationStatus ->
                 Log.d(TAG, "Google AdMob was initialized successfully."));
         googleInterstitialAd = new AdMobInterstitial(AppContext, googleAdMobInterstitialID);
-
-        final Handler adHandler = new Handler(Looper.getMainLooper());
-        final Runnable adRunnable = () -> {
-            adHandler.removeCallbacksAndMessages(null);
-            if (googleInterstitialAd != null) {
-                googleInterstitialAd.loadAd(); // load first google ad
-            }
-            if (facebookAds != null) {
-                facebookAds.loadAd();   // load first facebook ad
-            }
-        };
-        adHandler.postDelayed(adRunnable, 1000);
     }
 
     @Override

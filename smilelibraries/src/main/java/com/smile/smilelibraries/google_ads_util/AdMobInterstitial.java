@@ -29,7 +29,7 @@ public class AdMobInterstitial {
         public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
             super.onAdFailedToShowFullScreenContent(adError);
             // Code to be executed when the ad failed to display.
-            Log.e(TAG, "Interstitial ad failed to display.");
+            Log.d(TAG, "Interstitial ad failed to display.");
             loadAd();   // load next ad
         }
 
@@ -37,14 +37,14 @@ public class AdMobInterstitial {
         public void onAdShowedFullScreenContent() {
             super.onAdShowedFullScreenContent();
             // Code to be executed when the ad is displayed.
-            Log.i(TAG, "Interstitial ad displayed.");
+            Log.d(TAG, "Interstitial ad displayed.");
         }
 
         @Override
         public void onAdDismissedFullScreenContent() {
             super.onAdDismissedFullScreenContent();
             // Code to be executed when when the interstitial ad is closed.
-            Log.i(TAG, "Interstitial ad dismissed.");
+            Log.d(TAG, "Interstitial ad dismissed.");
             isDismissed = true;
             loadAd();   // load next ad
             if (mDismissFunction != null) {
@@ -56,7 +56,7 @@ public class AdMobInterstitial {
         @Override
         public void onAdImpression() {
             super.onAdImpression();
-            Log.i(TAG, "Interstitial ad impression.");
+            Log.d(TAG, "Interstitial ad impression.");
         }
     };
 
@@ -65,7 +65,7 @@ public class AdMobInterstitial {
         public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
             // The mInterstitialAd reference will be null until
             // an ad is loaded.
-            Log.i(TAG, "Interstitial onAdLoaded");
+            Log.d(TAG, "Interstitial onAdLoaded");
             mInterstitialAd = interstitialAd;
             mInterstitialAd.setFullScreenContentCallback(mFullScreenContentCallback);
         }
@@ -73,7 +73,7 @@ public class AdMobInterstitial {
         @Override
         public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
             // Handle the error
-            Log.e(TAG, "Interstitial onAdFailedToLoad, " + loadAdError.getMessage());
+            Log.d(TAG, "Interstitial onAdFailedToLoad, " + loadAdError.getMessage());
             loadAd();
         }
     };
