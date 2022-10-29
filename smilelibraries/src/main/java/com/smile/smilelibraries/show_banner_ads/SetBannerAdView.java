@@ -45,7 +45,7 @@ public class SetBannerAdView {
         }
     };
     private int numberOfLoadingAdMobBannerAd = 0;
-    private final int secondsToReLoadAd = 540000;  // 9 minutes
+    private final int secondsToReLoadAd = 420000;  // 7 minutes
 
     private com.facebook.ads.AdListener facebookAdListener;
     private final Handler loggingFacebookHandler = new Handler(Looper.getMainLooper());
