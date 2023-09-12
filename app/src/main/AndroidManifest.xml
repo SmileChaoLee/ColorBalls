@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.smile.colorballs">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -9,7 +7,6 @@
     <application
         android:name=".ColorBallsApp"
         android:allowBackup="true"
-        android:fullBackupContent="true"
         android:icon="@drawable/app_icon"
         android:label="${appName}"
         android:supportsRtl="true"
@@ -46,11 +43,6 @@
 
         <service
             android:name="com.smile.Service.MyTop10ScoresService"
-            android:enabled="true"
-            android:exported="false">
-        </service>
-        <service
-            android:name="com.smile.Service.MyGlobalTop10Service"
             android:enabled="true"
             android:exported="false">
         </service>

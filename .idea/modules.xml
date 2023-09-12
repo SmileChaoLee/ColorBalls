@@ -4,15 +4,12 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ColorBalls.iml" filepath="$PROJECT_DIR$/ColorBalls.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/NativeTemplatesModels/ColorBalls.NativeTemplatesModels.iml" filepath="$PROJECT_DIR$/.idea/modules/NativeTemplatesModels/ColorBalls.NativeTemplatesModels.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/NativeTemplatesModels/ColorBalls.NativeTemplatesModels.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/NativeTemplatesModels/ColorBalls.NativeTemplatesModels.androidTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/NativeTemplatesModels/ColorBalls.NativeTemplatesModels.main.iml" filepath="$PROJECT_DIR$/.idea/modules/NativeTemplatesModels/ColorBalls.NativeTemplatesModels.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/NativeTemplatesModels/ColorBalls.NativeTemplatesModels.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/NativeTemplatesModels/ColorBalls.NativeTemplatesModels.unitTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/ColorBalls.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/ColorBalls.app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/ColorBalls.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/ColorBalls.app.androidTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/ColorBalls.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/ColorBalls.app.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/ColorBalls.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/ColorBalls.app.unitTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/smilelibraries/ColorBalls.smilelibraries.iml" filepath="$PROJECT_DIR$/.idea/modules/smilelibraries/ColorBalls.smilelibraries.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/smilelibraries/ColorBalls.smilelibraries.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/smilelibraries/ColorBalls.smilelibraries.androidTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/smilelibraries/ColorBalls.smilelibraries.main.iml" filepath="$PROJECT_DIR$/.idea/modules/smilelibraries/ColorBalls.smilelibraries.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/smilelibraries/ColorBalls.smilelibraries.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/smilelibraries/ColorBalls.smilelibraries.unitTest.iml" />
     </modules>

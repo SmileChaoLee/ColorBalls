@@ -112,7 +112,6 @@ public class ColorBallsInstrumentedTest {
     public void test_MoreActionSubmenu() {
         onView(withId(R.id.gameAction)).perform(click());
         onView(withText(R.string.top10Str)).check(matches(isDisplayed()));
-        onView(withText(R.string.globalTop10Str)).check(matches(isDisplayed()));
         onView(withText(R.string.saveGameString)).check(matches(isDisplayed()));
         onView(withText(R.string.loadGameString)).check(matches(isDisplayed()));
         onView(withText(R.string.privacyPolicyString)).check(matches(isDisplayed()));
@@ -136,25 +135,6 @@ public class ColorBallsInstrumentedTest {
         onView(withId(R.id.top10ScoreTitle)).check(matches(isDisplayed()));  // succeeded
         onView(withId(R.id.top10ListView)).check(matches(isDisplayed()));
         onView(withId(R.id.top10OkButton)).check(matches(isDisplayed()));
-    }
-
-    @Test
-    public void test_globalTop10SubmenuUnderMoreAction() {
-        onView(withId(R.id.gameAction)).perform(click());
-        // test Top 10 submenu
-        onData(CoreMatchers.anything())
-                .inRoot(RootMatchers.isPlatformPopup()) // isPlatformPopup() == is in PopupWindow
-                .inAdapterView(CoreMatchers.<View>instanceOf(MenuPopupWindow.MenuDropDownListView.class))
-                .atPosition(1) // for the second submenu item, here: R.id.globalTop10
-                .perform(click());
-
-        SystemClock.sleep(5000);
-
-        // R.id.top10ScoreTitle is in layout_for_top10_score_fragment.xml.xml which is used by Top10ScoreFragment
-        onView(withId(R.id.top10ScoreTitle)).check(matches(isDisplayed()));  // succeeded
-        onView(withId(R.id.top10ListView)).check(matches(isDisplayed()));
-        onView(withId(R.id.top10OkButton)).check(matches(isDisplayed()));
-
     }
 
     @Test

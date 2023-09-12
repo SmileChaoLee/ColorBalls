@@ -46,7 +46,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.smile.Service.MyGlobalTop10Service;
 import com.smile.Service.MyTop10ScoresService;
 import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate;
 import com.smile.presenters.MyActivityPresenter;
@@ -65,10 +64,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
     // private properties
     private static final String TAG = "MyActivity";
-    private static final String GlobalTop10FragmentTag = "GlobalTop10FragmentTag";
     private static final String LocalTop10FragmentTag = "LocalTop10FragmentTag";
     private final int Max_Saved_Games = 5;
-    private final int PrivacyPolicyActivityRequestCode = 10;
     private ShowInterstitial interstitialAd;
     private MyActivityPresenter mPresenter;
     private float textFontSize;
@@ -77,7 +74,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     private float screenHeight;
     private Toolbar supportToolbar;
     private Top10ScoreFragment top10ScoreFragment = null;
-    private Top10ScoreFragment globalTop10Fragment = null;
     private MyBroadcastReceiver myReceiver;
     private float mainGameViewWidth;
     private int cellWidth;
@@ -99,7 +95,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     private AlertDialogFragment gameOverDialog;
     private ActivityResultLauncher<Intent> settingLauncher;
     private ActivityResultLauncher<Intent> localTop10Launcher;
-    private ActivityResultLauncher<Intent> globalTop10Launcher;
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -161,14 +156,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                     }
                 });
 
-        globalTop10Launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    Log.d(TAG, "globalTop10Launcher.Showing interstitial ads");
-                    showAdUntilDismissed();
-                    ColorBallsApp.isShowingLoadingMessage = false;
-                    ColorBallsApp.isProcessingJob = false;
-                });
-
         Log.d(TAG, "onCreate() is finished.");
     }
 
@@ -216,10 +203,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 showTop10ScoreHistory();
                 return super.onOptionsItemSelected(item);
             }
-            if (id == R.id.globalTop10) {
-                showGlobalTop10History();
-                return super.onOptionsItemSelected(item);
-            }
             if (id == R.id.saveGame) {
                 mPresenter.saveGame();
                 return super.onOptionsItemSelected(item);
@@ -242,7 +225,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 return true;
             }
             if (id == R.id.privacyPolicy) {
-                PrivacyPolicyUtil.startPrivacyPolicyActivity(this, PrivacyPolicyActivityRequestCode);
+                PrivacyPolicyUtil.startPrivacyPolicyActivity(this, 10);
             }
         }
 
@@ -254,7 +237,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         Log.d(TAG, "MyActivity.onSaveInstanceState() is called");
 
         if (isChangingConfigurations()) {
-            // configuration is changing then remove top10ScoreFragment and globalTop10Fragment
+            // configuration is changing then remove top10ScoreFragment
             if (top10ScoreFragment != null) {
                 // remove top10ScoreFragment
                 FragmentManager fmManager = getSupportFragmentManager();
@@ -264,21 +247,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                     Log.d(TAG, "top10ScoreFragment.isStateSaved() = true");
                 } else {
                     Log.d(TAG, "top10ScoreFragment.isStateSaved() = false");
-                    // ft.commit(); // removed on 2021-01-24
-                }
-                ft.commitAllowingStateLoss();   // added on 2021-01-24
-                ColorBallsApp.isShowingLoadingMessage = false;
-                ColorBallsApp.isProcessingJob = false;
-            }
-            if (globalTop10Fragment != null) {
-                // remove globalTop10Fragment
-                FragmentManager fmManager = getSupportFragmentManager();
-                FragmentTransaction ft = fmManager.beginTransaction();
-                ft.remove(globalTop10Fragment);
-                if (globalTop10Fragment.isStateSaved()) {
-                    Log.d(TAG, "globalTop10Fragment.isStateSaved() = true");
-                } else {
-                    Log.d(TAG, "globalTop10Fragment.isStateSaved() = false");
                     // ft.commit(); // removed on 2021-01-24
                 }
                 ft.commitAllowingStateLoss();   // added on 2021-01-24
@@ -568,17 +536,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         startService(myService);
     }
 
-    private void showGlobalTop10History() {
-        ColorBallsApp.isProcessingJob = true;
-        ColorBallsApp.isShowingLoadingMessage = true;
-        showMessageOnScreen(getString(R.string.loadingString));
-        Intent myService = new Intent(this, MyGlobalTop10Service.class);
-        String webUrl = ColorBallsApp.REST_Website + "/GetTop10PlayerscoresREST";  // ASP.NET Core
-        webUrl += "?gameId=" + ColorBallsApp.GameId;   // parameters
-        myService.putExtra("WebUrl", webUrl);
-        startService(myService);
-    }
-
     private void setBannerAndNativeAdUI() {
         LinearLayout bannerLinearLayout = findViewById(R.id.linearlayout_banner_myActivity);
         LinearLayout adaptiveBannerLayout = findViewById(R.id.linearlayout_adaptiveBanner_myActivity);
@@ -621,7 +578,6 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         myReceiver = new MyBroadcastReceiver();
         IntentFilter myIntentFilter = new IntentFilter();
         myIntentFilter.addAction(MyTop10ScoresService.Action_Name);
-        myIntentFilter.addAction(MyGlobalTop10Service.Action_Name);
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.registerReceiver(myReceiver, myIntentFilter);
     }
@@ -882,114 +838,57 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             ArrayList<Integer> playerScores = new ArrayList<>();
             View historyView;
             int top10LayoutId = R.id.top10Layout;
-            switch (actionName) {
-                case MyTop10ScoresService.Action_Name:
-
-                    String top10ScoreTitle = getString(R.string.top10Score);
-                    extras = intent.getExtras();
-                    if (extras != null) {
-                        playerNames = extras.getStringArrayList("PlayerNames");
-                        playerScores = extras.getIntegerArrayList("PlayerScores");
-                    } else {
-                        // failed
-                        playerNames.add("Failed to access Score SQLite database");
-                        playerScores.add(0);
-                    }
-                    historyView = findViewById(top10LayoutId);
-                    if (historyView != null) {
-                        // if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                        if (ColorBallsApp.AppResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                            top10ScoreFragment = Top10ScoreFragment.newInstance(top10ScoreTitle, playerNames, playerScores, activity -> {
-                                if (top10ScoreFragment != null) {
-                                    // remove top10ScoreFragment to dismiss the top 10 score screen
-                                    FragmentManager fmManager = getSupportFragmentManager();
-                                    FragmentTransaction ft = fmManager.beginTransaction();
-                                    ft.remove(top10ScoreFragment);
-                                    // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
-                                    ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-                                    showAdUntilDismissed();
-                                }
-                            });
-                            FragmentManager fmManager = getSupportFragmentManager();
-                            FragmentTransaction ft = fmManager.beginTransaction();
-                            Fragment currentTop10ScoreFragment = fmManager.findFragmentByTag(LocalTop10FragmentTag);
-                            if (currentTop10ScoreFragment == null) {
-                                ft.add(top10LayoutId, top10ScoreFragment, LocalTop10FragmentTag);
-                            } else {
-                                ft.replace(top10LayoutId, top10ScoreFragment, LocalTop10FragmentTag);
+            if (actionName.equals(MyTop10ScoresService.Action_Name)) {
+                String top10ScoreTitle = getString(R.string.top10Score);
+                extras = intent.getExtras();
+                if (extras != null) {
+                    playerNames = extras.getStringArrayList("PlayerNames");
+                    playerScores = extras.getIntegerArrayList("PlayerScores");
+                } else {
+                    // failed
+                    playerNames.add("Failed to access Score SQLite database");
+                    playerScores.add(0);
+                }
+                historyView = findViewById(top10LayoutId);
+                if (historyView != null) {
+                    // if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    if (ColorBallsApp.AppResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        top10ScoreFragment = Top10ScoreFragment.newInstance(top10ScoreTitle, playerNames, playerScores, activity -> {
+                            if (top10ScoreFragment != null) {
+                                // remove top10ScoreFragment to dismiss the top 10 score screen
+                                FragmentManager fmManager = getSupportFragmentManager();
+                                FragmentTransaction ft = fmManager.beginTransaction();
+                                ft.remove(top10ScoreFragment);
+                                // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
+                                ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
+                                showAdUntilDismissed();
                             }
-                            // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
-                            ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
+                        });
+                        FragmentManager fmManager = getSupportFragmentManager();
+                        FragmentTransaction ft = fmManager.beginTransaction();
+                        Fragment currentTop10ScoreFragment = fmManager.findFragmentByTag(LocalTop10FragmentTag);
+                        if (currentTop10ScoreFragment == null) {
+                            ft.add(top10LayoutId, top10ScoreFragment, LocalTop10FragmentTag);
+                        } else {
+                            ft.replace(top10LayoutId, top10ScoreFragment, LocalTop10FragmentTag);
                         }
-                    } else {
-                        // for Portrait
-                        top10ScoreFragment = null;
-                        Intent top10Intent = new Intent(getApplicationContext(), Top10ScoreActivity.class);
-                        Bundle top10Extras = new Bundle();
-                        top10Extras.putString("Top10TitleName", top10ScoreTitle);
-                        top10Extras.putStringArrayList("Top10Players", playerNames);
-                        top10Extras.putIntegerArrayList("Top10Scores", playerScores);
-                        top10Intent.putExtras(top10Extras);
-                        localTop10Launcher.launch(top10Intent);
+                        // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
+                        ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
                     }
-                    dismissShowMessageOnScreen();
-                    ColorBallsApp.isShowingLoadingMessage = false;
-                    ColorBallsApp.isProcessingJob = false;
-                    break;
-
-                case MyGlobalTop10Service.Action_Name:
-
-                    String globalTop10ScoreTitle = getString(R.string.globalTop10Score);
-                    extras = intent.getExtras();
-                    if (extras != null) {
-                        playerNames = extras.getStringArrayList("PlayerNames");
-                        playerScores = extras.getIntegerArrayList("PlayerScores");
-                    } else {
-                        // failed
-                        playerNames.add("Failed to access data from MyGlobalTop10IntentService.");
-                        playerScores.add(0);
-                    }
-
-                    historyView = findViewById(top10LayoutId);
-                    if (historyView != null) {
-                        // if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                        if (ColorBallsApp.AppResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                            globalTop10Fragment = Top10ScoreFragment.newInstance(globalTop10ScoreTitle, playerNames, playerScores, activity -> {
-                                if (globalTop10Fragment != null) {
-                                    FragmentManager fmManager = getSupportFragmentManager();
-                                    FragmentTransaction ft = fmManager.beginTransaction();
-                                    ft.remove(globalTop10Fragment);
-                                    // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
-                                    ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-                                    showAdUntilDismissed();
-                                }
-                            });
-                            FragmentManager fmManager = getSupportFragmentManager();
-                            FragmentTransaction ft = fmManager.beginTransaction();
-                            Fragment currentGlobalTop10Fragment = fmManager.findFragmentByTag(GlobalTop10FragmentTag);
-                            if (currentGlobalTop10Fragment == null) {
-                                ft.add(top10LayoutId, globalTop10Fragment, GlobalTop10FragmentTag);
-                            } else {
-                                ft.replace(top10LayoutId, globalTop10Fragment, GlobalTop10FragmentTag);
-                            }
-                            // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
-                            ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-                        }
-                    } else {
-                        // for Portrait
-                        globalTop10Fragment = null;
-                        Intent globalTop10Intent = new Intent(getApplicationContext(), Top10ScoreActivity.class);
-                        Bundle globalTop10Extras = new Bundle();
-                        globalTop10Extras.putString("Top10TitleName", globalTop10ScoreTitle);
-                        globalTop10Extras.putStringArrayList("Top10Players", playerNames);
-                        globalTop10Extras.putIntegerArrayList("Top10Scores", playerScores);
-                        globalTop10Intent.putExtras(globalTop10Extras);
-                        globalTop10Launcher.launch(globalTop10Intent);
-                    }
-                    dismissShowMessageOnScreen();
-                    ColorBallsApp.isShowingLoadingMessage = false;
-                    ColorBallsApp.isProcessingJob = false;
-                    break;
+                } else {
+                    // for Portrait
+                    top10ScoreFragment = null;
+                    Intent top10Intent = new Intent(getApplicationContext(), Top10ScoreActivity.class);
+                    Bundle top10Extras = new Bundle();
+                    top10Extras.putString("Top10TitleName", top10ScoreTitle);
+                    top10Extras.putStringArrayList("Top10Players", playerNames);
+                    top10Extras.putIntegerArrayList("Top10Scores", playerScores);
+                    top10Intent.putExtras(top10Extras);
+                    localTop10Launcher.launch(top10Intent);
+                }
+                dismissShowMessageOnScreen();
+                ColorBallsApp.isShowingLoadingMessage = false;
+                ColorBallsApp.isProcessingJob = false;
             }
         }
     }

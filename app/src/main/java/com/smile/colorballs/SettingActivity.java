@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -17,12 +18,8 @@ public class SettingActivity extends AppCompatActivity {
     public static final String IsEasyLevelKey = "IsEasyLevel";
     public static final String HasNextBallKey = "HasNextBall";
 
-    private float textFontSize;
-    private ToggleButton soundSwitch;
     private boolean hasSound;
-    private ToggleButton easyLevelSwitch;
     private boolean isEasyLevel;
-    private ToggleButton nextBallSettingSwitch;
     private boolean hasNextBall;
 
     @Override
@@ -34,7 +31,7 @@ public class SettingActivity extends AppCompatActivity {
         }
         */
         float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this, ColorBallsApp.FontSize_Scale_Type, null);
-        textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, ColorBallsApp.FontSize_Scale_Type, 0.0f);
+        float textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, ColorBallsApp.FontSize_Scale_Type, 0.0f);
 
         hasSound = true;
         isEasyLevel = true;
@@ -54,21 +51,21 @@ public class SettingActivity extends AppCompatActivity {
 
         TextView soundSettingTitle = findViewById(R.id.soundSettingTitle);
         ScreenUtil.resizeTextSize(soundSettingTitle, textFontSize, ColorBallsApp.FontSize_Scale_Type);
-        soundSwitch = findViewById(R.id.soundSwitch);
+        ToggleButton soundSwitch = findViewById(R.id.soundSwitch);
         ScreenUtil.resizeTextSize(soundSwitch, textFontSize, ColorBallsApp.FontSize_Scale_Type);
         soundSwitch.setChecked(hasSound);
         soundSwitch.setOnClickListener( (View view)-> hasSound = ((ToggleButton)view).isChecked());
 
         TextView levelSettingTitle = findViewById(R.id.levelSettingTitle);
         ScreenUtil.resizeTextSize(levelSettingTitle, textFontSize, ColorBallsApp.FontSize_Scale_Type);
-        easyLevelSwitch = findViewById(R.id.easyLevelSwitch);
+        ToggleButton easyLevelSwitch = findViewById(R.id.easyLevelSwitch);
         ScreenUtil.resizeTextSize(easyLevelSwitch, textFontSize, ColorBallsApp.FontSize_Scale_Type);
         easyLevelSwitch.setChecked(isEasyLevel);
         easyLevelSwitch.setOnClickListener( (View view)-> isEasyLevel = ((ToggleButton)view).isChecked());
 
         TextView nextBallSettingTitle = findViewById(R.id.nextBallSettingTitle);
         ScreenUtil.resizeTextSize(nextBallSettingTitle, textFontSize, ColorBallsApp.FontSize_Scale_Type);
-        nextBallSettingSwitch = findViewById(R.id.nextBallSettingSwitch);
+        ToggleButton nextBallSettingSwitch = findViewById(R.id.nextBallSettingSwitch);
         ScreenUtil.resizeTextSize(nextBallSettingSwitch, textFontSize, ColorBallsApp.FontSize_Scale_Type);
         nextBallSettingSwitch.setChecked(hasNextBall);
         nextBallSettingSwitch.setOnClickListener( (View view)-> hasNextBall = ((ToggleButton)view).isChecked());
@@ -96,11 +93,7 @@ public class SettingActivity extends AppCompatActivity {
         extras.putBoolean(HasNextBallKey, hasNextBall);
         returnIntent.putExtras(extras);
 
-        int resultYn = Activity.RESULT_OK;
-        if (!confirmed) {
-            // cancelled
-            resultYn = Activity.RESULT_CANCELED;
-        }
+        int resultYn = confirmed? Activity.RESULT_OK : Activity.RESULT_CANCELED;
 
         setResult(resultYn, returnIntent);    // can bundle some data to previous activity
         finish();
