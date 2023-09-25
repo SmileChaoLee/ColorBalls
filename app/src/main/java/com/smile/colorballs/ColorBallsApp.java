@@ -19,7 +19,7 @@ import com.smile.smilelibraries.utilities.ScreenUtil;
 public class ColorBallsApp extends MultiDexApplication {
 
     private static final String TAG = "ColorBallsApp";
-    public static final String REST_Website = "http://ec2-13-59-195-3.us-east-2.compute.amazonaws.com/Playerscore";
+    // public static final String REST_Website = "http://ec2-13-59-195-3.us-east-2.compute.amazonaws.com/Playerscore";
     public static final int GameId = 1; // this GameId is for backend game_id in playerscore table
     public static final int FontSize_Scale_Type = ScreenUtil.FontSize_Pixel_Type;
 

@@ -21,7 +21,6 @@ import com.smile.colorballs.ColorBallsApp;
 import com.smile.colorballs.R;
 import com.smile.model.GameProperties;
 import com.smile.model.GridData;
-import com.smile.smilelibraries.player_record_rest.PlayerRecordRest;
 import com.smile.smilelibraries.utilities.FontAndBitmapUtil;
 import com.smile.smilelibraries.utilities.SoundPoolUtil;
 
@@ -60,7 +59,7 @@ public class MyActivityPresenter {
     private final String savedGameFileName = "saved_game";
 
     private final Activity activity;
-    private final ColorBallsApp application;
+    private final ColorBallsApp colorBallsApp;
     private final PresentView presentView;
     private final SoundPoolUtil soundPoolUtil;
     private final Handler bouncyHandler = new Handler(Looper.getMainLooper());
@@ -92,7 +91,7 @@ public class MyActivityPresenter {
         colorBallMap = new HashMap<>();
         colorOvalBallMap = new HashMap<>();
         colorNextBallMap = new HashMap<>();
-        application = (ColorBallsApp) this.activity.getApplication();
+        colorBallsApp = (ColorBallsApp) this.activity.getApplication();
     }
 
     public void doDrawBallsAndCheckListener(View v) {
@@ -157,7 +156,7 @@ public class MyActivityPresenter {
 
         this.rowCounts = rowCounts;
         this.colCounts = colCounts;
-        int highestScore = application.scoreSQLiteDB.readHighestScore();
+        int highestScore = colorBallsApp.scoreSQLiteDB.readHighestScore();
 
         boolean isNewGame = true;
         if (savedInstanceState == null) {
@@ -359,35 +358,14 @@ public class MyActivityPresenter {
     }
 
     public void saveScore(String playerName, int score) {
-        // removed on 2019-02-20 no global ranking any more
-        // use thread to add a record to database (remote database on AWS-EC2)
-        Thread restThread = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    String webUrl = ColorBallsApp.REST_Website + "/AddOneRecordREST";   // ASP.NET Cor
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("PlayerName", playerName);
-                    jsonObject.put("Score", score);
-                    jsonObject.put("GameId", ColorBallsApp.GameId);
-                    PlayerRecordRest.addOneRecord(webUrl, jsonObject);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    Log.d(TAG, "Failed to add one record to Playerscore table.");
-                }
-            }
-        };
-        restThread.start();
-
         // modified on 2018-11-07
-        boolean isInTop10 = application.scoreSQLiteDB.isInTop10(score);
+        boolean isInTop10 = colorBallsApp.scoreSQLiteDB.isInTop10(score);
         if (isInTop10) {
             // inside top 10
             // record the current score
-            application.scoreSQLiteDB.addScore(playerName, score);
-            application.scoreSQLiteDB.deleteAllAfterTop10();  // only keep the top 10
+            colorBallsApp.scoreSQLiteDB.addScore(playerName, score);
+            colorBallsApp.scoreSQLiteDB.deleteAllAfterTop10();  // only keep the top 10
         }
-        //
     }
 
     public void newGame() {

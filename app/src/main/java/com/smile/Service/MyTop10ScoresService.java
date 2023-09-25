@@ -5,12 +5,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.util.Pair;
 
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.smile.colorballs.ColorBallsApp;
-import com.smile.smilelibraries.player_record_rest.PlayerRecordRest;
+import com.smile.smilelibraries.scoresqlite.ScoreSQLite;
 
 import java.util.ArrayList;
 
@@ -37,8 +38,8 @@ public class MyTop10ScoresService extends Service {
         ArrayList<String> playerNames = new ArrayList<>();
         ArrayList<Integer> playerScores = new ArrayList<>();
 
-        ColorBallsApp application = (ColorBallsApp) getApplication();
-        String status = PlayerRecordRest.GetLocalTop10Scores(application.scoreSQLiteDB, playerNames, playerScores);
+        ColorBallsApp colorBallsApp = (ColorBallsApp) getApplication();
+        boolean status = getLocalTop10Scores(colorBallsApp.scoreSQLiteDB, playerNames, playerScores);
 
         Intent notificationIntent = new Intent(Action_Name);
         Bundle extras = new Bundle();
@@ -55,5 +56,24 @@ public class MyTop10ScoresService extends Service {
         Log.d(TAG, "MyTop10ScoresService --> sent result.");
 
         stopSelf();
+    }
+
+    private boolean getLocalTop10Scores(ScoreSQLite scoreSQLite, ArrayList<String> playerNames, ArrayList<Integer> playerScores) {
+        boolean status = true;
+        try {
+            ArrayList<Pair<String, Integer>> resultList = scoreSQLite.readTop10ScoreList();
+            playerNames.clear();
+            playerScores.clear();
+
+            for (Pair pair : resultList) {
+                playerNames.add((String) pair.first);
+                playerScores.add((Integer) pair.second);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            status = false;
+        }
+
+        return status;
     }
 }
