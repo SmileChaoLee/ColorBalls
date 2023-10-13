@@ -10,21 +10,18 @@ import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.smile.colorballs.ColorBallsApp;
+import com.smile.colorballs.Constants;
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite;
-
 import java.util.ArrayList;
 
 public class MyTop10ScoresService extends Service {
     public final static String Action_Name = "com.smile.Service.MyTop10ScoresService";
-    private final static String TAG = new String("MyTop10ScoresService");
+    private final static String TAG = "MyTop10ScoresService";
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "MyTop10ScoresService --> onStartCommand() is called.");
+        Log.d(TAG, "onStartCommand() is called.");
         getDataAndSendBack();
-
-        Log.d(TAG, "MyTop10ScoresService --> stopSelf() is called.");
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -38,33 +35,27 @@ public class MyTop10ScoresService extends Service {
         ArrayList<String> playerNames = new ArrayList<>();
         ArrayList<Integer> playerScores = new ArrayList<>();
 
-        ColorBallsApp colorBallsApp = (ColorBallsApp) getApplication();
-        boolean status = getLocalTop10Scores(colorBallsApp.scoreSQLiteDB, playerNames, playerScores);
-
+        getLocalTop10Scores(playerNames, playerScores);
         Intent notificationIntent = new Intent(Action_Name);
         Bundle extras = new Bundle();
-        extras.putStringArrayList("PlayerNames", playerNames);
-        extras.putIntegerArrayList("PlayerScores", playerScores);
+        extras.putStringArrayList(Constants.PlayerNamesKey, playerNames);
+        extras.putIntegerArrayList(Constants.PlayerScoresKey, playerScores);
         notificationIntent.putExtras(extras);
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
         localBroadcastManager.sendBroadcast(notificationIntent);
-
-        // added on 2018-11-11
-        ColorBallsApp.isShowingLoadingMessage = false;
-        ColorBallsApp.isProcessingJob = false;
-
-        Log.d(TAG, "MyTop10ScoresService --> sent result.");
-
+        Log.d(TAG, "getDataAndSendBack.sent result.");
         stopSelf();
+        Log.d(TAG, "getDataAndSendBack.stopSelf().");
     }
 
-    private boolean getLocalTop10Scores(ScoreSQLite scoreSQLite, ArrayList<String> playerNames, ArrayList<Integer> playerScores) {
+    private boolean getLocalTop10Scores(ArrayList<String> playerNames, ArrayList<Integer> playerScores) {
         boolean status = true;
+        playerNames.clear();
+        playerScores.clear();
         try {
-            ArrayList<Pair<String, Integer>> resultList = scoreSQLite.readTop10ScoreList();
-            playerNames.clear();
-            playerScores.clear();
-
+            ScoreSQLite scoreSQLiteDB = new ScoreSQLite(getApplicationContext());
+            ArrayList<Pair<String, Integer>> resultList = scoreSQLiteDB.readTop10ScoreList();
+            scoreSQLiteDB.close();
             for (Pair pair : resultList) {
                 playerNames.add((String) pair.first);
                 playerScores.add((Integer) pair.second);
@@ -73,7 +64,7 @@ public class MyTop10ScoresService extends Service {
             ex.printStackTrace();
             status = false;
         }
-
+        Log.d(TAG, "getLocalTop10Scores.status = " + status);
         return status;
     }
 }

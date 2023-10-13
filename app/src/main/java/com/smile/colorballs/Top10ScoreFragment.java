@@ -79,9 +79,9 @@ public class Top10ScoreFragment extends Fragment {
         }
 
         Bundle args = new Bundle();
-        args.putString("Top10TitleName", top10Title);
-        args.putStringArrayList("Top10Players", playerNames);
-        args.putIntegerArrayList("Top10Scores", playerScores);
+        args.putString(Constants.Top10TitleNameKey, top10Title);
+        args.putStringArrayList(Constants.Top10PlayersKey, playerNames);
+        args.putIntegerArrayList(Constants.Top10ScoresKey, playerScores);
         fragment.setArguments(args);
 
         return fragment;
@@ -103,8 +103,8 @@ public class Top10ScoreFragment extends Fragment {
         }
 
         this.context = context;
-        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(getActivity(), ColorBallsApp.FontSize_Scale_Type, null);
-        textFontSize = ScreenUtil.suitableFontSize(getActivity(), defaultTextFontSize, ColorBallsApp.FontSize_Scale_Type,0.0f);
+        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(getActivity(), ScreenUtil.FontSize_Pixel_Type, null);
+        textFontSize = ScreenUtil.suitableFontSize(getActivity(), defaultTextFontSize, ScreenUtil.FontSize_Pixel_Type,0.0f);
     }
 
     @Override
@@ -117,9 +117,9 @@ public class Top10ScoreFragment extends Fragment {
         if (savedInstanceState == null) {   // if new Fragment instance
             Bundle args = getArguments();
             if (args != null) {
-                top10TitleName = args.getString("Top10TitleName");
-                top10Players = args.getStringArrayList("Top10Players");
-                top10Scores = args.getIntegerArrayList("Top10Scores");
+                top10TitleName = args.getString(Constants.Top10TitleNameKey);
+                top10Players = args.getStringArrayList(Constants.Top10PlayersKey);
+                top10Scores = args.getIntegerArrayList(Constants.Top10ScoresKey);
             }
         }
     }
@@ -134,7 +134,7 @@ public class Top10ScoreFragment extends Fragment {
 
         TextView top10TitleTextView = view.findViewById(R.id.top10ScoreTitle);
         top10TitleTextView.setText(top10TitleName);
-        ScreenUtil.resizeTextSize(top10TitleTextView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        ScreenUtil.resizeTextSize(top10TitleTextView, textFontSize, ScreenUtil.FontSize_Pixel_Type);
 
         return view;
     }
@@ -148,9 +148,9 @@ public class Top10ScoreFragment extends Fragment {
         // moved here from onActivityCreated() because onActivityCreated() is deprecated
         if (savedInstanceState == null) {   // new Fragment instance
             titleForTop10ListView = top10ScoreFragmentView.findViewById(R.id.top10ScoreTitle);
-            ScreenUtil.resizeTextSize(titleForTop10ListView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+            ScreenUtil.resizeTextSize(titleForTop10ListView, textFontSize, ScreenUtil.FontSize_Pixel_Type);
             okButton = top10ScoreFragmentView.findViewById(R.id.top10OkButton);
-            ScreenUtil.resizeTextSize(okButton, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+            ScreenUtil.resizeTextSize(okButton, textFontSize, ScreenUtil.FontSize_Pixel_Type);
             okButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -281,9 +281,9 @@ public class Top10ScoreFragment extends Fragment {
             // view.setLayoutParams(layoutParams);  // no needed
 
             TextView pTextView = view.findViewById(R.id.playerTextView);
-            ScreenUtil.resizeTextSize(pTextView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+            ScreenUtil.resizeTextSize(pTextView, textFontSize, ScreenUtil.FontSize_Pixel_Type);
             TextView sTextView = view.findViewById(R.id.scoreTextView);
-            ScreenUtil.resizeTextSize(sTextView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+            ScreenUtil.resizeTextSize(sTextView, textFontSize, ScreenUtil.FontSize_Pixel_Type);
             ImageView medalImage = view.findViewById(R.id.medalImage);
 
             pTextView.setText(players.get(position));

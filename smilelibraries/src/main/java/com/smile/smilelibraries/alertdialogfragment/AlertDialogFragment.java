@@ -32,7 +32,16 @@ import android.widget.TextView;
 
 public class AlertDialogFragment extends DialogFragment {
 
-    private final String TAG = "AlertDialogFragment";
+    public static final String TextContentKey = "TextContent";
+    public static final String FontSizeScaleTypeKey = "FontSize_Scale_Type";
+    public static final String TextFontSizeKey = "TextFontSize";
+    public static final String ColorKey = "Color";
+    public static final String WidthKey = "Width";
+    public static final String HeightKey = "Height";
+    public static final String NumButtonsKey = "NumButtons";
+    public static final String IsAnimationKey = "IsAnimation";
+
+    private static final String TAG = "AlertDialogFragment";
     private TextView text_shown = null;
     private EditText text_edit = null;
     private Button noButton = null;
@@ -77,14 +86,14 @@ public class AlertDialogFragment extends DialogFragment {
     public static AlertDialogFragment newInstance(String textContent,int fontSize_Type, float textFontSize, int color, int width, int height, boolean isAnimation) {
         AlertDialogFragment modalDialog = new AlertDialogFragment();
         Bundle args = new Bundle();
-        args.putString("TextContent", textContent);
-        args.putInt("FontSize_Scale_Type", fontSize_Type);
-        args.putFloat("TextFontSize", textFontSize);
-        args.putInt("Color", color);
-        args.putInt("Width", width);
-        args.putInt("Height", height);
-        args.putInt("NumButtons", 0);
-        args.putBoolean("IsAnimation", isAnimation);
+        args.putString(TextContentKey, textContent);
+        args.putInt(FontSizeScaleTypeKey, fontSize_Type);
+        args.putFloat(TextFontSizeKey, textFontSize);
+        args.putInt(ColorKey, color);
+        args.putInt(WidthKey, width);
+        args.putInt(HeightKey, height);
+        args.putInt(NumButtonsKey, 0);
+        args.putBoolean(IsAnimationKey, isAnimation);
         modalDialog.setArguments(args);
 
         return modalDialog;
@@ -106,7 +115,7 @@ public class AlertDialogFragment extends DialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // setRetainInstance(true); // deprecated
-        Log.d(TAG, "AlertDialogFragment.onCreate() is called");
+        Log.d(TAG, "onCreate()");
 
         // if statement was added on 2018-06-14 for avoiding to reset the parameters and values of
         // properties because of configuration changing
@@ -123,14 +132,14 @@ public class AlertDialogFragment extends DialogFragment {
 
             Bundle args = getArguments();
             if (args != null) {
-                textContext = args.getString("TextContent");
-                fontSize_Scale_Type = args.getInt("FontSize_Scale_Type");
-                textFontSize = args.getFloat("TextFontSize");
-                textColor = args.getInt("Color");
-                dialogWidth = args.getInt("Width");
-                dialogHeight = args.getInt("Height");
-                numButtons = args.getInt("NumButtons");
-                isAnimation = args.getBoolean("IsAnimation", false);
+                textContext = args.getString(TextContentKey);
+                fontSize_Scale_Type = args.getInt(FontSizeScaleTypeKey);
+                textFontSize = args.getFloat(TextFontSizeKey);
+                textColor = args.getInt(ColorKey);
+                dialogWidth = args.getInt(WidthKey);
+                dialogHeight = args.getInt(HeightKey);
+                numButtons = args.getInt(NumButtonsKey);
+                isAnimation = args.getBoolean(IsAnimationKey, false);
             }
 
             if (isAnimation) {

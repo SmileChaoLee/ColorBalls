@@ -150,16 +150,6 @@ public class ShowInterstitial {
         private synchronized void onPostExecute() {
             Log.d(TAG, "ShowAdThread.onPostExecute.succeededFacebook = " + succeededFacebook +
                     ", succeededAdMob = " + succeededAdMob);
-            /*
-            try {
-                mActivity.runOnUiThread(() -> {
-                    // may update th main thread (UI)
-                    // mDismissFunction.executeDismiss();
-                });
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-            */
         }
 
         public void startShowAd(int provider) {

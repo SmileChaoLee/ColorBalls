@@ -21,10 +21,9 @@ import com.smile.colorballs.ColorBallsApp;
 import com.smile.colorballs.R;
 import com.smile.model.GameProperties;
 import com.smile.model.GridData;
+import com.smile.smilelibraries.scoresqlite.ScoreSQLite;
 import com.smile.smilelibraries.utilities.FontAndBitmapUtil;
 import com.smile.smilelibraries.utilities.SoundPoolUtil;
-
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -59,7 +58,6 @@ public class MyActivityPresenter {
     private final String savedGameFileName = "saved_game";
 
     private final Activity activity;
-    private final ColorBallsApp colorBallsApp;
     private final PresentView presentView;
     private final SoundPoolUtil soundPoolUtil;
     private final Handler bouncyHandler = new Handler(Looper.getMainLooper());
@@ -91,7 +89,6 @@ public class MyActivityPresenter {
         colorBallMap = new HashMap<>();
         colorOvalBallMap = new HashMap<>();
         colorNextBallMap = new HashMap<>();
-        colorBallsApp = (ColorBallsApp) this.activity.getApplication();
     }
 
     public void doDrawBallsAndCheckListener(View v) {
@@ -156,7 +153,9 @@ public class MyActivityPresenter {
 
         this.rowCounts = rowCounts;
         this.colCounts = colCounts;
-        int highestScore = colorBallsApp.scoreSQLiteDB.readHighestScore();
+        ScoreSQLite scoreSQLiteDB = new ScoreSQLite(activity.getApplicationContext());
+        int highestScore = scoreSQLiteDB.readHighestScore();
+        scoreSQLiteDB.close();
 
         boolean isNewGame = true;
         if (savedInstanceState == null) {
@@ -359,13 +358,15 @@ public class MyActivityPresenter {
 
     public void saveScore(String playerName, int score) {
         // modified on 2018-11-07
-        boolean isInTop10 = colorBallsApp.scoreSQLiteDB.isInTop10(score);
+        ScoreSQLite scoreSQLiteDB = new ScoreSQLite(activity.getApplicationContext());
+        boolean isInTop10 = scoreSQLiteDB.isInTop10(score);
         if (isInTop10) {
             // inside top 10
             // record the current score
-            colorBallsApp.scoreSQLiteDB.addScore(playerName, score);
-            colorBallsApp.scoreSQLiteDB.deleteAllAfterTop10();  // only keep the top 10
+            scoreSQLiteDB.addScore(playerName, score);
+            scoreSQLiteDB.deleteAllAfterTop10();  // only keep the top 10
         }
+        scoreSQLiteDB.close();
     }
 
     public void newGame() {
@@ -385,13 +386,15 @@ public class MyActivityPresenter {
     }
 
     public int readNumberOfSaved() {
+        Log.d(TAG, "readNumberOfSaved.activity = " + activity);
         int numOfSaved = 0;
         try {
-            File inputFile = new File(ColorBallsApp.AppContext.getFilesDir(), NumOfSavedGameFileName);
+            File inputFile = new File(activity.getFilesDir(), NumOfSavedGameFileName);
             FileInputStream fiStream = new FileInputStream(inputFile);
             numOfSaved = fiStream.read();
             fiStream.close();
         } catch (IOException ex) {
+            Log.d(TAG, "readNumberOfSaved.IOException");
             ex.printStackTrace();
         }
         return numOfSaved;
@@ -501,7 +504,8 @@ public class MyActivityPresenter {
 
             numOfSaved++;
             // save numOfSaved back to file (ColorBallsApp.NumOfSavedGameFileName)
-            outputFile = new File(ColorBallsApp.AppContext.getFilesDir(), NumOfSavedGameFileName);
+            Log.d(TAG, "startSavingGame.creating outputFile.");
+            outputFile = new File(activity.getFilesDir(), NumOfSavedGameFileName);
             foStream = new FileOutputStream(outputFile);
             foStream.write(numOfSaved);
             foStream.close();
@@ -543,7 +547,8 @@ public class MyActivityPresenter {
             gridData.setNextCellIndices(new HashMap<>());
             gridData.setUndoNextCellIndices(new HashMap<>());
 
-            File inputFile = new File(ColorBallsApp.AppContext.getFilesDir(), savedGameFileName);
+            Log.d(TAG, "startLoadingGame.Creating inputFile");
+            File inputFile = new File(activity.getFilesDir(), savedGameFileName);
             long fileSizeInByte = inputFile.length();
             Log.d(TAG, "startLoadingGame.File size = " + fileSizeInByte);
             FileInputStream fiStream = new FileInputStream(inputFile);
@@ -819,7 +824,7 @@ public class MyActivityPresenter {
 
     private void displayNextColorBalls() {
         if (gridData.randCells() == 0) {
-            // no vacants, so game over
+            // no vacant, so game over
             gameOver();
             return;
         }
@@ -909,7 +914,7 @@ public class MyActivityPresenter {
     private void drawBallAlongPath() {
         Log.d(TAG, "drawBallAlongPath");
         int sizeOfPathPoint = gridData.getPathPoint().size();
-        if (sizeOfPathPoint<=0) {
+        if (sizeOfPathPoint == 0) {
             Log.w(TAG, "drawBallAlongPath.sizeOfPathPoint<=0");
             return;
         }

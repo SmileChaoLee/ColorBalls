@@ -9,17 +9,22 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import android.provider.SyncStateContract;
 import android.util.Log;
 
 public class MusicBoundService extends Service {
 
-    public static final String ActionName = new String("com.smile.smilepublicclasseslibrary.services.MusicService");
+    public static final String ActionName = "com.smile.smilepublicclasseslibrary.services.MusicService";
+    public static final String MusicResourceIdKey = "MusicResourceId";
+    public static final String SoundVolumeKey = "SoundVolume";
+    public static final String PlayStatusKey = "PlayStatus";
     public static final int ServiceStopped = 0x00;
     public static final int ServiceStarted = 0x01;
     public static final int MusicPlaying = 0x02;
     public static final int MusicPaused = 0x03;
 
-    private static final String TAG = new String("com.smile.smilepublicclasseslibrary.services.MusicService");
+    private static final String TAG = "MusicBoundService";
     private final int maxVolume = 100;
     private int soundVolume = maxVolume - 1;   // full volume
     private MediaPlayer mediaPlayer = null;
@@ -91,7 +96,7 @@ public class MusicBoundService extends Service {
 
         // send broadcast to receiver
         Intent broadcastIntent = new Intent(ActionName);
-        broadcastIntent.putExtra("PlayStatus", ServiceStarted);
+        broadcastIntent.putExtra(PlayStatusKey, ServiceStarted);
 
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());
         localBroadcastManager.sendBroadcast(broadcastIntent);
@@ -107,8 +112,8 @@ public class MusicBoundService extends Service {
         Bundle extras = intent.getExtras();
         musicResourceId = 0;    // no resource
         if (extras != null) {
-            musicResourceId = extras.getInt("MusicResourceId", 0);
-            soundVolume = extras.getInt("SoundVolume", maxVolume - 1);
+            musicResourceId = extras.getInt(MusicResourceIdKey, 0);
+            soundVolume = extras.getInt(SoundVolumeKey, maxVolume - 1);
         }
 
         backgroundThread = new Thread(new Runnable() {
@@ -176,7 +181,7 @@ public class MusicBoundService extends Service {
                     // send broadcast to receiver
                     Intent broadcastIntent = new Intent(ActionName);
                     Bundle extras = new Bundle();
-                    extras.putInt("PlayStatus", MusicPlaying);
+                    extras.putInt(PlayStatusKey, MusicPlaying);
                     broadcastIntent.putExtras(extras);
 
                     LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getBaseContext());
@@ -197,7 +202,7 @@ public class MusicBoundService extends Service {
                 // send broadcast to receiver
                 Intent broadcastIntent = new Intent(ActionName);
                 Bundle extras = new Bundle();
-                extras.putInt("PlayStatus", MusicPaused);
+                extras.putInt(PlayStatusKey, MusicPaused);
                 broadcastIntent.putExtras(extras);
 
                 LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getBaseContext());
@@ -221,7 +226,7 @@ public class MusicBoundService extends Service {
         // send broadcast to receiver
         Intent broadcastIntent = new Intent(ActionName);
         Bundle extras = new Bundle();
-        extras.putInt("PlayStatus", ServiceStopped);
+        extras.putInt(PlayStatusKey, ServiceStopped);
         broadcastIntent.putExtras(extras);
 
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getApplicationContext());

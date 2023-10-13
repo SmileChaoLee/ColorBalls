@@ -30,7 +30,7 @@ public class Top10ScoreActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG,"Top10ScoreActivity.onCreate() is called.");
+        Log.d(TAG,"onCreate()");
 
         super.onCreate(savedInstanceState);
         /*
@@ -50,9 +50,9 @@ public class Top10ScoreActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            top10TitleName = extras.getString("Top10TitleName");
-            top10Players = extras.getStringArrayList("Top10Players");
-            top10Scores = extras.getIntegerArrayList("Top10Scores");
+            top10TitleName = extras.getString(Constants.Top10TitleNameKey);
+            top10Players = extras.getStringArrayList(Constants.Top10PlayersKey);
+            top10Scores = extras.getIntegerArrayList(Constants.Top10ScoresKey);
         }
 
         setContentView(R.layout.activity_top10_score);

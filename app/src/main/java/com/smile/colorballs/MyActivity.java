@@ -130,30 +130,33 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
         settingLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 result -> {
+                    Log.d(TAG, "settingLauncher.result received");
                     int resultCode = result.getResultCode();
                     if (resultCode == Activity.RESULT_OK) {
                         Intent data = result.getData();
                         if (data == null) return;
                         Bundle extras = data.getExtras();
                         if (extras != null) {
-                            boolean hasSound = extras.getBoolean(SettingActivity.HasSoundKey);
+                            boolean hasSound = extras.getBoolean(Constants.HasSoundKey);
                             mPresenter.setHasSound(hasSound);
-                            boolean isEasyLevel = extras.getBoolean(SettingActivity.IsEasyLevelKey);
+                            boolean isEasyLevel = extras.getBoolean(Constants.IsEasyLevelKey);
                             mPresenter.setEasyLevel(isEasyLevel);
-                            boolean hasNextBall = extras.getBoolean(SettingActivity.HasNextBallKey);
+                            boolean hasNextBall = extras.getBoolean(Constants.HasNextBallKey);
                             mPresenter.setHasNextBall(hasNextBall, true);
                         }
                     }
+                    ColorBallsApp.isProcessingJob = false;  // setting activity finished
                 });
         localTop10Launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 result -> {
+                    Log.d(TAG, "localTop10Launcher.result received");
                     int resultCode = result.getResultCode();
                     if (resultCode == Activity.RESULT_OK) {
                         Log.d(TAG, "localTop10Launcher.Showing interstitial ads");
                         showAdUntilDismissed();   // removed for testing
-                        ColorBallsApp.isShowingLoadingMessage = false;
-                        ColorBallsApp.isProcessingJob = false;
                     }
+                    ColorBallsApp.isShowingLoadingMessage = false;
+                    ColorBallsApp.isProcessingJob = false;
                 });
 
         Log.d(TAG, "onCreate() is finished.");
@@ -170,7 +173,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         final Context wrapper = new ContextThemeWrapper(this, popupThemeId);
         //
 
-        // ScreenUtil.buildActionViewClassMenu(this, wrapper, menu, fScale, ColorBallsApp.FontSize_Scale_Type);
+        // ScreenUtil.buildActionViewClassMenu(this, wrapper, menu, fScale, ScreenUtil.FontSize_Pixel_Type);
         ScreenUtil.resizeMenuTextIconSize(wrapper, menu, fontScale);
 
         return true;
@@ -212,16 +215,15 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 return true;
             }
             if (id == R.id.setting) {
+                Log.d(TAG, "onOptionsItemSelected.settingLauncher.launch(intent)");
                 ColorBallsApp.isProcessingJob = true;    // started procession job
                 Intent intent = new Intent(this, SettingActivity.class);
                 Bundle extras = new Bundle();
-                extras.putBoolean(SettingActivity.HasSoundKey, mPresenter.hasSound());
-                extras.putBoolean(SettingActivity.IsEasyLevelKey, mPresenter.isEasyLevel());
-                extras.putBoolean(SettingActivity.HasNextBallKey, mPresenter.hasNextBall());
+                extras.putBoolean(Constants.HasSoundKey, mPresenter.hasSound());
+                extras.putBoolean(Constants.IsEasyLevelKey, mPresenter.isEasyLevel());
+                extras.putBoolean(Constants.HasNextBallKey, mPresenter.hasNextBall());
                 intent.putExtras(extras);
                 settingLauncher.launch(intent);
-
-                ColorBallsApp.isProcessingJob = false;
                 return true;
             }
             if (id == R.id.privacyPolicy) {
@@ -350,14 +352,14 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             exitAppTimer.start();
             float toastFontSize = textFontSize * 0.7f;
             Log.d(TAG, "toastFontSize = " + toastFontSize);
-            ScreenUtil.showToast(MyActivity.this, getString(R.string.backKeyToExitApp), toastFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_SHORT);
-            // ShowToastMessage.showToast(this, getString(R.string.backKeyToExitApp), toastFontSize, ColorBallsApp.FontSize_Scale_Type, 2000);
+            ScreenUtil.showToast(MyActivity.this, getString(R.string.backKeyToExitApp), toastFontSize, ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_SHORT);
+            // ShowToastMessage.showToast(this, getString(R.string.backKeyToExitApp), toastFontSize, ScreenUtil.FontSize_Pixel_Type, 2000);
         }
     }
     private void findOutTextFontSize() {
-        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this, ColorBallsApp.FontSize_Scale_Type, null);
-        textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, ColorBallsApp.FontSize_Scale_Type, 0.0f);
-        fontScale = ScreenUtil.suitableFontScale(this, ColorBallsApp.FontSize_Scale_Type, 0.0f);
+        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this, ScreenUtil.FontSize_Pixel_Type, null);
+        textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, ScreenUtil.FontSize_Pixel_Type, 0.0f);
+        fontScale = ScreenUtil.suitableFontScale(this, ScreenUtil.FontSize_Pixel_Type, 0.0f);
     }
 
     private void findOutScreenSize() {
@@ -415,10 +417,10 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
         // display the highest score and current score
         highestScoreTextView = supportToolbar.findViewById(R.id.highestScoreTextView);
-        ScreenUtil.resizeTextSize(highestScoreTextView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        ScreenUtil.resizeTextSize(highestScoreTextView, textFontSize, ScreenUtil.FontSize_Pixel_Type);
 
         currentScoreTextView = supportToolbar.findViewById(R.id.currentScoreTextView);
-        ScreenUtil.resizeTextSize(currentScoreTextView, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        ScreenUtil.resizeTextSize(currentScoreTextView, textFontSize, ScreenUtil.FontSize_Pixel_Type);
 
         FrameLayout gridPartFrameLayout = findViewById(R.id.gridPartFrameLayout);
         LinearLayout.LayoutParams frameLp = (LinearLayout.LayoutParams) gridPartFrameLayout.getLayoutParams();
@@ -494,7 +496,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         }
 
         Button nBtn = dlg.getButton(DialogInterface.BUTTON_NEGATIVE);
-        ScreenUtil.resizeTextSize(nBtn, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        ScreenUtil.resizeTextSize(nBtn, textFontSize, ScreenUtil.FontSize_Pixel_Type);
         nBtn.setTypeface(Typeface.DEFAULT_BOLD);
         nBtn.setTextColor(Color.RED);
 
@@ -503,7 +505,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         nBtn.setLayoutParams(layoutParams);
 
         Button pBtn = dlg.getButton(DialogInterface.BUTTON_POSITIVE);
-        ScreenUtil.resizeTextSize(pBtn, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        ScreenUtil.resizeTextSize(pBtn, textFontSize, ScreenUtil.FontSize_Pixel_Type);
         pBtn.setTypeface(Typeface.DEFAULT_BOLD);
         pBtn.setTextColor(Color.rgb(0x00,0x64,0x00));
         pBtn.setLayoutParams(layoutParams);
@@ -529,6 +531,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     }
 
     private void showTop10ScoreHistory() {
+        Log.d(TAG, "showTop10ScoreHistory.");
         ColorBallsApp.isProcessingJob = true;
         ColorBallsApp.isShowingLoadingMessage = true;
         showMessageOnScreen(getString(R.string.loadingString));
@@ -615,7 +618,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
     @Override
     public void showMessageOnScreen(String messageString) {
-        Bitmap dialog_board_image = BitmapFactory.decodeResource(ColorBallsApp.AppResources, R.drawable.dialog_board_image);
+        Bitmap dialog_board_image = BitmapFactory.decodeResource(getResources(), R.drawable.dialog_board_image);
         Bitmap showBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(dialog_board_image, messageString, Color.RED);
         scoreImageView.setVisibility(View.VISIBLE);
         scoreImageView.setImageBitmap(showBitmap);
@@ -646,9 +649,9 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 if (numOfSaved < Max_Saved_Games) {
                     boolean succeeded = mPresenter.startSavingGame(numOfSaved);
                     if (succeeded) {
-                        ScreenUtil.showToast(MyActivity.this, getString(R.string.succeededSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                        ScreenUtil.showToast(MyActivity.this, getString(R.string.succeededSaveGameString), textFontSize, ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG);
                     } else {
-                        ScreenUtil.showToast(MyActivity.this, getString(R.string.failedSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                        ScreenUtil.showToast(MyActivity.this, getString(R.string.failedSaveGameString), textFontSize, ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG);
                     }
                 } else {
                     // display warning to users
@@ -658,14 +661,14 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             }
         });
         Bundle args = new Bundle();
-        args.putString("TextContent", getString(R.string.sureToSaveGameString));
-        args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
-        args.putFloat("TextFontSize", textFontSize);
-        args.putInt("Color", Color.BLUE);
-        args.putInt("Width", 0);    // wrap_content
-        args.putInt("Height", 0);   // wrap_content
-        args.putInt("NumButtons", 2);
-        args.putBoolean("IsAnimation", false);
+        args.putString(AlertDialogFragment.TextContentKey, getString(R.string.sureToSaveGameString));
+        args.putInt(AlertDialogFragment.FontSizeScaleTypeKey, ScreenUtil.FontSize_Pixel_Type);
+        args.putFloat(AlertDialogFragment.TextFontSizeKey, textFontSize);
+        args.putInt(AlertDialogFragment.ColorKey, Color.BLUE);
+        args.putInt(AlertDialogFragment.WidthKey, 0);    // wrap_content
+        args.putInt(AlertDialogFragment.HeightKey, 0);   // wrap_content
+        args.putInt(AlertDialogFragment.NumButtonsKey, 2);
+        args.putBoolean(AlertDialogFragment.IsAnimationKey, false);
 
         mPresenter.setShowingSureSaveDialog(true);
         sureSaveDialog.setArguments(args);
@@ -687,9 +690,9 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 mPresenter.setShowingWarningSaveGameDialog(false);
                 boolean succeeded = mPresenter.startSavingGame(finalNumOfSaved);
                 if (succeeded) {
-                    ScreenUtil.showToast(MyActivity.this, getString(R.string.succeededSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                    ScreenUtil.showToast(MyActivity.this, getString(R.string.succeededSaveGameString), textFontSize, ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG);
                 } else {
-                    ScreenUtil.showToast(MyActivity.this, getString(R.string.failedSaveGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                    ScreenUtil.showToast(MyActivity.this, getString(R.string.failedSaveGameString), textFontSize, ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG);
                 }
                 showAdUntilDismissed();
             }
@@ -699,14 +702,14 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 + Max_Saved_Games + " "
                 + getString(R.string.howManyTimesString) + " )"
                 + "\n" + getString(R.string.continueString) + "?";
-        args.putString("TextContent", warningSaveGameString0); // excessive the number (5)
-        args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
-        args.putFloat("TextFontSize", textFontSize);
-        args.putInt("Color", Color.BLUE);
-        args.putInt("Width", 0);    // wrap_content
-        args.putInt("Height", 0);   // wrap_content
-        args.putInt("NumButtons", 2);
-        args.putBoolean("IsAnimation", false);
+        args.putString(AlertDialogFragment.TextContentKey, warningSaveGameString0); // excessive the number (5)
+        args.putInt(AlertDialogFragment.FontSizeScaleTypeKey, ScreenUtil.FontSize_Pixel_Type);
+        args.putFloat(AlertDialogFragment.TextFontSizeKey, textFontSize);
+        args.putInt(AlertDialogFragment.ColorKey, Color.BLUE);
+        args.putInt(AlertDialogFragment.WidthKey, 0);    // wrap_content
+        args.putInt(AlertDialogFragment.HeightKey, 0);   // wrap_content
+        args.putInt(AlertDialogFragment.NumButtonsKey, 2);
+        args.putBoolean(AlertDialogFragment.IsAnimationKey, false);
 
         mPresenter.setShowingWarningSaveGameDialog(true);
         warningSaveGameDialog.setArguments(args);
@@ -730,21 +733,21 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 mPresenter.setShowingSureLoadDialog(false);
                 boolean succeeded = mPresenter.startLoadingGame();
                 if (succeeded) {
-                    ScreenUtil.showToast(MyActivity.this, getString(R.string.succeededLoadGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                    ScreenUtil.showToast(MyActivity.this, getString(R.string.succeededLoadGameString), textFontSize, ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG);
                 } else {
-                    ScreenUtil.showToast(MyActivity.this, getString(R.string.failedLoadGameString), textFontSize, ColorBallsApp.FontSize_Scale_Type, Toast.LENGTH_LONG);
+                    ScreenUtil.showToast(MyActivity.this, getString(R.string.failedLoadGameString), textFontSize, ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG);
                 }
             }
         });
         Bundle args = new Bundle();
-        args.putString("TextContent", getString(R.string.sureToLoadGameString));
-        args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
-        args.putFloat("TextFontSize", textFontSize);
-        args.putInt("Color", Color.BLUE);
-        args.putInt("Width", 0);    // wrap_content
-        args.putInt("Height", 0);   // wrap_content
-        args.putInt("NumButtons", 2);
-        args.putBoolean("IsAnimation", false);
+        args.putString(AlertDialogFragment.TextContentKey, getString(R.string.sureToLoadGameString));
+        args.putInt(AlertDialogFragment.FontSizeScaleTypeKey, ScreenUtil.FontSize_Pixel_Type);
+        args.putFloat(AlertDialogFragment.TextFontSizeKey, textFontSize);
+        args.putInt(AlertDialogFragment.ColorKey, Color.BLUE);
+        args.putInt(AlertDialogFragment.WidthKey, 0);    // wrap_content
+        args.putInt(AlertDialogFragment.HeightKey, 0);   // wrap_content
+        args.putInt(AlertDialogFragment.NumButtonsKey, 2);
+        args.putBoolean(AlertDialogFragment.IsAnimationKey, false);
 
         mPresenter.setShowingSureLoadDialog(true);
         sureLoadDialog.setArguments(args);
@@ -771,14 +774,14 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             }
         });
         Bundle args = new Bundle();
-        args.putString("TextContent", getString(R.string.gameOverStr));
-        args.putInt("FontSize_Scale_Type", ColorBallsApp.FontSize_Scale_Type);
-        args.putFloat("TextFontSize", textFontSize);
-        args.putInt("Color", Color.BLUE);
-        args.putInt("Width", 0);    // wrap_content
-        args.putInt("Height", 0);   // wrap_content
-        args.putInt("NumButtons", 2);
-        args.putBoolean("IsAnimation", false);
+        args.putString(AlertDialogFragment.TextContentKey, getString(R.string.gameOverStr));
+        args.putInt(AlertDialogFragment.FontSizeScaleTypeKey, ScreenUtil.FontSize_Pixel_Type);
+        args.putFloat(AlertDialogFragment.TextFontSizeKey, textFontSize);
+        args.putInt(AlertDialogFragment.ColorKey, Color.BLUE);
+        args.putInt(AlertDialogFragment.WidthKey, 0);    // wrap_content
+        args.putInt(AlertDialogFragment.HeightKey, 0);   // wrap_content
+        args.putInt(AlertDialogFragment.NumButtonsKey, 2);
+        args.putBoolean(AlertDialogFragment.IsAnimationKey, false);
 
         mPresenter.setShowingGameOverDialog(true);
         gameOverDialog.setArguments(args);
@@ -793,7 +796,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         final EditText et = new EditText(this);
         et.setTextColor(Color.BLUE);
         et.setHint(getString(R.string.nameStr));
-        ScreenUtil.resizeTextSize(et, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        ScreenUtil.resizeTextSize(et, textFontSize, ScreenUtil.FontSize_Pixel_Type);
         et.setGravity(Gravity.CENTER);
         saveScoreAlertDialog = new AlertDialog.Builder(this).create();
         saveScoreAlertDialog.setTitle(null);
@@ -822,17 +825,13 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     // end of implementing
 
     private class MyBroadcastReceiver extends BroadcastReceiver {
-
         @Override
         public void onReceive(Context context, Intent intent) {
-
-            Log.d(TAG, "MyActivity.MyBroadcastReceiver.onReceive() is called.");
-
             String actionName = intent.getAction();
+            Log.d(TAG, "MyBroadcastReceiver.onReceive().actionName = " + actionName);
             if (actionName == null) {
                 return;
             }
-
             Bundle extras;
             ArrayList<String> playerNames = new ArrayList<>();
             ArrayList<Integer> playerScores = new ArrayList<>();
@@ -842,8 +841,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 String top10ScoreTitle = getString(R.string.top10Score);
                 extras = intent.getExtras();
                 if (extras != null) {
-                    playerNames = extras.getStringArrayList("PlayerNames");
-                    playerScores = extras.getIntegerArrayList("PlayerScores");
+                    playerNames = extras.getStringArrayList(Constants.PlayerNamesKey);
+                    playerScores = extras.getIntegerArrayList(Constants.PlayerScoresKey);
                 } else {
                     // failed
                     playerNames.add("Failed to access Score SQLite database");
@@ -852,7 +851,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 historyView = findViewById(top10LayoutId);
                 if (historyView != null) {
                     // if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                    if (ColorBallsApp.AppResources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         top10ScoreFragment = Top10ScoreFragment.newInstance(top10ScoreTitle, playerNames, playerScores, activity -> {
                             if (top10ScoreFragment != null) {
                                 // remove top10ScoreFragment to dismiss the top 10 score screen
@@ -880,9 +879,9 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                     top10ScoreFragment = null;
                     Intent top10Intent = new Intent(getApplicationContext(), Top10ScoreActivity.class);
                     Bundle top10Extras = new Bundle();
-                    top10Extras.putString("Top10TitleName", top10ScoreTitle);
-                    top10Extras.putStringArrayList("Top10Players", playerNames);
-                    top10Extras.putIntegerArrayList("Top10Scores", playerScores);
+                    top10Extras.putString(Constants.Top10TitleNameKey, top10ScoreTitle);
+                    top10Extras.putStringArrayList(Constants.Top10PlayersKey, playerNames);
+                    top10Extras.putIntegerArrayList(Constants.Top10ScoresKey, playerScores);
                     top10Intent.putExtras(top10Extras);
                     localTop10Launcher.launch(top10Intent);
                 }

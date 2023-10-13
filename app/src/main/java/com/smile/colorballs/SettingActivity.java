@@ -14,24 +14,21 @@ import com.smile.smilelibraries.utilities.ScreenUtil;
 
 public class SettingActivity extends AppCompatActivity {
 
-    public static final String HasSoundKey = "HasSound";
-    public static final String IsEasyLevelKey = "IsEasyLevel";
-    public static final String HasNextBallKey = "HasNextBall";
-
     private boolean hasSound;
     private boolean isEasyLevel;
     private boolean hasNextBall;
 
+    /**
+     if (Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
+     // Oreo on API 26. Under Full Screen and Translucent, the orientation cannot be changed
+     }
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        /*
-        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
-            // Oreo on API 26. Under Full Screen and Translucent, the orientation cannot be changed
-        }
-        */
-        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this, ColorBallsApp.FontSize_Scale_Type, null);
-        float textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, ColorBallsApp.FontSize_Scale_Type, 0.0f);
+
+        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this, ScreenUtil.FontSize_Pixel_Type, null);
+        float textFontSize = ScreenUtil.suitableFontSize(this, defaultTextFontSize, ScreenUtil.FontSize_Pixel_Type, 0.0f);
 
         hasSound = true;
         isEasyLevel = true;
@@ -39,43 +36,43 @@ public class SettingActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            hasSound = extras.getBoolean(HasSoundKey);
-            isEasyLevel = extras.getBoolean(IsEasyLevelKey);
-            hasNextBall = extras.getBoolean(HasNextBallKey);
+            hasSound = extras.getBoolean(Constants.HasSoundKey);
+            isEasyLevel = extras.getBoolean(Constants.IsEasyLevelKey);
+            hasNextBall = extras.getBoolean(Constants.HasNextBallKey);
         }
 
         setContentView(R.layout.activity_setting);
 
         TextView settingTitle = findViewById(R.id.settingTitle);
-        ScreenUtil.resizeTextSize(settingTitle, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        ScreenUtil.resizeTextSize(settingTitle, textFontSize, ScreenUtil.FontSize_Pixel_Type);
 
         TextView soundSettingTitle = findViewById(R.id.soundSettingTitle);
-        ScreenUtil.resizeTextSize(soundSettingTitle, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        ScreenUtil.resizeTextSize(soundSettingTitle, textFontSize, ScreenUtil.FontSize_Pixel_Type);
         ToggleButton soundSwitch = findViewById(R.id.soundSwitch);
-        ScreenUtil.resizeTextSize(soundSwitch, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        ScreenUtil.resizeTextSize(soundSwitch, textFontSize, ScreenUtil.FontSize_Pixel_Type);
         soundSwitch.setChecked(hasSound);
         soundSwitch.setOnClickListener( (View view)-> hasSound = ((ToggleButton)view).isChecked());
 
         TextView levelSettingTitle = findViewById(R.id.levelSettingTitle);
-        ScreenUtil.resizeTextSize(levelSettingTitle, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        ScreenUtil.resizeTextSize(levelSettingTitle, textFontSize, ScreenUtil.FontSize_Pixel_Type);
         ToggleButton easyLevelSwitch = findViewById(R.id.easyLevelSwitch);
-        ScreenUtil.resizeTextSize(easyLevelSwitch, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        ScreenUtil.resizeTextSize(easyLevelSwitch, textFontSize, ScreenUtil.FontSize_Pixel_Type);
         easyLevelSwitch.setChecked(isEasyLevel);
         easyLevelSwitch.setOnClickListener( (View view)-> isEasyLevel = ((ToggleButton)view).isChecked());
 
         TextView nextBallSettingTitle = findViewById(R.id.nextBallSettingTitle);
-        ScreenUtil.resizeTextSize(nextBallSettingTitle, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        ScreenUtil.resizeTextSize(nextBallSettingTitle, textFontSize, ScreenUtil.FontSize_Pixel_Type);
         ToggleButton nextBallSettingSwitch = findViewById(R.id.nextBallSettingSwitch);
-        ScreenUtil.resizeTextSize(nextBallSettingSwitch, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        ScreenUtil.resizeTextSize(nextBallSettingSwitch, textFontSize, ScreenUtil.FontSize_Pixel_Type);
         nextBallSettingSwitch.setChecked(hasNextBall);
         nextBallSettingSwitch.setOnClickListener( (View view)-> hasNextBall = ((ToggleButton)view).isChecked());
 
         Button confirmButton = findViewById(R.id.confirmSettingButton);
-        ScreenUtil.resizeTextSize(confirmButton, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        ScreenUtil.resizeTextSize(confirmButton, textFontSize, ScreenUtil.FontSize_Pixel_Type);
         confirmButton.setOnClickListener( (View view)-> returnToPrevious(true) );
 
         Button cancelButton = findViewById(R.id.cancelSettingButton);
-        ScreenUtil.resizeTextSize(cancelButton, textFontSize, ColorBallsApp.FontSize_Scale_Type);
+        ScreenUtil.resizeTextSize(cancelButton, textFontSize, ScreenUtil.FontSize_Pixel_Type);
         cancelButton.setOnClickListener( (View view)-> returnToPrevious(false) );
     }
 
@@ -88,9 +85,9 @@ public class SettingActivity extends AppCompatActivity {
 
         Intent returnIntent = new Intent();
         Bundle extras = new Bundle();
-        extras.putBoolean(HasSoundKey, hasSound);
-        extras.putBoolean(IsEasyLevelKey, isEasyLevel);
-        extras.putBoolean(HasNextBallKey, hasNextBall);
+        extras.putBoolean(Constants.HasSoundKey, hasSound);
+        extras.putBoolean(Constants.IsEasyLevelKey, isEasyLevel);
+        extras.putBoolean(Constants.HasNextBallKey, hasNextBall);
         returnIntent.putExtras(extras);
 
         int resultYn = confirmed? Activity.RESULT_OK : Activity.RESULT_CANCELED;
