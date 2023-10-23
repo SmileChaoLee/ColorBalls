@@ -1,128 +1,79 @@
-package com.smile.colorballs;
+package com.smile.colorballs
 
-import android.app.Activity;
-import android.content.pm.ActivityInfo;
-import android.os.Bundle;
-import android.util.Log;
+import android.app.Activity
+import android.os.Bundle
+import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.appcompat.app.AppCompatActivity;
-
-import com.smile.smilelibraries.utilities.ScreenUtil;
-
-import java.util.ArrayList;
-
-public class Top10ScoreActivity extends AppCompatActivity {
-
-    private static final String TAG = "Top10ScoreActivity";
-    private final String Top10ScoreFragmentTag = "Top10ScoreFragmentTag";
-
-    private ArrayList<String> top10Players = new ArrayList<>();
-    private ArrayList<Integer> top10Scores = new ArrayList<>();
-
-    private FragmentManager fmManager = null;
-    private Fragment top10ScoreFragment = null;
-    private int top10LayoutId;
-    private String top10TitleName = "";
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG,"onCreate()");
-
-        super.onCreate(savedInstanceState);
-        /*
-        try {
-            requestWindowFeature(Window.FEATURE_NO_TITLE);
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            // hide action bar
-            ActionBar actionBar = getSupportActionBar();
-            actionBar.hide();
-
-        } catch (Exception ex) {
-            Log.d(TAG, "Unable to start this Activity.");
-            ex.printStackTrace();
+class Top10ScoreActivity : AppCompatActivity() {
+    private var top10TitleName: String? = ""
+    private var top10Players: ArrayList<String>? = ArrayList()
+    private var top10Scores: ArrayList<Int>? = ArrayList()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG, "onCreate()")
+        super.onCreate(savedInstanceState)
+        intent.extras?.let {
+            top10TitleName = it.getString(Constants.Top10TitleNameKey)
+            top10Players = it.getStringArrayList(Constants.Top10PlayersKey)
+            top10Scores = it.getIntegerArrayList(Constants.Top10ScoresKey)
         }
-        */
+        setContentView(R.layout.activity_top10_score)
 
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            top10TitleName = extras.getString(Constants.Top10TitleNameKey);
-            top10Players = extras.getStringArrayList(Constants.Top10PlayersKey);
-            top10Scores = extras.getIntegerArrayList(Constants.Top10ScoresKey);
-        }
-
-        setContentView(R.layout.activity_top10_score);
-
-        top10LayoutId = R.id.top10_score_linear_layout;
-        /*
-        top10ScoreFragment = Top10ScoreFragment.newInstance(top10TitleName, top10Players, top10Scores,
-                new Top10ScoreFragment.Top10OkButtonListener() {
-            @Override
-            public void buttonOkClick(Activity activity) {
-                setResult(Activity.RESULT_OK);
-                activity.finish();
+        val top10ScoreFragment: Fragment = Top10ScoreFragment
+            .newInstance(
+                top10TitleName, top10Players, top10Scores
+            ) { activity: Activity ->
+                setResult(RESULT_OK)
+                activity.finish()
             }
-        });
-        */
-        // or
-        top10ScoreFragment = Top10ScoreFragment.newInstance(top10TitleName, top10Players, top10Scores,
-                activity -> {
-                    setResult(Activity.RESULT_OK);
-                    activity.finish();
-                });
 
-        fmManager = getSupportFragmentManager();
-        FragmentTransaction ft = fmManager.beginTransaction();
-        Fragment currentTop10ScoreFragment = fmManager.findFragmentByTag(Top10ScoreFragmentTag);
-        if (currentTop10ScoreFragment == null) {
-            ft.add(top10LayoutId, top10ScoreFragment, Top10ScoreFragmentTag);
-        } else {
-            ft.replace(top10LayoutId, top10ScoreFragment, Top10ScoreFragmentTag);
+        val top10ScoreFragmentTag = "Top10ScoreFragment"
+        val top10LayoutId = R.id.top10_score_linear_layout
+        supportFragmentManager.let {
+            it.beginTransaction().apply {
+                if (it.findFragmentByTag(top10ScoreFragmentTag) == null) {
+                    add(top10LayoutId, top10ScoreFragment, top10ScoreFragmentTag)
+                } else {
+                    replace(top10LayoutId, top10ScoreFragment, top10ScoreFragmentTag)
+                }
+                commit()
+            }
         }
-        ft.commit();
-
-        Log.d(TAG, "Top10ScoreActivity.onCreate() -----> top10ScoreFragment is created.");
+        Log.d(TAG, "onCreate().top10ScoreFragment is created.")
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.d(TAG,"Top10ScoreActivity.onStart() is called.");
-
+    override fun onStart() {
+        super.onStart()
+        Log.d(TAG, "onStart()")
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d(TAG,"Top10ScoreActivity.onResume() is called.");
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "onResume()")
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d(TAG,"Top10ScoreActivity.onPause() is called.");
+    override fun onPause() {
+        super.onPause()
+        Log.d(TAG, "onPause()")
     }
 
-    @NonNull
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        Log.d(TAG,"Top10ScoreActivity.onSaveInstanceState() is called.");
-        super.onSaveInstanceState(outState);
+    override fun onSaveInstanceState(outState: Bundle) {
+        Log.d(TAG, "onSaveInstanceState()")
+        super.onSaveInstanceState(outState)
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.d(TAG,"Top10ScoreActivity.onStop() is called.");
+    override fun onStop() {
+        super.onStop()
+        Log.d(TAG, "onStop()")
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG,"Top10ScoreActivity.onDestroy() is called.");
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "onDestroy()")
+    }
+
+    companion object {
+        private const val TAG = "Top10ScoreActivity"
     }
 }
