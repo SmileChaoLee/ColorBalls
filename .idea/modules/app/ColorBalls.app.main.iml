@@ -54,6 +54,7 @@
     <content url="file://$MODULE_DIR$/../../../app/build/generated/ap_generated_sources/colorballsDebug/out">
       <sourceFolder url="file://$MODULE_DIR$/../../../app/build/generated/ap_generated_sources/colorballsDebug/out" isTestSource="false" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/../../../app/build/generated/ap_generated_sources/colorballsDebug/out" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../app/build/generated/ap_generated_sources/colorballsDebug/out" isTestSource="false" generated="true" />
     </content>
     <content url="file://$MODULE_DIR$/../../../app/build/generated/res/google-services/colorballs/debug">
       <sourceFolder url="file://$MODULE_DIR$/../../../app/build/generated/res/google-services/colorballs/debug" type="java-resource" />
@@ -63,11 +64,14 @@
     </content>
     <content url="file://$MODULE_DIR$/../../../app/build/generated/source/buildConfig/colorballs/debug">
       <sourceFolder url="file://$MODULE_DIR$/../../../app/build/generated/source/buildConfig/colorballs/debug" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../app/build/generated/source/buildConfig/colorballs/debug" isTestSource="false" generated="true" />
     </content>
     <content url="file://$MODULE_DIR$/../../../app/build/generated/source/kapt/colorballsDebug">
       <sourceFolder url="file://$MODULE_DIR$/../../../app/build/generated/source/kapt/colorballsDebug" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../app/build/generated/source/kapt/colorballsDebug" isTestSource="false" generated="true" />
     </content>
     <content url="file://$MODULE_DIR$/../../../app/build/generated/source/kaptKotlin/colorballsDebug">
+      <sourceFolder url="file://$MODULE_DIR$/../../../app/build/generated/source/kaptKotlin/colorballsDebug" isTestSource="false" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/../../../app/build/generated/source/kaptKotlin/colorballsDebug" isTestSource="false" generated="true" />
     </content>
     <content url="file://$MODULE_DIR$/../../../app/src/colorballs" />

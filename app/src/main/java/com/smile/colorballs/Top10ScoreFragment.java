@@ -37,7 +37,7 @@ import java.util.ArrayList;
 public class Top10ScoreFragment extends Fragment {
 
     // private properties
-    private static final String TAG = new String("com.smile.colorballs.Top10ScoreFragment");
+    private static final String TAG = "Top10ScoreFragment";
 
     private Context context;
     private View top10ScoreFragmentView = null;

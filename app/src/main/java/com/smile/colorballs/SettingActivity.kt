@@ -4,8 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.TextView
 import android.widget.ToggleButton
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -47,27 +45,27 @@ class SettingActivity : AppCompatActivity() {
             eSet = envSetting
         }
 
-        binding.settingTitle?.let {
+        binding.settingTitle.let {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
         }
-        binding.soundSettingTitle?.let {
+        binding.soundSettingTitle.let {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
         }
-        binding.soundSwitch?.let {
+        binding.soundSwitch.let {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
             it.apply {
                 setOnClickListener { view: View -> envSetting.hasSound =
                     (view as ToggleButton).isChecked }
             }
         }
-        binding.soundSetting?.let {
+        binding.soundSetting.let {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
         }
 
-        binding.levelSettingTitle?.let {
+        binding.levelSettingTitle.let {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
         }
-        binding.levelSwitch?.let {
+        binding.levelSwitch.let {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
             it.apply {
                 setOnClickListener { view: View ->
@@ -75,14 +73,14 @@ class SettingActivity : AppCompatActivity() {
                 }
             }
         }
-        binding.levelSetting?.let {
+        binding.levelSetting.let {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
         }
 
-        binding.nextBallSettingTitle?.let{
+        binding.nextBallSettingTitle.let{
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
         }
-        binding.nextBallSettingSwitch?.let {
+        binding.nextBallSettingSwitch.let {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
             it.apply {
                 setOnClickListener { view: View ->
@@ -90,15 +88,15 @@ class SettingActivity : AppCompatActivity() {
                 }
             }
         }
-        binding.nextBallSetting?.let {
+        binding.nextBallSetting.let {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
         }
 
-        binding.confirmSettingButton?.let {
+        binding.confirmSettingButton.let {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
             it.setOnClickListener { returnToPrevious(true) }
         }
-        binding.cancelSettingButton?.let {
+        binding.cancelSettingButton.let {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
             it.setOnClickListener { returnToPrevious(false) }
         }

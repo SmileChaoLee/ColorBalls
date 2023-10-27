@@ -5,20 +5,24 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.smile.colorballs.databinding.ActivityTop10ScoreBinding
 
 class Top10ScoreActivity : AppCompatActivity() {
-    private var top10TitleName: String? = ""
-    private var top10Players: ArrayList<String>? = ArrayList()
-    private var top10Scores: ArrayList<Int>? = ArrayList()
+    private lateinit var binding : ActivityTop10ScoreBinding
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(TAG, "onCreate()")
+        Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
+        binding = ActivityTop10ScoreBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        var top10TitleName: String? = ""
+        var top10Players: ArrayList<String>? = ArrayList()
+        var top10Scores: ArrayList<Int>? = ArrayList()
         intent.extras?.let {
             top10TitleName = it.getString(Constants.Top10TitleNameKey)
             top10Players = it.getStringArrayList(Constants.Top10PlayersKey)
             top10Scores = it.getIntegerArrayList(Constants.Top10ScoresKey)
         }
-        setContentView(R.layout.activity_top10_score)
 
         val top10ScoreFragment: Fragment = Top10ScoreFragment
             .newInstance(
@@ -40,7 +44,7 @@ class Top10ScoreActivity : AppCompatActivity() {
                 commit()
             }
         }
-        Log.d(TAG, "onCreate().top10ScoreFragment is created.")
+        Log.d(TAG, "onCreate.top10ScoreFragment is created.")
     }
 
     override fun onStart() {
