@@ -1,11 +1,11 @@
-package com.smile.model;
+package com.smile.colorballs.model;
 
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
-import com.smile.presenters.MyActivityPresenter;
+import com.smile.colorballs.presenters.MyActivityPresenter;
 
 import java.util.ArrayList;
 import java.util.Arrays;

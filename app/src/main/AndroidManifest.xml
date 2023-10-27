@@ -42,7 +42,7 @@
         </activity>
 
         <service
-            android:name="com.smile.Service.MyTop10ScoresService"
+            android:name=".Service.MyTop10ScoresService"
             android:enabled="true"
             android:exported="false">
         </service>

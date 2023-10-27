@@ -112,8 +112,8 @@ public class ColorBallsInstrumentedTest {
     public void test_MoreActionSubmenu() {
         onView(withId(R.id.gameAction)).perform(click());
         onView(withText(R.string.top10Str)).check(matches(isDisplayed()));
-        onView(withText(R.string.saveGameString)).check(matches(isDisplayed()));
-        onView(withText(R.string.loadGameString)).check(matches(isDisplayed()));
+        onView(withText(R.string.saveGameStr)).check(matches(isDisplayed()));
+        onView(withText(R.string.loadGameStr)).check(matches(isDisplayed()));
         onView(withText(R.string.privacyPolicyString)).check(matches(isDisplayed()));
         Espresso.pressBack();
     }
@@ -196,7 +196,7 @@ public class ColorBallsInstrumentedTest {
         onView(withText(R.string.soundStr)).check(matches(isDisplayed()));
         onView(withText(R.string.playerLevelStr)).check(matches(isDisplayed()));
         onView(withText(R.string.cancelStr)).check(matches(isDisplayed()));
-        onView(withText(R.string.okString)).check(matches(isDisplayed()));
+        onView(withText(R.string.okStr)).check(matches(isDisplayed()));
 
         onView(withId(R.id.confirmSettingButton)).perform(click());
     }

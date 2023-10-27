@@ -46,9 +46,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.smile.Service.MyTop10ScoresService;
+import com.smile.colorballs.Service.MyTop10ScoresService;
 import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate;
-import com.smile.presenters.MyActivityPresenter;
+import com.smile.colorballs.presenters.MyActivityPresenter;
 import com.smile.smilelibraries.models.ExitAppTimer;
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment;
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil;
@@ -534,7 +534,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         Log.d(TAG, "showTop10ScoreHistory.");
         ColorBallsApp.isProcessingJob = true;
         ColorBallsApp.isShowingLoadingMessage = true;
-        showMessageOnScreen(getString(R.string.loadingString));
+        showMessageOnScreen(getString(R.string.loadingStr));
         Intent myService = new Intent(this, MyTop10ScoresService.class);
         startService(myService);
     }
@@ -649,9 +649,9 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 if (numOfSaved < Max_Saved_Games) {
                     boolean succeeded = mPresenter.startSavingGame(numOfSaved);
                     if (succeeded) {
-                        ScreenUtil.showToast(MyActivity.this, getString(R.string.succeededSaveGameString), textFontSize, ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG);
+                        ScreenUtil.showToast(MyActivity.this, getString(R.string.succeededSaveGameStr), textFontSize, ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG);
                     } else {
-                        ScreenUtil.showToast(MyActivity.this, getString(R.string.failedSaveGameString), textFontSize, ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG);
+                        ScreenUtil.showToast(MyActivity.this, getString(R.string.failedSaveGameStr), textFontSize, ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG);
                     }
                 } else {
                     // display warning to users
@@ -661,7 +661,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             }
         });
         Bundle args = new Bundle();
-        args.putString(AlertDialogFragment.TextContentKey, getString(R.string.sureToSaveGameString));
+        args.putString(AlertDialogFragment.TextContentKey, getString(R.string.sureToSaveGameStr));
         args.putInt(AlertDialogFragment.FontSizeScaleTypeKey, ScreenUtil.FontSize_Pixel_Type);
         args.putFloat(AlertDialogFragment.TextFontSizeKey, textFontSize);
         args.putInt(AlertDialogFragment.ColorKey, Color.BLUE);
@@ -690,18 +690,18 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 mPresenter.setShowingWarningSaveGameDialog(false);
                 boolean succeeded = mPresenter.startSavingGame(finalNumOfSaved);
                 if (succeeded) {
-                    ScreenUtil.showToast(MyActivity.this, getString(R.string.succeededSaveGameString), textFontSize, ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG);
+                    ScreenUtil.showToast(MyActivity.this, getString(R.string.succeededSaveGameStr), textFontSize, ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG);
                 } else {
-                    ScreenUtil.showToast(MyActivity.this, getString(R.string.failedSaveGameString), textFontSize, ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG);
+                    ScreenUtil.showToast(MyActivity.this, getString(R.string.failedSaveGameStr), textFontSize, ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG);
                 }
                 showAdUntilDismissed();
             }
         });
         Bundle args = new Bundle();
-        String warningSaveGameString0 = getString(R.string.warningSaveGameString) + " ("
+        String warningSaveGameString0 = getString(R.string.warningSaveGameStr) + " ("
                 + Max_Saved_Games + " "
-                + getString(R.string.howManyTimesString) + " )"
-                + "\n" + getString(R.string.continueString) + "?";
+                + getString(R.string.howManyTimesStr) + " )"
+                + "\n" + getString(R.string.continueStr) + "?";
         args.putString(AlertDialogFragment.TextContentKey, warningSaveGameString0); // excessive the number (5)
         args.putInt(AlertDialogFragment.FontSizeScaleTypeKey, ScreenUtil.FontSize_Pixel_Type);
         args.putFloat(AlertDialogFragment.TextFontSizeKey, textFontSize);
@@ -733,14 +733,14 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 mPresenter.setShowingSureLoadDialog(false);
                 boolean succeeded = mPresenter.startLoadingGame();
                 if (succeeded) {
-                    ScreenUtil.showToast(MyActivity.this, getString(R.string.succeededLoadGameString), textFontSize, ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG);
+                    ScreenUtil.showToast(MyActivity.this, getString(R.string.succeededLoadGameStr), textFontSize, ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG);
                 } else {
-                    ScreenUtil.showToast(MyActivity.this, getString(R.string.failedLoadGameString), textFontSize, ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG);
+                    ScreenUtil.showToast(MyActivity.this, getString(R.string.failedLoadGameStr), textFontSize, ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG);
                 }
             }
         });
         Bundle args = new Bundle();
-        args.putString(AlertDialogFragment.TextContentKey, getString(R.string.sureToLoadGameString));
+        args.putString(AlertDialogFragment.TextContentKey, getString(R.string.sureToLoadGameStr));
         args.putInt(AlertDialogFragment.FontSizeScaleTypeKey, ScreenUtil.FontSize_Pixel_Type);
         args.putFloat(AlertDialogFragment.TextFontSizeKey, textFontSize);
         args.putInt(AlertDialogFragment.ColorKey, Color.BLUE);

@@ -1,203 +1,271 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".SettingActivity">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable
+            name="eSet"
+            type="com.smile.colorballs.model.EnvSetting" />
+    </data>
 
-    <LinearLayout
-        android:id="@+id/firstLinearLayoutForSettings"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="@android:color/transparent"
-        app:layout_constraintHeight_percent="0.25"
-        app:layout_constraintTop_toTopOf="parent">
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/mainSettingLinearLayout"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintHeight_percent="0.5"
-        app:layout_constraintTop_toBottomOf="@id/firstLinearLayoutForSettings"
-        android:weightSum="8">
+        tools:context=".SettingActivity">
 
         <LinearLayout
+            android:id="@+id/firstLinearLayoutForSettings"
             android:orientation="vertical"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@android:color/transparent"
+            app:layout_constraintHeight_percent="0.25"
+            app:layout_constraintTop_toTopOf="parent">
+
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:background="#bb0000ff"
-            android:layout_weight="6"
-            android:weightSum="5">
-            <TextView
-                android:id="@+id/settingTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_gravity="center"
-                android:textColor="@color/white"
-                android:textStyle="bold"
-                android:text="@string/settingStr">
-            </TextView>
+            android:id="@+id/mainSettingLinearLayout"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintHeight_percent="0.5"
+            app:layout_constraintTop_toBottomOf="@id/firstLinearLayoutForSettings"
+            android:weightSum="8">
 
             <LinearLayout
                 android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:divider="@drawable/layout_horizontal_divider"
-                android:showDividers="beginning|end"
-                android:layout_weight="3"
-                android:weightSum="3">
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1">
-                    <TextView
-                        android:id="@+id/soundSettingTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical|left"
-                        android:layout_alignParentLeft="true"
-                        android:layout_marginLeft="10dp"
-                        android:textColor="#ffffff00"
-                        android:text="@string/soundStr">
-                    </TextView>
-                    <ToggleButton
-                        android:id="@+id/soundSwitch"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical|right"
-                        android:layout_alignParentRight="true"
-                        android:layout_marginRight="10dp"
-                        android:background="@android:color/transparent"
-                        android:textColor="@color/white"
-                        android:textAllCaps="false"
-                        android:textOn="@string/onStr"
-                        android:textOff="@string/offStr">
-                    </ToggleButton>
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1">
-                    <TextView
-                        android:id="@+id/levelSettingTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical|left"
-                        android:layout_alignParentLeft="true"
-                        android:layout_marginLeft="10dp"
-                        android:textColor="#ffffff00"
-                        android:text="@string/playerLevelStr">
-                    </TextView>
-                    <ToggleButton
-                        android:id="@+id/easyLevelSwitch"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical|right"
-                        android:layout_alignParentRight="true"
-                        android:layout_marginRight="10dp"
-                        android:background="@android:color/transparent"
-                        android:textColor="@color/white"
-                        android:textAllCaps="false"
-                        android:textOn="@string/easyStr"
-                        android:textOff="@string/difficultStr">
-                    </ToggleButton>
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1">
-                    <TextView
-                        android:id="@+id/nextBallSettingTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical|left"
-                        android:layout_alignParentLeft="true"
-                        android:layout_marginLeft="10dp"
-                        android:textColor="#ffffff00"
-                        android:text="@string/nextBallSettingStr">
-                    </TextView>
-                    <ToggleButton
-                        android:id="@+id/nextBallSettingSwitch"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical|right"
-                        android:layout_alignParentRight="true"
-                        android:layout_marginRight="10dp"
-                        android:background="@android:color/transparent"
-                        android:textColor="@color/white"
-                        android:textAllCaps="false"
-                        android:textOn="@string/onStr"
-                        android:textOff="@string/offStr">
-                    </ToggleButton>
-                </RelativeLayout>
-
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
             </LinearLayout>
 
             <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:weightSum="2">
-                <Button
-                    android:id="@+id/cancelSettingButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:background="#bb0000ff"
+                android:layout_weight="6"
+                android:weightSum="5">
+                <TextView
+                    android:id="@+id/settingTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
                     android:layout_weight="1"
-                    android:gravity="center"
-                    android:textAllCaps="false"
-                    android:textColor="@color/red"
-                    android:background="@android:color/transparent"
-                    android:text="@string/cancelStr" >
-                </Button>
-                <Button
-                    android:id="@+id/confirmSettingButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:text="@string/settingStr">
+                </TextView>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:divider="@drawable/layout_horizontal_divider"
+                    android:showDividers="beginning|end"
+                    android:layout_weight="3"
+                    android:weightSum="3">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1">
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:divider="@drawable/layout_horizontal_divider"
+                            android:showDividers="beginning|end"
+                            android:layout_weight="3"
+                            android:weightSum="3">
+                            <TextView
+                                android:id="@+id/soundSettingTitle"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical|left"
+                                android:layout_alignParentLeft="true"
+                                android:textColor="#ffffff00"
+                                android:text="@string/soundStr">
+                            </TextView>
+                            <ToggleButton
+                                android:id="@+id/soundSwitch"
+                                android:checked="@{eSet.hasSound}"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical|left"
+                                android:background="@android:color/transparent"
+                                android:textColor="@color/white"
+                                android:textAllCaps="false"
+                                android:textOn="@string/onStr"
+                                android:textOff="@string/offStr">
+                            </ToggleButton>
+                            <TextView
+                                android:id="@+id/soundSetting"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical|right"
+                                android:layout_alignParentRight="true"
+                                android:textColor="#ffffff00"
+                                android:text="@{eSet.hasSound? @string/hasSoundStr : @string/noSoundStr}">
+                            </TextView>
+                        </LinearLayout>
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1">
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:divider="@drawable/layout_horizontal_divider"
+                            android:showDividers="beginning|end"
+                            android:layout_weight="3"
+                            android:weightSum="3">
+                            <TextView
+                                android:id="@+id/levelSettingTitle"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical|left"
+                                android:layout_alignParentLeft="true"
+                                android:textColor="#ffffff00"
+                                android:text="@string/playerLevelStr">
+                            </TextView>
+                            <ToggleButton
+                                android:id="@+id/levelSwitch"
+                                android:checked="@{eSet.easyLevel}"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical|left"
+                                android:layout_alignParentLeft="true"
+                                android:background="@android:color/transparent"
+                                android:textColor="@color/white"
+                                android:textAllCaps="false"
+                                android:textOn="@string/no1"
+                                android:textOff="@string/no2">
+                            </ToggleButton>
+                            <TextView
+                                android:id="@+id/levelSetting"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical|right"
+                                android:layout_alignParentRight="true"
+                                android:textColor="#ffffff00"
+                                android:text="@{eSet.easyLevel? @string/easyStr : @string/difficultStr}">
+                            </TextView>
+                        </LinearLayout>
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1">
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:divider="@drawable/layout_horizontal_divider"
+                            android:showDividers="beginning|end"
+                            android:layout_weight="3"
+                            android:weightSum="3">
+                            <TextView
+                                android:id="@+id/nextBallSettingTitle"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical|left"
+                                android:layout_alignParentLeft="true"
+                                android:textColor="#ffffff00"
+                                android:text="@string/nextBallSettingStr">
+                            </TextView>
+                            <ToggleButton
+                                android:id="@+id/nextBallSettingSwitch"
+                                android:checked="@{eSet.hasNextBall}"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical|left"
+                                android:layout_alignParentLeft="true"
+                                android:background="@android:color/transparent"
+                                android:textColor="@color/white"
+                                android:textAllCaps="false"
+                                android:textOn="@string/onStr"
+                                android:textOff="@string/offStr">
+                            </ToggleButton>
+                            <TextView
+                                android:id="@+id/nextBallSetting"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical|right"
+                                android:layout_alignParentRight="true"
+                                android:textColor="#ffffff00"
+                                android:text="@{eSet.hasNextBall? @string/showStr : @string/noShowStr}">
+                            </TextView>
+                        </LinearLayout>
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
                     android:layout_weight="1"
-                    android:gravity="center"
-                    android:textAllCaps="false"
-                    android:textColor="@color/green"
-                    android:background="@android:color/transparent"
-                    android:text="@string/okString" >
-                </Button>
+                    android:weightSum="2">
+                    <Button
+                        android:id="@+id/cancelSettingButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textAllCaps="false"
+                        android:textColor="@color/red"
+                        android:background="@android:color/transparent"
+                        android:text="@string/cancelStr" >
+                    </Button>
+                    <Button
+                        android:id="@+id/confirmSettingButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textAllCaps="false"
+                        android:textColor="@color/green"
+                        android:background="@android:color/transparent"
+                        android:text="@string/okStr" >
+                    </Button>
+                </LinearLayout>
             </LinearLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+            </LinearLayout>
+
         </LinearLayout>
 
         <LinearLayout
             android:orientation="vertical"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@android:color/transparent"
+            app:layout_constraintHeight_percent="0.25"
+            app:layout_constraintBottom_toBottomOf="parent">
+
         </LinearLayout>
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="@android:color/transparent"
-        app:layout_constraintHeight_percent="0.25"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-    </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

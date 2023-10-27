@@ -1,10 +1,8 @@
-package com.smile.model;
+package com.smile.colorballs.model;
 
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import androidx.annotation.RequiresApi;
 
 public class GameProperties implements Parcelable {
     private boolean isShowingLoadingMessage;

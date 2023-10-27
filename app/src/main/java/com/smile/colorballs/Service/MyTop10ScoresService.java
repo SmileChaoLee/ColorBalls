@@ -1,4 +1,4 @@
-package com.smile.Service;
+package com.smile.colorballs.Service;
 
 import android.app.Service;
 import android.content.Intent;

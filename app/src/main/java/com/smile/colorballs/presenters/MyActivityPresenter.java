@@ -1,4 +1,4 @@
-package com.smile.presenters;
+package com.smile.colorballs.presenters;
 
 import android.app.Activity;
 import android.content.res.Resources;
@@ -19,8 +19,8 @@ import androidx.annotation.NonNull;
 
 import com.smile.colorballs.ColorBallsApp;
 import com.smile.colorballs.R;
-import com.smile.model.GameProperties;
-import com.smile.model.GridData;
+import com.smile.colorballs.model.GameProperties;
+import com.smile.colorballs.model.GridData;
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite;
 import com.smile.smilelibraries.utilities.FontAndBitmapUtil;
 import com.smile.smilelibraries.utilities.SoundPoolUtil;
@@ -192,7 +192,7 @@ public class MyActivityPresenter {
             // display the original state before changing configuration
             // need to be tested
             if (ColorBallsApp.isShowingLoadingMessage) {
-                presentView.showMessageOnScreen(activity.getString(R.string.loadingString));
+                presentView.showMessageOnScreen(activity.getString(R.string.loadingStr));
             }
             //
             if (gameProperties.isBallMoving()) {
@@ -404,7 +404,7 @@ public class MyActivityPresenter {
         Log.d(TAG, "Started to startSavingGame().");
 
         ColorBallsApp.isProcessingJob = true;
-        presentView.showMessageOnScreen(activity.getString(R.string.savingGameString));
+        presentView.showMessageOnScreen(activity.getString(R.string.savingGameStr));
 
         boolean succeeded = true;
         try {
@@ -527,7 +527,7 @@ public class MyActivityPresenter {
 
     public boolean startLoadingGame() {
         ColorBallsApp.isProcessingJob = true;
-        presentView.showMessageOnScreen(activity.getString(R.string.loadingGameString));
+        presentView.showMessageOnScreen(activity.getString(R.string.loadingGameStr));
 
         boolean succeeded = true;
         boolean hasSound;

@@ -9,13 +9,15 @@ import android.widget.TextView
 import android.widget.ToggleButton
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import com.smile.colorballs.databinding.ActivitySettingBinding
 import com.smile.smilelibraries.utilities.ScreenUtil
+import com.smile.colorballs.model.EnvSetting
 
 class SettingActivity : AppCompatActivity() {
 
-    private var hasSound = true
-    private var isEasyLevel = true
-    private var hasNextBall = true
+    private lateinit var binding : ActivitySettingBinding
+    private val envSetting : EnvSetting = EnvSetting(hasSound = true,
+        easyLevel = true, hasNextBall = true)
 
     /**
      * if (Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
@@ -31,62 +33,72 @@ class SettingActivity : AppCompatActivity() {
             0.0f
         )
         intent.extras?.let {
-            hasSound = it.getBoolean(Constants.HasSoundKey, true)
-            isEasyLevel = it.getBoolean(Constants.IsEasyLevelKey, true)
-            hasNextBall = it.getBoolean(Constants.HasNextBallKey, true)
+            envSetting.hasSound = it.getBoolean(Constants.HasSoundKey, true)
+            envSetting.easyLevel = it.getBoolean(Constants.IsEasyLevelKey, true)
+            envSetting.hasNextBall = it.getBoolean(Constants.HasNextBallKey, true)
         }
-        setContentView(R.layout.activity_setting)
 
-        findViewById<TextView>(R.id.settingTitle)?.let {
+        // setContentView(R.layout.activity_setting)
+        binding = ActivitySettingBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        binding.apply {
+            lifecycleOwner = this@SettingActivity
+            eSet = envSetting
+        }
+
+        binding.settingTitle?.let {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
         }
-        findViewById<TextView>(R.id.soundSettingTitle)?.let {
+        binding.soundSettingTitle?.let {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
         }
-        findViewById<ToggleButton>(R.id.soundSwitch)?.let {
+        binding.soundSwitch?.let {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
             it.apply {
-                isChecked = hasSound
-                setOnClickListener { view: View -> hasSound = (view as ToggleButton).isChecked }
+                setOnClickListener { view: View -> envSetting.hasSound =
+                    (view as ToggleButton).isChecked }
             }
         }
-        findViewById<TextView>(R.id.levelSettingTitle)?.let {
+        binding.soundSetting?.let {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
         }
-        findViewById<ToggleButton>(R.id.easyLevelSwitch)?.let {
+
+        binding.levelSettingTitle?.let {
+            ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
+        }
+        binding.levelSwitch?.let {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
             it.apply {
-                isChecked = isEasyLevel
                 setOnClickListener { view: View ->
-                    isEasyLevel = (view as ToggleButton).isChecked
+                    envSetting.easyLevel = (view as ToggleButton).isChecked
                 }
             }
         }
-        findViewById<TextView>(R.id.nextBallSettingTitle)?.let{
-            ScreenUtil.resizeTextSize(
-                it,
-                textFontSize,
-                ScreenUtil.FontSize_Pixel_Type
-            )
+        binding.levelSetting?.let {
+            ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
         }
-        findViewById<ToggleButton>(R.id.nextBallSettingSwitch)?.let {
-            ScreenUtil.resizeTextSize(
-                it,
-                textFontSize,
-                ScreenUtil.FontSize_Pixel_Type
-            )
+
+        binding.nextBallSettingTitle?.let{
+            ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
+        }
+        binding.nextBallSettingSwitch?.let {
+            ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
             it.apply {
-                isChecked = hasNextBall
                 setOnClickListener { view: View ->
-                    hasNextBall = (view as ToggleButton).isChecked
+                    envSetting.hasNextBall = (view as ToggleButton).isChecked
                 }
             }
         }
-        findViewById<Button>(R.id.confirmSettingButton)?.let {
+        binding.nextBallSetting?.let {
+            ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
+        }
+
+        binding.confirmSettingButton?.let {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
             it.setOnClickListener { returnToPrevious(true) }
         }
-        findViewById<Button>(R.id.cancelSettingButton)?.let {
+        binding.cancelSettingButton?.let {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
             it.setOnClickListener { returnToPrevious(false) }
         }
@@ -102,9 +114,9 @@ class SettingActivity : AppCompatActivity() {
     private fun returnToPrevious(confirmed: Boolean) {
         Intent().let {
             Bundle().apply {
-                putBoolean(Constants.HasSoundKey, hasSound)
-                putBoolean(Constants.IsEasyLevelKey, isEasyLevel)
-                putBoolean(Constants.HasNextBallKey, hasNextBall)
+                putBoolean(Constants.HasSoundKey, envSetting.hasSound)
+                putBoolean(Constants.IsEasyLevelKey, envSetting.easyLevel)
+                putBoolean(Constants.HasNextBallKey, envSetting.hasNextBall)
                 it.putExtras(this)
             }
             setResult(if (confirmed) RESULT_OK else RESULT_CANCELED,
