@@ -46,7 +46,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.smile.colorballs.Service.MyTop10ScoresService;
+import com.smile.colorballs.service.MyTop10ScoresService;
 import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate;
 import com.smile.colorballs.presenters.MyActivityPresenter;
 import com.smile.smilelibraries.models.ExitAppTimer;
