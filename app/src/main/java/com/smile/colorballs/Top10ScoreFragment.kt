@@ -10,11 +10,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.ImageView
 import android.widget.ListView
-import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.smile.colorballs.databinding.FragmentTop10ScoreBinding
+import com.smile.colorballs.databinding.Top10ScoreListItemsBinding
 import com.smile.smilelibraries.utilities.ScreenUtil
 
 /**
@@ -26,7 +25,6 @@ import com.smile.smilelibraries.utilities.ScreenUtil
  */
 class Top10ScoreFragment : Fragment {
     private var mContext: Context? = null
-    private var fragmentView: View? = null
     private var top10Players: ArrayList<String> = ArrayList()
     private var top10Scores: ArrayList<Int> = ArrayList()
     private val medalImageIds = ArrayList<Int>()
@@ -35,6 +33,7 @@ class Top10ScoreFragment : Fragment {
     private var top10OkButtonListener: Top10OkButtonListener? = null
     private var top10TitleName: String = ""
     private var textFontSize = 0f
+    private lateinit var binding: FragmentTop10ScoreBinding
 
     interface Top10OkButtonListener {
         fun buttonOkClick(activity: Activity?)
@@ -69,14 +68,14 @@ class Top10ScoreFragment : Fragment {
             // if new Fragment instance
             Log.d(TAG, "onCreate.new Fragment instance")
             Log.d(TAG, "onCreate.arguments = $arguments")
-            arguments?.let { argIt ->
-                argIt.getString(Constants.Top10TitleNameKey)?.let { nameIt ->
+            arguments?.apply {
+                getString(Constants.Top10TitleNameKey)?.let { nameIt ->
                     top10TitleName = nameIt
                 }
-                argIt.getStringArrayList(Constants.Top10PlayersKey)?.let { listIt ->
+                getStringArrayList(Constants.Top10PlayersKey)?.let { listIt ->
                     top10Players = listIt
                 }
-                argIt.getIntegerArrayList(Constants.Top10ScoresKey)?.let { listIt ->
+                getIntegerArrayList(Constants.Top10ScoresKey)?.let { listIt ->
                     top10Scores = listIt
                 }
             }
@@ -98,31 +97,28 @@ class Top10ScoreFragment : Fragment {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         Log.d(TAG, "onCreateView")
-        // Inflate the layout for this fragment
-        // historyView = inflater.inflate(R.layout.fragment_score_history, container, false);
-        return inflater.inflate(R.layout.layout_for_top10_score_fragment,
-            container,
-            false)
+        binding = FragmentTop10ScoreBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Log.d(TAG, "onViewCreated")
         super.onViewCreated(view, savedInstanceState)
-
+        // binding = FragmentTop10ScoreBinding.bind(view)
         if (savedInstanceState == null) {   // new Fragment instance
             Log.d(TAG, "onViewCreated.new Fragment instance")
-            view.findViewById<TextView>(R.id.top10ScoreTitle).apply {
+            binding.top10ScoreTitle.apply {
                 text = top10TitleName
                 ScreenUtil.resizeTextSize(this, textFontSize, ScreenUtil.FontSize_Pixel_Type)
             }
-            view.findViewById<TextView>(R.id.top10ScoreTitle).let {
+            binding.top10ScoreTitle.let {
                 ScreenUtil.resizeTextSize(it, textFontSize,
                     ScreenUtil.FontSize_Pixel_Type
                 )
             }
-            view.findViewById<Button>(R.id.top10OkButton).apply {
+            binding.top10OkButton.apply {
                 ScreenUtil.resizeTextSize(this, textFontSize, ScreenUtil.FontSize_Pixel_Type)
                 setOnClickListener {
                     top10OkButtonListener?.apply {
@@ -135,12 +131,11 @@ class Top10ScoreFragment : Fragment {
                     R.layout.top10_score_list_items,
                     top10Players, top10Scores, medalImageIds)
             }
-            view.findViewById<ListView>(R.id.top10ListView).apply {
+            binding.top10ListView.apply {
                 adapter = mListAdapter
                 setOnItemClickListener { _, _, _, _ -> }
             }.also { top10ListView = it}
         }
-        fragmentView = view
     }
 
     override fun onDetach() {
@@ -150,40 +145,36 @@ class Top10ScoreFragment : Fragment {
 
     private inner class MyListAdapter (
         mContext: Context,
-        val layoutId: Int,
+        layoutId: Int,
         val players: ArrayList<String>,
         val scores: ArrayList<Int>,
         val medals: ArrayList<Int>
     ) : ArrayAdapter<String>(mContext, layoutId, players) {
         @SuppressLint("ViewHolder")
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-            val view = layoutInflater.inflate(layoutId, parent, false)
+            val vBinding = Top10ScoreListItemsBinding.inflate(layoutInflater, parent, false)
+            // val view = layoutInflater.inflate(layoutId, parent, false)
             if (count == 0) {
-                return view
+                return vBinding.root
             }
-            val listViewHeight = parent.height
-            var itemNum = 4
-            if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                itemNum = 2
-            }
-            val itemHeight = listViewHeight / itemNum // items for one screen
-            val layoutParams = view.layoutParams
-            layoutParams.height = itemHeight
+            val itemNum = if (resources.configuration.orientation
+                == Configuration.ORIENTATION_LANDSCAPE) 2 else 4
+            // items for one screen
+            vBinding.root.layoutParams.height = parent.height / itemNum
 
-            // view.setLayoutParams(layoutParams);  // no needed
-            view.findViewById<TextView>(R.id.playerTextView).let {
+            vBinding.playerTextView.let {
                 ScreenUtil.resizeTextSize(it, textFontSize,
                     ScreenUtil.FontSize_Pixel_Type)
                 it.text = players[position]
             }
-            view.findViewById<TextView>(R.id.scoreTextView).let {
+            vBinding.scoreTextView.let {
                 ScreenUtil.resizeTextSize(it, textFontSize,
                     ScreenUtil.FontSize_Pixel_Type)
                 it.text = scores[position].toString()
             }
-            view.findViewById<ImageView>(R.id.medalImage).setImageResource(medals[position])
+            vBinding.medalImage.setImageResource(medals[position])
 
-            return view
+            return vBinding.root
         }
     }
 
