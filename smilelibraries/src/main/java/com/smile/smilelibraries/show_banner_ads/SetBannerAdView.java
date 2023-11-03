@@ -19,14 +19,14 @@ import com.google.android.gms.common.util.VisibleForTesting;
 
 public class SetBannerAdView {
     private final static String TAG = "SetBannerAdView";
-    private final Context context;
-    private final LinearLayout companyInfoLayout;
-    private final LinearLayout bannerLinearLayout;
-    private final String googleAdMobBannerID;
-    private final String facebookBannerID;
+    private final Context mContext;
+    private final LinearLayout mCompanyInfoLayout;
+    private final LinearLayout mBannerLinearLayout;
+    private final String mGoogleAdMobBannerID;
+    private final String mFacebookBannerID;
     private final boolean isAdMobAvailable;
     private final boolean isFacebookAvailable;
-    private final int bannerDpWidth;
+    private final int mBannerDpWidth;
     private com.google.android.gms.ads.AdView adMobBannerAdView;
     private com.facebook.ads.AdView facebookAdView;
     private com.facebook.ads.AdView.AdViewLoadConfig facebookAdViewLoadConfig;
@@ -74,12 +74,12 @@ public class SetBannerAdView {
             , LinearLayout bannerLinearLayout
             , String googleAdMobBannerID, String facebookBannerID
             , int bannerDpWidth) {
-        this.context = context;
-        this.companyInfoLayout = companyInfoLayout;
-        this.bannerLinearLayout = bannerLinearLayout;
-        this.googleAdMobBannerID = googleAdMobBannerID;
-        this.facebookBannerID = facebookBannerID;
-        this.bannerDpWidth = bannerDpWidth;
+        mContext = context;
+        mCompanyInfoLayout = companyInfoLayout;
+        mBannerLinearLayout = bannerLinearLayout;
+        mGoogleAdMobBannerID = googleAdMobBannerID;
+        mFacebookBannerID = facebookBannerID;
+        mBannerDpWidth = bannerDpWidth;
         isAdMobAvailable = (googleAdMobBannerID!=null && !googleAdMobBannerID.isEmpty());
         isFacebookAvailable = (facebookBannerID!=null && !facebookBannerID.isEmpty());
         if (bannerLinearLayout != null) bannerLinearLayout.removeAllViews();
@@ -89,16 +89,16 @@ public class SetBannerAdView {
         // provider = 0 --> AdMob first, = 1 --> Facebook first
         if (!isAdMobAvailable && !isFacebookAvailable) {
             // no banner ads so show company information
-            if (bannerLinearLayout != null) {
-                bannerLinearLayout.setVisibility(View.GONE);
+            if (mBannerLinearLayout != null) {
+                mBannerLinearLayout.setVisibility(View.GONE);
             }
-            if (companyInfoLayout != null) {
-                companyInfoLayout.setVisibility(View.VISIBLE);
+            if (mCompanyInfoLayout != null) {
+                mCompanyInfoLayout.setVisibility(View.VISIBLE);
             }
             return;
         }
-        if (companyInfoLayout != null) {
-            companyInfoLayout.setVisibility(View.GONE);
+        if (mCompanyInfoLayout != null) {
+            mCompanyInfoLayout.setVisibility(View.GONE);
         }
         // Google AdMob (Banner Ad) first if provider = 0
         if (provider == 0) setAdMobBannerAdView(); else setFacebookBannerAdView();
@@ -121,9 +121,11 @@ public class SetBannerAdView {
     public void destroy() {
         if (adMobBannerAdView != null) {
             adMobBannerAdView.destroy();
+            adMobBannerAdView = null;
         }
         if (facebookAdView != null) {
             facebookAdView.destroy();
+            facebookAdView = null;
         }
         facebookAdViewLoadConfig = null;
     }
@@ -137,17 +139,17 @@ public class SetBannerAdView {
         }
         Log.d(TAG, "setAdMobBannerAdView.Starting AdMob Banner Ad.");
         numberOfLoadingAdMobBannerAd = 0;
-        adMobBannerAdView = new com.google.android.gms.ads.AdView(context);
-        if (bannerDpWidth <= 0) {
+        adMobBannerAdView = new com.google.android.gms.ads.AdView(mContext);
+        if (mBannerDpWidth <= 0) {
             adMobBannerAdView.setAdSize(AdSize.BANNER);
         } else {
             // adaptive banner
-            AdSize adMobAdSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize (context, bannerDpWidth);
+            AdSize adMobAdSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize (mContext, mBannerDpWidth);
             adMobBannerAdView.setAdSize(adMobAdSize);
         }
         adMobBannerAdView.setVisibility(View.VISIBLE);
-        adMobBannerAdView.setAdUnitId(googleAdMobBannerID);
-        bannerLinearLayout.addView(adMobBannerAdView);
+        adMobBannerAdView.setAdUnitId(mGoogleAdMobBannerID);
+        mBannerLinearLayout.addView(adMobBannerAdView);
         AdListener adMobBannerListener = new AdListener() {
             @Override
             public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
@@ -160,7 +162,7 @@ public class SetBannerAdView {
                     if (numberOfLoadingFacebookBannerAd < maxNumberLoadingBannerAd) {
                         if (adMobBannerAdView != null) {
                             adMobBannerAdView.setVisibility(View.GONE);
-                            bannerLinearLayout.removeAllViews();
+                            mBannerLinearLayout.removeAllViews();
                             adMobBannerAdView.destroy();
                             adMobBannerAdView = null;
                             // switch to Facebook Audience Network
@@ -176,8 +178,8 @@ public class SetBannerAdView {
             @Override
             public void onAdLoaded() {
                 super.onAdLoaded();
-                Log.d(TAG, "Succeeded to load AdMob Banner ad.googleAdMobBannerID = " + googleAdMobBannerID +
-                        ", facebookBannerID = " + facebookBannerID);
+                Log.d(TAG, "Succeeded to load AdMob Banner ad.googleAdMobBannerID = " + mGoogleAdMobBannerID +
+                        ", facebookBannerID = " + mFacebookBannerID);
                 numberOfLoadingAdMobBannerAd = 0;
                 loggingAdmobHandler.removeCallbacksAndMessages(null);
                 loggingAdmobHandler.postDelayed(loggingAdmobRunnable, secondsToReLoadAd);
@@ -197,9 +199,9 @@ public class SetBannerAdView {
         }
         Log.d(TAG, "setFacebookBannerAdView.Starting Facebook Banner Ad.");
         numberOfLoadingFacebookBannerAd = 0;
-        facebookAdView = new com.facebook.ads.AdView(context, facebookBannerID, com.facebook.ads.AdSize.BANNER_HEIGHT_50);
+        facebookAdView = new com.facebook.ads.AdView(mContext, mFacebookBannerID, com.facebook.ads.AdSize.BANNER_HEIGHT_50);
         facebookAdView.setVisibility(View.VISIBLE);
-        bannerLinearLayout.addView(facebookAdView);
+        mBannerLinearLayout.addView(facebookAdView);
         facebookAdListener = new com.facebook.ads.AdListener() {
             @Override
             public void onError(Ad ad, AdError adError) {
@@ -212,7 +214,7 @@ public class SetBannerAdView {
                     if (numberOfLoadingAdMobBannerAd < maxNumberLoadingBannerAd) {
                         if (facebookAdView != null) {
                             facebookAdView.setVisibility(View.GONE);
-                            bannerLinearLayout.removeAllViews();
+                            mBannerLinearLayout.removeAllViews();
                             facebookAdView.destroy();
                             facebookAdView = null;
                             facebookAdViewLoadConfig = null;
@@ -228,8 +230,8 @@ public class SetBannerAdView {
             @Override
             public void onAdLoaded(Ad ad) {
                 // Ad loaded callback
-                Log.d(TAG, "Succeeded to load Facebook Banner ad.googleAdMobBannerID = " + googleAdMobBannerID +
-                        ", facebookBannerID = " + facebookBannerID);
+                Log.d(TAG, "Succeeded to load Facebook Banner ad.googleAdMobBannerID = " + mGoogleAdMobBannerID +
+                        ", facebookBannerID = " + mFacebookBannerID);
                 numberOfLoadingFacebookBannerAd = 0;
                 loggingFacebookHandler.removeCallbacksAndMessages(null);
                 loggingFacebookHandler.postDelayed(loggingFacebookRunnable, secondsToReLoadAd);

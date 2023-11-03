@@ -292,7 +292,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "MyActivity.onDestroy() is called");
+        Log.d(TAG, "onDestroy() is called");
 
         if (mPresenter != null) {
             mPresenter.release();
@@ -302,10 +302,12 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         localBroadcastManager.unregisterReceiver(myReceiver);
 
         if (myBannerAdView != null) {
+            myBannerAdView.pause();
             myBannerAdView.destroy();
             myBannerAdView = null;
         }
         if (myBannerAdView2 != null) {
+            myBannerAdView2.pause();
             myBannerAdView2.destroy();
             myBannerAdView2 = null;
         }
@@ -828,7 +830,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         @Override
         public void onReceive(Context context, Intent intent) {
             String actionName = intent.getAction();
-            Log.d(TAG, "MyBroadcastReceiver.onReceive().actionName = " + actionName);
+            Log.d(TAG, "MyBroadcastReceiver.onReceive.actionName = " + actionName);
             if (actionName == null) {
                 return;
             }
@@ -838,6 +840,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
             View historyView;
             int top10LayoutId = R.id.top10Layout;
             if (actionName.equals(MyTop10ScoresService.Action_Name)) {
+                playerNames.add("");
                 String top10ScoreTitle = getString(R.string.top10Score);
                 extras = intent.getExtras();
                 if (extras != null) {
@@ -848,12 +851,15 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                     playerNames.add("Failed to access Score SQLite database");
                     playerScores.add(0);
                 }
+                Log.d(TAG, "MyBroadcastReceiver.onReceive.playerNames.size() = " + playerNames.size());
                 historyView = findViewById(top10LayoutId);
                 if (historyView != null) {
-                    // if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                     if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                        top10ScoreFragment = Top10ScoreFragment.newInstance(top10ScoreTitle, playerNames, playerScores, activity -> {
+                        Log.d(TAG, "MyBroadcastReceiver.onReceive.ORIENTATION_LANDSCAPE");
+                        top10ScoreFragment = Top10ScoreFragment.Companion.newInstance(top10ScoreTitle, playerNames,
+                                playerScores, activity -> {
                             if (top10ScoreFragment != null) {
+                                Log.d(TAG, "MyBroadcastReceiver.onReceive.Top10OkButtonListener");
                                 // remove top10ScoreFragment to dismiss the top 10 score screen
                                 FragmentManager fmManager = getSupportFragmentManager();
                                 FragmentTransaction ft = fmManager.beginTransaction();
@@ -876,6 +882,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                     }
                 } else {
                     // for Portrait
+                    Log.d(TAG, "MyBroadcastReceiver.onReceive.ORIENTATION_PORTRAIT");
                     top10ScoreFragment = null;
                     Intent top10Intent = new Intent(getApplicationContext(), Top10ScoreActivity.class);
                     Bundle top10Extras = new Bundle();

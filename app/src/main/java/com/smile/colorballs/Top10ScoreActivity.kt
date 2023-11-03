@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.smile.colorballs.Top10ScoreFragment.Top10OkButtonListener
 import com.smile.colorballs.databinding.ActivityTop10ScoreBinding
 
 class Top10ScoreActivity : AppCompatActivity() {
@@ -15,22 +16,32 @@ class Top10ScoreActivity : AppCompatActivity() {
         binding = ActivityTop10ScoreBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        var top10TitleName: String? = ""
-        var top10Players: ArrayList<String>? = ArrayList()
-        var top10Scores: ArrayList<Int>? = ArrayList()
+        var top10TitleName: String = ""
+        var top10Players: ArrayList<String> = ArrayList()
+        var top10Scores: ArrayList<Int> = ArrayList()
         intent.extras?.let {
-            top10TitleName = it.getString(Constants.Top10TitleNameKey)
-            top10Players = it.getStringArrayList(Constants.Top10PlayersKey)
-            top10Scores = it.getIntegerArrayList(Constants.Top10ScoresKey)
+            it.getString(Constants.Top10TitleNameKey)?.let { nameIt ->
+                top10TitleName = nameIt
+            }
+            it.getStringArrayList(Constants.Top10PlayersKey)?.let { listIt ->
+                top10Players = listIt
+            }
+            it.getIntegerArrayList(Constants.Top10ScoresKey)?.let { listIt ->
+                top10Scores = listIt
+            }
         }
 
         val top10ScoreFragment: Fragment = Top10ScoreFragment
             .newInstance(
-                top10TitleName, top10Players, top10Scores
-            ) { activity: Activity ->
-                setResult(RESULT_OK)
-                activity.finish()
-            }
+                top10TitleName, top10Players, top10Scores,
+                object : Top10OkButtonListener {
+                    override fun buttonOkClick(activity: Activity?) {
+                        Log.d(TAG, "Top10OkButtonListener")
+                        setResult(RESULT_OK)
+                        activity?.finish()
+                    }
+                }
+            )
 
         val top10ScoreFragmentTag = "Top10ScoreFragment"
         val top10LayoutId = R.id.top10_score_linear_layout
