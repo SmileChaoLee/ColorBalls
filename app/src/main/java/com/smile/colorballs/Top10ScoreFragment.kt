@@ -14,6 +14,7 @@ import android.widget.ListView
 import androidx.fragment.app.Fragment
 import com.smile.colorballs.databinding.FragmentTop10ScoreBinding
 import com.smile.colorballs.databinding.Top10ScoreListItemsBinding
+import com.smile.colorballs.model.Players
 import com.smile.smilelibraries.utilities.ScreenUtil
 
 /**
@@ -154,25 +155,36 @@ class Top10ScoreFragment : Fragment {
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
             val vBinding = Top10ScoreListItemsBinding.inflate(layoutInflater, parent, false)
             // val view = layoutInflater.inflate(layoutId, parent, false)
+            Log.d(TAG, "players.size() = ${players.size}")
+            Log.d(TAG, "position = $position")
+            val mTop10Players = Players(players[position],
+                scores[position].toString(),
+                medals[position])
+            vBinding.apply {
+                lifecycleOwner = this@Top10ScoreFragment
+                top10Players = mTop10Players
+            }
             if (count == 0) {
                 return vBinding.root
             }
             val itemNum = if (resources.configuration.orientation
                 == Configuration.ORIENTATION_LANDSCAPE) 2 else 4
             // items for one screen
+            Log.d(TAG, "itemNum = $itemNum")
             vBinding.root.layoutParams.height = parent.height / itemNum
+            Log.d(TAG, "layoutParams.height = ${vBinding.root.layoutParams.height}")
 
             vBinding.playerTextView.let {
                 ScreenUtil.resizeTextSize(it, textFontSize,
                     ScreenUtil.FontSize_Pixel_Type)
-                it.text = players[position]
+                // it.text = players[position]
             }
             vBinding.scoreTextView.let {
                 ScreenUtil.resizeTextSize(it, textFontSize,
                     ScreenUtil.FontSize_Pixel_Type)
-                it.text = scores[position].toString()
+                // it.text = scores[position].toString()
             }
-            vBinding.medalImage.setImageResource(medals[position])
+            // vBinding.medalImage.setImageResource(medals[position])
 
             return vBinding.root
         }
