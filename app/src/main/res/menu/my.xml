@@ -18,7 +18,7 @@
         android:title="@string/moreActionStr"
         android:icon="@drawable/three_dots"
         android:orderInCategory="3"
-        app:showAsAction="always">
+        app:showAsAction="ifRoom">
         <menu>
             <item android:id="@+id/top10"
                 android:title="@string/top10Str"

@@ -951,12 +951,12 @@ public class MyActivityPresenter {
                     ballYN = !ballYN;
                     countDown--;
                     movingBallHandler.postDelayed(this,20);
-                    Log.d(TAG,"drawBallAlongPath.ballMovingHandler.postDelayed()");
+                    // Log.d(TAG,"drawBallAlongPath.ballMovingHandler.postDelayed()");
                 } else {
                     // movingBallHandler.removeCallbacksAndMessages(null);
                     clearCell(beginI, beginJ);  // blank the original cell. Added on 2020-09-16
                     ImageView v = presentView.getImageViewById(ii * rowCounts + jj);
-                    Log.d(TAG, "drawBallAlongPath.gridData.setCellValue(ii, jj, color) = " + color);
+                    // Log.d(TAG, "drawBallAlongPath.gridData.setCellValue(ii, jj, color) = " + color);
                     gridData.setCellValue(ii, jj, color);
                     drawBall(v, color);
                     gridData.regenerateNextCellIndices(new Point(ii, jj));
@@ -968,7 +968,7 @@ public class MyActivityPresenter {
                         presentView.updateCurrentScoreOnUi(gameProperties.getCurrentScore());
                         ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(gameProperties.getLastGotScore(), gridData.getLightLine(), false);
                         showingScoreHandler.post(showScoreRunnable);
-                        Log.d(TAG,"drawBallAlongPath.showingScoreHandler.post(showScoreRunnable).");
+                        // Log.d(TAG,"drawBallAlongPath.showingScoreHandler.post(showScoreRunnable).");
                     } else {
                         displayGridDataNextCells();   // has a problem
                     }

@@ -6,10 +6,8 @@ import com.facebook.ads.AdSettings
 import com.facebook.ads.AudienceNetworkAds
 import com.facebook.ads.AudienceNetworkAds.InitResult
 import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener
 import com.smile.smilelibraries.facebook_ads_util.FacebookInterstitial
 import com.smile.smilelibraries.google_ads_util.AdMobInterstitial
-import com.smile.smilelibraries.utilities.ScreenUtil
 
 class ColorBallsApp : MultiDexApplication() {
     @JvmField
@@ -25,7 +23,6 @@ class ColorBallsApp : MultiDexApplication() {
         facebookBannerID = "200699663911258_423008208347068"
         facebookBannerID2 = "200699663911258_619846328663254"
         // Google AdMob
-        // val googleAdMobAppID = getString(R.string.google_AdMobAppID)
         googleAdMobBannerID = "ca-app-pub-8354869049759576/3904969730"
         googleAdMobBannerID2 = "ca-app-pub-8354869049759576/9583367128"
         googleAdMobNativeID = "ca-app-pub-8354869049759576/2356386907"
@@ -53,12 +50,12 @@ class ColorBallsApp : MultiDexApplication() {
         //
         facebookAds = FacebookInterstitial(applicationContext, facebookInterstitialID)
         MobileAds.initialize(
-            applicationContext,
-            OnInitializationCompleteListener {
-                Log.d(
-                    TAG, "Google AdMob was initialized successfully."
-                )
-            })
+            applicationContext
+        ) {
+            Log.d(
+                TAG, "Google AdMob was initialized successfully."
+            )
+        }
         googleInterstitialAd = AdMobInterstitial(applicationContext, googleAdMobInterstitialID)
     }
 

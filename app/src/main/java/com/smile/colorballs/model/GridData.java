@@ -177,7 +177,7 @@ public class GridData implements Parcelable {
         }
     }
 
-    public boolean check_moreThanFive(int x,int y) {
+    public boolean check_moreThanFive(int x, int y) {
 
         Log.d(TAG,"check_moreThanFive.x = " + x + ", y = " + y) ;
 
@@ -192,11 +192,9 @@ public class GridData implements Parcelable {
         List<Point> tempList = new ArrayList<>();
 
         cellColor = cellValues[x][y];
-        Log.d(TAG, "check_moreThanFive() --> cellColor = " + cellColor);
+        // Log.d(TAG, "check_moreThanFive() --> cellColor = " + cellColor);
 
         //first
-        // first_i = Math.max(x-(rowCounts-1),0);
-        // end_i   = Math.min(x+(rowCounts-1),(rowCounts-1));
         first_i = 0;
         end_i   = rowCounts - 1;
         num_b = 0 ;
@@ -243,13 +241,9 @@ public class GridData implements Parcelable {
         tempList.clear();
 
         //second
-        // first_i = Math.max(x-(rowCounts-1), 0);
-        // end_i   = Math.min(x+(rowCounts-1), rowCounts - 1);
         first_i = 0;
         end_i   = rowCounts - 1;
 
-        // first_j = Math.min(y+(colCounts-1) , colCounts - 1);
-        // end_j   = Math.max(y-(colCounts-1) , 0);
         first_j = colCounts - 1;
         end_j   = 0;
 
@@ -297,8 +291,6 @@ public class GridData implements Parcelable {
         tempList.clear();
 
         //third
-        // first_j = Math.min(y+(colCounts-1), colCounts-1 );
-        // end_j   = Math.max(y-(colCounts-1) , 0);
         first_j = colCounts - 1;
         end_j   = 0;
 
@@ -344,13 +336,9 @@ public class GridData implements Parcelable {
         tempList.clear();
 
         //forth
-        // first_i = Math.min(x+(rowCounts-1), rowCounts-1);
-        // end_i   = Math.max(x-(rowCounts-1), 0);
         first_i = rowCounts - 1;
         end_i   = 0;
 
-        // first_j = Math.min(y+(colCounts-1) , colCounts - 1) ;
-        // end_j   = Math.max(y-(colCounts-1) , 0) ;
         first_j = colCounts - 1;
         end_j   = 0;
 
@@ -597,7 +585,7 @@ public class GridData implements Parcelable {
         this.numOfColorsUsed = in.readInt();
     }
 
-    public static final Creator<GridData> CREATOR = new Creator<GridData>() {
+    public static final Creator<GridData> CREATOR = new Creator<>() {
         @Override
         public GridData createFromParcel(Parcel source) {
             return new GridData(source);

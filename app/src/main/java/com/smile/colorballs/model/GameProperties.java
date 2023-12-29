@@ -15,7 +15,7 @@ public class GameProperties implements Parcelable {
     private boolean isShowingWarningSaveGameDialog;
     private boolean isShowingSureLoadDialog;
     private boolean isShowingGameOverDialog;
-    private boolean[] threadCompleted;
+    private final boolean[] threadCompleted;
     private int bouncyBallIndexI;
     private int bouncyBallIndexJ;
     private boolean isBallBouncing;
@@ -295,7 +295,7 @@ public class GameProperties implements Parcelable {
         } else this.gridData = in.readParcelable(GridData.class.getClassLoader());
     }
 
-    public static final Creator<GameProperties> CREATOR = new Creator<GameProperties>() {
+    public static final Creator<GameProperties> CREATOR = new Creator<>() {
         @Override
         public GameProperties createFromParcel(Parcel source) {
             return new GameProperties(source);

@@ -835,18 +835,21 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 return;
             }
             Bundle extras;
-            ArrayList<String> playerNames = new ArrayList<>();
-            ArrayList<Integer> playerScores = new ArrayList<>();
+            ArrayList<String> playerNames = null;
+            ArrayList<Integer> playerScores = null;
             View historyView;
             int top10LayoutId = R.id.top10Layout;
             if (actionName.equals(MyTop10ScoresService.Action_Name)) {
-                playerNames.add("");
+                // playerNames.add("");
                 String top10ScoreTitle = getString(R.string.top10Score);
                 extras = intent.getExtras();
                 if (extras != null) {
                     playerNames = extras.getStringArrayList(Constants.PlayerNamesKey);
                     playerScores = extras.getIntegerArrayList(Constants.PlayerScoresKey);
-                } else {
+                }
+                if (playerNames == null || playerScores == null) {
+                    playerNames = new ArrayList<>();
+                    playerScores = new ArrayList<>();
                     // failed
                     playerNames.add("Failed to access Score SQLite database");
                     playerScores.add(0);

@@ -55,8 +55,4 @@
     <string name="companyDescriptionStr">客製化軟體, 智慧型手機程式, 及網頁應用程式等開發</string>
     <string name="companyNameStr">微笑資訊有限公司</string>
     <string name="companyContactEmailStr">leechao1959@gmail.com</string>
-
-    <string name="google_AdMobAppID">ca-app-pub-8354869049759576~1891379677</string>
-    <string name="google_AdMobAppID_2">ca-app-pub-8354869049759576~8647116443</string>
-    <string name="google_AdMobAppID_pro">@string/google_AdMobAppID</string>
 </resources>

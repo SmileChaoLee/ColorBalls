@@ -20,30 +20,20 @@ android {
 
     defaultConfig {
         minSdk 23
-        targetSdk 33
+        targetSdk 34
         multiDexEnabled true
 
         versionCode 6010
         versionName "6.010"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        applicationId "com.smile.colorballs"
-        manifestPlaceholders = [googleAdMobAppID: "@string/google_AdMobAppID"]
         signingConfig signingConfigs.config
-    }
-
-    flavorDimensions = ["colorballs"]
-    productFlavors {
-        colorballs {
-            dimension "colorballs"
-            applicationId "com.smile.colorballs"
-            manifestPlaceholders = [appName: "@string/app_name", appNameSuffix: ""]
-        }
     }
     
     buildFeatures  {
         // viewBinding true
         dataBinding true
+        buildConfig true
     }
 
     buildTypes {
@@ -58,24 +48,24 @@ android {
             // signingConfig signingConfigs.config
         }
     }
-    /*
+    
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
-    */
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
+
     namespace 'com.smile.colorballs'
-    testNamespace '${applicationId}.androidTest'
+    testNamespace 'com.smile.colorballs.androidTest'
 }
 
 allprojects {
-    tasks.withType(JavaCompile) {
+    tasks.withType(JavaCompile).configureEach {
         options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
     }
-    configurations.all {
+    configurations.configureEach {
         resolutionStrategy {
             force("com.google.auto.value:auto-value-annotations:1.6.3")
         }
@@ -91,7 +81,7 @@ dependencies {
     implementation 'com.facebook.android:audience-network-sdk:6.16.0'
     implementation 'com.facebook.infer.annotation:infer-annotation:0.18.0'
     implementation 'com.google.firebase:firebase-core:21.1.1'
-    implementation 'com.google.firebase:firebase-ads:22.4.0'
+    implementation 'com.google.firebase:firebase-ads:22.6.0'
     implementation 'androidx.multidex:multidex:2.0.1'
 
     implementation project(':smilelibraries')
