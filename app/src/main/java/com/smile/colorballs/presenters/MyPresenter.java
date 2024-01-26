@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class MyActivityPresenter {
+public class MyPresenter {
 
     public static final int NumOfColorsUsedByEasy = 5;          // 5 colors for easy level
     public static final int NumOfColorsUsedByDifficult = 6;    // 6 colors for difficult level
@@ -53,20 +53,20 @@ public class MyActivityPresenter {
 
     private final String NumOfSavedGameFileName = "num_saved_game";
 
-    private final String TAG = "MyActivityPresenter";
+    private final String TAG = "MyPresenter";
     private final String GamePropertiesTag = "GameProperties";
     private final String savedGameFileName = "saved_game";
 
-    private final Activity activity;
-    private final PresentView presentView;
+    private final Activity mActivity;
+    private final PresentView mPresentView;
     private final SoundPoolUtil soundPoolUtil;
     private final Handler bouncyHandler = new Handler(Looper.getMainLooper());
     private final Handler movingBallHandler = new Handler(Looper.getMainLooper());
     private final Handler showingScoreHandler = new Handler(Looper.getMainLooper());
 
-    private int rowCounts, colCounts;
-    private GameProperties gameProperties;
-    private GridData gridData;
+    private int mRowCounts, mColCounts;
+    private GameProperties mGameProperties;
+    private GridData mGridData;
 
     public interface PresentView {
         ImageView getImageViewById(int id);
@@ -81,79 +81,84 @@ public class MyActivityPresenter {
         void showGameOverDialog();
     }
 
-    public MyActivityPresenter(Activity activity, PresentView presentView) {
-        this.activity = activity;
-        this.presentView = presentView;
-        soundPoolUtil = new SoundPoolUtil(this.activity, R.raw.uhoh);
+    public MyPresenter(Activity activity) {
+        mActivity = activity;
+        mPresentView = (PresentView) mActivity;
+        soundPoolUtil = new SoundPoolUtil(mActivity, R.raw.uhoh);
 
         colorBallMap = new HashMap<>();
         colorOvalBallMap = new HashMap<>();
         colorNextBallMap = new HashMap<>();
     }
 
-    public void doDrawBallsAndCheckListener(View v) {
-        int i, j, id;
-        id = v.getId();
-        i = id / rowCounts;
-        j = id % rowCounts;
+    public void setRowCounts(int rowCounts) {
+        mRowCounts = rowCounts;
+    }
+
+    public void setColCounts(int colCounts) {
+        mColCounts = colCounts;
+    }
+
+    public void drawBallsAndCheckListener(View v) {
+        int id = v.getId();
+        int i = getRow(id);
+        int j = getColumn(id);
         ImageView imageView;
-        if (!gameProperties.isBallBouncing()) {
-            if (gridData.getCellValue(i, j) != 0) {
-                if ((gameProperties.getBouncyBallIndexI() == -1) && (gameProperties.getBouncyBallIndexJ() == -1)) {
-                    gameProperties.setBallBouncing(true);
-                    drawBouncyBall((ImageView) v, gridData.getCellValue(i, j));
-                    gameProperties.setBouncyBallIndexI(i);
-                    gameProperties.setBouncyBallIndexJ(j);
+        if (!mGameProperties.isBallBouncing()) {
+            if (mGridData.getCellValue(i, j) != 0) {
+                if ((mGameProperties.getBouncyBallIndexI() == -1) && (mGameProperties.getBouncyBallIndexJ() == -1)) {
+                    mGameProperties.setBallBouncing(true);
+                    drawBouncyBall((ImageView) v, mGridData.getCellValue(i, j));
+                    mGameProperties.setBouncyBallIndexI(i);
+                    mGameProperties.setBouncyBallIndexJ(j);
                 }
             }
         } else {
             // cancel the timer
-            if (gridData.getCellValue(i, j) == 0) {
+            if (mGridData.getCellValue(i, j) == 0) {
                 //   blank cell
-                int bouncyBallIndexI = gameProperties.getBouncyBallIndexI();
-                int bouncyBallIndexJ = gameProperties.getBouncyBallIndexJ();
+                int bouncyBallIndexI = mGameProperties.getBouncyBallIndexI();
+                int bouncyBallIndexJ = mGameProperties.getBouncyBallIndexJ();
                 if ((bouncyBallIndexI >= 0) && (bouncyBallIndexJ >= 0)) {
-                    if (gridData.canMoveCellToCell(new Point(bouncyBallIndexI, bouncyBallIndexJ), new Point(i, j))) {
+                    if (mGridData.canMoveCellToCell(new Point(bouncyBallIndexI, bouncyBallIndexJ), new Point(i, j))) {
                         // cancel the timer
-                        gameProperties.setBallBouncing(false);
+                        mGameProperties.setBallBouncing(false);
                         cancelBouncyTimer();
 
-                        gameProperties.setBouncyBallIndexI(-1);
-                        gameProperties.setBouncyBallIndexJ(-1);
+                        mGameProperties.setBouncyBallIndexI(-1);
+                        mGameProperties.setBouncyBallIndexJ(-1);
 
                         drawBallAlongPath();
 
-                        gameProperties.setUndoEnable(true);
+                        mGameProperties.setUndoEnable(true);
                     } else {
                         //    make a sound
-                        if (gameProperties.hasSound()) {
+                        if (mGameProperties.hasSound()) {
                             soundPoolUtil.playSound();
                         }
                     }
                 }
             } else {
                 //  cell is not blank
-                int bouncyBallIndexI = gameProperties.getBouncyBallIndexI();
-                int bouncyBallIndexJ = gameProperties.getBouncyBallIndexJ();
+                int bouncyBallIndexI = mGameProperties.getBouncyBallIndexI();
+                int bouncyBallIndexJ = mGameProperties.getBouncyBallIndexJ();
                 if ((bouncyBallIndexI >= 0) && (bouncyBallIndexJ >= 0)) {
                     cancelBouncyTimer();
-                    imageView = presentView.getImageViewById(bouncyBallIndexI * rowCounts + bouncyBallIndexJ);
-                    drawBall(imageView , gridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
-                    drawBouncyBall((ImageView) v, gridData.getCellValue(i, j));
-                    gameProperties.setBouncyBallIndexI(i);
-                    gameProperties.setBouncyBallIndexJ(j);
+                    imageView = mPresentView.getImageViewById(getImageId(bouncyBallIndexI, bouncyBallIndexJ));
+                    drawBall(imageView , mGridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
+                    drawBouncyBall((ImageView) v, mGridData.getCellValue(i, j));
+                    mGameProperties.setBouncyBallIndexI(i);
+                    mGameProperties.setBouncyBallIndexJ(j);
                 }
             }
         }
     }
 
-    public boolean initializeColorBallsGame(int rowCounts, int colCounts, int cellWidth, int cellHeight, Bundle savedInstanceState) {
+    public boolean initializeColorBallsGame(int cellWidth, int cellHeight, Bundle savedInstanceState) {
 
         createBitmapsAndDrawableResources(cellWidth, cellHeight);
 
-        this.rowCounts = rowCounts;
-        this.colCounts = colCounts;
-        ScoreSQLite scoreSQLiteDB = new ScoreSQLite(activity.getApplicationContext());
+        ScoreSQLite scoreSQLiteDB = new ScoreSQLite(mActivity.getApplicationContext());
         int highestScore = scoreSQLiteDB.readHighestScore();
         scoreSQLiteDB.close();
 
@@ -164,26 +169,26 @@ public class MyActivityPresenter {
         } else {
             Log.d(TAG, "initializeColorBallsGame.Configuration changed and restore the original UI.");
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {    // API 33
-                gameProperties = savedInstanceState.getParcelable(GamePropertiesTag, GameProperties.class);
-            } else gameProperties = savedInstanceState.getParcelable(GamePropertiesTag);
-            if (gameProperties != null) {
-                gridData = gameProperties.getGridData();
-                if (gridData != null) {
+                mGameProperties = savedInstanceState.getParcelable(GamePropertiesTag, GameProperties.class);
+            } else mGameProperties = savedInstanceState.getParcelable(GamePropertiesTag);
+            if (mGameProperties != null) {
+                mGridData = mGameProperties.getGridData();
+                if (mGridData != null) {
                     isNewGame = false;
                 }
             }
         }
         if (isNewGame) {
             Log.d(TAG, "initializeColorBallsGame.new game.");
-            gridData = new GridData(this.rowCounts, this.colCounts, NumOfColorsUsedByEasy);
-            gameProperties = new GameProperties(gridData);
+            mGridData = new GridData(mRowCounts, mColCounts, NumOfColorsUsedByEasy);
+            mGameProperties = new GameProperties(mGridData);
         }
 
-        ColorBallsApp.isShowingLoadingMessage = gameProperties.isShowingLoadingMessage();
-        ColorBallsApp.isProcessingJob = gameProperties.isProcessingJob();
+        ColorBallsApp.isShowingLoadingMessage = mGameProperties.isShowingLoadingMessage();
+        ColorBallsApp.isProcessingJob = mGameProperties.isProcessingJob();
 
-        presentView.updateHighestScoreOnUi(highestScore);
-        presentView.updateCurrentScoreOnUi(gameProperties.getCurrentScore());
+        mPresentView.updateHighestScoreOnUi(highestScore);
+        mPresentView.updateCurrentScoreOnUi(mGameProperties.getCurrentScore());
 
         displayGameView();
         if (isNewGame) {
@@ -192,53 +197,53 @@ public class MyActivityPresenter {
             // display the original state before changing configuration
             // need to be tested
             if (ColorBallsApp.isShowingLoadingMessage) {
-                presentView.showMessageOnScreen(activity.getString(R.string.loadingStr));
+                mPresentView.showMessageOnScreen(mActivity.getString(R.string.loadingStr));
             }
             //
-            if (gameProperties.isBallMoving()) {
+            if (mGameProperties.isBallMoving()) {
                 Log.d(TAG, "initializeColorBallsGame.gameProperties.isBallMoving() is true");
                 drawBallAlongPath();
             }
-            if (gameProperties.isShowingScoreMessage()) {
+            if (mGameProperties.isShowingScoreMessage()) {
                 Log.d(TAG, "initializeColorBallsGame.gameProperties.isShowingScoreMessage() is true");
-                ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(gameProperties.getLastGotScore(),
-                        gridData.getLightLine(), gameProperties.isShowNextBallsAfterBlinking());
+                ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(mGameProperties.getLastGotScore(),
+                        mGridData.getLightLine(), mGameProperties.isShowNextBallsAfterBlinking());
                 Log.d(TAG,"initializeColorBallsGame.showingScoreHandler.post(showScoreRunnable).");
                 showingScoreHandler.post(showScoreRunnable);
             }
-            if (gameProperties.isBallBouncing()) {
-                int bouncyBallIndexI = gameProperties.getBouncyBallIndexI();
-                int bouncyBallIndexJ = gameProperties.getBouncyBallIndexJ();
-                ImageView v = presentView.getImageViewById(bouncyBallIndexI * rowCounts + bouncyBallIndexJ);
-                drawBouncyBall(v, gridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
+            if (mGameProperties.isBallBouncing()) {
+                int bouncyBallIndexI = mGameProperties.getBouncyBallIndexI();
+                int bouncyBallIndexJ = mGameProperties.getBouncyBallIndexJ();
+                ImageView v = mPresentView.getImageViewById(getImageId(bouncyBallIndexI, bouncyBallIndexJ));
+                drawBouncyBall(v, mGridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
             }
 
-            if (gameProperties.isShowingNewGameDialog()) {
+            if (mGameProperties.isShowingNewGameDialog()) {
                 Log.d(TAG, "initializeColorBallsGame.show new game dialog by calling newGame()");
                 newGame();
             }
 
-            if (gameProperties.isShowingQuitGameDialog()) {
+            if (mGameProperties.isShowingQuitGameDialog()) {
                 Log.d(TAG, "initializeColorBallsGame.show quit game dialog by calling quitGame()");
                 quitGame();
             }
 
-            if (gameProperties.isShowingSureSaveDialog()) {
+            if (mGameProperties.isShowingSureSaveDialog()) {
                 Log.d(TAG, "initializeColorBallsGame.isShowingSureSaveDialog()");
                 saveGame();
             }
 
-            if (gameProperties.isShowingWarningSaveGameDialog()) {
+            if (mGameProperties.isShowingWarningSaveGameDialog()) {
                 Log.d(TAG, "initializeColorBallsGame.isShowingWarningSaveGameDialog()");
-                presentView.showingWarningSaveGameDialog(readNumberOfSaved());
+                mPresentView.showingWarningSaveGameDialog(readNumberOfSaved());
             }
 
-            if (gameProperties.isShowingSureLoadDialog()) {
+            if (mGameProperties.isShowingSureLoadDialog()) {
                 Log.d(TAG, "initializeColorBallsGame.isShowingSureLoadDialog()");
                 loadGame();
             }
 
-            if (gameProperties.isShowingGameOverDialog()) {
+            if (mGameProperties.isShowingGameOverDialog()) {
                 Log.d(TAG, "initializeColorBallsGame.isShowingGameOverDialog()");
                 gameOver();
             }
@@ -248,13 +253,13 @@ public class MyActivityPresenter {
     }
 
     public void onSaveInstanceState(@NonNull Bundle outState) {
-        gameProperties.setShowingLoadingMessage(ColorBallsApp.isShowingLoadingMessage);
-        gameProperties.setProcessingJob(ColorBallsApp.isProcessingJob);
-        outState.putParcelable(GamePropertiesTag, gameProperties);
+        mGameProperties.setShowingLoadingMessage(ColorBallsApp.isShowingLoadingMessage);
+        mGameProperties.setProcessingJob(ColorBallsApp.isProcessingJob);
+        outState.putParcelable(GamePropertiesTag, mGameProperties);
     }
 
     public boolean completedAll() {
-        for (boolean thCompleted : gameProperties.getThreadCompleted()) {
+        for (boolean thCompleted : mGameProperties.getThreadCompleted()) {
             if (!thCompleted) {
                 return false;
             }
@@ -263,69 +268,69 @@ public class MyActivityPresenter {
     }
 
     public boolean hasSound() {
-        return gameProperties.hasSound();
+        return mGameProperties.hasSound();
     }
 
     public void setHasSound(boolean hasSound) {
-        gameProperties.setHasSound(hasSound);
+        mGameProperties.setHasSound(hasSound);
     }
 
     public boolean isEasyLevel() {
-        return gameProperties.isEasyLevel();
+        return mGameProperties.isEasyLevel();
     }
 
     public void setEasyLevel(boolean yn) {
-        gameProperties.setEasyLevel(yn);
-        if (gameProperties.isEasyLevel()) {
+        mGameProperties.setEasyLevel(yn);
+        if (mGameProperties.isEasyLevel()) {
             // easy level
-            gridData.setNumOfColorsUsed(NumOfColorsUsedByEasy);
+            mGridData.setNumOfColorsUsed(NumOfColorsUsedByEasy);
         } else {
             // difficult
-            gridData.setNumOfColorsUsed(NumOfColorsUsedByDifficult);
+            mGridData.setNumOfColorsUsed(NumOfColorsUsedByDifficult);
         }
     }
 
     public boolean hasNextBall() {
-        return gameProperties.hasNextBall();
+        return mGameProperties.hasNextBall();
     }
 
     public void setHasNextBall(boolean hasNextBall, boolean isNextBalls) {
-        gameProperties.setHasNextBall(hasNextBall);
+        mGameProperties.setHasNextBall(hasNextBall);
         if (isNextBalls) {
             displayNextBallsView();
         }
     }
 
     public void setShowingNewGameDialog(boolean showingNewGameDialog) {
-        gameProperties.setShowingNewGameDialog(showingNewGameDialog);
+        mGameProperties.setShowingNewGameDialog(showingNewGameDialog);
     }
 
     public void setShowingQuitGameDialog(boolean showingQuitGameDialog) {
-        gameProperties.setShowingQuitGameDialog(showingQuitGameDialog);
+        mGameProperties.setShowingQuitGameDialog(showingQuitGameDialog);
     }
 
     public void undoTheLast() {
-        if (!gameProperties.isUndoEnable()) {
+        if (!mGameProperties.isUndoEnable()) {
             return;
         }
 
         ColorBallsApp.isProcessingJob = true; // started undoing
 
-        gridData.undoTheLast();
+        mGridData.undoTheLast();
 
         cancelBouncyTimer();
-        gameProperties.setBallBouncing(false);
-        gameProperties.setBouncyBallIndexI(-1);
-        gameProperties.setBouncyBallIndexJ(-1);
+        mGameProperties.setBallBouncing(false);
+        mGameProperties.setBouncyBallIndexI(-1);
+        mGameProperties.setBouncyBallIndexJ(-1);
 
         // restore the screen
         displayGameView();
 
-        gameProperties.setCurrentScore(gameProperties.getUndoScore());
-        presentView.updateCurrentScoreOnUi(gameProperties.getCurrentScore());
+        mGameProperties.setCurrentScore(mGameProperties.getUndoScore());
+        mPresentView.updateCurrentScoreOnUi(mGameProperties.getCurrentScore());
 
         // completedPath = true;
-        gameProperties.setUndoEnable(false);
+        mGameProperties.setUndoEnable(false);
 
         ColorBallsApp.isProcessingJob = false;    // finished
     }
@@ -342,24 +347,24 @@ public class MyActivityPresenter {
     }
 
     public void setShowingSureSaveDialog(boolean isShowingSureSaveDialog) {
-        gameProperties.setShowingSureSaveDialog(isShowingSureSaveDialog);
+        mGameProperties.setShowingSureSaveDialog(isShowingSureSaveDialog);
     }
 
     public void setShowingSureLoadDialog(boolean isShowingSureLoadDialog) {
-        gameProperties.setShowingSureLoadDialog(isShowingSureLoadDialog);
+        mGameProperties.setShowingSureLoadDialog(isShowingSureLoadDialog);
     }
 
     public void setShowingGameOverDialog(boolean isShowingGameOverDialog) {
-        gameProperties.setShowingGameOverDialog(isShowingGameOverDialog);
+        mGameProperties.setShowingGameOverDialog(isShowingGameOverDialog);
     }
 
     public void setShowingWarningSaveGameDialog(boolean isShowingWarningSaveGameDialog) {
-        gameProperties.setShowingWarningSaveGameDialog(isShowingWarningSaveGameDialog);
+        mGameProperties.setShowingWarningSaveGameDialog(isShowingWarningSaveGameDialog);
     }
 
     public void saveScore(String playerName, int score) {
         // modified on 2018-11-07
-        ScoreSQLite scoreSQLiteDB = new ScoreSQLite(activity.getApplicationContext());
+        ScoreSQLite scoreSQLiteDB = new ScoreSQLite(mActivity.getApplicationContext());
         boolean isInTop10 = scoreSQLiteDB.isInTop10(score);
         if (isInTop10) {
             // inside top 10
@@ -371,26 +376,26 @@ public class MyActivityPresenter {
     }
 
     public void newGame() {
-        presentView.showSaveScoreAlertDialog(1, gameProperties.getCurrentScore());
+        mPresentView.showSaveScoreAlertDialog(1, mGameProperties.getCurrentScore());
     }
 
     public void quitGame() {
-        presentView.showSaveScoreAlertDialog(0, gameProperties.getCurrentScore());
+        mPresentView.showSaveScoreAlertDialog(0, mGameProperties.getCurrentScore());
     }
 
     public void saveGame() {
-        presentView.showSaveGameDialog();
+        mPresentView.showSaveGameDialog();
     }
 
     public void loadGame() {
-        presentView.showLoadGameDialog();
+        mPresentView.showLoadGameDialog();
     }
 
     public int readNumberOfSaved() {
-        Log.d(TAG, "readNumberOfSaved.activity = " + activity);
+        Log.d(TAG, "readNumberOfSaved.activity = " + mActivity);
         int numOfSaved = 0;
         try {
-            File inputFile = new File(activity.getFilesDir(), NumOfSavedGameFileName);
+            File inputFile = new File(mActivity.getFilesDir(), NumOfSavedGameFileName);
             FileInputStream fiStream = new FileInputStream(inputFile);
             numOfSaved = fiStream.read();
             fiStream.close();
@@ -405,100 +410,100 @@ public class MyActivityPresenter {
         Log.d(TAG, "startSavingGame");
 
         ColorBallsApp.isProcessingJob = true;
-        presentView.showMessageOnScreen(activity.getString(R.string.savingGameStr));
+        mPresentView.showMessageOnScreen(mActivity.getString(R.string.savingGameStr));
 
         boolean succeeded = true;
         try {
-            File outputFile = new File(activity.getFilesDir(), savedGameFileName);
+            File outputFile = new File(mActivity.getFilesDir(), savedGameFileName);
             FileOutputStream foStream = new FileOutputStream(outputFile);
             // save settings
-            Log.d(TAG, "startSavingGame.hasSound = " + gameProperties.hasSound());
-            if (gameProperties.hasSound()) {
+            Log.d(TAG, "startSavingGame.hasSound = " + mGameProperties.hasSound());
+            if (mGameProperties.hasSound()) {
                 foStream.write(1);
             } else {
                 foStream.write(0);
             }
-            Log.d(TAG, "startSavingGame.isEasyLevel = " + gameProperties.isEasyLevel());
-            if (gameProperties.isEasyLevel()) {
+            Log.d(TAG, "startSavingGame.isEasyLevel = " + mGameProperties.isEasyLevel());
+            if (mGameProperties.isEasyLevel()) {
                 foStream.write(1);
             } else {
                 foStream.write(0);
             }
-            Log.d(TAG, "startSavingGame.hasNextBall = " + gameProperties.hasNextBall());
-            if (gameProperties.hasNextBall()) {
+            Log.d(TAG, "startSavingGame.hasNextBall = " + mGameProperties.hasNextBall());
+            if (mGameProperties.hasNextBall()) {
                 foStream.write(1);
             } else {
                 foStream.write(0);
             }
             // save next balls
             // foStream.write(gridData.ballNumOneTime);
-            Log.d(TAG, "startSavingGame.ballNumOneTime = " + GridData.ballNumOneTime);
-            foStream.write(GridData.ballNumOneTime);
-            for (HashMap.Entry<Point, Integer> entry : gridData.getNextCellIndices().entrySet()) {
+            Log.d(TAG, "startSavingGame.ballNumOneTime = " + GridData.mBallNumOneTime);
+            foStream.write(GridData.mBallNumOneTime);
+            for (HashMap.Entry<Point, Integer> entry : mGridData.getNextCellIndices().entrySet()) {
                 Log.d(TAG, "startSavingGame.nextCellIndices.getValue() = " + entry.getValue());
                 foStream.write(entry.getValue());
             }
-            int sz = gridData.getNextCellIndices().size();
+            int sz = mGridData.getNextCellIndices().size();
             for (int i = sz; i<NumOfColorsUsedByDifficult; i++) {
                 Log.d(TAG, "startSavingGame.nextCellIndices.getValue() = " + 0);
                 foStream.write(0);
             }
             Log.d(TAG, "startSavingGame.getNextCellIndices.size() = " + sz);
             foStream.write(sz);
-            for (HashMap.Entry<Point, Integer> entry : gridData.getNextCellIndices().entrySet()) {
+            for (HashMap.Entry<Point, Integer> entry : mGridData.getNextCellIndices().entrySet()) {
                 Log.d(TAG, "startSavingGame.nextCellIndices.getKey().x = " + entry.getKey().x);
                 Log.d(TAG, "startSavingGame.nextCellIndices.getKey().y = " + entry.getKey().y);
                 foStream.write(entry.getKey().x);
                 foStream.write(entry.getKey().y);
             }
-            Log.d(TAG, "startSavingGame.getUndoNextCellIndices().size() = " + gridData.getUndoNextCellIndices().size());
-            foStream.write(gridData.getUndoNextCellIndices().size());
-            for (HashMap.Entry<Point, Integer> entry : gridData.getUndoNextCellIndices().entrySet()) {
+            Log.d(TAG, "startSavingGame.getUndoNextCellIndices().size() = " + mGridData.getUndoNextCellIndices().size());
+            foStream.write(mGridData.getUndoNextCellIndices().size());
+            for (HashMap.Entry<Point, Integer> entry : mGridData.getUndoNextCellIndices().entrySet()) {
                 Log.d(TAG, "startSavingGame.undoNextCellIndices.getKey().x = " + entry.getKey().x);
                 Log.d(TAG, "startSavingGame.undoNextCellIndices.getKey().y = " + entry.getKey().y);
                 foStream.write(entry.getKey().x);
                 foStream.write(entry.getKey().y);
             }
             // save values on 9x9 grid
-            for (int i=0; i<rowCounts; i++) {
-                for (int j=0; j<colCounts; j++) {
-                    Log.d(TAG, "startSavingGame.gridData.getCellValue(i, j) = " + gridData.getCellValue(i, j));
-                    foStream.write(gridData.getCellValue(i, j));
+            for (int i = 0; i< mRowCounts; i++) {
+                for (int j = 0; j< mColCounts; j++) {
+                    Log.d(TAG, "startSavingGame.gridData.getCellValue(i, j) = " + mGridData.getCellValue(i, j));
+                    foStream.write(mGridData.getCellValue(i, j));
                 }
             }
             // save current score
-            byte[] scoreByte = ByteBuffer.allocate(4).putInt(gameProperties.getCurrentScore()).array();
+            byte[] scoreByte = ByteBuffer.allocate(4).putInt(mGameProperties.getCurrentScore()).array();
             Log.d(TAG, "startSavingGame.scoreByte = " + scoreByte);
             foStream.write(scoreByte);
             // save undoEnable
-            Log.d(TAG, "startSavingGame.isUndoEnable = " + gameProperties.isUndoEnable());
-            if (gameProperties.isUndoEnable()) {
+            Log.d(TAG, "startSavingGame.isUndoEnable = " + mGameProperties.isUndoEnable());
+            if (mGameProperties.isUndoEnable()) {
                 // can undo
                 foStream.write(1);
             } else {
                 // no undo
                 foStream.write(0);
             }
-            Log.d(TAG, "startSavingGame.ballNumOneTime = " + GridData.ballNumOneTime);
-            foStream.write(GridData.ballNumOneTime);
+            Log.d(TAG, "startSavingGame.ballNumOneTime = " + GridData.mBallNumOneTime);
+            foStream.write(GridData.mBallNumOneTime);
             // save undoNextBalls
-            for (HashMap.Entry<Point, Integer> entry : gridData.getUndoNextCellIndices().entrySet()) {
+            for (HashMap.Entry<Point, Integer> entry : mGridData.getUndoNextCellIndices().entrySet()) {
                 Log.d(TAG, "startSavingGame.undoNextCellIndices.getValue() = " + entry.getValue());
                 foStream.write(entry.getValue());
             }
-            sz = gridData.getUndoNextCellIndices().size();
+            sz = mGridData.getUndoNextCellIndices().size();
             for (int i = sz; i<NumOfColorsUsedByDifficult; i++) {
                 Log.d(TAG, "startSavingGame.undoNextCellIndices.getValue() = " + 0);
                 foStream.write(0);
             }
             // save backupCells
-            for (int i=0; i<rowCounts; i++) {
-                for (int j=0; j<colCounts; j++) {
-                    Log.d(TAG, "startSavingGame.gridData.getBackupCells()[i][j] = " + gridData.getBackupCells()[i][j]);
-                    foStream.write(gridData.getBackupCells()[i][j]);
+            for (int i = 0; i< mRowCounts; i++) {
+                for (int j = 0; j< mColCounts; j++) {
+                    Log.d(TAG, "startSavingGame.gridData.getBackupCells()[i][j] = " + mGridData.getBackupCells()[i][j]);
+                    foStream.write(mGridData.getBackupCells()[i][j]);
                 }
             }
-            byte[] undoScoreByte = ByteBuffer.allocate(4).putInt(gameProperties.getUndoScore()).array();
+            byte[] undoScoreByte = ByteBuffer.allocate(4).putInt(mGameProperties.getUndoScore()).array();
             Log.d(TAG, "startSavingGame.undoScoreByte = " + undoScoreByte);
             foStream.write(undoScoreByte);
             // end of writing
@@ -506,7 +511,7 @@ public class MyActivityPresenter {
             numOfSaved++;
             // save numOfSaved back to file (ColorBallsApp.NumOfSavedGameFileName)
             Log.d(TAG, "startSavingGame.creating outputFile.");
-            outputFile = new File(activity.getFilesDir(), NumOfSavedGameFileName);
+            outputFile = new File(mActivity.getFilesDir(), NumOfSavedGameFileName);
             foStream = new FileOutputStream(outputFile);
             foStream.write(numOfSaved);
             foStream.close();
@@ -519,7 +524,7 @@ public class MyActivityPresenter {
         }
 
         ColorBallsApp.isProcessingJob = false;
-        presentView.dismissShowMessageOnScreen();
+        mPresentView.dismissShowMessageOnScreen();
 
         Log.d(TAG, "startSavingGame.Finished");
 
@@ -529,7 +534,7 @@ public class MyActivityPresenter {
     public boolean startLoadingGame() {
         Log.d(TAG, "startLoadingGame");
         ColorBallsApp.isProcessingJob = true;
-        presentView.showMessageOnScreen(activity.getString(R.string.loadingGameStr));
+        mPresentView.showMessageOnScreen(mActivity.getString(R.string.loadingGameStr));
 
         boolean succeeded = true;
         boolean hasSound;
@@ -537,20 +542,20 @@ public class MyActivityPresenter {
         boolean hasNextBall;
         int ballNumOneTime;
         int[] nextBalls = new int[NumOfColorsUsedByDifficult];
-        int[][] gameCells = new int[rowCounts][colCounts];
+        int[][] gameCells = new int[mRowCounts][mColCounts];
         int cScore;
         boolean isUndoEnable;
         int[] undoNextBalls = new int[NumOfColorsUsedByDifficult];
-        int[][] backupCells = new int[rowCounts][colCounts];
-        int unScore = gameProperties.getUndoScore();
+        int[][] backupCells = new int[mRowCounts][mColCounts];
+        int unScore = mGameProperties.getUndoScore();
 
         try {
             // clear nextCellIndices and undoNextCellIndices
-            gridData.setNextCellIndices(new HashMap<>());
-            gridData.setUndoNextCellIndices(new HashMap<>());
+            mGridData.setNextCellIndices(new HashMap<>());
+            mGridData.setUndoNextCellIndices(new HashMap<>());
 
             Log.d(TAG, "startLoadingGame.Creating inputFile");
-            File inputFile = new File(activity.getFilesDir(), savedGameFileName);
+            File inputFile = new File(mActivity.getFilesDir(), savedGameFileName);
             long fileSizeInByte = inputFile.length();
             Log.d(TAG, "startLoadingGame.File size = " + fileSizeInByte);
             FileInputStream fiStream = new FileInputStream(inputFile);
@@ -579,7 +584,7 @@ public class MyActivityPresenter {
                 int y = fiStream.read();
                 Log.d(TAG, "startLoadingGame.nextCellIndices.getKey().x = " + x);
                 Log.d(TAG, "startLoadingGame.nextCellIndices.getKey().y = " + y);
-                gridData.addNextCellIndices(new Point(x, y));
+                mGridData.addNextCellIndices(new Point(x, y));
             }
             int undoNextCellIndicesSize = fiStream.read();
             Log.d(TAG, "startLoadingGame.getUndoNextCellIndices.size() = " + undoNextCellIndicesSize);
@@ -588,11 +593,11 @@ public class MyActivityPresenter {
                 int y = fiStream.read();
                 Log.d(TAG, "startLoadingGame.undoNextCellIndices.getKey().x = " + x);
                 Log.d(TAG, "startLoadingGame.undoNextCellIndices.geyKey().y = " + y);
-                gridData.addUndoNextCellIndices(new Point(x, y));
+                mGridData.addUndoNextCellIndices(new Point(x, y));
             }
             // load values on 9x9 grid
-            for (int i=0; i<rowCounts; i++) {
-                for (int j=0; j<colCounts; j++) {
+            for (int i = 0; i< mRowCounts; i++) {
+                for (int j = 0; j< mColCounts; j++) {
                     gameCells[i][j] = fiStream.read();
                     Log.d(TAG, "startLoadingGame.gridData.getCellValue(i, j) = " + gameCells[i][j]);
                 }
@@ -614,8 +619,8 @@ public class MyActivityPresenter {
                     Log.d(TAG, "startLoadingGame.undoNextCellIndices.getValue() = " + undoNextBalls[i]);
                 }
                 // save backupCells
-                for (int i=0; i<rowCounts; i++) {
-                    for (int j=0; j<colCounts; j++) {
+                for (int i = 0; i< mRowCounts; i++) {
+                    for (int j = 0; j< mColCounts; j++) {
                         backupCells[i][j] = fiStream.read();
                         Log.d(TAG, "startLoadingGame.gridData.getBackupCells()[i][j] = " + backupCells[i][j]);
                     }
@@ -631,23 +636,23 @@ public class MyActivityPresenter {
             setHasSound(hasSound);
             setEasyLevel(isEasyLevel);
             setHasNextBall(hasNextBall, false);
-            // gridData.setNextBalls(nextBalls);
+            // mGridData.setNextBalls(nextBalls);
             int kk = 0;
-            for (HashMap.Entry<Point, Integer> entry : gridData.getNextCellIndices().entrySet()) {
+            for (HashMap.Entry<Point, Integer> entry : mGridData.getNextCellIndices().entrySet()) {
                 entry.setValue(nextBalls[kk++]);
             }
-            gridData.setCellValues(gameCells);
-            gameProperties.setCurrentScore(cScore);
-            gameProperties.setUndoEnable(isUndoEnable);
-            // gridData.setUndoNextBalls(undoNextBalls);
+            mGridData.setCellValues(gameCells);
+            mGameProperties.setCurrentScore(cScore);
+            mGameProperties.setUndoEnable(isUndoEnable);
+            // mGridData.setUndoNextBalls(undoNextBalls);
             kk = 0;
-            for (HashMap.Entry<Point, Integer> entry : gridData.getUndoNextCellIndices().entrySet()) {
+            for (HashMap.Entry<Point, Integer> entry : mGridData.getUndoNextCellIndices().entrySet()) {
                 entry.setValue(undoNextBalls[kk++]);
             }
-            gridData.setBackupCells(backupCells);
-            gameProperties.setUndoScore(unScore);
+            mGridData.setBackupCells(backupCells);
+            mGameProperties.setUndoScore(unScore);
             // start update UI
-            presentView.updateCurrentScoreOnUi(gameProperties.getCurrentScore());
+            mPresentView.updateCurrentScoreOnUi(mGameProperties.getCurrentScore());
             Log.d(TAG, "startLoadingGame.starting displayGameView().");
             displayGameView();
         } catch (IOException ex) {
@@ -656,7 +661,7 @@ public class MyActivityPresenter {
         }
 
         ColorBallsApp.isProcessingJob = false;
-        presentView.dismissShowMessageOnScreen();
+        mPresentView.dismissShowMessageOnScreen();
 
         return succeeded;
     }
@@ -673,7 +678,7 @@ public class MyActivityPresenter {
             throw new IllegalArgumentException("cellWidth and cellHeight must be > 0");
         }
 
-        Resources resources = activity.getResources();
+        Resources resources = mActivity.getResources();
 
         int nextBallWidth = (int)(cellWidth * 0.5f);
         int nextBallHeight = (int)(cellHeight * 0.5f);
@@ -682,49 +687,49 @@ public class MyActivityPresenter {
 
         Bitmap bm = BitmapFactory.decodeResource(resources, R.drawable.redball);
         colorBallMap.put(ColorRED, bm);
-        Drawable drawable = FontAndBitmapUtil.convertBitmapToDrawable(activity, bm, nextBallWidth, nextBallHeight);
+        Drawable drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, nextBallWidth, nextBallHeight);
         colorNextBallMap.put(ColorRED, drawable);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(activity, bm, ovalBallWidth, ovalBallHeight);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, ovalBallWidth, ovalBallHeight);
         colorOvalBallMap.put(ColorRED, drawable);
 
         bm = BitmapFactory.decodeResource(resources, R.drawable.greenball);
         colorBallMap.put(ColorGREEN, bm);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(activity, bm, nextBallWidth, nextBallHeight);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, nextBallWidth, nextBallHeight);
         colorNextBallMap.put(ColorGREEN, drawable);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(activity, bm, ovalBallWidth, ovalBallHeight);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, ovalBallWidth, ovalBallHeight);
         colorOvalBallMap.put(ColorGREEN, drawable);
 
         bm = BitmapFactory.decodeResource(resources, R.drawable.blueball);
         colorBallMap.put(ColorBLUE, bm);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(activity, bm, nextBallWidth, nextBallHeight);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, nextBallWidth, nextBallHeight);
         colorNextBallMap.put(ColorBLUE, drawable);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(activity, bm, ovalBallWidth, ovalBallHeight);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, ovalBallWidth, ovalBallHeight);
         colorOvalBallMap.put(ColorBLUE, drawable);
 
         bm = BitmapFactory.decodeResource(resources, R.drawable.magentaball);
         colorBallMap.put(ColorMAGENTA, bm);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(activity, bm, nextBallWidth, nextBallHeight);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, nextBallWidth, nextBallHeight);
         colorNextBallMap.put(ColorMAGENTA, drawable);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(activity, bm, ovalBallWidth, ovalBallHeight);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, ovalBallWidth, ovalBallHeight);
         colorOvalBallMap.put(ColorMAGENTA, drawable);
 
         bm = BitmapFactory.decodeResource(resources, R.drawable.yellowball);
         colorBallMap.put(ColorYELLOW, bm);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(activity, bm, nextBallWidth, nextBallHeight);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, nextBallWidth, nextBallHeight);
         colorNextBallMap.put(ColorYELLOW, drawable);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(activity, bm, ovalBallWidth, ovalBallHeight);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, ovalBallWidth, ovalBallHeight);
         colorOvalBallMap.put(ColorYELLOW, drawable);
 
         bm = BitmapFactory.decodeResource(resources, R.drawable.cyanball);
         colorBallMap.put(ColorCYAN, bm);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(activity, bm, nextBallWidth, nextBallHeight);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, nextBallWidth, nextBallHeight);
         colorNextBallMap.put(ColorCYAN, drawable);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(activity, bm, ovalBallWidth, ovalBallHeight);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, ovalBallWidth, ovalBallHeight);
         colorOvalBallMap.put(ColorCYAN, drawable);
     }
 
     private void gameOver() {
-        presentView.showGameOverDialog();
+        mPresentView.showGameOverDialog();
     }
 
     private int calculateScore(HashSet<Point> linkedLine) {
@@ -734,25 +739,13 @@ public class MyActivityPresenter {
 
         int[] numBalls = new int[] {0,0,0,0,0,0};
         for (Point point : linkedLine) {
-            switch (gridData.getCellValue(point.x, point.y)) {
-                case ColorRED:
-                    numBalls[0]++;
-                    break;
-                case ColorGREEN:
-                    numBalls[1]++;
-                    break;
-                case ColorBLUE:
-                    numBalls[2]++;
-                    break;
-                case ColorMAGENTA:
-                    numBalls[3]++;
-                    break;
-                case ColorYELLOW:
-                    numBalls[4]++;
-                    break;
-                case ColorCYAN:
-                    numBalls[5]++;
-                    break;
+            switch (mGridData.getCellValue(point.x, point.y)) {
+                case ColorRED -> numBalls[0]++;
+                case ColorGREEN -> numBalls[1]++;
+                case ColorBLUE -> numBalls[2]++;
+                case ColorMAGENTA -> numBalls[3]++;
+                case ColorYELLOW -> numBalls[4]++;
+                case ColorCYAN -> numBalls[5]++;
             }
         }
         // 5 balls --> 5
@@ -779,7 +772,7 @@ public class MyActivityPresenter {
             }
         }
 
-        if (!gameProperties.isEasyLevel()) {
+        if (!mGameProperties.isEasyLevel()) {
             // difficult level
             totalScore *= 2;   // double of easy level
         }
@@ -798,7 +791,7 @@ public class MyActivityPresenter {
     private void drawNextBall(ImageView imageView,int color) {
         Log.d(TAG, "drawNextBall.color = " + color);
         if (imageView != null) {
-            if (gameProperties.hasNextBall()) {
+            if (mGameProperties.hasNextBall()) {
                 imageView.setImageDrawable(colorNextBallMap.get(color));
             } else {
                 imageView.setImageDrawable(null);
@@ -813,9 +806,9 @@ public class MyActivityPresenter {
         Log.d(TAG, "displayNextBallsView");
         ImageView imageView;
         try {
-            for (HashMap.Entry<Point, Integer> entry : gridData.getNextCellIndices().entrySet()) {
-                int imageViewId = rowCounts * entry.getKey().x + entry.getKey().y;
-                imageView = presentView.getImageViewById(imageViewId);
+            for (HashMap.Entry<Point, Integer> entry : mGridData.getNextCellIndices().entrySet()) {
+                int imageViewId = getImageId(entry.getKey().x, entry.getKey().y);
+                imageView = mPresentView.getImageViewById(imageViewId);
                 drawNextBall(imageView, entry.getValue());
             }
         } catch (Exception ex) {
@@ -825,7 +818,7 @@ public class MyActivityPresenter {
     }
 
     private void displayNextColorBalls() {
-        if (gridData.randCells() == 0) {
+        if (mGridData.randCells() == 0) {
             // no vacant, so game over
             gameOver();
             return;
@@ -835,11 +828,10 @@ public class MyActivityPresenter {
     }
 
     private void clearCell(int i, int j) {
-        // int id = i * colCounts + j;
-        int id = i * rowCounts + j;
-        ImageView imageView = presentView.getImageViewById(id);
+        int id = getImageId(i, j);
+        ImageView imageView = mPresentView.getImageViewById(id);
         imageView.setImageBitmap(null);
-        gridData.setCellValue(i, j, 0);
+        mGridData.setCellValue(i, j, 0);
     }
 
     private void displayGridDataNextCells() {
@@ -848,18 +840,18 @@ public class MyActivityPresenter {
         ImageView imageView;
         boolean hasMoreFive = false;
         HashSet<Point> linkedPoint = new HashSet<>();
-        for (HashMap.Entry<Point, Integer> entry : gridData.getNextCellIndices().entrySet()) {
+        for (HashMap.Entry<Point, Integer> entry : mGridData.getNextCellIndices().entrySet()) {
             n1 = entry.getKey().x;
             n2 = entry.getKey().y;
-            int ballColor = gridData.getCellValue(n1, n2);
+            int ballColor = mGridData.getCellValue(n1, n2);
             Log.d(TAG,"displayGridDataNextCells.ballColor = " + ballColor);
-            gridData.setCellValue(n1, n2, entry.getValue());
-            id = n1 * rowCounts + n2;
-            imageView = presentView.getImageViewById(id);
-            drawBall(imageView, gridData.getCellValue(n1, n2));
-            if (gridData.check_moreThanFive(n1, n2)) {
+            mGridData.setCellValue(n1, n2, entry.getValue());
+            id = getImageId(n1, n2);
+            imageView = mPresentView.getImageViewById(id);
+            drawBall(imageView, mGridData.getCellValue(n1, n2));
+            if (mGridData.check_moreThanFive(n1, n2)) {
                 hasMoreFive = true;
-                for (Point point : gridData.getLightLine()) {
+                for (Point point : mGridData.getLightLine()) {
                     if (!linkedPoint.contains(point)) {
                         linkedPoint.add(new Point(point));
                     }
@@ -868,12 +860,12 @@ public class MyActivityPresenter {
         }
 
         if (hasMoreFive) {
-            gridData.setLightLine(linkedPoint);    // added on 2020-07-13
-            gameProperties.setLastGotScore(calculateScore(gridData.getLightLine()));
-            gameProperties.setUndoScore(gameProperties.getCurrentScore());
-            gameProperties.setCurrentScore(gameProperties.getCurrentScore() + gameProperties.getLastGotScore());
-            presentView.updateCurrentScoreOnUi(gameProperties.getCurrentScore());
-            ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(gameProperties.getLastGotScore(), gridData.getLightLine(), true);
+            mGridData.setLightLine(linkedPoint);    // added on 2020-07-13
+            mGameProperties.setLastGotScore(calculateScore(mGridData.getLightLine()));
+            mGameProperties.setUndoScore(mGameProperties.getCurrentScore());
+            mGameProperties.setCurrentScore(mGameProperties.getCurrentScore() + mGameProperties.getLastGotScore());
+            mPresentView.updateCurrentScoreOnUi(mGameProperties.getCurrentScore());
+            ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(mGameProperties.getLastGotScore(), mGridData.getLightLine(), true);
             showingScoreHandler.post(showScoreRunnable);
             Log.d(TAG,"displayGridDataNextCells.showingScoreHandler.post(showScoreRunnable).");
         } else {
@@ -886,11 +878,11 @@ public class MyActivityPresenter {
         Log.d(TAG, "displayGameView");
         ImageView imageView;
         try {
-            for (int i = 0; i < rowCounts; i++) {
-                for (int j = 0; j < colCounts; j++) {
-                    int id = i * rowCounts + j;
-                    imageView = presentView.getImageViewById(id);
-                    int color = gridData.getCellValue(i, j);
+            for (int i = 0; i < mRowCounts; i++) {
+                for (int j = 0; j < mColCounts; j++) {
+                    int id = getImageId(i, j);
+                    imageView = mPresentView.getImageViewById(id);
+                    int color = mGridData.getCellValue(i, j);
                     if (color == 0) {
                         // imageView.setImageDrawable(null);
                         imageView.setImageBitmap(null);
@@ -914,26 +906,24 @@ public class MyActivityPresenter {
     }
 
     private void drawBallAlongPath() {
-        Log.d(TAG, "drawBallAlongPath");
-        int sizeOfPathPoint = gridData.getPathPoint().size();
+        int sizeOfPathPoint = mGridData.getPathPoint().size();
         if (sizeOfPathPoint == 0) {
             Log.w(TAG, "drawBallAlongPath.sizeOfPathPoint == 0");
             return;
         }
 
-        final int ii = gridData.getPathPoint().get(0).x;  // the target point
-        final int jj = gridData.getPathPoint().get(0).y;  // the target point
-        Log.d(TAG, "drawBallAlongPath().ii = " + ii + ", jj = " + jj);
-        final int beginI = gridData.getPathPoint().get(sizeOfPathPoint-1).x;
-        final int beginJ = gridData.getPathPoint().get(sizeOfPathPoint-1).y;
-        final int color = gridData.getCellValue(beginI, beginJ);
-        Log.d(TAG, "drawBallAlongPath.gridData.getCellValue(beginI, beginJ) = "
-                + color);
+        final int targetI = mGridData.getPathPoint().get(0).x;  // the target point
+        final int targetJ = mGridData.getPathPoint().get(0).y;  // the target point
+        Log.d(TAG, "drawBallAlongPath().targetI = " + targetI + ", targetJ = " + targetJ);
+        final int beginI = mGridData.getPathPoint().get(sizeOfPathPoint-1).x;
+        final int beginJ = mGridData.getPathPoint().get(sizeOfPathPoint-1).y;
+        final int color = mGridData.getCellValue(beginI, beginJ);
+        Log.d(TAG, "drawBallAlongPath.color = " + color);
 
-        gameProperties.getThreadCompleted()[0] = false;
-        gameProperties.setBallMoving(true);
+        mGameProperties.getThreadCompleted()[0] = false;
+        mGameProperties.setBallMoving(true);
 
-        final ArrayList<Point> tempList = new ArrayList<>(gridData.getPathPoint());
+        final ArrayList<Point> tempList = new ArrayList<>(mGridData.getPathPoint());
         Runnable runnablePath = new Runnable() {
             boolean ballYN = true;
             ImageView imageView = null;
@@ -942,7 +932,7 @@ public class MyActivityPresenter {
             public synchronized void run() {
                 if (countDown >= 2) {   // eliminate start point
                     int i = countDown / 2;
-                    imageView = presentView.getImageViewById(tempList.get(i).x * rowCounts + tempList.get(i).y);
+                    imageView = mPresentView.getImageViewById(getImageId(tempList.get(i).x, tempList.get(i).y));
                     if (ballYN) {
                         drawBall(imageView, color);
                     } else {
@@ -951,36 +941,31 @@ public class MyActivityPresenter {
                     ballYN = !ballYN;
                     countDown--;
                     movingBallHandler.postDelayed(this,20);
-                    // Log.d(TAG,"drawBallAlongPath.ballMovingHandler.postDelayed()");
                 } else {
-                    // movingBallHandler.removeCallbacksAndMessages(null);
                     clearCell(beginI, beginJ);  // blank the original cell. Added on 2020-09-16
-                    ImageView v = presentView.getImageViewById(ii * rowCounts + jj);
-                    // Log.d(TAG, "drawBallAlongPath.gridData.setCellValue(ii, jj, color) = " + color);
-                    gridData.setCellValue(ii, jj, color);
+                    ImageView v = mPresentView.getImageViewById(getImageId(targetI, targetJ));
+                    mGridData.setCellValue(targetI, targetJ, color);
                     drawBall(v, color);
-                    gridData.regenerateNextCellIndices(new Point(ii, jj));
+                    mGridData.regenerateNextCellIndices(new Point(targetI, targetJ));
                     //  check if there are more than five balls with same color connected together
-                    if (gridData.check_moreThanFive(ii, jj)) {
-                        gameProperties.setLastGotScore(calculateScore(gridData.getLightLine()));
-                        gameProperties.setUndoScore(gameProperties.getCurrentScore());
-                        gameProperties.setCurrentScore(gameProperties.getCurrentScore() + gameProperties.getLastGotScore());
-                        presentView.updateCurrentScoreOnUi(gameProperties.getCurrentScore());
-                        ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(gameProperties.getLastGotScore(), gridData.getLightLine(), false);
+                    if (mGridData.check_moreThanFive(targetI, targetJ)) {
+                        mGameProperties.setLastGotScore(calculateScore(mGridData.getLightLine()));
+                        mGameProperties.setUndoScore(mGameProperties.getCurrentScore());
+                        mGameProperties.setCurrentScore(mGameProperties.getCurrentScore() + mGameProperties.getLastGotScore());
+                        mPresentView.updateCurrentScoreOnUi(mGameProperties.getCurrentScore());
+                        ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(mGameProperties.getLastGotScore(), mGridData.getLightLine(), false);
                         showingScoreHandler.post(showScoreRunnable);
-                        // Log.d(TAG,"drawBallAlongPath.showingScoreHandler.post(showScoreRunnable).");
                     } else {
                         displayGridDataNextCells();   // has a problem
                     }
 
-                    gameProperties.getThreadCompleted()[0] = true;
-                    gameProperties.setBallMoving(false);
+                    mGameProperties.getThreadCompleted()[0] = true;
+                    mGameProperties.setBallMoving(false);
 
                     Log.d(TAG,"drawBallAlongPath.run() finished.");
                 }
             }
         };
-        Log.d(TAG,"drawBallAlongPath.ballMovingHandler.post()");
         movingBallHandler.post(runnablePath);
     }
 
@@ -1010,36 +995,51 @@ public class MyActivityPresenter {
         SystemClock.sleep(20);
     }
 
-    private class ShowScoreRunnable implements Runnable {
-        private final int lastGotScore;
-        private HashSet<Point> hasPoint = null;
-        private final boolean isNextBalls;
-        private int counter = 0;
+    public int getImageId(int row, int column) {
+        Log.d(TAG, "getImageId.mRowCounts = " + mRowCounts);
+        Log.d(TAG, "getImageId.row = " + row + ".column = " + column );
+        return row * mRowCounts + column;
+    }
 
-        public ShowScoreRunnable(final int lastGotScore, final HashSet<Point> linkedPoint, final boolean isNextBalls) {
-            this.lastGotScore = lastGotScore;
-            this.isNextBalls = isNextBalls;
+    private int getRow(int imageId) {
+        return imageId / mRowCounts;
+    }
+
+    private int getColumn(int imageId) {
+        return imageId % mRowCounts;
+    }
+
+    private class ShowScoreRunnable implements Runnable {
+        private final int mLastGotScore;
+        private final boolean isNextBalls;
+        private HashSet<Point> hasPoint = null;
+        private int mCounter = 0;
+
+        public ShowScoreRunnable(final int lastGotScore, final HashSet<Point> linkedPoint, final boolean nextBalls) {
+            Log.d(TAG, "ShowScoreRunnable");
+            mLastGotScore = lastGotScore;
+            isNextBalls = nextBalls;
             if (linkedPoint != null) {
                 hasPoint = new HashSet<>(linkedPoint);
             }
 
-            gameProperties.setShowNextBallsAfterBlinking(this.isNextBalls);
-            gameProperties.getThreadCompleted()[1] = false;
-            gameProperties.setShowingScoreMessage(true);
+            mGameProperties.setShowNextBallsAfterBlinking(this.isNextBalls);
+            mGameProperties.getThreadCompleted()[1] = false;
+            mGameProperties.setShowingScoreMessage(true);
         }
 
         private synchronized void onProgressUpdate(int status) {
             switch (status) {
                 case 0:
                     for (Point item : hasPoint) {
-                        ImageView v = presentView.getImageViewById(item.x * rowCounts + item.y);
-                        drawBall(v, gridData.getCellValue(item.x, item.y));
+                        ImageView v = mPresentView.getImageViewById(getImageId(item.x, item.y));
+                        drawBall(v, mGridData.getCellValue(item.x, item.y));
                     }
                     break;
                 case 1:
                     for (Point item : hasPoint) {
-                        ImageView v = presentView.getImageViewById(item.x * rowCounts + item.y);
-                        drawOval(v, gridData.getCellValue(item.x, item.y));
+                        ImageView v = mPresentView.getImageViewById(getImageId(item.x, item.y));
+                        drawOval(v, mGridData.getCellValue(item.x, item.y));
                     }
                     break;
                 case 2:
@@ -1047,30 +1047,24 @@ public class MyActivityPresenter {
                 case 3:
                     //
                     // show the score
-                    String scoreString = String.valueOf(lastGotScore);
-                    presentView.showMessageOnScreen(scoreString);
-                    Log.d(TAG, "ShowScoreRunnable.onProgressUpdate.presentView.showMessageOnScreen(scoreString).");
+                    String scoreString = String.valueOf(mLastGotScore);
+                    mPresentView.showMessageOnScreen(scoreString);
                     for (Point item : hasPoint) {
                         clearCell(item.x, item.y);
                     }
-                    Log.d(TAG, "ShowScoreRunnable.onProgressUpdate.clearCell(item.x, item.y)");
-                    // added on 2019-03-30
                     if (isNextBalls) {
+                        Log.d(TAG, "ShowScoreRunnable.onProgressUpdate.displayNextColorBalls");
                         displayNextColorBalls();
-                        Log.d(TAG, "ShowScoreRunnable-->onProgressUpdate()-->displayNextColorBalls()");
                     } else {
-                        // added on 2020-07-26 17:06
+                        Log.d(TAG, "ShowScoreRunnable.onProgressUpdate.displayNextBallsView");
                         displayNextBallsView();
-                        Log.d(TAG, "ShowScoreRunnable-->onProgressUpdate()-->displayNextBallsView()");
-                        //
                     }
-                    gameProperties.getThreadCompleted()[1] = true;  // user can start input command
-                    gameProperties.setShowingScoreMessage(false);
-                    Log.d(TAG, "ShowScoreRunnable.onProgressUpdate.gameProperties.setShowingScoreMessage(false)");
+                    mGameProperties.getThreadCompleted()[1] = true;  // user can start input command
+                    mGameProperties.setShowingScoreMessage(false);
                     break;
                 case 4:
-                    presentView.dismissShowMessageOnScreen();
-                    Log.d(TAG, "ShowScoreRunnable.onProgressUpdate.presentView.dismissShowMessageOnScreen().");
+                    Log.d(TAG, "ShowScoreRunnable.onProgressUpdate.dismissShowMessageOnScreen.");
+                    mPresentView.dismissShowMessageOnScreen();
                     break;
             }
         }
@@ -1078,17 +1072,17 @@ public class MyActivityPresenter {
         @Override
         public synchronized void run() {
             if (hasPoint == null) {
-                Log.d(TAG, "ShowScoreRunnable.run().hasPoint is null.");
+                Log.d(TAG, "ShowScoreRunnable.run.hasPoint is null.");
                 showingScoreHandler.removeCallbacksAndMessages(null);
             } else {
                 final int twinkleCountDown = 5;
-                counter++;
-                if (counter <= twinkleCountDown) {
-                    int md = counter % 2; // modulus
+                mCounter++;
+                if (mCounter <= twinkleCountDown) {
+                    int md = mCounter % 2; // modulus
                     onProgressUpdate(md);
                     showingScoreHandler.postDelayed(this, 100);
                 } else {
-                    if (counter == twinkleCountDown+1) {
+                    if (mCounter == twinkleCountDown+1) {
                         onProgressUpdate(3);    // show score
                         showingScoreHandler.postDelayed(this, 500);
                     } else {

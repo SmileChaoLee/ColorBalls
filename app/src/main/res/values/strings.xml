@@ -39,6 +39,7 @@
     <string name="showingAdsStr">Showing Ads ...</string>
     <string name="saveGameStr">Save Game</string>
     <string name="loadGameStr">Load Game</string>
+    <string name="rotateDevice">Rotate Device</string>
     <string name="moreActionStr">More</string>
     <string name="savingGameStr">Saving Game</string>
     <string name="loadingGameStr">Loading Game</string>

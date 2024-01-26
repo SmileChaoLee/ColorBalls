@@ -48,7 +48,7 @@ import android.widget.Toast;
 
 import com.smile.colorballs.service.MyTop10ScoresService;
 import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate;
-import com.smile.colorballs.presenters.MyActivityPresenter;
+import com.smile.colorballs.presenters.MyPresenter;
 import com.smile.smilelibraries.models.ExitAppTimer;
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment;
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil;
@@ -60,14 +60,14 @@ import com.smile.smilelibraries.utilities.ScreenUtil;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class MyActivity extends AppCompatActivity implements MyActivityPresenter.PresentView {
+public class MyActivity extends AppCompatActivity implements MyPresenter.PresentView {
 
     // private properties
     private static final String TAG = "MyActivity";
     private static final String LocalTop10FragmentTag = "LocalTop10FragmentTag";
     private final int Max_Saved_Games = 5;
     private ShowInterstitial interstitialAd;
-    private MyActivityPresenter mPresenter;
+    private MyPresenter mPresenter;
     private float textFontSize;
     private float fontScale;
     private float screenWidth;
@@ -101,7 +101,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate() is called");
 
-        mPresenter = new MyActivityPresenter(this, this);
+        mPresenter = new MyPresenter(this);
 
         super.onCreate(savedInstanceState);
 
@@ -122,7 +122,8 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
         createActivityUI();
 
-        createGameView(savedInstanceState);
+        createGameView();
+        createColorBallsGame(savedInstanceState);
 
         setBannerAndNativeAdUI();
 
@@ -187,34 +188,20 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
         boolean isProcessingJob = ColorBallsApp.isProcessingJob;
 
+        if (isProcessingJob) {
+            return false;
+        }
         int id = item.getItemId();
-        if (id == R.id.quitGame) {
-            mPresenter.quitGame(); //  exit game
-            return true;
-        }
-        if (id == R.id.newGame) {
-            mPresenter.newGame();
-            return true;
-        }
-
-        if (!isProcessingJob) {
-            if (id == R.id.undoGame) {
+        switch (id) {
+            case R.id.undoGame -> {
                 mPresenter.undoTheLast();
-                return super.onOptionsItemSelected(item);
-            }
-            if (id == R.id.top10) {
-                showTop10ScoreHistory();
-                return super.onOptionsItemSelected(item);
-            }
-            if (id == R.id.saveGame) {
-                mPresenter.saveGame();
-                return super.onOptionsItemSelected(item);
-            }
-            if (id == R.id.loadGame) {
-                mPresenter.loadGame();
                 return true;
             }
-            if (id == R.id.setting) {
+            case R.id.top10 -> {
+                showTop10ScoreHistory();
+                return true;
+            }
+            case R.id.setting -> {
                 Log.d(TAG, "onOptionsItemSelected.settingLauncher.launch(intent)");
                 ColorBallsApp.isProcessingJob = true;    // started procession job
                 Intent intent = new Intent(this, SettingActivity.class);
@@ -226,12 +213,42 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
                 settingLauncher.launch(intent);
                 return true;
             }
-            if (id == R.id.privacyPolicy) {
+            case R.id.rotateDevice -> {
+                int orientation = getResources().getConfiguration().orientation;
+                if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    // Table then change orientation to Landscape
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                } else {
+                    // phone then change orientation to Portrait
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                }
+                return true;
+            }
+            case R.id.saveGame -> {
+                mPresenter.saveGame();
+                return true;
+            }
+            case R.id.loadGame -> {
+                mPresenter.loadGame();
+                return true;
+            }
+            case R.id.newGame -> {
+                mPresenter.newGame();
+                return true;
+            }
+            case R.id.quitGame -> {
+                mPresenter.quitGame(); //  exit game
+                return true;
+            }
+            case R.id.privacyPolicy -> {
                 PrivacyPolicyUtil.startPrivacyPolicyActivity(this, 10);
+                return true;
+            }
+            default -> {
+                // return super.onOptionsItemSelected(item);
+                return false;
             }
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -381,7 +398,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
     }
 
     private void setUpSupportActionBar() {
-        supportToolbar = findViewById(R.id.colorballs_toolbar);
+        supportToolbar = findViewById(R.id.colorBallToolbar);
         setSupportActionBar(supportToolbar);
         androidx.appcompat.app.ActionBar supportActionBar = getSupportActionBar();
         if (supportActionBar != null) {
@@ -395,7 +412,7 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         setUpSupportActionBar();
     }
 
-    private void createGameView(Bundle savedInstanceState) {
+    private void createGameView() {
         // find Out Width and Height of GameView
         LinearLayout linearLayout_myActivity = findViewById(R.id.linearLayout_myActivity);
         float main_WeightSum = linearLayout_myActivity.getWeightSum();
@@ -453,23 +470,26 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
         oneBallLp.height = cellHeight;
         oneBallLp.gravity = Gravity.CENTER;
 
+        mPresenter.setRowCounts(rowCounts);
+        mPresenter.setColCounts(colCounts);
+
         // set listener for each ImageView
         ImageView imageView;
         int imId;
         for (int i = 0; i < rowCounts; i++) {
             for (int j = 0; j < colCounts; j++) {
-                // imId = i * colCounts + j;
-                imId = i * rowCounts + j;
+                // imId = i * rowCounts + j;
+                imId = mPresenter.getImageId(i, j);
                 imageView = new ImageView(this);
                 imageView.setId(imId);
                 imageView.setAdjustViewBounds(true);
                 imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-                imageView.setBackgroundResource(R.drawable.boximage);
+                imageView.setBackgroundResource(R.drawable.box_image);
                 imageView.setClickable(true);
                 imageView.setOnClickListener(v -> {
                     if ((mPresenter.completedAll()) && (!ColorBallsApp.isProcessingJob)) {
                         Log.d(TAG, "createGameView.onClick");
-                        mPresenter.doDrawBallsAndCheckListener(v);
+                        mPresenter.drawBallsAndCheckListener(v);
                     }
                 });
                 gridCellsLayout.addView(imageView, imId, oneBallLp);
@@ -478,13 +498,11 @@ public class MyActivity extends AppCompatActivity implements MyActivityPresenter
 
         scoreImageView = findViewById(R.id.scoreImageView);
         scoreImageView.setVisibility(View.GONE);
-
-        createColorBallsGame(savedInstanceState);
     }
 
     private void createColorBallsGame(Bundle savedInstanceState) {
         saveScoreAlertDialog = null;
-        mPresenter.initializeColorBallsGame(rowCounts, colCounts, cellWidth, cellHeight, savedInstanceState);
+        mPresenter.initializeColorBallsGame(cellWidth, cellHeight, savedInstanceState);
     }
 
     private void setDialogStyle(DialogInterface dialog) {

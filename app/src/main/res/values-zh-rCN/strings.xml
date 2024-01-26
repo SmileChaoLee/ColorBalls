@@ -38,6 +38,7 @@
     <string name="showingAdsStr">广告显示中 ...</string>
     <string name="saveGameStr">储存游戏</string>
     <string name="loadGameStr">载入游戏</string>
+    <string name="rotateDevice">旋转设备</string>
     <string name="moreActionStr">更多</string>
     <string name="savingGameStr">储存游戏中</string>
     <string name="loadingGameStr">载入游戏中</string>
