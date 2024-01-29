@@ -843,8 +843,6 @@ public class MyPresenter {
         for (HashMap.Entry<Point, Integer> entry : mGridData.getNextCellIndices().entrySet()) {
             n1 = entry.getKey().x;
             n2 = entry.getKey().y;
-            int ballColor = mGridData.getCellValue(n1, n2);
-            Log.d(TAG,"displayGridDataNextCells.ballColor = " + ballColor);
             mGridData.setCellValue(n1, n2, entry.getValue());
             id = getImageId(n1, n2);
             imageView = mPresentView.getImageViewById(id);
@@ -867,7 +865,7 @@ public class MyPresenter {
             mPresentView.updateCurrentScoreOnUi(mGameProperties.getCurrentScore());
             ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(mGameProperties.getLastGotScore(), mGridData.getLightLine(), true);
             showingScoreHandler.post(showScoreRunnable);
-            Log.d(TAG,"displayGridDataNextCells.showingScoreHandler.post(showScoreRunnable).");
+            Log.d(TAG,"displayGridDataNextCells.post(showScoreRunnable).");
         } else {
             displayNextColorBalls();
         }
@@ -997,7 +995,7 @@ public class MyPresenter {
 
     public int getImageId(int row, int column) {
         Log.d(TAG, "getImageId.mRowCounts = " + mRowCounts);
-        Log.d(TAG, "getImageId.row = " + row + ".column = " + column );
+        Log.d(TAG, "getImageId.row = " + row + ", column = " + column );
         return row * mRowCounts + column;
     }
 

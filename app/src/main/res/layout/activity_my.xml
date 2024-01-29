@@ -17,10 +17,21 @@
         android:weightSum="100">
 
         <LinearLayout
+            android:id="@+id/gameViewLinearLayout"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1" >
+            android:layout_weight="75"
+            android:weightSum="1">
+
+            <LinearLayout
+                android:id="@+id/gameViewLayout"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+                <include layout="@layout/layout_for_game_view" />
+            </LinearLayout>
         </LinearLayout>
 
         <!-- the banner ads showing area -->
@@ -30,26 +41,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_gravity="center"
-            android:layout_weight="10">
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/gameViewLinearLayout"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="74"
-            android:weightSum="1">
-
-            <LinearLayout
-                android:id="@+id/gameViewLayout"
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                tools:ignore="NestedWeights">
-                <include layout="@layout/layout_for_game_view" />
-            </LinearLayout>
+            android:layout_weight="10" >
         </LinearLayout>
 
         <LinearLayout

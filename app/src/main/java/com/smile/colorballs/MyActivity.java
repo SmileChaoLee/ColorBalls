@@ -577,24 +577,28 @@ public class MyActivity extends AppCompatActivity implements MyPresenter.Present
             // show AdMob native ad if the device is tablet
             String nativeAdvancedId0 = ColorBallsApp.googleAdMobNativeID;     // real native ad unit id
             FrameLayout nativeAdsFrameLayout = findViewById(R.id.nativeAdsFrameLayout);
-            com.google.android.ads.nativetemplates.TemplateView nativeAdTemplateView = findViewById(R.id.nativeAdTemplateView);
+            com.google.android.ads.nativetemplates.TemplateView nativeAdTemplateView
+                    = findViewById(R.id.nativeAdTemplateView);
             nativeTemplate = new GoogleAdMobNativeTemplate(this, nativeAdsFrameLayout
                     , nativeAdvancedId0, nativeAdTemplateView);
             nativeTemplate.showNativeAd();
             adaptiveBannerWidth = (int)(screenWidth - mainGameViewWidth);
             adaptiveBannerDpWidth = ScreenUtil.pixelToDp(this, adaptiveBannerWidth);
         } else {
-            // one more banner ad for orientation is portrait
+            // one more banner (adaptive banner) ad for orientation is portrait
             adaptiveBannerWidth = (int)mainGameViewWidth;
             adaptiveBannerDpWidth = ScreenUtil.pixelToDp(this, adaptiveBannerWidth);
-            myBannerAdView2 = new SetBannerAdView(this, null, adaptiveBannerLayout
-                    , ColorBallsApp.googleAdMobBannerID2, facebookBannerID2, adaptiveBannerDpWidth);
+            myBannerAdView2 = new SetBannerAdView(this, null,
+                    adaptiveBannerLayout, ColorBallsApp.googleAdMobBannerID2,
+                    facebookBannerID2, adaptiveBannerDpWidth);
             myBannerAdView2.showBannerAdView(0);    // AdMob first
         }
+        // normal banner
         Log.d(TAG, "adaptiveBannerDpWidth = " + adaptiveBannerDpWidth);
-        myBannerAdView = new SetBannerAdView(this, null, bannerLinearLayout
-               , ColorBallsApp.googleAdMobBannerID, facebookBannerID, adaptiveBannerDpWidth);
-        myBannerAdView.showBannerAdView(0); // AdMob first
+        myBannerAdView = new SetBannerAdView(this, null,
+                bannerLinearLayout, ColorBallsApp.googleAdMobBannerID,
+                facebookBannerID, adaptiveBannerDpWidth);
+        myBannerAdView.showBannerAdView(1); // Facebook first
     }
 
     private void setBroadcastReceiver() {
