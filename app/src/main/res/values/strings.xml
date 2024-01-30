@@ -13,10 +13,10 @@
     <string name="quitGame">Quit Game</string>
     <string name="newGame">New Game</string>
     <string name="optionButton">OPTION</string>
-    <string name="title_activity_history">Top10ScoreActivity</string>
-    <string name="top10Score">Top 10 Scores</string>
-    <string name="title_activity_global">GlobalTop10Activity</string>
-    <string name="globalTop10Score">Global Top 10 Scores</string>
+    <string name="title_activity_history">LocalTop10</string>
+    <string name="localTop10Score">Local Top 10</string>
+    <string name="title_activity_global">GlobalTop10</string>
+    <string name="globalTop10Score">Global Top 10</string>
     <string name="action_settings">Settings</string>
     <string name="okStr">Ok</string>
     <string name="yesStr">YES</string>
@@ -27,7 +27,7 @@
     <string name="nameStr">Input your name</string>
     <string name="loadingStr">Loading ...</string>
     <string name="undoStr">Undo</string>
-    <string name="top10Str">Top 10</string>
+    <string name="localTop10Str">Local Top 10</string>
     <string name="globalTop10Str">Global Top 10</string>
     <string name="fileMenuStr">File</string>
     <string name="settingStr">Settings</string>

@@ -111,7 +111,7 @@ public class ColorBallsInstrumentedTest {
     @Test
     public void test_MoreActionSubmenu() {
         onView(withId(R.id.gameAction)).perform(click());
-        onView(withText(R.string.top10Str)).check(matches(isDisplayed()));
+        onView(withText(R.string.localTop10Str)).check(matches(isDisplayed()));
         onView(withText(R.string.saveGameStr)).check(matches(isDisplayed()));
         onView(withText(R.string.loadGameStr)).check(matches(isDisplayed()));
         onView(withText(R.string.privacyPolicyString)).check(matches(isDisplayed()));
@@ -131,7 +131,7 @@ public class ColorBallsInstrumentedTest {
 
         SystemClock.sleep(5000);
 
-        // R.id.top10ScoreTitle is in layout_for_top10_score_fragment.xml.xml which is used by Top10ScoreFragment
+        // R.id.top10ScoreTitle is in layout_for_top10_score_fragment.xml.xml which is used by Top10Fragment
         onView(withId(R.id.top10ScoreTitle)).check(matches(isDisplayed()));  // succeeded
         onView(withId(R.id.top10ListView)).check(matches(isDisplayed()));
         onView(withId(R.id.top10OkButton)).check(matches(isDisplayed()));

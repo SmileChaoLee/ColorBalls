@@ -13,7 +13,7 @@
             android:textStyle="bold"
             android:textColor="#ff0000ff"
             android:layout_gravity="center_horizontal"
-            android:text="@string/top10Score" />
+            android:text="@string/localTop10Score" />
 
         <ListView
             android:id="@+id/top10ListView"

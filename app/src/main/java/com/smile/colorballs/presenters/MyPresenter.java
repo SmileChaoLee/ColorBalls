@@ -18,12 +18,16 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 
 import com.smile.colorballs.ColorBallsApp;
+import com.smile.colorballs.Constants;
 import com.smile.colorballs.R;
 import com.smile.colorballs.model.GameProperties;
 import com.smile.colorballs.model.GridData;
+import com.smile.smilelibraries.player_record_rest.PlayerRecordRest;
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite;
 import com.smile.smilelibraries.utilities.FontAndBitmapUtil;
 import com.smile.smilelibraries.utilities.SoundPoolUtil;
+
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -363,7 +367,26 @@ public class MyPresenter {
     }
 
     public void saveScore(String playerName, int score) {
-        // modified on 2018-11-07
+        // use thread to add a record to remote database
+        Thread restThread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    // ASP.NET Core
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("PlayerName", playerName);
+                    jsonObject.put("Score", score);
+                    jsonObject.put("GameId", Constants.GameId);
+                    PlayerRecordRest.addOneRecord(jsonObject);
+                    Log.d(TAG, "saveScore.Succeeded to add one record to remote.");
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    Log.d(TAG, "saveScore.Failed to add one record to remote.");
+                }
+            }
+        };
+        restThread.start();
+
         ScoreSQLite scoreSQLiteDB = new ScoreSQLite(mActivity.getApplicationContext());
         boolean isInTop10 = scoreSQLiteDB.isInTop10(score);
         if (isInTop10) {
@@ -994,7 +1017,6 @@ public class MyPresenter {
     }
 
     public int getImageId(int row, int column) {
-        Log.d(TAG, "getImageId.mRowCounts = " + mRowCounts);
         Log.d(TAG, "getImageId.row = " + row + ", column = " + column );
         return row * mRowCounts + column;
     }

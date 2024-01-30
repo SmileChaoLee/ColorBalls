@@ -29,6 +29,14 @@ android {
 
         signingConfig signingConfigs.config
     }
+
+    sourceSets {
+        main {
+            java {
+                srcDir 'src/main/java'
+            }
+        }
+    }
     
     buildFeatures  {
         // viewBinding true
@@ -55,6 +63,8 @@ android {
     }
     kotlinOptions {
         jvmTarget = '17'
+        // for default fun of Kotlin
+        freeCompilerArgs = ['-Xjvm-default=all']
     }
 
     namespace 'com.smile.colorballs'
@@ -95,4 +105,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:truth:1.5.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
+    // Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 }

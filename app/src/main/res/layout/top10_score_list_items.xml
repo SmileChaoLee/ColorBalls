@@ -4,7 +4,7 @@
     <data>
         <variable
             name="top10Players"
-            type="com.smile.colorballs.model.Players" />
+            type="com.smile.colorballs.model.Player" />
     </data>
 
     <LinearLayout

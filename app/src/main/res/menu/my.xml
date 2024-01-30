@@ -20,39 +20,44 @@
         android:orderInCategory="3"
         app:showAsAction="ifRoom">
         <menu>
-            <item android:id="@+id/top10"
-                android:title="@string/top10Str"
+            <item android:id="@+id/globalTop10"
+                android:title="@string/globalTop10Str"
                 android:orderInCategory="1"
+                app:showAsAction="never">
+            </item>
+            <item android:id="@+id/localTop10"
+                android:title="@string/localTop10Str"
+                android:orderInCategory="2"
                 app:showAsAction="never">
             </item>
             <item android:id="@+id/rotateDevice"
                 android:title="@string/rotateDevice"
-                android:orderInCategory="2"
+                android:orderInCategory="3"
                 app:showAsAction="never">
             </item>
             <item android:id="@+id/saveGame"
                 android:title="@string/saveGameStr"
-                android:orderInCategory="3"
+                android:orderInCategory="4"
                 app:showAsAction="never">
             </item>
             <item android:id="@+id/loadGame"
                 android:title="@string/loadGameStr"
-                android:orderInCategory="4"
+                android:orderInCategory="5"
                 app:showAsAction="never">
             </item>
             <item android:id="@+id/newGame"
                 android:title="@string/newGame"
-                android:orderInCategory="5"
+                android:orderInCategory="6"
                 app:showAsAction="never">
             </item>
             <item android:id="@+id/quitGame"
                 android:title="@string/quitGame"
-                android:orderInCategory="6"
+                android:orderInCategory="7"
                 app:showAsAction="never">
             </item>
             <item android:id="@+id/privacyPolicy"
                 android:title="@string/privacyPolicyString"
-                android:orderInCategory="7"
+                android:orderInCategory="8"
                 app:showAsAction="never">
             </item>
         </menu>

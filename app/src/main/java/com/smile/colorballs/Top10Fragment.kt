@@ -12,19 +12,19 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.fragment.app.Fragment
-import com.smile.colorballs.databinding.FragmentTop10ScoreBinding
+import com.smile.colorballs.databinding.FragmentTop10Binding
 import com.smile.colorballs.databinding.Top10ScoreListItemsBinding
-import com.smile.colorballs.model.Players
+import com.smile.colorballs.model.Player
 import com.smile.smilelibraries.utilities.ScreenUtil
 
 /**
  * A simple [Fragment] subclass.
  * Activities that contain this fragment must implement the
  * to handle interaction events.
- * Use the [Top10ScoreFragment.newInstance] factory method to
+ * Use the [Top10Fragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class Top10ScoreFragment : Fragment {
+class Top10Fragment : Fragment {
     private var mContext: Context? = null
     private var top10Players: ArrayList<String> = ArrayList()
     private var top10Scores: ArrayList<Int> = ArrayList()
@@ -34,7 +34,7 @@ class Top10ScoreFragment : Fragment {
     private var top10OkButtonListener: Top10OkButtonListener? = null
     private var top10TitleName: String = ""
     private var textFontSize = 0f
-    private lateinit var binding: FragmentTop10ScoreBinding
+    private lateinit var binding: FragmentTop10Binding
 
     interface Top10OkButtonListener {
         fun buttonOkClick(activity: Activity?)
@@ -100,7 +100,7 @@ class Top10ScoreFragment : Fragment {
         savedInstanceState: Bundle?
     ): View {
         Log.d(TAG, "onCreateView")
-        binding = FragmentTop10ScoreBinding.inflate(inflater, container, false)
+        binding = FragmentTop10Binding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -157,11 +157,11 @@ class Top10ScoreFragment : Fragment {
             // val view = layoutInflater.inflate(layoutId, parent, false)
             Log.d(TAG, "players.size() = ${players.size}")
             Log.d(TAG, "position = $position")
-            val mTop10Players = Players(players[position],
+            val mTop10Players = Player(players[position],
                 scores[position].toString(),
                 medals[position])
             vBinding.apply {
-                lifecycleOwner = this@Top10ScoreFragment
+                lifecycleOwner = this@Top10Fragment
                 top10Players = mTop10Players
             }
             if (count == 0) {
@@ -192,20 +192,20 @@ class Top10ScoreFragment : Fragment {
 
     companion object {
         // private properties
-        private const val TAG = "Top10ScoreFragment"
+        private const val TAG = "Top10Fragment"
         fun newInstance(
             top10Title: String,
             playerNames: ArrayList<String>,
             playerScores: ArrayList<Int>,
             listener: Top10OkButtonListener
-        ): Top10ScoreFragment {
+        ): Top10Fragment {
             val args = Bundle().apply {
                 putString(Constants.Top10TitleNameKey, top10Title)
                 putStringArrayList(Constants.Top10PlayersKey, playerNames)
                 putIntegerArrayList(Constants.Top10ScoresKey, playerScores)
             }
             Log.d(TAG, "newInstance.")
-            return Top10ScoreFragment(listener).apply {
+            return Top10Fragment(listener).apply {
                 arguments = args
             }
         }

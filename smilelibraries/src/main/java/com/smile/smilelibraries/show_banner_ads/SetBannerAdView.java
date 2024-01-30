@@ -53,11 +53,13 @@ public class SetBannerAdView {
         @Override
         public void run() {
             loggingFacebookHandler.removeCallbacksAndMessages(null);
-            facebookAdViewLoadConfig = facebookAdView.buildLoadAdConfig()
-                    .withAdListener(facebookAdListener).build();
-            if (facebookAdViewLoadConfig !=null && facebookAdView!=null) {
-                Log.d(TAG, "Reloading Banner Ad of Facebook.");
-                facebookAdView.loadAd(facebookAdViewLoadConfig);
+            if (facebookAdView != null) {
+                facebookAdViewLoadConfig = facebookAdView.buildLoadAdConfig()
+                        .withAdListener(facebookAdListener).build();
+                if (facebookAdViewLoadConfig != null) {
+                    Log.d(TAG, "Reloading Banner Ad of Facebook.");
+                    facebookAdView.loadAd(facebookAdViewLoadConfig);
+                }
             }
         }
     };

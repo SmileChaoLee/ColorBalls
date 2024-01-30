@@ -7,9 +7,10 @@ import android.os.IBinder
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smile.colorballs.Constants
+import com.smile.smilelibraries.player_record_rest.PlayerRecordRest
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 
-class MyTop10ScoresService : Service() {
+class MyLocalTop10Service : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         Log.d(TAG, "onStartCommand")
         getDataAndSendBack()
@@ -23,7 +24,11 @@ class MyTop10ScoresService : Service() {
     private fun getDataAndSendBack() {
         val playerNames = ArrayList<String>()
         val playerScores = ArrayList<Int>()
-        getLocalTop10Scores(playerNames, playerScores)
+        // getTop10Scores(playerNames, playerScores)
+        ScoreSQLite(applicationContext).let {
+            PlayerRecordRest.GetLocalTop10(it, playerNames, playerScores)
+            it.close()
+        }
         Intent(Action_Name).let {
             Bundle().apply {
                 putStringArrayList(Constants.PlayerNamesKey, playerNames)
@@ -39,19 +44,12 @@ class MyTop10ScoresService : Service() {
         stopSelf()
     }
 
-    private fun getLocalTop10Scores(
-        playerNames: ArrayList<String>,
-        playerScores: ArrayList<Int>
-    ): Boolean {
+    private fun getTop10Scores(playerNames: ArrayList<String>,
+        playerScores: ArrayList<Int>): Boolean {
         var status = true
-        playerNames.clear()
-        playerScores.clear()
         try {
             ScoreSQLite(applicationContext).let {
-                for (pair in it.readTop10ScoreList()) {
-                    playerNames.add(pair.first as String)
-                    playerScores.add(pair.second as Int)
-                }
+                PlayerRecordRest.GetLocalTop10(it, playerNames, playerScores)
                 it.close()
             }
         } catch (ex: Exception) {
@@ -63,7 +61,7 @@ class MyTop10ScoresService : Service() {
     }
 
     companion object {
-        const val Action_Name = "com.smile.Service.MyTop10ScoresService"
-        private const val TAG = "MyTop10ScoresService"
+        const val Action_Name = "com.smile.Service.MyLocalTop10Service"
+        private const val TAG = "MyLocalTop10Service"
     }
 }

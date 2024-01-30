@@ -35,13 +35,18 @@
             android:label="@string/settingStr"
             android:theme="@style/AppThemeTransparent" />
         <activity
-            android:name=".Top10ScoreActivity"
+            android:name=".Top10Activity"
             android:label="@string/title_activity_history"
             android:exported="true">
         </activity>
 
         <service
-            android:name=".service.MyTop10ScoresService"
+            android:name=".service.MyGlobalTop10Service"
+            android:enabled="true"
+            android:exported="false">
+        </service>
+        <service
+            android:name=".service.MyLocalTop10Service"
             android:enabled="true"
             android:exported="false">
         </service>
