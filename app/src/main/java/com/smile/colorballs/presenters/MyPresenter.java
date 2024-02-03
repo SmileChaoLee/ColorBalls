@@ -1017,7 +1017,7 @@ public class MyPresenter {
     }
 
     public int getImageId(int row, int column) {
-        Log.d(TAG, "getImageId.row = " + row + ", column = " + column );
+        // Log.d(TAG, "getImageId.row = " + row + ", column = " + column );
         return row * mRowCounts + column;
     }
 
