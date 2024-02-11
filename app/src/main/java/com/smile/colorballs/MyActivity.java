@@ -46,8 +46,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.smile.colorballs.service.MyGlobalTop10Service;
-import com.smile.colorballs.service.MyLocalTop10Service;
+import com.smile.colorballs.service.GlobalTop10Service;
+import com.smile.colorballs.service.LocalTop10Service;
 import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate;
 import com.smile.colorballs.presenters.MyPresenter;
 import com.smile.smilelibraries.models.ExitAppTimer;
@@ -562,9 +562,9 @@ public class MyActivity extends AppCompatActivity implements MyPresenter.Present
         showMessageOnScreen(getString(R.string.loadingStr));
         Intent myIntent;
         if (isLocal) {
-            myIntent = new Intent(this, MyLocalTop10Service.class);
+            myIntent = new Intent(this, LocalTop10Service.class);
         } else {
-            myIntent = new Intent(this, MyGlobalTop10Service.class);
+            myIntent = new Intent(this, GlobalTop10Service.class);
             myIntent.putExtra(Constants.GameIdString, "1");
         }
         startService(myIntent);
@@ -609,14 +609,14 @@ public class MyActivity extends AppCompatActivity implements MyPresenter.Present
         myBannerAdView = new SetBannerAdView(this, null,
                 bannerLinearLayout, ColorBallsApp.googleAdMobBannerID,
                 facebookBannerID, adaptiveBannerDpWidth);
-        myBannerAdView.showBannerAdView(1); // Facebook first
+        myBannerAdView.showBannerAdView(0); // AdMob first
     }
 
     private void setBroadcastReceiver() {
         myReceiver = new MyBroadcastReceiver();
         IntentFilter myIntentFilter = new IntentFilter();
-        myIntentFilter.addAction(MyGlobalTop10Service.Action_Name);
-        myIntentFilter.addAction(MyLocalTop10Service.Action_Name);
+        myIntentFilter.addAction(GlobalTop10Service.Action_Name);
+        myIntentFilter.addAction(LocalTop10Service.Action_Name);
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.registerReceiver(myReceiver, myIntentFilter);
     }
@@ -874,7 +874,7 @@ public class MyActivity extends AppCompatActivity implements MyPresenter.Present
             View historyView;
             int top10LayoutId = R.id.top10Layout;
             String top10ScoreTitle;
-            if (actionName.equals(MyGlobalTop10Service.Action_Name)) {
+            if (actionName.equals(GlobalTop10Service.Action_Name)) {
                 top10ScoreTitle = getString(R.string.globalTop10Score);
             } else {
                 top10ScoreTitle = getString(R.string.localTop10Score);

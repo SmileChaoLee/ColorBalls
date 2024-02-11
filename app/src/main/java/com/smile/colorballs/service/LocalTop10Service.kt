@@ -10,7 +10,7 @@ import com.smile.colorballs.Constants
 import com.smile.smilelibraries.player_record_rest.PlayerRecordRest
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 
-class MyLocalTop10Service : Service() {
+class LocalTop10Service : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         Log.d(TAG, "onStartCommand")
         getDataAndSendBack()
@@ -61,7 +61,7 @@ class MyLocalTop10Service : Service() {
     }
 
     companion object {
-        const val Action_Name = "com.smile.Service.MyLocalTop10Service"
-        private const val TAG = "MyLocalTop10Service"
+        const val Action_Name = "com.smile.Service.LocalTop10Service"
+        private const val TAG = "LocalTop10Service"
     }
 }

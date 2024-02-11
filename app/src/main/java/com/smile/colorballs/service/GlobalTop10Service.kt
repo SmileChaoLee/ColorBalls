@@ -11,7 +11,7 @@ import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.Constants
 import com.smile.smilelibraries.player_record_rest.PlayerRecordRest
 
-class MyGlobalTop10Service : Service() {
+class GlobalTop10Service : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         Log.d(TAG, "onStartCommand() is called.")
         getDataAndSendBack(intent)
@@ -62,7 +62,7 @@ class MyGlobalTop10Service : Service() {
     }
 
     companion object {
-        const val Action_Name = "com.smile.Service.MyGlobalTop10Service"
-        private const val TAG = "MyGlobalTop10Service"
+        const val Action_Name = "com.smile.Service.GlobalTop10Service"
+        private const val TAG = "GlobalTop10Service"
     }
 }
