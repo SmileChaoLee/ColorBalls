@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
 import com.smile.colorballs.ColorBallsApp;
 import com.smile.colorballs.Constants;
@@ -51,7 +53,7 @@ public class MyPresenter {
     public static final int ColorYELLOW = 50;
     public static final int ColorCYAN = 60;
     public static final int[] ballColor = new int[] {ColorRED, ColorGREEN, ColorBLUE, ColorMAGENTA, ColorYELLOW, ColorCYAN};
-    public static HashMap<Integer, Bitmap> colorBallMap;
+    public static HashMap<Integer, Drawable> colorBallMap;
     public static HashMap<Integer, Drawable> colorOvalBallMap;
     public static HashMap<Integer, Drawable> colorNextBallMap;
 
@@ -65,6 +67,7 @@ public class MyPresenter {
     private final PresentView mPresentView;
     private final SoundPoolUtil soundPoolUtil;
     private final Handler bouncyHandler = new Handler(Looper.getMainLooper());
+    private AnimationDrawable bouncyAnimation;
     private final Handler movingBallHandler = new Handler(Looper.getMainLooper());
     private final Handler showingScoreHandler = new Handler(Looper.getMainLooper());
 
@@ -127,7 +130,7 @@ public class MyPresenter {
                     if (mGridData.canMoveCellToCell(new Point(bouncyBallIndexI, bouncyBallIndexJ), new Point(i, j))) {
                         // cancel the timer
                         mGameProperties.setBallBouncing(false);
-                        cancelBouncyTimer();
+                        stopBouncyAnimation();
 
                         mGameProperties.setBouncyBallIndexI(-1);
                         mGameProperties.setBouncyBallIndexJ(-1);
@@ -147,7 +150,7 @@ public class MyPresenter {
                 int bouncyBallIndexI = mGameProperties.getBouncyBallIndexI();
                 int bouncyBallIndexJ = mGameProperties.getBouncyBallIndexJ();
                 if ((bouncyBallIndexI >= 0) && (bouncyBallIndexJ >= 0)) {
-                    cancelBouncyTimer();
+                    stopBouncyAnimation();
                     imageView = mPresentView.getImageViewById(getImageId(bouncyBallIndexI, bouncyBallIndexJ));
                     drawBall(imageView , mGridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
                     drawBouncyBall((ImageView) v, mGridData.getCellValue(i, j));
@@ -322,7 +325,7 @@ public class MyPresenter {
 
         mGridData.undoTheLast();
 
-        cancelBouncyTimer();
+        stopBouncyAnimation();
         mGameProperties.setBallBouncing(false);
         mGameProperties.setBouncyBallIndexI(-1);
         mGameProperties.setBouncyBallIndexJ(-1);
@@ -690,7 +693,7 @@ public class MyPresenter {
     }
 
     public void release() {
-        cancelBouncyTimer();
+        stopBouncyAnimation();
         showingScoreHandler.removeCallbacksAndMessages(null);
         movingBallHandler.removeCallbacksAndMessages(null);
         soundPoolUtil.release();
@@ -708,43 +711,49 @@ public class MyPresenter {
         int ovalBallWidth = (int)(cellWidth * 0.9f);
         int ovalBallHeight = (int)(cellHeight * 0.7f);
 
+        Drawable drawable = ContextCompat.getDrawable(mActivity, R.drawable.redball);
+        colorBallMap.put(ColorRED, drawable);
         Bitmap bm = BitmapFactory.decodeResource(resources, R.drawable.redball);
-        colorBallMap.put(ColorRED, bm);
-        Drawable drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, nextBallWidth, nextBallHeight);
+        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, nextBallWidth, nextBallHeight);
         colorNextBallMap.put(ColorRED, drawable);
         drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, ovalBallWidth, ovalBallHeight);
         colorOvalBallMap.put(ColorRED, drawable);
 
+        drawable = ContextCompat.getDrawable(mActivity, R.drawable.greenball);
+        colorBallMap.put(ColorGREEN, drawable);
         bm = BitmapFactory.decodeResource(resources, R.drawable.greenball);
-        colorBallMap.put(ColorGREEN, bm);
         drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, nextBallWidth, nextBallHeight);
         colorNextBallMap.put(ColorGREEN, drawable);
         drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, ovalBallWidth, ovalBallHeight);
         colorOvalBallMap.put(ColorGREEN, drawable);
 
+        drawable = ContextCompat.getDrawable(mActivity, R.drawable.blueball);
+        colorBallMap.put(ColorBLUE, drawable);
         bm = BitmapFactory.decodeResource(resources, R.drawable.blueball);
-        colorBallMap.put(ColorBLUE, bm);
         drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, nextBallWidth, nextBallHeight);
         colorNextBallMap.put(ColorBLUE, drawable);
         drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, ovalBallWidth, ovalBallHeight);
         colorOvalBallMap.put(ColorBLUE, drawable);
 
+        drawable = ContextCompat.getDrawable(mActivity, R.drawable.magentaball);
+        colorBallMap.put(ColorMAGENTA, drawable);
         bm = BitmapFactory.decodeResource(resources, R.drawable.magentaball);
-        colorBallMap.put(ColorMAGENTA, bm);
         drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, nextBallWidth, nextBallHeight);
         colorNextBallMap.put(ColorMAGENTA, drawable);
         drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, ovalBallWidth, ovalBallHeight);
         colorOvalBallMap.put(ColorMAGENTA, drawable);
 
+        drawable = ContextCompat.getDrawable(mActivity, R.drawable.yellowball);
+        colorBallMap.put(ColorYELLOW, drawable);
         bm = BitmapFactory.decodeResource(resources, R.drawable.yellowball);
-        colorBallMap.put(ColorYELLOW, bm);
         drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, nextBallWidth, nextBallHeight);
         colorNextBallMap.put(ColorYELLOW, drawable);
         drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, ovalBallWidth, ovalBallHeight);
         colorOvalBallMap.put(ColorYELLOW, drawable);
 
+        drawable = ContextCompat.getDrawable(mActivity, R.drawable.cyanball);
+        colorBallMap.put(ColorCYAN, drawable);
         bm = BitmapFactory.decodeResource(resources, R.drawable.cyanball);
-        colorBallMap.put(ColorCYAN, bm);
         drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, nextBallWidth, nextBallHeight);
         colorNextBallMap.put(ColorCYAN, drawable);
         drawable = FontAndBitmapUtil.convertBitmapToDrawable(mActivity, bm, ovalBallWidth, ovalBallHeight);
@@ -804,7 +813,7 @@ public class MyPresenter {
     }
 
     private void drawBall(ImageView imageView, int color) {
-        imageView.setImageBitmap(colorBallMap.get(color));
+        imageView.setImageDrawable(colorBallMap.get(color));
     }
 
     private void drawOval(ImageView imageView,int color) {
@@ -991,29 +1000,22 @@ public class MyPresenter {
     }
 
     private void drawBouncyBall(final ImageView v, final int color) {
-        Runnable bouncyRunnable = new Runnable() {
-            boolean ballYN = false;
-            @Override
-            public void run() {
-                if (color != 0) {
-                    if (ballYN) {
-                        drawBall(v , color);
-                    } else {
-                        drawOval(v , color);
-                    }
-                    ballYN = !ballYN;
-                    bouncyHandler.postDelayed(this, 200);
-                } else {
-                    v.setImageDrawable(null);
-                }
-            }
-        };
-        bouncyHandler.post(bouncyRunnable);
+        if (v == null) {
+            Log.e(TAG, "drawBouncyBall.v is null, color = " + color);
+            return;
+        }
+        bouncyAnimation = new AnimationDrawable();
+        bouncyAnimation.setOneShot(false);
+        bouncyAnimation.addFrame(colorBallMap.get(color), 200);
+        bouncyAnimation.addFrame(colorOvalBallMap.get(color), 200);
+        v.setImageDrawable(bouncyAnimation);
+        bouncyAnimation.start();
     }
 
-    private void cancelBouncyTimer() {
-        bouncyHandler.removeCallbacksAndMessages(null);
-        SystemClock.sleep(20);
+    private void stopBouncyAnimation() {
+        if (bouncyAnimation != null && bouncyAnimation.isRunning()) {
+            bouncyAnimation.stop();
+        }
     }
 
     public int getImageId(int row, int column) {
@@ -1043,7 +1045,7 @@ public class MyPresenter {
                 hasPoint = new HashSet<>(linkedPoint);
             }
 
-            mGameProperties.setShowNextBallsAfterBlinking(this.isNextBalls);
+            mGameProperties.setShowNextBallsAfterBlinking(isNextBalls);
             mGameProperties.getThreadCompleted()[1] = false;
             mGameProperties.setShowingScoreMessage(true);
         }
@@ -1065,7 +1067,6 @@ public class MyPresenter {
                 case 2:
                     break;
                 case 3:
-                    //
                     // show the score
                     String scoreString = String.valueOf(mLastGotScore);
                     mPresentView.showMessageOnScreen(scoreString);
