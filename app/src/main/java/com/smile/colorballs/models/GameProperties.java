@@ -1,4 +1,4 @@
-package com.smile.colorballs.model;
+package com.smile.colorballs.models;
 
 import android.os.Build;
 import android.os.Parcel;

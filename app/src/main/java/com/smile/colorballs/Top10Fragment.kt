@@ -14,7 +14,7 @@ import android.widget.ListView
 import androidx.fragment.app.Fragment
 import com.smile.colorballs.databinding.FragmentTop10Binding
 import com.smile.colorballs.databinding.Top10ScoreListItemsBinding
-import com.smile.colorballs.model.Player
+import com.smile.colorballs.models.Player
 import com.smile.smilelibraries.utilities.ScreenUtil
 
 /**

@@ -41,12 +41,12 @@
         </activity>
 
         <service
-            android:name=".service.GlobalTop10Service"
+            android:name=".services.GlobalTop10Service"
             android:enabled="true"
             android:exported="false">
         </service>
         <service
-            android:name=".service.LocalTop10Service"
+            android:name=".services.LocalTop10Service"
             android:enabled="true"
             android:exported="false">
         </service>

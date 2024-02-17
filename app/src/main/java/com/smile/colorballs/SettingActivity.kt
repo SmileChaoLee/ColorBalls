@@ -9,7 +9,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.smile.colorballs.databinding.ActivitySettingBinding
 import com.smile.smilelibraries.utilities.ScreenUtil
-import com.smile.colorballs.model.EnvSetting
+import com.smile.colorballs.models.EnvSetting
 
 class SettingActivity : AppCompatActivity() {
 

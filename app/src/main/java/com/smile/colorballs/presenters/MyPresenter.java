@@ -11,7 +11,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -22,8 +21,9 @@ import androidx.core.content.ContextCompat;
 import com.smile.colorballs.ColorBallsApp;
 import com.smile.colorballs.Constants;
 import com.smile.colorballs.R;
-import com.smile.colorballs.model.GameProperties;
-import com.smile.colorballs.model.GridData;
+import com.smile.colorballs.interfaces.PresentView;
+import com.smile.colorballs.models.GameProperties;
+import com.smile.colorballs.models.GridData;
 import com.smile.smilelibraries.player_record_rest.PlayerRecordRest;
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite;
 import com.smile.smilelibraries.utilities.FontAndBitmapUtil;
@@ -74,19 +74,6 @@ public class MyPresenter {
     private int mRowCounts, mColCounts;
     private GameProperties mGameProperties;
     private GridData mGridData;
-
-    public interface PresentView {
-        ImageView getImageViewById(int id);
-        void updateHighestScoreOnUi(int highestScore);
-        void updateCurrentScoreOnUi(int score);
-        void showMessageOnScreen(String message);
-        void dismissShowMessageOnScreen();
-        void showSaveScoreAlertDialog(final int entryPoint, final int score);
-        void showSaveGameDialog();
-        void showingWarningSaveGameDialog(int finalNumOfSaved);
-        void showLoadGameDialog();
-        void showGameOverDialog();
-    }
 
     public MyPresenter(Activity activity) {
         mActivity = activity;

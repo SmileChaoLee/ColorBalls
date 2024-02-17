@@ -3,7 +3,7 @@
     <data>
         <variable
             name="eSet"
-            type="com.smile.colorballs.model.EnvSetting" />
+            type="com.smile.colorballs.models.EnvSetting" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

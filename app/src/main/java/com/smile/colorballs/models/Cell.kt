@@ -1,4 +1,4 @@
-package com.smile.colorballs.model
+package com.smile.colorballs.models
 
 import android.graphics.Point
 import android.os.Parcelable

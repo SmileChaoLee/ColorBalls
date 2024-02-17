@@ -1,4 +1,4 @@
-package com.smile.colorballs.model
+package com.smile.colorballs.models
 
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
