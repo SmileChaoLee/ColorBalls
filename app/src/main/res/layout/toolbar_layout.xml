@@ -8,7 +8,7 @@
     android:id="@+id/colorBallToolbar"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
-    android:background="@android:color/darker_gray"
+    android:background="?attr/colorPrimary"
     android:elevation="4dp"
     android:theme="@style/CustomToolbarTheme"
     app:popupTheme="@style/menu_text_style">
