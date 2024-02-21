@@ -60,20 +60,21 @@ abstract class MyView: AppCompatActivity(), PresentView {
     }
 
     override fun showMessageOnScreen(messageString: String) {
-        val dialogBoardImage =
-            BitmapFactory.decodeResource(resources, R.drawable.dialog_board_image)
-        val showBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(
-            dialogBoardImage,
-            messageString,
-            Color.RED
-        )
-        scoreImageView.visibility = View.VISIBLE
-        scoreImageView.setImageBitmap(showBitmap)
+        BitmapFactory.decodeResource(resources, R.drawable.dialog_board_image).let {
+            FontAndBitmapUtil.getBitmapFromBitmapWithText(
+                it,
+                messageString,
+                Color.RED
+            ).apply {
+                scoreImageView.visibility = View.VISIBLE
+                scoreImageView.setImageBitmap(this)
+            }
+        }
     }
 
     override fun dismissShowMessageOnScreen() {
-        scoreImageView?.setImageBitmap(null)
-        scoreImageView?.visibility = View.GONE
+        scoreImageView.setImageBitmap(null)
+        scoreImageView.visibility = View.GONE
     }
 
     override fun showSaveGameDialog() {
@@ -90,8 +91,7 @@ abstract class MyView: AppCompatActivity(), PresentView {
                 mPresenter.setShowingSureSaveDialog(false)
                 val numOfSaved: Int = mPresenter.readNumberOfSaved()
                 if (numOfSaved < MaxSavedGames) {
-                    val succeeded: Boolean = mPresenter.startSavingGame(numOfSaved)
-                    if (succeeded) {
+                    if (mPresenter.startSavingGame(numOfSaved)) {
                         ScreenUtil.showToast(
                             this@MyView,
                             getString(R.string.succeededSaveGameStr),
@@ -115,18 +115,19 @@ abstract class MyView: AppCompatActivity(), PresentView {
                 }
             }
         })
-        val args = Bundle()
-        args.putString(AlertDialogFragment.TextContentKey, getString(R.string.sureToSaveGameStr))
-        args.putInt(AlertDialogFragment.FontSizeScaleTypeKey, ScreenUtil.FontSize_Pixel_Type)
-        args.putFloat(AlertDialogFragment.TextFontSizeKey, textFontSize)
-        args.putInt(AlertDialogFragment.ColorKey, Color.BLUE)
-        args.putInt(AlertDialogFragment.WidthKey, 0) // wrap_content
-        args.putInt(AlertDialogFragment.HeightKey, 0) // wrap_content
-        args.putInt(AlertDialogFragment.NumButtonsKey, 2)
-        args.putBoolean(AlertDialogFragment.IsAnimationKey, false)
-        mPresenter.setShowingSureSaveDialog(true)
-        sureSaveDialog.arguments = args
-        sureSaveDialog.show(supportFragmentManager, "SureSaveDialogTag")
+        Bundle().apply {
+            putString(AlertDialogFragment.TextContentKey, getString(R.string.sureToSaveGameStr))
+            putInt(AlertDialogFragment.FontSizeScaleTypeKey, ScreenUtil.FontSize_Pixel_Type)
+            putFloat(AlertDialogFragment.TextFontSizeKey, textFontSize)
+            putInt(AlertDialogFragment.ColorKey, Color.BLUE)
+            putInt(AlertDialogFragment.WidthKey, 0) // wrap_content
+            putInt(AlertDialogFragment.HeightKey, 0) // wrap_content
+            putInt(AlertDialogFragment.NumButtonsKey, 2)
+            putBoolean(AlertDialogFragment.IsAnimationKey, false)
+            mPresenter.setShowingSureSaveDialog(true)
+            sureSaveDialog.arguments = this
+            sureSaveDialog.show(supportFragmentManager, "SureSaveDialogTag")
+        }
     }
 
     override fun showingWarningSaveGameDialog(finalNumOfSaved: Int) {
@@ -139,8 +140,7 @@ abstract class MyView: AppCompatActivity(), PresentView {
             override fun okButtonOnClick(dialogFragment: AlertDialogFragment) {
                 dialogFragment.dismissAllowingStateLoss()
                 mPresenter.setShowingWarningSaveGameDialog(false)
-                val succeeded: Boolean = mPresenter.startSavingGame(finalNumOfSaved)
-                if (succeeded) {
+                if (mPresenter.startSavingGame(finalNumOfSaved)) {
                     ScreenUtil.showToast(
                         this@MyView,
                         getString(R.string.succeededSaveGameStr),
@@ -160,28 +160,23 @@ abstract class MyView: AppCompatActivity(), PresentView {
                 showAdUntilDismissed()
             }
         })
-        val args = Bundle()
-        val warningSaveGameString0 =
-            """${getString(R.string.warningSaveGameStr)} ($MaxSavedGames ${
-                getString(
-                    R.string.howManyTimesStr
-                )
-            } )
-${getString(R.string.continueStr)}?"""
-        args.putString(
-            AlertDialogFragment.TextContentKey,
-            warningSaveGameString0
-        ) // excessive the number (5)
-        args.putInt(AlertDialogFragment.FontSizeScaleTypeKey, ScreenUtil.FontSize_Pixel_Type)
-        args.putFloat(AlertDialogFragment.TextFontSizeKey, textFontSize)
-        args.putInt(AlertDialogFragment.ColorKey, Color.BLUE)
-        args.putInt(AlertDialogFragment.WidthKey, 0) // wrap_content
-        args.putInt(AlertDialogFragment.HeightKey, 0) // wrap_content
-        args.putInt(AlertDialogFragment.NumButtonsKey, 2)
-        args.putBoolean(AlertDialogFragment.IsAnimationKey, false)
-        mPresenter.setShowingWarningSaveGameDialog(true)
-        warningSaveGameDialog.arguments = args
-        warningSaveGameDialog.show(supportFragmentManager, "SaveGameWarningDialogTag")
+        val a1 = getString(R.string.warningSaveGameStr)
+        val a2 = getString(R.string.howManyTimesStr)
+        val a3 = getString(R.string.continueStr)
+        val warningString = "$a1 ($MaxSavedGames $a2)\n$a3?"
+        Bundle().apply {
+            putString(AlertDialogFragment.TextContentKey, warningString)
+            putInt(AlertDialogFragment.FontSizeScaleTypeKey, ScreenUtil.FontSize_Pixel_Type)
+            putFloat(AlertDialogFragment.TextFontSizeKey, textFontSize)
+            putInt(AlertDialogFragment.ColorKey, Color.BLUE)
+            putInt(AlertDialogFragment.WidthKey, 0) // wrap_content
+            putInt(AlertDialogFragment.HeightKey, 0) // wrap_content
+            putInt(AlertDialogFragment.NumButtonsKey, 2)
+            putBoolean(AlertDialogFragment.IsAnimationKey, false)
+            mPresenter.setShowingWarningSaveGameDialog(true)
+            warningSaveGameDialog.arguments = this
+            warningSaveGameDialog.show(supportFragmentManager, "SaveGameWarningDialogTag")
+        }
     }
 
     override fun showLoadGameDialog() {
@@ -196,8 +191,7 @@ ${getString(R.string.continueStr)}?"""
                 // start loading game to internal storage
                 dialogFragment.dismissAllowingStateLoss()
                 mPresenter.setShowingSureLoadDialog(false)
-                val succeeded: Boolean = mPresenter.startLoadingGame()
-                if (succeeded) {
+                if (mPresenter.startLoadingGame()) {
                     ScreenUtil.showToast(
                         this@MyView,
                         getString(R.string.succeededLoadGameStr),
@@ -216,18 +210,19 @@ ${getString(R.string.continueStr)}?"""
                 }
             }
         })
-        val args = Bundle()
-        args.putString(AlertDialogFragment.TextContentKey, getString(R.string.sureToLoadGameStr))
-        args.putInt(AlertDialogFragment.FontSizeScaleTypeKey, ScreenUtil.FontSize_Pixel_Type)
-        args.putFloat(AlertDialogFragment.TextFontSizeKey, textFontSize)
-        args.putInt(AlertDialogFragment.ColorKey, Color.BLUE)
-        args.putInt(AlertDialogFragment.WidthKey, 0) // wrap_content
-        args.putInt(AlertDialogFragment.HeightKey, 0) // wrap_content
-        args.putInt(AlertDialogFragment.NumButtonsKey, 2)
-        args.putBoolean(AlertDialogFragment.IsAnimationKey, false)
-        mPresenter.setShowingSureLoadDialog(true)
-        sureLoadDialog.arguments = args
-        sureLoadDialog.show(supportFragmentManager, "SureLoadDialogTag")
+        Bundle().apply {
+            putString(AlertDialogFragment.TextContentKey, getString(R.string.sureToLoadGameStr))
+            putInt(AlertDialogFragment.FontSizeScaleTypeKey, ScreenUtil.FontSize_Pixel_Type)
+            putFloat(AlertDialogFragment.TextFontSizeKey, textFontSize)
+            putInt(AlertDialogFragment.ColorKey, Color.BLUE)
+            putInt(AlertDialogFragment.WidthKey, 0) // wrap_content
+            putInt(AlertDialogFragment.HeightKey, 0) // wrap_content
+            putInt(AlertDialogFragment.NumButtonsKey, 2)
+            putBoolean(AlertDialogFragment.IsAnimationKey, false)
+            mPresenter.setShowingSureLoadDialog(true)
+            sureLoadDialog.arguments = this
+            sureLoadDialog.show(supportFragmentManager, "SureLoadDialogTag")
+        }
     }
 
     override fun showGameOverDialog() {
@@ -236,7 +231,7 @@ ${getString(R.string.continueStr)}?"""
                 // dialogFragment.dismiss();
                 dialogFragment.dismissAllowingStateLoss()
                 mPresenter.setShowingGameOverDialog(false)
-                mPresenter.quitGame() //   Ending the game
+                mPresenter.quitGame()
             }
 
             override fun okButtonOnClick(dialogFragment: AlertDialogFragment) {
@@ -246,19 +241,20 @@ ${getString(R.string.continueStr)}?"""
                 mPresenter.newGame()
             }
         })
-        val args = Bundle()
-        args.putString(AlertDialogFragment.TextContentKey, getString(R.string.gameOverStr))
-        args.putInt(AlertDialogFragment.FontSizeScaleTypeKey, ScreenUtil.FontSize_Pixel_Type)
-        args.putFloat(AlertDialogFragment.TextFontSizeKey, textFontSize)
-        args.putInt(AlertDialogFragment.ColorKey, Color.BLUE)
-        args.putInt(AlertDialogFragment.WidthKey, 0) // wrap_content
-        args.putInt(AlertDialogFragment.HeightKey, 0) // wrap_content
-        args.putInt(AlertDialogFragment.NumButtonsKey, 2)
-        args.putBoolean(AlertDialogFragment.IsAnimationKey, false)
-        mPresenter.setShowingGameOverDialog(true)
-        gameOverDialog.arguments = args
-        gameOverDialog.show(supportFragmentManager, GameOverDialogTag)
-        Log.d(TAG, "gameOverDialog.show() has been called.")
+        Bundle().apply {
+            putString(AlertDialogFragment.TextContentKey, getString(R.string.gameOverStr))
+            putInt(AlertDialogFragment.FontSizeScaleTypeKey, ScreenUtil.FontSize_Pixel_Type)
+            putFloat(AlertDialogFragment.TextFontSizeKey, textFontSize)
+            putInt(AlertDialogFragment.ColorKey, Color.BLUE)
+            putInt(AlertDialogFragment.WidthKey, 0) // wrap_content
+            putInt(AlertDialogFragment.HeightKey, 0) // wrap_content
+            putInt(AlertDialogFragment.NumButtonsKey, 2)
+            putBoolean(AlertDialogFragment.IsAnimationKey, false)
+            mPresenter.setShowingGameOverDialog(true)
+            gameOverDialog.arguments = this
+            gameOverDialog.show(supportFragmentManager, GameOverDialogTag)
+            Log.d(TAG, "gameOverDialog.show() has been called.")
+        }
     }
 
     override fun showSaveScoreAlertDialog(entryPoint: Int, score: Int) {
