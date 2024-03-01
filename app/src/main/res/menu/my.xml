@@ -30,11 +30,6 @@
                 android:orderInCategory="2"
                 app:showAsAction="never">
             </item>
-            <item android:id="@+id/rotateDevice"
-                android:title="@string/rotateDevice"
-                android:orderInCategory="3"
-                app:showAsAction="never">
-            </item>
             <item android:id="@+id/saveGame"
                 android:title="@string/saveGameStr"
                 android:orderInCategory="4"

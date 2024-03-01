@@ -193,15 +193,6 @@ public class MyActivity extends MyView {
             extras.putBoolean(Constants.HasNextBallKey, mPresenter.hasNextBall());
             intent.putExtras(extras);
             settingLauncher.launch(intent);
-        } else if (id == R.id.rotateDevice) {
-            int orientation = getResources().getConfiguration().orientation;
-            if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-                // Table then change orientation to Landscape
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            } else {
-                // phone then change orientation to Portrait
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            }
         } else if (id == R.id.saveGame) {
             mPresenter.saveGame();
         } else if (id == R.id.loadGame) {
