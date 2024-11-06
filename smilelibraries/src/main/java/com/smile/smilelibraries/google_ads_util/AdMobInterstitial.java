@@ -12,7 +12,6 @@ import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
-import com.google.android.gms.common.util.VisibleForTesting;
 import com.smile.smilelibraries.interfaces.DismissFunction;
 
 public class AdMobInterstitial {
@@ -82,7 +81,6 @@ public class AdMobInterstitial {
         mContext = context;
         mInterstitialID = interstitialID;
     }
-    @VisibleForTesting
     public void loadAd() {
         mInterstitialAd = null; // set to null to begin to load next ad
         AdRequest adRequest = new AdRequest.Builder().build();

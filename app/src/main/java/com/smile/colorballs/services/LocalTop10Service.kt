@@ -29,7 +29,7 @@ class LocalTop10Service : Service() {
             PlayerRecordRest.GetLocalTop10(it, playerNames, playerScores)
             it.close()
         }
-        Intent(Action_Name).let {
+        Intent(ACTION_NAME).let {
             Bundle().apply {
                 putStringArrayList(Constants.PlayerNamesKey, playerNames)
                 putIntegerArrayList(Constants.PlayerScoresKey, playerScores)
@@ -61,7 +61,7 @@ class LocalTop10Service : Service() {
     }
 
     companion object {
-        const val Action_Name = "com.smile.Service.LocalTop10Service"
+        const val ACTION_NAME = "com.smile.Service.LocalTop10Service"
         private const val TAG = "LocalTop10Service"
     }
 }

@@ -15,7 +15,6 @@ import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.common.util.VisibleForTesting;
 
 public class SetBannerAdView {
     private final static String TAG = "SetBannerAdView";
@@ -32,7 +31,6 @@ public class SetBannerAdView {
     private com.facebook.ads.AdView.AdViewLoadConfig facebookAdViewLoadConfig;
     private AdRequest adMobBannerAdRequest;
     private final Handler loggingAdmobHandler = new Handler(Looper.getMainLooper());
-    @VisibleForTesting
     private final Runnable loggingAdmobRunnable = new Runnable() {
         @Override
         public void run() {
@@ -132,7 +130,6 @@ public class SetBannerAdView {
         facebookAdViewLoadConfig = null;
     }
 
-    @VisibleForTesting
     private void setAdMobBannerAdView() {
         Log.d(TAG, "setAdMobBannerAdView() is called.");
         if (!isAdMobAvailable) {

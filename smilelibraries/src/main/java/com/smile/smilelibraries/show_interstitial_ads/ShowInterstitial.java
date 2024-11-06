@@ -5,7 +5,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import com.google.android.gms.common.util.VisibleForTesting;
 import com.smile.smilelibraries.facebook_ads_util.FacebookInterstitial;
 import com.smile.smilelibraries.google_ads_util.AdMobInterstitial;
 import com.smile.smilelibraries.interfaces.DismissFunction;
@@ -56,7 +55,6 @@ public class ShowInterstitial {
             isAdShown = false;
         }
 
-        @VisibleForTesting
         private boolean showOneAd() {
             succeededAdMob = false;
             succeededFacebook = false;

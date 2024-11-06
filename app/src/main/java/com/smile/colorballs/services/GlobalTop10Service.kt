@@ -7,13 +7,12 @@ import android.os.IBinder
 import android.os.SystemClock
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.Constants
 import com.smile.smilelibraries.player_record_rest.PlayerRecordRest
 
 class GlobalTop10Service : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        Log.d(TAG, "onStartCommand() is called.")
+        Log.d(TAG, "onStartCommand()")
         getDataAndSendBack(intent)
         return super.onStartCommand(intent, flags, startId)
     }
@@ -47,7 +46,7 @@ class GlobalTop10Service : Service() {
             }
         }
         Log.d(TAG, "getDataAndSendBack.sent result.")
-        Intent(Action_Name).let {
+        Intent(ACTION_NAME).let {
             Bundle().apply {
                 putStringArrayList("PlayerNames", playerNames)
                 putIntegerArrayList("PlayerScores", playerScores)
@@ -56,13 +55,11 @@ class GlobalTop10Service : Service() {
             LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(it)
         }
 
-        ColorBallsApp.isShowingLoadingMessage = false
-        ColorBallsApp.isProcessingJob = false
         stopSelf()
     }
 
     companion object {
-        const val Action_Name = "com.smile.Service.GlobalTop10Service"
+        const val ACTION_NAME = "com.smile.Service.GlobalTop10Service"
         private const val TAG = "GlobalTop10Service"
     }
 }
