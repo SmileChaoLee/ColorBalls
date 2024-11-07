@@ -41,10 +41,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class MyPresenter {
-
     public static final int NumOfColorsUsedByEasy = 5;          // 5 colors for easy level
     public static final int NumOfColorsUsedByDifficult = 6;    // 6 colors for difficult level
-
     // 10->RED, 20->GREEN, 30->BLUE, 40->MAGENTA, 50->YELLOW, 60->Cyan
     public static final int ColorRED = 10;
     public static final int ColorGREEN = 20;
@@ -56,30 +54,28 @@ public class MyPresenter {
     public static HashMap<Integer, Drawable> colorBallMap;
     public static HashMap<Integer, Drawable> colorOvalBallMap;
     public static HashMap<Integer, Drawable> colorNextBallMap;
-
     private final String NumOfSavedGameFileName = "num_saved_game";
-
     private final String TAG = "MyPresenter";
     private final String GamePropertiesTag = "GameProperties";
     private final String savedGameFileName = "saved_game";
-
     private final Activity mActivity;
     private final PresentView mPresentView;
     private final SoundPoolUtil soundPoolUtil;
-    private final Handler bouncyHandler = new Handler(Looper.getMainLooper());
     private AnimationDrawable bouncyAnimation;
     private final Handler movingBallHandler = new Handler(Looper.getMainLooper());
     private final Handler showingScoreHandler = new Handler(Looper.getMainLooper());
-
     private int mRowCounts, mColCounts;
     private GameProperties mGameProperties;
     private GridData mGridData;
+
+    private interface ShowScoreCallback {
+        void sCallback();
+    }
 
     public MyPresenter(Activity activity) {
         mActivity = activity;
         mPresentView = (PresentView) mActivity;
         soundPoolUtil = new SoundPoolUtil(mActivity, R.raw.uhoh);
-
         colorBallMap = new HashMap<>();
         colorOvalBallMap = new HashMap<>();
         colorNextBallMap = new HashMap<>();
@@ -118,12 +114,9 @@ public class MyPresenter {
                         // cancel the timer
                         mGameProperties.setBallBouncing(false);
                         stopBouncyAnimation();
-
                         mGameProperties.setBouncyBallIndexI(-1);
                         mGameProperties.setBouncyBallIndexJ(-1);
-
                         drawBallAlongPath();
-
                         mGameProperties.setUndoEnable(true);
                     } else {
                         //    make a sound
@@ -201,49 +194,54 @@ public class MyPresenter {
             if (mGameProperties.isShowingScoreMessage()) {
                 Log.d(TAG, "initializeColorBallsGame.gameProperties.isShowingScoreMessage() is true");
                 ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(mGameProperties.getLastGotScore(),
-                        mGridData.getLightLine(), mGameProperties.isShowNextBallsAfterBlinking());
-                Log.d(TAG,"initializeColorBallsGame.showingScoreHandler.post(showScoreRunnable).");
+                        mGridData.getLightLine(), mGameProperties.isShowNextBallsAfterBlinking(),
+                        new ShowScoreCallback() {
+                            @Override
+                            public void sCallback() {
+                                lastPartOfInitialGame();
+                            }
+                        });
+                Log.d(TAG,"initializeColorBallsGame.showingScoreHandler.post().");
                 showingScoreHandler.post(showScoreRunnable);
-            }
-            if (mGameProperties.isBallBouncing()) {
-                int bouncyBallIndexI = mGameProperties.getBouncyBallIndexI();
-                int bouncyBallIndexJ = mGameProperties.getBouncyBallIndexJ();
-                ImageView v = mPresentView.getImageViewById(getImageId(bouncyBallIndexI, bouncyBallIndexJ));
-                drawBouncyBall(v, mGridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
-            }
-
-            if (mGameProperties.isShowingNewGameDialog()) {
-                Log.d(TAG, "initializeColorBallsGame.show new game dialog by calling newGame()");
-                newGame();
-            }
-
-            if (mGameProperties.isShowingQuitGameDialog()) {
-                Log.d(TAG, "initializeColorBallsGame.show quit game dialog by calling quitGame()");
-                quitGame();
-            }
-
-            if (mGameProperties.isShowingSureSaveDialog()) {
-                Log.d(TAG, "initializeColorBallsGame.isShowingSureSaveDialog()");
-                saveGame();
-            }
-
-            if (mGameProperties.isShowingWarningSaveGameDialog()) {
-                Log.d(TAG, "initializeColorBallsGame.isShowingWarningSaveGameDialog()");
-                mPresentView.showingWarningSaveGameDialog(readNumberOfSaved());
-            }
-
-            if (mGameProperties.isShowingSureLoadDialog()) {
-                Log.d(TAG, "initializeColorBallsGame.isShowingSureLoadDialog()");
-                loadGame();
-            }
-
-            if (mGameProperties.isShowingGameOverDialog()) {
-                Log.d(TAG, "initializeColorBallsGame.isShowingGameOverDialog()");
-                gameOver();
+                Log.d(TAG,"initializeColorBallsGame.showingScoreHandler.post() run.");
+            } else {
+                lastPartOfInitialGame();
             }
         }
-
         return isNewGame;
+    }
+
+    private void lastPartOfInitialGame() {
+        if (mGameProperties.isBallBouncing()) {
+            int bouncyBallIndexI = mGameProperties.getBouncyBallIndexI();
+            int bouncyBallIndexJ = mGameProperties.getBouncyBallIndexJ();
+            ImageView v = mPresentView.getImageViewById(getImageId(bouncyBallIndexI, bouncyBallIndexJ));
+            drawBouncyBall(v, mGridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
+        }
+        if (mGameProperties.isShowingNewGameDialog()) {
+            Log.d(TAG, "initializeColorBallsGame.show new game dialog by calling newGame()");
+            newGame();
+        }
+        if (mGameProperties.isShowingQuitGameDialog()) {
+            Log.d(TAG, "initializeColorBallsGame.show quit game dialog by calling quitGame()");
+            quitGame();
+        }
+        if (mGameProperties.isShowingSureSaveDialog()) {
+            Log.d(TAG, "initializeColorBallsGame.isShowingSureSaveDialog()");
+            saveGame();
+        }
+        if (mGameProperties.isShowingWarningSaveGameDialog()) {
+            Log.d(TAG, "initializeColorBallsGame.isShowingWarningSaveGameDialog()");
+            mPresentView.showingWarningSaveGameDialog(readNumberOfSaved());
+        }
+        if (mGameProperties.isShowingSureLoadDialog()) {
+            Log.d(TAG, "initializeColorBallsGame.isShowingSureLoadDialog()");
+            loadGame();
+        }
+        if (mGameProperties.isShowingGameOverDialog()) {
+            Log.d(TAG, "initializeColorBallsGame.isShowingGameOverDialog()");
+            gameOver();
+        }
     }
 
     public void onSaveInstanceState(@NonNull Bundle outState) {
@@ -882,9 +880,15 @@ public class MyPresenter {
             mGameProperties.setUndoScore(mGameProperties.getCurrentScore());
             mGameProperties.setCurrentScore(mGameProperties.getCurrentScore() + mGameProperties.getLastGotScore());
             mPresentView.updateCurrentScoreOnUi(mGameProperties.getCurrentScore());
-            ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(mGameProperties.getLastGotScore(), mGridData.getLightLine(), true);
+            ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(mGameProperties.getLastGotScore(), mGridData.getLightLine(),
+                    true, new ShowScoreCallback() {
+                @Override
+                public void sCallback() {
+                    Log.d(TAG, "ShowScoreCallback.sCallback.Do nothing.");
+                }
+            });
             showingScoreHandler.post(showScoreRunnable);
-            Log.d(TAG,"displayGridDataNextCells.post(showScoreRunnable).");
+            Log.d(TAG,"displayGridDataNextCells.post(showScoreRunnable) run.");
         } else {
             displayNextColorBalls();
         }
@@ -931,14 +935,11 @@ public class MyPresenter {
 
         final int targetI = mGridData.getPathPoint().get(0).x;  // the target point
         final int targetJ = mGridData.getPathPoint().get(0).y;  // the target point
-        Log.d(TAG, "drawBallAlongPath().targetI = " + targetI + ", targetJ = " + targetJ);
+        Log.d(TAG, "drawBallAlongPath.targetI = " + targetI + ", targetJ = " + targetJ);
         final int beginI = mGridData.getPathPoint().get(sizeOfPathPoint-1).x;
         final int beginJ = mGridData.getPathPoint().get(sizeOfPathPoint-1).y;
         final int color = mGridData.getCellValue(beginI, beginJ);
         Log.d(TAG, "drawBallAlongPath.color = " + color);
-
-        mGameProperties.getThreadCompleted()[0] = false;
-        mGameProperties.setBallMoving(true);
 
         final ArrayList<Point> tempList = new ArrayList<>(mGridData.getPathPoint());
         Runnable runnablePath = new Runnable() {
@@ -947,6 +948,8 @@ public class MyPresenter {
             int countDown = tempList.size()*2 - 1;
             @Override
             public synchronized void run() {
+                mGameProperties.getThreadCompleted()[0] = false;
+                mGameProperties.setBallMoving(true);
                 if (countDown >= 2) {   // eliminate start point
                     int i = countDown / 2;
                     imageView = mPresentView.getImageViewById(getImageId(tempList.get(i).x, tempList.get(i).y));
@@ -970,16 +973,25 @@ public class MyPresenter {
                         mGameProperties.setUndoScore(mGameProperties.getCurrentScore());
                         mGameProperties.setCurrentScore(mGameProperties.getCurrentScore() + mGameProperties.getLastGotScore());
                         mPresentView.updateCurrentScoreOnUi(mGameProperties.getCurrentScore());
-                        ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(mGameProperties.getLastGotScore(), mGridData.getLightLine(), false);
+                        Log.d(TAG,"drawBallAlongPath.showScoreRunnable()");
+                        ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(mGameProperties.getLastGotScore(), mGridData.getLightLine(),
+                                false, new ShowScoreCallback() {
+                            @Override
+                            public void sCallback() {
+                                Log.d(TAG,"drawBallAlongPath.ShowScoreCallback.sCallback");
+                                mGameProperties.getThreadCompleted()[0] = true;
+                                mGameProperties.setBallMoving(false);
+                                Log.d(TAG,"drawBallAlongPath.run() finished.");
+                            }
+                        });
                         showingScoreHandler.post(showScoreRunnable);
+                        Log.d(TAG,"drawBallAlongPath.showScoreRunnable() run");
                     } else {
                         displayGridDataNextCells();   // has a problem
+                        mGameProperties.getThreadCompleted()[0] = true;
+                        mGameProperties.setBallMoving(false);
+                        Log.d(TAG,"drawBallAlongPath.run() finished.");
                     }
-
-                    mGameProperties.getThreadCompleted()[0] = true;
-                    mGameProperties.setBallMoving(false);
-
-                    Log.d(TAG,"drawBallAlongPath.run() finished.");
                 }
             }
         };
@@ -1023,15 +1035,18 @@ public class MyPresenter {
         private final boolean isNextBalls;
         private HashSet<Point> hasPoint = null;
         private int mCounter = 0;
+        private ShowScoreCallback showScoreCallback;
 
-        public ShowScoreRunnable(final int lastGotScore, final HashSet<Point> linkedPoint, final boolean nextBalls) {
+        public ShowScoreRunnable(final int lastGotScore, final HashSet<Point> linkedPoint,
+                                 final boolean nextBalls,
+                                 ShowScoreCallback callback) {
             Log.d(TAG, "ShowScoreRunnable");
             mLastGotScore = lastGotScore;
             isNextBalls = nextBalls;
+            showScoreCallback = callback;
             if (linkedPoint != null) {
                 hasPoint = new HashSet<>(linkedPoint);
             }
-
             mGameProperties.setShowNextBallsAfterBlinking(isNextBalls);
             mGameProperties.getThreadCompleted()[1] = false;
             mGameProperties.setShowingScoreMessage(true);
@@ -1080,11 +1095,12 @@ public class MyPresenter {
         @Override
         public synchronized void run() {
             if (hasPoint == null) {
-                Log.d(TAG, "ShowScoreRunnable.run.hasPoint is null.");
+                Log.d(TAG, "ShowScoreRunnable.run().hasPoint is null.");
                 showingScoreHandler.removeCallbacksAndMessages(null);
             } else {
                 final int twinkleCountDown = 5;
                 mCounter++;
+                Log.d(TAG, "ShowScoreRunnable.run().mCounter = " + mCounter);
                 if (mCounter <= twinkleCountDown) {
                     int md = mCounter % 2; // modulus
                     onProgressUpdate(md);
@@ -1094,8 +1110,11 @@ public class MyPresenter {
                         onProgressUpdate(3);    // show score
                         showingScoreHandler.postDelayed(this, 500);
                     } else {
-                        // showingScoreHandler.removeCallbacksAndMessages(null);
+                        showingScoreHandler.removeCallbacksAndMessages(null);
                         onProgressUpdate(4);    // dismiss showing message
+                        mGameProperties.getThreadCompleted()[1] = true;
+                        mGameProperties.setShowingScoreMessage(false);
+                        showScoreCallback.sCallback();
                     }
                 }
             }
