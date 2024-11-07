@@ -11,6 +11,7 @@ import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class LocalTop10Coroutine {
     companion object {
@@ -30,22 +31,25 @@ class LocalTop10Coroutine {
             }
         }
 
-        private fun getDataAndSendBack(context : Context) {
-            val playerNames = ArrayList<String>()
-            val playerScores = ArrayList<Int>()
-            ScoreSQLite(context).let {
-                PlayerRecordRest.GetLocalTop10(it, playerNames, playerScores)
-                it.close()
-            }
-            Intent(ACTION_NAME).let {
-                Bundle().apply {
-                    putStringArrayList(Constants.PlayerNamesKey, playerNames)
-                    putIntegerArrayList(Constants.PlayerScoresKey, playerScores)
-                    it.putExtras(this)
+        private suspend fun getDataAndSendBack(context : Context) {
+            withContext(Dispatchers.IO) {
+                Log.d(TAG, "getDataAndSendBack")
+                val playerNames = ArrayList<String>()
+                val playerScores = ArrayList<Int>()
+                ScoreSQLite(context).let {
+                    PlayerRecordRest.GetLocalTop10(it, playerNames, playerScores)
+                    it.close()
                 }
-                LocalBroadcastManager.getInstance(context).apply {
-                    Log.d(TAG, "getDataAndSendBack.sent result.")
-                    sendBroadcast(it)
+                Intent(ACTION_NAME).let {
+                    Bundle().apply {
+                        putStringArrayList(Constants.PlayerNamesKey, playerNames)
+                        putIntegerArrayList(Constants.PlayerScoresKey, playerScores)
+                        it.putExtras(this)
+                    }
+                    LocalBroadcastManager.getInstance(context).apply {
+                        Log.d(TAG, "getDataAndSendBack.sent result.")
+                        sendBroadcast(it)
+                    }
                 }
             }
         }
