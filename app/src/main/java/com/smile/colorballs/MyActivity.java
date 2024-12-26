@@ -504,10 +504,12 @@ public class MyActivity extends MyView {
 
     @Override
     public void showInterstitialAdAndNewGameOrQuit(final int entryPoint) {
+        /*  // remove showing a interstitialAd because of Google policy
         if (interstitialAd != null) {
             showAdThread = interstitialAd.new ShowAdThread();
             showAdThread.startShowAd(0);    // AdMob first
         }
+        */
         quitOrNewGame(entryPoint);
     }
 
