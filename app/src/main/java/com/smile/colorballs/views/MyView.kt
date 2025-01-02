@@ -28,7 +28,6 @@ abstract class MyView: AppCompatActivity(), PresentView {
     companion object {
         private const val TAG = "MyView"
         private const val GameOverDialogTag = "GameOverDialogFragmentTag"
-        private const val MaxSavedGames = 5
     }
 
     abstract fun showAdUntilDismissed()
@@ -78,6 +77,7 @@ abstract class MyView: AppCompatActivity(), PresentView {
     }
 
     override fun showSaveGameDialog() {
+        Log.d(TAG, "showSaveGameDialog")
         sureSaveDialog = AlertDialogFragment.newInstance(object : DialogButtonListener {
             override fun noButtonOnClick(dialogFragment: AlertDialogFragment) {
                 // cancel the action of saving game
@@ -90,29 +90,16 @@ abstract class MyView: AppCompatActivity(), PresentView {
                 dialogFragment.dismissAllowingStateLoss()
                 mPresenter.setShowingSureSaveDialog(false)
                 val numOfSaved: Int = mPresenter.readNumberOfSaved()
-                if (numOfSaved < MaxSavedGames) {
+                val msg =
                     if (mPresenter.startSavingGame(numOfSaved)) {
-                        ScreenUtil.showToast(
-                            this@MyView,
-                            getString(R.string.succeededSaveGameStr),
-                            textFontSize,
-                            ScreenUtil.FontSize_Pixel_Type,
-                            Toast.LENGTH_LONG
-                        )
+                        getString(R.string.succeededSaveGameStr)
                     } else {
-                        ScreenUtil.showToast(
-                            this@MyView,
-                            getString(R.string.failedSaveGameStr),
-                            textFontSize,
-                            ScreenUtil.FontSize_Pixel_Type,
-                            Toast.LENGTH_LONG
-                        )
+                        getString(R.string.failedSaveGameStr)
                     }
-                } else {
-                    // display warning to users
-                    // final int finalNumOfSaved = numOfSaved;
-                    showingWarningSaveGameDialog(numOfSaved)
-                }
+                ScreenUtil.showToast(
+                    this@MyView, msg, textFontSize,
+                    ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
+                showAdUntilDismissed()
             }
         })
         Bundle().apply {
@@ -127,55 +114,6 @@ abstract class MyView: AppCompatActivity(), PresentView {
             mPresenter.setShowingSureSaveDialog(true)
             sureSaveDialog.arguments = this
             sureSaveDialog.show(supportFragmentManager, "SureSaveDialogTag")
-        }
-    }
-
-    override fun showingWarningSaveGameDialog(finalNumOfSaved: Int) {
-        warningSaveGameDialog = AlertDialogFragment.newInstance(object : DialogButtonListener {
-            override fun noButtonOnClick(dialogFragment: AlertDialogFragment) {
-                dialogFragment.dismissAllowingStateLoss()
-                mPresenter.setShowingWarningSaveGameDialog(false)
-            }
-
-            override fun okButtonOnClick(dialogFragment: AlertDialogFragment) {
-                dialogFragment.dismissAllowingStateLoss()
-                mPresenter.setShowingWarningSaveGameDialog(false)
-                if (mPresenter.startSavingGame(finalNumOfSaved)) {
-                    ScreenUtil.showToast(
-                        this@MyView,
-                        getString(R.string.succeededSaveGameStr),
-                        textFontSize,
-                        ScreenUtil.FontSize_Pixel_Type,
-                        Toast.LENGTH_LONG
-                    )
-                } else {
-                    ScreenUtil.showToast(
-                        this@MyView,
-                        getString(R.string.failedSaveGameStr),
-                        textFontSize,
-                        ScreenUtil.FontSize_Pixel_Type,
-                        Toast.LENGTH_LONG
-                    )
-                }
-                showAdUntilDismissed()
-            }
-        })
-        val a1 = getString(R.string.warningSaveGameStr)
-        val a2 = getString(R.string.howManyTimesStr)
-        val a3 = getString(R.string.continueStr)
-        val warningString = "$a1 ($MaxSavedGames $a2)\n$a3?"
-        Bundle().apply {
-            putString(AlertDialogFragment.TextContentKey, warningString)
-            putInt(AlertDialogFragment.FontSizeScaleTypeKey, ScreenUtil.FontSize_Pixel_Type)
-            putFloat(AlertDialogFragment.TextFontSizeKey, textFontSize)
-            putInt(AlertDialogFragment.ColorKey, Color.BLUE)
-            putInt(AlertDialogFragment.WidthKey, 0) // wrap_content
-            putInt(AlertDialogFragment.HeightKey, 0) // wrap_content
-            putInt(AlertDialogFragment.NumButtonsKey, 2)
-            putBoolean(AlertDialogFragment.IsAnimationKey, false)
-            mPresenter.setShowingWarningSaveGameDialog(true)
-            warningSaveGameDialog.arguments = this
-            warningSaveGameDialog.show(supportFragmentManager, "SaveGameWarningDialogTag")
         }
     }
 

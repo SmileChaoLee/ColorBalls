@@ -10,7 +10,6 @@ interface PresentView {
     fun dismissShowMessageOnScreen()
     fun showSaveScoreAlertDialog(entryPoint: Int, score: Int)
     fun showSaveGameDialog()
-    fun showingWarningSaveGameDialog(finalNumOfSaved: Int)
     fun showLoadGameDialog()
     fun showGameOverDialog()
 }

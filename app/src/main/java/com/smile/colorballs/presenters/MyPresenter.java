@@ -230,10 +230,6 @@ public class MyPresenter {
             Log.d(TAG, "initializeColorBallsGame.isShowingSureSaveDialog()");
             saveGame();
         }
-        if (mGameProperties.isShowingWarningSaveGameDialog()) {
-            Log.d(TAG, "initializeColorBallsGame.isShowingWarningSaveGameDialog()");
-            mPresentView.showingWarningSaveGameDialog(readNumberOfSaved());
-        }
         if (mGameProperties.isShowingSureLoadDialog()) {
             Log.d(TAG, "initializeColorBallsGame.isShowingSureLoadDialog()");
             loadGame();
