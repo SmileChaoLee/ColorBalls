@@ -30,5 +30,5 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.facebook.android:audience-network-sdk:6.16.0'
-    implementation 'com.google.firebase:firebase-ads:23.5.0'
+    implementation 'com.google.firebase:firebase-ads:23.6.0'
 }

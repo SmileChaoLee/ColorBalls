@@ -23,8 +23,8 @@ android {
         targetSdk 35
         multiDexEnabled true
 
-        versionCode 7001
-        versionName "7.001"
+        versionCode 7100
+        versionName "7.100"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         signingConfig signingConfigs.config
@@ -39,8 +39,7 @@ android {
     }
     
     buildFeatures  {
-        // viewBinding true
-        dataBinding true
+        dataBinding true    // viewBinding true
         buildConfig true
     }
 
@@ -91,7 +90,7 @@ dependencies {
     implementation 'com.facebook.android:audience-network-sdk:6.16.0'
     implementation 'com.facebook.infer.annotation:infer-annotation:0.18.0'
     implementation 'com.google.firebase:firebase-core:21.1.1'
-    implementation 'com.google.firebase:firebase-ads:23.5.0'
+    implementation 'com.google.firebase:firebase-ads:23.6.0'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.core:core-ktx:1.15.0'
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")

@@ -17,6 +17,7 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.core.os.BundleCompat;
 
 import com.smile.colorballs.ColorBallsApp;
 import com.smile.colorballs.Constants;
@@ -156,7 +157,8 @@ public class MyPresenter {
         } else {
             Log.d(TAG, "initializeColorBallsGame.Configuration changed and restore the original UI.");
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {    // API 33
-                mGameProperties = savedInstanceState.getParcelable(GamePropertiesTag, GameProperties.class);
+                mGameProperties = BundleCompat.getParcelable(savedInstanceState,
+                        GamePropertiesTag, GameProperties.class);
             } else mGameProperties = savedInstanceState.getParcelable(GamePropertiesTag);
             if (mGameProperties != null) {
                 mGridData = mGameProperties.getGridData();
