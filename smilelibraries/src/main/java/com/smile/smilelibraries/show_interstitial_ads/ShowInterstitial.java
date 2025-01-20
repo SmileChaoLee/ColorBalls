@@ -18,6 +18,7 @@ public class ShowInterstitial {
     private boolean succeededAdMob = false;
     private boolean succeededFacebook = false;
     private boolean finishedPreviousStep = false;
+    private DismissFunction mDismissFunction = null;
 
     public ShowInterstitial(Activity activity, FacebookInterstitial facebookAd, AdMobInterstitial adMobAd) {
         this.mActivity = activity;
@@ -50,8 +51,9 @@ public class ShowInterstitial {
         }
 
         public ShowAdThread(DismissFunction dismissFunction) {
-            if (adMobAd != null) adMobAd.setDismissFunc(dismissFunction);
-            if (facebookAd != null) facebookAd.setDismissFunc(dismissFunction);
+            mDismissFunction = dismissFunction;
+            if (adMobAd != null) adMobAd.setDismissFunc(mDismissFunction);
+            if (facebookAd != null) facebookAd.setDismissFunc(mDismissFunction);
             isAdShown = false;
         }
 
@@ -62,8 +64,9 @@ public class ShowInterstitial {
 
             mActivity.runOnUiThread(() -> {
                 synchronized (synchronizedHandler) {
+                    Log.d(TAG, "showOneAd().synchronized.synchronizedHandler");
                     try {
-                        Log.d(TAG, "showOneAd.Start showing");
+                        Log.d(TAG, "showOneAd().showOneAd.Start showing");
                         succeededAdMob = false;
                         succeededFacebook = false;
                         if (provider == 0) {
@@ -99,6 +102,7 @@ public class ShowInterstitial {
             synchronized (synchronizedHandler) {
                 while (!finishedPreviousStep) {
                     try {
+                        Log.d(TAG, "showOneAd.synchronizedHandler.wait()");
                         synchronizedHandler.wait();
                     } catch (InterruptedException e) {
                         Log.d(TAG, "showOneAd.synchronizedHandler.exception");
@@ -108,7 +112,7 @@ public class ShowInterstitial {
             }
 
             Log.d(TAG, "showOneAd.succeededAdMob = " + succeededAdMob +
-                    ", succeededFacebook= " + succeededFacebook);
+                    ", succeededFacebook = " + succeededFacebook);
 
             return (succeededAdMob || succeededFacebook);
         }
@@ -124,6 +128,7 @@ public class ShowInterstitial {
             }
             return hasAdMob;
         }
+
         private boolean showFacebook() {
             boolean hasFacebook = false;
             if (facebookAd != null) {
@@ -143,11 +148,17 @@ public class ShowInterstitial {
 
         private synchronized void doInBackground() {
             Log.d(TAG, "ShowAdThread.doInBackground.");
+            if (mDismissFunction != null) {
+                mDismissFunction.backgroundWork();
+            }
         }
 
         private synchronized void onPostExecute() {
             Log.d(TAG, "ShowAdThread.onPostExecute.succeededFacebook = " + succeededFacebook +
                     ", succeededAdMob = " + succeededAdMob);
+            if (mDismissFunction != null) {
+                mDismissFunction.afterFinished(isAdShown);
+            }
         }
 
         public void startShowAd(int provider) {
