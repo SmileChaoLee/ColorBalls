@@ -32,7 +32,7 @@ public class ShowInterstitial {
         }
     }
 
-    public void close() {
+    private void close() {
         try {
             if (facebookAd != null) {
                 facebookAd.close();
