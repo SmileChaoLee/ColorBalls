@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.ToggleButton
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.databinding.ActivitySettingBinding
 import com.smile.smilelibraries.utilities.ScreenUtil
 import com.smile.colorballs.models.EnvSetting
@@ -31,9 +32,9 @@ class SettingActivity : AppCompatActivity() {
             0.0f
         )
         intent.extras?.let {
-            envSetting.hasSound = it.getBoolean(Constants.HasSoundKey, true)
-            envSetting.easyLevel = it.getBoolean(Constants.IsEasyLevelKey, true)
-            envSetting.hasNextBall = it.getBoolean(Constants.HasNextBallKey, true)
+            envSetting.hasSound = it.getBoolean(Constants.HAS_SOUND, true)
+            envSetting.easyLevel = it.getBoolean(Constants.IS_EASY_LEVEL, true)
+            envSetting.hasNextBall = it.getBoolean(Constants.HAS_NEXT_BALL, true)
         }
 
         // setContentView(R.layout.activity_setting)
@@ -112,9 +113,9 @@ class SettingActivity : AppCompatActivity() {
     private fun returnToPrevious(confirmed: Boolean) {
         Intent().let {
             Bundle().apply {
-                putBoolean(Constants.HasSoundKey, envSetting.hasSound)
-                putBoolean(Constants.IsEasyLevelKey, envSetting.easyLevel)
-                putBoolean(Constants.HasNextBallKey, envSetting.hasNextBall)
+                putBoolean(Constants.HAS_SOUND, envSetting.hasSound)
+                putBoolean(Constants.IS_EASY_LEVEL, envSetting.easyLevel)
+                putBoolean(Constants.HAS_NEXT_BALL, envSetting.hasNextBall)
                 it.putExtras(this)
             }
             setResult(if (confirmed) RESULT_OK else RESULT_CANCELED,

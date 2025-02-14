@@ -44,6 +44,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.smile.colorballs.constants.Constants;
 import com.smile.colorballs.services.GlobalTop10Service;
 import com.smile.colorballs.services.LocalTop10Service;
 import com.smile.colorballs.views.MyView;
@@ -62,7 +63,6 @@ public class MyActivity extends MyView {
     // private properties
     private static final String TAG = "MyActivity";
     private static final String Top10FragmentTag = "Top10FragmentTag";
-    private ShowInterstitial interstitialAd;
     private float fontScale;
     private float screenWidth;
     private float screenHeight;
@@ -75,23 +75,19 @@ public class MyActivity extends MyView {
     private GoogleAdMobNativeTemplate nativeTemplate;
     private SetBannerAdView myBannerAdView;
     private SetBannerAdView myBannerAdView2;
-    private ShowInterstitial.ShowAdThread showAdThread = null;
-    private int rowCounts = 9;
-    private int colCounts = 9;
     private ActivityResultLauncher<Intent> settingLauncher;
-    private ActivityResultLauncher<Intent> localTop10Launcher;
+    private ActivityResultLauncher<Intent> top10Launcher;
+    private ShowInterstitial interstitialAd = null;
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate() is called");
-
         mPresenter = new MyPresenter(this);
-
+        ColorBallsApp application = (ColorBallsApp)getApplication();
+        interstitialAd = new ShowInterstitial(this, application.facebookAds,
+                    application.googleInterstitialAd);
         super.onCreate(savedInstanceState);
-
-        ColorBallsApp application = (ColorBallsApp) getApplication();
-        interstitialAd = new ShowInterstitial(this, application.facebookAds, application.googleInterstitialAd);
 
         if (!BuildConfig.DEBUG) {
             if (ScreenUtil.isTablet(this)) {
@@ -123,23 +119,23 @@ public class MyActivity extends MyView {
                         if (data == null) return;
                         Bundle extras = data.getExtras();
                         if (extras != null) {
-                            boolean hasSound = extras.getBoolean(Constants.HasSoundKey);
+                            boolean hasSound = extras.getBoolean(Constants.HAS_SOUND);
                             mPresenter.setHasSound(hasSound);
-                            boolean isEasyLevel = extras.getBoolean(Constants.IsEasyLevelKey);
+                            boolean isEasyLevel = extras.getBoolean(Constants.IS_EASY_LEVEL);
                             mPresenter.setEasyLevel(isEasyLevel);
-                            boolean hasNextBall = extras.getBoolean(Constants.HasNextBallKey);
+                            boolean hasNextBall = extras.getBoolean(Constants.HAS_NEXT_BALL);
                             mPresenter.setHasNextBall(hasNextBall, true);
                         }
                     }
                     ColorBallsApp.isProcessingJob = false;  // setting activity finished
                 });
-        localTop10Launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+        top10Launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    Log.d(TAG, "localTop10Launcher.result received");
+                    Log.d(TAG, "top10Launcher.result received");
                     int resultCode = result.getResultCode();
                     if (resultCode == Activity.RESULT_OK) {
-                        Log.d(TAG, "localTop10Launcher.Showing interstitial ads");
-                        showAdUntilDismissed();   // removed for testing
+                        Log.d(TAG, "top10Launcher.Showing interstitial ads");
+                        showInterstitialAd();
                     }
                     ColorBallsApp.isShowingLoadingMessage = false;
                     ColorBallsApp.isProcessingJob = false;
@@ -188,9 +184,9 @@ public class MyActivity extends MyView {
             ColorBallsApp.isProcessingJob = true;    // started procession job
             Intent intent = new Intent(this, SettingActivity.class);
             Bundle extras = new Bundle();
-            extras.putBoolean(Constants.HasSoundKey, mPresenter.hasSound());
-            extras.putBoolean(Constants.IsEasyLevelKey, mPresenter.isEasyLevel());
-            extras.putBoolean(Constants.HasNextBallKey, mPresenter.hasNextBall());
+            extras.putBoolean(Constants.HAS_SOUND, mPresenter.hasSound());
+            extras.putBoolean(Constants.IS_EASY_LEVEL, mPresenter.isEasyLevel());
+            extras.putBoolean(Constants.HAS_NEXT_BALL, mPresenter.hasNextBall());
             intent.putExtras(extras);
             settingLauncher.launch(intent);
         } else if (id == R.id.saveGame) {
@@ -269,14 +265,12 @@ public class MyActivity extends MyView {
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy() is called");
-
         if (mPresenter != null) {
             mPresenter.release();
         }
-
+        if (interstitialAd != null) interstitialAd.releaseInterstitial();
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.unregisterReceiver(myReceiver);
-
         if (myBannerAdView != null) {
             myBannerAdView.pause();
             myBannerAdView.destroy();
@@ -290,32 +284,18 @@ public class MyActivity extends MyView {
         if (nativeTemplate != null) {
             nativeTemplate.release();
         }
-        if (interstitialAd != null) {
-            interstitialAd.close();
-            interstitialAd = null;
-        }
-
-        if (showAdThread != null) {
-            // avoiding memory leak
-            showAdThread.releaseInterstitial();
-        }
-
         if (sureSaveDialog != null) {
             sureSaveDialog.dismissAllowingStateLoss();
         }
-
         if (warningSaveGameDialog != null) {
             warningSaveGameDialog.dismissAllowingStateLoss();
         }
-
         if (sureLoadDialog != null) {
             sureLoadDialog.dismissAllowingStateLoss();
         }
-
         if (gameOverDialog != null) {
             gameOverDialog.dismissAllowingStateLoss();
         }
-
         super.onDestroy();
     }
 
@@ -405,8 +385,8 @@ public class MyActivity extends MyView {
 
         // for 9 x 9 grid: main part of this game
         GridLayout gridCellsLayout = findViewById(id.gridCellsLayout);
-        rowCounts = gridCellsLayout.getRowCount();
-        colCounts = gridCellsLayout.getColumnCount();
+        int rowCounts = gridCellsLayout.getRowCount();
+        int colCounts = gridCellsLayout.getColumnCount();
 
         cellWidth = (int) (mainGameViewWidth / colCounts);
         Log.d(TAG, "cellWidth = " + cellWidth);
@@ -491,7 +471,17 @@ public class MyActivity extends MyView {
         pBtn.setLayoutParams(layoutParams);
     }
 
-    private void quitOrNewGame(final int entryPoint) {
+    @Override
+    public void showInterstitialAd() {
+        Log.d(TAG, "showInterstitialAd = " + interstitialAd);
+        if (interstitialAd == null) {
+            return;
+        }
+        interstitialAd.new ShowAdThread().startShowAd(0);    // AdMob first
+    }
+
+    @Override
+    public void quitOrNewGame(final int entryPoint) {
         if (entryPoint==0) {
             //  END PROGRAM
             exitApplication();
@@ -500,17 +490,6 @@ public class MyActivity extends MyView {
             createColorBallsGame(null);
         }
         ColorBallsApp.isProcessingJob = false;
-    }
-
-    @Override
-    public void showInterstitialAdAndNewGameOrQuit(final int entryPoint) {
-        /*  // remove showing a interstitialAd because of Google policy
-        if (interstitialAd != null) {
-            showAdThread = interstitialAd.new ShowAdThread();
-            showAdThread.startShowAd(0);    // AdMob first
-        }
-        */
-        quitOrNewGame(entryPoint);
     }
 
     private void showTop10ScoreHistory(boolean isLocal) {
@@ -524,7 +503,7 @@ public class MyActivity extends MyView {
             LocalTop10Coroutine.Companion.getLocalTop10(getApplicationContext());
         } else {
             myIntent = new Intent(this, GlobalTop10Service.class);
-            myIntent.putExtra(Constants.GameIdString, "1");
+            myIntent.putExtra(Constants.GAME_ID_STRING, "1");
             startService(myIntent);
         }
     }
@@ -588,15 +567,6 @@ public class MyActivity extends MyView {
         handlerClose.postDelayed(this::finish,timeDelay);
     }
 
-    @Override
-    public void showAdUntilDismissed() {
-        if (interstitialAd == null) {
-            return;
-        }
-        showAdThread = interstitialAd.new ShowAdThread();
-        showAdThread.startShowAd(0);    // AdMob first
-    }
-
     private class MyBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -616,8 +586,8 @@ public class MyActivity extends MyView {
                 }
                 extras = intent.getExtras();
                 if (extras != null) {
-                    playerNames = extras.getStringArrayList(Constants.PlayerNamesKey);
-                    playerScores = extras.getIntegerArrayList(Constants.PlayerScoresKey);
+                    playerNames = extras.getStringArrayList(Constants.PLAYER_NAMES);
+                    playerScores = extras.getIntegerArrayList(Constants.PLAYER_SCORES);
                 }
                 if (playerNames == null || playerScores == null) {
                     playerNames = new ArrayList<>();
@@ -641,7 +611,7 @@ public class MyActivity extends MyView {
                                         ft.remove(top10Fragment);
                                         // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
                                         ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-                                        showAdUntilDismissed();
+                                        showInterstitialAd();
                                     }
                                 });
                         FragmentManager fmManager = getSupportFragmentManager();
@@ -661,11 +631,11 @@ public class MyActivity extends MyView {
                     top10Fragment = null;
                     Intent top10Intent = new Intent(getApplicationContext(), Top10Activity.class);
                     Bundle top10Extras = new Bundle();
-                    top10Extras.putString(Constants.Top10TitleNameKey, top10ScoreTitle);
-                    top10Extras.putStringArrayList(Constants.Top10PlayersKey, playerNames);
-                    top10Extras.putIntegerArrayList(Constants.Top10ScoresKey, playerScores);
+                    top10Extras.putString(Constants.TOP10_TITLE_NAME, top10ScoreTitle);
+                    top10Extras.putStringArrayList(Constants.TOP10_PLAYERS, playerNames);
+                    top10Extras.putIntegerArrayList(Constants.TOP10_SCORES, playerScores);
                     top10Intent.putExtras(top10Extras);
-                    localTop10Launcher.launch(top10Intent);
+                    top10Launcher.launch(top10Intent);
                 }
                 dismissShowMessageOnScreen();
             }

@@ -5,7 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.smile.colorballs.Constants
+import com.smile.colorballs.constants.Constants
 import com.smile.smilelibraries.player_record_rest.PlayerRecordRest
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 import kotlinx.coroutines.CoroutineScope
@@ -42,8 +42,8 @@ class LocalTop10Coroutine {
                 }
                 Intent(ACTION_NAME).let {
                     Bundle().apply {
-                        putStringArrayList(Constants.PlayerNamesKey, playerNames)
-                        putIntegerArrayList(Constants.PlayerScoresKey, playerScores)
+                        putStringArrayList(Constants.PLAYER_NAMES, playerNames)
+                        putIntegerArrayList(Constants.PLAYER_SCORES, playerScores)
                         it.putExtras(this)
                     }
                     LocalBroadcastManager.getInstance(context).apply {

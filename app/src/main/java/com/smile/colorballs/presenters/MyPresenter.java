@@ -20,7 +20,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.os.BundleCompat;
 
 import com.smile.colorballs.ColorBallsApp;
-import com.smile.colorballs.Constants;
+import com.smile.colorballs.constants.Constants;
 import com.smile.colorballs.R;
 import com.smile.colorballs.interfaces.PresentView;
 import com.smile.colorballs.models.GameProperties;
@@ -362,7 +362,7 @@ public class MyPresenter {
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("PlayerName", playerName);
                     jsonObject.put("Score", score);
-                    jsonObject.put("GameId", Constants.GameId);
+                    jsonObject.put("GameId", Constants.GAME_ID);
                     PlayerRecordRest.addOneRecord(jsonObject);
                     Log.d(TAG, "saveScore.Succeeded to add one record to remote.");
                 } catch (Exception ex) {

@@ -42,6 +42,11 @@ public class ShowInterstitial {
         }
     }
 
+    public void releaseInterstitial() {
+        Log.d(TAG, "ShowInterstitial.releaseInterstitial()");
+        close();
+    }
+
     public class ShowAdThread extends Thread {
         private boolean isAdShown;
         private int provider = 0;   // AdMob first
@@ -166,11 +171,6 @@ public class ShowInterstitial {
             Log.d(TAG, "ShowAdThread.startShowAd()");
             this.provider = provider;
             start();
-        }
-
-        public void releaseInterstitial() {
-            Log.d(TAG, "ShowAdThread.releaseInterstitial()");
-            close();
         }
 
         @Override

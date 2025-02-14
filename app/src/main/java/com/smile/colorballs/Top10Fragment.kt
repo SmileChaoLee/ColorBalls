@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.fragment.app.Fragment
+import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.databinding.FragmentTop10Binding
 import com.smile.colorballs.databinding.Top10ScoreListItemsBinding
 import com.smile.colorballs.models.Player
@@ -70,17 +71,16 @@ class Top10Fragment : Fragment {
             Log.d(TAG, "onCreate.new Fragment instance")
             Log.d(TAG, "onCreate.arguments = $arguments")
             arguments?.apply {
-                getString(Constants.Top10TitleNameKey)?.let { nameIt ->
+                getString(Constants.TOP10_TITLE_NAME)?.let { nameIt ->
                     top10TitleName = nameIt
                 }
-                getStringArrayList(Constants.Top10PlayersKey)?.let { listIt ->
+                getStringArrayList(Constants.TOP10_PLAYERS)?.let { listIt ->
                     top10Players = listIt
                 }
-                getIntegerArrayList(Constants.Top10ScoresKey)?.let { listIt ->
+                getIntegerArrayList(Constants.TOP10_SCORES)?.let { listIt ->
                     top10Scores = listIt
                 }
             }
-
             medalImageIds.clear()
             medalImageIds.add(R.drawable.gold_medal)
             medalImageIds.add(R.drawable.silver_medal)
@@ -200,9 +200,9 @@ class Top10Fragment : Fragment {
             listener: Top10OkButtonListener
         ): Top10Fragment {
             val args = Bundle().apply {
-                putString(Constants.Top10TitleNameKey, top10Title)
-                putStringArrayList(Constants.Top10PlayersKey, playerNames)
-                putIntegerArrayList(Constants.Top10ScoresKey, playerScores)
+                putString(Constants.TOP10_TITLE_NAME, top10Title)
+                putStringArrayList(Constants.TOP10_PLAYERS, playerNames)
+                putIntegerArrayList(Constants.TOP10_SCORES, playerScores)
             }
             Log.d(TAG, "newInstance.")
             return Top10Fragment(listener).apply {

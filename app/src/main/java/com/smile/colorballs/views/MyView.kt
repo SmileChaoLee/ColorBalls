@@ -27,11 +27,11 @@ abstract class MyView: AppCompatActivity(), PresentView {
 
     companion object {
         private const val TAG = "MyView"
-        private const val GameOverDialogTag = "GameOverDialogFragmentTag"
+        private const val GAME_OVER_DIALOG = "GameOverDialogFragment"
     }
 
-    abstract fun showAdUntilDismissed()
-    abstract fun showInterstitialAdAndNewGameOrQuit(entryPoint: Int)
+    abstract fun showInterstitialAd()
+    abstract fun quitOrNewGame(entryPoint: Int)
     abstract fun setDialogStyle(dialog: DialogInterface)
 
     protected var textFontSize = 0f
@@ -58,13 +58,10 @@ abstract class MyView: AppCompatActivity(), PresentView {
         currentScoreTextView.text = String.format(Locale.getDefault(), "%8d", score)
     }
 
-    override fun showMessageOnScreen(messageString: String) {
+    override fun showMessageOnScreen(message: String) {
         BitmapFactory.decodeResource(resources, R.drawable.dialog_board_image).let {
             FontAndBitmapUtil.getBitmapFromBitmapWithText(
-                it,
-                messageString,
-                Color.RED
-            ).apply {
+                it, message, Color.RED).apply {
                 scoreImageView.visibility = View.VISIBLE
                 scoreImageView.setImageBitmap(this)
             }
@@ -96,10 +93,9 @@ abstract class MyView: AppCompatActivity(), PresentView {
                     } else {
                         getString(R.string.failedSaveGameStr)
                     }
-                ScreenUtil.showToast(
-                    this@MyView, msg, textFontSize,
+                ScreenUtil.showToast(this@MyView, msg, textFontSize,
                     ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
-                showAdUntilDismissed()
+                showInterstitialAd()
             }
         })
         Bundle().apply {
@@ -190,7 +186,7 @@ abstract class MyView: AppCompatActivity(), PresentView {
             putBoolean(AlertDialogFragment.IsAnimationKey, false)
             mPresenter.setShowingGameOverDialog(true)
             gameOverDialog.arguments = this
-            gameOverDialog.show(supportFragmentManager, GameOverDialogTag)
+            gameOverDialog.show(supportFragmentManager, GAME_OVER_DIALOG)
             Log.d(TAG, "gameOverDialog.show() has been called.")
         }
     }
@@ -211,7 +207,7 @@ abstract class MyView: AppCompatActivity(), PresentView {
             getString(R.string.cancelStr)
         ) { dialog: DialogInterface, _: Int ->
             dialog.dismiss()
-            showInterstitialAdAndNewGameOrQuit(entryPoint)
+            quitOrNewGame(entryPoint)
             mPresenter.setSaveScoreAlertDialogState(entryPoint, false)
             // saveScoreAlertDialog = null
         }
@@ -220,7 +216,7 @@ abstract class MyView: AppCompatActivity(), PresentView {
         ) { dialog: DialogInterface, _: Int ->
             mPresenter.saveScore(et.text.toString(), score)
             dialog.dismiss()
-            showInterstitialAdAndNewGameOrQuit(entryPoint)
+            quitOrNewGame(entryPoint)
             mPresenter.setSaveScoreAlertDialogState(entryPoint, false)
             // saveScoreAlertDialog = null
         }

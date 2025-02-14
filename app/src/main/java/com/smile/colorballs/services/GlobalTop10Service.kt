@@ -7,7 +7,7 @@ import android.os.IBinder
 import android.os.SystemClock
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.smile.colorballs.Constants
+import com.smile.colorballs.constants.Constants
 import com.smile.smilelibraries.player_record_rest.PlayerRecordRest
 
 class GlobalTop10Service : Service() {
@@ -24,7 +24,7 @@ class GlobalTop10Service : Service() {
     private fun getDataAndSendBack(intent: Intent) {
         val playerNames = ArrayList<String>()
         val playerScores = ArrayList<Int>()
-        val gameId = intent.getStringExtra(Constants.GameIdString)
+        val gameId = intent.getStringExtra(Constants.GAME_ID_STRING)
         val lock = Object()
         val getDataThread = Thread {
             SystemClock.sleep(100)

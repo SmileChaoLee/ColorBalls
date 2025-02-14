@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.smile.colorballs.Constants
+import com.smile.colorballs.constants.Constants
 import com.smile.smilelibraries.player_record_rest.PlayerRecordRest
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 
@@ -31,8 +31,8 @@ class LocalTop10Service : Service() {
         }
         Intent(ACTION_NAME).let {
             Bundle().apply {
-                putStringArrayList(Constants.PlayerNamesKey, playerNames)
-                putIntegerArrayList(Constants.PlayerScoresKey, playerScores)
+                putStringArrayList(Constants.PLAYER_NAMES, playerNames)
+                putIntegerArrayList(Constants.PLAYER_SCORES, playerScores)
                 it.putExtras(this)
             }
             LocalBroadcastManager.getInstance(applicationContext).apply {

@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.smile.colorballs.Top10Fragment.Top10OkButtonListener
+import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.databinding.ActivityTop10Binding
 
 class Top10Activity : AppCompatActivity() {
@@ -20,13 +21,13 @@ class Top10Activity : AppCompatActivity() {
         var top10Players: ArrayList<String> = ArrayList()
         var top10Scores: ArrayList<Int> = ArrayList()
         intent.extras?.let {
-            it.getString(Constants.Top10TitleNameKey)?.let { nameIt ->
+            it.getString(Constants.TOP10_TITLE_NAME)?.let { nameIt ->
                 top10TitleName = nameIt
             }
-            it.getStringArrayList(Constants.Top10PlayersKey)?.let { listIt ->
+            it.getStringArrayList(Constants.TOP10_PLAYERS)?.let { listIt ->
                 top10Players = listIt
             }
-            it.getIntegerArrayList(Constants.Top10ScoresKey)?.let { listIt ->
+            it.getIntegerArrayList(Constants.TOP10_SCORES)?.let { listIt ->
                 top10Scores = listIt
             }
         }
@@ -36,9 +37,11 @@ class Top10Activity : AppCompatActivity() {
                 top10TitleName, top10Players, top10Scores,
                 object : Top10OkButtonListener {
                     override fun buttonOkClick(activity: Activity?) {
-                        Log.d(TAG, "Top10OkButtonListener")
-                        setResult(RESULT_OK)
-                        activity?.finish()
+                        Log.d(TAG, "Top10OkButtonListener.buttonOkClick")
+                        activity?.let {
+                            setResult(RESULT_OK)
+                            it.finish()
+                        }
                     }
                 }
             )
