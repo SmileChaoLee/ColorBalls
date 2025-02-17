@@ -48,7 +48,7 @@ public class AdMobInterstitial {
             loadAd();   // load next ad
             if (mDismissFunction != null) {
                 mDismissFunction.executeDismiss();
-                mDismissFunction = null;    // one time only
+                // mDismissFunction = null;    // one time only
             }
         }
 
