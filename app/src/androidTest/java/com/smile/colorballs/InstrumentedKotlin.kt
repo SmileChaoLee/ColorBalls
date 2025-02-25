@@ -28,9 +28,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-
 @RunWith(AndroidJUnit4::class)
 class InstrumentedKotlin {
+    private var appContext: Context? = null
     private var scenario: ActivityScenario<MyActivity>? = null
     private val oneSecond = 1000 // 1 second
     private val threeSeconds = 3000 // 3 seconds
@@ -44,9 +44,10 @@ class InstrumentedKotlin {
 
     @Before
     fun test_PreRun() {
+        Log.d(TAG, "Setting up before each test case.")
+        appContext = ApplicationProvider.getApplicationContext()
         scenario = myActivityScenarioRule.scenario
         Espresso.closeSoftKeyboard()
-        Log.d(TAG, "Setting up before each test case.")
     }
 
     @Test
@@ -231,14 +232,6 @@ class InstrumentedKotlin {
         alertDialog()
         SystemClock.sleep(threeSeconds.toLong())
         Espresso.closeSoftKeyboard()
-
-        // onView(withText(R.string.cancelStr)).perform(click());
-
-        // SystemClock.sleep(2000);
-
-        // After that, press back button to go back
-        // UiDevice mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-        // mDevice.pressBack();
     }
 
     @Test
@@ -268,12 +261,10 @@ class InstrumentedKotlin {
 
     companion object {
         private const val TAG = "InstrumentedKotlin"
-        private var appContext: Context? = null
 
         @JvmStatic
         @BeforeClass
         fun test_Setup() {
-            appContext = ApplicationProvider.getApplicationContext()
             Log.d(TAG, "Initializing before all test cases. One time running.")
         }
 

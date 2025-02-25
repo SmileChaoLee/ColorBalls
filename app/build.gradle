@@ -73,6 +73,12 @@ android {
         freeCompilerArgs = ['-Xjvm-default=all']
     }
 
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+
     namespace 'com.smile.colorballs'
     testNamespace 'com.smile.colorballs.androidTest'
 }
@@ -94,7 +100,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
-    implementation 'com.facebook.android:audience-network-sdk:6.18.0'
+    implementation 'com.facebook.android:audience-network-sdk:6.19.0'
     implementation 'com.facebook.infer.annotation:infer-annotation:0.18.0'
     implementation 'com.google.firebase:firebase-core:21.1.1'
     implementation 'com.google.firebase:firebase-ads:23.6.0'
@@ -107,6 +113,8 @@ dependencies {
     implementation project(':NativeTemplatesModels')
 
     testImplementation 'junit:junit:4.13.2'
+    testImplementation('org.robolectric:robolectric:4.14.1')
+
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test:rules:1.6.1'
     androidTestImplementation 'androidx.test.ext:truth:1.6.0'
