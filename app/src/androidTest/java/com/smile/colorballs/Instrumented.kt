@@ -4,6 +4,8 @@ import android.content.Context
 import android.os.SystemClock
 import android.util.Log
 import androidx.appcompat.widget.MenuPopupWindow.MenuDropDownListView
+import androidx.lifecycle.Lifecycle.*
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onData
@@ -30,25 +32,41 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class Instrumented {
     private var appContext: Context? = null
+    private var scenario: ActivityScenario<MyActivity>? = null
     private val oneSecond = 1000 // 1 second
     private val threeSeconds = 3000 // 3 seconds
     private val fiveSeconds = 5000 // 5 seconds
 
+    /*
     // This rule will be run  before each test case
+    // Automatically starts MyActivity before each test case
+    // and destroys and close it after each test case
     @get:Rule
     var myActivityScenarioRule
             : ActivityScenarioRule<MyActivity> = ActivityScenarioRule(MyActivity::class.java)
+    */
 
     @Before
     fun test_PreRun() {
         Log.d(TAG, "Setting up before each test case.")
-        appContext = ApplicationProvider.getApplicationContext()
-        val scenario = myActivityScenarioRule.scenario
+        scenario = ActivityScenario.launch(MyActivity::class.java)
+        // scenario = myActivityScenarioRule.scenario
+        scenario?.moveToState(State.RESUMED)    // no need in this case but no harm
         Espresso.closeSoftKeyboard()
+    }
+
+    @After
+    fun test_PostRun() {
+        Log.d(TAG, "Cleaning up after each test case.")
+        scenario?.apply {
+            moveToState(State.DESTROYED)
+            close()
+        }
     }
 
     @Test
     fun test_PackageNameForColorBalls() {
+        appContext = ApplicationProvider.getApplicationContext()
         Assert.assertEquals(PACKAGE_NAME, appContext!!.packageName)
     }
 
@@ -250,38 +268,20 @@ class Instrumented {
         Espresso.pressBack()
     }
 
-    @After
-    fun test_PostRun() {
-        Log.d(TAG, "Cleaning up after each test case.")
-    }
-
     companion object {
         private const val TAG = "Instrumented"
         private const val PACKAGE_NAME = "com.smile.colorballs"
-        // private lateinit var scenario: ActivityScenario<MyActivity>
 
         @JvmStatic
         @BeforeClass
         fun test_Setup() {
-            Log.d(TAG, "Initializing before all test cases. One time running.")
-            /* has timing bug, do not use now
-            ActivityScenario.launch(MyActivity::class.java).use {
-                scenario = it
-                scenario.onActivity { activity ->
-                    Assert.assertEquals(PACKAGE_NAME, activity.packageName)
-                }
-            }
-            */
+            Log.d(TAG, "test_Setup.Initializing before all test cases. One time running.")
         }
 
         @JvmStatic
         @AfterClass
         fun test_CleanUp() {
             Log.d(TAG, "Cleaning up after all test cases. One time running.")
-            /*
-            scenario.moveToState(Lifecycle.State.DESTROYED)
-            scenario.close()
-            */
         }
     }
 }
