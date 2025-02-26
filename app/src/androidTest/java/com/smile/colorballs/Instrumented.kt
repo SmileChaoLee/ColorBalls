@@ -4,11 +4,10 @@ import android.content.Context
 import android.os.SystemClock
 import android.util.Log
 import androidx.appcompat.widget.MenuPopupWindow.MenuDropDownListView
-import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.onData
+import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers
@@ -29,15 +28,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class InstrumentedKotlin {
+class Instrumented {
     private var appContext: Context? = null
-    private var scenario: ActivityScenario<MyActivity>? = null
     private val oneSecond = 1000 // 1 second
     private val threeSeconds = 3000 // 3 seconds
     private val fiveSeconds = 5000 // 5 seconds
 
-    // do use the following because AndroidJUnit4.class is deprecated
-    // start using androidx.test.ext.junit.runners.AndroidJUnit4;
+    // This rule will be run  before each test case
     @get:Rule
     var myActivityScenarioRule
             : ActivityScenarioRule<MyActivity> = ActivityScenarioRule(MyActivity::class.java)
@@ -46,14 +43,13 @@ class InstrumentedKotlin {
     fun test_PreRun() {
         Log.d(TAG, "Setting up before each test case.")
         appContext = ApplicationProvider.getApplicationContext()
-        scenario = myActivityScenarioRule.scenario
+        val scenario = myActivityScenarioRule.scenario
         Espresso.closeSoftKeyboard()
     }
 
     @Test
     fun test_PackageNameForColorBalls() {
-        Assert.assertEquals("com.smile.colorballs",
-            appContext!!.packageName)
+        Assert.assertEquals(PACKAGE_NAME, appContext!!.packageName)
     }
 
     @Test
@@ -260,18 +256,32 @@ class InstrumentedKotlin {
     }
 
     companion object {
-        private const val TAG = "InstrumentedKotlin"
+        private const val TAG = "Instrumented"
+        private const val PACKAGE_NAME = "com.smile.colorballs"
+        // private lateinit var scenario: ActivityScenario<MyActivity>
 
         @JvmStatic
         @BeforeClass
         fun test_Setup() {
             Log.d(TAG, "Initializing before all test cases. One time running.")
+            /* has timing bug, do not use now
+            ActivityScenario.launch(MyActivity::class.java).use {
+                scenario = it
+                scenario.onActivity { activity ->
+                    Assert.assertEquals(PACKAGE_NAME, activity.packageName)
+                }
+            }
+            */
         }
 
         @JvmStatic
         @AfterClass
         fun test_CleanUp() {
             Log.d(TAG, "Cleaning up after all test cases. One time running.")
+            /*
+            scenario.moveToState(Lifecycle.State.DESTROYED)
+            scenario.close()
+            */
         }
     }
 }
