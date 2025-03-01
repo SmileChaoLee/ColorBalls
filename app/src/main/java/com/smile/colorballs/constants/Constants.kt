@@ -13,5 +13,8 @@ class Constants {
         const val PLAYER_SCORES = "PlayerScores"
         const val TOP10_RESULT = "Top10Result"
         const val GAME_ID_STRING = "GameIdString"
+        const val SURE_SAVE_DIALOG_TAG = "SureSaveDialogTag"
+        const val SURE_LOAD_DIALOG_TAG = "SureLoadDialogTag"
+        const val GAME_OVER_DIALOG_TAG = "GameOverDialogTag"
     }
 }

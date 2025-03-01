@@ -17,6 +17,7 @@ class LocalTop10Coroutine {
     companion object {
         const val ACTION_NAME = "com.smile.Service.LocalTop10Service"
         private const val TAG = "LocalTop10Coroutine"
+        var isBroadcastSent = false
 
         fun getLocalTop10(context : Context) {
             Log.d(TAG, "getLocalTop10")
@@ -31,7 +32,7 @@ class LocalTop10Coroutine {
             }
         }
 
-        private suspend fun getDataAndSendBack(context : Context) {
+        suspend fun getDataAndSendBack(context : Context) {
             withContext(Dispatchers.IO) {
                 Log.d(TAG, "getDataAndSendBack")
                 val playerNames = ArrayList<String>()
@@ -49,6 +50,7 @@ class LocalTop10Coroutine {
                     LocalBroadcastManager.getInstance(context).apply {
                         Log.d(TAG, "getDataAndSendBack.sent result.")
                         sendBroadcast(it)
+                        isBroadcastSent = true
                     }
                 }
             }

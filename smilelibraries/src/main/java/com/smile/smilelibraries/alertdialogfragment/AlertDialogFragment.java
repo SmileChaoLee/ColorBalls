@@ -109,6 +109,8 @@ public class AlertDialogFragment extends DialogFragment {
         }
         ft.add(this, tag);
         ft.commitAllowingStateLoss();
+        // the following statement is for findFragmentByTag()
+        manager.executePendingTransactions();
     }
 
     @Override

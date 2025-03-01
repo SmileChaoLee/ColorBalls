@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.smile.colorballs.R
+import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.interfaces.PresentView
 import com.smile.colorballs.presenters.MyPresenter
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment
@@ -27,7 +28,6 @@ abstract class MyView: AppCompatActivity(), PresentView {
 
     companion object {
         private const val TAG = "MyView"
-        private const val GAME_OVER_DIALOG = "GameOverDialogFragment"
     }
 
     abstract fun showInterstitialAd()
@@ -109,8 +109,10 @@ abstract class MyView: AppCompatActivity(), PresentView {
             putBoolean(AlertDialogFragment.IsAnimationKey, false)
             mPresenter.setShowingSureSaveDialog(true)
             sureSaveDialog.arguments = this
-            sureSaveDialog.show(supportFragmentManager, "SureSaveDialogTag")
+            sureSaveDialog.show(supportFragmentManager, Constants.SURE_SAVE_DIALOG_TAG)
         }
+        val fragment = supportFragmentManager.findFragmentByTag(Constants.SURE_SAVE_DIALOG_TAG)
+        Log.d(TAG,"MyView.showSaveGameDialog.fragment = $fragment")
     }
 
     override fun showLoadGameDialog() {
@@ -155,7 +157,7 @@ abstract class MyView: AppCompatActivity(), PresentView {
             putBoolean(AlertDialogFragment.IsAnimationKey, false)
             mPresenter.setShowingSureLoadDialog(true)
             sureLoadDialog.arguments = this
-            sureLoadDialog.show(supportFragmentManager, "SureLoadDialogTag")
+            sureLoadDialog.show(supportFragmentManager, Constants.SURE_LOAD_DIALOG_TAG)
         }
     }
 
@@ -186,7 +188,7 @@ abstract class MyView: AppCompatActivity(), PresentView {
             putBoolean(AlertDialogFragment.IsAnimationKey, false)
             mPresenter.setShowingGameOverDialog(true)
             gameOverDialog.arguments = this
-            gameOverDialog.show(supportFragmentManager, GAME_OVER_DIALOG)
+            gameOverDialog.show(supportFragmentManager, Constants.GAME_OVER_DIALOG_TAG)
             Log.d(TAG, "gameOverDialog.show() has been called.")
         }
     }

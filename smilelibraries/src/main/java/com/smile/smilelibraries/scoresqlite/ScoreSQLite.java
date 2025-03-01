@@ -99,6 +99,7 @@ public class ScoreSQLite extends SQLiteOpenHelper {
                 // } while (cur.moveToNext() && (i<10));
                 } while (cur.moveToNext());
             }
+            cur.close();
 
             closeScoreDatabase();
         }
@@ -126,6 +127,7 @@ public class ScoreSQLite extends SQLiteOpenHelper {
                         result.add(pair);
                     } while (cur.moveToNext());
                 }
+                cur.close();
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -156,7 +158,7 @@ public class ScoreSQLite extends SQLiteOpenHelper {
                         }
                     }
                 }
-
+                cur.close();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
