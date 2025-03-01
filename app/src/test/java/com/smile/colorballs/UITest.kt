@@ -5,7 +5,6 @@ import android.content.res.Resources
 import android.os.SystemClock
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Lifecycle.State
@@ -14,6 +13,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.smile.colorballs.constants.Constants
@@ -32,8 +33,8 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowActivity
 import org.robolectric.shadows.ShadowAlertDialog
-import org.robolectric.shadows.ShadowDialog
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = ColorBallsApp::class, manifest = "AndroidManifest.xml")
@@ -86,35 +87,19 @@ class UITest {
         onView(withId(R.id.undoGame)).perform(click())
     }
 
-    private fun test_settingSubmenu() {
+    @Test
+    fun settingSubmenu() {
+        println("settingSubmenu")
         onView(withId(R.id.setting)).perform(click())
-        /*
-        onView(withText(R.string.settingStr)).check(matches(isDisplayed()))
-        onView(withText(R.string.soundStr)).check(matches(isDisplayed()))
-        onView(withText(R.string.playerLevelStr)).check(matches(isDisplayed()))
-        onView(withText(R.string.nextBallSettingStr)).check(matches(isDisplayed()))
-        onView(withText(R.string.cancelStr)).check(matches(isDisplayed()))
-        onView(withText(R.string.okString)).check(matches(isDisplayed()))
-        */
-        SystemClock.sleep(threeSeconds.toLong())
-    }
-
-    @Test
-    fun test_settingSubmenuPressBack() {
-        test_settingSubmenu()
-        Espresso.pressBack()
-    }
-
-    @Test
-    fun test_settingSubmenuOK() {
-        test_settingSubmenu()
-        // onView(withId(R.id.confirmSettingButton)).perform(click())
-    }
-
-    @Test
-    fun test_settingSubmenuCancel() {
-        test_settingSubmenu()
-        // onView(withId(R.id.cancelSettingButton)).perform(click())
+        controller?.let {
+            val shadowActivity : ShadowActivity = shadowOf(activity)
+            val expectedActivityName = "com.smile.colorballs.SettingActivity"
+            val actualIntent = shadowActivity.nextStartedActivity
+            val actualActivityName = actualIntent.component?.className
+            println("settingSubmenu.actualActivityName = $actualActivityName")
+            Assert.assertSame(expectedActivityName, actualActivityName)
+            SystemClock.sleep(threeSeconds.toLong())
+        }
     }
 
     private fun actionSubMenu() : MenuItem? {
@@ -182,14 +167,14 @@ class UITest {
     fun test_globalTop10Submenu() {
         whichActionSubMenu(0)
         controller?.let {
-            val shadowActivity = shadowOf(it.get())
+            val shadowActivity = shadowOf(activity)
             val expectedServiceName = "com.smile.colorballs.services.GlobalTop10Service"
             val actualIntent = shadowActivity.nextStartedService
             val actualServiceName = actualIntent.component?.className
-            println("actualServiceName = $actualServiceName")
+            println("test_globalTop10Submenu.actualServiceName = $actualServiceName")
             Assert.assertSame(expectedServiceName, actualServiceName)
             val actualString = actualIntent.getStringExtra(Constants.GAME_ID_STRING)
-            println("actualString = $actualString")
+            println("test_globalTop10Submenu.actualString = $actualString")
             Assert.assertEquals("1", actualString)
         }
     }
@@ -355,10 +340,8 @@ class UITest {
         println("test_privatePolicySubmenu")
         whichActionSubMenu(6)
         SystemClock.sleep(fiveSeconds.toLong())
-        /*
-        onView(withId(R.id.privacyPolicyWebView)).check(matches(isDisplayed()))
+        // onView(withId(R.id.privacyPolicyWebView)).check(matches(isDisplayed()))
         Espresso.pressBack()
-         */
     }
 
     companion object {
