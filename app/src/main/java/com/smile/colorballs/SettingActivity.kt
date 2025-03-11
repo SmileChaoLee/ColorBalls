@@ -6,17 +6,18 @@ import android.util.Log
 import android.view.View
 import android.widget.ToggleButton
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.databinding.ActivitySettingBinding
 import com.smile.smilelibraries.utilities.ScreenUtil
-import com.smile.colorballs.models.EnvSetting
+import com.smile.colorballs.models.Settings
+import com.smile.colorballs.viewmodel.SettingViewModel
 
 class SettingActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivitySettingBinding
-    private val envSetting : EnvSetting = EnvSetting(hasSound = true,
-        easyLevel = true, hasNextBall = true)
+    private val settingViewModel : SettingViewModel by viewModels()
 
     /**
      * if (Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
@@ -31,11 +32,16 @@ class SettingActivity : AppCompatActivity() {
             ScreenUtil.FontSize_Pixel_Type,
             0.0f
         )
+
+        var settings : Settings = Settings(hasSound = true,
+            easyLevel = true, hasNextBall = true)
         intent.extras?.let {
-            envSetting.hasSound = it.getBoolean(Constants.HAS_SOUND, true)
-            envSetting.easyLevel = it.getBoolean(Constants.IS_EASY_LEVEL, true)
-            envSetting.hasNextBall = it.getBoolean(Constants.HAS_NEXT_BALL, true)
+            settings.hasSound = it.getBoolean(Constants.HAS_SOUND, true)
+            settings.easyLevel = it.getBoolean(Constants.IS_EASY_LEVEL, true)
+            settings.hasNextBall = it.getBoolean(Constants.HAS_NEXT_BALL, true)
         }
+
+        settingViewModel.settings = settings
 
         // setContentView(R.layout.activity_setting)
         binding = ActivitySettingBinding.inflate(layoutInflater)
@@ -43,7 +49,7 @@ class SettingActivity : AppCompatActivity() {
 
         binding.apply {
             lifecycleOwner = this@SettingActivity
-            eSet = envSetting
+            viewModel = settingViewModel
         }
 
         binding.settingTitle.let {
@@ -55,7 +61,7 @@ class SettingActivity : AppCompatActivity() {
         binding.soundSwitch.let {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
             it.apply {
-                setOnClickListener { view: View -> envSetting.hasSound =
+                setOnClickListener { view: View -> settingViewModel.hasSound.value =
                     (view as ToggleButton).isChecked }
             }
         }
@@ -70,7 +76,7 @@ class SettingActivity : AppCompatActivity() {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
             it.apply {
                 setOnClickListener { view: View ->
-                    envSetting.easyLevel = (view as ToggleButton).isChecked
+                    settingViewModel.easyLevel.value = (view as ToggleButton).isChecked
                 }
             }
         }
@@ -85,7 +91,7 @@ class SettingActivity : AppCompatActivity() {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
             it.apply {
                 setOnClickListener { view: View ->
-                    envSetting.hasNextBall = (view as ToggleButton).isChecked
+                    settingViewModel.hasNextBall.value = (view as ToggleButton).isChecked
                 }
             }
         }
@@ -113,9 +119,9 @@ class SettingActivity : AppCompatActivity() {
     private fun returnToPrevious(confirmed: Boolean) {
         Intent().let {
             Bundle().apply {
-                putBoolean(Constants.HAS_SOUND, envSetting.hasSound)
-                putBoolean(Constants.IS_EASY_LEVEL, envSetting.easyLevel)
-                putBoolean(Constants.HAS_NEXT_BALL, envSetting.hasNextBall)
+                putBoolean(Constants.HAS_SOUND, settingViewModel.settings.hasSound)
+                putBoolean(Constants.IS_EASY_LEVEL, settingViewModel.settings.easyLevel)
+                putBoolean(Constants.HAS_NEXT_BALL, settingViewModel.settings.hasNextBall)
                 it.putExtras(this)
             }
             setResult(if (confirmed) RESULT_OK else RESULT_CANCELED,
