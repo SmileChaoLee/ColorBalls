@@ -16,6 +16,7 @@ import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Handler;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -140,6 +141,14 @@ public class MyActivity extends MyView {
                     ColorBallsApp.isShowingLoadingMessage = false;
                     ColorBallsApp.isProcessingJob = false;
                 });
+
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                Log.d(TAG, "onBackPressedDispatcher.handleOnBackPressed");
+                onBackWasPressed();
+            }
+        });
 
         Log.d(TAG, "onCreate() is finished.");
     }
@@ -299,8 +308,7 @@ public class MyActivity extends MyView {
         super.onDestroy();
     }
 
-    @Override
-    public void onBackPressed() {
+    private void onBackWasPressed() {
         // capture the event of back button when it is pressed
         // change back button behavior
         ExitAppTimer exitAppTimer = ExitAppTimer.getInstance(1000); // singleton class

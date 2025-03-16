@@ -21,7 +21,7 @@ class LocalTop10Coroutine {
 
         fun getLocalTop10(context : Context) {
             Log.d(TAG, "getLocalTop10")
-            CoroutineScope(Dispatchers.Main).launch {
+            CoroutineScope(Dispatchers.IO).launch {
                 try {
                     Log.d(TAG, "getLocalTop10.getDataAndSendBack")
                     getDataAndSendBack(context)
