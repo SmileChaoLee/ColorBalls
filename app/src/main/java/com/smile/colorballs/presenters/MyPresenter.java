@@ -1,6 +1,5 @@
 package com.smile.colorballs.presenters;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,24 +15,19 @@ import android.view.View;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.core.os.BundleCompat;
 
 import com.smile.colorballs.ColorBallsApp;
-import com.smile.colorballs.MyActivity;
 import com.smile.colorballs.constants.Constants;
 import com.smile.colorballs.R;
 import com.smile.colorballs.interfaces.PresentView;
 import com.smile.colorballs.models.GameProperties;
 import com.smile.colorballs.models.GridData;
 import com.smile.smilelibraries.player_record_rest.PlayerRecordRest;
-import com.smile.smilelibraries.scoresqlite.ScoreSQLite;
-import com.smile.smilelibraries.utilities.FontAndBitmapUtil;
 import com.smile.smilelibraries.utilities.SoundPoolUtil;
 
 import org.json.JSONObject;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -43,26 +37,17 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class MyPresenter {
-    public static final int NumOfColorsUsedByEasy = 5;          // 5 colors for easy level
-    public static final int NumOfColorsUsedByDifficult = 6;    // 6 colors for difficult level
-    // 10->RED, 20->GREEN, 30->BLUE, 40->MAGENTA, 50->YELLOW, 60->Cyan
-    public static final int ColorRED = 10;
-    public static final int ColorGREEN = 20;
-    public static final int ColorBLUE = 30;
-    public static final int ColorMAGENTA = 40;
-    public static final int ColorYELLOW = 50;
-    public static final int ColorCYAN = 60;
-    public static final int[] ballColor = new int[] {ColorRED, ColorGREEN, ColorBLUE, ColorMAGENTA, ColorYELLOW, ColorCYAN};
-    public static HashMap<Integer, Drawable> colorBallMap;
-    public static HashMap<Integer, Drawable> colorOvalBallMap;
-    public static HashMap<Integer, Drawable> colorNextBallMap;
+    private final int NumOfColorsUsedByEasy = 5;          // 5 colors for easy level
+    private final int NumOfColorsUsedByDifficult = 6;    // 6 colors for difficult level
+    private final HashMap<Integer, Drawable> colorBallMap;
+    private final HashMap<Integer, Drawable> colorOvalBallMap;
+    private final HashMap<Integer, Drawable> colorNextBallMap;
     private final String NumOfSavedGameFileName = "num_saved_game";
     private final String TAG = "MyPresenter";
     private final String GamePropertiesTag = "GameProperties";
     private final String savedGameFileName = "saved_game";
-    private final Context mContext;
     private final PresentView mPresentView;
-    private final SoundPoolUtil soundPoolUtil;
+    private final SoundPoolUtil soundPool;
     private AnimationDrawable bouncyAnimation;
     private final Handler movingBallHandler = new Handler(Looper.getMainLooper());
     private final Handler showingScoreHandler = new Handler(Looper.getMainLooper());
@@ -74,13 +59,12 @@ public class MyPresenter {
         void sCallback();
     }
 
-    public MyPresenter(Context ctx, PresentView presentView) {
-        mContext = ctx;
+    public MyPresenter(PresentView presentView) {
         mPresentView = presentView;
-        soundPoolUtil = new SoundPoolUtil(mContext, R.raw.uhoh);
         colorBallMap = new HashMap<>();
         colorOvalBallMap = new HashMap<>();
         colorNextBallMap = new HashMap<>();
+        soundPool = mPresentView.soundPool();
     }
 
     public void setRowCounts(int rowCounts) {
@@ -123,7 +107,7 @@ public class MyPresenter {
                     } else {
                         //    make a sound
                         if (mGameProperties.hasSound()) {
-                            soundPoolUtil.playSound();
+                            soundPool.playSound();
                         }
                     }
                 }
@@ -145,11 +129,9 @@ public class MyPresenter {
 
     public boolean initializeColorBallsGame(int cellWidth, int cellHeight, Bundle savedInstanceState) {
 
-        createBitmapsAndDrawableResources(cellWidth, cellHeight);
+        bitmapsrawableResources(cellWidth, cellHeight);
 
-        ScoreSQLite scoreSQLiteDB = new ScoreSQLite(mContext);
-        int highestScore = scoreSQLiteDB.readHighestScore();
-        scoreSQLiteDB.close();
+        int highestScore = mPresentView.highestScore();
 
         boolean isNewGame = true;
         if (savedInstanceState == null) {
@@ -187,7 +169,7 @@ public class MyPresenter {
             // display the original state before changing configuration
             // need to be tested
             if (ColorBallsApp.isShowingLoadingMessage) {
-                mPresentView.showMessageOnScreen(mContext.getString(R.string.loadingStr));
+                mPresentView.showLoadingStrOnScreen();
             }
             //
             if (mGameProperties.isBallMoving()) {
@@ -374,15 +356,8 @@ public class MyPresenter {
         };
         restThread.start();
 
-        ScoreSQLite scoreSQLiteDB = new ScoreSQLite(mContext.getApplicationContext());
-        boolean isInTop10 = scoreSQLiteDB.isInTop10(score);
-        if (isInTop10) {
-            // inside top 10
-            // record the current score
-            scoreSQLiteDB.addScore(playerName, score);
-            scoreSQLiteDB.deleteAllAfterTop10();  // only keep the top 10
-        }
-        scoreSQLiteDB.close();
+        // save to local storage
+        mPresentView.addScoreInLocalTop10(playerName, score);
     }
 
     public void newGame() {
@@ -402,11 +377,10 @@ public class MyPresenter {
     }
 
     public int readNumberOfSaved() {
-        Log.d(TAG, "readNumberOfSaved.activity = " + mContext);
+        Log.d(TAG, "readNumberOfSaved");
         int numOfSaved = 0;
         try {
-            File inputFile = new File(mContext.getFilesDir(), NumOfSavedGameFileName);
-            FileInputStream fiStream = new FileInputStream(inputFile);
+            FileInputStream fiStream = mPresentView.fileInputStream(NumOfSavedGameFileName);
             numOfSaved = fiStream.read();
             fiStream.close();
         } catch (IOException ex) {
@@ -420,12 +394,11 @@ public class MyPresenter {
         Log.d(TAG, "startSavingGame");
 
         ColorBallsApp.isProcessingJob = true;
-        mPresentView.showMessageOnScreen(mContext.getString(R.string.savingGameStr));
+        mPresentView.showSavingGameStrOnScreen();
 
         boolean succeeded = true;
         try {
-            File outputFile = new File(mContext.getFilesDir(), savedGameFileName);
-            FileOutputStream foStream = new FileOutputStream(outputFile);
+            FileOutputStream foStream = mPresentView.fileOutputStream(savedGameFileName);
             // save settings
             Log.d(TAG, "startSavingGame.hasSound = " + mGameProperties.hasSound());
             if (mGameProperties.hasSound()) {
@@ -516,13 +489,13 @@ public class MyPresenter {
             byte[] undoScoreByte = ByteBuffer.allocate(4).putInt(mGameProperties.getUndoScore()).array();
             Log.d(TAG, "startSavingGame.undoScoreByte = " + undoScoreByte);
             foStream.write(undoScoreByte);
+            foStream.close();
             // end of writing
 
             numOfSaved++;
             // save numOfSaved back to file (ColorBallsApp.NumOfSavedGameFileName)
-            Log.d(TAG, "startSavingGame.creating outputFile.");
-            outputFile = new File(mContext.getFilesDir(), NumOfSavedGameFileName);
-            foStream = new FileOutputStream(outputFile);
+            Log.d(TAG, "startSavingGame.creating fileOutputStream.");
+            foStream = mPresentView.fileOutputStream(NumOfSavedGameFileName);
             foStream.write(numOfSaved);
             foStream.close();
             //
@@ -544,7 +517,7 @@ public class MyPresenter {
     public boolean startLoadingGame() {
         Log.d(TAG, "startLoadingGame");
         ColorBallsApp.isProcessingJob = true;
-        mPresentView.showMessageOnScreen(mContext.getString(R.string.loadingGameStr));
+        mPresentView.showLoadingGameStrOnScreen();
 
         boolean succeeded = true;
         boolean hasSound;
@@ -565,10 +538,13 @@ public class MyPresenter {
             mGridData.setUndoNextCellIndices(new HashMap<>());
 
             Log.d(TAG, "startLoadingGame.Creating inputFile");
-            File inputFile = new File(mContext.getFilesDir(), savedGameFileName);
-            long fileSizeInByte = inputFile.length();
-            Log.d(TAG, "startLoadingGame.File size = " + fileSizeInByte);
-            FileInputStream fiStream = new FileInputStream(inputFile);
+            // File inputFile = new File(mContext.getFilesDir(), savedGameFileName);
+            // long fileSizeInByte = inputFile.length();
+            // Log.d(TAG, "startLoadingGame.File size = " + fileSizeInByte);
+            // FileInputStream fiStream = new FileInputStream(inputFile);
+            FileInputStream fiStream = mPresentView.fileInputStream(savedGameFileName);
+            Log.d(TAG, "startLoadingGame.available() = " + fiStream.available());
+            Log.d(TAG, "startLoadingGame.getChannel().size() = " + fiStream.getChannel().size());
             // game sound
             int bValue = fiStream.read();
             hasSound = bValue==1;
@@ -680,68 +656,70 @@ public class MyPresenter {
         stopBouncyAnimation();
         showingScoreHandler.removeCallbacksAndMessages(null);
         movingBallHandler.removeCallbacksAndMessages(null);
-        soundPoolUtil.release();
+        soundPool.release();
     }
 
-    private void createBitmapsAndDrawableResources(int cellWidth, int cellHeight) {
+    private void bitmapsrawableResources(int cellWidth, int cellHeight) {
+        Log.w(TAG, "bitmapsrawableResources");
+
         if (cellWidth<=0 || cellHeight<=0) {
             throw new IllegalArgumentException("cellWidth and cellHeight must be > 0");
         }
 
-        Resources resources = mContext.getResources();
+        Resources resources = mPresentView.contextResources();
 
         int nextBallWidth = (int)(cellWidth * 0.5f);
         int nextBallHeight = (int)(cellHeight * 0.5f);
         int ovalBallWidth = (int)(cellWidth * 0.9f);
         int ovalBallHeight = (int)(cellHeight * 0.7f);
 
-        Drawable drawable = ContextCompat.getDrawable(mContext, R.drawable.redball);
-        colorBallMap.put(ColorRED, drawable);
+        Drawable drawable = mPresentView.compatDrawable(R.drawable.redball);
+        colorBallMap.put(Constants.COLOR_RED, drawable);
         Bitmap bm = BitmapFactory.decodeResource(resources, R.drawable.redball);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mContext, bm, nextBallWidth, nextBallHeight);
-        colorNextBallMap.put(ColorRED, drawable);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mContext, bm, ovalBallWidth, ovalBallHeight);
-        colorOvalBallMap.put(ColorRED, drawable);
+        drawable = mPresentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight);
+        colorNextBallMap.put(Constants.COLOR_RED, drawable);
+        drawable = mPresentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight);
+        colorOvalBallMap.put(Constants.COLOR_RED, drawable);
 
-        drawable = ContextCompat.getDrawable(mContext, R.drawable.greenball);
-        colorBallMap.put(ColorGREEN, drawable);
+        drawable = mPresentView.compatDrawable(R.drawable.greenball);
+        colorBallMap.put(Constants.COLOR_GREEN, drawable);
         bm = BitmapFactory.decodeResource(resources, R.drawable.greenball);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mContext, bm, nextBallWidth, nextBallHeight);
-        colorNextBallMap.put(ColorGREEN, drawable);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mContext, bm, ovalBallWidth, ovalBallHeight);
-        colorOvalBallMap.put(ColorGREEN, drawable);
+        drawable = mPresentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight);
+        colorNextBallMap.put(Constants.COLOR_GREEN, drawable);
+        drawable = mPresentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight);
+        colorOvalBallMap.put(Constants.COLOR_GREEN, drawable);
 
-        drawable = ContextCompat.getDrawable(mContext, R.drawable.blueball);
-        colorBallMap.put(ColorBLUE, drawable);
+        drawable = mPresentView.compatDrawable(R.drawable.blueball);
+        colorBallMap.put(Constants.COLOR_BLUE, drawable);
         bm = BitmapFactory.decodeResource(resources, R.drawable.blueball);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mContext, bm, nextBallWidth, nextBallHeight);
-        colorNextBallMap.put(ColorBLUE, drawable);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mContext, bm, ovalBallWidth, ovalBallHeight);
-        colorOvalBallMap.put(ColorBLUE, drawable);
+        drawable = mPresentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight);
+        colorNextBallMap.put(Constants.COLOR_BLUE, drawable);
+        drawable = mPresentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight);
+        colorOvalBallMap.put(Constants.COLOR_BLUE, drawable);
 
-        drawable = ContextCompat.getDrawable(mContext, R.drawable.magentaball);
-        colorBallMap.put(ColorMAGENTA, drawable);
+        drawable = mPresentView.compatDrawable(R.drawable.magentaball);
+        colorBallMap.put(Constants.COLOR_MAGENTA, drawable);
         bm = BitmapFactory.decodeResource(resources, R.drawable.magentaball);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mContext, bm, nextBallWidth, nextBallHeight);
-        colorNextBallMap.put(ColorMAGENTA, drawable);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mContext, bm, ovalBallWidth, ovalBallHeight);
-        colorOvalBallMap.put(ColorMAGENTA, drawable);
+        drawable = mPresentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight);
+        colorNextBallMap.put(Constants.COLOR_MAGENTA, drawable);
+        drawable = mPresentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight);
+        colorOvalBallMap.put(Constants.COLOR_MAGENTA, drawable);
 
-        drawable = ContextCompat.getDrawable(mContext, R.drawable.yellowball);
-        colorBallMap.put(ColorYELLOW, drawable);
+        drawable = mPresentView.compatDrawable(R.drawable.yellowball);
+        colorBallMap.put(Constants.COLOR_YELLOW, drawable);
         bm = BitmapFactory.decodeResource(resources, R.drawable.yellowball);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mContext, bm, nextBallWidth, nextBallHeight);
-        colorNextBallMap.put(ColorYELLOW, drawable);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mContext, bm, ovalBallWidth, ovalBallHeight);
-        colorOvalBallMap.put(ColorYELLOW, drawable);
+        drawable = mPresentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight);
+        colorNextBallMap.put(Constants.COLOR_YELLOW, drawable);
+        drawable = mPresentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight);
+        colorOvalBallMap.put(Constants.COLOR_YELLOW, drawable);
 
-        drawable = ContextCompat.getDrawable(mContext, R.drawable.cyanball);
-        colorBallMap.put(ColorCYAN, drawable);
+        drawable = mPresentView.compatDrawable(R.drawable.cyanball);
+        colorBallMap.put(Constants.COLOR_CYAN, drawable);
         bm = BitmapFactory.decodeResource(resources, R.drawable.cyanball);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mContext, bm, nextBallWidth, nextBallHeight);
-        colorNextBallMap.put(ColorCYAN, drawable);
-        drawable = FontAndBitmapUtil.convertBitmapToDrawable(mContext, bm, ovalBallWidth, ovalBallHeight);
-        colorOvalBallMap.put(ColorCYAN, drawable);
+        drawable = mPresentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight);
+        colorNextBallMap.put(Constants.COLOR_CYAN, drawable);
+        drawable = mPresentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight);
+        colorOvalBallMap.put(Constants.COLOR_CYAN, drawable);
     }
 
     private void gameOver() {
@@ -756,12 +734,12 @@ public class MyPresenter {
         int[] numBalls = new int[] {0,0,0,0,0,0};
         for (Point point : linkedLine) {
             switch (mGridData.getCellValue(point.x, point.y)) {
-                case ColorRED -> numBalls[0]++;
-                case ColorGREEN -> numBalls[1]++;
-                case ColorBLUE -> numBalls[2]++;
-                case ColorMAGENTA -> numBalls[3]++;
-                case ColorYELLOW -> numBalls[4]++;
-                case ColorCYAN -> numBalls[5]++;
+                case Constants.COLOR_RED -> numBalls[0]++;
+                case Constants.COLOR_GREEN -> numBalls[1]++;
+                case Constants.COLOR_BLUE -> numBalls[2]++;
+                case Constants.COLOR_MAGENTA -> numBalls[3]++;
+                case Constants.COLOR_YELLOW -> numBalls[4]++;
+                case Constants.COLOR_CYAN -> numBalls[5]++;
             }
         }
         // 5 balls --> 5

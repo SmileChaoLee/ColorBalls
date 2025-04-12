@@ -16,5 +16,16 @@ class Constants {
         const val SURE_SAVE_DIALOG_TAG = "SureSaveDialogTag"
         const val SURE_LOAD_DIALOG_TAG = "SureLoadDialogTag"
         const val GAME_OVER_DIALOG_TAG = "GameOverDialogTag"
+
+        // 10->RED, 20->GREEN, 30->BLUE, 40->MAGENTA, 50->YELLOW, 60->Cyan
+        const val COLOR_RED = 10
+        const val COLOR_GREEN = 20
+        const val COLOR_BLUE = 30
+        const val COLOR_MAGENTA = 40
+        const val COLOR_YELLOW = 50
+        const val COLOR_CYAN = 60
+        @JvmField
+        val BallColor =
+            intArrayOf(COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_MAGENTA, COLOR_YELLOW, COLOR_CYAN)
     }
 }

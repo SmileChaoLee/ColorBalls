@@ -1,8 +1,11 @@
 package com.smile.colorballs.views
 
 import android.content.DialogInterface
+import android.content.res.Resources
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -14,14 +17,20 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.interfaces.PresentView
 import com.smile.colorballs.presenters.MyPresenter
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment.DialogButtonListener
+import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 import com.smile.smilelibraries.utilities.FontAndBitmapUtil
 import com.smile.smilelibraries.utilities.ScreenUtil
+import com.smile.smilelibraries.utilities.SoundPoolUtil
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.util.Locale
 
 abstract class MyView: AppCompatActivity(), PresentView {
@@ -46,6 +55,48 @@ abstract class MyView: AppCompatActivity(), PresentView {
     protected lateinit var saveScoreAlertDialog: AlertDialog
 
     // implementing PresentView
+    override fun contextResources(): Resources {
+        return resources
+    }
+
+    override fun soundPool(): SoundPoolUtil {
+        return SoundPoolUtil(this, R.raw.uhoh)
+    }
+
+    override fun highestScore() : Int {
+        val scoreSQLiteDB = ScoreSQLite(this)
+        val score = scoreSQLiteDB.readHighestScore()
+        scoreSQLiteDB.close()
+        return score
+    }
+
+    override fun addScoreInLocalTop10(playerName : String, score : Int) {
+        val scoreSQLiteDB = ScoreSQLite(this)
+        if (scoreSQLiteDB.isInTop10(score)) {
+            // inside top 10, then record the current score
+            scoreSQLiteDB.addScore(playerName, score)
+            scoreSQLiteDB.deleteAllAfterTop10() // only keep the top 10
+        }
+        scoreSQLiteDB.close()
+    }
+
+    override fun fileInputStream(fileName : String): FileInputStream {
+        return FileInputStream(File(filesDir, fileName))
+    }
+
+    override fun fileOutputStream(fileName : String): FileOutputStream {
+        return FileOutputStream(File(filesDir, fileName))
+    }
+
+    override fun compatDrawable(drawableId : Int) : Drawable? {
+        return ContextCompat.getDrawable(this, drawableId);
+    }
+
+    override fun bitmapToDrawable(bm : Bitmap, width : Int, height : Int) : Drawable? {
+        return FontAndBitmapUtil.convertBitmapToDrawable(this, bm,
+            width, height);
+    }
+
     override fun getImageViewById(id: Int): ImageView {
         return findViewById(id)
     }
@@ -66,6 +117,18 @@ abstract class MyView: AppCompatActivity(), PresentView {
                 scoreImageView.setImageBitmap(this)
             }
         }
+    }
+
+    override fun showLoadingStrOnScreen() {
+        showMessageOnScreen(getString(R.string.loadingStr));
+    }
+
+    override fun showSavingGameStrOnScreen() {
+        showMessageOnScreen(getString(R.string.savingGameStr));
+    }
+
+    override fun showLoadingGameStrOnScreen() {
+        showMessageOnScreen(getString(R.string.loadingGameStr));
     }
 
     override fun dismissShowMessageOnScreen() {
@@ -227,6 +290,5 @@ abstract class MyView: AppCompatActivity(), PresentView {
         }
         saveScoreAlertDialog.show()
     }
-
     // end of implementing
 }

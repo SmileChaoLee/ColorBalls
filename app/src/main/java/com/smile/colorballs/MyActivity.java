@@ -84,7 +84,7 @@ public class MyActivity extends MyView {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate() is called");
-        mPresenter = new MyPresenter(this,this);
+        mPresenter = new MyPresenter(this);
         ColorBallsApp application = (ColorBallsApp)getApplication();
         interstitialAd = new ShowInterstitial(this, application.facebookAds,
                     application.googleInterstitialAd);

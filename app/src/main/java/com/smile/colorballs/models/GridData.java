@@ -5,6 +5,8 @@ import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
+
+import com.smile.colorballs.constants.Constants;
 import com.smile.colorballs.presenters.MyPresenter;
 
 import java.util.ArrayList;
@@ -121,7 +123,7 @@ public class GridData implements Parcelable {
             point = vacantCellList.get(n1);
             if (!mNextCellIndices.containsKey(point)) {
                 nn = mRandom.nextInt(mNumOfColorsUsed);
-                mNextCellIndices.put(vacantCellList.get(n1), MyPresenter.ballColor[nn]);
+                mNextCellIndices.put(vacantCellList.get(n1), Constants.BallColor[nn]);
                 k++;
             }
         }

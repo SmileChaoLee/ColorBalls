@@ -8,7 +8,6 @@ import com.facebook.ads.AudienceNetworkAds.InitResult
 import com.google.android.gms.ads.MobileAds
 import com.smile.smilelibraries.facebook_ads_util.FacebookInterstitial
 import com.smile.smilelibraries.google_ads_util.AdMobInterstitial
-import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
 
 class ColorBallsApp : MultiDexApplication() {
     @JvmField
@@ -60,7 +59,7 @@ class ColorBallsApp : MultiDexApplication() {
         googleInterstitialAd = AdMobInterstitial(applicationContext, googleAdMobInterstitialID)
     }
 
-    override fun onTrimMemory(level: Int) {applicationContext
+    override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
         Log.d(TAG, "onTrimMemory() is called.")
     }
