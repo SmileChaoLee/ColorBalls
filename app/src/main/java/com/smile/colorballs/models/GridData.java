@@ -7,7 +7,6 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import com.smile.colorballs.constants.Constants;
-import com.smile.colorballs.presenters.MyPresenter;
 
 import java.util.ArrayList;
 import java.util.Arrays;

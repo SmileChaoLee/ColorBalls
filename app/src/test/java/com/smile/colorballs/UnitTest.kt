@@ -44,7 +44,7 @@ class UnitTest {
         Assert.assertNotNull("setUp.appContext is null", appContext)
         resources = appContext.resources
         Assert.assertNotNull("setUp.resources is null", resources)
-        presenter = MyPresenter(appContext, presentView)
+        presenter = MyPresenter(presentView)
         Assert.assertNotNull("setUp.presenter is null", presenter)
         val isNewGame = presenter.initializeColorBallsGame(1000, 1000, null)
         Assert.assertTrue(isNewGame)
