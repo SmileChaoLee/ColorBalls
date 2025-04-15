@@ -18,8 +18,6 @@ import java.util.Stack;
 
 public class GridData implements Parcelable {
     private static final String TAG = "GridData";
-
-    public static final int mBallNumOneTime = 3;
     private int mBallNumCompleted = 5;
     private final int mRowCounts, mColCounts;
     private final int[][] mCellValues;
@@ -117,7 +115,7 @@ public class GridData implements Parcelable {
         int maxLoop = cColor!=0? 1: vacantSize;
         int k = 0, n1, nn;
         Point point;
-        while (k<Math.min(mBallNumOneTime, maxLoop)) {
+        while (k<Math.min(Constants.BALL_NUM_ONE_TIME, maxLoop)) {
             n1 = mRandom.nextInt(vacantSize);
             point = vacantCellList.get(n1);
             if (!mNextCellIndices.containsKey(point)) {

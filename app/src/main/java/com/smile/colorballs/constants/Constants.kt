@@ -27,5 +27,6 @@ class Constants {
         @JvmField
         val BallColor =
             intArrayOf(COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_MAGENTA, COLOR_YELLOW, COLOR_CYAN)
+        const val BALL_NUM_ONE_TIME : Int = 3
     }
 }

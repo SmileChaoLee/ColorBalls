@@ -22,7 +22,7 @@ import com.smile.colorballs.constants.Constants;
 import com.smile.colorballs.R;
 import com.smile.colorballs.interfaces.PresentView;
 import com.smile.colorballs.models.GameProp;
-import com.smile.colorballs.models.GridData;
+import com.smile.colorballs.models.GridDataKt;
 import com.smile.smilelibraries.player_record_rest.PlayerRecordRest;
 import com.smile.smilelibraries.utilities.SoundPoolUtil;
 
@@ -53,7 +53,7 @@ public class MyPresenter {
     private final Handler showingScoreHandler = new Handler(Looper.getMainLooper());
     private int mRowCounts, mColCounts;
     private GameProp mGameProp;
-    private GridData mGridData;
+    private GridDataKt mGridData;
 
     private interface ShowScoreCallback {
         void sCallback();
@@ -150,7 +150,7 @@ public class MyPresenter {
         }
         if (isNewGame) {
             Log.d(TAG, "initializeColorBallsGame.new game.");
-            mGridData = new GridData(mRowCounts, mColCounts, NumOfColorsUsedByEasy);
+            mGridData = new GridDataKt(mRowCounts, mColCounts, NumOfColorsUsedByEasy);
             mGameProp = new GameProp(mGridData);
         }
 
@@ -418,8 +418,8 @@ public class MyPresenter {
             }
             // save next balls
             // foStream.write(gridData.ballNumOneTime);
-            Log.d(TAG, "startSavingGame.ballNumOneTime = " + GridData.mBallNumOneTime);
-            foStream.write(GridData.mBallNumOneTime);
+            Log.d(TAG, "startSavingGame.ballNumOneTime = " + Constants.BALL_NUM_ONE_TIME);
+            foStream.write(Constants.BALL_NUM_ONE_TIME);
             for (HashMap.Entry<Point, Integer> entry : mGridData.getNextCellIndices().entrySet()) {
                 Log.d(TAG, "startSavingGame.nextCellIndices.getValue() = " + entry.getValue());
                 foStream.write(entry.getValue());
@@ -465,8 +465,8 @@ public class MyPresenter {
                 // no undo
                 foStream.write(0);
             }
-            Log.d(TAG, "startSavingGame.ballNumOneTime = " + GridData.mBallNumOneTime);
-            foStream.write(GridData.mBallNumOneTime);
+            Log.d(TAG, "startSavingGame.ballNumOneTime = " + Constants.BALL_NUM_ONE_TIME);
+            foStream.write(Constants.BALL_NUM_ONE_TIME);
             // save undoNextBalls
             for (HashMap.Entry<Point, Integer> entry : mGridData.getUndoNextCellIndices().entrySet()) {
                 Log.d(TAG, "startSavingGame.undoNextCellIndices.getValue() = " + entry.getValue());
@@ -839,7 +839,7 @@ public class MyPresenter {
             id = getImageId(n1, n2);
             imageView = mPresentView.getImageViewById(id);
             drawBall(imageView, mGridData.getCellValue(n1, n2));
-            if (mGridData.check_moreThanFive(n1, n2)) {
+            if (mGridData.checkMoreThanFive(n1, n2)) {
                 hasMoreFive = true;
                 for (Point point : mGridData.getLightLine()) {
                     if (!linkedPoint.contains(point)) {
@@ -943,7 +943,7 @@ public class MyPresenter {
                     drawBall(v, color);
                     mGridData.regenerateNextCellIndices(new Point(targetI, targetJ));
                     //  check if there are more than five balls with same color connected together
-                    if (mGridData.check_moreThanFive(targetI, targetJ)) {
+                    if (mGridData.checkMoreThanFive(targetI, targetJ)) {
                         mGameProp.setLastGotScore(calculateScore(mGridData.getLightLine()));
                         mGameProp.setUndoScore(mGameProp.getCurrentScore());
                         mGameProp.setCurrentScore(mGameProp.getCurrentScore() + mGameProp.getLastGotScore());
