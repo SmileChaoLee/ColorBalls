@@ -21,7 +21,7 @@ import com.smile.colorballs.ColorBallsApp;
 import com.smile.colorballs.constants.Constants;
 import com.smile.colorballs.R;
 import com.smile.colorballs.interfaces.PresentView;
-import com.smile.colorballs.models.GameProperties;
+import com.smile.colorballs.models.GameProp;
 import com.smile.colorballs.models.GridData;
 import com.smile.smilelibraries.player_record_rest.PlayerRecordRest;
 import com.smile.smilelibraries.utilities.SoundPoolUtil;
@@ -44,7 +44,7 @@ public class MyPresenter {
     private final HashMap<Integer, Drawable> colorNextBallMap;
     private final String NumOfSavedGameFileName = "num_saved_game";
     private final String TAG = "MyPresenter";
-    private final String GamePropertiesTag = "GameProperties";
+    private final String GamePropTag = "GameProp";
     private final String savedGameFileName = "saved_game";
     private final PresentView mPresentView;
     private final SoundPoolUtil soundPool;
@@ -52,7 +52,7 @@ public class MyPresenter {
     private final Handler movingBallHandler = new Handler(Looper.getMainLooper());
     private final Handler showingScoreHandler = new Handler(Looper.getMainLooper());
     private int mRowCounts, mColCounts;
-    private GameProperties mGameProperties;
+    private GameProp mGameProp;
     private GridData mGridData;
 
     private interface ShowScoreCallback {
@@ -80,48 +80,48 @@ public class MyPresenter {
         int i = getRow(id);
         int j = getColumn(id);
         ImageView imageView;
-        if (!mGameProperties.isBallBouncing()) {
+        if (!mGameProp.isBallBouncing()) {
             if (mGridData.getCellValue(i, j) != 0) {
-                if ((mGameProperties.getBouncyBallIndexI() == -1) && (mGameProperties.getBouncyBallIndexJ() == -1)) {
-                    mGameProperties.setBallBouncing(true);
+                if ((mGameProp.getBouncyBallIndexI() == -1) && (mGameProp.getBouncyBallIndexJ() == -1)) {
+                    mGameProp.setBallBouncing(true);
                     drawBouncyBall((ImageView) v, mGridData.getCellValue(i, j));
-                    mGameProperties.setBouncyBallIndexI(i);
-                    mGameProperties.setBouncyBallIndexJ(j);
+                    mGameProp.setBouncyBallIndexI(i);
+                    mGameProp.setBouncyBallIndexJ(j);
                 }
             }
         } else {
             // cancel the timer
             if (mGridData.getCellValue(i, j) == 0) {
                 //   blank cell
-                int bouncyBallIndexI = mGameProperties.getBouncyBallIndexI();
-                int bouncyBallIndexJ = mGameProperties.getBouncyBallIndexJ();
+                int bouncyBallIndexI = mGameProp.getBouncyBallIndexI();
+                int bouncyBallIndexJ = mGameProp.getBouncyBallIndexJ();
                 if ((bouncyBallIndexI >= 0) && (bouncyBallIndexJ >= 0)) {
                     if (mGridData.canMoveCellToCell(new Point(bouncyBallIndexI, bouncyBallIndexJ), new Point(i, j))) {
                         // cancel the timer
-                        mGameProperties.setBallBouncing(false);
+                        mGameProp.setBallBouncing(false);
                         stopBouncyAnimation();
-                        mGameProperties.setBouncyBallIndexI(-1);
-                        mGameProperties.setBouncyBallIndexJ(-1);
+                        mGameProp.setBouncyBallIndexI(-1);
+                        mGameProp.setBouncyBallIndexJ(-1);
                         drawBallAlongPath();
-                        mGameProperties.setUndoEnable(true);
+                        mGameProp.setUndoEnable(true);
                     } else {
                         //    make a sound
-                        if (mGameProperties.hasSound()) {
+                        if (mGameProp.getHasSound()) {
                             soundPool.playSound();
                         }
                     }
                 }
             } else {
                 //  cell is not blank
-                int bouncyBallIndexI = mGameProperties.getBouncyBallIndexI();
-                int bouncyBallIndexJ = mGameProperties.getBouncyBallIndexJ();
+                int bouncyBallIndexI = mGameProp.getBouncyBallIndexI();
+                int bouncyBallIndexJ = mGameProp.getBouncyBallIndexJ();
                 if ((bouncyBallIndexI >= 0) && (bouncyBallIndexJ >= 0)) {
                     stopBouncyAnimation();
                     imageView = mPresentView.getImageViewById(getImageId(bouncyBallIndexI, bouncyBallIndexJ));
                     drawBall(imageView , mGridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
                     drawBouncyBall((ImageView) v, mGridData.getCellValue(i, j));
-                    mGameProperties.setBouncyBallIndexI(i);
-                    mGameProperties.setBouncyBallIndexJ(j);
+                    mGameProp.setBouncyBallIndexI(i);
+                    mGameProp.setBouncyBallIndexJ(j);
                 }
             }
         }
@@ -140,27 +140,25 @@ public class MyPresenter {
         } else {
             Log.d(TAG, "initializeColorBallsGame.Configuration changed and restore the original UI.");
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {    // API 33
-                mGameProperties = BundleCompat.getParcelable(savedInstanceState,
-                        GamePropertiesTag, GameProperties.class);
-            } else mGameProperties = savedInstanceState.getParcelable(GamePropertiesTag);
-            if (mGameProperties != null) {
-                mGridData = mGameProperties.getGridData();
-                if (mGridData != null) {
-                    isNewGame = false;
-                }
+                mGameProp = BundleCompat.getParcelable(savedInstanceState,
+                        GamePropTag, GameProp.class);
+            } else mGameProp = savedInstanceState.getParcelable(GamePropTag);
+            if (mGameProp != null) {
+                mGridData = mGameProp.getGridData();
+                isNewGame = false;
             }
         }
         if (isNewGame) {
             Log.d(TAG, "initializeColorBallsGame.new game.");
             mGridData = new GridData(mRowCounts, mColCounts, NumOfColorsUsedByEasy);
-            mGameProperties = new GameProperties(mGridData);
+            mGameProp = new GameProp(mGridData);
         }
 
-        ColorBallsApp.isShowingLoadingMessage = mGameProperties.isShowingLoadingMessage();
-        ColorBallsApp.isProcessingJob = mGameProperties.isProcessingJob();
+        ColorBallsApp.isShowingLoadingMessage = mGameProp.isShowingLoadingMessage();
+        ColorBallsApp.isProcessingJob = mGameProp.isProcessingJob();
 
         mPresentView.updateHighestScoreOnUi(highestScore);
-        mPresentView.updateCurrentScoreOnUi(mGameProperties.getCurrentScore());
+        mPresentView.updateCurrentScoreOnUi(mGameProp.getCurrentScore());
 
         displayGameView();
         if (isNewGame) {
@@ -172,14 +170,14 @@ public class MyPresenter {
                 mPresentView.showLoadingStrOnScreen();
             }
             //
-            if (mGameProperties.isBallMoving()) {
-                Log.d(TAG, "initializeColorBallsGame.gameProperties.isBallMoving() is true");
+            if (mGameProp.isBallMoving()) {
+                Log.d(TAG, "initializeColorBallsGame.gameProp.isBallMoving() is true");
                 drawBallAlongPath();
             }
-            if (mGameProperties.isShowingScoreMessage()) {
-                Log.d(TAG, "initializeColorBallsGame.gameProperties.isShowingScoreMessage() is true");
-                ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(mGameProperties.getLastGotScore(),
-                        mGridData.getLightLine(), mGameProperties.isShowNextBallsAfterBlinking(),
+            if (mGameProp.isShowingScoreMessage()) {
+                Log.d(TAG, "initializeColorBallsGame.gameProp.isShowingScoreMessage() is true");
+                ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(mGameProp.getLastGotScore(),
+                        mGridData.getLightLine(), mGameProp.isShowNextBallsAfterBlinking(),
                         new ShowScoreCallback() {
                             @Override
                             public void sCallback() {
@@ -197,42 +195,42 @@ public class MyPresenter {
     }
 
     private void lastPartOfInitialGame() {
-        if (mGameProperties.isBallBouncing()) {
-            int bouncyBallIndexI = mGameProperties.getBouncyBallIndexI();
-            int bouncyBallIndexJ = mGameProperties.getBouncyBallIndexJ();
+        if (mGameProp.isBallBouncing()) {
+            int bouncyBallIndexI = mGameProp.getBouncyBallIndexI();
+            int bouncyBallIndexJ = mGameProp.getBouncyBallIndexJ();
             ImageView v = mPresentView.getImageViewById(getImageId(bouncyBallIndexI, bouncyBallIndexJ));
             drawBouncyBall(v, mGridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
         }
-        if (mGameProperties.isShowingNewGameDialog()) {
+        if (mGameProp.isShowingNewGameDialog()) {
             Log.d(TAG, "initializeColorBallsGame.show new game dialog by calling newGame()");
             newGame();
         }
-        if (mGameProperties.isShowingQuitGameDialog()) {
+        if (mGameProp.isShowingQuitGameDialog()) {
             Log.d(TAG, "initializeColorBallsGame.show quit game dialog by calling quitGame()");
             quitGame();
         }
-        if (mGameProperties.isShowingSureSaveDialog()) {
+        if (mGameProp.isShowingSureSaveDialog()) {
             Log.d(TAG, "initializeColorBallsGame.isShowingSureSaveDialog()");
             saveGame();
         }
-        if (mGameProperties.isShowingSureLoadDialog()) {
+        if (mGameProp.isShowingSureLoadDialog()) {
             Log.d(TAG, "initializeColorBallsGame.isShowingSureLoadDialog()");
             loadGame();
         }
-        if (mGameProperties.isShowingGameOverDialog()) {
+        if (mGameProp.isShowingGameOverDialog()) {
             Log.d(TAG, "initializeColorBallsGame.isShowingGameOverDialog()");
             gameOver();
         }
     }
 
     public void onSaveInstanceState(@NonNull Bundle outState) {
-        mGameProperties.setShowingLoadingMessage(ColorBallsApp.isShowingLoadingMessage);
-        mGameProperties.setProcessingJob(ColorBallsApp.isProcessingJob);
-        outState.putParcelable(GamePropertiesTag, mGameProperties);
+        mGameProp.setShowingLoadingMessage(ColorBallsApp.isShowingLoadingMessage);
+        mGameProp.setProcessingJob(ColorBallsApp.isProcessingJob);
+        outState.putParcelable(GamePropTag, mGameProp);
     }
 
     public boolean completedAll() {
-        for (boolean thCompleted : mGameProperties.getThreadCompleted()) {
+        for (boolean thCompleted : mGameProp.getThreadCompleted()) {
             if (!thCompleted) {
                 return false;
             }
@@ -241,20 +239,20 @@ public class MyPresenter {
     }
 
     public boolean hasSound() {
-        return mGameProperties.hasSound();
+        return mGameProp.getHasSound();
     }
 
     public void setHasSound(boolean hasSound) {
-        mGameProperties.setHasSound(hasSound);
+        mGameProp.setHasSound(hasSound);
     }
 
     public boolean isEasyLevel() {
-        return mGameProperties.isEasyLevel();
+        return mGameProp.isEasyLevel();
     }
 
     public void setEasyLevel(boolean yn) {
-        mGameProperties.setEasyLevel(yn);
-        if (mGameProperties.isEasyLevel()) {
+        mGameProp.setEasyLevel(yn);
+        if (mGameProp.isEasyLevel()) {
             // easy level
             mGridData.setNumOfColorsUsed(NumOfColorsUsedByEasy);
         } else {
@@ -264,26 +262,26 @@ public class MyPresenter {
     }
 
     public boolean hasNextBall() {
-        return mGameProperties.hasNextBall();
+        return mGameProp.getHasNextBall();
     }
 
     public void setHasNextBall(boolean hasNextBall, boolean isNextBalls) {
-        mGameProperties.setHasNextBall(hasNextBall);
+        mGameProp.setHasNextBall(hasNextBall);
         if (isNextBalls) {
             displayNextBallsView();
         }
     }
 
     public void setShowingNewGameDialog(boolean showingNewGameDialog) {
-        mGameProperties.setShowingNewGameDialog(showingNewGameDialog);
+        mGameProp.setShowingNewGameDialog(showingNewGameDialog);
     }
 
     public void setShowingQuitGameDialog(boolean showingQuitGameDialog) {
-        mGameProperties.setShowingQuitGameDialog(showingQuitGameDialog);
+        mGameProp.setShowingQuitGameDialog(showingQuitGameDialog);
     }
 
     public void undoTheLast() {
-        if (!mGameProperties.isUndoEnable()) {
+        if (!mGameProp.getUndoEnable()) {
             return;
         }
 
@@ -292,18 +290,18 @@ public class MyPresenter {
         mGridData.undoTheLast();
 
         stopBouncyAnimation();
-        mGameProperties.setBallBouncing(false);
-        mGameProperties.setBouncyBallIndexI(-1);
-        mGameProperties.setBouncyBallIndexJ(-1);
+        mGameProp.setBallBouncing(false);
+        mGameProp.setBouncyBallIndexI(-1);
+        mGameProp.setBouncyBallIndexJ(-1);
 
         // restore the screen
         displayGameView();
 
-        mGameProperties.setCurrentScore(mGameProperties.getUndoScore());
-        mPresentView.updateCurrentScoreOnUi(mGameProperties.getCurrentScore());
+        mGameProp.setCurrentScore(mGameProp.getUndoScore());
+        mPresentView.updateCurrentScoreOnUi(mGameProp.getCurrentScore());
 
         // completedPath = true;
-        mGameProperties.setUndoEnable(false);
+        mGameProp.setUndoEnable(false);
 
         ColorBallsApp.isProcessingJob = false;    // finished
     }
@@ -320,19 +318,19 @@ public class MyPresenter {
     }
 
     public void setShowingSureSaveDialog(boolean isShowingSureSaveDialog) {
-        mGameProperties.setShowingSureSaveDialog(isShowingSureSaveDialog);
+        mGameProp.setShowingSureSaveDialog(isShowingSureSaveDialog);
     }
 
     public void setShowingSureLoadDialog(boolean isShowingSureLoadDialog) {
-        mGameProperties.setShowingSureLoadDialog(isShowingSureLoadDialog);
+        mGameProp.setShowingSureLoadDialog(isShowingSureLoadDialog);
     }
 
     public void setShowingGameOverDialog(boolean isShowingGameOverDialog) {
-        mGameProperties.setShowingGameOverDialog(isShowingGameOverDialog);
+        mGameProp.setShowingGameOverDialog(isShowingGameOverDialog);
     }
 
     public void setShowingWarningSaveGameDialog(boolean isShowingWarningSaveGameDialog) {
-        mGameProperties.setShowingWarningSaveGameDialog(isShowingWarningSaveGameDialog);
+        mGameProp.setShowingWarningSaveGameDialog(isShowingWarningSaveGameDialog);
     }
 
     public void saveScore(String playerName, int score) {
@@ -361,11 +359,11 @@ public class MyPresenter {
     }
 
     public void newGame() {
-        mPresentView.showSaveScoreAlertDialog(1, mGameProperties.getCurrentScore());
+        mPresentView.showSaveScoreAlertDialog(1, mGameProp.getCurrentScore());
     }
 
     public void quitGame() {
-        mPresentView.showSaveScoreAlertDialog(0, mGameProperties.getCurrentScore());
+        mPresentView.showSaveScoreAlertDialog(0, mGameProp.getCurrentScore());
     }
 
     public void saveGame() {
@@ -400,20 +398,20 @@ public class MyPresenter {
         try {
             FileOutputStream foStream = mPresentView.fileOutputStream(savedGameFileName);
             // save settings
-            Log.d(TAG, "startSavingGame.hasSound = " + mGameProperties.hasSound());
-            if (mGameProperties.hasSound()) {
+            Log.d(TAG, "startSavingGame.hasSound = " + mGameProp.getHasSound());
+            if (mGameProp.getHasSound()) {
                 foStream.write(1);
             } else {
                 foStream.write(0);
             }
-            Log.d(TAG, "startSavingGame.isEasyLevel = " + mGameProperties.isEasyLevel());
-            if (mGameProperties.isEasyLevel()) {
+            Log.d(TAG, "startSavingGame.isEasyLevel = " + mGameProp.isEasyLevel());
+            if (mGameProp.isEasyLevel()) {
                 foStream.write(1);
             } else {
                 foStream.write(0);
             }
-            Log.d(TAG, "startSavingGame.hasNextBall = " + mGameProperties.hasNextBall());
-            if (mGameProperties.hasNextBall()) {
+            Log.d(TAG, "startSavingGame.hasNextBall = " + mGameProp.getHasNextBall());
+            if (mGameProp.getHasNextBall()) {
                 foStream.write(1);
             } else {
                 foStream.write(0);
@@ -455,12 +453,12 @@ public class MyPresenter {
                 }
             }
             // save current score
-            byte[] scoreByte = ByteBuffer.allocate(4).putInt(mGameProperties.getCurrentScore()).array();
+            byte[] scoreByte = ByteBuffer.allocate(4).putInt(mGameProp.getCurrentScore()).array();
             Log.d(TAG, "startSavingGame.scoreByte = " + scoreByte);
             foStream.write(scoreByte);
             // save undoEnable
-            Log.d(TAG, "startSavingGame.isUndoEnable = " + mGameProperties.isUndoEnable());
-            if (mGameProperties.isUndoEnable()) {
+            Log.d(TAG, "startSavingGame.isUndoEnable = " + mGameProp.getUndoEnable());
+            if (mGameProp.getUndoEnable()) {
                 // can undo
                 foStream.write(1);
             } else {
@@ -486,7 +484,7 @@ public class MyPresenter {
                     foStream.write(mGridData.getBackupCells()[i][j]);
                 }
             }
-            byte[] undoScoreByte = ByteBuffer.allocate(4).putInt(mGameProperties.getUndoScore()).array();
+            byte[] undoScoreByte = ByteBuffer.allocate(4).putInt(mGameProp.getUndoScore()).array();
             Log.d(TAG, "startSavingGame.undoScoreByte = " + undoScoreByte);
             foStream.write(undoScoreByte);
             foStream.close();
@@ -530,7 +528,7 @@ public class MyPresenter {
         boolean isUndoEnable;
         int[] undoNextBalls = new int[NumOfColorsUsedByDifficult];
         int[][] backupCells = new int[mRowCounts][mColCounts];
-        int unScore = mGameProperties.getUndoScore();
+        int unScore = mGameProp.getUndoScore();
 
         try {
             // clear nextCellIndices and undoNextCellIndices
@@ -628,17 +626,17 @@ public class MyPresenter {
                 entry.setValue(nextBalls[kk++]);
             }
             mGridData.setCellValues(gameCells);
-            mGameProperties.setCurrentScore(cScore);
-            mGameProperties.setUndoEnable(isUndoEnable);
+            mGameProp.setCurrentScore(cScore);
+            mGameProp.setUndoEnable(isUndoEnable);
             // mGridData.setUndoNextBalls(undoNextBalls);
             kk = 0;
             for (HashMap.Entry<Point, Integer> entry : mGridData.getUndoNextCellIndices().entrySet()) {
                 entry.setValue(undoNextBalls[kk++]);
             }
             mGridData.setBackupCells(backupCells);
-            mGameProperties.setUndoScore(unScore);
+            mGameProp.setUndoScore(unScore);
             // start update UI
-            mPresentView.updateCurrentScoreOnUi(mGameProperties.getCurrentScore());
+            mPresentView.updateCurrentScoreOnUi(mGameProp.getCurrentScore());
             Log.d(TAG, "startLoadingGame.starting displayGameView().");
             displayGameView();
         } catch (IOException ex) {
@@ -766,7 +764,7 @@ public class MyPresenter {
             }
         }
 
-        if (!mGameProperties.isEasyLevel()) {
+        if (!mGameProp.isEasyLevel()) {
             // difficult level
             totalScore *= 2;   // double of easy level
         }
@@ -785,7 +783,7 @@ public class MyPresenter {
     private void drawNextBall(ImageView imageView,int color) {
         Log.d(TAG, "drawNextBall.color = " + color);
         if (imageView != null) {
-            if (mGameProperties.hasNextBall()) {
+            if (mGameProp.getHasNextBall()) {
                 imageView.setImageDrawable(colorNextBallMap.get(color));
             } else {
                 imageView.setImageDrawable(null);
@@ -853,11 +851,11 @@ public class MyPresenter {
 
         if (hasMoreFive) {
             mGridData.setLightLine(linkedPoint);    // added on 2020-07-13
-            mGameProperties.setLastGotScore(calculateScore(mGridData.getLightLine()));
-            mGameProperties.setUndoScore(mGameProperties.getCurrentScore());
-            mGameProperties.setCurrentScore(mGameProperties.getCurrentScore() + mGameProperties.getLastGotScore());
-            mPresentView.updateCurrentScoreOnUi(mGameProperties.getCurrentScore());
-            ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(mGameProperties.getLastGotScore(), mGridData.getLightLine(),
+            mGameProp.setLastGotScore(calculateScore(mGridData.getLightLine()));
+            mGameProp.setUndoScore(mGameProp.getCurrentScore());
+            mGameProp.setCurrentScore(mGameProp.getCurrentScore() + mGameProp.getLastGotScore());
+            mPresentView.updateCurrentScoreOnUi(mGameProp.getCurrentScore());
+            ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(mGameProp.getLastGotScore(), mGridData.getLightLine(),
                     true, new ShowScoreCallback() {
                 @Override
                 public void sCallback() {
@@ -925,8 +923,8 @@ public class MyPresenter {
             int countDown = tempList.size()*2 - 1;
             @Override
             public synchronized void run() {
-                mGameProperties.getThreadCompleted()[0] = false;
-                mGameProperties.setBallMoving(true);
+                mGameProp.getThreadCompleted()[0] = false;
+                mGameProp.setBallMoving(true);
                 if (countDown >= 2) {   // eliminate start point
                     int i = countDown / 2;
                     imageView = mPresentView.getImageViewById(getImageId(tempList.get(i).x, tempList.get(i).y));
@@ -946,18 +944,18 @@ public class MyPresenter {
                     mGridData.regenerateNextCellIndices(new Point(targetI, targetJ));
                     //  check if there are more than five balls with same color connected together
                     if (mGridData.check_moreThanFive(targetI, targetJ)) {
-                        mGameProperties.setLastGotScore(calculateScore(mGridData.getLightLine()));
-                        mGameProperties.setUndoScore(mGameProperties.getCurrentScore());
-                        mGameProperties.setCurrentScore(mGameProperties.getCurrentScore() + mGameProperties.getLastGotScore());
-                        mPresentView.updateCurrentScoreOnUi(mGameProperties.getCurrentScore());
+                        mGameProp.setLastGotScore(calculateScore(mGridData.getLightLine()));
+                        mGameProp.setUndoScore(mGameProp.getCurrentScore());
+                        mGameProp.setCurrentScore(mGameProp.getCurrentScore() + mGameProp.getLastGotScore());
+                        mPresentView.updateCurrentScoreOnUi(mGameProp.getCurrentScore());
                         Log.d(TAG,"drawBallAlongPath.showScoreRunnable()");
-                        ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(mGameProperties.getLastGotScore(), mGridData.getLightLine(),
+                        ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(mGameProp.getLastGotScore(), mGridData.getLightLine(),
                                 false, new ShowScoreCallback() {
                             @Override
                             public void sCallback() {
                                 Log.d(TAG,"drawBallAlongPath.ShowScoreCallback.sCallback");
-                                mGameProperties.getThreadCompleted()[0] = true;
-                                mGameProperties.setBallMoving(false);
+                                mGameProp.getThreadCompleted()[0] = true;
+                                mGameProp.setBallMoving(false);
                                 Log.d(TAG,"drawBallAlongPath.run() finished.");
                             }
                         });
@@ -965,8 +963,8 @@ public class MyPresenter {
                         Log.d(TAG,"drawBallAlongPath.showScoreRunnable() run");
                     } else {
                         displayGridDataNextCells();   // has a problem
-                        mGameProperties.getThreadCompleted()[0] = true;
-                        mGameProperties.setBallMoving(false);
+                        mGameProp.getThreadCompleted()[0] = true;
+                        mGameProp.setBallMoving(false);
                         Log.d(TAG,"drawBallAlongPath.run() finished.");
                     }
                 }
@@ -1024,9 +1022,9 @@ public class MyPresenter {
             if (linkedPoint != null) {
                 hasPoint = new HashSet<>(linkedPoint);
             }
-            mGameProperties.setShowNextBallsAfterBlinking(isNextBalls);
-            mGameProperties.getThreadCompleted()[1] = false;
-            mGameProperties.setShowingScoreMessage(true);
+            mGameProp.setShowNextBallsAfterBlinking(isNextBalls);
+            mGameProp.getThreadCompleted()[1] = false;
+            mGameProp.setShowingScoreMessage(true);
         }
 
         private synchronized void onProgressUpdate(int status) {
@@ -1059,8 +1057,8 @@ public class MyPresenter {
                         Log.d(TAG, "ShowScoreRunnable.onProgressUpdate.displayNextBallsView");
                         displayNextBallsView();
                     }
-                    mGameProperties.getThreadCompleted()[1] = true;  // user can start input command
-                    mGameProperties.setShowingScoreMessage(false);
+                    mGameProp.getThreadCompleted()[1] = true;  // user can start input command
+                    mGameProp.setShowingScoreMessage(false);
                     break;
                 case 4:
                     Log.d(TAG, "ShowScoreRunnable.onProgressUpdate.dismissShowMessageOnScreen.");
@@ -1089,8 +1087,8 @@ public class MyPresenter {
                     } else {
                         showingScoreHandler.removeCallbacksAndMessages(null);
                         onProgressUpdate(4);    // dismiss showing message
-                        mGameProperties.getThreadCompleted()[1] = true;
-                        mGameProperties.setShowingScoreMessage(false);
+                        mGameProp.getThreadCompleted()[1] = true;
+                        mGameProp.setShowingScoreMessage(false);
                         showScoreCallback.sCallback();
                     }
                 }

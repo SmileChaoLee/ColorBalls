@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.res.Resources
 import androidx.test.core.app.ApplicationProvider
 import com.smile.colorballs.interfaces.PresentView
-import com.smile.colorballs.models.GameProperties
+import com.smile.colorballs.models.GameProp
 import com.smile.colorballs.models.GridData
 import com.smile.colorballs.presenters.MyPresenter
 import org.junit.After
@@ -16,9 +16,7 @@ import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
-import org.mockito.junit.MockitoJUnitRunner
 import org.robolectric.RobolectricTestRunner
-
 
 @RunWith(RobolectricTestRunner::class)
 class UnitTest {
@@ -58,11 +56,11 @@ class UnitTest {
     @Test
     fun test_PresenterHasSound() {
         println("test_PresenterHasSound")
-        val gameProperties = mock(GameProperties::class.java)
-        Assert.assertNotNull("test_PresenterHasSound.gameProperties is null",
-            gameProperties)
+        val gameProp = mock(GameProp::class.java)
+        Assert.assertNotNull("test_PresenterHasSound.gameProp is null",
+            gameProp)
 
-        `when`(gameProperties.hasSound()).thenReturn(true)
+        `when`(gameProp.hasSound).thenReturn(true)
         Assert.assertTrue(presenter.hasSound())
     }
 }
