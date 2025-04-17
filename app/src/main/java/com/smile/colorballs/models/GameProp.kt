@@ -5,7 +5,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 class GameProp private constructor(
-    var gridData: GridDataKt,
+    var gridData: GridData,
     var isShowingLoadingMessage : Boolean,
     var isShowingScoreMessage : Boolean,
     var isShowNextBallsAfterBlinking : Boolean,
@@ -28,7 +28,7 @@ class GameProp private constructor(
     var isEasyLevel : Boolean,
     var hasSound : Boolean,
     var hasNextBall : Boolean) : Parcelable {
-        constructor(gridData : GridDataKt) : this(gridData,
+        constructor(gridData : GridData) : this(gridData,
             false, false,
             false, false,
             false, false,

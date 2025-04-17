@@ -5,7 +5,7 @@ import android.content.res.Resources
 import androidx.test.core.app.ApplicationProvider
 import com.smile.colorballs.interfaces.PresentView
 import com.smile.colorballs.models.GameProp
-import com.smile.colorballs.models.GridDataKt
+import com.smile.colorballs.models.GridData
 import com.smile.colorballs.presenters.MyPresenter
 import org.junit.After
 import org.junit.Assert
@@ -22,7 +22,7 @@ import org.robolectric.RobolectricTestRunner
 class UnitTest {
 
     @Mock
-    private lateinit var mockGridData : GridDataKt
+    private lateinit var mockGridData : GridData
     @Mock
     private lateinit var presentView: PresentView
 

@@ -22,7 +22,7 @@ import com.smile.colorballs.constants.Constants;
 import com.smile.colorballs.R;
 import com.smile.colorballs.interfaces.PresentView;
 import com.smile.colorballs.models.GameProp;
-import com.smile.colorballs.models.GridDataKt;
+import com.smile.colorballs.models.GridData;
 import com.smile.smilelibraries.player_record_rest.PlayerRecordRest;
 import com.smile.smilelibraries.utilities.SoundPoolUtil;
 
@@ -53,7 +53,7 @@ public class MyPresenter {
     private final Handler showingScoreHandler = new Handler(Looper.getMainLooper());
     private int mRowCounts, mColCounts;
     private GameProp mGameProp;
-    private GridDataKt mGridData;
+    private GridData mGridData;
 
     private interface ShowScoreCallback {
         void sCallback();
@@ -150,7 +150,7 @@ public class MyPresenter {
         }
         if (isNewGame) {
             Log.d(TAG, "initializeColorBallsGame.new game.");
-            mGridData = new GridDataKt(mRowCounts, mColCounts, NumOfColorsUsedByEasy);
+            mGridData = new GridData(mRowCounts, mColCounts, NumOfColorsUsedByEasy);
             mGameProp = new GameProp(mGridData);
         }
 
