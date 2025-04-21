@@ -6,7 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.smile.colorballs.interfaces.PresentView
 import com.smile.colorballs.models.GameProp
 import com.smile.colorballs.models.GridData
-import com.smile.colorballs.presenters.MyPresenter
+import com.smile.colorballs.presenters.Presenter
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -28,7 +28,7 @@ class UnitTest {
 
     private lateinit var appContext : Context
     private lateinit var resources : Resources
-    private lateinit var presenter: MyPresenter
+    private lateinit var presenter: Presenter
 
     @Before
     fun setUp() {
@@ -42,9 +42,9 @@ class UnitTest {
         Assert.assertNotNull("setUp.appContext is null", appContext)
         resources = appContext.resources
         Assert.assertNotNull("setUp.resources is null", resources)
-        presenter = MyPresenter(presentView)
+        presenter = Presenter(presentView)
         Assert.assertNotNull("setUp.presenter is null", presenter)
-        val isNewGame = presenter.initializeColorBallsGame(1000, 1000, null)
+        val isNewGame = presenter.initGame(1000, 1000, null)
         Assert.assertTrue(isNewGame)
     }
 

@@ -46,11 +46,11 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.smile.colorballs.constants.Constants;
+import com.smile.colorballs.presenters.Presenter;
 import com.smile.colorballs.services.GlobalTop10Service;
 import com.smile.colorballs.services.LocalTop10Service;
 import com.smile.colorballs.views.MyView;
 import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate;
-import com.smile.colorballs.presenters.MyPresenter;
 import com.smile.smilelibraries.models.ExitAppTimer;
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil;
 import com.smile.smilelibraries.show_banner_ads.SetBannerAdView;
@@ -84,7 +84,7 @@ public class MyActivity extends MyView {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate() is called");
-        mPresenter = new MyPresenter(this);
+        mPresenter = new Presenter(this);
         ColorBallsApp application = (ColorBallsApp)getApplication();
         interstitialAd = new ShowInterstitial(this, application.facebookAds,
                     application.googleInterstitialAd);
@@ -449,7 +449,7 @@ public class MyActivity extends MyView {
 
     private void createColorBallsGame(Bundle savedInstanceState) {
         saveScoreAlertDialog = null;
-        mPresenter.initializeColorBallsGame(cellWidth, cellHeight, savedInstanceState);
+        mPresenter.initGame(cellWidth, cellHeight, savedInstanceState);
     }
 
     @Override

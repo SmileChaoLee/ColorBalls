@@ -127,18 +127,18 @@ public class MyPresenter {
         }
     }
 
-    public boolean initializeColorBallsGame(int cellWidth, int cellHeight, Bundle savedInstanceState) {
+    public boolean initGame(int cellWidth, int cellHeight, Bundle savedInstanceState) {
 
-        bitmapsrawableResources(cellWidth, cellHeight);
+        bitmapDrawableResources(cellWidth, cellHeight);
 
         int highestScore = mPresentView.highestScore();
 
         boolean isNewGame = true;
         if (savedInstanceState == null) {
             // activity just started so new game
-            Log.d(TAG, "initializeColorBallsGame.savedInstanceState is null");
+            Log.d(TAG, "initGame.savedInstanceState is null");
         } else {
-            Log.d(TAG, "initializeColorBallsGame.Configuration changed and restore the original UI.");
+            Log.d(TAG, "initGame.Configuration changed and restore the original UI.");
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {    // API 33
                 mGameProp = BundleCompat.getParcelable(savedInstanceState,
                         GamePropTag, GameProp.class);
@@ -149,7 +149,7 @@ public class MyPresenter {
             }
         }
         if (isNewGame) {
-            Log.d(TAG, "initializeColorBallsGame.new game.");
+            Log.d(TAG, "initGame.new game.");
             mGridData = new GridData(mRowCounts, mColCounts, NumOfColorsUsedByEasy);
             mGameProp = new GameProp(mGridData);
         }
@@ -171,11 +171,11 @@ public class MyPresenter {
             }
             //
             if (mGameProp.isBallMoving()) {
-                Log.d(TAG, "initializeColorBallsGame.gameProp.isBallMoving() is true");
+                Log.d(TAG, "initGame.gameProp.isBallMoving() is true");
                 drawBallAlongPath();
             }
             if (mGameProp.isShowingScoreMessage()) {
-                Log.d(TAG, "initializeColorBallsGame.gameProp.isShowingScoreMessage() is true");
+                Log.d(TAG, "initGame.gameProp.isShowingScoreMessage() is true");
                 ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(mGameProp.getLastGotScore(),
                         mGridData.getLightLine(), mGameProp.isShowNextBallsAfterBlinking(),
                         new ShowScoreCallback() {
@@ -184,9 +184,9 @@ public class MyPresenter {
                                 lastPartOfInitialGame();
                             }
                         });
-                Log.d(TAG,"initializeColorBallsGame.showingScoreHandler.post().");
+                Log.d(TAG,"initGame.showingScoreHandler.post().");
                 showingScoreHandler.post(showScoreRunnable);
-                Log.d(TAG,"initializeColorBallsGame.showingScoreHandler.post() run.");
+                Log.d(TAG,"initGame.showingScoreHandler.post() run.");
             } else {
                 lastPartOfInitialGame();
             }
@@ -202,23 +202,23 @@ public class MyPresenter {
             drawBouncyBall(v, mGridData.getCellValue(bouncyBallIndexI, bouncyBallIndexJ));
         }
         if (mGameProp.isShowingNewGameDialog()) {
-            Log.d(TAG, "initializeColorBallsGame.show new game dialog by calling newGame()");
+            Log.d(TAG, "lastPartOfInitialGame.show new game dialog by calling newGame()");
             newGame();
         }
         if (mGameProp.isShowingQuitGameDialog()) {
-            Log.d(TAG, "initializeColorBallsGame.show quit game dialog by calling quitGame()");
+            Log.d(TAG, "lastPartOfInitialGame.show quit game dialog by calling quitGame()");
             quitGame();
         }
         if (mGameProp.isShowingSureSaveDialog()) {
-            Log.d(TAG, "initializeColorBallsGame.isShowingSureSaveDialog()");
+            Log.d(TAG, "lastPartOfInitialGame.isShowingSureSaveDialog()");
             saveGame();
         }
         if (mGameProp.isShowingSureLoadDialog()) {
-            Log.d(TAG, "initializeColorBallsGame.isShowingSureLoadDialog()");
+            Log.d(TAG, "lastPartOfInitialGame.isShowingSureLoadDialog()");
             loadGame();
         }
         if (mGameProp.isShowingGameOverDialog()) {
-            Log.d(TAG, "initializeColorBallsGame.isShowingGameOverDialog()");
+            Log.d(TAG, "lastPartOfInitialGame.isShowingGameOverDialog()");
             gameOver();
         }
     }
@@ -657,8 +657,8 @@ public class MyPresenter {
         soundPool.release();
     }
 
-    private void bitmapsrawableResources(int cellWidth, int cellHeight) {
-        Log.w(TAG, "bitmapsrawableResources");
+    private void bitmapDrawableResources(int cellWidth, int cellHeight) {
+        Log.w(TAG, "bitmapDrawableResources");
 
         if (cellWidth<=0 || cellHeight<=0) {
             throw new IllegalArgumentException("cellWidth and cellHeight must be > 0");

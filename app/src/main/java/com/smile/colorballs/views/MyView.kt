@@ -22,6 +22,7 @@ import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.interfaces.PresentView
 import com.smile.colorballs.presenters.MyPresenter
+import com.smile.colorballs.presenters.Presenter
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment.DialogButtonListener
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
@@ -44,7 +45,7 @@ abstract class MyView: AppCompatActivity(), PresentView {
     abstract fun setDialogStyle(dialog: DialogInterface)
 
     protected var textFontSize = 0f
-    protected lateinit var mPresenter: MyPresenter
+    protected lateinit var mPresenter: Presenter
     protected lateinit var highestScoreTextView: TextView
     protected lateinit var currentScoreTextView: TextView
     protected lateinit var scoreImageView: ImageView
