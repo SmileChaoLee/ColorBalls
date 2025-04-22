@@ -44,6 +44,9 @@ class UnitTest {
         Assert.assertNotNull("setUp.resources is null", resources)
         presenter = Presenter(presentView)
         Assert.assertNotNull("setUp.presenter is null", presenter)
+
+        println("setUp.resources = $resources")
+        `when`(presentView.contextResources()).thenReturn(resources)
         val isNewGame = presenter.initGame(1000, 1000, null)
         Assert.assertTrue(isNewGame)
     }
@@ -60,7 +63,12 @@ class UnitTest {
         Assert.assertNotNull("test_PresenterHasSound.gameProp is null",
             gameProp)
 
-        `when`(gameProp.hasSound).thenReturn(true)
+        // `when`(gameProp.hasSound).thenReturn(true)
+        presenter.setHasSound(true)
         Assert.assertTrue(presenter.hasSound())
+
+        // `when`(gameProp.hasSound).thenReturn(false)
+        presenter.setHasSound(false)
+        Assert.assertFalse(presenter.hasSound())
     }
 }

@@ -10,7 +10,7 @@ import java.util.Stack
 import kotlin.math.min
 
 @Parcelize
-class GridData private constructor(
+open class GridData private constructor(
     private val mRowCounts : Int,
     private val mColCounts : Int,
     private var mNumOfColorsUsed : Int,

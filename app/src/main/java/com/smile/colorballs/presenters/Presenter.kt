@@ -644,6 +644,7 @@ class Presenter private constructor() {
         require(!(cellWidth <= 0 || cellHeight <= 0)) { "cellWidth and cellHeight must be > 0" }
 
         val resources = mPresentView.contextResources()
+        println("bitmapDrawableResources.resources = $resources")
         val nextBallWidth = (cellWidth * 0.5f).toInt()
         val nextBallHeight = (cellHeight * 0.5f).toInt()
         val ovalBallWidth = (cellWidth * 0.9f).toInt()

@@ -4,7 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-class GameProp private constructor(
+open class GameProp private constructor(
     var gridData: GridData,
     var isShowingLoadingMessage : Boolean,
     var isShowingScoreMessage : Boolean,
