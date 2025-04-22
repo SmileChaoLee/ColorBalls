@@ -61,7 +61,7 @@ class ColorBallsApp : MultiDexApplication() {
 
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
-        Log.d(TAG, "onTrimMemory() is called.")
+        Log.d(TAG, "onTrimMemory.level = $level")
     }
 
     companion object {

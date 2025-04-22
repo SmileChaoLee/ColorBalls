@@ -21,7 +21,6 @@ import androidx.core.content.ContextCompat
 import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.interfaces.PresentView
-import com.smile.colorballs.presenters.MyPresenter
 import com.smile.colorballs.presenters.Presenter
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment.DialogButtonListener
@@ -49,11 +48,11 @@ abstract class MyView: AppCompatActivity(), PresentView {
     protected lateinit var highestScoreTextView: TextView
     protected lateinit var currentScoreTextView: TextView
     protected lateinit var scoreImageView: ImageView
-    protected lateinit var sureSaveDialog: AlertDialogFragment
-    protected lateinit var warningSaveGameDialog: AlertDialogFragment
-    protected lateinit var sureLoadDialog: AlertDialogFragment
-    protected lateinit var gameOverDialog: AlertDialogFragment
-    protected lateinit var saveScoreAlertDialog: AlertDialog
+    protected var sureSaveDialog: AlertDialogFragment? = null
+    protected var warningSaveGameDialog: AlertDialogFragment? = null
+    protected var sureLoadDialog: AlertDialogFragment? = null
+    protected var gameOverDialog: AlertDialogFragment? = null
+    protected var saveScoreAlertDialog: AlertDialog? = null
 
     // implementing PresentView
     override fun contextResources(): Resources {
@@ -90,12 +89,12 @@ abstract class MyView: AppCompatActivity(), PresentView {
     }
 
     override fun compatDrawable(drawableId : Int) : Drawable? {
-        return ContextCompat.getDrawable(this, drawableId);
+        return ContextCompat.getDrawable(this, drawableId)
     }
 
     override fun bitmapToDrawable(bm : Bitmap, width : Int, height : Int) : Drawable? {
         return FontAndBitmapUtil.convertBitmapToDrawable(this, bm,
-            width, height);
+            width, height)
     }
 
     override fun getImageViewById(id: Int): ImageView {
@@ -121,15 +120,15 @@ abstract class MyView: AppCompatActivity(), PresentView {
     }
 
     override fun showLoadingStrOnScreen() {
-        showMessageOnScreen(getString(R.string.loadingStr));
+        showMessageOnScreen(getString(R.string.loadingStr))
     }
 
     override fun showSavingGameStrOnScreen() {
-        showMessageOnScreen(getString(R.string.savingGameStr));
+        showMessageOnScreen(getString(R.string.savingGameStr))
     }
 
     override fun showLoadingGameStrOnScreen() {
-        showMessageOnScreen(getString(R.string.loadingGameStr));
+        showMessageOnScreen(getString(R.string.loadingGameStr))
     }
 
     override fun dismissShowMessageOnScreen() {
@@ -172,8 +171,10 @@ abstract class MyView: AppCompatActivity(), PresentView {
             putInt(AlertDialogFragment.NumButtonsKey, 2)
             putBoolean(AlertDialogFragment.IsAnimationKey, false)
             mPresenter.setShowingSureSaveDialog(true)
-            sureSaveDialog.arguments = this
-            sureSaveDialog.show(supportFragmentManager, Constants.SURE_SAVE_DIALOG_TAG)
+            sureSaveDialog?.let {
+                it.arguments = this
+                it.show(supportFragmentManager, Constants.SURE_SAVE_DIALOG_TAG)
+            }
         }
         val fragment = supportFragmentManager.findFragmentByTag(Constants.SURE_SAVE_DIALOG_TAG)
         Log.d(TAG,"MyView.showSaveGameDialog.fragment = $fragment")
@@ -220,8 +221,10 @@ abstract class MyView: AppCompatActivity(), PresentView {
             putInt(AlertDialogFragment.NumButtonsKey, 2)
             putBoolean(AlertDialogFragment.IsAnimationKey, false)
             mPresenter.setShowingSureLoadDialog(true)
-            sureLoadDialog.arguments = this
-            sureLoadDialog.show(supportFragmentManager, Constants.SURE_LOAD_DIALOG_TAG)
+            sureLoadDialog?.let {
+                it.arguments = this
+                it.show(supportFragmentManager, Constants.SURE_LOAD_DIALOG_TAG)
+            }
         }
     }
 
@@ -251,9 +254,11 @@ abstract class MyView: AppCompatActivity(), PresentView {
             putInt(AlertDialogFragment.NumButtonsKey, 2)
             putBoolean(AlertDialogFragment.IsAnimationKey, false)
             mPresenter.setShowingGameOverDialog(true)
-            gameOverDialog.arguments = this
-            gameOverDialog.show(supportFragmentManager, Constants.GAME_OVER_DIALOG_TAG)
-            Log.d(TAG, "gameOverDialog.show() has been called.")
+            gameOverDialog?.let {
+                it.arguments = this
+                it.show(supportFragmentManager, Constants.GAME_OVER_DIALOG_TAG)
+                Log.d(TAG, "gameOverDialog.show() has been called.")
+            }
         }
     }
 
@@ -265,31 +270,32 @@ abstract class MyView: AppCompatActivity(), PresentView {
         ScreenUtil.resizeTextSize(et, textFontSize, ScreenUtil.FontSize_Pixel_Type)
         et.gravity = Gravity.CENTER
         saveScoreAlertDialog = AlertDialog.Builder(this).create()
-        saveScoreAlertDialog.setTitle(null)
-        saveScoreAlertDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        saveScoreAlertDialog.setCancelable(false)
-        saveScoreAlertDialog.setView(et)
-        saveScoreAlertDialog.setButton(DialogInterface.BUTTON_NEGATIVE,
-            getString(R.string.cancelStr)
-        ) { dialog: DialogInterface, _: Int ->
-            dialog.dismiss()
-            quitOrNewGame(entryPoint)
-            mPresenter.setSaveScoreAlertDialogState(entryPoint, false)
-            // saveScoreAlertDialog = null
+        saveScoreAlertDialog?.let {
+            it.setTitle(null)
+            it.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            it.setCancelable(false)
+            it.setView(et)
+            it.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancelStr)
+            ) { dialog: DialogInterface, _: Int ->
+                dialog.dismiss()
+                quitOrNewGame(entryPoint)
+                mPresenter.setSaveScoreAlertDialogState(entryPoint, false)
+                // saveScoreAlertDialog = null
+            }
+            it.setButton(DialogInterface.BUTTON_POSITIVE,
+                getString(R.string.submitStr)
+            ) { dialog: DialogInterface, _: Int ->
+                mPresenter.saveScore(et.text.toString(), score)
+                dialog.dismiss()
+                quitOrNewGame(entryPoint)
+                mPresenter.setSaveScoreAlertDialogState(entryPoint, false)
+                // saveScoreAlertDialog = null
+            }
+            it.setOnShowListener { style ->
+                setDialogStyle(style)
+            }
+            it.show()
         }
-        saveScoreAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE,
-            getString(R.string.submitStr)
-        ) { dialog: DialogInterface, _: Int ->
-            mPresenter.saveScore(et.text.toString(), score)
-            dialog.dismiss()
-            quitOrNewGame(entryPoint)
-            mPresenter.setSaveScoreAlertDialogState(entryPoint, false)
-            // saveScoreAlertDialog = null
-        }
-        saveScoreAlertDialog.setOnShowListener {
-            setDialogStyle(it)
-        }
-        saveScoreAlertDialog.show()
     }
     // end of implementing
 }

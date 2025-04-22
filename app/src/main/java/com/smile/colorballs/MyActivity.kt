@@ -1,654 +1,639 @@
-package com.smile.colorballs;
+package com.smile.colorballs
 
-import static com.smile.colorballs.R.*;
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
+import android.graphics.Color
+import android.graphics.Typeface
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
+import android.view.Gravity
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.WindowManager
+import android.widget.FrameLayout
+import android.widget.GridLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.view.ContextThemeWrapper
+import androidx.appcompat.widget.Toolbar
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.google.android.ads.nativetemplates.TemplateView
+import com.smile.colorballs.R.drawable
+import com.smile.colorballs.R.id
+import com.smile.colorballs.R.layout
+import com.smile.colorballs.R.string
+import com.smile.colorballs.Top10Fragment.Companion.newInstance
+import com.smile.colorballs.Top10Fragment.Top10OkButtonListener
+import com.smile.colorballs.constants.Constants
+import com.smile.colorballs.coroutines.LocalTop10Coroutine
+import com.smile.colorballs.coroutines.LocalTop10Coroutine.Companion.getLocalTop10
+import com.smile.colorballs.presenters.Presenter
+import com.smile.colorballs.services.GlobalTop10Service
+import com.smile.colorballs.services.LocalTop10Service
+import com.smile.colorballs.views.MyView
+import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate
+import com.smile.smilelibraries.models.ExitAppTimer
+import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil
+import com.smile.smilelibraries.show_banner_ads.SetBannerAdView
+import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
+import com.smile.smilelibraries.utilities.ScreenUtil
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
-import android.graphics.Color;
-import android.graphics.Point;
-import android.graphics.Typeface;
-import android.os.Handler;
-
-import androidx.activity.OnBackPressedCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.view.ContextThemeWrapper;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
-import android.os.Bundle;
-import androidx.appcompat.widget.Toolbar;
-
-import android.os.Looper;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.GridLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.Toast;
-
-import com.smile.colorballs.constants.Constants;
-import com.smile.colorballs.presenters.Presenter;
-import com.smile.colorballs.services.GlobalTop10Service;
-import com.smile.colorballs.services.LocalTop10Service;
-import com.smile.colorballs.views.MyView;
-import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate;
-import com.smile.smilelibraries.models.ExitAppTimer;
-import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil;
-import com.smile.smilelibraries.show_banner_ads.SetBannerAdView;
-import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial;
-import com.smile.smilelibraries.utilities.ScreenUtil;
-import com.smile.colorballs.coroutines.*;
-import java.util.ArrayList;
-
-public class MyActivity extends MyView {
-
-    // private properties
-    private static final String TAG = "MyActivity";
-    private static final String Top10FragmentTag = "Top10FragmentTag";
-    private float fontScale;
-    private float screenWidth;
-    private float screenHeight;
-    private Toolbar supportToolbar;
-    private Top10Fragment top10Fragment = null;
-    private MyBroadcastReceiver myReceiver;
-    private float mainGameViewWidth;
-    private int cellWidth;
-    private int cellHeight;
-    private GoogleAdMobNativeTemplate nativeTemplate;
-    private SetBannerAdView myBannerAdView;
-    private SetBannerAdView myBannerAdView2;
-    private ActivityResultLauncher<Intent> settingLauncher;
-    private ActivityResultLauncher<Intent> top10Launcher;
-    private ShowInterstitial interstitialAd = null;
+class MyActivity : MyView() {
+    private var fontScale = 0f
+    private var screenWidth = 0f
+    private var screenHeight = 0f
+    private var supportToolbar: Toolbar? = null
+    private var top10Fragment: Top10Fragment? = null
+    private var mainGameViewWidth = 0f
+    private var cellWidth = 0
+    private var cellHeight = 0
+    private var myReceiver: MyBroadcastReceiver? = null
+    private var nativeTemplate: GoogleAdMobNativeTemplate? = null
+    private var myBannerAdView: SetBannerAdView? = null
+    private var myBannerAdView2: SetBannerAdView? = null
+    private lateinit var settingLauncher: ActivityResultLauncher<Intent>
+    private lateinit var top10Launcher: ActivityResultLauncher<Intent>
+    private var interstitialAd: ShowInterstitial? = null
 
     @SuppressLint("SourceLockedOrientationActivity")
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate() is called");
-        mPresenter = new Presenter(this);
-        ColorBallsApp application = (ColorBallsApp)getApplication();
-        interstitialAd = new ShowInterstitial(this, application.facebookAds,
-                    application.googleInterstitialAd);
-        super.onCreate(savedInstanceState);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG, "onCreate")
+        mPresenter = Presenter(this)
+        (application as ColorBallsApp).let {
+            interstitialAd = ShowInterstitial(this, it.facebookAds,
+                it.googleInterstitialAd)
+        }
+        super.onCreate(savedInstanceState)
 
         if (!BuildConfig.DEBUG) {
-            if (ScreenUtil.isTablet(this)) {
+            requestedOrientation = if (ScreenUtil.isTablet(this)) {
                 // Table then change orientation to Landscape
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             } else {
                 // phone then change orientation to Portrait
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             }
         }
+        setContentView(layout.activity_my)
 
-        setContentView(layout.activity_my);
-
-        createActivityUI();
-
-        createGameView();
-        createColorBallsGame(savedInstanceState);
-
-        setBannerAndNativeAdUI();
-
-        setBroadcastReceiver();
-
-        settingLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    Log.d(TAG, "settingLauncher.result received");
-                    int resultCode = result.getResultCode();
-                    if (resultCode == Activity.RESULT_OK) {
-                        Intent data = result.getData();
-                        if (data == null) return;
-                        Bundle extras = data.getExtras();
-                        if (extras != null) {
-                            boolean hasSound = extras.getBoolean(Constants.HAS_SOUND);
-                            mPresenter.setHasSound(hasSound);
-                            boolean isEasyLevel = extras.getBoolean(Constants.IS_EASY_LEVEL);
-                            mPresenter.setEasyLevel(isEasyLevel);
-                            boolean hasNextBall = extras.getBoolean(Constants.HAS_NEXT_BALL);
-                            mPresenter.setHasNextBall(hasNextBall, true);
-                        }
-                    }
-                    ColorBallsApp.isProcessingJob = false;  // setting activity finished
-                });
-        top10Launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    Log.d(TAG, "top10Launcher.result received");
-                    int resultCode = result.getResultCode();
-                    if (resultCode == Activity.RESULT_OK) {
-                        Log.d(TAG, "top10Launcher.Showing interstitial ads");
-                        showInterstitialAd();
-                    }
-                    ColorBallsApp.isShowingLoadingMessage = false;
-                    ColorBallsApp.isProcessingJob = false;
-                });
-
-        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                Log.d(TAG, "onBackPressedDispatcher.handleOnBackPressed");
-                onBackWasPressed();
+        createActivityUI()
+        createGameView()
+        createGame(savedInstanceState)
+        bannerAndNativeAd()
+        setBroadcastReceiver()
+        settingLauncher = registerForActivityResult<Intent, ActivityResult>(
+            ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            Log.d(TAG, "settingLauncher.result received")
+            if (result.resultCode == RESULT_OK) {
+                val data = result.data ?: return@registerForActivityResult
+                data.extras?.let { extras ->
+                    mPresenter.setHasSound(extras.getBoolean(Constants.HAS_SOUND))
+                    mPresenter.setEasyLevel(extras.getBoolean(Constants.IS_EASY_LEVEL))
+                    mPresenter.setHasNextBall(extras.getBoolean(Constants.HAS_NEXT_BALL), true)
+                }
             }
-        });
+            ColorBallsApp.isProcessingJob = false // setting activity finished
+        }
+        top10Launcher = registerForActivityResult<Intent, ActivityResult>(
+            ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            Log.d(TAG, "top10Launcher.result received")
+            if (result.resultCode == RESULT_OK) {
+                Log.d(TAG, "top10Launcher.Showing interstitial ads")
+                showInterstitialAd()
+            }
+            ColorBallsApp.isShowingLoadingMessage = false
+            ColorBallsApp.isProcessingJob = false
+        }
 
-        Log.d(TAG, "onCreate() is finished.");
+        onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                Log.d(TAG, "onBackPressedDispatcher.handleOnBackPressed")
+                onBackWasPressed()
+            }
+        })
+
+        Log.d(TAG, "onCreate() is finished.")
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.my, menu);
-
+        menuInflater.inflate(R.menu.my, menu)
         // final Context wrapper = new ContextThemeWrapper(this, R.style.menu_text_style);
         // or
-        final int popupThemeId = supportToolbar.getPopupTheme();
-        final Context wrapper = new ContextThemeWrapper(this, popupThemeId);
-        //
-
+        val popupThemeId = supportToolbar!!.popupTheme
+        val wrapper: Context = ContextThemeWrapper(this, popupThemeId)
         // ScreenUtil.buildActionViewClassMenu(this, wrapper, menu, fScale, ScreenUtil.FontSize_Pixel_Type);
-        ScreenUtil.resizeMenuTextIconSize(wrapper, menu, fontScale);
+        ScreenUtil.resizeMenuTextIconSize(wrapper, menu, fontScale)
 
-        return true;
+        return true
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-
-        boolean isProcessingJob = ColorBallsApp.isProcessingJob;
-
-        if (isProcessingJob) {
-            return false;
+        if (ColorBallsApp.isProcessingJob) {
+            return false
         }
-        int id = item.getItemId();
-        if (id == R.id.undoGame) {
-            mPresenter.undoTheLast();
-        } else if (id == R.id.globalTop10) {
-            showTop10ScoreHistory(false);
-        } else if (id == R.id.localTop10) {
-            showTop10ScoreHistory(true);
-        } else if (id == R.id.setting) {
-            Log.d(TAG, "onOptionsItemSelected.settingLauncher.launch(intent)");
-            ColorBallsApp.isProcessingJob = true;    // started procession job
-            Intent intent = new Intent(this, SettingActivity.class);
-            Bundle extras = new Bundle();
-            extras.putBoolean(Constants.HAS_SOUND, mPresenter.hasSound());
-            extras.putBoolean(Constants.IS_EASY_LEVEL, mPresenter.isEasyLevel());
-            extras.putBoolean(Constants.HAS_NEXT_BALL, mPresenter.hasNextBall());
-            intent.putExtras(extras);
-            settingLauncher.launch(intent);
-        } else if (id == R.id.saveGame) {
-            mPresenter.saveGame();
-        } else if (id == R.id.loadGame) {
-            mPresenter.loadGame();
-        } else if (id == R.id.newGame) {
-            mPresenter.newGame();
-        } else if (id == R.id.quitGame) {
-            mPresenter.quitGame(); //  exit game
-        } else if (id == R.id.privacyPolicy) {
-            PrivacyPolicyUtil.startPrivacyPolicyActivity(this, 10);
-        } else {
-            // return super.onOptionsItemSelected(item);
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        Log.d(TAG, "MyActivity.onSaveInstanceState() is called");
-
-        if (isChangingConfigurations()) {
-            // configuration is changing then remove top10Fragment
-            if (top10Fragment != null) {
-                // remove top10Fragment
-                FragmentManager fmManager = getSupportFragmentManager();
-                FragmentTransaction ft = fmManager.beginTransaction();
-                ft.remove(top10Fragment);
-                if (top10Fragment.isStateSaved()) {
-                    Log.d(TAG, "top10Fragment.isStateSaved() = true");
-                } else {
-                    Log.d(TAG, "top10Fragment.isStateSaved() = false");
-                    // ft.commit(); // removed on 2021-01-24
+        when (item.itemId) {
+            id.undoGame -> {
+                mPresenter.undoTheLast()
+            }
+            id.globalTop10 -> {
+                showTop10Scores(false)
+            }
+            id.localTop10 -> {
+                showTop10Scores(true)
+            }
+            id.setting -> {
+                Log.d(TAG, "onOptionsItemSelected.settingLauncher.launch(intent)")
+                ColorBallsApp.isProcessingJob = true // started procession job
+                Intent(this, SettingActivity::class.java).let {
+                    Bundle().let { extra ->
+                        extra.putBoolean(Constants.HAS_SOUND, mPresenter.hasSound())
+                        extra.putBoolean(Constants.IS_EASY_LEVEL, mPresenter.isEasyLevel())
+                        extra.putBoolean(Constants.HAS_NEXT_BALL, mPresenter.hasNextBall())
+                        it.putExtras(extra)
+                        settingLauncher.launch(it)
+                    }
                 }
-                ft.commitAllowingStateLoss();   // added on 2021-01-24
-                ColorBallsApp.isShowingLoadingMessage = false;
-                ColorBallsApp.isProcessingJob = false;
+            }
+            id.saveGame -> {
+                mPresenter.saveGame()
+            }
+            id.loadGame -> {
+                mPresenter.loadGame()
+            }
+            id.newGame -> {
+                mPresenter.newGame()
+            }
+            id.quitGame -> {
+                mPresenter.quitGame() //  exit game
+            }
+            id.privacyPolicy -> {
+                PrivacyPolicyUtil.startPrivacyPolicyActivity(this, 10)
+            }
+            else -> {
+                // return super.onOptionsItemSelected(item);
+                return false
             }
         }
-
-        if (saveScoreAlertDialog != null) {
-            saveScoreAlertDialog.dismiss();
-        }
-
-        mPresenter.onSaveInstanceState(outState);
-
-        super.onSaveInstanceState(outState);
+        return true
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.d(TAG, "MyActivity.onStart() is called");
+    override fun onSaveInstanceState(outState: Bundle) {
+        Log.d(TAG, "onSaveInstanceState")
+        if (isChangingConfigurations) {
+            // configuration is changing then remove top10Fragment
+            top10Fragment?.let {
+                // remove top10Fragment
+                supportFragmentManager.beginTransaction().apply {
+                    remove(it)
+                    Log.d(TAG, "onSaveInstanceState.isStateSaved() = ${it.isStateSaved}")
+                    commitAllowingStateLoss() // added on 2021-01-24
+                    ColorBallsApp.isShowingLoadingMessage = false
+                    ColorBallsApp.isProcessingJob = false
+                }
+            }
+        }
+        saveScoreAlertDialog?.dismiss()
+        mPresenter.onSaveInstanceState(outState)
+
+        super.onSaveInstanceState(outState)
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d(TAG, "MyActivity.onResume() is called");
+    override fun onStart() {
+        Log.d(TAG, "onStart")
+        super.onStart()
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d(TAG, "MyActivity.onPause() is called");
+    override fun onResume() {
+        Log.d(TAG, "onResume")
+        super.onResume()
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.d(TAG, "MyActivity.onStop() is called");
+    override fun onPause() {
+        Log.d(TAG, "onPause")
+        super.onPause()
     }
 
-    @Override
-    public void onDestroy() {
-        Log.d(TAG, "onDestroy() is called");
-        if (mPresenter != null) {
-            mPresenter.release();
-        }
-        if (interstitialAd != null) interstitialAd.releaseInterstitial();
-        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
-        localBroadcastManager.unregisterReceiver(myReceiver);
-        if (myBannerAdView != null) {
-            myBannerAdView.pause();
-            myBannerAdView.destroy();
-            myBannerAdView = null;
-        }
-        if (myBannerAdView2 != null) {
-            myBannerAdView2.pause();
-            myBannerAdView2.destroy();
-            myBannerAdView2 = null;
-        }
-        if (nativeTemplate != null) {
-            nativeTemplate.release();
-        }
-        if (sureSaveDialog != null) {
-            sureSaveDialog.dismissAllowingStateLoss();
-        }
-        if (warningSaveGameDialog != null) {
-            warningSaveGameDialog.dismissAllowingStateLoss();
-        }
-        if (sureLoadDialog != null) {
-            sureLoadDialog.dismissAllowingStateLoss();
-        }
-        if (gameOverDialog != null) {
-            gameOverDialog.dismissAllowingStateLoss();
-        }
-        super.onDestroy();
+    override fun onStop() {
+        Log.d(TAG, "onStop")
+        super.onStop()
     }
 
-    private void onBackWasPressed() {
+    public override fun onDestroy() {
+        Log.d(TAG, "onDestroy")
+        mPresenter.release()
+        interstitialAd?.releaseInterstitial()
+        LocalBroadcastManager.getInstance(this).let {
+            myReceiver?.let { rec ->
+                it.unregisterReceiver(rec)
+            }
+        }
+        myBannerAdView?.let {
+            it.pause()
+            it.destroy()
+        }
+        myBannerAdView2?.let {
+            it.pause()
+            it.destroy()
+        }
+        nativeTemplate?.release()
+        sureSaveDialog?.dismissAllowingStateLoss()
+        warningSaveGameDialog?.dismissAllowingStateLoss()
+        sureLoadDialog?.dismissAllowingStateLoss()
+        gameOverDialog?.dismissAllowingStateLoss()
+
+        super.onDestroy()
+    }
+
+    private fun onBackWasPressed() {
         // capture the event of back button when it is pressed
         // change back button behavior
-        ExitAppTimer exitAppTimer = ExitAppTimer.getInstance(1000); // singleton class
+        val exitAppTimer = ExitAppTimer.getInstance(1000) // singleton class
         if (exitAppTimer.canExit()) {
-            mPresenter.quitGame();   //   from   END PROGRAM
+            mPresenter.quitGame() //   from   END PROGRAM
         } else {
-            exitAppTimer.start();
-            float toastFontSize = getTextFontSize() * 0.7f;
-            Log.d(TAG, "toastFontSize = " + toastFontSize);
-            ScreenUtil.showToast(MyActivity.this, getString(string.backKeyToExitApp), toastFontSize, ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_SHORT);
-            // ShowToastMessage.showToast(this, getString(R.string.backKeyToExitApp), toastFontSize, ScreenUtil.FontSize_Pixel_Type, 2000);
+            exitAppTimer.start()
+            val toastFontSize = textFontSize * 0.7f
+            Log.d(TAG, "toastFontSize = $toastFontSize")
+            ScreenUtil.showToast(
+                this@MyActivity,
+                getString(string.backKeyToExitApp),
+                toastFontSize,
+                ScreenUtil.FontSize_Pixel_Type,
+                Toast.LENGTH_SHORT
+            )
         }
     }
-    private void findOutTextFontSize() {
-        float defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this, ScreenUtil.FontSize_Pixel_Type, null);
-        setTextFontSize(ScreenUtil.suitableFontSize(this, defaultTextFontSize, ScreenUtil.FontSize_Pixel_Type, 0.0f));
-        fontScale = ScreenUtil.suitableFontScale(this, ScreenUtil.FontSize_Pixel_Type, 0.0f);
+
+    private fun findTextFontSize() {
+        val defaultSize = ScreenUtil.getDefaultTextSizeFromTheme(this,
+                ScreenUtil.FontSize_Pixel_Type, null)
+        textFontSize = ScreenUtil.suitableFontSize(
+            this,
+            defaultSize,
+            ScreenUtil.FontSize_Pixel_Type,
+            0.0f)
+        fontScale = ScreenUtil.suitableFontScale(this,
+            ScreenUtil.FontSize_Pixel_Type, 0.0f)
     }
 
-    private void findOutScreenSize() {
-        Point size = ScreenUtil.getScreenSize(this);
-        screenWidth = size.x;
-        screenHeight = size.y;
-        Log.d(TAG, "screenWidth = " + screenWidth);
-        Log.d(TAG, "screenHeight = " + screenHeight);
-        float statusBarHeight = ScreenUtil.getStatusBarHeight(this);
-        Log.d(TAG, "statusBarHeight = " + statusBarHeight);
-        float actionBarHeight = ScreenUtil.getActionBarHeight(this);
-        Log.d(TAG, "actionBarHeight = " + actionBarHeight);
-        float navigationBarHeight = ScreenUtil.getNavigationBarHeight(this);
-        Log.d(TAG, "navigationBarHeight = " + navigationBarHeight);
+    private fun findScreenSize() {
+        val size = ScreenUtil.getScreenSize(this)
+        screenWidth = size.x.toFloat()
+        Log.d(TAG, "screenWidth = $screenWidth")
+        screenHeight = size.y.toFloat()
+        Log.d(TAG, "screenHeight = $screenHeight")
+        val statusBarHeight = ScreenUtil.getStatusBarHeight(this).toFloat()
+        Log.d(TAG, "statusBarHeight = $statusBarHeight")
+        val actionBarHeight = ScreenUtil.getActionBarHeight(this).toFloat()
+        Log.d(TAG, "actionBarHeight = $actionBarHeight")
+        val navigationBarHeight = ScreenUtil.getNavigationBarHeight(this).toFloat()
+        Log.d(TAG, "navigationBarHeight = $navigationBarHeight")
         // keep navigation bar
-        screenHeight = screenHeight - statusBarHeight - actionBarHeight;
+        screenHeight -= (statusBarHeight + actionBarHeight)
     }
 
-    private void setUpSupportActionBar() {
-        supportToolbar = findViewById(id.colorBallToolbar);
-        setSupportActionBar(supportToolbar);
-        androidx.appcompat.app.ActionBar supportActionBar = getSupportActionBar();
-        if (supportActionBar != null) {
-            supportActionBar.setDisplayShowTitleEnabled(false);
-        }
+    private fun setUpSupportActionBar() {
+        supportToolbar = findViewById(id.colorBallToolbar)
+        setSupportActionBar(supportToolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
     }
 
-    private void createActivityUI() {
-        findOutTextFontSize();
-        findOutScreenSize();
-        setUpSupportActionBar();
+    private fun createActivityUI() {
+        findTextFontSize()
+        findScreenSize()
+        setUpSupportActionBar()
     }
 
-    private void createGameView() {
+    private fun createGameView() {
         // find Out Width and Height of GameView
-        LinearLayout linearLayout_myActivity = findViewById(id.linearLayout_myActivity);
-        float main_WeightSum = linearLayout_myActivity.getWeightSum();
-        Log.d(TAG, "main_WeightSum = " + main_WeightSum);
+        var linearLayout = findViewById<LinearLayout>(id.linearLayout_myActivity)
+        val mainWeightSum = linearLayout.weightSum
+        Log.d(TAG, "mainWeightSum = $mainWeightSum")
 
-        LinearLayout gameViewLinearLayout = findViewById(id.gameViewLinearLayout);
-        LinearLayout.LayoutParams gameViewLp = (LinearLayout.LayoutParams) gameViewLinearLayout.getLayoutParams();
-        float gameView_Weight = gameViewLp.weight;
-        Log.d(TAG, "gameView_Weight = " + gameView_Weight);
-        float mainGameViewHeight = screenHeight * gameView_Weight / main_WeightSum;
-        Log.d(TAG, "mainGameViewHeight = " + mainGameViewHeight);
+        linearLayout = findViewById(id.gameViewLinearLayout)
+        val gameViewLp = linearLayout.layoutParams as LinearLayout.LayoutParams
+        val gameViewWeight = gameViewLp.weight
+        Log.d(TAG, "gameViewWeight = $gameViewWeight")
+        val mainGameViewHeight = screenHeight * gameViewWeight / mainWeightSum
+        Log.d(TAG, "mainGameViewHeight = $mainGameViewHeight")
 
-        float gameViewWeightSum = gameViewLinearLayout.getWeightSum();
-        Log.d(TAG, "gameViewWeightSum = " + gameViewWeightSum);
-        LinearLayout mainGameViewUiLayout = findViewById(id.gameViewLayout);
-        LinearLayout.LayoutParams mainGameViewUiLayoutParams = (LinearLayout.LayoutParams) mainGameViewUiLayout.getLayoutParams();
-        float mainGameViewUi_weight = mainGameViewUiLayoutParams.weight;
-        Log.d(TAG, "mainGameViewUi_weight = " + mainGameViewUi_weight);
-        mainGameViewWidth = screenWidth * (mainGameViewUi_weight / gameViewWeightSum);
-        Log.d(TAG, "mainGameViewWidth = " + mainGameViewWidth);
+        val gameViewWeightSum = linearLayout.weightSum
+        Log.d(TAG, "gameViewWeightSum = $gameViewWeightSum")
+        linearLayout = findViewById(id.gameViewLayout)
+        val mainGameViewUiLayoutParams =
+            linearLayout.layoutParams as LinearLayout.LayoutParams
+        val mainGameViewUiWeight = mainGameViewUiLayoutParams.weight
+        Log.d(TAG, "mainGameViewUiWeight = $mainGameViewUiWeight")
+        mainGameViewWidth = screenWidth * (mainGameViewUiWeight / gameViewWeightSum)
+        Log.d(TAG, "mainGameViewWidth = $mainGameViewWidth")
 
         // display the highest score and current score
-        highestScoreTextView = supportToolbar.findViewById(id.highestScoreTextView);
-        ScreenUtil.resizeTextSize(highestScoreTextView, getTextFontSize(), ScreenUtil.FontSize_Pixel_Type);
+        supportToolbar?.let {
+            highestScoreTextView = it.findViewById(id.highestScoreTextView)
+            ScreenUtil.resizeTextSize(
+                highestScoreTextView,
+                textFontSize,
+                ScreenUtil.FontSize_Pixel_Type
+            )
+            currentScoreTextView = it.findViewById(id.currentScoreTextView)
+            ScreenUtil.resizeTextSize(
+                currentScoreTextView,
+                textFontSize,
+                ScreenUtil.FontSize_Pixel_Type
+            )
+        }
 
-        currentScoreTextView = supportToolbar.findViewById(id.currentScoreTextView);
-        ScreenUtil.resizeTextSize(currentScoreTextView, getTextFontSize(), ScreenUtil.FontSize_Pixel_Type);
-
-        FrameLayout gridPartFrameLayout = findViewById(id.gridPartFrameLayout);
-        LinearLayout.LayoutParams frameLp = (LinearLayout.LayoutParams) gridPartFrameLayout.getLayoutParams();
+        val gridPartFrameLayout = findViewById<FrameLayout>(id.gridPartFrameLayout)
+        val frameLp = gridPartFrameLayout.layoutParams as LinearLayout.LayoutParams
 
         // for 9 x 9 grid: main part of this game
-        GridLayout gridCellsLayout = findViewById(id.gridCellsLayout);
-        int rowCounts = gridCellsLayout.getRowCount();
-        int colCounts = gridCellsLayout.getColumnCount();
+        val gridCellsLayout = findViewById<GridLayout>(id.gridCellsLayout)
+        val rowCounts = gridCellsLayout.rowCount
+        val colCounts = gridCellsLayout.columnCount
 
-        cellWidth = (int) (mainGameViewWidth / colCounts);
-        Log.d(TAG, "cellWidth = " + cellWidth);
+        cellWidth = (mainGameViewWidth / colCounts).toInt()
+        Log.d(TAG, "cellWidth = $cellWidth")
         if (mainGameViewWidth > mainGameViewHeight) {
             // if screen width greater than 8-10th of screen height
-            cellWidth = (int)(mainGameViewHeight / rowCounts);
+            cellWidth = (mainGameViewHeight / rowCounts).toInt()
         }
-        cellHeight = cellWidth;
-        Log.d(TAG, "cellHeight = " + cellHeight);
+        cellHeight = cellWidth
+        Log.d(TAG, "cellHeight = $cellHeight")
 
         // added on 2018-10-02 to test and it works
         // setting the width and the height of GridLayout by using the FrameLayout that is on top of it
-        frameLp.width = cellWidth * colCounts;
-        frameLp.topMargin = 20;
-        frameLp.gravity = Gravity.CENTER;
+        frameLp.width = cellWidth * colCounts
+        frameLp.topMargin = 20
+        frameLp.gravity = Gravity.CENTER
 
-        LinearLayout.LayoutParams oneBallLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        oneBallLp.width = cellWidth;
-        oneBallLp.height = cellHeight;
-        oneBallLp.gravity = Gravity.CENTER;
+        val oneBallLp = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        oneBallLp.width = cellWidth
+        oneBallLp.height = cellHeight
+        oneBallLp.gravity = Gravity.CENTER
 
-        mPresenter.setRowCounts(rowCounts);
-        mPresenter.setColCounts(colCounts);
+        mPresenter.setRowCounts(rowCounts)
+        mPresenter.setColCounts(colCounts)
 
         // set listener for each ImageView
-        ImageView imageView;
-        int imId;
-        for (int i = 0; i < rowCounts; i++) {
-            for (int j = 0; j < colCounts; j++) {
+        var imageView: ImageView
+        var imId: Int
+        for (i in 0 until rowCounts) {
+            for (j in 0 until colCounts) {
                 // imId = i * rowCounts + j;
-                imId = mPresenter.getImageId(i, j);
-                imageView = new ImageView(this);
-                imageView.setId(imId);
-                imageView.setAdjustViewBounds(true);
-                imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-                imageView.setBackgroundResource(drawable.box_image);
-                imageView.setClickable(true);
-                imageView.setOnClickListener(v -> {
+                imId = mPresenter.getImageId(i, j)
+                imageView = ImageView(this)
+                imageView.id = imId
+                imageView.adjustViewBounds = true
+                imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
+                imageView.setBackgroundResource(drawable.box_image)
+                imageView.isClickable = true
+                imageView.setOnClickListener { v: View? ->
                     if ((mPresenter.completedAll()) && (!ColorBallsApp.isProcessingJob)) {
-                        Log.d(TAG, "createGameView.onClick");
-                        mPresenter.drawBallsAndCheckListener(v);
+                        Log.d(TAG, "createGameView.onClick")
+                        mPresenter.drawBallsAndCheckListener(v!!)
                     }
-                });
-                gridCellsLayout.addView(imageView, imId, oneBallLp);
+                }
+                gridCellsLayout.addView(imageView, imId, oneBallLp)
             }
         }
 
-        scoreImageView = findViewById(id.scoreImageView);
-        scoreImageView.setVisibility(View.GONE);
+        scoreImageView = findViewById(id.scoreImageView)
+        scoreImageView.visibility = View.GONE
     }
 
-    private void createColorBallsGame(Bundle savedInstanceState) {
-        saveScoreAlertDialog = null;
-        mPresenter.initGame(cellWidth, cellHeight, savedInstanceState);
+    private fun createGame(savedInstanceState: Bundle?) {
+        saveScoreAlertDialog = null
+        mPresenter.initGame(cellWidth, cellHeight, savedInstanceState)
     }
 
-    @Override
-    public void setDialogStyle(@NonNull DialogInterface dialog) {
-        AlertDialog dlg = (AlertDialog)dialog;
-        Window window = dlg.getWindow();
-        if (window != null) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-            window.setDimAmount(0.0f); // no dim for background screen
-            window.setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
-            window.setBackgroundDrawableResource(drawable.dialog_board_image);
+    override fun setDialogStyle(dialog: DialogInterface) {
+        val dlg = dialog as AlertDialog
+        (dlg.window)?.apply {
+                addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+                setDimAmount(0.0f) // no dim for background screen
+                setLayout(WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT)
+                setBackgroundDrawableResource(drawable.dialog_board_image)
         }
 
-        Button nBtn = dlg.getButton(DialogInterface.BUTTON_NEGATIVE);
-        ScreenUtil.resizeTextSize(nBtn, getTextFontSize(), ScreenUtil.FontSize_Pixel_Type);
-        nBtn.setTypeface(Typeface.DEFAULT_BOLD);
-        nBtn.setTextColor(Color.RED);
+        val nBtn = dlg.getButton(DialogInterface.BUTTON_NEGATIVE)
+        ScreenUtil.resizeTextSize(nBtn, textFontSize, ScreenUtil.FontSize_Pixel_Type)
+        nBtn.typeface = Typeface.DEFAULT_BOLD
+        nBtn.setTextColor(Color.RED)
 
-        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams)nBtn.getLayoutParams();
-        layoutParams.weight = 10;
-        nBtn.setLayoutParams(layoutParams);
+        val layoutParams = nBtn.layoutParams as LinearLayout.LayoutParams
+        layoutParams.weight = 10f
+        nBtn.layoutParams = layoutParams
 
-        Button pBtn = dlg.getButton(DialogInterface.BUTTON_POSITIVE);
-        ScreenUtil.resizeTextSize(pBtn, getTextFontSize(), ScreenUtil.FontSize_Pixel_Type);
-        pBtn.setTypeface(Typeface.DEFAULT_BOLD);
-        pBtn.setTextColor(Color.rgb(0x00,0x64,0x00));
-        pBtn.setLayoutParams(layoutParams);
+        val pBtn = dlg.getButton(DialogInterface.BUTTON_POSITIVE)
+        ScreenUtil.resizeTextSize(pBtn, textFontSize, ScreenUtil.FontSize_Pixel_Type)
+        pBtn.typeface = Typeface.DEFAULT_BOLD
+        pBtn.setTextColor(Color.rgb(0x00, 0x64, 0x00))
+        pBtn.layoutParams = layoutParams
     }
 
-    @Override
-    public void showInterstitialAd() {
-        Log.d(TAG, "showInterstitialAd = " + interstitialAd);
-        if (interstitialAd == null) {
-            return;
-        }
-        interstitialAd.new ShowAdThread().startShowAd(0);    // AdMob first
+    override fun showInterstitialAd() {
+        Log.d(TAG, "showInterstitialAd = $interstitialAd")
+        interstitialAd?.ShowAdThread()?.startShowAd(0) // AdMob first
     }
 
-    @Override
-    public void quitOrNewGame(final int entryPoint) {
-        if (entryPoint==0) {
+    override fun quitOrNewGame(entryPoint: Int) {
+        if (entryPoint == 0) {
             //  END PROGRAM
-            exitApplication();
-        } else if (entryPoint==1) {
+            exitApplication()
+        } else if (entryPoint == 1) {
             //  NEW GAME
-            createColorBallsGame(null);
+            createGame(null)
         }
-        ColorBallsApp.isProcessingJob = false;
+        ColorBallsApp.isProcessingJob = false
     }
 
-    private void showTop10ScoreHistory(boolean isLocal) {
-        Log.d(TAG, "showTop10ScoreHistory.");
-        ColorBallsApp.isProcessingJob = true;
-        ColorBallsApp.isShowingLoadingMessage = true;
-        showMessageOnScreen(getString(string.loadingStr));
-        Intent myIntent;
+    private fun showTop10Scores(isLocal: Boolean) {
+        Log.d(TAG, "showTop10Scores")
+        ColorBallsApp.isProcessingJob = true
+        ColorBallsApp.isShowingLoadingMessage = true
+        showMessageOnScreen(getString(string.loadingStr))
         if (isLocal) {
             // myIntent = new Intent(this, LocalTop10Service.class);
-            LocalTop10Coroutine.Companion.getLocalTop10(getApplicationContext());
+            getLocalTop10(applicationContext)
         } else {
-            myIntent = new Intent(this, GlobalTop10Service.class);
-            myIntent.putExtra(Constants.GAME_ID_STRING, "1");
-            startService(myIntent);
+            Intent(this, GlobalTop10Service::class.java).let {
+                it.putExtra(Constants.GAME_ID_STRING, "1")
+                startService(it)
+            }
         }
     }
 
-    private void setBannerAndNativeAdUI() {
-        LinearLayout bannerLinearLayout = findViewById(id.linearlayout_banner_myActivity);
-        LinearLayout adaptiveBannerLayout = findViewById(id.linearlayout_adaptiveBanner_myActivity);
-        String testString = "";
-        // for debug mode
-        if (com.smile.colorballs.BuildConfig.DEBUG) {
-            testString = "IMG_16_9_APP_INSTALL#";
-        }
-        String facebookBannerID = testString + ColorBallsApp.facebookBannerID;
-        String facebookBannerID2 = testString + ColorBallsApp.facebookBannerID2;
+    private fun bannerAndNativeAd() {
+        val bannerLayout = findViewById<LinearLayout>(id.linearlayout_banner_myActivity)
+        val adaptiveBannerLayout =
+            findViewById<LinearLayout>(id.linearlayout_adaptiveBanner_myActivity)
+        val testString = if (BuildConfig.DEBUG) "IMG_16_9_APP_INSTALL#" else ""
+        val facebookBannerID = testString + ColorBallsApp.facebookBannerID
+        val facebookBannerID2 = testString + ColorBallsApp.facebookBannerID2
         //
-        int adaptiveBannerWidth, adaptiveBannerDpWidth;
+        val adaptiveBannerWidth: Int
+        val adaptiveBannerDpWidth: Int
 
-        Configuration configuration = getResources().getConfiguration();
+        val configuration = resources.configuration
         if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // show AdMob native ad if the device is tablet
-            String nativeAdvancedId0 = ColorBallsApp.googleAdMobNativeID;     // real native ad unit id
-            FrameLayout nativeAdsFrameLayout = findViewById(id.nativeAdsFrameLayout);
-            com.google.android.ads.nativetemplates.TemplateView nativeAdTemplateView
-                    = findViewById(id.nativeAdTemplateView);
-            nativeTemplate = new GoogleAdMobNativeTemplate(this, nativeAdsFrameLayout
-                    , nativeAdvancedId0, nativeAdTemplateView);
-            nativeTemplate.showNativeAd();
-            adaptiveBannerWidth = (int)(screenWidth - mainGameViewWidth);
-            adaptiveBannerDpWidth = ScreenUtil.pixelToDp(this, adaptiveBannerWidth);
+            val nativeAdvancedId0 = ColorBallsApp.googleAdMobNativeID // real native ad unit id
+            val nativeAdsFrameLayout = findViewById<FrameLayout>(id.nativeAdsFrameLayout)
+            val nativeAdTemplateView = findViewById<TemplateView>(id.nativeAdTemplateView)
+            GoogleAdMobNativeTemplate(this, nativeAdsFrameLayout,
+                nativeAdvancedId0, nativeAdTemplateView).also {
+                nativeTemplate = it
+                it.showNativeAd()
+            }
+            adaptiveBannerWidth = (screenWidth - mainGameViewWidth).toInt()
+            adaptiveBannerDpWidth = ScreenUtil.pixelToDp(this, adaptiveBannerWidth)
         } else {
             // one more banner (adaptive banner) ad for orientation is portrait
-            adaptiveBannerWidth = (int)mainGameViewWidth;
-            adaptiveBannerDpWidth = ScreenUtil.pixelToDp(this, adaptiveBannerWidth);
-            myBannerAdView2 = new SetBannerAdView(this, null,
-                    adaptiveBannerLayout, ColorBallsApp.googleAdMobBannerID2,
-                    facebookBannerID2, adaptiveBannerDpWidth);
-            myBannerAdView2.showBannerAdView(0);    // AdMob first
+            adaptiveBannerWidth = mainGameViewWidth.toInt()
+            adaptiveBannerDpWidth = ScreenUtil.pixelToDp(this, adaptiveBannerWidth)
+            SetBannerAdView(this, null,
+                adaptiveBannerLayout, ColorBallsApp.googleAdMobBannerID2,
+                facebookBannerID2, adaptiveBannerDpWidth).also {
+                myBannerAdView2 = it
+                it.showBannerAdView(0) // AdMob first
+            }
         }
         // normal banner
-        Log.d(TAG, "adaptiveBannerDpWidth = " + adaptiveBannerDpWidth);
-        myBannerAdView = new SetBannerAdView(this, null,
-                bannerLinearLayout, ColorBallsApp.googleAdMobBannerID,
-                facebookBannerID, adaptiveBannerDpWidth);
-        myBannerAdView.showBannerAdView(0); // AdMob first
+        Log.d(TAG, "adaptiveBannerDpWidth = $adaptiveBannerDpWidth")
+        SetBannerAdView(this, null,
+            bannerLayout, ColorBallsApp.googleAdMobBannerID,
+            facebookBannerID, adaptiveBannerDpWidth).also {
+            myBannerAdView = it
+            it.showBannerAdView(0) // AdMob first
+        }
     }
 
-    private void setBroadcastReceiver() {
-        myReceiver = new MyBroadcastReceiver();
-        IntentFilter myIntentFilter = new IntentFilter();
-        myIntentFilter.addAction(GlobalTop10Service.ACTION_NAME);
-        myIntentFilter.addAction(LocalTop10Service.ACTION_NAME);
-        myIntentFilter.addAction(LocalTop10Coroutine.ACTION_NAME);
-        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
-        localBroadcastManager.registerReceiver(myReceiver, myIntentFilter);
+    private fun setBroadcastReceiver() {
+        myReceiver = MyBroadcastReceiver()
+        val myIntentFilter = IntentFilter()
+        myIntentFilter.let {
+            it.addAction(GlobalTop10Service.ACTION_NAME)
+            it.addAction(LocalTop10Service.ACTION_NAME)
+            it.addAction(LocalTop10Coroutine.ACTION_NAME)
+        }
+        LocalBroadcastManager.getInstance(this).let {
+            myReceiver?.let { rec ->
+                it.registerReceiver(rec, myIntentFilter)
+            }
+        }
     }
 
-    private void exitApplication() {
-        final Handler handlerClose = new Handler(Looper.getMainLooper());
-        final int timeDelay = 200;
+    private fun exitApplication() {
+        val handlerClose = Handler(Looper.getMainLooper())
+        val timeDelay = 200
         // exit application
-        handlerClose.postDelayed(this::finish,timeDelay);
+        handlerClose.postDelayed({ this.finish() }, timeDelay.toLong())
     }
 
-    private class MyBroadcastReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String actionName = intent.getAction();
-            Log.d(TAG, "MyBroadcastReceiver.actionName = " + actionName);
+    private inner class MyBroadcastReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val actionName = intent.action
+            Log.d(TAG, "MyBroadcastReceiver.actionName = $actionName")
             if (actionName != null) {
-                Bundle extras;
-                ArrayList<String> playerNames = null;
-                ArrayList<Integer> playerScores = null;
-                View historyView;
-                int top10LayoutId = id.top10Layout;
-                String top10ScoreTitle;
-                if (actionName.equals(GlobalTop10Service.ACTION_NAME)) {
-                    top10ScoreTitle = getString(string.globalTop10Score);
+                var playerNames: ArrayList<String>? = null
+                var playerScores: ArrayList<Int>? = null
+                val top10LayoutId = id.top10Layout
+                val top10ScoreTitle = if (actionName == GlobalTop10Service.ACTION_NAME) {
+                    getString(string.globalTop10Score)
                 } else {
-                    top10ScoreTitle = getString(string.localTop10Score);
+                    getString(string.localTop10Score)
                 }
-                extras = intent.getExtras();
-                if (extras != null) {
-                    playerNames = extras.getStringArrayList(Constants.PLAYER_NAMES);
-                    playerScores = extras.getIntegerArrayList(Constants.PLAYER_SCORES);
+                intent.extras?.let { extras ->
+                    playerNames = extras.getStringArrayList(Constants.PLAYER_NAMES)
+                    playerScores = extras.getIntegerArrayList(Constants.PLAYER_SCORES)
                 }
                 if (playerNames == null || playerScores == null) {
-                    playerNames = new ArrayList<>();
-                    playerScores = new ArrayList<>();
+                    playerNames = ArrayList()
+                    playerScores = ArrayList()
                     // failed
-                    playerNames.add("MyBroadcastReceiver.Failed to access Score SQLite database");
-                    playerScores.add(0);
+                    playerNames?.add("MyBroadcastReceiver.Failed to access Score SQLite database")
+                    playerScores?.add(0)
                 }
-                Log.d(TAG, "MyBroadcastReceiver.playerNames.size() = " + playerNames.size());
-                historyView = findViewById(top10LayoutId);
+                Log.d(TAG, "MyBroadcastReceiver.playerNames.size() = " + playerNames?.size)
+                val historyView = findViewById<View>(top10LayoutId)
                 if (historyView != null) {
-                    if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                        Log.d(TAG, "MyBroadcastReceiver.ORIENTATION_LANDSCAPE");
-                        top10Fragment = Top10Fragment.Companion.newInstance(top10ScoreTitle, playerNames,
-                                playerScores, activity -> {
-                                    if (top10Fragment != null) {
-                                        Log.d(TAG, "MyBroadcastReceiver.Top10OkButtonListener");
-                                        // remove top10Fragment to dismiss the top 10 score screen
-                                        FragmentManager fmManager = getSupportFragmentManager();
-                                        FragmentTransaction ft = fmManager.beginTransaction();
-                                        ft.remove(top10Fragment);
-                                        // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
-                                        ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
-                                        showInterstitialAd();
+                    if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        Log.d(TAG, "MyBroadcastReceiver.ORIENTATION_LANDSCAPE")
+                        top10Fragment = newInstance(top10ScoreTitle, playerNames!!,
+                            playerScores!!, object: Top10OkButtonListener {
+                                override fun buttonOkClick(activity: Activity?) {
+                                    Log.d(TAG, "MyBroadcastReceiver.Top10OkButtonListener")
+                                    // remove top10Fragment to dismiss the top 10 score screen
+                                    top10Fragment?.let { top10 ->
+                                        supportFragmentManager.beginTransaction().let { ft ->
+                                            ft.remove(top10)
+                                            ft.commitAllowingStateLoss() // resolve the crash issue
+                                        }
                                     }
-                                });
-                        FragmentManager fmManager = getSupportFragmentManager();
-                        FragmentTransaction ft = fmManager.beginTransaction();
-                        Fragment currentTop10Fragment = fmManager.findFragmentByTag(Top10FragmentTag);
-                        if (currentTop10Fragment == null) {
-                            ft.add(top10LayoutId, top10Fragment, Top10FragmentTag);
-                        } else {
-                            ft.replace(top10LayoutId, top10Fragment, Top10FragmentTag);
+                                    showInterstitialAd()
+                                }
+                            })
+                        top10Fragment?.let { top10 ->
+                            supportFragmentManager.let { m ->
+                                m.beginTransaction().let { ft ->
+                                    if (m.findFragmentByTag(TOP10_FRAGMENT_TAG) != null) {
+                                        ft.replace(top10LayoutId, top10, TOP10_FRAGMENT_TAG)
+                                    } else {
+                                        ft.add(top10LayoutId, top10, TOP10_FRAGMENT_TAG)
+                                    }
+                                    ft.commitAllowingStateLoss() // resolve the crash issue
+                                }
+                            }
                         }
-                        // ft.commit(); // removed on 2018-06-22 12:01 am because it will crash app under some situation
-                        ft.commitAllowingStateLoss();   // resolve the crash issue temporarily
                     }
                 } else {
                     // for Portrait
-                    Log.d(TAG, "MyBroadcastReceiver.ORIENTATION_PORTRAIT");
-                    top10Fragment = null;
-                    Intent top10Intent = new Intent(getApplicationContext(), Top10Activity.class);
-                    Bundle top10Extras = new Bundle();
-                    top10Extras.putString(Constants.TOP10_TITLE_NAME, top10ScoreTitle);
-                    top10Extras.putStringArrayList(Constants.TOP10_PLAYERS, playerNames);
-                    top10Extras.putIntegerArrayList(Constants.TOP10_SCORES, playerScores);
-                    top10Intent.putExtras(top10Extras);
-                    top10Launcher.launch(top10Intent);
+                    Log.d(TAG, "MyBroadcastReceiver.ORIENTATION_PORTRAIT")
+                    top10Fragment = null
+                    Intent(applicationContext, Top10Activity::class.java).let { int ->
+                        Bundle().apply {
+                            putString(Constants.TOP10_TITLE_NAME, top10ScoreTitle)
+                            putStringArrayList(Constants.TOP10_PLAYERS, playerNames)
+                            putIntegerArrayList(Constants.TOP10_SCORES, playerScores)
+                            int.putExtras(this)
+                            top10Launcher.launch(int)
+                        }
+                    }
                 }
-                dismissShowMessageOnScreen();
+                dismissShowMessageOnScreen()
             }
-            ColorBallsApp.isShowingLoadingMessage = false;
-            ColorBallsApp.isProcessingJob = false;
+            ColorBallsApp.isShowingLoadingMessage = false
+            ColorBallsApp.isProcessingJob = false
         }
+    }
+
+    companion object {
+        // private properties
+        private const val TAG = "MyActivity"
+        private const val TOP10_FRAGMENT_TAG = "Top10Fragment"
     }
 }
