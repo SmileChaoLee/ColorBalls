@@ -9,33 +9,23 @@ import java.util.Random
 import java.util.Stack
 import kotlin.math.min
 
-@Parcelize
-open class GridData private constructor(
-    private val mRowCounts : Int,
-    private val mColCounts : Int,
-    private var mNumOfColorsUsed : Int,
-    private val mCellValues : Array<IntArray>,
-    private val mBackupCells : Array<IntArray>,
-    private var mNextCellIndices : HashMap<Point, Int>,
-    private var mUndoNextCellIndices : HashMap<Point, Int>,
-    private val mLightLine : HashSet<Point>,
-    private val mPathPoint : ArrayList<Point>,
-    private val mRandom: Random,
-    private var mBallNumCompleted : Int)  : Parcelable {
-        constructor(rowCounts : Int,
-                    colCounts : Int,
-                    numOfColorsUsed: Int) : this(
-            rowCounts, colCounts, numOfColorsUsed,
-            Array(rowCounts) { IntArray(colCounts){0} },
-            Array(rowCounts) { IntArray(colCounts){0} },
-            HashMap(),
-            HashMap(),
-            HashSet(),
-            ArrayList(),
-            Random(System.currentTimeMillis()),
-            5) {
+private val rowCounts = Constants.ROW_COUNTS
+private val colCounts = Constants.COLUMN_COUNTS
+private const val ballNumCompleted = Constants.BALL_NUM_COMPLETED - 1
+private val mRandom: Random = Random(System.currentTimeMillis())
 
-            // next ball colors and their positions
+@Parcelize
+open class GridData(
+    private var mNumOfColorsUsed : Int = Constants.NUM_EASY,
+    private val mCellValues : Array<IntArray> =
+        Array(rowCounts) { IntArray(colCounts){0} },
+    private val mBackupCells : Array<IntArray> =
+        Array(rowCounts) { IntArray(colCounts){0} },
+    private var mNextCellIndices : HashMap<Point, Int> = HashMap(),
+    private var mUndoNextCellIndices : HashMap<Point, Int> = HashMap(),
+    private val mLightLine : HashSet<Point> = HashSet(),
+    private val mPathPoint : ArrayList<Point> = ArrayList()) : Parcelable {
+        init {
             randCells()
         }
 
@@ -59,7 +49,7 @@ open class GridData private constructor(
     fun undoTheLast() {
         mNextCellIndices = HashMap(mUndoNextCellIndices)
         // restore CellValues;
-        for (i in 0 until mRowCounts) {
+        for (i in 0 until rowCounts) {
             System.arraycopy(mBackupCells[i], 0, mCellValues[i], 0, mBackupCells[i].size)
         }
     }
@@ -93,13 +83,13 @@ open class GridData private constructor(
     }
 
     fun setCellValues(cellValues: Array<IntArray>) {
-        for (i in 0 until mRowCounts) {
+        for (i in 0 until rowCounts) {
             System.arraycopy(cellValues[i], 0, mCellValues[i], 0, cellValues[i].size)
         }
     }
 
     fun setBackupCells(backupCells: Array<IntArray>) {
-        for (i in 0 until mRowCounts) {
+        for (i in 0 until rowCounts) {
             System.arraycopy(backupCells[i], 0, mBackupCells[i], 0, backupCells[i].size)
         }
     }
@@ -123,8 +113,8 @@ open class GridData private constructor(
         Log.d(TAG, "generateNextCellIndices.cColor = $cColor")
         // find the all vacant cell that are not occupied by color balls
         val vacantCellList = java.util.ArrayList<Point>()
-        for (i in 0 until mRowCounts) {
-            for (j in 0 until mColCounts) {
+        for (i in 0 until rowCounts) {
+            for (j in 0 until colCounts) {
                 if (mCellValues[i][j] == 0) {
                     vacantCellList.add(Point(i, j))
                 }
@@ -150,7 +140,7 @@ open class GridData private constructor(
                 k++
             }
         }
-        val numOfTotalBalls = mRowCounts * mColCounts - vacantSize
+        val numOfTotalBalls = rowCounts * colCounts - vacantSize
         Log.d(TAG,"generateNextCellIndices.k = $k, numOfTotalBalls = $numOfTotalBalls")
         return vacantSize
     }
@@ -179,7 +169,7 @@ open class GridData private constructor(
         pTemp[pTemp.x + dx] = pTemp.y + dy
         if (!traversed.contains(pTemp)) {
             // has not been checked
-            if ((pTemp.x in 0..<mRowCounts) && (pTemp.y in 0..<mColCounts)
+            if ((pTemp.x in 0..<rowCounts) && (pTemp.y in 0..<colCounts)
                 && (mCellValues[pTemp.x][pTemp.y] == 0)) {
                 val temp = Cell(pTemp, parent)
                 stack.push(temp)
@@ -248,7 +238,7 @@ open class GridData private constructor(
 
         mUndoNextCellIndices = java.util.HashMap(mNextCellIndices)
         // backup CellValues;
-        for (i in 0 until mRowCounts) {
+        for (i in 0 until rowCounts) {
             System.arraycopy(mCellValues[i], 0, mBackupCells[i], 0, mCellValues[i].size)
         }
 
@@ -272,7 +262,7 @@ open class GridData private constructor(
 
         //first
         var first_i = 0
-        var end_i = mRowCounts - 1
+        var end_i = rowCounts - 1
         var num_b = 0
 
         i = x - 1
@@ -286,11 +276,11 @@ open class GridData private constructor(
             i--
         }
 
-        if (num_b >= (mBallNumCompleted - 1)) {
+        if (num_b >= ballNumCompleted) {
             // end
             for (temp in tempList) {
                 if (!mLightLine.contains(temp)) {
-                    mLightLine.add(Point(temp!!))
+                    mLightLine.add(Point(temp))
                 }
             }
             tempList.clear()
@@ -308,11 +298,11 @@ open class GridData private constructor(
             i++
         }
 
-        if (num_b >= (mBallNumCompleted - 1)) {
+        if (num_b >= ballNumCompleted) {
             // end
             for (temp in tempList) {
                 if (!mLightLine.contains(temp)) {
-                    mLightLine.add(Point(temp!!))
+                    mLightLine.add(Point(temp))
                 }
             }
             firstResult = 1
@@ -321,9 +311,9 @@ open class GridData private constructor(
 
         //second
         first_i = 0
-        end_i = mRowCounts - 1
+        end_i = rowCounts - 1
 
-        var first_j = mColCounts - 1
+        var first_j = colCounts - 1
         var end_j = 0
 
         num_b = 0
@@ -341,11 +331,11 @@ open class GridData private constructor(
             j++
         }
 
-        if (num_b >= (mBallNumCompleted - 1)) {
+        if (num_b >= ballNumCompleted) {
             // end
             for (temp in tempList) {
                 if (!mLightLine.contains(temp)) {
-                    mLightLine.add(Point(temp!!))
+                    mLightLine.add(Point(temp))
                 }
             }
             tempList.clear()
@@ -366,11 +356,11 @@ open class GridData private constructor(
             j--
         }
 
-        if (num_b >= (mBallNumCompleted - 1)) {
+        if (num_b >= ballNumCompleted) {
             // end
             for (temp in tempList) {
                 if (!mLightLine.contains(temp)) {
-                    mLightLine.add(Point(temp!!))
+                    mLightLine.add(Point(temp))
                 }
             }
             secondResult = 1
@@ -378,7 +368,7 @@ open class GridData private constructor(
         tempList.clear()
 
         //third
-        first_j = mColCounts - 1
+        first_j = colCounts - 1
         end_j = 0
 
         num_b = 0
@@ -393,11 +383,11 @@ open class GridData private constructor(
             j++
         }
 
-        if (num_b >= (mBallNumCompleted - 1)) {
+        if (num_b >= ballNumCompleted) {
             // end
             for (temp in tempList) {
                 if (!mLightLine.contains(temp)) {
-                    mLightLine.add(Point(temp!!))
+                    mLightLine.add(Point(temp))
                 }
             }
             tempList.clear()
@@ -415,11 +405,11 @@ open class GridData private constructor(
             j--
         }
 
-        if (num_b >= (mBallNumCompleted - 1)) {
+        if (num_b >= ballNumCompleted) {
             // end
             for (temp in tempList) {
                 if (!mLightLine.contains(temp)) {
-                    mLightLine.add(Point(temp!!))
+                    mLightLine.add(Point(temp))
                 }
             }
             thirdResult = 1
@@ -427,10 +417,10 @@ open class GridData private constructor(
         tempList.clear()
 
         //forth
-        first_i = mRowCounts - 1
+        first_i = rowCounts - 1
         end_i = 0
 
-        first_j = mColCounts - 1
+        first_j = colCounts - 1
         end_j = 0
 
         num_b = 0
@@ -448,11 +438,11 @@ open class GridData private constructor(
             j++
         }
 
-        if (num_b >= (mBallNumCompleted - 1)) {
+        if (num_b >= ballNumCompleted) {
             // end
             for (temp in tempList) {
                 if (!mLightLine.contains(temp)) {
-                    mLightLine.add(Point(temp!!))
+                    mLightLine.add(Point(temp))
                 }
             }
             tempList.clear()
@@ -473,11 +463,11 @@ open class GridData private constructor(
             j--
         }
 
-        if (num_b >= (mBallNumCompleted - 1)) {
+        if (num_b >= ballNumCompleted) {
             // end
             for (temp in tempList) {
                 if (!mLightLine.contains(temp)) {
-                    mLightLine.add(Point(temp!!))
+                    mLightLine.add(Point(temp))
                 }
             }
             forthResult = 1

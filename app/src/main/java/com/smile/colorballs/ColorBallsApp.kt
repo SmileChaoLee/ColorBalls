@@ -1,5 +1,6 @@
 package com.smile.colorballs
 
+import android.content.res.Resources
 import android.util.Log
 import androidx.multidex.MultiDexApplication
 import com.facebook.ads.AdSettings
@@ -16,6 +17,7 @@ class ColorBallsApp : MultiDexApplication() {
     var googleInterstitialAd: AdMobInterstitial? = null
     override fun onCreate() {
         super.onCreate()
+        mResources = resources
         isProcessingJob = false
         isShowingLoadingMessage = false
         val googleAdMobInterstitialID = "ca-app-pub-8354869049759576/1276882569"
@@ -80,5 +82,6 @@ class ColorBallsApp : MultiDexApplication() {
         var googleAdMobBannerID2 = ""
         @JvmField
         var googleAdMobNativeID = ""
+        lateinit var mResources: Resources
     }
 }

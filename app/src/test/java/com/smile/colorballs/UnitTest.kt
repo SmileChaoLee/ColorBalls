@@ -2,6 +2,7 @@ package com.smile.colorballs
 
 import android.content.Context
 import android.content.res.Resources
+import android.widget.ImageView
 import androidx.test.core.app.ApplicationProvider
 import com.smile.colorballs.interfaces.PresentView
 import com.smile.colorballs.models.GameProp
@@ -14,6 +15,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
+import org.mockito.Mockito.anyInt
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.robolectric.RobolectricTestRunner
@@ -46,16 +48,16 @@ class UnitTest {
         resources = appContext.resources
         Assert.assertNotNull("setUp.resources is null", resources)
         // presenter = Presenter(presentView)
-        // Assert.assertNotNull("setUp.presenter is null", presenter)
 
         `when`(presentView.contextResources()).thenReturn(resources)
+        `when`(presentView.getImageViewById(anyInt())).thenReturn(ImageView(appContext))
         // doNothing().`when`(presentView).showGameOverDialog()
         isNewGame = presenter.initGame(1000, 1000, null)
         Assert.assertTrue("setup.not a name game", isNewGame)
 
         gameProp = presenter.mGameProp
         Assert.assertNotNull("setup.gameProp is null", gameProp)
-        gridData = gameProp.gridData
+        gridData = presenter.mGridData
         Assert.assertNotNull("setup.gridData is null", gridData)
     }
 
@@ -73,8 +75,8 @@ class UnitTest {
         Assert.assertTrue(presenter.hasSound())
 
         // `when`(gameProp.hasSound).thenReturn(false)
-        // presenter.setHasSound(false)
-        gameProp.hasSound = false
+        presenter.setHasSound(false)
+        // gameProp.hasSound = false
         Assert.assertFalse(presenter.hasSound())
     }
 }

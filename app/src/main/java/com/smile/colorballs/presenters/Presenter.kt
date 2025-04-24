@@ -32,11 +32,11 @@ class Presenter private constructor() {
     private lateinit var colorNextBallMap: HashMap<Int, Drawable>
     private var bouncyAnimation: AnimationDrawable? = null
     lateinit var mGameProp: GameProp
-    private lateinit var mGridData: GridData
+    lateinit var mGridData: GridData
     private val movingBallHandler = Handler(Looper.getMainLooper())
     private val showingScoreHandler = Handler(Looper.getMainLooper())
-    private var mRowCounts = 0
-    private var mColCounts = 0
+    private val rowCounts = Constants.ROW_COUNTS
+    private val colCounts = Constants.COLUMN_COUNTS
 
     private interface ShowScoreCallback {
         fun sCallback()
@@ -48,14 +48,6 @@ class Presenter private constructor() {
         colorOvalBallMap = HashMap()
         colorNextBallMap = HashMap()
         soundPool = mPresentView.soundPool()
-    }
-
-    fun setRowCounts(rowCounts: Int) {
-        mRowCounts = rowCounts
-    }
-
-    fun setColCounts(colCounts: Int) {
-        mColCounts = colCounts
     }
 
     fun drawBallsAndCheckListener(v: View) {
@@ -112,24 +104,29 @@ class Presenter private constructor() {
     fun initGame(cellWidth: Int, cellHeight: Int, state: Bundle?): Boolean {
         bitmapDrawableResources(cellWidth, cellHeight)
         val highestScore = mPresentView.highestScore()
-        var isNewGame = true
+        val isNewGame: Boolean
         var gameProp: GameProp? = null
+        var gridData: GridData? = null
         state?.let {
-            Log.d(TAG,"initGame.Configuration changed and restore the original UI.")
+            Log.d(TAG,"initGame.state not null then restore the original UI")
             gameProp =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                    BundleCompat.getParcelable(it, GAME_PROP_TAG, GameProp::class.java)
-                else it.getParcelable(GAME_PROP_TAG)
+                    BundleCompat.getParcelable(it, Constants.GAME_PROP_TAG, GameProp::class.java)
+                else it.getParcelable(Constants.GAME_PROP_TAG)
+            gridData =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                    BundleCompat.getParcelable(it, Constants.GRID_DATA_TAG, GridData::class.java)
+                else it.getParcelable(Constants.GRID_DATA_TAG)
         }
-        gameProp?.let {
-            mGameProp = it
-            mGridData = mGameProp.gridData
-            isNewGame = false
-        } ?: run {
-            Log.d(TAG, "initGame.gameProp is null, new game")
-            mGridData = GridData(mRowCounts, mColCounts, NUM_EASY)
-            mGameProp = GameProp(mGridData)
+        if (gameProp == null || gridData == null) {
+            Log.d(TAG, "initGame.gameProp or gridData is null, new game")
+            mGameProp = GameProp()
+            mGridData = GridData()
             isNewGame = true
+        } else {
+            mGameProp = gameProp!!
+            mGridData = gridData!!
+            isNewGame = false
         }
         ColorBallsApp.isShowingLoadingMessage = mGameProp.isShowingLoadingMessage
         ColorBallsApp.isProcessingJob = mGameProp.isProcessingJob
@@ -200,7 +197,8 @@ class Presenter private constructor() {
     fun onSaveInstanceState(outState: Bundle) {
         mGameProp.isShowingLoadingMessage = ColorBallsApp.isShowingLoadingMessage
         mGameProp.isProcessingJob = ColorBallsApp.isProcessingJob
-        outState.putParcelable(GAME_PROP_TAG, mGameProp)
+        outState.putParcelable(Constants.GAME_PROP_TAG, mGameProp)
+        outState.putParcelable(Constants.GRID_DATA_TAG, mGridData)
     }
 
     fun completedAll(): Boolean {
@@ -230,7 +228,7 @@ class Presenter private constructor() {
 
     fun setEasyLevel(yn: Boolean) {
         mGameProp.isEasyLevel = yn
-        mGridData.setNumOfColorsUsed(if (yn) NUM_EASY else NUM_DIFFICULT)
+        mGridData.setNumOfColorsUsed(if (yn) Constants.NUM_EASY else Constants.NUM_DIFFICULT)
     }
 
     fun hasNextBall(): Boolean {
@@ -374,7 +372,7 @@ class Presenter private constructor() {
                 foStream.write(value)
             }
             var sz = mGridData.getNextCellIndices().size
-            for (i in sz until NUM_DIFFICULT) {
+            for (i in sz until Constants.NUM_DIFFICULT) {
                 Log.d(TAG, "startSavingGame.nextCellIndices.getValue() = " + 0)
                 foStream.write(0)
             }
@@ -396,8 +394,8 @@ class Presenter private constructor() {
                 foStream.write(key.y)
             }
             // save values on 9x9 grid
-            for (i in 0 until mRowCounts) {
-                for (j in 0 until mColCounts) {
+            for (i in 0 until rowCounts) {
+                for (j in 0 until colCounts) {
                     Log.d(TAG,"startSavingGame.gridData.getCellValue(i, j) = "
                             + mGridData.getCellValue(i, j))
                     foStream.write(mGridData.getCellValue(i, j))
@@ -419,13 +417,13 @@ class Presenter private constructor() {
                 foStream.write(value)
             }
             sz = mGridData.getUndoNextCellIndices().size
-            for (i in sz until NUM_DIFFICULT) {
+            for (i in sz until Constants.NUM_DIFFICULT) {
                 Log.d(TAG, "startSavingGame.undoNextCellIndices.getValue() = " + 0)
                 foStream.write(0)
             }
             // save backupCells
-            for (i in 0 until mRowCounts) {
-                for (j in 0 until mColCounts) {
+            for (i in 0 until rowCounts) {
+                for (j in 0 until colCounts) {
                     Log.d(TAG,"startSavingGame.gridData.getBackupCells()[i][j] = "
                             + mGridData.getBackupCells()[i][j])
                     foStream.write(mGridData.getBackupCells()[i][j])
@@ -465,12 +463,12 @@ class Presenter private constructor() {
         val isEasyLevel: Boolean
         val hasNextBall: Boolean
         var ballNumOneTime: Int
-        val nextBalls = IntArray(NUM_DIFFICULT)
-        val gameCells = Array(mRowCounts) { IntArray(mColCounts) }
+        val nextBalls = IntArray(Constants.NUM_DIFFICULT)
+        val gameCells = Array(rowCounts) { IntArray(colCounts) }
         val cScore: Int
         val isUndoEnable: Boolean
-        val undoNextBalls = IntArray(NUM_DIFFICULT)
-        val backupCells = Array(mRowCounts) { IntArray(mColCounts) }
+        val undoNextBalls = IntArray(Constants.NUM_DIFFICULT)
+        val backupCells = Array(rowCounts) { IntArray(colCounts) }
         var unScore = mGameProp.undoScore
         try {
             // clear nextCellIndices and undoNextCellIndices
@@ -498,7 +496,7 @@ class Presenter private constructor() {
             Log.d(TAG, "startLoadingGame.hasNextBall = $hasNextBall")
             ballNumOneTime = fiStream.read()
             Log.i(TAG, "startLoadingGame.ballNumOneTime = $ballNumOneTime")
-            for (i in 0 until NUM_DIFFICULT) {
+            for (i in 0 until Constants.NUM_DIFFICULT) {
                 nextBalls[i] = fiStream.read()
                 Log.d(TAG, "startLoadingGame.nextCellIndices.cell.getColor() = " + nextBalls[i])
             }
@@ -522,8 +520,8 @@ class Presenter private constructor() {
                 mGridData.addUndoNextCellIndices(Point(x, y))
             }
             // load values on 9x9 grid
-            for (i in 0 until mRowCounts) {
-                for (j in 0 until mColCounts) {
+            for (i in 0 until rowCounts) {
+                for (j in 0 until colCounts) {
                     gameCells[i][j] = fiStream.read()
                     Log.d(TAG, "startLoadingGame.gridData.getCellValue(i, j) = " + gameCells[i][j])
                 }
@@ -540,14 +538,14 @@ class Presenter private constructor() {
             if (isUndoEnable) {
                 ballNumOneTime = fiStream.read()
                 Log.d(TAG, "startLoadingGame.ballNumOneTime = $ballNumOneTime")
-                for (i in 0 until NUM_DIFFICULT) {
+                for (i in 0 until Constants.NUM_DIFFICULT) {
                     undoNextBalls[i] = fiStream.read()
                     Log.d(TAG,"startLoadingGame.undoNextCellIndices.getValue() = "
                             + undoNextBalls[i])
                 }
                 // save backupCells
-                for (i in 0 until mRowCounts) {
-                    for (j in 0 until mColCounts) {
+                for (i in 0 until rowCounts) {
+                    for (j in 0 until colCounts) {
                         backupCells[i][j] = fiStream.read()
                         Log.d(TAG,"startLoadingGame.gridData.getBackupCells()[i][j] = "
                                 + backupCells[i][j])
@@ -794,6 +792,7 @@ class Presenter private constructor() {
             n2 = key.y
             mGridData.setCellValue(n1, n2, value)
             imageView = mPresentView.getImageViewById(getImageId(n1, n2))
+            println("displayGridDataNextCells.imageView = $imageView")
             drawBall(imageView, mGridData.getCellValue(n1, n2))
             if (mGridData.checkMoreThanFive(n1, n2)) {
                 hasMoreFive = true
@@ -829,8 +828,8 @@ class Presenter private constructor() {
         // display the 9 x 9 game view
         Log.d(TAG, "displayGameView")
         try {
-            for (i in 0 until mRowCounts) {
-                for (j in 0 until mColCounts) {
+            for (i in 0 until rowCounts) {
+                for (j in 0 until colCounts) {
                     mPresentView.getImageViewById(getImageId(i, j)).let { imageV ->
                         mGridData.getCellValue(i, j).let { color ->
                             if (color == 0) {
@@ -958,15 +957,15 @@ class Presenter private constructor() {
 
     fun getImageId(row: Int, column: Int): Int {
         // Log.d(TAG, "getImageId.row = " + row + ", column = " + column );
-        return row * mRowCounts + column
+        return row * rowCounts + column
     }
 
     private fun getRow(imageId: Int): Int {
-        return imageId / mRowCounts
+        return imageId / rowCounts
     }
 
     private fun getColumn(imageId: Int): Int {
-        return imageId % mRowCounts
+        return imageId % rowCounts
     }
 
     private inner class ShowScore(
@@ -1046,12 +1045,7 @@ class Presenter private constructor() {
 
     companion object {
         private const val TAG = "Presenter"
-        // 5 colors for easy level
-        private const val NUM_EASY = 5
-        // 6 colors for difficult level
-        private const val NUM_DIFFICULT = 6
         private const val NUM_SAVE_FILENAME = "NumSavedGame"
-        private const val GAME_PROP_TAG = "GameProp"
         private const val SAVE_FILENAME = "SavedGame"
     }
 }

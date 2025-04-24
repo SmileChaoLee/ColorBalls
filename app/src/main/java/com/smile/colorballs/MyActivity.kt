@@ -7,10 +7,10 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Typeface
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -32,6 +32,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.Toolbar
+import androidx.core.os.BundleCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.ads.nativetemplates.TemplateView
 import com.smile.colorballs.R.drawable
@@ -43,6 +44,8 @@ import com.smile.colorballs.Top10Fragment.Top10OkButtonListener
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.coroutines.LocalTop10Coroutine
 import com.smile.colorballs.coroutines.LocalTop10Coroutine.Companion.getLocalTop10
+import com.smile.colorballs.models.GameProp
+import com.smile.colorballs.models.GridData
 import com.smile.colorballs.presenters.Presenter
 import com.smile.colorballs.services.GlobalTop10Service
 import com.smile.colorballs.services.LocalTop10Service
@@ -69,6 +72,8 @@ class MyActivity : MyView() {
     private var myBannerAdView2: SetBannerAdView? = null
     private lateinit var settingLauncher: ActivityResultLauncher<Intent>
     private lateinit var top10Launcher: ActivityResultLauncher<Intent>
+    private lateinit var mGameProp: GameProp
+    private lateinit var mGridData: GridData
     private var interstitialAd: ShowInterstitial? = null
 
     @SuppressLint("SourceLockedOrientationActivity")
@@ -81,6 +86,8 @@ class MyActivity : MyView() {
         }
         super.onCreate(savedInstanceState)
 
+        // restoreInstanceState(savedInstanceState)
+        /*
         if (!BuildConfig.DEBUG) {
             requestedOrientation = if (ScreenUtil.isTablet(this)) {
                 // Table then change orientation to Landscape
@@ -90,11 +97,13 @@ class MyActivity : MyView() {
                 ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             }
         }
+        */
         setContentView(layout.activity_my)
 
         createActivityUI()
         createGameView()
         createGame(savedInstanceState)
+
         bannerAndNativeAd()
         setBroadcastReceiver()
         settingLauncher = registerForActivityResult<Intent, ActivityResult>(
@@ -328,24 +337,24 @@ class MyActivity : MyView() {
         // find Out Width and Height of GameView
         var linearLayout = findViewById<LinearLayout>(id.linearLayout_myActivity)
         val mainWeightSum = linearLayout.weightSum
-        Log.d(TAG, "mainWeightSum = $mainWeightSum")
+        Log.d(TAG, "createGameView.mainWeightSum = $mainWeightSum")
 
         linearLayout = findViewById(id.gameViewLinearLayout)
         val gameViewLp = linearLayout.layoutParams as LinearLayout.LayoutParams
         val gameViewWeight = gameViewLp.weight
-        Log.d(TAG, "gameViewWeight = $gameViewWeight")
+        Log.d(TAG, "createGameView.gameViewWeight = $gameViewWeight")
         val mainGameViewHeight = screenHeight * gameViewWeight / mainWeightSum
-        Log.d(TAG, "mainGameViewHeight = $mainGameViewHeight")
+        Log.d(TAG, "createGameView.mainGameViewHeight = $mainGameViewHeight")
 
         val gameViewWeightSum = linearLayout.weightSum
-        Log.d(TAG, "gameViewWeightSum = $gameViewWeightSum")
+        Log.d(TAG, "createGameView.gameViewWeightSum = $gameViewWeightSum")
         linearLayout = findViewById(id.gameViewLayout)
         val mainGameViewUiLayoutParams =
             linearLayout.layoutParams as LinearLayout.LayoutParams
         val mainGameViewUiWeight = mainGameViewUiLayoutParams.weight
-        Log.d(TAG, "mainGameViewUiWeight = $mainGameViewUiWeight")
+        Log.d(TAG, "createGameView.mainGameViewUiWeight = $mainGameViewUiWeight")
         mainGameViewWidth = screenWidth * (mainGameViewUiWeight / gameViewWeightSum)
-        Log.d(TAG, "mainGameViewWidth = $mainGameViewWidth")
+        Log.d(TAG, "createGameView.mainGameViewWidth = $mainGameViewWidth")
 
         // display the highest score and current score
         supportToolbar?.let {
@@ -370,15 +379,16 @@ class MyActivity : MyView() {
         val gridCellsLayout = findViewById<GridLayout>(id.gridCellsLayout)
         val rowCounts = gridCellsLayout.rowCount
         val colCounts = gridCellsLayout.columnCount
-
+        Log.d(TAG, "createGameView.rowCounts = $rowCounts")
+        Log.d(TAG, "createGameView.colCounts = $colCounts")
         cellWidth = (mainGameViewWidth / colCounts).toInt()
-        Log.d(TAG, "cellWidth = $cellWidth")
+        Log.d(TAG, "createGameView.cellWidth = $cellWidth")
         if (mainGameViewWidth > mainGameViewHeight) {
             // if screen width greater than 8-10th of screen height
             cellWidth = (mainGameViewHeight / rowCounts).toInt()
         }
         cellHeight = cellWidth
-        Log.d(TAG, "cellHeight = $cellHeight")
+        Log.d(TAG, "createGameView.cellHeight = $cellHeight")
 
         // added on 2018-10-02 to test and it works
         // setting the width and the height of GridLayout by using the FrameLayout that is on top of it
@@ -393,9 +403,6 @@ class MyActivity : MyView() {
         oneBallLp.width = cellWidth
         oneBallLp.height = cellHeight
         oneBallLp.gravity = Gravity.CENTER
-
-        mPresenter.setRowCounts(rowCounts)
-        mPresenter.setColCounts(colCounts)
 
         // set listener for each ImageView
         var imageView: ImageView
@@ -424,9 +431,36 @@ class MyActivity : MyView() {
         scoreImageView.visibility = View.GONE
     }
 
-    private fun createGame(savedInstanceState: Bundle?) {
+    private fun restoreInstanceState(state: Bundle?) {
+        val isNewGame: Boolean
+        var gameProp: GameProp? = null
+        var gridData: GridData? = null
+        state?.let {
+            Log.d(TAG,"restoreInstanceState.state not null then restore the original UI")
+            gameProp =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                    BundleCompat.getParcelable(it, Constants.GAME_PROP_TAG, GameProp::class.java)
+                else it.getParcelable(Constants.GAME_PROP_TAG)
+            gridData =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                    BundleCompat.getParcelable(it, Constants.GRID_DATA_TAG, GridData::class.java)
+                else it.getParcelable(Constants.GRID_DATA_TAG)
+        }
+        if (gameProp == null || gridData == null) {
+            Log.d(TAG, "restoreInstanceState.gameProp or gridData is null, new game")
+            mGameProp = GameProp()
+            mGridData = GridData()
+            isNewGame = true
+        } else {
+            mGameProp = gameProp!!
+            mGridData = gridData!!
+            isNewGame = false
+        }
+    }
+
+    private fun createGame(state: Bundle?) {
         saveScoreAlertDialog = null
-        mPresenter.initGame(cellWidth, cellHeight, savedInstanceState)
+        mPresenter.initGame(cellWidth, cellHeight, state)
     }
 
     override fun setDialogStyle(dialog: DialogInterface) {
