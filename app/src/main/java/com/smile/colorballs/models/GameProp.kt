@@ -27,17 +27,4 @@ open class GameProp(
     var isEasyLevel : Boolean = true,
     var hasSound : Boolean = true,
     var hasNextBall : Boolean = true) : Parcelable {
-        /*
-        constructor() : this(
-            false, false,
-            false, false,
-            false, false,
-            false,
-            false, false,
-            booleanArrayOf(true,true,true,true,true,true,true,true,true,true),
-            -1, -1,
-            false,false, false,
-            0, 0, 0,
-            true, true, true)
-         */
 }

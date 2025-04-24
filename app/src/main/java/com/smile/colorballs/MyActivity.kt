@@ -79,14 +79,11 @@ class MyActivity : MyView() {
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate")
-        mPresenter = Presenter(this)
         (application as ColorBallsApp).let {
             interstitialAd = ShowInterstitial(this, it.facebookAds,
                 it.googleInterstitialAd)
         }
         super.onCreate(savedInstanceState)
-
-        // restoreInstanceState(savedInstanceState)
         /*
         if (!BuildConfig.DEBUG) {
             requestedOrientation = if (ScreenUtil.isTablet(this)) {
@@ -100,9 +97,10 @@ class MyActivity : MyView() {
         */
         setContentView(layout.activity_my)
 
+        val isNewGame = initPresenter(savedInstanceState)
         createActivityUI()
         createGameView()
-        createGame(savedInstanceState)
+        createGame(isNewGame)
 
         bannerAndNativeAd()
         setBroadcastReceiver()
@@ -431,12 +429,13 @@ class MyActivity : MyView() {
         scoreImageView.visibility = View.GONE
     }
 
-    private fun restoreInstanceState(state: Bundle?) {
+    private fun initPresenter(state: Bundle?): Boolean {
+        // restore instance state
         val isNewGame: Boolean
         var gameProp: GameProp? = null
         var gridData: GridData? = null
         state?.let {
-            Log.d(TAG,"restoreInstanceState.state not null then restore the original UI")
+            Log.d(TAG,"initPresenter.state not null then restore the state")
             gameProp =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                     BundleCompat.getParcelable(it, Constants.GAME_PROP_TAG, GameProp::class.java)
@@ -447,20 +446,22 @@ class MyActivity : MyView() {
                 else it.getParcelable(Constants.GRID_DATA_TAG)
         }
         if (gameProp == null || gridData == null) {
-            Log.d(TAG, "restoreInstanceState.gameProp or gridData is null, new game")
-            mGameProp = GameProp()
-            mGridData = GridData()
+            Log.d(TAG, "initPresenter.prop or grid is null, new game")
+            gameProp = GameProp()
+            gridData = GridData()
             isNewGame = true
         } else {
-            mGameProp = gameProp!!
-            mGridData = gridData!!
             isNewGame = false
         }
+        //
+        mPresenter = Presenter(this@MyActivity, gameProp!!, gridData!!)
+
+        return isNewGame
     }
 
-    private fun createGame(state: Bundle?) {
+    private fun createGame(isNewGame: Boolean) {
         saveScoreAlertDialog = null
-        mPresenter.initGame(cellWidth, cellHeight, state)
+        mPresenter.initGame(cellWidth, cellHeight, isNewGame)
     }
 
     override fun setDialogStyle(dialog: DialogInterface) {
@@ -500,7 +501,7 @@ class MyActivity : MyView() {
             exitApplication()
         } else if (entryPoint == 1) {
             //  NEW GAME
-            createGame(null)
+            initPresenter(null)
         }
         ColorBallsApp.isProcessingJob = false
     }

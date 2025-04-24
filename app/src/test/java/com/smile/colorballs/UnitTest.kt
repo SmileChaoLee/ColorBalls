@@ -2,8 +2,10 @@ package com.smile.colorballs
 
 import android.content.Context
 import android.content.res.Resources
+import android.graphics.Point
 import android.widget.ImageView
 import androidx.test.core.app.ApplicationProvider
+import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.interfaces.PresentView
 import com.smile.colorballs.models.GameProp
 import com.smile.colorballs.models.GridData
@@ -18,13 +20,51 @@ import org.mockito.Mock
 import org.mockito.Mockito.anyInt
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
+import org.mockito.Spy
 import org.robolectric.RobolectricTestRunner
 
-@RunWith(RobolectricTestRunner::class)
-class UnitTest {
 
-    private lateinit var gameProp: GameProp
-    private lateinit var gridData: GridData
+@RunWith(RobolectricTestRunner::class)
+open class UnitTest {
+    private val rowCounts = Constants.ROW_COUNTS
+    private val colCounts = Constants.COLUMN_COUNTS
+    private var twoDimArray = Array(rowCounts) { IntArray(colCounts){0} }
+    private val hashMap : HashMap<Point, Int> = HashMap()
+    private val hashSet : HashSet<Point> = HashSet()
+    private val arrayList : ArrayList<Point> = ArrayList()
+
+    // @Spy
+    // private val gridData = GridData(Constants.NUM_EASY, twoDimArray,
+    //     twoDimArray, hashMap, hashMap, hashSet, arrayList)
+    @Spy
+    private val gridData = GridData()
+    /*
+    @Spy
+    private val gameProp = GameProp(
+        isShowingLoadingMessage = false,
+        isShowingScoreMessage = false,
+        isShowNextBallsAfterBlinking = false,
+        isProcessingJob = false,
+        isShowingNewGameDialog = false,
+        isShowingQuitGameDialog = false,
+        isShowingSureSaveDialog = false,
+        isShowingSureLoadDialog = false,
+        isShowingGameOverDialog = false,
+        threadCompleted = booleanArrayOf(true,true,true,true,true,true,true,true,true,true),
+        bouncyBallIndexI = -1,
+        bouncyBallIndexJ = -1,
+        isBallBouncing = false,
+        isBallMoving = false,
+        undoEnable = false,
+        currentScore = 0,
+        undoScore = 0,
+        lastGotScore = 0,
+        isEasyLevel = true,
+        hasSound = true,
+        hasNextBall = true)
+    */
+    @Spy
+    private val gameProp = GameProp()
     @Mock
     private lateinit var presentView: PresentView
     @InjectMocks
@@ -32,13 +72,14 @@ class UnitTest {
 
     private lateinit var appContext : Context
     private lateinit var resources : Resources
-    private var isNewGame: Boolean = false
 
     @Before
     fun setUp() {
         println("setUp")
         MockitoAnnotations.openMocks(this)
 
+        Assert.assertNotNull("setup.gridData is null", gridData)
+        Assert.assertNotNull("setup.gameProp is null", gameProp)
         // val presentView = mock(PresentView::class.java)
         Assert.assertNotNull("setUp.presentView is null", presentView)
         Assert.assertNotNull("setUp.presenter is null", presenter)
@@ -47,18 +88,11 @@ class UnitTest {
         Assert.assertNotNull("setUp.appContext is null", appContext)
         resources = appContext.resources
         Assert.assertNotNull("setUp.resources is null", resources)
-        // presenter = Presenter(presentView)
 
         `when`(presentView.contextResources()).thenReturn(resources)
         `when`(presentView.getImageViewById(anyInt())).thenReturn(ImageView(appContext))
         // doNothing().`when`(presentView).showGameOverDialog()
-        isNewGame = presenter.initGame(1000, 1000, null)
-        Assert.assertTrue("setup.not a name game", isNewGame)
-
-        gameProp = presenter.mGameProp
-        Assert.assertNotNull("setup.gameProp is null", gameProp)
-        gridData = presenter.mGridData
-        Assert.assertNotNull("setup.gridData is null", gridData)
+        presenter.initGame(1000, 1000, isNewGame = true)
     }
 
     @After

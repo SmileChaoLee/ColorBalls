@@ -4,14 +4,12 @@ import android.graphics.BitmapFactory
 import android.graphics.Point
 import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
-import androidx.core.os.BundleCompat
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
@@ -24,30 +22,20 @@ import org.json.JSONObject
 import java.io.IOException
 import java.nio.ByteBuffer
 
-class Presenter private constructor() {
-    private lateinit var mPresentView: PresentView
-    private lateinit var soundPool: SoundPoolUtil
-    private lateinit var colorBallMap: HashMap<Int, Drawable>
-    private lateinit var colorOvalBallMap: HashMap<Int, Drawable>
-    private lateinit var colorNextBallMap: HashMap<Int, Drawable>
-    private var bouncyAnimation: AnimationDrawable? = null
-    lateinit var mGameProp: GameProp
-    lateinit var mGridData: GridData
+class Presenter(val presentView: PresentView,
+                val mGameProp: GameProp, val mGridData: GridData) {
+    private val soundPool: SoundPoolUtil = presentView.soundPool()
+    private val colorBallMap: HashMap<Int, Drawable> = HashMap()
+    private val colorOvalBallMap: HashMap<Int, Drawable> = HashMap()
+    private val colorNextBallMap: HashMap<Int, Drawable> = HashMap()
     private val movingBallHandler = Handler(Looper.getMainLooper())
     private val showingScoreHandler = Handler(Looper.getMainLooper())
     private val rowCounts = Constants.ROW_COUNTS
     private val colCounts = Constants.COLUMN_COUNTS
+    private var bouncyAnimation: AnimationDrawable? = null
 
     private interface ShowScoreCallback {
         fun sCallback()
-    }
-
-    constructor(presentView: PresentView) : this() {
-        mPresentView = presentView
-        colorBallMap = HashMap()
-        colorOvalBallMap = HashMap()
-        colorNextBallMap = HashMap()
-        soundPool = mPresentView.soundPool()
     }
 
     fun drawBallsAndCheckListener(v: View) {
@@ -91,7 +79,7 @@ class Presenter private constructor() {
                 //  cell is not blank
                 if ((bouncyI >= 0) && (bouncyJ >= 0)) {
                     stopBouncyAnimation()
-                    val imageView = mPresentView.getImageViewById(getImageId(bouncyI, bouncyJ))
+                    val imageView = presentView.getImageViewById(getImageId(bouncyI, bouncyJ))
                     drawBall(imageView, mGridData.getCellValue(bouncyI, bouncyJ))
                     drawBouncyBall(v as ImageView, mGridData.getCellValue(i, j))
                     mGameProp.bouncyBallIndexI = i
@@ -101,38 +89,14 @@ class Presenter private constructor() {
         }
     }
 
-    fun initGame(cellWidth: Int, cellHeight: Int, state: Bundle?): Boolean {
+    fun initGame(cellWidth: Int, cellHeight: Int, isNewGame: Boolean) {
+        Log.d(TAG, "initGame.cellWidth = $cellWidth, cellHeight = $cellHeight")
         bitmapDrawableResources(cellWidth, cellHeight)
-        val highestScore = mPresentView.highestScore()
-        val isNewGame: Boolean
-        var gameProp: GameProp? = null
-        var gridData: GridData? = null
-        state?.let {
-            Log.d(TAG,"initGame.state not null then restore the original UI")
-            gameProp =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                    BundleCompat.getParcelable(it, Constants.GAME_PROP_TAG, GameProp::class.java)
-                else it.getParcelable(Constants.GAME_PROP_TAG)
-            gridData =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                    BundleCompat.getParcelable(it, Constants.GRID_DATA_TAG, GridData::class.java)
-                else it.getParcelable(Constants.GRID_DATA_TAG)
-        }
-        if (gameProp == null || gridData == null) {
-            Log.d(TAG, "initGame.gameProp or gridData is null, new game")
-            mGameProp = GameProp()
-            mGridData = GridData()
-            isNewGame = true
-        } else {
-            mGameProp = gameProp!!
-            mGridData = gridData!!
-            isNewGame = false
-        }
+        val highestScore = presentView.highestScore()
         ColorBallsApp.isShowingLoadingMessage = mGameProp.isShowingLoadingMessage
         ColorBallsApp.isProcessingJob = mGameProp.isProcessingJob
-        mPresentView.updateHighestScoreOnUi(highestScore)
-        mPresentView.updateCurrentScoreOnUi(mGameProp.currentScore)
-
+        presentView.updateHighestScoreOnUi(highestScore)
+        presentView.updateCurrentScoreOnUi(mGameProp.currentScore)
         displayGameView()
         if (isNewGame) {    // new game
             displayGridDataNextCells()
@@ -140,7 +104,7 @@ class Presenter private constructor() {
             // display the original state before changing configuration
             // need to be tested
             if (ColorBallsApp.isShowingLoadingMessage) {
-                mPresentView.showLoadingStrOnScreen()
+                presentView.showLoadingStrOnScreen()
             }
             if (mGameProp.isBallMoving) {
                 Log.d(TAG, "initGame.mGameProp.isBallMoving() is true")
@@ -162,14 +126,13 @@ class Presenter private constructor() {
                 lastPartOfInitialGame()
             }
         }
-        return isNewGame
     }
 
     private fun lastPartOfInitialGame() {
         if (mGameProp.isBallBouncing) {
             val i = mGameProp.bouncyBallIndexI
             val j = mGameProp.bouncyBallIndexJ
-            val v = mPresentView.getImageViewById(getImageId(i, j))
+            val v = presentView.getImageViewById(getImageId(i, j))
             drawBouncyBall(v, mGridData.getCellValue(i, j))
         }
         if (mGameProp.isShowingNewGameDialog) {
@@ -263,7 +226,7 @@ class Presenter private constructor() {
         // restore the screen
         displayGameView()
         mGameProp.currentScore = mGameProp.undoScore
-        mPresentView.updateCurrentScoreOnUi(mGameProp.currentScore)
+        presentView.updateCurrentScoreOnUi(mGameProp.currentScore)
         // completedPath = true;
         mGameProp.undoEnable = false
         ColorBallsApp.isProcessingJob = false // finished
@@ -314,30 +277,30 @@ class Presenter private constructor() {
         restThread.start()
 
         // save to local storage
-        mPresentView.addScoreInLocalTop10(playerName, score)
+        presentView.addScoreInLocalTop10(playerName, score)
     }
 
     fun newGame() {
-        mPresentView.showSaveScoreAlertDialog(1, mGameProp.currentScore)
+        presentView.showSaveScoreAlertDialog(1, mGameProp.currentScore)
     }
 
     fun quitGame() {
-        mPresentView.showSaveScoreAlertDialog(0, mGameProp.currentScore)
+        presentView.showSaveScoreAlertDialog(0, mGameProp.currentScore)
     }
 
     fun saveGame() {
-        mPresentView.showSaveGameDialog()
+        presentView.showSaveGameDialog()
     }
 
     fun loadGame() {
-        mPresentView.showLoadGameDialog()
+        presentView.showLoadGameDialog()
     }
 
     fun readNumberOfSaved(): Int {
         Log.d(TAG, "readNumberOfSaved")
         var numOfSaved = 0
         try {
-            val fiStream = mPresentView.fileInputStream(NUM_SAVE_FILENAME)
+            val fiStream = presentView.fileInputStream(NUM_SAVE_FILENAME)
             numOfSaved = fiStream.read()
             fiStream.close()
         } catch (ex: IOException) {
@@ -350,12 +313,12 @@ class Presenter private constructor() {
     fun startSavingGame(num: Int): Boolean {
         Log.d(TAG, "startSavingGame")
         ColorBallsApp.isProcessingJob = true
-        mPresentView.showSavingGameStrOnScreen()
+        presentView.showSavingGameStrOnScreen()
 
         var numOfSaved = num
         var succeeded = true
         try {
-            var foStream = mPresentView.fileOutputStream(SAVE_FILENAME)
+            var foStream = presentView.fileOutputStream(SAVE_FILENAME)
             // save settings
             Log.d(TAG, "startSavingGame.hasSound = " + mGameProp.hasSound)
             if (mGameProp.hasSound) foStream.write(1) else foStream.write(0)
@@ -437,7 +400,7 @@ class Presenter private constructor() {
             numOfSaved++
             // save numOfSaved back to file (ColorBallsApp.NumOfSavedGameFileName)
             Log.d(TAG, "startSavingGame.creating fileOutputStream.")
-            foStream = mPresentView.fileOutputStream(NUM_SAVE_FILENAME)
+            foStream = presentView.fileOutputStream(NUM_SAVE_FILENAME)
             foStream.write(numOfSaved)
             foStream.close()
             Log.d(TAG, "startSavingGame.Succeeded.")
@@ -448,7 +411,7 @@ class Presenter private constructor() {
         }
 
         ColorBallsApp.isProcessingJob = false
-        mPresentView.dismissShowMessageOnScreen()
+        presentView.dismissShowMessageOnScreen()
         Log.d(TAG, "startSavingGame.Finished")
         return succeeded
     }
@@ -456,7 +419,7 @@ class Presenter private constructor() {
     fun startLoadingGame(): Boolean {
         Log.d(TAG, "startLoadingGame")
         ColorBallsApp.isProcessingJob = true
-        mPresentView.showLoadingGameStrOnScreen()
+        presentView.showLoadingGameStrOnScreen()
 
         var succeeded = true
         val hasSound: Boolean
@@ -479,7 +442,7 @@ class Presenter private constructor() {
             // long fileSizeInByte = inputFile.length();
             // Log.d(TAG, "startLoadingGame.File size = " + fileSizeInByte);
             // FileInputStream fiStream = new FileInputStream(inputFile);
-            val fiStream = mPresentView.fileInputStream(SAVE_FILENAME)
+            val fiStream = presentView.fileInputStream(SAVE_FILENAME)
             Log.d(TAG, "startLoadingGame.available() = " + fiStream.available())
             Log.d(TAG, "startLoadingGame.getChannel().size() = " + fiStream.channel.size())
             // game sound
@@ -575,7 +538,7 @@ class Presenter private constructor() {
             mGridData.setBackupCells(backupCells)
             mGameProp.undoScore = unScore
             // start update UI
-            mPresentView.updateCurrentScoreOnUi(mGameProp.currentScore)
+            presentView.updateCurrentScoreOnUi(mGameProp.currentScore)
             Log.d(TAG, "startLoadingGame.starting displayGameView().")
             displayGameView()
         } catch (ex: IOException) {
@@ -583,7 +546,7 @@ class Presenter private constructor() {
             succeeded = false
         }
         ColorBallsApp.isProcessingJob = false
-        mPresentView.dismissShowMessageOnScreen()
+        presentView.dismissShowMessageOnScreen()
 
         return succeeded
     }
@@ -599,88 +562,88 @@ class Presenter private constructor() {
         Log.w(TAG, "bitmapDrawableResources")
         require(!(cellWidth <= 0 || cellHeight <= 0)) { "cellWidth and cellHeight must be > 0" }
 
-        val resources = mPresentView.contextResources()
+        val resources = presentView.contextResources()
         println("bitmapDrawableResources.resources = $resources")
         val nextBallWidth = (cellWidth * 0.5f).toInt()
         val nextBallHeight = (cellHeight * 0.5f).toInt()
         val ovalBallWidth = (cellWidth * 0.9f).toInt()
         val ovalBallHeight = (cellHeight * 0.7f).toInt()
 
-        mPresentView.compatDrawable(R.drawable.redball)?.let { draw ->
+        presentView.compatDrawable(R.drawable.redball)?.let { draw ->
             colorBallMap[Constants.COLOR_RED] = draw
         }
         BitmapFactory.decodeResource(resources, R.drawable.redball)?.let { bm ->
-            mPresentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
+            presentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
                 colorNextBallMap[Constants.COLOR_RED] = draw
             }
-            mPresentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
+            presentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
                 colorOvalBallMap[Constants.COLOR_RED] = draw
             }
         }
 
-        mPresentView.compatDrawable(R.drawable.greenball)?.let { draw ->
+        presentView.compatDrawable(R.drawable.greenball)?.let { draw ->
             colorBallMap[Constants.COLOR_GREEN] = draw
         }
         BitmapFactory.decodeResource(resources, R.drawable.greenball)?.let { bm ->
-            mPresentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
+            presentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
                 colorNextBallMap[Constants.COLOR_GREEN] = draw
             }
-            mPresentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
+            presentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
                 colorOvalBallMap[Constants.COLOR_GREEN] = draw
             }
         }
 
-        mPresentView.compatDrawable(R.drawable.blueball)?.let { draw ->
+        presentView.compatDrawable(R.drawable.blueball)?.let { draw ->
             colorBallMap[Constants.COLOR_BLUE] = draw
         }
         BitmapFactory.decodeResource(resources, R.drawable.blueball)?.let { bm ->
-            mPresentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
+            presentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
                 colorNextBallMap[Constants.COLOR_BLUE] = draw
             }
-            mPresentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
+            presentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
                 colorOvalBallMap[Constants.COLOR_BLUE] = draw
             }
         }
 
-        mPresentView.compatDrawable(R.drawable.magentaball)?.let { draw ->
+        presentView.compatDrawable(R.drawable.magentaball)?.let { draw ->
             colorBallMap[Constants.COLOR_MAGENTA] = draw
         }
         BitmapFactory.decodeResource(resources, R.drawable.magentaball)?.let { bm ->
-            mPresentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
+            presentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
                 colorNextBallMap[Constants.COLOR_MAGENTA] = draw
             }
-            mPresentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
+            presentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
                 colorOvalBallMap[Constants.COLOR_MAGENTA] = draw
             }
         }
 
-        mPresentView.compatDrawable(R.drawable.yellowball)?.let { draw ->
+        presentView.compatDrawable(R.drawable.yellowball)?.let { draw ->
             colorBallMap[Constants.COLOR_YELLOW] = draw
         }
         BitmapFactory.decodeResource(resources, R.drawable.yellowball)?.let { bm ->
-            mPresentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
+            presentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
                 colorNextBallMap[Constants.COLOR_YELLOW] = draw
             }
-            mPresentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
+            presentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
                 colorOvalBallMap[Constants.COLOR_YELLOW] = draw
             }
         }
 
-        mPresentView.compatDrawable(R.drawable.cyanball)?.let { draw ->
+        presentView.compatDrawable(R.drawable.cyanball)?.let { draw ->
             colorBallMap[Constants.COLOR_CYAN] = draw
         }
         BitmapFactory.decodeResource(resources, R.drawable.cyanball)?.let { bm ->
-            mPresentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
+            presentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
                 colorNextBallMap[Constants.COLOR_CYAN] = draw
             }
-            mPresentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
+            presentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
                 colorOvalBallMap[Constants.COLOR_CYAN] = draw
             }
         }
     }
 
     private fun gameOver() {
-        mPresentView.showGameOverDialog()
+        presentView.showGameOverDialog()
     }
 
     private fun calculateScore(linkedLine: HashSet<Point>?): Int {
@@ -756,7 +719,7 @@ class Presenter private constructor() {
         Log.d(TAG, "displayNextBallsView")
         try {
             for ((key, value) in mGridData.getNextCellIndices()) {
-                val imageView = mPresentView.getImageViewById(getImageId(key.x, key.y))
+                val imageView = presentView.getImageViewById(getImageId(key.x, key.y))
                 drawNextBall(imageView, value)
             }
         } catch (ex: Exception) {
@@ -776,7 +739,7 @@ class Presenter private constructor() {
     }
 
     private fun clearCell(i: Int, j: Int) {
-        mPresentView.getImageViewById(getImageId(i, j)).setImageBitmap(null)
+        presentView.getImageViewById(getImageId(i, j)).setImageBitmap(null)
         mGridData.setCellValue(i, j, 0)
     }
 
@@ -791,7 +754,7 @@ class Presenter private constructor() {
             n1 = key.x
             n2 = key.y
             mGridData.setCellValue(n1, n2, value)
-            imageView = mPresentView.getImageViewById(getImageId(n1, n2))
+            imageView = presentView.getImageViewById(getImageId(n1, n2))
             println("displayGridDataNextCells.imageView = $imageView")
             drawBall(imageView, mGridData.getCellValue(n1, n2))
             if (mGridData.checkMoreThanFive(n1, n2)) {
@@ -809,7 +772,7 @@ class Presenter private constructor() {
             mGameProp.lastGotScore = calculateScore(mGridData.getLightLine())
             mGameProp.undoScore = mGameProp.currentScore
             mGameProp.currentScore += mGameProp.lastGotScore
-            mPresentView.updateCurrentScoreOnUi(mGameProp.currentScore)
+            presentView.updateCurrentScoreOnUi(mGameProp.currentScore)
             val showScore = ShowScore(
                 mGridData.getLightLine(), mGameProp.lastGotScore,
                 true, object : ShowScoreCallback {
@@ -830,7 +793,7 @@ class Presenter private constructor() {
         try {
             for (i in 0 until rowCounts) {
                 for (j in 0 until colCounts) {
-                    mPresentView.getImageViewById(getImageId(i, j)).let { imageV ->
+                    presentView.getImageViewById(getImageId(i, j)).let { imageV ->
                         mGridData.getCellValue(i, j).let { color ->
                             if (color == 0) {
                                 // imageView.setImageDrawable(null);
@@ -880,7 +843,7 @@ class Presenter private constructor() {
                 mGameProp.isBallMoving = true
                 if (countDown >= 2) {   // eliminate start point
                     val i = countDown / 2
-                    mPresentView.getImageViewById(getImageId(tempList[i].x, tempList[i].y)).let { imageV ->
+                    presentView.getImageViewById(getImageId(tempList[i].x, tempList[i].y)).let { imageV ->
                         if (ballYN) {
                             drawBall(imageV, color)
                         } else {
@@ -892,7 +855,7 @@ class Presenter private constructor() {
                     movingBallHandler.postDelayed(this, 20)
                 } else {
                     clearCell(beginI, beginJ) // blank the original cell. Added on 2020-09-16
-                    val v = mPresentView.getImageViewById(getImageId(targetI, targetJ))
+                    val v = presentView.getImageViewById(getImageId(targetI, targetJ))
                     mGridData.setCellValue(targetI, targetJ, color)
                     drawBall(v, color)
                     mGridData.regenerateNextCellIndices(Point(targetI, targetJ))
@@ -901,7 +864,7 @@ class Presenter private constructor() {
                         mGameProp.lastGotScore = calculateScore(mGridData.getLightLine())
                         mGameProp.undoScore = mGameProp.currentScore
                         mGameProp.currentScore += mGameProp.lastGotScore
-                        mPresentView.updateCurrentScoreOnUi(mGameProp.currentScore)
+                        presentView.updateCurrentScoreOnUi(mGameProp.currentScore)
                         Log.d(TAG, "drawBallAlongPath.showScore")
                         val showScore = ShowScore(
                             mGridData.getLightLine(), mGameProp.lastGotScore,
@@ -986,18 +949,18 @@ class Presenter private constructor() {
         private fun onProgressUpdate(status: Int) {
             when (status) {
                 0 -> for (item in pointSet) {
-                    val v = mPresentView.getImageViewById(getImageId(item.x, item.y))
+                    val v = presentView.getImageViewById(getImageId(item.x, item.y))
                     drawBall(v, mGridData.getCellValue(item.x, item.y))
                 }
                 1 -> for (item in pointSet) {
-                    val v = mPresentView.getImageViewById(getImageId(item.x, item.y))
+                    val v = presentView.getImageViewById(getImageId(item.x, item.y))
                     drawOval(v, mGridData.getCellValue(item.x, item.y))
                 }
                 2 -> {}
                 3 -> {
                     // show the score
                     val scoreString = lastGotScore.toString()
-                    mPresentView.showMessageOnScreen(scoreString)
+                    presentView.showMessageOnScreen(scoreString)
                     for (item in pointSet) {
                         clearCell(item.x, item.y)
                     }
@@ -1013,7 +976,7 @@ class Presenter private constructor() {
                 }
                 4 -> {
                     Log.d(TAG, "ShowScore.onProgressUpdate.dismissShowMessageOnScreen.")
-                    mPresentView.dismissShowMessageOnScreen()
+                    presentView.dismissShowMessageOnScreen()
                 }
                 else -> {}
             }
