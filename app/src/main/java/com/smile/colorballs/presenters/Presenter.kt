@@ -92,10 +92,9 @@ class Presenter(val presentView: PresentView,
     fun initGame(cellWidth: Int, cellHeight: Int, isNewGame: Boolean) {
         Log.d(TAG, "initGame.cellWidth = $cellWidth, cellHeight = $cellHeight")
         bitmapDrawableResources(cellWidth, cellHeight)
-        val highestScore = presentView.highestScore()
         ColorBallsApp.isShowingLoadingMessage = mGameProp.isShowingLoadingMessage
         ColorBallsApp.isProcessingJob = mGameProp.isProcessingJob
-        presentView.updateHighestScoreOnUi(highestScore)
+        presentView.updateHighestScoreOnUi(presentView.highestScore())
         presentView.updateCurrentScoreOnUi(mGameProp.currentScore)
         displayGameView()
         if (isNewGame) {    // new game
