@@ -72,8 +72,6 @@ class MyActivity : MyView() {
     private var myBannerAdView2: SetBannerAdView? = null
     private lateinit var settingLauncher: ActivityResultLauncher<Intent>
     private lateinit var top10Launcher: ActivityResultLauncher<Intent>
-    private lateinit var mGameProp: GameProp
-    private lateinit var mGridData: GridData
     private var interstitialAd: ShowInterstitial? = null
 
     @SuppressLint("SourceLockedOrientationActivity")
