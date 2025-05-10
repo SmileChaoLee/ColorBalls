@@ -4,9 +4,9 @@ import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import com.smile.colorballs.BR
 
-class Player(name : String,
-             score : String,
-             medal : Int) : BaseObservable() {
+class Player(name : String = "",
+             score : String = "",
+             medal : Int = 0) : BaseObservable() {
     @get:Bindable
     var name = name
         set(value) {

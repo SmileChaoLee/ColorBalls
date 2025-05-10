@@ -10,8 +10,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.ListView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.databinding.FragmentTop10Binding
 import com.smile.colorballs.databinding.Top10ScoreListItemsBinding
@@ -30,8 +32,7 @@ class Top10Fragment : Fragment {
     private var top10Players: ArrayList<String> = ArrayList()
     private var top10Scores: ArrayList<Int> = ArrayList()
     private val medalImageIds = ArrayList<Int>()
-    private var top10ListView: ListView? = null
-    private var mListAdapter: MyListAdapter? = null
+    private var top10ListView: RecyclerView? = null
     private var top10OkButtonListener: Top10OkButtonListener? = null
     private var top10TitleName: String = ""
     private var textFontSize = 0f
@@ -127,15 +128,18 @@ class Top10Fragment : Fragment {
                     }
                 }
             }
-            activity?.let { activityIt ->
-                mListAdapter = MyListAdapter(activityIt.applicationContext,
-                    R.layout.top10_score_list_items,
-                    top10Players, top10Scores, medalImageIds)
+            val players = ArrayList<Player>()
+            for (i: Int in 0 until top10Players.size) {
+                players.add(
+                    Player(top10Players[i], top10Scores[i].toString(), medalImageIds[i])
+                )
             }
-            binding.top10ListView.apply {
-                adapter = mListAdapter
-                setOnItemClickListener { _, _, _, _ -> }
-            }.also { top10ListView = it}
+
+            Log.d(TAG, "onViewCreated.TopViewAdapter.players.size = ${players.size}")
+            top10ListView = binding.top10ListView.apply {
+                adapter = TopViewAdapter(players)
+                layoutManager = LinearLayoutManager(activity)
+            }
         }
     }
 
@@ -144,49 +148,60 @@ class Top10Fragment : Fragment {
         super.onDetach()
     }
 
-    private inner class MyListAdapter (
-        mContext: Context,
-        layoutId: Int,
-        val players: ArrayList<String>,
-        val scores: ArrayList<Int>,
-        val medals: ArrayList<Int>
-    ) : ArrayAdapter<String>(mContext, layoutId, players) {
-        @SuppressLint("ViewHolder")
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-            val vBinding = Top10ScoreListItemsBinding.inflate(layoutInflater, parent, false)
-            // val view = layoutInflater.inflate(layoutId, parent, false)
-            Log.d(TAG, "players.size() = ${players.size}")
-            Log.d(TAG, "position = $position")
-            val mTop10Players = Player(players[position],
-                scores[position].toString(),
-                medals[position])
-            vBinding.apply {
-                lifecycleOwner = this@Top10Fragment
-                top10Players = mTop10Players
-            }
-            if (count == 0) {
-                return vBinding.root
-            }
+    private inner class TopViewAdapter(
+        private val players: ArrayList<Player>
+    ): RecyclerView.Adapter<TopViewAdapter.ViewHolder>() {
+        private lateinit var vBinding: Top10ScoreListItemsBinding
+        inner class ViewHolder(view: View): RecyclerView.ViewHolder(view)
+        init {
+            Log.d(TAG, "TopViewAdapter.players.size = ${players.size}")
+        }
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            vBinding = Top10ScoreListItemsBinding.inflate(layoutInflater,
+                parent, false)
+            val view = vBinding.root
+            val viewHolder = ViewHolder(view)
+            // items for one screen
             val itemNum = if (resources.configuration.orientation
                 == Configuration.ORIENTATION_LANDSCAPE) 2 else 4
-            // items for one screen
-            Log.d(TAG, "itemNum = $itemNum")
-            vBinding.root.layoutParams.height = parent.height / itemNum
-            Log.d(TAG, "layoutParams.height = ${vBinding.root.layoutParams.height}")
-
+            Log.d(TAG, "onCreateViewHolder.itemNum = $itemNum")
+            view.layoutParams.height = parent.height / itemNum
+            Log.d(TAG, "onCreateViewHolder.layoutParams.height = ${view.layoutParams.height}")
             vBinding.playerTextView.let {
                 ScreenUtil.resizeTextSize(it, textFontSize,
                     ScreenUtil.FontSize_Pixel_Type)
-                // it.text = players[position]
             }
             vBinding.scoreTextView.let {
                 ScreenUtil.resizeTextSize(it, textFontSize,
                     ScreenUtil.FontSize_Pixel_Type)
-                // it.text = scores[position].toString()
             }
-            // vBinding.medalImage.setImageResource(medals[position])
+            vBinding.medalImage.let {
+                // set ImageView size
+                it.layoutParams.height = (textFontSize * 4).toInt()
+                it.layoutParams.width = (textFontSize * 4).toInt()
+            }
 
-            return vBinding.root
+            return viewHolder
+        }
+
+        override fun getItemCount(): Int {
+            return players.size
+        }
+
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            Log.d(TAG, "onBindViewHolder.position = $position")
+            if (position<0) return
+            holder.itemView.setOnClickListener {
+                ScreenUtil.showToast(
+                    activity, players[position].name,
+                    textFontSize, ScreenUtil.FontSize_Pixel_Type,
+                    Toast.LENGTH_LONG
+                )
+            }
+            vBinding.apply {
+                lifecycleOwner = this@Top10Fragment
+                top10Players = players[position]
+            }
         }
     }
 

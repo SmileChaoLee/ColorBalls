@@ -15,7 +15,7 @@
             android:layout_gravity="center_horizontal"
             android:text="@string/localTop10Score" />
 
-        <ListView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/top10ListView"
             android:layout_marginTop="10dp"
             android:layout_width="match_parent"
