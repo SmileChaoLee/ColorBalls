@@ -35,13 +35,6 @@ class SettingActivity : AppCompatActivity() {
             0.0f
         )
 
-        mSettings = EnvSetting()
-        intent.extras?.let {
-            mSettings.hasSound = it.getBoolean(Constants.HAS_SOUND, true)
-            mSettings.easyLevel = it.getBoolean(Constants.IS_EASY_LEVEL, true)
-            mSettings.hasNextBall = it.getBoolean(Constants.HAS_NEXT_BALL, true)
-        }
-
         // setContentView(R.layout.activity_setting)
         binding = ActivitySettingBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -51,12 +44,33 @@ class SettingActivity : AppCompatActivity() {
             viewModel = settingViewModel
         }
 
-        settingViewModel.setSettings(mSettings)
+        if (savedInstanceState == null) {
+            // new creation of this activity
+            Log.d(TAG, "onCreate.savedInstanceState is null")
+            mSettings = EnvSetting()
+            intent.extras?.let {
+                mSettings.hasSound = it.getBoolean(Constants.HAS_SOUND, true)
+                mSettings.easyLevel = it.getBoolean(Constants.IS_EASY_LEVEL, true)
+                mSettings.hasNextBall = it.getBoolean(Constants.HAS_NEXT_BALL, true)
+            }
+            settingViewModel.setSettings(mSettings)
+        } else {
+            // re-creation of this activity
+            settingViewModel.settings.value?.let {
+                Log.d(TAG, "onCreate.settingViewModel.settings has value")
+                mSettings = it
+            } ?: run {
+                Log.d(TAG, "onCreate.settingViewModel.settings has no value")
+                mSettings = EnvSetting()
+                settingViewModel.setSettings(mSettings)
+            }
+        }
+
         settingViewModel.settings.observe(this@SettingActivity) {
             mSettings = it
-            Log.d(TAG, "observe.mSettings.hasSound = ${mSettings.hasSound}")
-            Log.d(TAG, "observe.mSettings.easyLevel = ${mSettings.easyLevel}")
-            Log.d(TAG, "observe.mSettings.hasNextBall = ${mSettings.hasNextBall}")
+            Log.d(TAG, "onCreate.observe.mSettings.hasSound = ${mSettings.hasSound}")
+            Log.d(TAG, "onCreate.observe.mSettings.easyLevel = ${mSettings.easyLevel}")
+            Log.d(TAG, "onCreate.observe.mSettings.hasNextBall = ${mSettings.hasNextBall}")
         }
 
         binding.settingTitle.let {
@@ -118,7 +132,7 @@ class SettingActivity : AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                Log.d(TAG, "onBackPressedDispatcher.handleOnBackPressed")
+                Log.d(TAG, "onCreate.onBackPressedDispatcher.handleOnBackPressed")
                 returnToPrevious(false)
             }
         })
