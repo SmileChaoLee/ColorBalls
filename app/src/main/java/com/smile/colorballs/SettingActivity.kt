@@ -18,8 +18,6 @@ class SettingActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivitySettingBinding
     private val settingViewModel : SettingViewModel by viewModels()
-    private val settings : Settings = Settings(hasSound = true,
-        easyLevel = true, hasNextBall = true)
 
     /**
      * if (Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
@@ -35,6 +33,7 @@ class SettingActivity : AppCompatActivity() {
             0.0f
         )
 
+        val settings = Settings()
         intent.extras?.let {
             settings.hasSound = it.getBoolean(Constants.HAS_SOUND, true)
             settings.easyLevel = it.getBoolean(Constants.IS_EASY_LEVEL, true)
@@ -62,9 +61,7 @@ class SettingActivity : AppCompatActivity() {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
             it.apply {
                 setOnClickListener { view: View ->
-                    // settingViewModel.hasSound.value = (view as ToggleButton).isChecked
-                    settings.hasSound = (view as ToggleButton).isChecked
-                    settingViewModel.settings = settings
+                    settingViewModel.setHasSound((view as ToggleButton).isChecked)
                 }
             }
         }
@@ -79,9 +76,7 @@ class SettingActivity : AppCompatActivity() {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
             it.apply {
                 setOnClickListener { view: View ->
-                    // settingViewModel.easyLevel.value = (view as ToggleButton).isChecked
-                    settings.easyLevel = (view as ToggleButton).isChecked
-                    settingViewModel.settings = settings
+                    settingViewModel.setEasyLevel((view as ToggleButton).isChecked)
                 }
             }
         }
@@ -96,9 +91,7 @@ class SettingActivity : AppCompatActivity() {
             ScreenUtil.resizeTextSize(it, textFontSize, ScreenUtil.FontSize_Pixel_Type)
             it.apply {
                 setOnClickListener { view: View ->
-                    // settingViewModel.hasNextBall.value = (view as ToggleButton).isChecked
-                    settings.hasNextBall = (view as ToggleButton).isChecked
-                    settingViewModel.settings = settings
+                    settingViewModel.setHasNextBall((view as ToggleButton).isChecked)
                 }
             }
         }

@@ -9,7 +9,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -137,6 +136,7 @@ class Top10Fragment : Fragment {
 
             Log.d(TAG, "onViewCreated.TopViewAdapter.players.size = ${players.size}")
             top10ListView = binding.top10ListView.apply {
+                setHasFixedSize(true)
                 adapter = TopViewAdapter(players)
                 layoutManager = LinearLayoutManager(activity)
             }
