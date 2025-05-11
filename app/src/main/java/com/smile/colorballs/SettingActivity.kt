@@ -10,14 +10,16 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.databinding.ActivitySettingBinding
+import com.smile.colorballs.models.EnvSetting
 import com.smile.smilelibraries.utilities.ScreenUtil
 import com.smile.colorballs.models.Settings
-import com.smile.colorballs.viewmodel.SettingViewModel
+import com.smile.colorballs.viewmodel.EnvSettingViewModel
 
 class SettingActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivitySettingBinding
-    private val settingViewModel : SettingViewModel by viewModels()
+    private lateinit var mSettings: EnvSetting
+    private val settingViewModel : EnvSettingViewModel by viewModels()
 
     /**
      * if (Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
@@ -33,14 +35,12 @@ class SettingActivity : AppCompatActivity() {
             0.0f
         )
 
-        val settings = Settings()
+        mSettings = EnvSetting()
         intent.extras?.let {
-            settings.hasSound = it.getBoolean(Constants.HAS_SOUND, true)
-            settings.easyLevel = it.getBoolean(Constants.IS_EASY_LEVEL, true)
-            settings.hasNextBall = it.getBoolean(Constants.HAS_NEXT_BALL, true)
+            mSettings.hasSound = it.getBoolean(Constants.HAS_SOUND, true)
+            mSettings.easyLevel = it.getBoolean(Constants.IS_EASY_LEVEL, true)
+            mSettings.hasNextBall = it.getBoolean(Constants.HAS_NEXT_BALL, true)
         }
-
-        settingViewModel.settings = settings
 
         // setContentView(R.layout.activity_setting)
         binding = ActivitySettingBinding.inflate(layoutInflater)
@@ -49,6 +49,14 @@ class SettingActivity : AppCompatActivity() {
         binding.apply {
             lifecycleOwner = this@SettingActivity
             viewModel = settingViewModel
+        }
+
+        settingViewModel.setSettings(mSettings)
+        settingViewModel.settings.observe(this@SettingActivity) {
+            mSettings = it
+            Log.d(TAG, "observe.mSettings.hasSound = ${mSettings.hasSound}")
+            Log.d(TAG, "observe.mSettings.easyLevel = ${mSettings.easyLevel}")
+            Log.d(TAG, "observe.mSettings.hasNextBall = ${mSettings.hasNextBall}")
         }
 
         binding.settingTitle.let {
@@ -117,15 +125,27 @@ class SettingActivity : AppCompatActivity() {
     }
 
     private fun returnToPrevious(confirmed: Boolean) {
-        Intent().let {
+        Intent().let {intent ->
+            /*
             Bundle().apply {
-                putBoolean(Constants.HAS_SOUND, settingViewModel.settings.hasSound)
-                putBoolean(Constants.IS_EASY_LEVEL, settingViewModel.settings.easyLevel)
-                putBoolean(Constants.HAS_NEXT_BALL, settingViewModel.settings.hasNextBall)
-                it.putExtras(this)
+                settingViewModel.settings.value?.let {
+                    putBoolean(Constants.HAS_SOUND, it.hasSound)
+                    putBoolean(Constants.IS_EASY_LEVEL, it.easyLevel)
+                    putBoolean(Constants.HAS_NEXT_BALL, it.hasNextBall)
+                    intent.putExtras(this)
+                }
+            }
+            */
+            Bundle().apply {
+                mSettings.let {
+                    putBoolean(Constants.HAS_SOUND, it.hasSound)
+                    putBoolean(Constants.IS_EASY_LEVEL, it.easyLevel)
+                    putBoolean(Constants.HAS_NEXT_BALL, it.hasNextBall)
+                    intent.putExtras(this)
+                }
             }
             setResult(if (confirmed) RESULT_OK else RESULT_CANCELED,
-                it) // can bundle some data to previous activity
+                intent) // can bundle some data to previous activity
         }
         finish()
     }

@@ -4,9 +4,9 @@ import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import com.smile.colorballs.BR
 
-class EnvSetting(hasSound : Boolean,
-                 easyLevel : Boolean,
-                 hasNextBall : Boolean) : BaseObservable() {
+class EnvSetting(hasSound : Boolean = true,
+                 easyLevel : Boolean = true,
+                 hasNextBall : Boolean = true) : BaseObservable() {
      @get:Bindable
      var hasSound = hasSound
          set(value) {

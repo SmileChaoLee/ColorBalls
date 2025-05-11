@@ -4,7 +4,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.smile.colorballs.viewmodel.SettingViewModel" />
+            type="com.smile.colorballs.viewmodel.EnvSettingViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -64,7 +64,7 @@
                     </TextView>
                     <ToggleButton
                         android:id="@+id/soundSwitch"
-                        android:checked="@{viewModel.hasSound}"
+                        android:checked="@{viewModel.settings.hasSound}"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="match_parent"
@@ -82,7 +82,7 @@
                         android:layout_height="match_parent"
                         android:gravity="center_vertical|end"
                         android:textColor="#ffffff00"
-                        android:text="@{viewModel.hasSound? @string/hasSoundStr : @string/noSoundStr}">
+                        android:text="@{viewModel.settings.hasSound? @string/hasSoundStr : @string/noSoundStr}">
                     </TextView>
                 </LinearLayout>
                 <LinearLayout
@@ -104,7 +104,7 @@
                     </TextView>
                     <ToggleButton
                         android:id="@+id/levelSwitch"
-                        android:checked="@{viewModel.easyLevel}"
+                        android:checked="@{viewModel.settings.easyLevel}"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="match_parent"
@@ -122,7 +122,7 @@
                         android:layout_height="match_parent"
                         android:gravity="center_vertical|end"
                         android:textColor="#ffffff00"
-                        android:text="@{viewModel.easyLevel? @string/easyStr : @string/difficultStr}">
+                        android:text="@{viewModel.settings.easyLevel? @string/easyStr : @string/difficultStr}">
                     </TextView>
                 </LinearLayout>
                 <LinearLayout
@@ -144,7 +144,7 @@
                     </TextView>
                     <ToggleButton
                         android:id="@+id/nextBallSettingSwitch"
-                        android:checked="@{viewModel.hasNextBall}"
+                        android:checked="@{viewModel.settings.hasNextBall}"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="match_parent"
@@ -162,7 +162,7 @@
                         android:layout_height="match_parent"
                         android:gravity="center_vertical|end"
                         android:textColor="#ffffff00"
-                        android:text="@{viewModel.hasNextBall? @string/showStr : @string/noShowStr}">
+                        android:text="@{viewModel.settings.hasNextBall? @string/showStr : @string/noShowStr}">
                     </TextView>
                 </LinearLayout>
             </LinearLayout>

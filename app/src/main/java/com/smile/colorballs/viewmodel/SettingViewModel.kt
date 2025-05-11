@@ -6,40 +6,38 @@ import androidx.lifecycle.ViewModel
 import com.smile.colorballs.models.Settings
 
 class SettingViewModel : ViewModel() {
-    private val _hasSound = MutableLiveData<Boolean>()
-    val hasSound : LiveData<Boolean>
-        get() = _hasSound
+    private val _settings = MutableLiveData<Settings>()
+    val settings : LiveData<Settings>
+        get() = _settings
 
-    private val _easyLevel = MutableLiveData<Boolean>()
-    val easyLevel : LiveData<Boolean>
-        get() = _easyLevel
-
-    private val _hasNextBall = MutableLiveData<Boolean>()
-    val hasNextBall : LiveData<Boolean>
-        get() = _hasNextBall
-
-    var settings : Settings
-        get() {
-            val sound = _hasSound.value ?: true
-            val level = _easyLevel.value ?: true
-            val next = _hasNextBall.value ?: true
-            return Settings(sound, level, next)
-        }
-        set(value) {
-            _hasSound.value = value.hasSound
-            _easyLevel.value = value.easyLevel
-            _hasNextBall.value = value.hasNextBall
-        }
+    fun setSettings(set: Settings) {
+        _settings.value = set
+    }
 
     fun setHasSound(hasSound: Boolean) {
-        _hasSound.value = hasSound
+        _settings.value?.let {
+            it.hasSound = hasSound
+            // Have to trigger notifyPropertyChanged of Settings model
+            // _settings.postValue(it)
+            _settings.value = it
+        }
     }
 
     fun setEasyLevel(easyLevel: Boolean) {
-        _easyLevel.value = easyLevel
+        _settings.value?.let {
+            it.easyLevel = easyLevel
+            // Have to trigger notifyPropertyChanged of Settings model
+            // _settings.postValue(it)
+            _settings.value = it
+        }
     }
 
     fun setHasNextBall(hasNextBall: Boolean) {
-        _hasNextBall.value = hasNextBall
+        _settings.value?.let {
+            it.hasNextBall = hasNextBall
+            // Have to trigger notifyPropertyChanged of Settings model
+            // _settings.postValue(it)
+            _settings.value = it
+        }
     }
 }
