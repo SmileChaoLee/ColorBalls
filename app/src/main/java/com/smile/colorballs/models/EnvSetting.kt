@@ -10,21 +10,27 @@ class EnvSetting(hasSound : Boolean = true,
      @get:Bindable
      var hasSound = hasSound
          set(value) {
-            field = value
-            notifyPropertyChanged(BR.hasSound)
+             if (field != value) {
+                 field = value
+                 notifyPropertyChanged(BR.hasSound)
+             }
          }
 
     @get:Bindable
     var easyLevel = easyLevel
         set(value) {
-            field = value
-            notifyPropertyChanged(BR.easyLevel)
+            if (field != value) {
+                field = value
+                notifyPropertyChanged(BR.easyLevel)
+            }
         }
 
     @get:Bindable
     var hasNextBall = hasNextBall
         set(value) {
-            field = value
-            notifyPropertyChanged(BR.hasNextBall)
+            if (field != value) {
+                field = value
+                notifyPropertyChanged(BR.hasNextBall)
+            }
         }
 }

@@ -12,7 +12,6 @@ import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.databinding.ActivitySettingBinding
 import com.smile.colorballs.models.EnvSetting
 import com.smile.smilelibraries.utilities.ScreenUtil
-import com.smile.colorballs.models.Settings
 import com.smile.colorballs.viewmodel.EnvSettingViewModel
 
 class SettingActivity : AppCompatActivity() {
