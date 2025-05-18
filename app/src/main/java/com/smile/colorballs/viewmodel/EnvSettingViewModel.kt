@@ -15,8 +15,8 @@ class EnvSettingViewModel : ViewModel() {
     }
 
     fun setHasSound(hasSound: Boolean) {
-        _settings.value?.let {
-            it.hasSound = hasSound
+        _settings.value?.apply {
+            this.hasSound = hasSound
             // EveSetting is a Observable class, so no need to post value
             // Each property changes will trigger notifyPropertyChanged()
             // _settings.postValue(it) or
@@ -25,8 +25,8 @@ class EnvSettingViewModel : ViewModel() {
     }
 
     fun setEasyLevel(easyLevel: Boolean) {
-        _settings.value?.let {
-            it.easyLevel = easyLevel
+        _settings.value?.apply {
+            this.easyLevel = easyLevel
             // EveSetting is a Observable class, so no need to post value
             // Each property changes will trigger notifyPropertyChanged()
             // _settings.postValue(it) or
@@ -35,8 +35,8 @@ class EnvSettingViewModel : ViewModel() {
     }
 
     fun setHasNextBall(hasNextBall: Boolean) {
-        _settings.value?.let {
-            it.hasNextBall = hasNextBall
+        _settings.value?.apply {
+            this.hasNextBall = hasNextBall
             // EveSetting is a Observable class, so no need to post value
             // Each property changes will trigger notifyPropertyChanged()
             // _settings.postValue(it) or

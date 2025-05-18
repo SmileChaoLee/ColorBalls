@@ -1,43 +1,44 @@
-package com.smile.smilelibraries.retrofit;
+package com.smile.smilelibraries.retrofit
 
-import android.util.Log;
+import android.util.Log
+import com.google.gson.GsonBuilder
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+object Client {
 
-import java.util.concurrent.TimeUnit;
+    private const val TAG = "Client"
 
-import dagger.Module;
-import dagger.Provides;
-import okhttp3.OkHttpClient;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+    // private const val BASE_URL = "http://137.184.120.171/"
+    private val retrofitMap: HashMap<String, Retrofit> = HashMap()
 
-@Module
-public class Client {
-    private static final String TAG = "Client";
-    private static final String BASE_URL = "http://137.184.120.171/";
-    // For emulator
-    // private static final String BASE_URL = "http://10.0.2.2:5000/";
-    // For Physical Android Phone
-    // private static final String BASE_URL = "http://192.168.0.108:5000/";
-    private static Retrofit retrofit;
-
-    @Provides
-    public static Retrofit getInstance() {
-        Log.d(TAG, "getInstance");
-        if (retrofit == null) {
-            OkHttpClient client = new OkHttpClient.Builder()
-                    .connectTimeout(1, TimeUnit.SECONDS)
-                    .readTimeout(30, TimeUnit.SECONDS)
-                    .writeTimeout(15, TimeUnit.SECONDS).build();
-            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss").create();
-            retrofit = new retrofit2.Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .client(client)
-                    .addConverterFactory(GsonConverterFactory.create(gson))
-                    .build();
+    fun getInstance(webUrl: String): Retrofit {
+        val retrofit: Retrofit
+        if (retrofitMap.contains(webUrl)) {
+            retrofit = retrofitMap.getValue(webUrl)
+        } else {
+            retrofit = getRetrofit(webUrl)
+            retrofitMap[webUrl] = retrofit
         }
-        return retrofit;
+        Log.d(TAG, "retrofit = $retrofit")
+        return retrofit
+    }
+
+    private fun getRetrofit(webUrl: String): Retrofit {
+        Log.d(TAG, "getInstance.url = $webUrl")
+        val client = OkHttpClient.Builder()
+            .connectTimeout(1, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS).build()
+        val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss").create()
+        val retrofit = Retrofit.Builder()
+            .baseUrl(webUrl)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+        Log.d(TAG, "getRetrofit.retrofit = $retrofit")
+        return retrofit
     }
 }

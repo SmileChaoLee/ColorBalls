@@ -7,7 +7,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smile.colorballs.constants.Constants
-import com.smile.smilelibraries.player_record_rest.PlayerRecordRest
+import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 
 class LocalTop10Service : Service() {

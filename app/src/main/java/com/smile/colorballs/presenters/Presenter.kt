@@ -16,7 +16,7 @@ import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.interfaces.PresentView
 import com.smile.colorballs.models.GameProp
 import com.smile.colorballs.models.GridData
-import com.smile.smilelibraries.player_record_rest.PlayerRecordRest
+import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
 import com.smile.smilelibraries.utilities.SoundPoolUtil
 import org.json.JSONObject
 import java.io.IOException
