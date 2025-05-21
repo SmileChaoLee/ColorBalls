@@ -42,8 +42,7 @@ import com.smile.colorballs.R.string
 import com.smile.colorballs.Top10Fragment.Companion.newInstance
 import com.smile.colorballs.Top10Fragment.Top10OkButtonListener
 import com.smile.colorballs.constants.Constants
-import com.smile.colorballs.coroutines.LocalTop10Coroutine
-import com.smile.colorballs.coroutines.LocalTop10Coroutine.Companion.getLocalTop10
+import com.smile.colorballs.coroutines.Top10Coroutine
 import com.smile.colorballs.models.GameProp
 import com.smile.colorballs.models.GridData
 import com.smile.colorballs.presenters.Presenter
@@ -57,6 +56,9 @@ import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil
 import com.smile.smilelibraries.show_banner_ads.SetBannerAdView
 import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
 import com.smile.smilelibraries.utilities.ScreenUtil
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MyActivity : MyView() {
     private var fontScale = 0f
@@ -510,15 +512,24 @@ class MyActivity : MyView() {
         ColorBallsApp.isProcessingJob = true
         ColorBallsApp.isShowingLoadingMessage = true
         showMessageOnScreen(getString(string.loadingStr))
+        Log.d(TAG, "showTop10Scores.launch coroutine")
+        CoroutineScope(Dispatchers.Main).launch {
+            Log.d(TAG, "showTop10Scores.launch.Top10Coroutine.getTop10()")
+            Top10Coroutine.getTop10(applicationContext, isLocal)
+        }
+        /*
         if (isLocal) {
             // myIntent = new Intent(this, LocalTop10Service.class);
-            getLocalTop10(applicationContext)
+            CoroutineScope(Dispatchers.Main).launch {
+                Top10Coroutine.getTop10(applicationContext, isLocal)
+            }
         } else {
             Intent(this, GlobalTop10Service::class.java).let {
                 it.putExtra(Constants.GAME_ID_STRING, "1")
                 startService(it)
             }
         }
+        */
     }
 
     private fun bannerAndNativeAd() {
@@ -572,7 +583,7 @@ class MyActivity : MyView() {
         myIntentFilter.let {
             it.addAction(GlobalTop10Service.ACTION_NAME)
             it.addAction(LocalTop10Service.ACTION_NAME)
-            it.addAction(LocalTop10Coroutine.ACTION_NAME)
+            it.addAction(Top10Coroutine.ACTION_NAME)
         }
         LocalBroadcastManager.getInstance(this).let {
             myReceiver?.let { rec ->

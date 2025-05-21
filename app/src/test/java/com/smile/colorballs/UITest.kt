@@ -13,12 +13,9 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.smile.colorballs.constants.Constants
-import com.smile.colorballs.coroutines.LocalTop10Coroutine
+import com.smile.colorballs.coroutines.Top10Coroutine
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -164,7 +161,7 @@ class UITest {
     }
 
     @Test
-    fun test_globalTop10Submenu() {
+    fun test_globalTop10SubmenuService() {
         whichActionSubMenu(0)
         controller?.let {
             val shadowActivity = shadowOf(activity)
@@ -180,12 +177,21 @@ class UITest {
     }
 
     @Test
-    fun test_localTop10Submenu() = runTest {
+    fun test_globalTop10SubmenuCoroutine() = runTest {
         whichActionSubMenu(1)
-        LocalTop10Coroutine.getDataAndSendBack(appContext!!)
-        println("test_localTop10Submenu.LocalTop10Coroutine.isBroadcastSent = " +
-                "${LocalTop10Coroutine.isBroadcastSent}")
-        Assert.assertTrue(LocalTop10Coroutine.isBroadcastSent)
+        Top10Coroutine.getGlobalAndSendBack(appContext!!)
+        println("test_globalTop10SubmenuCoroutine.Top10Coroutine.isBroadcastSent = " +
+                "${Top10Coroutine.isBroadcastSent}")
+        Assert.assertTrue(Top10Coroutine.isBroadcastSent)
+    }
+
+    @Test
+    fun test_localTop10SubmenuCoroutine() = runTest {
+        whichActionSubMenu(1)
+        Top10Coroutine.getLocalAndSendBack(appContext!!)
+        println("test_localTop10SubmenuCoroutine.Top10Coroutine.isBroadcastSent = " +
+                "${Top10Coroutine.isBroadcastSent}")
+        Assert.assertTrue(Top10Coroutine.isBroadcastSent)
     }
 
     private fun alertDialogFragment(stringId: Int, tag : String) : AlertDialogFragment? {
