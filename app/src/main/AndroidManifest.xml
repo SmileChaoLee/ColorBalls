@@ -36,8 +36,14 @@
             android:theme="@style/AppThemeTransparent" />
         <activity
             android:name=".Top10Activity"
-            android:label="@string/title_activity_history"
-            android:exported="true">
+            android:exported="true"
+            android:label="@string/title_activity_history">
+        </activity>
+        <activity
+            android:name=".compose_view.Top10ComposeActivity"
+            android:exported="false"
+            android:label="@string/title_activity_top10"
+            android:theme="@style/AppTheme">
         </activity>
 
         <service

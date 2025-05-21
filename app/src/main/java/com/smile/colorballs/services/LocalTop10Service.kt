@@ -22,42 +22,24 @@ class LocalTop10Service : Service() {
     }
 
     private fun getDataAndSendBack() {
-        val playerNames = ArrayList<String>()
-        val playerScores = ArrayList<Int>()
-        // getTop10Scores(playerNames, playerScores)
+        Log.d(TAG, "getDataAndSendBack")
         ScoreSQLite(applicationContext).let {
-            PlayerRecordRest.GetLocalTop10(it, playerNames, playerScores)
+            Log.d(TAG, "getDataAndSendBack.PlayerRecordRest.GetLocalTop10()")
+            val players = PlayerRecordRest.GetLocalTop10(it)
             it.close()
-        }
-        Intent(ACTION_NAME).let {
-            Bundle().apply {
-                putStringArrayList(Constants.PLAYER_NAMES, playerNames)
-                putIntegerArrayList(Constants.PLAYER_SCORES, playerScores)
-                it.putExtras(this)
-            }
-            LocalBroadcastManager.getInstance(applicationContext).apply {
-                Log.d(TAG, "getDataAndSendBack.sent result.")
-                sendBroadcast(it)
+            Intent(ACTION_NAME).let {
+                Bundle().apply {
+                    putParcelableArrayList(Constants.TOP10_PLAYERS, players)
+                    it.putExtras(this)
+                }
+                LocalBroadcastManager.getInstance(applicationContext).apply {
+                    Log.d(TAG, "getDataAndSendBack.sent result.")
+                    sendBroadcast(it)
+                }
             }
         }
         Log.d(TAG, "getDataAndSendBack.stopSelf().")
         stopSelf()
-    }
-
-    private fun getTop10Scores(playerNames: ArrayList<String>,
-        playerScores: ArrayList<Int>): Boolean {
-        var status = true
-        try {
-            ScoreSQLite(applicationContext).let {
-                PlayerRecordRest.GetLocalTop10(it, playerNames, playerScores)
-                it.close()
-            }
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-            status = false
-        }
-        Log.d(TAG, "getLocalTop10Scores.status = $status")
-        return status
     }
 
     companion object {

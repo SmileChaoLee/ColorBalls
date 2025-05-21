@@ -4,19 +4,22 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.os.BundleCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.databinding.FragmentTop10Binding
 import com.smile.colorballs.databinding.Top10ScoreListItemsBinding
-import com.smile.colorballs.models.Player
+import com.smile.colorballs.models.TopPlayer
+import com.smile.smilelibraries.player_record_rest.models.Player
 import com.smile.smilelibraries.utilities.ScreenUtil
 
 /**
@@ -28,9 +31,8 @@ import com.smile.smilelibraries.utilities.ScreenUtil
  */
 class Top10Fragment : Fragment {
     private var mContext: Context? = null
-    private var top10Players: ArrayList<String> = ArrayList()
-    private var top10Scores: ArrayList<Int> = ArrayList()
-    private val medalImageIds = ArrayList<Int>()
+    private var top10Players: ArrayList<TopPlayer> = ArrayList()
+    // private val medalImageIds = ArrayList<Int>()
     private var top10ListView: RecyclerView? = null
     private var top10OkButtonListener: Top10OkButtonListener? = null
     private var top10TitleName: String = ""
@@ -68,30 +70,31 @@ class Top10Fragment : Fragment {
 
         if (savedInstanceState == null) {
             // if new Fragment instance
+            val medalImageIds = listOf(
+                R.drawable.gold_medal,
+                R.drawable.silver_medal,
+                R.drawable.bronze_medal,
+                R.drawable.copper_medal,
+                R.drawable.olympics_image,
+                R.drawable.olympics_image,
+                R.drawable.olympics_image,
+                R.drawable.olympics_image,
+                R.drawable.olympics_image,
+                R.drawable.olympics_image)
             Log.d(TAG, "onCreate.new Fragment instance")
             Log.d(TAG, "onCreate.arguments = $arguments")
             arguments?.apply {
                 getString(Constants.TOP10_TITLE_NAME)?.let { nameIt ->
                     top10TitleName = nameIt
                 }
-                getStringArrayList(Constants.TOP10_PLAYERS)?.let { listIt ->
-                    top10Players = listIt
-                }
-                getIntegerArrayList(Constants.TOP10_SCORES)?.let { listIt ->
-                    top10Scores = listIt
+                val players = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    BundleCompat.getParcelableArrayList(
+                        this@apply, Constants.TOP10_PLAYERS, Player::class.java)!!
+                } else getParcelableArrayList(Constants.TOP10_PLAYERS)!!
+                for (i in 0 until players.size) {
+                    top10Players.add(TopPlayer(players[i], medalImageIds[i]))
                 }
             }
-            medalImageIds.clear()
-            medalImageIds.add(R.drawable.gold_medal)
-            medalImageIds.add(R.drawable.silver_medal)
-            medalImageIds.add(R.drawable.bronze_medal)
-            medalImageIds.add(R.drawable.copper_medal)
-            medalImageIds.add(R.drawable.olympics_image)
-            medalImageIds.add(R.drawable.olympics_image)
-            medalImageIds.add(R.drawable.olympics_image)
-            medalImageIds.add(R.drawable.olympics_image)
-            medalImageIds.add(R.drawable.olympics_image)
-            medalImageIds.add(R.drawable.olympics_image)
         }
     }
 
@@ -127,17 +130,11 @@ class Top10Fragment : Fragment {
                     }
                 }
             }
-            val players = ArrayList<Player>()
-            for (i: Int in 0 until top10Players.size) {
-                players.add(
-                    Player(top10Players[i], top10Scores[i].toString(), medalImageIds[i])
-                )
-            }
 
-            Log.d(TAG, "onViewCreated.TopViewAdapter.players.size = ${players.size}")
+            Log.d(TAG, "onViewCreated.TopViewAdapter.top10Players.size = ${top10Players.size}")
             top10ListView = binding.top10ListView.apply {
                 setHasFixedSize(true)
-                adapter = TopViewAdapter(players)
+                adapter = TopViewAdapter(top10Players)
                 layoutManager = LinearLayoutManager(activity)
             }
         }
@@ -149,59 +146,66 @@ class Top10Fragment : Fragment {
     }
 
     private inner class TopViewAdapter(
-        private val players: ArrayList<Player>
-    ): RecyclerView.Adapter<TopViewAdapter.ViewHolder>() {
-        private lateinit var vBinding: Top10ScoreListItemsBinding
-        inner class ViewHolder(view: View): RecyclerView.ViewHolder(view)
+        private val topPlayers: ArrayList<TopPlayer>
+    ): RecyclerView.Adapter<TopViewAdapter.MyViewHolder>() {
         init {
-            Log.d(TAG, "TopViewAdapter.players.size = ${players.size}")
+            Log.d(TAG, "TopViewAdapter.players.size = ${topPlayers.size}")
         }
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            vBinding = Top10ScoreListItemsBinding.inflate(layoutInflater,
-                parent, false)
-            val view = vBinding.root
-            val viewHolder = ViewHolder(view)
-            // items for one screen
-            val itemNum = if (resources.configuration.orientation
-                == Configuration.ORIENTATION_LANDSCAPE) 2 else 4
-            Log.d(TAG, "onCreateViewHolder.itemNum = $itemNum")
-            view.layoutParams.height = parent.height / itemNum
-            Log.d(TAG, "onCreateViewHolder.layoutParams.height = ${view.layoutParams.height}")
-            vBinding.playerTextView.let {
-                ScreenUtil.resizeTextSize(it, textFontSize,
-                    ScreenUtil.FontSize_Pixel_Type)
-            }
-            vBinding.scoreTextView.let {
-                ScreenUtil.resizeTextSize(it, textFontSize,
-                    ScreenUtil.FontSize_Pixel_Type)
-            }
-            vBinding.medalImage.let {
-                // set ImageView size
-                it.layoutParams.height = (textFontSize * 4).toInt()
-                it.layoutParams.width = (textFontSize * 4).toInt()
-            }
 
-            return viewHolder
+        inner class MyViewHolder(private val binding: Top10ScoreListItemsBinding,
+            parent: ViewGroup): RecyclerView.ViewHolder(binding.root) {
+                init {
+                    // items for one screen
+                    val view = binding.root
+                    val itemNum = if (resources.configuration.orientation
+                        == Configuration.ORIENTATION_LANDSCAPE) 2 else 4
+                    Log.d(TAG, "onCreateViewHolder.itemNum = $itemNum")
+                    view.layoutParams.height = parent.height / itemNum
+                    Log.d(TAG, "onCreateViewHolder.layoutParams.height = ${view.layoutParams.height}")
+                    binding.playerTextView.let {
+                        ScreenUtil.resizeTextSize(it, textFontSize,
+                            ScreenUtil.FontSize_Pixel_Type)
+                    }
+                    binding.scoreTextView.let {
+                        ScreenUtil.resizeTextSize(it, textFontSize,
+                            ScreenUtil.FontSize_Pixel_Type)
+                    }
+                    binding.medalImage.let {
+                        // set ImageView size
+                        it.layoutParams.height = (textFontSize * 4).toInt()
+                        it.layoutParams.width = (textFontSize * 4).toInt()
+                    }
+                }
+
+                fun bindData(topPlayer: TopPlayer) {
+                    binding.apply {
+                        lifecycleOwner = this@Top10Fragment
+                        mTop10Player = topPlayer
+                    }
+                }
+
+        }
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
+            val binding = Top10ScoreListItemsBinding.inflate(layoutInflater,
+                parent, false)
+            return MyViewHolder(binding, parent)
         }
 
         override fun getItemCount(): Int {
-            return players.size
+            return topPlayers.size
         }
 
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
             Log.d(TAG, "onBindViewHolder.position = $position")
             if (position<0) return
             holder.itemView.setOnClickListener {
                 ScreenUtil.showToast(
-                    activity, players[position].name,
+                    activity, topPlayers[position].player.playerName,
                     textFontSize, ScreenUtil.FontSize_Pixel_Type,
                     Toast.LENGTH_LONG
                 )
             }
-            vBinding.apply {
-                lifecycleOwner = this@Top10Fragment
-                top10Players = players[position]
-            }
+            holder.bindData(topPlayers[position])
         }
     }
 
@@ -210,16 +214,16 @@ class Top10Fragment : Fragment {
         private const val TAG = "Top10Fragment"
         fun newInstance(
             top10Title: String,
-            playerNames: ArrayList<String>,
-            playerScores: ArrayList<Int>,
+            top10Players: ArrayList<Player>,
             listener: Top10OkButtonListener
         ): Top10Fragment {
+            Log.d(TAG, "newInstance.")
             val args = Bundle().apply {
                 putString(Constants.TOP10_TITLE_NAME, top10Title)
-                putStringArrayList(Constants.TOP10_PLAYERS, playerNames)
-                putIntegerArrayList(Constants.TOP10_SCORES, playerScores)
+                Log.d(TAG, "newInstance.putParcelableArrayList")
+                putParcelableArrayList(Constants.TOP10_PLAYERS, top10Players)
             }
-            Log.d(TAG, "newInstance.")
+            Log.d(TAG, "newInstance.return.Top10Fragment(listener)")
             return Top10Fragment(listener).apply {
                 arguments = args
             }

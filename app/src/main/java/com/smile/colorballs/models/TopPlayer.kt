@@ -3,24 +3,17 @@ package com.smile.colorballs.models
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import com.smile.colorballs.BR
+import com.smile.smilelibraries.player_record_rest.models.Player
 
-class Player(name : String = "",
-             score : String = "",
-             medal : Int = 0) : BaseObservable() {
+class TopPlayer(
+    player: Player = Player(),
+    medal : Int = 0): BaseObservable() {
     @get:Bindable
-    var name = name
+    var player: Player = player
         set(value) {
             field = value
-            notifyPropertyChanged(BR.name)
+            notifyPropertyChanged(BR.player)
         }
-
-    @get:Bindable
-    var score = score
-        set(value) {
-            field = value
-            notifyPropertyChanged(BR.score)
-        }
-
     @get:Bindable
     var medal = medal
         set(value) {

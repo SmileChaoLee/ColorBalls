@@ -1,13 +1,16 @@
 package com.smile.colorballs
 
 import android.app.Activity
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.BundleCompat
 import androidx.fragment.app.Fragment
 import com.smile.colorballs.Top10Fragment.Top10OkButtonListener
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.databinding.ActivityTop10Binding
+import com.smile.smilelibraries.player_record_rest.models.Player
 
 class Top10Activity : AppCompatActivity() {
     private lateinit var binding : ActivityTop10Binding
@@ -18,23 +21,20 @@ class Top10Activity : AppCompatActivity() {
         setContentView(binding.root)
 
         var top10TitleName = ""
-        var top10Players: ArrayList<String> = ArrayList()
-        var top10Scores: ArrayList<Int> = ArrayList()
+        var players: ArrayList<Player> = ArrayList()
         intent.extras?.let {
             it.getString(Constants.TOP10_TITLE_NAME)?.let { nameIt ->
                 top10TitleName = nameIt
             }
-            it.getStringArrayList(Constants.TOP10_PLAYERS)?.let { listIt ->
-                top10Players = listIt
-            }
-            it.getIntegerArrayList(Constants.TOP10_SCORES)?.let { listIt ->
-                top10Scores = listIt
-            }
+            players = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                BundleCompat.getParcelableArrayList(
+                    it, Constants.TOP10_PLAYERS, Player::class.java)!!
+            } else it.getParcelableArrayList(Constants.TOP10_PLAYERS)!!
         }
 
         val top10Fragment: Fragment = Top10Fragment
             .newInstance(
-                top10TitleName, top10Players, top10Scores,
+                top10TitleName, players,
                 object : Top10OkButtonListener {
                     override fun buttonOkClick(activity: Activity?) {
                         Log.d(TAG, "Top10OkButtonListener.buttonOkClick")

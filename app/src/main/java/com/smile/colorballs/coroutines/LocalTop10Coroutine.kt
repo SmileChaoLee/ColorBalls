@@ -35,22 +35,20 @@ class LocalTop10Coroutine {
         suspend fun getDataAndSendBack(context : Context) {
             withContext(Dispatchers.IO) {
                 Log.d(TAG, "getDataAndSendBack")
-                val playerNames = ArrayList<String>()
-                val playerScores = ArrayList<Int>()
                 ScoreSQLite(context).let {
-                    PlayerRecordRest.GetLocalTop10(it, playerNames, playerScores)
+                    Log.d(TAG, "getDataAndSendBack.PlayerRecordRest.GetLocalTop10()")
+                    val players = PlayerRecordRest.GetLocalTop10(it)
                     it.close()
-                }
-                Intent(ACTION_NAME).let {
-                    Bundle().apply {
-                        putStringArrayList(Constants.PLAYER_NAMES, playerNames)
-                        putIntegerArrayList(Constants.PLAYER_SCORES, playerScores)
-                        it.putExtras(this)
-                    }
-                    LocalBroadcastManager.getInstance(context).apply {
-                        Log.d(TAG, "getDataAndSendBack.sent result.")
-                        sendBroadcast(it)
-                        isBroadcastSent = true
+                    Intent(ACTION_NAME).let {
+                        Bundle().apply {
+                            putParcelableArrayList(Constants.TOP10_PLAYERS, players)
+                            it.putExtras(this)
+                        }
+                        LocalBroadcastManager.getInstance(context).apply {
+                            Log.d(TAG, "getDataAndSendBack.sent result.")
+                            sendBroadcast(it)
+                            isBroadcastSent = true
+                        }
                     }
                 }
             }

@@ -3,6 +3,7 @@ package com.smile.smilelibraries.player_record_rest.httpUrl;
 import android.util.Log;
 import android.util.Pair;
 
+import com.smile.smilelibraries.player_record_rest.models.Player;
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite;
 
 import org.json.JSONArray;
@@ -139,59 +140,62 @@ public class PlayerRecordRest {
         return result;
     }
 
-    public static  String GetLocalTop10(ScoreSQLite scoreSQLite, ArrayList<String> playerNames, ArrayList<Integer> playerScores) {
-
-        String status = SUCCEEDED;
-
-        try {
-            playerNames.clear();
-            playerScores.clear();
-
-            ArrayList<Pair<String, Integer>> resultList = scoreSQLite.readTop10ScoreList();
-            for (Pair pair : resultList) {
-                playerNames.add((String) pair.first);
-                playerScores.add((Integer) pair.second);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            status = EXCEPTION;
-        }
-
-        return status;
-    }
-
-    public static void GetGlobalTop10(String gameId, ArrayList<String> playerNames, ArrayList<Integer> playerScores) {
-        Log.d(TAG, "getGlobalTop10.gameId = " + gameId);
-        if (playerNames == null || playerScores == null) {
-            Log.d(TAG, "getGlobalTop10.playerNames or playerScores is null");
-            return;
-        }
-        playerNames.clear();
-        playerScores.clear();
-        String[] result = PlayerRecordRest.getGlobalTop10(Top10Url +gameId);
+    public static ArrayList<Player> GetGlobalTop10(String gId) {
+        Log.d(TAG, "getGlobalTop10.gameId = " + gId);
+        ArrayList<Player> players = new ArrayList<>();
+        String[] result = PlayerRecordRest.getGlobalTop10(Top10Url +gId);
         String status = result[0].toUpperCase();
         if (status.equals(SUCCEEDED)) {
             // Succeeded
             try {
                 JSONArray jArray = new JSONArray(result[1]);
+                int id;
+                String name;
+                int score;
+                int gameId;
                 for (int i = 0; i < jArray.length(); i++) {
-                    JSONObject jo = jArray.getJSONObject(i);
-                    playerNames.add(jo.getString("PlayerName"));
-                    playerScores.add(jo.getInt("Score"));
+                    JSONObject json = jArray.getJSONObject(i);
+                    id = json.getInt("Id");
+                    name = json.getString("PlayerName");
+                    score = json.getInt("Score");
+                    gameId = json.getInt("GameId");
+                    players.add(new Player(id, name, score, gameId));
                 }
             } catch (JSONException ex) {
                 ex.printStackTrace();
-                playerNames.add("JSONException");
-                playerScores.add(0);
+                players.add(new Player(-1, "JSONException", -1, -1));
             }
         } else if (status.equals(FAILED)) {
             // Failed
-            playerNames.add("Web Connection Failed.");
-            playerScores.add(0);
+            players.add(new Player(-1, "Web Connection Failed.", -1, -1));
         } else {
             // Exception
-            playerNames.add("Exception on Web read.");
-            playerScores.add(0);
+            players.add(new Player(-1, "Exception on Web read.", -1, -1));
         }
+
+        return players;
+    }
+
+    public static ArrayList<Player> GetLocalTop10(ScoreSQLite scoreSQLite) {
+        ArrayList<Player> players = new ArrayList<>();
+        try {
+            ArrayList<Pair<String, Integer>> resultList = scoreSQLite.readTop10ScoreList();
+            int id;
+            String playerName;
+            int score;
+            int gameId;
+            for (int i = 0; i<resultList.size(); i++) {
+                id = i;
+                playerName = resultList.get(i).first;
+                score = resultList.get(i).second;
+                gameId = -1; // not used for now
+                players.add(new Player(id, playerName, score, gameId));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            players.add(new Player(-1, "ScoreSQLite Exception", -1, -1));
+        }
+
+        return players;
     }
 }

@@ -9,6 +9,7 @@ import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smile.colorballs.constants.Constants
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
+import com.smile.smilelibraries.player_record_rest.models.Player
 
 class GlobalTop10Service : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -22,14 +23,13 @@ class GlobalTop10Service : Service() {
     }
 
     private fun getDataAndSendBack(intent: Intent) {
-        val playerNames = ArrayList<String>()
-        val playerScores = ArrayList<Int>()
+        var players = ArrayList<Player>()
         val gameId = intent.getStringExtra(Constants.GAME_ID_STRING)
         val lock = Object()
         val getDataThread = Thread {
             SystemClock.sleep(100)
             synchronized(lock) {
-                PlayerRecordRest.GetGlobalTop10(gameId, playerNames, playerScores)
+                players = PlayerRecordRest.GetGlobalTop10(gameId)
                 Log.d(TAG, "getDataAndSendBack.notifyAll().")
                 lock.notifyAll()
             }
@@ -48,8 +48,7 @@ class GlobalTop10Service : Service() {
         Log.d(TAG, "getDataAndSendBack.sent result.")
         Intent(ACTION_NAME).let {
             Bundle().apply {
-                putStringArrayList("PlayerNames", playerNames)
-                putIntegerArrayList("PlayerScores", playerScores)
+                putParcelableArrayList(Constants.TOP10_PLAYERS, players)
                 it.putExtras(this)
             }
             LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(it)

@@ -52,6 +52,7 @@ import com.smile.colorballs.services.LocalTop10Service
 import com.smile.colorballs.views.MyView
 import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate
 import com.smile.smilelibraries.models.ExitAppTimer
+import com.smile.smilelibraries.player_record_rest.models.Player
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil
 import com.smile.smilelibraries.show_banner_ads.SetBannerAdView
 import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
@@ -592,8 +593,7 @@ class MyActivity : MyView() {
             val actionName = intent.action
             Log.d(TAG, "MyBroadcastReceiver.actionName = $actionName")
             if (actionName != null) {
-                var playerNames: ArrayList<String>? = null
-                var playerScores: ArrayList<Int>? = null
+                var players = ArrayList<Player>()
                 val top10LayoutId = id.top10Layout
                 val top10ScoreTitle = if (actionName == GlobalTop10Service.ACTION_NAME) {
                     getString(string.globalTop10Score)
@@ -601,23 +601,18 @@ class MyActivity : MyView() {
                     getString(string.localTop10Score)
                 }
                 intent.extras?.let { extras ->
-                    playerNames = extras.getStringArrayList(Constants.PLAYER_NAMES)
-                    playerScores = extras.getIntegerArrayList(Constants.PLAYER_SCORES)
+                    players = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        BundleCompat.getParcelableArrayList(
+                            extras, Constants.TOP10_PLAYERS, Player::class.java)!!
+                    } else extras.getParcelableArrayList(Constants.TOP10_PLAYERS)!!
                 }
-                if (playerNames == null || playerScores == null) {
-                    playerNames = ArrayList()
-                    playerScores = ArrayList()
-                    // failed
-                    playerNames?.add("MyBroadcastReceiver.Failed to access Score SQLite database")
-                    playerScores?.add(0)
-                }
-                Log.d(TAG, "MyBroadcastReceiver.playerNames.size() = " + playerNames?.size)
+                Log.d(TAG, "MyBroadcastReceiver.players.size = ${players.size}")
                 val historyView = findViewById<View>(top10LayoutId)
                 if (historyView != null) {
                     if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         Log.d(TAG, "MyBroadcastReceiver.ORIENTATION_LANDSCAPE")
-                        top10Fragment = newInstance(top10ScoreTitle, playerNames!!,
-                            playerScores!!, object: Top10OkButtonListener {
+                        top10Fragment = newInstance(top10ScoreTitle, players,
+                            object: Top10OkButtonListener {
                                 override fun buttonOkClick(activity: Activity?) {
                                     Log.d(TAG, "MyBroadcastReceiver.Top10OkButtonListener")
                                     // remove top10Fragment to dismiss the top 10 score screen
@@ -647,11 +642,11 @@ class MyActivity : MyView() {
                     // for Portrait
                     Log.d(TAG, "MyBroadcastReceiver.ORIENTATION_PORTRAIT")
                     top10Fragment = null
-                    Intent(applicationContext, Top10Activity::class.java).let { int ->
+                    Intent(applicationContext,
+                        Top10Activity::class.java).let { int ->
                         Bundle().apply {
                             putString(Constants.TOP10_TITLE_NAME, top10ScoreTitle)
-                            putStringArrayList(Constants.TOP10_PLAYERS, playerNames)
-                            putIntegerArrayList(Constants.TOP10_SCORES, playerScores)
+                            putParcelableArrayList(Constants.TOP10_PLAYERS, players)
                             int.putExtras(this)
                             top10Launcher.launch(int)
                         }
