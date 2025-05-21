@@ -27,7 +27,7 @@ class LocalTop10Service : Service() {
             Log.d(TAG, "getDataAndSendBack.PlayerRecordRest.GetLocalTop10()")
             val players = PlayerRecordRest.GetLocalTop10(it)
             it.close()
-            Intent(ACTION_NAME).let {
+            Intent(Constants.LOCAL_TOP10_ACTION_NAME).let {
                 Bundle().apply {
                     putParcelableArrayList(Constants.TOP10_PLAYERS, players)
                     it.putExtras(this)
@@ -43,7 +43,6 @@ class LocalTop10Service : Service() {
     }
 
     companion object {
-        const val ACTION_NAME = "com.smile.Service.LocalTop10Service"
         private const val TAG = "LocalTop10Service"
     }
 }

@@ -581,9 +581,8 @@ class MyActivity : MyView() {
         myReceiver = MyBroadcastReceiver()
         val myIntentFilter = IntentFilter()
         myIntentFilter.let {
-            it.addAction(GlobalTop10Service.ACTION_NAME)
-            it.addAction(LocalTop10Service.ACTION_NAME)
-            it.addAction(Top10Coroutine.ACTION_NAME)
+            it.addAction(Constants.GLOBAL_TOP10_ACTION_NAME)
+            it.addAction(Constants.LOCAL_TOP10_ACTION_NAME)
         }
         LocalBroadcastManager.getInstance(this).let {
             myReceiver?.let { rec ->
@@ -606,7 +605,7 @@ class MyActivity : MyView() {
             if (actionName != null) {
                 var players = ArrayList<Player>()
                 val top10LayoutId = id.top10Layout
-                val top10ScoreTitle = if (actionName == GlobalTop10Service.ACTION_NAME) {
+                val top10ScoreTitle = if (actionName == Constants.GLOBAL_TOP10_ACTION_NAME) {
                     getString(string.globalTop10Score)
                 } else {
                     getString(string.localTop10Score)

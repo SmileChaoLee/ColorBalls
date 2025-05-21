@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.core.os.BundleCompat
 import androidx.fragment.app.Fragment
@@ -133,7 +134,7 @@ class Top10Fragment : Fragment {
 
             Log.d(TAG, "onViewCreated.TopViewAdapter.top10Players.size = ${top10Players.size}")
             top10ListView = binding.top10ListView.apply {
-                setHasFixedSize(true)
+                // setHasFixedSize(true)
                 adapter = TopViewAdapter(top10Players)
                 layoutManager = LinearLayoutManager(activity)
             }
@@ -151,17 +152,11 @@ class Top10Fragment : Fragment {
         init {
             Log.d(TAG, "TopViewAdapter.players.size = ${topPlayers.size}")
         }
-
-        inner class MyViewHolder(private val binding: Top10ScoreListItemsBinding,
-            parent: ViewGroup): RecyclerView.ViewHolder(binding.root) {
+        inner class MyViewHolder(private val binding: Top10ScoreListItemsBinding):
+            RecyclerView.ViewHolder(binding.root) {
                 init {
                     // items for one screen
-                    val view = binding.root
-                    val itemNum = if (resources.configuration.orientation
-                        == Configuration.ORIENTATION_LANDSCAPE) 2 else 4
-                    Log.d(TAG, "onCreateViewHolder.itemNum = $itemNum")
-                    view.layoutParams.height = parent.height / itemNum
-                    Log.d(TAG, "onCreateViewHolder.layoutParams.height = ${view.layoutParams.height}")
+                    Log.d(TAG, "MyViewHolder")
                     binding.playerTextView.let {
                         ScreenUtil.resizeTextSize(it, textFontSize,
                             ScreenUtil.FontSize_Pixel_Type)
@@ -188,7 +183,18 @@ class Top10Fragment : Fragment {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
             val binding = Top10ScoreListItemsBinding.inflate(layoutInflater,
                 parent, false)
-            return MyViewHolder(binding, parent)
+            parent.viewTreeObserver.addOnGlobalLayoutListener(
+                object : ViewTreeObserver.OnGlobalLayoutListener {
+                    override fun onGlobalLayout() {
+                        Log.d(TAG, "onCreateViewHolder.parent.height = ${parent.height}")
+                        val itemNum = if (resources.configuration.orientation
+                            == Configuration.ORIENTATION_LANDSCAPE) 2 else 4
+                        Log.d(TAG, "onCreateViewHolder.itemNum = $itemNum")
+                        binding.root.layoutParams.height = parent.height / itemNum
+                        parent.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                    }
+                })
+            return MyViewHolder(binding)
         }
 
         override fun getItemCount(): Int {

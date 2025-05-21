@@ -12,8 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 object Top10Coroutine {
-    const val ACTION_NAME = "com.smile.Service.LocalTop10Service"
-    private const val TAG = "LocalTop10Coroutine"
+    private const val TAG = "Top10Coroutine"
     var isBroadcastSent = false
 
     suspend fun getTop10(context : Context, isLocal: Boolean) {
@@ -38,7 +37,7 @@ object Top10Coroutine {
         withContext(Dispatchers.IO) {
             Log.d(TAG, "getLocalAndSendBack.PlayerRecordRest.GetGlobalTop10()")
             val players = PlayerRecordRest.GetGlobalTop10("1")
-            Intent(ACTION_NAME).let {
+            Intent(Constants.GLOBAL_TOP10_ACTION_NAME).let {
                 Bundle().apply {
                     putParcelableArrayList(Constants.TOP10_PLAYERS, players)
                     it.putExtras(this)
@@ -59,7 +58,7 @@ object Top10Coroutine {
                 Log.d(TAG, "getLocalAndSendBack.PlayerRecordRest.GetLocalTop10()")
                 val players = PlayerRecordRest.GetLocalTop10(it)
                 it.close()
-                Intent(ACTION_NAME).let {
+                Intent(Constants.LOCAL_TOP10_ACTION_NAME).let {
                     Bundle().apply {
                         putParcelableArrayList(Constants.TOP10_PLAYERS, players)
                         it.putExtras(this)

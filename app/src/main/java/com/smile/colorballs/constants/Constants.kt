@@ -12,8 +12,6 @@ class Constants {
         const val TOP10_TITLE_NAME = "Top10TitleName"
         const val TOP10_PLAYERS = "Top10Players"
         const val TOP10_SCORES = "Top10Scores"
-        const val PLAYER_NAMES = "PlayerNames"
-        const val PLAYER_SCORES = "PlayerScores"
         const val GAME_ID_STRING = "GameIdString"
         const val SURE_SAVE_DIALOG_TAG = "SureSaveDialogTag"
         const val SURE_LOAD_DIALOG_TAG = "SureLoadDialogTag"
@@ -39,5 +37,8 @@ class Constants {
         const val BALL_NUM_ONE_TIME : Int = 3
         const val GAME_PROP_TAG = "GameProp"
         const val GRID_DATA_TAG = "GridData"
+
+        const val GLOBAL_TOP10_ACTION_NAME = "com.smile.Service.GlobalTop10"
+        const val LOCAL_TOP10_ACTION_NAME = "com.smile.Service.LocalTop10"
     }
 }

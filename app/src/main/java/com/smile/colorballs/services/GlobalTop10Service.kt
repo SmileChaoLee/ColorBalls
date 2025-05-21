@@ -46,7 +46,7 @@ class GlobalTop10Service : Service() {
             }
         }
         Log.d(TAG, "getDataAndSendBack.sent result.")
-        Intent(ACTION_NAME).let {
+        Intent(Constants.GLOBAL_TOP10_ACTION_NAME).let {
             Bundle().apply {
                 putParcelableArrayList(Constants.TOP10_PLAYERS, players)
                 it.putExtras(this)
@@ -58,7 +58,6 @@ class GlobalTop10Service : Service() {
     }
 
     companion object {
-        const val ACTION_NAME = "com.smile.Service.GlobalTop10Service"
         private const val TAG = "GlobalTop10Service"
     }
 }
