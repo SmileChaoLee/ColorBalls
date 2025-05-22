@@ -1,4 +1,4 @@
-package com.smile.colorballs
+package com.smile.colorballs.compose_view
 
 import android.app.Activity
 import android.os.Build
@@ -7,17 +7,17 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.BundleCompat
 import androidx.fragment.app.Fragment
-import com.smile.colorballs.Top10Fragment.Top10OkButtonListener
+import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
-import com.smile.colorballs.databinding.ActivityTop10Binding
+import com.smile.colorballs.databinding.ActivityTop10ComposeBinding
 import com.smile.smilelibraries.player_record_rest.models.Player
 
-class Top10Activity : AppCompatActivity() {
-    private lateinit var binding : ActivityTop10Binding
+class Top10ComposeActivity : AppCompatActivity() {
+    private lateinit var binding : ActivityTop10ComposeBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
-        binding = ActivityTop10Binding.inflate(layoutInflater)
+        binding = ActivityTop10ComposeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         var top10TitleName = ""
@@ -32,16 +32,13 @@ class Top10Activity : AppCompatActivity() {
             } else it.getParcelableArrayList(Constants.TOP10_PLAYERS)!!
         }
 
-        val top10Fragment: Fragment = Top10Fragment
-            .newInstance(
-                top10TitleName, players,
-                object : Top10OkButtonListener {
-                    override fun buttonOkClick(activity: Activity?) {
-                        Log.d(TAG, "Top10OkButtonListener.buttonOkClick")
-                        activity?.let {
-                            setResult(RESULT_OK)
-                            it.finish()
-                        }
+        val top10Fragment: Fragment = Top10ComposeFragment
+            .newInstance(top10TitleName, players,
+                object : Composables.OkButtonListener {
+                    override fun buttonOkClick(activity: Activity) {
+                        Log.d(TAG, "ComposableFunc.OkButtonListener.buttonOkClick")
+                        setResult(RESULT_OK)
+                        activity.finish()
                     }
                 }
             )
@@ -58,7 +55,6 @@ class Top10Activity : AppCompatActivity() {
                 commit()
             }
         }
-        Log.d(TAG, "onCreate.top10Fragment is created.")
     }
 
     override fun onStart() {
@@ -92,6 +88,6 @@ class Top10Activity : AppCompatActivity() {
     }
 
     companion object {
-        private const val TAG = "Top10Activity"
+        private const val TAG = "Top10ComposeActivity"
     }
 }

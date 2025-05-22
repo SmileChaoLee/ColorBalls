@@ -156,8 +156,10 @@ public final class ScreenUtil {
         if (defaultFontSize > 0) {
             fontSize = defaultFontSize;
         }
+        Log.d(TAG, "suitableFontSize.fontSize = " + fontSize);
 
         float fontScale = suitableFontScale(activity, fontSize_Type, baseScreenWidth);
+        Log.d(TAG, "suitableFontSize.fontScale = " + fontScale);
         fontSize = fontSize * fontScale;
 
         return fontSize;
