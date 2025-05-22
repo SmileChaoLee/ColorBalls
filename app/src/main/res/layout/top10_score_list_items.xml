@@ -12,18 +12,18 @@
         android:id="@+id/history_target"
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="center"
         android:weightSum="2">
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:layout_weight="1">
             <TextView
                 android:id="@+id/playerTextView"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textScaleX="1.0"
                 android:textStyle="bold"
@@ -32,7 +32,7 @@
                 android:text="@{mTop10Player.player.playerName}" />
             <TextView
                 android:id="@+id/scoreTextView"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textScaleX="1.0"
                 android:typeface="monospace"
@@ -42,14 +42,14 @@
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:layout_weight="1">
             <ImageView
                 android:id="@+id/medalImage"
                 android:contentDescription="modal image"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 app:imageResource="@{mTop10Player.medal}" />
         </LinearLayout>
     </LinearLayout>

@@ -92,7 +92,14 @@ class Top10Fragment : Fragment {
                     BundleCompat.getParcelableArrayList(
                         this@apply, Constants.TOP10_PLAYERS, Player::class.java)!!
                 } else getParcelableArrayList(Constants.TOP10_PLAYERS)!!
+                Log.d(TAG, "onCreate.players.size = ${players.size}")
                 for (i in 0 until players.size) {
+                    players[i].playerName?.let { name ->
+                        if (name.trim().isEmpty()) players[i].playerName = "No Name"
+                    } ?: run {
+                        Log.d(TAG, "onCreate.players[i].playerName = null")
+                        players[i].playerName = "No Name"
+                    }
                     top10Players.add(TopPlayer(players[i], medalImageIds[i]))
                 }
             }
@@ -134,7 +141,7 @@ class Top10Fragment : Fragment {
 
             Log.d(TAG, "onViewCreated.TopViewAdapter.top10Players.size = ${top10Players.size}")
             top10ListView = binding.top10ListView.apply {
-                // setHasFixedSize(true)
+                setHasFixedSize(true)
                 adapter = TopViewAdapter(top10Players)
                 layoutManager = LinearLayoutManager(activity)
             }
@@ -168,7 +175,9 @@ class Top10Fragment : Fragment {
                     binding.medalImage.let {
                         // set ImageView size
                         it.layoutParams.height = (textFontSize * 4).toInt()
+                        Log.d(TAG, "MyViewHolder.it.layoutParams.height = ${it.layoutParams.height}")
                         it.layoutParams.width = (textFontSize * 4).toInt()
+                        Log.d(TAG, "MyViewHolder.it.layoutParams.width = ${it.layoutParams.width}")
                     }
                 }
 
@@ -178,7 +187,6 @@ class Top10Fragment : Fragment {
                         mTop10Player = topPlayer
                     }
                 }
-
         }
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
             val binding = Top10ScoreListItemsBinding.inflate(layoutInflater,
