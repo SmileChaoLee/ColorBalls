@@ -175,9 +175,7 @@ class Top10Fragment : Fragment {
                     binding.medalImage.let {
                         // set ImageView size
                         it.layoutParams.height = (textFontSize * 4).toInt()
-                        Log.d(TAG, "MyViewHolder.it.layoutParams.height = ${it.layoutParams.height}")
                         it.layoutParams.width = (textFontSize * 4).toInt()
-                        Log.d(TAG, "MyViewHolder.it.layoutParams.width = ${it.layoutParams.width}")
                     }
                 }
 
