@@ -95,24 +95,19 @@ public final class ScreenUtil {
         return size;
     }
 
-    public static int dpToPixel(Activity activity, int dp) {
+    public static float dpToPixel(float dp) {
         DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
-        // DisplayMetrics displayMetrics = activity.getResources().getSystem().getDisplayMetrics();
-
         float density = displayMetrics.density;
-
-        return  (int)((float)dp * density);
+        return  dp * density;
     }
 
-    public static int pixelToDp(Activity activity, int pixel) {
+    public static float pixelToDp(float pixel) {
         DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
-        // DisplayMetrics displayMetrics = activity.getResources().getSystem().getDisplayMetrics();
         float density = displayMetrics.density;
-        int dp = 0;
-        if (density != 0) {
-            dp = (int) ((float) pixel / density);
+        float dp = 0f;
+        if (density != 0f) {
+            dp = pixel / density;
         }
-
         return dp;
     }
 

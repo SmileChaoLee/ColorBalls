@@ -1,7 +1,7 @@
 package com.smile.colorballs.compose_view
 
-import android.app.Activity
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,95 +9,73 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.smile.colorballs.R
 import com.smile.colorballs.models.TopPlayer
-import com.smile.smilelibraries.utilities.ScreenUtil
 
 object Composables {
 
     private const val TAG = "Composables"
 
     interface OkButtonListener {
-        fun buttonOkClick(activity: Activity)
+        fun buttonOkClick()
     }
 
-    private var textFontSize = 20.sp
-    fun setTextFontSize(activity: Activity) {
-        /*
-        var fSize = ScreenUtil.suitableFontSize(
-            activity,
-            ScreenUtil.getDefaultTextSizeFromTheme(activity,
-                ScreenUtil.FontSize_Pixel_Type, null),
-            ScreenUtil.FontSize_Pixel_Type,
-            0.0f)
-        Log.d(TAG, "setTextFontSize.Pixel.fSize $fSize")
-        textFontSize = ScreenUtil.pixelToDp(activity, fSize.toInt()).sp
-        Log.d(TAG, "setTextFontSize.sp.textFontSize $textFontSize")
-        */
-
-        val fSize = ScreenUtil.suitableFontSize(activity,
-            0f, ScreenUtil.FontSize_Pixel_Type,0.0f)
-        // Log.d(TAG, "Again.setTextFontSize.Pixel.fSize $fSize")
-        textFontSize = ScreenUtil.pixelToDp(activity, fSize.toInt()).sp
-        Log.d(TAG, "setTextFontSize.textFontSize.sp = $textFontSize")
+    private var textFontSize = 24.sp
+    fun setTextFontSize(fontSize: Float) {
+        textFontSize = fontSize.sp
+        Log.d(TAG, "setTextFontSize = $textFontSize")
     }
 
     @Composable
-    fun Top10Composable(activity: Activity,
-                        buttonListener: OkButtonListener,
-                        title: String,
-                        topPlayers: List<TopPlayer>) {
+    fun Top10Composable(title: String, topPlayers: List<TopPlayer>,
+                        buttonListener: OkButtonListener, oKStr: String) {
         Log.d(TAG, "Top10Compose.topPlayers.size = ${topPlayers.size}")
-        val columnPaddingTop = 30.dp
-        val columnPaddingBottom = 10.dp
-        val columnPaddingStart = 0.dp
-        val columnPaddingEnd = 0.dp
-        // val buttonWidth = 200.dp
-        // val buttonHeight = 60.dp
-        // val textFontSize = 20.sp
-        val textHeight = 25.dp
-        val buttonFontSize = 30.sp
-        val columnModifier = Modifier.fillMaxSize()
-            .padding(top = columnPaddingTop, bottom = columnPaddingBottom,
-                start = columnPaddingStart, end = columnPaddingEnd)
-            .background(color = Color(0xff90e5c4))
-
-        Column(modifier = columnModifier) {
-            LazyColumn(modifier = Modifier.weight(8f, true)) {
+        val imageWith = (textFontSize.value * 3.0).dp
+        Column(modifier = Modifier.fillMaxSize()
+            .background(color = Color(0xff90e5c4))) {
+            Text(text = title, fontSize = textFontSize, color = Color.Blue)
+            HorizontalDivider(color = Color.Black,
+                modifier = Modifier.fillMaxWidth().size(10.dp))
+            LazyColumn(modifier = Modifier.weight(1f)) {
                 items(topPlayers) { topPlayer->
-                    Row {
-                        Text(text = topPlayer.player.playerName!!,
-                            Modifier
-                                // .size(width = 150.dp, height = textHeight)
-                                .width(width = 150.dp),
-                            color = Color.Red, fontSize = textFontSize)
-                        Text(text = topPlayer.player.score!!.toString(),
-                            Modifier
-                                // .size(width = 100.dp, height = textHeight)
-                                .width(width = 100.dp),
-                            color = Color.Red, fontSize = textFontSize)
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.weight(3f)) {
+                            Text(text = topPlayer.player.playerName!!,
+                                color = Color.Red, fontSize = textFontSize)
+                            Text(text = topPlayer.player.score!!.toString(),
+                                color = Color.Red, fontSize = textFontSize)
+                        }
+                        Image(
+                            modifier = Modifier.weight(2f)
+                            .size(imageWith),
+                            painter = painterResource(id = topPlayer.medal),
+                            contentDescription = "", // Accessibility text
+                            contentScale = ContentScale.Fit
+                        )
                     }
+                    HorizontalDivider(color = Color.Blue,
+                        modifier = Modifier.fillMaxWidth().size(5.dp))
                 }
             }
             Column(modifier = Modifier.fillMaxWidth()
-                .background(color = Color.Blue)
-                .weight(1f, true).padding(bottom = columnPaddingBottom),
+                .background(color = Color.Blue)/*.weight(10f, true)*/,
                 horizontalAlignment = Alignment.CenterHorizontally
                 , verticalArrangement = Arrangement.Center) {
-                Button(onClick = { buttonListener.buttonOkClick(activity) },
+                Button(onClick = { buttonListener.buttonOkClick() },
                     /* modifier = Modifier
                         .size(buttonWidth, height = buttonHeight)
                         .weight(weight = 1f, fill = true)
@@ -108,9 +86,7 @@ object Composables {
                         contentColor = Color.Red,
                         disabledContentColor = Color.LightGray)
                 )
-                { Text(text = activity.resources.getString(R.string.okStr),
-                    fontFamily = FontFamily.Default, fontSize = textFontSize)
-                }
+                { Text(text = oKStr, fontSize = textFontSize) }
             }
         }
     }

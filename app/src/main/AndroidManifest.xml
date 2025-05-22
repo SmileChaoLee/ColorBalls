@@ -22,7 +22,7 @@
             android:required="false" />
 
         <activity
-            android:name=".MyActivity"
+            android:name=".compose_view.MyComposeActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,7 +31,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".compose_view.MyComposeActivity"
+            android:name=".MyActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

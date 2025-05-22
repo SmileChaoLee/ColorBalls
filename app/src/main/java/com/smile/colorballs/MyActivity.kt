@@ -539,8 +539,8 @@ class MyActivity : MyView() {
         val facebookBannerID = testString + ColorBallsApp.facebookBannerID
         val facebookBannerID2 = testString + ColorBallsApp.facebookBannerID2
         //
-        val adaptiveBannerWidth: Int
-        val adaptiveBannerDpWidth: Int
+        val adaptiveBannerWidth: Float
+        val adaptiveBannerDpWidth: Float
 
         val configuration = resources.configuration
         if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -553,15 +553,15 @@ class MyActivity : MyView() {
                 nativeTemplate = it
                 it.showNativeAd()
             }
-            adaptiveBannerWidth = (screenWidth - mainGameViewWidth).toInt()
-            adaptiveBannerDpWidth = ScreenUtil.pixelToDp(this, adaptiveBannerWidth)
+            adaptiveBannerWidth = screenWidth - mainGameViewWidth
+            adaptiveBannerDpWidth = ScreenUtil.pixelToDp(adaptiveBannerWidth)
         } else {
             // one more banner (adaptive banner) ad for orientation is portrait
-            adaptiveBannerWidth = mainGameViewWidth.toInt()
-            adaptiveBannerDpWidth = ScreenUtil.pixelToDp(this, adaptiveBannerWidth)
+            adaptiveBannerWidth = mainGameViewWidth
+            adaptiveBannerDpWidth = ScreenUtil.pixelToDp(adaptiveBannerWidth)
             SetBannerAdView(this, null,
                 adaptiveBannerLayout, ColorBallsApp.googleAdMobBannerID2,
-                facebookBannerID2, adaptiveBannerDpWidth).also {
+                facebookBannerID2, adaptiveBannerDpWidth.toInt()).also {
                 myBannerAdView2 = it
                 it.showBannerAdView(0) // AdMob first
             }
@@ -570,7 +570,7 @@ class MyActivity : MyView() {
         Log.d(TAG, "adaptiveBannerDpWidth = $adaptiveBannerDpWidth")
         SetBannerAdView(this, null,
             bannerLayout, ColorBallsApp.googleAdMobBannerID,
-            facebookBannerID, adaptiveBannerDpWidth).also {
+            facebookBannerID, adaptiveBannerDpWidth.toInt()).also {
             myBannerAdView = it
             it.showBannerAdView(0) // AdMob first
         }

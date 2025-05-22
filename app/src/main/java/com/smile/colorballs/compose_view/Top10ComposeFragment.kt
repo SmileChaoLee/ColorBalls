@@ -1,5 +1,6 @@
 package com.smile.colorballs.compose_view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -12,6 +13,9 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.os.BundleCompat
 import com.smile.colorballs.R
+import com.smile.colorballs.Top10Fragment
+import com.smile.colorballs.Top10Fragment.Companion
+import com.smile.colorballs.Top10Fragment.Top10OkButtonListener
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.models.TopPlayer
 import com.smile.smilelibraries.player_record_rest.models.Player
@@ -22,30 +26,38 @@ import com.smile.smilelibraries.utilities.ScreenUtil
  * Use the [Top10ComposeFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class Top10ComposeFragment private constructor(listener: Composables.OkButtonListener) :
-    Fragment() {
-    private val buttonListener: Composables.OkButtonListener = listener
+class Top10ComposeFragment: Fragment {
+    private lateinit var buttonListener: Composables.OkButtonListener
     private var mContext: Context? = null
     private var top10Players: ArrayList<TopPlayer> = ArrayList()
     private var top10TitleName: String = ""
     private var textFontSize = 0f
+
+    constructor()
+
+    @SuppressLint("ValidFragment")
+    private constructor(listener: Composables.OkButtonListener) : super() {
+        Log.d(TAG, "private constructor")
+        buttonListener = listener
+    }
 
     override fun onAttach(context: Context) {
         Log.d(TAG, "onAttach")
         super.onAttach(context)
         mContext = context
         /*
-        textFontSize = ScreenUtil.suitableFontSize(
-            activity,
-            ScreenUtil.getDefaultTextSizeFromTheme(activity,
-                ScreenUtil.FontSize_Pixel_Type, null),
-            ScreenUtil.FontSize_Pixel_Type,
-            0.0f)
-         */
-
         textFontSize = ScreenUtil.suitableFontSize(activity,
             0f, ScreenUtil.FontSize_Pixel_Type,0.0f)
-        Composables.setTextFontSize(requireActivity())
+        */
+        activity?.let {
+            textFontSize = ScreenUtil.suitableFontSize(
+                it, ScreenUtil.getDefaultTextSizeFromTheme(it,
+                    ScreenUtil.FontSize_Pixel_Type, null),
+                ScreenUtil.FontSize_Pixel_Type,
+                0.0f)
+        }
+        Log.d(TAG, "onAttach.textFontSize = $textFontSize")
+        Composables.setTextFontSize(ScreenUtil.pixelToDp(textFontSize))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,6 +87,12 @@ class Top10ComposeFragment private constructor(listener: Composables.OkButtonLis
                             this@apply, Constants.TOP10_PLAYERS, Player::class.java)!!
                     } else getParcelableArrayList(Constants.TOP10_PLAYERS)!!
                     for (i in 0 until players.size) {
+                        players[i].playerName?.let { name ->
+                            if (name.trim().isEmpty()) players[i].playerName = "No Name"
+                        } ?: run {
+                            Log.d(TAG, "onCreate.players[i].playerName = null")
+                            players[i].playerName = "No Name"
+                        }
                         top10Players.add(TopPlayer(players[i], medalImageIds[i]))
                     }
                     Log.d(TAG, "onCreate.retrieve arguments")
@@ -93,14 +111,10 @@ class Top10ComposeFragment private constructor(listener: Composables.OkButtonLis
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                Log.d(TAG, "onCreateView.setContent")
-                activity?.let {
-                    Log.d(TAG, "onCreateView.setContent.ComposableFunc.Top10Compose")
-                    Composables.Top10Composable(activity = it,
-                        buttonListener = buttonListener,
-                        title = top10TitleName,
-                        topPlayers = top10Players)
-                }
+                Log.d(TAG, "onCreateView.setContent.ComposableFunc.Top10Compose")
+                Composables.Top10Composable(title = top10TitleName,
+                    topPlayers = top10Players, buttonListener = buttonListener,
+                    resources.getString(R.string.okStr))
             }
         }
     }

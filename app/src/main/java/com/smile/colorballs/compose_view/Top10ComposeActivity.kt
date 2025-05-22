@@ -1,6 +1,5 @@
 package com.smile.colorballs.compose_view
 
-import android.app.Activity
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -35,10 +34,10 @@ class Top10ComposeActivity : AppCompatActivity() {
         val top10Fragment: Fragment = Top10ComposeFragment
             .newInstance(top10TitleName, players,
                 object : Composables.OkButtonListener {
-                    override fun buttonOkClick(activity: Activity) {
+                    override fun buttonOkClick() {
                         Log.d(TAG, "ComposableFunc.OkButtonListener.buttonOkClick")
                         setResult(RESULT_OK)
-                        activity.finish()
+                        finish()
                     }
                 }
             )
