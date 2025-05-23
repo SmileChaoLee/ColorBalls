@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Typeface
@@ -84,7 +85,7 @@ class MyComposeActivity : MyView() {
                 it.googleInterstitialAd)
         }
         super.onCreate(savedInstanceState)
-        /*
+
         if (!BuildConfig.DEBUG) {
             requestedOrientation = if (ScreenUtil.isTablet(this)) {
                 // Table then change orientation to Landscape
@@ -94,7 +95,7 @@ class MyComposeActivity : MyView() {
                 ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             }
         }
-        */
+
         setContentView(layout.activity_my)
 
         val isNewGame = initPresenter(savedInstanceState)

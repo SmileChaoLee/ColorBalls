@@ -12,7 +12,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-8354869049759576~1891379677" />
@@ -31,6 +30,15 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".compose_view.MainActivity2"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".MyActivity"
             android:exported="true">
             <intent-filter>
@@ -41,30 +49,29 @@
         </activity>
         <activity
             android:name=".SettingActivity"
+            android:exported="false"
             android:label="@string/settingStr"
-            android:theme="@style/AppThemeTransparent" />
+            android:theme="@style/AppThemeTransparent">
+        </activity>
         <activity
             android:name=".Top10Activity"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_history">
         </activity>
         <activity
             android:name=".compose_view.Top10ComposeActivity"
             android:exported="false"
-            android:label="@string/title_activity_top10"
-            android:theme="@style/AppTheme">
+            android:label="@string/title_activity_history">
         </activity>
 
         <service
             android:name=".services.GlobalTop10Service"
             android:enabled="true"
-            android:exported="false">
-        </service>
+            android:exported="false" />
         <service
             android:name=".services.LocalTop10Service"
             android:enabled="true"
-            android:exported="false">
-        </service>
+            android:exported="false" />
     </application>
 
 </manifest>

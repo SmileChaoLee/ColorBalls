@@ -13,9 +13,6 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.os.BundleCompat
 import com.smile.colorballs.R
-import com.smile.colorballs.Top10Fragment
-import com.smile.colorballs.Top10Fragment.Companion
-import com.smile.colorballs.Top10Fragment.Top10OkButtonListener
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.models.TopPlayer
 import com.smile.smilelibraries.player_record_rest.models.Player
@@ -109,7 +106,8 @@ class Top10ComposeFragment: Fragment {
         // Inflate the layout for this fragment
         // return inflater.inflate(R.layout.fragment_top10_compose, container, false)
         return ComposeView(requireContext()).apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setViewCompositionStrategy(ViewCompositionStrategy
+                .DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 Log.d(TAG, "onCreateView.setContent.ComposableFunc.Top10Compose")
                 Composables.Top10Composable(title = top10TitleName,
