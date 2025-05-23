@@ -34,11 +34,7 @@ object Composables {
         fun buttonOkClick()
     }
 
-    private var textFontSize = 24.sp
-    fun setTextFontSize(fontSize: Float) {
-        textFontSize = fontSize.sp
-        Log.d(TAG, "setTextFontSize = $textFontSize")
-    }
+    var textFontSize = 24.sp
 
     @Composable
     fun Top10Composable(title: String, topPlayers: List<TopPlayer>,

@@ -15,7 +15,6 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -50,7 +49,6 @@ abstract class MyComposeView: AppCompatActivity(), PresentView {
     protected lateinit var currentScoreTextView: TextView
     protected lateinit var scoreImageView: ImageView
     protected var sureSaveDialog: AlertDialogFragment? = null
-    protected var warningSaveGameDialog: AlertDialogFragment? = null
     protected var sureLoadDialog: AlertDialogFragment? = null
     protected var gameOverDialog: AlertDialogFragment? = null
     protected var saveScoreAlertDialog: AlertDialog? = null

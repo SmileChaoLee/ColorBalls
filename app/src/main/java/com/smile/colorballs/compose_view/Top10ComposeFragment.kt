@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.unit.sp
 import androidx.core.os.BundleCompat
 import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
@@ -42,19 +43,8 @@ class Top10ComposeFragment: Fragment {
         Log.d(TAG, "onAttach")
         super.onAttach(context)
         mContext = context
-        /*
-        textFontSize = ScreenUtil.suitableFontSize(activity,
-            0f, ScreenUtil.FontSize_Pixel_Type,0.0f)
-        */
-        activity?.let {
-            textFontSize = ScreenUtil.suitableFontSize(
-                it, ScreenUtil.getDefaultTextSizeFromTheme(it,
-                    ScreenUtil.FontSize_Pixel_Type, null),
-                ScreenUtil.FontSize_Pixel_Type,
-                0.0f)
-        }
+        textFontSize = Composables.textFontSize.value
         Log.d(TAG, "onAttach.textFontSize = $textFontSize")
-        Composables.setTextFontSize(ScreenUtil.pixelToDp(textFontSize))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

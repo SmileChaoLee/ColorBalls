@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 import android.util.Pair;
 
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
  */
 public class ScoreSQLite extends SQLiteOpenHelper {
 
+    private static String TAG = "ScoreSQLite";
     private static final String _id = new String("id");
     private static final String playerName = new String("playerName");
     private static final String playerScore = new String("playerScore");
@@ -48,17 +50,19 @@ public class ScoreSQLite extends SQLiteOpenHelper {
     }
 
     private void openScoreDatabase() {
-
+        Log.d(TAG, "openScoreDatabase()");
         try {
+            Log.d(TAG, "openScoreDatabase().getWritableDatabase");
             scoreDatabase = getWritableDatabase();
         } catch (SQLException ex) {
+            Log.d(TAG, "openScoreDatabase().getWritableDatabase Exception");
             ex.printStackTrace();
         }
     }
 
     public int readHighestScore() {
         int highestScore = 0;
-
+        Log.d(TAG, "readHighestScore()");
         openScoreDatabase();
         if (scoreDatabase != null) {
             try {
