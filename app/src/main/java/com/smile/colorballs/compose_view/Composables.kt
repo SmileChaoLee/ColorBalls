@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -40,7 +39,7 @@ object Composables {
     fun Top10Composable(title: String, topPlayers: List<TopPlayer>,
                         buttonListener: OkButtonListener, oKStr: String) {
         Log.d(TAG, "Top10Compose.topPlayers.size = ${topPlayers.size}")
-        val imageWith = (textFontSize.value * 3.0).dp
+        val imageWidth = (textFontSize.value * 3.0).dp
         Column(modifier = Modifier.fillMaxSize()
             .background(color = Color(0xff90e5c4))) {
             Text(text = title, fontSize = textFontSize, color = Color.Blue)
@@ -57,7 +56,7 @@ object Composables {
                         }
                         Image(
                             modifier = Modifier.weight(2f)
-                            .size(imageWith),
+                            .size(imageWidth),
                             painter = painterResource(id = topPlayer.medal),
                             contentDescription = "", // Accessibility text
                             contentScale = ContentScale.Fit

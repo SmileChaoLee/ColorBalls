@@ -21,7 +21,8 @@
             android:required="false" />
 
         <activity
-            android:name=".compose_view.MyComposeActivity"
+            android:name=".compose_view.MainActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,7 +31,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".compose_view.MainActivity2"
+            android:name=".compose_view.MyComposeActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
