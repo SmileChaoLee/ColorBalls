@@ -1,4 +1,4 @@
-package com.smile.colorballs
+package com.smile.colorballs.views.xml_base
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -36,18 +36,19 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.os.BundleCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.ads.nativetemplates.TemplateView
+import com.smile.colorballs.BuildConfig
+import com.smile.colorballs.ColorBallsApp
+import com.smile.colorballs.R
 import com.smile.colorballs.R.drawable
 import com.smile.colorballs.R.id
 import com.smile.colorballs.R.layout
 import com.smile.colorballs.R.string
-import com.smile.colorballs.Top10Fragment.Companion.newInstance
-import com.smile.colorballs.Top10Fragment.Top10OkButtonListener
+import com.smile.colorballs.views.xml_base.Top10Fragment.Top10OkButtonListener
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.coroutines.Top10Coroutine
 import com.smile.colorballs.models.GameProp
 import com.smile.colorballs.models.GridData
 import com.smile.colorballs.presenters.Presenter
-import com.smile.colorballs.views.MyView
 import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate
 import com.smile.smilelibraries.models.ExitAppTimer
 import com.smile.smilelibraries.player_record_rest.models.Player
@@ -620,7 +621,7 @@ class MyActivity : MyView() {
                 if (historyView != null) {
                     if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         Log.d(TAG, "MyBroadcastReceiver.ORIENTATION_LANDSCAPE")
-                        top10Fragment = newInstance(top10ScoreTitle, players,
+                        top10Fragment = Top10Fragment.newInstance(top10ScoreTitle, players,
                             object: Top10OkButtonListener {
                                 override fun buttonOkClick(activity: Activity?) {
                                     Log.d(TAG, "MyBroadcastReceiver.Top10OkButtonListener")

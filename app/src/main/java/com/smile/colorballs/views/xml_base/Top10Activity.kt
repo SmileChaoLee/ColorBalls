@@ -1,15 +1,19 @@
-package com.smile.colorballs
+package com.smile.colorballs.views.xml_base
 
 import android.app.Activity
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.BundleCompat
 import androidx.fragment.app.Fragment
-import com.smile.colorballs.Top10Fragment.Top10OkButtonListener
+import com.smile.colorballs.R
+import com.smile.colorballs.views.xml_base.Top10Fragment.Top10OkButtonListener
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.databinding.ActivityTop10Binding
+import com.smile.colorballs.views.xml_compose.Top10ComposeActivity
+import com.smile.colorballs.views.xml_compose.Top10ComposeActivity.Companion
 import com.smile.smilelibraries.player_record_rest.models.Player
 
 class Top10Activity : AppCompatActivity() {
@@ -32,19 +36,18 @@ class Top10Activity : AppCompatActivity() {
             } else it.getParcelableArrayList(Constants.TOP10_PLAYERS)!!
         }
 
-        val top10Fragment: Fragment = Top10Fragment
-            .newInstance(
-                top10TitleName, players,
-                object : Top10OkButtonListener {
-                    override fun buttonOkClick(activity: Activity?) {
-                        Log.d(TAG, "Top10OkButtonListener.buttonOkClick")
-                        activity?.let {
-                            setResult(RESULT_OK)
-                            it.finish()
-                        }
+        val top10Fragment: Fragment = Top10Fragment.newInstance(
+            top10TitleName, players,
+            object : Top10OkButtonListener {
+                override fun buttonOkClick(activity: Activity?) {
+                    Log.d(TAG, "Top10OkButtonListener.buttonOkClick")
+                    activity?.let {
+                        setResult(RESULT_OK)
+                        it.finish()
                     }
                 }
-            )
+            }
+        )
 
         val top10FragmentTag = "Top10Fragment"
         val top10LayoutId = R.id.top10_players_layout
@@ -58,6 +61,14 @@ class Top10Activity : AppCompatActivity() {
                 commit()
             }
         }
+
+        onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                Log.d(TAG, "onBackPressedDispatcher.handleOnBackPressed")
+                setResult(RESULT_OK)
+                finish()
+            }
+        })
         Log.d(TAG, "onCreate.top10Fragment is created.")
     }
 

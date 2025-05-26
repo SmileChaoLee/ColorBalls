@@ -1,4 +1,4 @@
-package com.smile.colorballs
+package com.smile.colorballs.views.xml_base
 
 import android.content.Intent
 import android.os.Bundle

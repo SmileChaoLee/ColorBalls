@@ -1,4 +1,4 @@
-package com.smile.colorballs
+package com.smile.colorballs.views.xml_base
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -16,6 +16,7 @@ import androidx.core.os.BundleCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.databinding.FragmentTop10Binding
 import com.smile.colorballs.databinding.Top10ScoreListItemsBinding
@@ -81,7 +82,8 @@ class Top10Fragment : Fragment {
                 R.drawable.olympics_image,
                 R.drawable.olympics_image,
                 R.drawable.olympics_image,
-                R.drawable.olympics_image)
+                R.drawable.olympics_image
+            )
             Log.d(TAG, "onCreate.new Fragment instance")
             Log.d(TAG, "onCreate.arguments = $arguments")
             arguments?.apply {
@@ -224,20 +226,17 @@ class Top10Fragment : Fragment {
     companion object {
         // private properties
         private const val TAG = "Top10Fragment"
+        @JvmStatic
         fun newInstance(
             top10Title: String,
             top10Players: ArrayList<Player>,
             listener: Top10OkButtonListener
-        ): Top10Fragment {
-            Log.d(TAG, "newInstance.")
-            val args = Bundle().apply {
-                putString(Constants.TOP10_TITLE_NAME, top10Title)
-                Log.d(TAG, "newInstance.putParcelableArrayList")
-                putParcelableArrayList(Constants.TOP10_PLAYERS, top10Players)
-            }
-            Log.d(TAG, "newInstance.return.Top10Fragment(listener)")
-            return Top10Fragment(listener).apply {
-                arguments = args
+        ) = Top10Fragment(listener).apply {
+                arguments = Bundle().apply {
+                    Log.d(TAG, "newInstance.putString")
+                    putString(Constants.TOP10_TITLE_NAME, top10Title)
+                    Log.d(TAG, "newInstance.putParcelableArrayList")
+                    putParcelableArrayList(Constants.TOP10_PLAYERS, top10Players)
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.smile.colorballs.views
+package com.smile.colorballs.views.xml_base
 
 import android.content.DialogInterface
 import android.content.res.Resources

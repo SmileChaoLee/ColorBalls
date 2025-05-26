@@ -16,6 +16,9 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.smile.colorballs.constants.Constants
+import com.smile.colorballs.views.xml_base.MyActivity
+import com.smile.colorballs.views.xml_base.SettingActivity
+import com.smile.colorballs.views.xml_base.Top10Activity
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before

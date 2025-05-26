@@ -16,6 +16,7 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.coroutines.Top10Coroutine
+import com.smile.colorballs.views.xml_base.MyActivity
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -90,7 +91,7 @@ class UITest {
         onView(withId(R.id.setting)).perform(click())
         controller?.let {
             val shadowActivity : ShadowActivity = shadowOf(activity)
-            val expectedActivityName = "com.smile.colorballs.SettingActivity"
+            val expectedActivityName = "com.smile.colorballs.views.xml_base.SettingActivity"
             val actualIntent = shadowActivity.nextStartedActivity
             val actualActivityName = actualIntent.component?.className
             println("settingSubmenu.actualActivityName = $actualActivityName")
