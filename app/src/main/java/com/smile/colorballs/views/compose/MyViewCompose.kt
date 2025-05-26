@@ -1,7 +1,6 @@
-package com.smile.colorballs.views
+package com.smile.colorballs.views.compose
 
 import android.content.DialogInterface
-import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -16,7 +15,6 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AlertDialog
-import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.ContextCompat
 import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
@@ -42,34 +40,121 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
     abstract fun quitOrNewGame(entryPoint: Int)
     abstract fun setDialogStyle(dialog: DialogInterface)
 
-    protected val drawableArray = Array(Constants.ROW_COUNTS) {
-        Array(Constants.ROW_COUNTS) {
-            mutableStateOf<Pair<Drawable?, Boolean>>(Pair(null, false))
-        }
-     }
-
     protected var textFontSize = 0f
     protected lateinit var mPresenter: PresenterCompose
+    private val colorBallMap: HashMap<Int, Drawable> = HashMap()
+    private val colorOvalBallMap: HashMap<Int, Drawable> = HashMap()
+    private val colorNextBallMap: HashMap<Int, Drawable> = HashMap()
+
     private lateinit var scoreImageView: ImageView
     private var sureSaveDialog: AlertDialogFragment? = null
     private var sureLoadDialog: AlertDialogFragment? = null
     private var gameOverDialog: AlertDialogFragment? = null
     protected var saveScoreAlertDialog: AlertDialog? = null
 
-    // implementing PresentView
-    override fun contextResources(): Resources {
-        return resources
+    protected fun bitmapDrawableResources(imageSizePx: Float) {
+        Log.w(TAG, "bitmapDrawableResources.imageSizePx = $imageSizePx")
+        val ballWidth = imageSizePx.toInt()
+        val ballHeight = imageSizePx.toInt()
+        val nextBallWidth = (imageSizePx * 0.5f).toInt()
+        val nextBallHeight = (imageSizePx * 0.5f).toInt()
+        val ovalBallWidth = (imageSizePx * 0.9f).toInt()
+        val ovalBallHeight = (imageSizePx * 0.7f).toInt()
+
+        BitmapFactory.decodeResource(resources, R.drawable.redball)?.let { bm ->
+            bitmapToDrawable(bm, ballWidth, ballHeight)?.let { draw ->
+                colorBallMap[Constants.COLOR_RED] = draw
+            }
+            bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
+                colorNextBallMap[Constants.COLOR_RED] = draw
+            }
+            bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
+                colorOvalBallMap[Constants.COLOR_RED] = draw
+            }
+        }
+
+        BitmapFactory.decodeResource(resources, R.drawable.greenball)?.let { bm ->
+            bitmapToDrawable(bm, ballWidth, ballHeight)?.let { draw ->
+                colorBallMap[Constants.COLOR_GREEN] = draw
+            }
+            bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
+                colorNextBallMap[Constants.COLOR_GREEN] = draw
+            }
+            bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
+                colorOvalBallMap[Constants.COLOR_GREEN] = draw
+            }
+        }
+
+        BitmapFactory.decodeResource(resources, R.drawable.blueball)?.let { bm ->
+            bitmapToDrawable(bm, ballWidth, ballHeight)?.let { draw ->
+                colorBallMap[Constants.COLOR_BLUE] = draw
+            }
+            bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
+                colorNextBallMap[Constants.COLOR_BLUE] = draw
+            }
+            bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
+                colorOvalBallMap[Constants.COLOR_BLUE] = draw
+            }
+        }
+
+        BitmapFactory.decodeResource(resources, R.drawable.magentaball)?.let { bm ->
+            bitmapToDrawable(bm, ballWidth, ballHeight)?.let { draw ->
+                colorBallMap[Constants.COLOR_MAGENTA] = draw
+            }
+            bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
+                colorNextBallMap[Constants.COLOR_MAGENTA] = draw
+            }
+            bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
+                colorOvalBallMap[Constants.COLOR_MAGENTA] = draw
+            }
+        }
+
+        BitmapFactory.decodeResource(resources, R.drawable.yellowball)?.let { bm ->
+            bitmapToDrawable(bm, ballWidth, ballHeight)?.let { draw ->
+                colorBallMap[Constants.COLOR_YELLOW] = draw
+            }
+            bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
+                colorNextBallMap[Constants.COLOR_YELLOW] = draw
+            }
+            bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
+                colorOvalBallMap[Constants.COLOR_YELLOW] = draw
+            }
+        }
+
+        BitmapFactory.decodeResource(resources, R.drawable.cyanball)?.let { bm ->
+            bitmapToDrawable(bm, ballWidth, ballHeight)?.let { draw ->
+                colorBallMap[Constants.COLOR_CYAN] = draw
+            }
+            bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
+                colorNextBallMap[Constants.COLOR_CYAN] = draw
+            }
+            bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
+                colorOvalBallMap[Constants.COLOR_CYAN] = draw
+            }
+        }
     }
 
+    // implementing PresentView
     override fun soundPool(): SoundPoolUtil {
         return SoundPoolUtil(this, R.raw.uhoh)
     }
 
-    override fun highestScore() : Int {
-        val scoreSQLiteDB = ScoreSQLite(this)
-        val score = scoreSQLiteDB.readHighestScore()
-        scoreSQLiteDB.close()
-        return score
+    override fun drawBall(i: Int, j: Int, color: Int) {
+        Log.d(TAG, "drawBall.($i, $j), color = $color")
+        val drawable = if (color == 0) null else colorBallMap[color]
+        mPresenter.setArrayDrawable(i,j, drawable, false)
+    }
+
+    override fun drawOval(i: Int, j: Int, color: Int) {
+        Log.d(TAG, "drawOval.($i, $j), color = $color")
+        val drawable = if (color == 0) null else colorOvalBallMap[color]
+        mPresenter.setArrayDrawable(i,j, drawable, false)
+    }
+
+    override fun drawNextBall(i: Int, j: Int, color: Int) {
+        Log.d(TAG, "drawNextBall.($i, $j), color = $color")
+        val drawable = if (color == 0) null else colorNextBallMap[color]
+        mPresenter.setArrayDrawable(i,j, drawable, false)
     }
 
     override fun addScoreInLocalTop10(playerName : String, score : Int) {
@@ -90,11 +175,11 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
         return FileOutputStream(File(filesDir, fileName))
     }
 
-    override fun compatDrawable(id : Int) : Drawable? {
+    fun compatDrawable(id : Int) : Drawable? {
         return ContextCompat.getDrawable(this, id)
     }
 
-    override fun bitmapToDrawable(bm : Bitmap, width : Int, height : Int) : Drawable? {
+    fun bitmapToDrawable(bm : Bitmap, width : Int, height : Int) : Drawable? {
         return FontAndBitmapUtil.convertBitmapToDrawable(this, bm,
             width, height)
     }
@@ -298,11 +383,6 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
             }
             it.show()
         }
-    }
-
-    override fun setArrayDrawable(i: Int, j: Int,
-                                  drawable : Drawable?, isResize: Boolean) {
-        drawableArray[i][j].value = Pair(drawable, isResize)
     }
     // end of implementing
 }

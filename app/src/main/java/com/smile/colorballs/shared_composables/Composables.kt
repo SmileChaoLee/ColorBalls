@@ -1,4 +1,4 @@
-package com.smile.colorballs.compose_view
+package com.smile.colorballs.shared_composables
 
 import android.content.res.Resources
 import android.util.Log

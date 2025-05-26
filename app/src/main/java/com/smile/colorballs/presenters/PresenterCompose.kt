@@ -1,6 +1,5 @@
 package com.smile.colorballs.presenters
 
-import android.graphics.BitmapFactory
 import android.graphics.Point
 import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.Drawable
@@ -8,8 +7,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import com.smile.colorballs.ColorBallsApp
-import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.interfaces.PresentViewCompose
 import com.smile.colorballs.models.GameProp
@@ -22,18 +21,26 @@ import java.nio.ByteBuffer
 
 class PresenterCompose(val presentView: PresentViewCompose,
                        val mGameProp: GameProp, val mGridData: GridData) {
+
+    private interface ShowScoreCallback {
+        fun sCallback()
+    }
+
     private val soundPool: SoundPoolUtil = presentView.soundPool()
-    val colorBallMap: HashMap<Int, Drawable> = HashMap()
-    val colorOvalBallMap: HashMap<Int, Drawable> = HashMap()
-    val colorNextBallMap: HashMap<Int, Drawable> = HashMap()
     private val movingBallHandler = Handler(Looper.getMainLooper())
     private val showingScoreHandler = Handler(Looper.getMainLooper())
     private val rowCounts = Constants.ROW_COUNTS
     private val colCounts = Constants.COLUMN_COUNTS
     private var bouncyAnimation: AnimationDrawable? = null
 
-    private interface ShowScoreCallback {
-        fun sCallback()
+    val drawableArray = Array(Constants.ROW_COUNTS) {
+        Array(Constants.ROW_COUNTS) {
+            mutableStateOf<Pair<Drawable?, Boolean>>(Pair(null, false))
+        }
+    }
+
+    fun setArrayDrawable(i: Int, j: Int, drawable: Drawable?, isResize: Boolean) {
+        drawableArray[i][j].value = Pair(drawable, isResize)
     }
 
     fun drawBallsAndCheckListener(i: Int, j: Int) {
@@ -75,7 +82,8 @@ class PresenterCompose(val presentView: PresentViewCompose,
                 //  cell is not blank
                 if ((bouncyI >= 0) && (bouncyJ >= 0)) {
                     stopBouncyAnimation()
-                    drawBall(bouncyI, bouncyJ, mGridData.getCellValue(bouncyI, bouncyJ))
+                    presentView.drawBall(bouncyI, bouncyJ,
+                        mGridData.getCellValue(bouncyI, bouncyJ))
                     drawBouncyBall(i, j, mGridData.getCellValue(i, j))
                     mGameProp.bouncyBallIndexI = i
                     mGameProp.bouncyBallIndexJ = j
@@ -84,13 +92,10 @@ class PresenterCompose(val presentView: PresentViewCompose,
         }
     }
 
-    fun initGame(cellWidth: Float, cellHeight: Float, isNewGame: Boolean) {
-        Log.d(TAG, "initGame.cellWidth = $cellWidth, cellHeight = $cellHeight")
-        bitmapDrawableResources(cellWidth, cellHeight)
+    fun initGame(isNewGame: Boolean) {
+        Log.d(TAG, "initGame.isNewGame = $isNewGame")
         ColorBallsApp.isShowingLoadingMessage = mGameProp.isShowingLoadingMessage
         ColorBallsApp.isProcessingJob = mGameProp.isProcessingJob
-        presentView.updateHighestScoreOnUi(presentView.highestScore())
-        presentView.updateCurrentScoreOnUi(mGameProp.currentScore)
         displayGameView()
         if (isNewGame) {    // new game
             displayGridDataNextCells()
@@ -551,94 +556,6 @@ class PresenterCompose(val presentView: PresentViewCompose,
         soundPool.release()
     }
 
-    fun bitmapDrawableResources(cellWidth: Float, cellHeight: Float) {
-        Log.w(TAG, "bitmapDrawableResources")
-        require(!(cellWidth <= 0 || cellHeight <= 0)) { "cellWidth and cellHeight must be > 0" }
-
-        val resources = presentView.contextResources()
-        println("bitmapDrawableResources.resources = $resources")
-        val ballWidth = cellWidth.toInt()
-        val ballHeight = cellHeight.toInt()
-        val nextBallWidth = (cellWidth * 0.5f).toInt()
-        val nextBallHeight = (cellHeight * 0.5f).toInt()
-        val ovalBallWidth = (cellWidth * 0.9f).toInt()
-        val ovalBallHeight = (cellHeight * 0.7f).toInt()
-
-        BitmapFactory.decodeResource(resources, R.drawable.redball)?.let { bm ->
-            Log.d(TAG, "bitmapDrawableResources.bm.width = ${bm.width}")
-            Log.d(TAG, "bitmapDrawableResources.bm.Height = ${bm.height}")
-            presentView.bitmapToDrawable(bm, ballWidth, ballHeight)?.let { draw ->
-                colorBallMap[Constants.COLOR_RED] = draw
-            }
-            presentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
-                colorNextBallMap[Constants.COLOR_RED] = draw
-            }
-            presentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
-                colorOvalBallMap[Constants.COLOR_RED] = draw
-            }
-        }
-
-        BitmapFactory.decodeResource(resources, R.drawable.greenball)?.let { bm ->
-            presentView.bitmapToDrawable(bm, ballWidth, ballHeight)?.let { draw ->
-                colorBallMap[Constants.COLOR_GREEN] = draw
-            }
-            presentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
-                colorNextBallMap[Constants.COLOR_GREEN] = draw
-            }
-            presentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
-                colorOvalBallMap[Constants.COLOR_GREEN] = draw
-            }
-        }
-
-        BitmapFactory.decodeResource(resources, R.drawable.blueball)?.let { bm ->
-            presentView.bitmapToDrawable(bm, ballWidth, ballHeight)?.let { draw ->
-                colorBallMap[Constants.COLOR_BLUE] = draw
-            }
-            presentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
-                colorNextBallMap[Constants.COLOR_BLUE] = draw
-            }
-            presentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
-                colorOvalBallMap[Constants.COLOR_BLUE] = draw
-            }
-        }
-
-        BitmapFactory.decodeResource(resources, R.drawable.magentaball)?.let { bm ->
-            presentView.bitmapToDrawable(bm, ballWidth, ballHeight)?.let { draw ->
-                colorBallMap[Constants.COLOR_MAGENTA] = draw
-            }
-            presentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
-                colorNextBallMap[Constants.COLOR_MAGENTA] = draw
-            }
-            presentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
-                colorOvalBallMap[Constants.COLOR_MAGENTA] = draw
-            }
-        }
-
-        BitmapFactory.decodeResource(resources, R.drawable.yellowball)?.let { bm ->
-            presentView.bitmapToDrawable(bm, ballWidth, ballHeight)?.let { draw ->
-                colorBallMap[Constants.COLOR_YELLOW] = draw
-            }
-            presentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
-                colorNextBallMap[Constants.COLOR_YELLOW] = draw
-            }
-            presentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
-                colorOvalBallMap[Constants.COLOR_YELLOW] = draw
-            }
-        }
-
-        BitmapFactory.decodeResource(resources, R.drawable.cyanball)?.let { bm ->
-            presentView.bitmapToDrawable(bm, ballWidth, ballHeight)?.let { draw ->
-                colorBallMap[Constants.COLOR_CYAN] = draw
-            }
-            presentView.bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
-                colorNextBallMap[Constants.COLOR_CYAN] = draw
-            }
-            presentView.bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
-                colorOvalBallMap[Constants.COLOR_CYAN] = draw
-            }
-        }
-    }
-
     private fun gameOver() {
         presentView.showGameOverDialog()
     }
@@ -689,40 +606,13 @@ class PresenterCompose(val presentView: PresentViewCompose,
         return totalScore
     }
 
-    private fun drawBall(i: Int, j: Int, color: Int) {
-        Log.d(TAG, "drawBall.($i, $j), color = $color")
-        if (color == 0) {
-            presentView.setArrayDrawable(i,j, null, true)
-        } else {
-            presentView.setArrayDrawable(i, j, colorBallMap[color], false)
-        }
-    }
-
-    private fun drawOval(i: Int, j: Int, color: Int) {
-        Log.d(TAG, "drawOval.($i, $j), color = $color")
-        if (color == 0) {
-            presentView.setArrayDrawable(i,j, null, true)
-        } else {
-            presentView.setArrayDrawable(i, j, colorOvalBallMap[color], false)
-        }
-    }
-
-    private fun drawNextBall(i: Int, j: Int, color: Int) {
-        Log.d(TAG, "drawNextBall.($i, $j), color = $color")
-        if (color == 0) {
-            presentView.setArrayDrawable(i,j, null, true)
-        } else {
-            presentView.setArrayDrawable(i, j, colorNextBallMap[color], false)
-        }
-    }
-
     private fun displayNextBallsView() {
         // display the view of next balls
         Log.d(TAG, "displayNextBallsView")
         try {
             for ((key, value) in mGridData.getNextCellIndices()) {
                 Log.d(TAG, "displayNextBallsView.color = $value")
-                drawNextBall(key.x, key.y, value)
+                presentView.drawNextBall(key.x, key.y, value)
             }
         } catch (ex: Exception) {
             Log.d(TAG, "displayNextBallsView.Exception: ")
@@ -755,7 +645,7 @@ class PresenterCompose(val presentView: PresentViewCompose,
             n2 = key.y
             Log.d(TAG, "displayGridDataNextCells.($n1, $n2), color = $value")
             mGridData.setCellValue(n1, n2, value)
-            drawBall(n1, n2, mGridData.getCellValue(n1, n2))
+            presentView.drawBall(n1, n2, mGridData.getCellValue(n1, n2))
             if (mGridData.checkMoreThanFive(n1, n2)) {
                 hasMoreFive = true
                 for (point in mGridData.getLightLine()) {
@@ -794,7 +684,7 @@ class PresenterCompose(val presentView: PresentViewCompose,
                 for (j in 0 until colCounts) {
                     val color = mGridData.getCellValue(i, j)
                     Log.d(TAG, "displayGameGridView.($i, $j), color = $color")
-                    drawBall(i, j, color)
+                    presentView.drawBall(i, j, color)
                 }
             }
         } catch (ex: java.lang.Exception) {
@@ -836,9 +726,9 @@ class PresenterCompose(val presentView: PresentViewCompose,
                 if (countDown >= 2) {   // eliminate start point
                     val i = countDown / 2
                     if (ballYN) {
-                        drawBall(tempList[i].x, tempList[i].y, color)
+                        presentView.drawBall(tempList[i].x, tempList[i].y, color)
                     } else {
-                        drawBall(tempList[i].x, tempList[i].y, 0)
+                        presentView.drawBall(tempList[i].x, tempList[i].y, 0)
                     }
                     ballYN = !ballYN
                     countDown--
@@ -846,7 +736,7 @@ class PresenterCompose(val presentView: PresentViewCompose,
                 } else {
                     clearCell(beginI, beginJ) // blank the original cell. Added on 2020-09-16
                     mGridData.setCellValue(targetI, targetJ, color)
-                    drawBall(targetI, targetJ, color)
+                    presentView.drawBall(targetI, targetJ, color)
                     mGridData.regenerateNextCellIndices(Point(targetI, targetJ))
                     //  check if there are more than five balls with same color connected together
                     if (mGridData.checkMoreThanFive(targetI, targetJ)) {
@@ -882,6 +772,7 @@ class PresenterCompose(val presentView: PresentViewCompose,
     private fun drawBouncyBall(i: Int, j: Int, color: Int) {
         Log.e(TAG, "drawBouncyBall.($i, $j)")
         Log.e(TAG, "drawBouncyBall.color = $color")
+        /*
         bouncyAnimation = AnimationDrawable()
         bouncyAnimation?.let {
             it.isOneShot = false
@@ -894,6 +785,7 @@ class PresenterCompose(val presentView: PresentViewCompose,
             // v.setImageDrawable(it)
             it.start()
         }
+         */
     }
 
     private fun stopBouncyAnimation() {
@@ -902,19 +794,6 @@ class PresenterCompose(val presentView: PresentViewCompose,
                 it.stop()
             }
         }
-    }
-
-    fun getImageId(row: Int, column: Int): Int {
-        // Log.d(TAG, "getImageId.row = " + row + ", column = " + column );
-        return row * rowCounts + column
-    }
-
-    private fun getRow(imageId: Int): Int {
-        return imageId / rowCounts
-    }
-
-    private fun getColumn(imageId: Int): Int {
-        return imageId % rowCounts
     }
 
     private inner class ShowScore(
@@ -935,10 +814,10 @@ class PresenterCompose(val presentView: PresentViewCompose,
         private fun onProgressUpdate(status: Int) {
             when (status) {
                 0 -> for (item in pointSet) {
-                    drawBall(item.x, item.y, mGridData.getCellValue(item.x, item.y))
+                    presentView.drawBall(item.x, item.y, mGridData.getCellValue(item.x, item.y))
                 }
                 1 -> for (item in pointSet) {
-                    drawOval(item.x, item.y, mGridData.getCellValue(item.x, item.y))
+                    presentView.drawOval(item.x, item.y, mGridData.getCellValue(item.x, item.y))
                 }
                 2 -> {}
                 3 -> {

@@ -1,4 +1,4 @@
-package com.smile.colorballs.compose_view.ui.theme
+package com.smile.colorballs.shared_composables.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
