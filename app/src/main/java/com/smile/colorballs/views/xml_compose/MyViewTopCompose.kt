@@ -1,4 +1,4 @@
-package com.smile.colorballs.compose_view
+package com.smile.colorballs.xml_compose
 
 import android.content.DialogInterface
 import android.content.res.Resources
@@ -33,10 +33,10 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.util.Locale
 
-abstract class MyComposeView: AppCompatActivity(), PresentView {
+abstract class MyViewTopCompose: AppCompatActivity(), PresentView {
 
     companion object {
-        private const val TAG = "MyComposeView"
+        private const val TAG = "MyViewTopCompose"
     }
 
     abstract fun showInterstitialAd()
@@ -155,7 +155,7 @@ abstract class MyComposeView: AppCompatActivity(), PresentView {
                     } else {
                         getString(R.string.failedSaveGameStr)
                     }
-                ScreenUtil.showToast(this@MyComposeView, msg, textFontSize,
+                ScreenUtil.showToast(this@MyViewTopCompose, msg, textFontSize,
                     ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
                 showInterstitialAd()
             }
@@ -193,7 +193,7 @@ abstract class MyComposeView: AppCompatActivity(), PresentView {
                 mPresenter.setShowingSureLoadDialog(false)
                 if (mPresenter.startLoadingGame()) {
                     ScreenUtil.showToast(
-                        this@MyComposeView,
+                        this@MyViewTopCompose,
                         getString(R.string.succeededLoadGameStr),
                         textFontSize,
                         ScreenUtil.FontSize_Pixel_Type,
@@ -201,7 +201,7 @@ abstract class MyComposeView: AppCompatActivity(), PresentView {
                     )
                 } else {
                     ScreenUtil.showToast(
-                        this@MyComposeView,
+                        this@MyViewTopCompose,
                         getString(R.string.failedLoadGameStr),
                         textFontSize,
                         ScreenUtil.FontSize_Pixel_Type,

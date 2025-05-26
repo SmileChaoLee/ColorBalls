@@ -1,4 +1,4 @@
-package com.smile.colorballs.compose_view
+package com.smile.colorballs.views.xml_compose
 
 import android.os.Build
 import android.os.Bundle
@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.BundleCompat
 import androidx.fragment.app.Fragment
 import com.smile.colorballs.R
+import com.smile.colorballs.shared_composables.Composables
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.databinding.ActivityTop10ComposeBinding
 import com.smile.smilelibraries.player_record_rest.models.Player
@@ -31,16 +32,15 @@ class Top10ComposeActivity : AppCompatActivity() {
             } else it.getParcelableArrayList(Constants.TOP10_PLAYERS)!!
         }
 
-        val top10Fragment: Fragment = Top10ComposeFragment
-            .newInstance(top10TitleName, players,
-                object : Composables.OkButtonListener {
-                    override fun buttonOkClick() {
-                        Log.d(TAG, "ComposableFunc.OkButtonListener.buttonOkClick")
-                        setResult(RESULT_OK)
-                        finish()
-                    }
+        val top10Fragment: Fragment = Top10ComposeFragment.newInstance(top10TitleName, players,
+            object : Composables.OkButtonListener {
+                override fun buttonOkClick() {
+                    Log.d(TAG, "ComposableFunc.OkButtonListener.buttonOkClick")
+                    setResult(RESULT_OK)
+                    finish()
                 }
-            )
+            }
+        )
 
         val top10FragmentTag = "Top10Fragment"
         val top10LayoutId = R.id.top10_players_layout

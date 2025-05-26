@@ -1,4 +1,4 @@
-package com.smile.colorballs.compose_view
+package com.smile.colorballs.views.xml_compose
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.os.BundleCompat
 import com.smile.colorballs.R
+import com.smile.colorballs.shared_composables.Composables
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.models.TopPlayer
 import com.smile.smilelibraries.player_record_rest.models.Player
@@ -98,9 +99,11 @@ class Top10ComposeFragment: Fragment {
                 .DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 Log.d(TAG, "onCreateView.setContent.ComposableFunc.Top10Compose")
-                Composables.Top10Composable(title = top10TitleName,
+                Composables.Top10Composable(
+                    title = top10TitleName,
                     topPlayers = top10Players, buttonListener = buttonListener,
-                    resources.getString(R.string.okStr))
+                    resources.getString(R.string.okStr)
+                )
             }
         }
     }
@@ -116,11 +119,12 @@ class Top10ComposeFragment: Fragment {
         @JvmStatic
         fun newInstance(top10Title: String,
                         top10Players: ArrayList<Player>,
-                        listener: Composables.OkButtonListener) =
-            Top10ComposeFragment(listener).apply {
+                        listener: Composables.OkButtonListener
+        ) = Top10ComposeFragment(listener).apply {
                 arguments = Bundle().apply {
-                    Log.d(TAG, "newInstance.setting arguments")
+                    Log.d(TAG, "newInstance.putString")
                     putString(Constants.TOP10_TITLE_NAME, top10Title)
+                    Log.d(TAG, "newInstance.putParcelableArrayList")
                     putParcelableArrayList(Constants.TOP10_PLAYERS, top10Players)
                 }
             }

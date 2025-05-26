@@ -1,4 +1,4 @@
-package com.smile.colorballs.compose_view
+package com.smile.colorballs.views.xml_compose
 
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
@@ -42,13 +42,14 @@ import com.smile.colorballs.R.drawable
 import com.smile.colorballs.R.id
 import com.smile.colorballs.R.layout
 import com.smile.colorballs.R.string
-import com.smile.colorballs.SettingActivity
+import com.smile.colorballs.shared_composables.Composables
+import com.smile.colorballs.views.xml_base.SettingActivity
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.coroutines.Top10Coroutine
 import com.smile.colorballs.models.GameProp
 import com.smile.colorballs.models.GridData
 import com.smile.colorballs.presenters.Presenter
-import com.smile.colorballs.views.MyView
+import com.smile.colorballs.views.xml_base.MyView
 import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate
 import com.smile.smilelibraries.models.ExitAppTimer
 import com.smile.smilelibraries.player_record_rest.models.Player
@@ -60,7 +61,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class MyComposeActivity : MyView() {
+class MyActivityTop10Compose : MyView() {
     private var fontScale = 0f
     private var screenWidth = 0f
     private var screenHeight = 0f
@@ -283,7 +284,7 @@ class MyComposeActivity : MyView() {
             val toastFontSize = textFontSize * 0.7f
             Log.d(TAG, "toastFontSize = $toastFontSize")
             ScreenUtil.showToast(
-                this@MyComposeActivity,
+                this@MyActivityTop10Compose,
                 getString(string.backKeyToExitApp),
                 toastFontSize,
                 ScreenUtil.FontSize_Pixel_Type,
@@ -455,7 +456,7 @@ class MyComposeActivity : MyView() {
             isNewGame = false
         }
         //
-        mPresenter = Presenter(this@MyComposeActivity, gameProp!!, gridData!!)
+        mPresenter = Presenter(this@MyActivityTop10Compose, gameProp!!, gridData!!)
 
         return isNewGame
     }
@@ -673,7 +674,7 @@ class MyComposeActivity : MyView() {
 
     companion object {
         // private properties
-        private const val TAG = "MyActivity"
+        private const val TAG = "MyActivityTop10Compose"
         private const val TOP10_FRAGMENT_TAG = "Top10Fragment"
     }
 }
