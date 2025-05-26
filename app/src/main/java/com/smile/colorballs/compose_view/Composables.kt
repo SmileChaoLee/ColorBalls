@@ -1,5 +1,6 @@
 package com.smile.colorballs.compose_view
 
+import android.content.res.Resources
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -33,16 +34,18 @@ object Composables {
         fun buttonOkClick()
     }
 
-    var textFontSize = 24.sp
+    private val resources = Resources.getSystem()
+    var mFontSize = 24.sp
 
+    // For the Top10ComposeActivity
     @Composable
     fun Top10Composable(title: String, topPlayers: List<TopPlayer>,
                         buttonListener: OkButtonListener, oKStr: String) {
         Log.d(TAG, "Top10Compose.topPlayers.size = ${topPlayers.size}")
-        val imageWidth = (textFontSize.value * 3.0).dp
+        val imageWidth = (mFontSize.value * 3.0).dp
         Column(modifier = Modifier.fillMaxSize()
             .background(color = Color(0xff90e5c4))) {
-            Text(text = title, fontSize = textFontSize, color = Color.Blue)
+            Text(text = title, fontSize = mFontSize, color = Color.Blue)
             HorizontalDivider(color = Color.Black,
                 modifier = Modifier.fillMaxWidth().size(10.dp))
             LazyColumn(modifier = Modifier.weight(1f)) {
@@ -50,9 +53,9 @@ object Composables {
                     Row(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.weight(3f)) {
                             Text(text = topPlayer.player.playerName!!,
-                                color = Color.Red, fontSize = textFontSize)
+                                color = Color.Red, fontSize = mFontSize)
                             Text(text = topPlayer.player.score!!.toString(),
-                                color = Color.Red, fontSize = textFontSize)
+                                color = Color.Red, fontSize = mFontSize)
                         }
                         Image(
                             modifier = Modifier.weight(2f)
@@ -81,7 +84,7 @@ object Composables {
                         contentColor = Color.Red,
                         disabledContentColor = Color.LightGray)
                 )
-                { Text(text = oKStr, fontSize = textFontSize) }
+                { Text(text = oKStr, fontSize = mFontSize) }
             }
         }
     }

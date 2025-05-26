@@ -11,13 +11,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.unit.sp
 import androidx.core.os.BundleCompat
 import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.models.TopPlayer
 import com.smile.smilelibraries.player_record_rest.models.Player
-import com.smile.smilelibraries.utilities.ScreenUtil
 
 /**
  * A simple [Fragment] subclass.
@@ -43,7 +41,7 @@ class Top10ComposeFragment: Fragment {
         Log.d(TAG, "onAttach")
         super.onAttach(context)
         mContext = context
-        textFontSize = Composables.textFontSize.value
+        textFontSize = Composables.mFontSize.value
         Log.d(TAG, "onAttach.textFontSize = $textFontSize")
     }
 

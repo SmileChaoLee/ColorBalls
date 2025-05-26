@@ -13,15 +13,15 @@ import android.view.View
 import android.view.Window
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.ContextCompat
 import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
-import com.smile.colorballs.interfaces.PresentView
-import com.smile.colorballs.presenters.Presenter
+import com.smile.colorballs.interfaces.PresentViewCompose
+import com.smile.colorballs.presenters.PresenterCompose
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment.DialogButtonListener
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
@@ -31,27 +31,29 @@ import com.smile.smilelibraries.utilities.SoundPoolUtil
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.util.Locale
 
-abstract class MyView: AppCompatActivity(), PresentView {
+abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
 
     companion object {
-        private const val TAG = "MyView"
+        private const val TAG = "MyViewCompose"
     }
 
     abstract fun showInterstitialAd()
     abstract fun quitOrNewGame(entryPoint: Int)
     abstract fun setDialogStyle(dialog: DialogInterface)
 
+    protected val drawableArray = Array(Constants.ROW_COUNTS) {
+        Array(Constants.ROW_COUNTS) {
+            mutableStateOf<Pair<Drawable?, Boolean>>(Pair(null, false))
+        }
+     }
+
     protected var textFontSize = 0f
-    protected lateinit var mPresenter: Presenter
-    protected lateinit var highestScoreTextView: TextView
-    protected lateinit var currentScoreTextView: TextView
-    protected lateinit var scoreImageView: ImageView
-    protected var sureSaveDialog: AlertDialogFragment? = null
-    protected var warningSaveGameDialog: AlertDialogFragment? = null
-    protected var sureLoadDialog: AlertDialogFragment? = null
-    protected var gameOverDialog: AlertDialogFragment? = null
+    protected lateinit var mPresenter: PresenterCompose
+    private lateinit var scoreImageView: ImageView
+    private var sureSaveDialog: AlertDialogFragment? = null
+    private var sureLoadDialog: AlertDialogFragment? = null
+    private var gameOverDialog: AlertDialogFragment? = null
     protected var saveScoreAlertDialog: AlertDialog? = null
 
     // implementing PresentView
@@ -97,16 +99,10 @@ abstract class MyView: AppCompatActivity(), PresentView {
             width, height)
     }
 
-    override fun getImageViewById(id: Int): ImageView {
-        return findViewById(id)
-    }
-
     override fun updateHighestScoreOnUi(highestScore: Int) {
-        highestScoreTextView.text = String.format(Locale.getDefault(), "%8d", highestScore)
     }
 
     override fun updateCurrentScoreOnUi(score: Int) {
-        currentScoreTextView.text = String.format(Locale.getDefault(), "%8d", score)
     }
 
     override fun showMessageOnScreen(message: String) {
@@ -156,7 +152,7 @@ abstract class MyView: AppCompatActivity(), PresentView {
                     } else {
                         getString(R.string.failedSaveGameStr)
                     }
-                ScreenUtil.showToast(this@MyView, msg, textFontSize,
+                ScreenUtil.showToast(this@MyViewCompose, msg, textFontSize,
                     ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
                 showInterstitialAd()
             }
@@ -173,11 +169,13 @@ abstract class MyView: AppCompatActivity(), PresentView {
             mPresenter.setShowingSureSaveDialog(true)
             sureSaveDialog?.let {
                 it.arguments = this
-                it.show(supportFragmentManager, Constants.SURE_SAVE_DIALOG_TAG)
+                // Need to implement this
+                // it.show(supportFragmentManager, Constants.SURE_SAVE_DIALOG_TAG)
             }
         }
-        val fragment = supportFragmentManager.findFragmentByTag(Constants.SURE_SAVE_DIALOG_TAG)
-        Log.d(TAG,"MyView.showSaveGameDialog.fragment = $fragment")
+        // Need to implement this
+        // val fragment = supportFragmentManager.findFragmentByTag(Constants.SURE_SAVE_DIALOG_TAG)
+        // Log.d(TAG,"MyView.showSaveGameDialog.fragment = $fragment")
     }
 
     override fun showLoadGameDialog() {
@@ -192,9 +190,10 @@ abstract class MyView: AppCompatActivity(), PresentView {
                 // start loading game to internal storage
                 dialogFragment.dismissAllowingStateLoss()
                 mPresenter.setShowingSureLoadDialog(false)
+                /*
                 if (mPresenter.startLoadingGame()) {
                     ScreenUtil.showToast(
-                        this@MyView,
+                        this@MyViewCompose,
                         getString(R.string.succeededLoadGameStr),
                         textFontSize,
                         ScreenUtil.FontSize_Pixel_Type,
@@ -202,13 +201,14 @@ abstract class MyView: AppCompatActivity(), PresentView {
                     )
                 } else {
                     ScreenUtil.showToast(
-                        this@MyView,
+                        this@MyViewCompose,
                         getString(R.string.failedLoadGameStr),
                         textFontSize,
                         ScreenUtil.FontSize_Pixel_Type,
                         Toast.LENGTH_LONG
                     )
                 }
+                */
             }
         })
         Bundle().apply {
@@ -223,7 +223,8 @@ abstract class MyView: AppCompatActivity(), PresentView {
             mPresenter.setShowingSureLoadDialog(true)
             sureLoadDialog?.let {
                 it.arguments = this
-                it.show(supportFragmentManager, Constants.SURE_LOAD_DIALOG_TAG)
+                // Need to implement this
+                // it.show(supportFragmentManager, Constants.SURE_LOAD_DIALOG_TAG)
             }
         }
     }
@@ -256,7 +257,8 @@ abstract class MyView: AppCompatActivity(), PresentView {
             mPresenter.setShowingGameOverDialog(true)
             gameOverDialog?.let {
                 it.arguments = this
-                it.show(supportFragmentManager, Constants.GAME_OVER_DIALOG_TAG)
+                // Need to implement this
+                // it.show(supportFragmentManager, Constants.GAME_OVER_DIALOG_TAG)
                 Log.d(TAG, "gameOverDialog.show() has been called.")
             }
         }
@@ -296,6 +298,11 @@ abstract class MyView: AppCompatActivity(), PresentView {
             }
             it.show()
         }
+    }
+
+    override fun setArrayDrawable(i: Int, j: Int,
+                                  drawable : Drawable?, isResize: Boolean) {
+        drawableArray[i][j].value = Pair(drawable, isResize)
     }
     // end of implementing
 }

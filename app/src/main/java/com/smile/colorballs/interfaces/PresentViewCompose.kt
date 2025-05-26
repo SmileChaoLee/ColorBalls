@@ -3,12 +3,12 @@ package com.smile.colorballs.interfaces
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import android.widget.ImageView
+import androidx.compose.runtime.MutableState
 import com.smile.smilelibraries.utilities.SoundPoolUtil
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
-interface PresentView {
+interface PresentViewCompose {
     fun contextResources() : Resources
     fun soundPool() : SoundPoolUtil
     fun highestScore() : Int
@@ -17,7 +17,6 @@ interface PresentView {
     fun fileOutputStream(fileName : String) : FileOutputStream
     fun compatDrawable(id : Int) : Drawable?
     fun bitmapToDrawable(bm : Bitmap, width : Int, height : Int) : Drawable?
-    fun getImageViewById(id : Int) : ImageView
     fun updateHighestScoreOnUi(highestScore : Int)
     fun updateCurrentScoreOnUi(score : Int)
     fun showMessageOnScreen(message : String)
@@ -29,4 +28,5 @@ interface PresentView {
     fun showSaveGameDialog()
     fun showLoadGameDialog()
     fun showGameOverDialog()
+    fun setArrayDrawable(i: Int, j: Int, drawable: Drawable?, isReSize: Boolean)
 }
