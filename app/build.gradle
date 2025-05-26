@@ -24,8 +24,8 @@ android {
         targetSdk 35
         multiDexEnabled true
 
-        versionCode 7210
-        versionName "7.210"
+        versionCode 7211
+        versionName "7.211"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         signingConfig signingConfigs.config
@@ -120,8 +120,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-ads:23.6.0'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.test:core-ktx:1.6.1'
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 
     implementation project(':smilelibraries')
     implementation project(':NativeTemplatesModels')
