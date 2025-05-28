@@ -4,6 +4,7 @@ import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
@@ -20,6 +21,7 @@ import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.interfaces.PresentViewCompose
 import com.smile.colorballs.presenters.PresenterCompose
+import com.smile.colorballs.presenters.PresenterCompose.Companion
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment.DialogButtonListener
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
@@ -42,9 +44,10 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
 
     protected var textFontSize = 0f
     protected lateinit var mPresenter: PresenterCompose
-    private val colorBallMap: HashMap<Int, Drawable> = HashMap()
-    private val colorOvalBallMap: HashMap<Int, Drawable> = HashMap()
-    private val colorNextBallMap: HashMap<Int, Drawable> = HashMap()
+    protected val colorBallMap: HashMap<Int, Drawable> = HashMap()
+    protected val colorOvalBallMap: HashMap<Int, Drawable> = HashMap()
+    protected val colorNextBallMap: HashMap<Int, Drawable> = HashMap()
+    private var bouncyAnimation: AnimationDrawable? = null
 
     private lateinit var scoreImageView: ImageView
     private var sureSaveDialog: AlertDialogFragment? = null
@@ -139,22 +142,12 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
         return SoundPoolUtil(this, R.raw.uhoh)
     }
 
-    override fun drawBall(i: Int, j: Int, color: Int) {
-        Log.d(TAG, "drawBall.($i, $j), color = $color")
-        val drawable = if (color == 0) null else colorBallMap[color]
-        mPresenter.setArrayDrawable(i,j, drawable, false)
-    }
-
-    override fun drawOval(i: Int, j: Int, color: Int) {
-        Log.d(TAG, "drawOval.($i, $j), color = $color")
-        val drawable = if (color == 0) null else colorOvalBallMap[color]
-        mPresenter.setArrayDrawable(i,j, drawable, false)
-    }
-
-    override fun drawNextBall(i: Int, j: Int, color: Int) {
-        Log.d(TAG, "drawNextBall.($i, $j), color = $color")
-        val drawable = if (color == 0) null else colorNextBallMap[color]
-        mPresenter.setArrayDrawable(i,j, drawable, false)
+    override fun getHighestScore() : Int {
+        Log.d(TAG, "getHighestScore")
+        val scoreSQLiteDB = ScoreSQLite(this)
+        val score = scoreSQLiteDB.readHighestScore()
+        scoreSQLiteDB.close()
+        return score
     }
 
     override fun addScoreInLocalTop10(playerName : String, score : Int) {
@@ -175,46 +168,21 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
         return FileOutputStream(File(filesDir, fileName))
     }
 
-    fun compatDrawable(id : Int) : Drawable? {
-        return ContextCompat.getDrawable(this, id)
-    }
-
-    fun bitmapToDrawable(bm : Bitmap, width : Int, height : Int) : Drawable? {
+    private fun bitmapToDrawable(bm : Bitmap, width : Int, height : Int) : Drawable? {
         return FontAndBitmapUtil.convertBitmapToDrawable(this, bm,
             width, height)
     }
 
-    override fun updateHighestScoreOnUi(highestScore: Int) {
-    }
-
-    override fun updateCurrentScoreOnUi(score: Int) {
-    }
-
-    override fun showMessageOnScreen(message: String) {
-        BitmapFactory.decodeResource(resources, R.drawable.dialog_board_image).let {
-            FontAndBitmapUtil.getBitmapFromBitmapWithText(
-                it, message, Color.RED).apply {
-                scoreImageView.visibility = View.VISIBLE
-                scoreImageView.setImageBitmap(this)
-            }
-        }
-    }
-
     override fun showLoadingStrOnScreen() {
-        showMessageOnScreen(getString(R.string.loadingStr))
+        mPresenter.screenMessage.value = getString(R.string.loadingStr)
     }
 
     override fun showSavingGameStrOnScreen() {
-        showMessageOnScreen(getString(R.string.savingGameStr))
+        mPresenter.screenMessage.value = getString(R.string.savingGameStr)
     }
 
     override fun showLoadingGameStrOnScreen() {
-        showMessageOnScreen(getString(R.string.loadingGameStr))
-    }
-
-    override fun dismissShowMessageOnScreen() {
-        scoreImageView.setImageBitmap(null)
-        scoreImageView.visibility = View.GONE
+        mPresenter.screenMessage.value = getString(R.string.loadingGameStr)
     }
 
     override fun showSaveGameDialog() {

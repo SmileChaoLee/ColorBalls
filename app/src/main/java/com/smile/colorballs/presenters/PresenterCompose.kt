@@ -1,18 +1,19 @@
 package com.smile.colorballs.presenters
 
 import android.graphics.Point
-import android.graphics.drawable.AnimationDrawable
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.constants.Constants
+import com.smile.colorballs.constants.WhichBall
 import com.smile.colorballs.interfaces.PresentViewCompose
 import com.smile.colorballs.models.GameProp
 import com.smile.colorballs.models.GridData
+import com.smile.colorballs.models.ColorBallInfo
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
 import com.smile.smilelibraries.utilities.SoundPoolUtil
 import org.json.JSONObject
@@ -27,28 +28,27 @@ class PresenterCompose(val presentView: PresentViewCompose,
     }
 
     private val soundPool: SoundPoolUtil = presentView.soundPool()
+    private val bouncyBallHandler = Handler(Looper.getMainLooper())
     private val movingBallHandler = Handler(Looper.getMainLooper())
     private val showingScoreHandler = Handler(Looper.getMainLooper())
-    private val rowCounts = Constants.ROW_COUNTS
-    private val colCounts = Constants.COLUMN_COUNTS
-    private var bouncyAnimation: AnimationDrawable? = null
 
-    val drawableArray = Array(Constants.ROW_COUNTS) {
+    val currentScore = mutableIntStateOf(0)
+    val highestScore = mutableIntStateOf(0)
+    val screenMessage = mutableStateOf("")
+    val gridDataArray = Array(Constants.ROW_COUNTS) {
         Array(Constants.ROW_COUNTS) {
-            mutableStateOf<Pair<Drawable?, Boolean>>(Pair(null, false))
+            mutableStateOf(ColorBallInfo())
         }
-    }
-
-    fun setArrayDrawable(i: Int, j: Int, drawable: Drawable?, isResize: Boolean) {
-        drawableArray[i][j].value = Pair(drawable, isResize)
     }
 
     fun drawBallsAndCheckListener(i: Int, j: Int) {
         Log.d(TAG, "drawBallsAndCheckListener.($i, $j)")
         Log.d(TAG, "drawBallsAndCheckListener.isBallBouncing = " +
                 "${mGameProp.isBallBouncing}")
+        val ballColor = mGridData.getCellValue(i, j)
         if (!mGameProp.isBallBouncing) {
-            if (mGridData.getCellValue(i, j) != 0) {
+            // if (mGridData.getCellValue(i, j) != 0) {
+            if (ballColor != 0) {
                 if ((mGameProp.bouncyBallIndexI == -1) && (mGameProp.bouncyBallIndexJ == -1)) {
                     mGameProp.isBallBouncing = true
                     drawBouncyBall(i, j, mGridData.getCellValue(i, j))
@@ -60,7 +60,8 @@ class PresenterCompose(val presentView: PresentViewCompose,
             // cancel the bouncy timer
             val bouncyI = mGameProp.bouncyBallIndexI
             val bouncyJ = mGameProp.bouncyBallIndexJ
-            if (mGridData.getCellValue(i, j) == 0) {
+            // if (mGridData.getCellValue(i, j) == 0) {
+            if (ballColor == 0) {
                 //   blank cell
                 if ((bouncyI >= 0) && (bouncyJ >= 0)) {
                     if (mGridData.canMoveCellToCell(Point(bouncyI, bouncyJ), Point(i, j))) {
@@ -82,8 +83,7 @@ class PresenterCompose(val presentView: PresentViewCompose,
                 //  cell is not blank
                 if ((bouncyI >= 0) && (bouncyJ >= 0)) {
                     stopBouncyAnimation()
-                    presentView.drawBall(bouncyI, bouncyJ,
-                        mGridData.getCellValue(bouncyI, bouncyJ))
+                    drawBall(bouncyI, bouncyJ, mGridData.getCellValue(bouncyI, bouncyJ))
                     drawBouncyBall(i, j, mGridData.getCellValue(i, j))
                     mGameProp.bouncyBallIndexI = i
                     mGameProp.bouncyBallIndexJ = j
@@ -96,6 +96,7 @@ class PresenterCompose(val presentView: PresentViewCompose,
         Log.d(TAG, "initGame.isNewGame = $isNewGame")
         ColorBallsApp.isShowingLoadingMessage = mGameProp.isShowingLoadingMessage
         ColorBallsApp.isProcessingJob = mGameProp.isProcessingJob
+        highestScore.intValue = presentView.getHighestScore()
         displayGameView()
         if (isNewGame) {    // new game
             displayGridDataNextCells()
@@ -224,7 +225,7 @@ class PresenterCompose(val presentView: PresentViewCompose,
         // restore the screen
         displayGameView()
         mGameProp.currentScore = mGameProp.undoScore
-        presentView.updateCurrentScoreOnUi(mGameProp.currentScore)
+        currentScore.intValue = mGameProp.currentScore
         // completedPath = true;
         mGameProp.undoEnable = false
         ColorBallsApp.isProcessingJob = false // finished
@@ -355,11 +356,14 @@ class PresenterCompose(val presentView: PresentViewCompose,
                 foStream.write(key.y)
             }
             // save values on 9x9 grid
-            for (i in 0 until rowCounts) {
-                for (j in 0 until colCounts) {
+            for (i in 0 until Constants.ROW_COUNTS) {
+                for (j in 0 until Constants.ROW_COUNTS) {
+                    // Log.d(TAG,"startSavingGame.gridData.getCellValue(i, j) = "
+                    //         + mGridData.getCellValue(i, j))
+                    // foStream.write(mGridData.getCellValue(i, j))
                     Log.d(TAG,"startSavingGame.gridData.getCellValue(i, j) = "
-                            + mGridData.getCellValue(i, j))
-                    foStream.write(mGridData.getCellValue(i, j))
+                            + gridDataArray[i][j].value.ballColor)
+                    foStream.write(gridDataArray[i][j].value.ballColor)
                 }
             }
             // save current score
@@ -383,8 +387,8 @@ class PresenterCompose(val presentView: PresentViewCompose,
                 foStream.write(0)
             }
             // save backupCells
-            for (i in 0 until rowCounts) {
-                for (j in 0 until colCounts) {
+            for (i in 0 until Constants.ROW_COUNTS) {
+                for (j in 0 until Constants.ROW_COUNTS) {
                     Log.d(TAG,"startSavingGame.gridData.getBackupCells()[i][j] = "
                             + mGridData.getBackupCells()[i][j])
                     foStream.write(mGridData.getBackupCells()[i][j])
@@ -409,7 +413,8 @@ class PresenterCompose(val presentView: PresentViewCompose,
         }
 
         ColorBallsApp.isProcessingJob = false
-        presentView.dismissShowMessageOnScreen()
+        // presentView.dismissShowMessageOnScreen()
+        screenMessage.value = ""
         Log.d(TAG, "startSavingGame.Finished")
         return succeeded
     }
@@ -425,11 +430,13 @@ class PresenterCompose(val presentView: PresentViewCompose,
         val hasNextBall: Boolean
         var ballNumOneTime: Int
         val nextBalls = IntArray(Constants.NUM_DIFFICULT)
-        val gameCells = Array(rowCounts) { IntArray(colCounts) }
+        val gameCells = Array(Constants.ROW_COUNTS) {
+            IntArray(Constants.ROW_COUNTS) }
         val cScore: Int
         val isUndoEnable: Boolean
         val undoNextBalls = IntArray(Constants.NUM_DIFFICULT)
-        val backupCells = Array(rowCounts) { IntArray(colCounts) }
+        val backupCells = Array(Constants.ROW_COUNTS) {
+            IntArray(Constants.ROW_COUNTS) }
         var unScore = mGameProp.undoScore
         try {
             // clear nextCellIndices and undoNextCellIndices
@@ -481,8 +488,8 @@ class PresenterCompose(val presentView: PresentViewCompose,
                 mGridData.addUndoNextCellIndices(Point(x, y))
             }
             // load values on 9x9 grid
-            for (i in 0 until rowCounts) {
-                for (j in 0 until colCounts) {
+            for (i in 0 until Constants.ROW_COUNTS) {
+                for (j in 0 until Constants.ROW_COUNTS) {
                     gameCells[i][j] = fiStream.read()
                     Log.d(TAG, "startLoadingGame.gridData.getCellValue(i, j) = " + gameCells[i][j])
                 }
@@ -505,8 +512,8 @@ class PresenterCompose(val presentView: PresentViewCompose,
                             + undoNextBalls[i])
                 }
                 // save backupCells
-                for (i in 0 until rowCounts) {
-                    for (j in 0 until colCounts) {
+                for (i in 0 until Constants.ROW_COUNTS) {
+                    for (j in 0 until Constants.ROW_COUNTS) {
                         backupCells[i][j] = fiStream.read()
                         Log.d(TAG,"startLoadingGame.gridData.getBackupCells()[i][j] = "
                                 + backupCells[i][j])
@@ -536,7 +543,7 @@ class PresenterCompose(val presentView: PresentViewCompose,
             mGridData.setBackupCells(backupCells)
             mGameProp.undoScore = unScore
             // start update UI
-            presentView.updateCurrentScoreOnUi(mGameProp.currentScore)
+            currentScore.intValue = mGameProp.currentScore
             Log.d(TAG, "startLoadingGame.starting displayGameView().")
             displayGameView()
         } catch (ex: IOException) {
@@ -544,7 +551,8 @@ class PresenterCompose(val presentView: PresentViewCompose,
             succeeded = false
         }
         ColorBallsApp.isProcessingJob = false
-        presentView.dismissShowMessageOnScreen()
+        // presentView.dismissShowMessageOnScreen()
+        screenMessage.value = ""
 
         return succeeded
     }
@@ -566,7 +574,8 @@ class PresenterCompose(val presentView: PresentViewCompose,
         }
         val numBalls = intArrayOf(0, 0, 0, 0, 0, 0)
         for (point in linkedLine) {
-            when (mGridData.getCellValue(point.x, point.y)) {
+            // when (mGridData.getCellValue(point.x, point.y)) {
+            when (gridDataArray[point.x][point.y].value.ballColor) {
                 Constants.COLOR_RED -> numBalls[0]++
                 Constants.COLOR_GREEN -> numBalls[1]++
                 Constants.COLOR_BLUE -> numBalls[2]++
@@ -606,13 +615,45 @@ class PresenterCompose(val presentView: PresentViewCompose,
         return totalScore
     }
 
+    private fun drawBall(i: Int, j: Int, color: Int) {
+        Log.d(TAG, "drawBall.($i, $j), color = $color")
+        gridDataArray[i][j].value = ColorBallInfo(color, WhichBall.BALL)
+    }
+
+    private fun drawBouncyBall(i: Int, j: Int, color: Int) {
+        Log.d(TAG, "drawBouncyBall.($i, $j), color = $color")
+        var whichBall = WhichBall.BALL
+        object : Runnable {
+            override fun run() {
+                gridDataArray[i][j].value = ColorBallInfo(color, whichBall, true)
+                whichBall = if (whichBall == WhichBall.BALL) WhichBall.OVAL_BALL
+                else WhichBall.BALL
+                bouncyBallHandler.postDelayed(this, 200)
+            }
+        }.also { bouncyBallHandler.post(it) }
+    }
+
+    private fun stopBouncyAnimation() {
+        bouncyBallHandler.removeCallbacksAndMessages(null)
+    }
+
+    private fun drawOval(i: Int, j: Int, color: Int) {
+        Log.d(TAG, "drawOval.($i, $j), color = $color")
+        gridDataArray[i][j].value = ColorBallInfo(color, WhichBall.OVAL_BALL)
+    }
+
+    private fun drawNextBall(i: Int, j: Int, color: Int) {
+        Log.d(TAG, "drawNextBall.($i, $j), color = $color")
+        gridDataArray[i][j].value = ColorBallInfo(color, WhichBall.NEXT_BALL)
+    }
+
     private fun displayNextBallsView() {
         // display the view of next balls
         Log.d(TAG, "displayNextBallsView")
         try {
             for ((key, value) in mGridData.getNextCellIndices()) {
                 Log.d(TAG, "displayNextBallsView.color = $value")
-                presentView.drawNextBall(key.x, key.y, value)
+                drawNextBall(key.x, key.y, value)
             }
         } catch (ex: Exception) {
             Log.d(TAG, "displayNextBallsView.Exception: ")
@@ -645,7 +686,7 @@ class PresenterCompose(val presentView: PresentViewCompose,
             n2 = key.y
             Log.d(TAG, "displayGridDataNextCells.($n1, $n2), color = $value")
             mGridData.setCellValue(n1, n2, value)
-            presentView.drawBall(n1, n2, mGridData.getCellValue(n1, n2))
+            drawBall(n1, n2, mGridData.getCellValue(n1, n2))
             if (mGridData.checkMoreThanFive(n1, n2)) {
                 hasMoreFive = true
                 for (point in mGridData.getLightLine()) {
@@ -661,7 +702,7 @@ class PresenterCompose(val presentView: PresentViewCompose,
             mGameProp.lastGotScore = calculateScore(mGridData.getLightLine())
             mGameProp.undoScore = mGameProp.currentScore
             mGameProp.currentScore += mGameProp.lastGotScore
-            presentView.updateCurrentScoreOnUi(mGameProp.currentScore)
+            currentScore.intValue = mGameProp.currentScore
             val showScore = ShowScore(
                 mGridData.getLightLine(), mGameProp.lastGotScore,
                 true, object : ShowScoreCallback {
@@ -680,11 +721,11 @@ class PresenterCompose(val presentView: PresentViewCompose,
         // display the 9 x 9 game view
         Log.d(TAG, "displayGameGridView")
         try {
-            for (i in 0 until rowCounts) {
-                for (j in 0 until colCounts) {
+            for (i in 0 until Constants.ROW_COUNTS) {
+                for (j in 0 until Constants.ROW_COUNTS) {
                     val color = mGridData.getCellValue(i, j)
                     Log.d(TAG, "displayGameGridView.($i, $j), color = $color")
-                    presentView.drawBall(i, j, color)
+                    drawBall(i, j, color)
                 }
             }
         } catch (ex: java.lang.Exception) {
@@ -712,7 +753,8 @@ class PresenterCompose(val presentView: PresentViewCompose,
         Log.d(TAG, "drawBallAlongPath.targetI = $targetI, targetJ = $targetJ")
         val beginI = mGridData.getPathPoint()[sizeOfPath - 1].x
         val beginJ = mGridData.getPathPoint()[sizeOfPath - 1].y
-        val color = mGridData.getCellValue(beginI, beginJ)
+        // val color = mGridData.getCellValue(beginI, beginJ)
+        val color = gridDataArray[beginI][beginJ].value.ballColor
         Log.d(TAG, "drawBallAlongPath.color = $color")
 
         val tempList = ArrayList(mGridData.getPathPoint())
@@ -725,25 +767,21 @@ class PresenterCompose(val presentView: PresentViewCompose,
                 mGameProp.isBallMoving = true
                 if (countDown >= 2) {   // eliminate start point
                     val i = countDown / 2
-                    if (ballYN) {
-                        presentView.drawBall(tempList[i].x, tempList[i].y, color)
-                    } else {
-                        presentView.drawBall(tempList[i].x, tempList[i].y, 0)
-                    }
+                    drawBall(tempList[i].x, tempList[i].y, if (ballYN) color else 0)
                     ballYN = !ballYN
                     countDown--
                     movingBallHandler.postDelayed(this, 20)
                 } else {
                     clearCell(beginI, beginJ) // blank the original cell. Added on 2020-09-16
                     mGridData.setCellValue(targetI, targetJ, color)
-                    presentView.drawBall(targetI, targetJ, color)
+                    drawBall(targetI, targetJ, color)
                     mGridData.regenerateNextCellIndices(Point(targetI, targetJ))
                     //  check if there are more than five balls with same color connected together
                     if (mGridData.checkMoreThanFive(targetI, targetJ)) {
                         mGameProp.lastGotScore = calculateScore(mGridData.getLightLine())
                         mGameProp.undoScore = mGameProp.currentScore
                         mGameProp.currentScore += mGameProp.lastGotScore
-                        presentView.updateCurrentScoreOnUi(mGameProp.currentScore)
+                        currentScore.intValue = mGameProp.currentScore
                         Log.d(TAG, "drawBallAlongPath.showScore")
                         val showScore = ShowScore(
                             mGridData.getLightLine(), mGameProp.lastGotScore,
@@ -769,33 +807,6 @@ class PresenterCompose(val presentView: PresentViewCompose,
         movingBallHandler.post(runnablePath)
     }
 
-    private fun drawBouncyBall(i: Int, j: Int, color: Int) {
-        Log.e(TAG, "drawBouncyBall.($i, $j)")
-        Log.e(TAG, "drawBouncyBall.color = $color")
-        /*
-        bouncyAnimation = AnimationDrawable()
-        bouncyAnimation?.let {
-            it.isOneShot = false
-            colorBallMap[color]?.let { draw ->
-                it.addFrame(draw, 200)
-            }
-            colorOvalBallMap[color]?.let { draw ->
-                it.addFrame(draw, 200)
-            }
-            // v.setImageDrawable(it)
-            it.start()
-        }
-         */
-    }
-
-    private fun stopBouncyAnimation() {
-        bouncyAnimation?.let {
-            if (it.isRunning) {
-                it.stop()
-            }
-        }
-    }
-
     private inner class ShowScore(
         linkedPoint: HashSet<Point>,
         val lastGotScore: Int, val isNextBalls: Boolean,
@@ -814,18 +825,17 @@ class PresenterCompose(val presentView: PresentViewCompose,
         private fun onProgressUpdate(status: Int) {
             when (status) {
                 0 -> for (item in pointSet) {
-                    presentView.drawBall(item.x, item.y, mGridData.getCellValue(item.x, item.y))
+                    drawBall(item.x, item.y, mGridData.getCellValue(item.x, item.y))
                 }
                 1 -> for (item in pointSet) {
-                    presentView.drawOval(item.x, item.y, mGridData.getCellValue(item.x, item.y))
+                    drawOval(item.x, item.y, mGridData.getCellValue(item.x, item.y))
                 }
                 2 -> {}
                 3 -> {
-                    // show the score
-                    val scoreString = lastGotScore.toString()
-                    presentView.showMessageOnScreen(scoreString)
+                    screenMessage.value = lastGotScore.toString()
                     for (item in pointSet) {
                         clearCell(item.x, item.y)
+                        drawBall(item.x, item.y, mGridData.getCellValue(item.x, item.y))
                     }
                     if (isNextBalls) {
                         Log.d(TAG, "ShowScore.onProgressUpdate.displayNextColorBalls")
@@ -839,7 +849,7 @@ class PresenterCompose(val presentView: PresentViewCompose,
                 }
                 4 -> {
                     Log.d(TAG, "ShowScore.onProgressUpdate.dismissShowMessageOnScreen.")
-                    presentView.dismissShowMessageOnScreen()
+                    screenMessage.value = ""
                 }
                 else -> {}
             }

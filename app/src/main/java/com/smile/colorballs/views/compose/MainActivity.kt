@@ -17,11 +17,13 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -46,11 +48,11 @@ import com.smile.colorballs.R
 import com.smile.colorballs.shared_composables.Composables
 import com.smile.colorballs.shared_composables.ui.theme.ColorBallsTheme
 import com.smile.colorballs.constants.Constants
+import com.smile.colorballs.constants.WhichBall
 import com.smile.colorballs.models.GameProp
 import com.smile.colorballs.models.GridData
 import com.smile.colorballs.presenters.PresenterCompose
 import com.smile.smilelibraries.models.ExitAppTimer
-import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
 import com.smile.smilelibraries.utilities.ScreenUtil
 
@@ -62,8 +64,6 @@ class MainActivity : MyViewCompose() {
     private val screenY = mutableFloatStateOf(0f)
 
     private var interstitialAd: ShowInterstitial? = null
-    private var currentScore = 0
-    private var highestScore = 0
     private var mImageSizeDp = 0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,8 +85,6 @@ class MainActivity : MyViewCompose() {
                 it.googleInterstitialAd)
         }
 
-        Log.d(TAG, "onCreate.getHighestScore()")
-        highestScore = getHighestScore()
         Log.d(TAG, "onCreate.getScreenSize()")
         getScreenSize()
 
@@ -146,6 +144,7 @@ class MainActivity : MyViewCompose() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "onDestroy")
+        mPresenter.release()
         interstitialAd?.releaseInterstitial()
     }
 
@@ -175,14 +174,6 @@ class MainActivity : MyViewCompose() {
         Log.d(TAG, "getScreenSize.screen.y = ${screen.y}")
         screenX.floatValue = ScreenUtil.pixelToDp(screen.x.toFloat())
         screenY.floatValue = ScreenUtil.pixelToDp(screen.y.toFloat())
-    }
-
-    private fun getHighestScore() : Int {
-        Log.d(TAG, "getHighestScore")
-        val scoreSQLiteDB = ScoreSQLite(this)
-        val score = scoreSQLiteDB.readHighestScore()
-        scoreSQLiteDB.close()
-        return score
     }
 
     private fun initPresenter(state: Bundle?): Boolean {
@@ -326,7 +317,8 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun ShowCurrentScore(modifier: Modifier) {
-        Text(text = currentScore.toString(), modifier = modifier,
+        Text(text = mPresenter.currentScore.intValue.toString(),
+            modifier = modifier,
             color = Color.Red, fontSize = Composables.mFontSize
         )
     }
@@ -334,7 +326,8 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun SHowHighestScore(modifier: Modifier) {
-        Text(text = highestScore.toString(), modifier = modifier,
+        Text(text = mPresenter.highestScore.intValue.toString(),
+            modifier = modifier,
             color = Color.White, fontSize = Composables.mFontSize
         )
     }
@@ -381,17 +374,29 @@ class MainActivity : MyViewCompose() {
     fun CreateGameView(modifier: Modifier) {
         Log.d(TAG, "CreateGameView.mImageSize = $mImageSizeDp")
         Column(modifier = modifier) {
+            Box {
+                ShowGameGrid()
+                ShowMessageOnScreen()
+            }
+        }
+    }
+
+    @Composable
+    fun ShowGameGrid() {
+        Column {
             for (i in 0 until Constants.ROW_COUNTS) {
                 Row {
                     for (j in 0 until Constants.ROW_COUNTS) {
-                        Box {
+                        Box(modifier = Modifier.clickable {
+                            mPresenter.drawBallsAndCheckListener(i, j)
+                        }) {
                             Image(
                                 modifier = Modifier.size(mImageSizeDp.dp).padding(all = 0.dp),
                                 painter = painterResource(id = R.drawable.box_image),
                                 contentDescription = "",
                                 contentScale = ContentScale.FillBounds
                             )
-                            ShowColorBall(mPresenter.drawableArray[i][j].value)
+                            ShowColorBall(i, j)
                         }
                     }
                 }
@@ -400,26 +405,74 @@ class MainActivity : MyViewCompose() {
     }
 
     @Composable
-    fun ShowColorBall(drawable: Pair<Drawable?, Boolean>) {
-        val draw = drawable.first
-            val isReSize = drawable.second
-            Log.d(TAG, "ShowColorBall.draw = $draw, isReSize = $isReSize")
-            Column(modifier = Modifier.size(mImageSizeDp.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center) {
-                var modifier = Modifier.background(color = Color.Transparent)
-                var scale: ContentScale = ContentScale.None
-                if (isReSize) {
-                    modifier = modifier.size(mImageSizeDp.dp).padding(all = 0.dp)
-                    scale = ContentScale.FillBounds
-                }
+    fun ShowMessageOnScreen() {
+        val message = mPresenter.screenMessage.value
+        if (message.isEmpty()) return
+        val gameViewLength = mImageSizeDp * Constants.ROW_COUNTS.toFloat()
+        val width = (gameViewLength/2f).dp
+        val height = (gameViewLength/4f).dp
+        /*
+        if (resources.configuration.orientation
+            == Configuration.ORIENTATION_LANDSCAPE) {
+            width = (screenY.floatValue/6f).dp
+            height = (screenX.floatValue/3f).dp
+        }
+         */
+        val modifier = Modifier.fillMaxSize()
+            .background(color = Color.Transparent)
+        Column( modifier = modifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center) {
+            Box(modifier = Modifier.size(width = width, height = height)){
                 Image(
-                    painter = rememberDrawablePainter(drawable = draw),
+                    painter = painterResource(id = R.drawable.dialog_board_image),
                     contentDescription = "",
-                    modifier = modifier,
-                    contentScale = scale
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier.size(width = width, height = height)
+                )
+                Text(
+                    modifier = Modifier.align(alignment = Alignment.Center),
+                    text = message,
+                    color = Color.Red, fontSize = textFontSize.sp
                 )
             }
+        }
+    }
+
+    @Composable
+    fun ShowColorBall(i: Int, j: Int) {
+        val ballInfo = mPresenter.gridDataArray[i][j].value
+        val ballColor = ballInfo.ballColor
+        Log.d(TAG, "ShowColorBall.ballColor = $ballColor")
+        Log.d(TAG, "ShowColorBall.isAnimation = ${ballInfo.isAnimation}")
+        if (ballColor == 0) return  // no showing ball
+        val whichBall = ballInfo.whichBall
+        val isReSize = ballInfo.isResize
+        Log.d(TAG, "ShowColorBall.whichBall = $whichBall, isReSize = $isReSize")
+        val draw: Drawable? = when(whichBall) {
+            WhichBall.BALL-> { colorBallMap[ballColor] }
+            WhichBall.OVAL_BALL-> { colorOvalBallMap[ballColor] }
+            WhichBall.NEXT_BALL-> { colorNextBallMap[ballColor] }
+            else -> { null }    // WhichBall.NO_BALL
+        }
+        Column(modifier = Modifier.size(mImageSizeDp.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center) {
+            var modifier = Modifier.background(color = Color.Transparent)
+            var scale: ContentScale = ContentScale.None
+            if (isReSize) {
+                modifier = modifier.size(mImageSizeDp.dp).padding(all = 0.dp)
+                scale = ContentScale.FillBounds
+            }
+            val isAnimation = ballInfo.isAnimation
+            Log.d(TAG, "ShowColorBall.ballInfo.isAnimation = $isAnimation")
+            Image(
+                painter = rememberDrawablePainter(drawable = draw),
+                contentDescription = "",
+                modifier = modifier,
+                contentScale = scale
+            )
+        }
     }
 
     @Composable
