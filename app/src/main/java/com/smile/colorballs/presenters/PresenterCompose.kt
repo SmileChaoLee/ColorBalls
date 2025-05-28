@@ -617,17 +617,13 @@ class PresenterCompose(
         return totalScore
     }
 
-    private fun drawBall(i: Int, j: Int, color: Int) {
-        Log.d(TAG, "drawBall.($i, $j), color = $color")
-        gridDataArray[i][j].value = ColorBallInfo(color, WhichBall.BALL)
-    }
-
     private fun drawBouncyBall(i: Int, j: Int, color: Int) {
         Log.d(TAG, "drawBouncyBall.($i, $j), color = $color")
-        var whichBall = WhichBall.BALL
+        var whichBall= WhichBall.BALL
         object : Runnable {
             override fun run() {
-                gridDataArray[i][j].value = ColorBallInfo(color, whichBall, true)
+                if (whichBall == WhichBall.BALL) drawBall(i, j, color)
+                else drawOval(i, j, color)
                 whichBall = if (whichBall == WhichBall.BALL) WhichBall.OVAL_BALL
                 else WhichBall.BALL
                 bouncyBallHandler.postDelayed(this, 200)
@@ -639,14 +635,19 @@ class PresenterCompose(
         bouncyBallHandler.removeCallbacksAndMessages(null)
     }
 
+    private fun drawBall(i: Int, j: Int, color: Int) {
+        Log.d(TAG, "drawBall.($i, $j), color = $color")
+        gridDataArray[i][j].value = ColorBallInfo(color)
+    }
+
     private fun drawOval(i: Int, j: Int, color: Int) {
         Log.d(TAG, "drawOval.($i, $j), color = $color")
-        gridDataArray[i][j].value = ColorBallInfo(color, WhichBall.OVAL_BALL)
+        gridDataArray[i][j].value = ColorBallInfo(color, 0.7f)
     }
 
     private fun drawNextBall(i: Int, j: Int, color: Int) {
         Log.d(TAG, "drawNextBall.($i, $j), color = $color")
-        gridDataArray[i][j].value = ColorBallInfo(color, WhichBall.NEXT_BALL)
+        gridDataArray[i][j].value = ColorBallInfo(color, 0.6f)
     }
 
     private fun displayNextBallsView() {
