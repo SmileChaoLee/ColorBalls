@@ -20,8 +20,9 @@ import org.json.JSONObject
 import java.io.IOException
 import java.nio.ByteBuffer
 
-class PresenterCompose(val presentView: PresentViewCompose,
-                       val mGameProp: GameProp, val mGridData: GridData) {
+class PresenterCompose(
+    private val presentView: PresentViewCompose,
+    val mGameProp: GameProp, val mGridData: GridData) {
 
     private interface ShowScoreCallback {
         fun sCallback()
@@ -97,10 +98,11 @@ class PresenterCompose(val presentView: PresentViewCompose,
         ColorBallsApp.isShowingLoadingMessage = mGameProp.isShowingLoadingMessage
         ColorBallsApp.isProcessingJob = mGameProp.isProcessingJob
         highestScore.intValue = presentView.getHighestScore()
-        displayGameView()
+        // displayGameView()
         if (isNewGame) {    // new game
             displayGridDataNextCells()
         } else {
+            displayGameView()
             // display the original state before changing configuration
             // need to be tested
             if (ColorBallsApp.isShowingLoadingMessage) {

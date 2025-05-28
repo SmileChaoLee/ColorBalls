@@ -4,24 +4,20 @@ import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
-import android.view.View
 import android.view.Window
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
 import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.interfaces.PresentViewCompose
 import com.smile.colorballs.presenters.PresenterCompose
-import com.smile.colorballs.presenters.PresenterCompose.Companion
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment.DialogButtonListener
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
@@ -44,12 +40,16 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
 
     protected var textFontSize = 0f
     protected lateinit var mPresenter: PresenterCompose
+
+    /*
+    protected var boxImage: Drawable? = null
     protected val colorBallMap: HashMap<Int, Drawable> = HashMap()
     protected val colorOvalBallMap: HashMap<Int, Drawable> = HashMap()
     protected val colorNextBallMap: HashMap<Int, Drawable> = HashMap()
-    private var bouncyAnimation: AnimationDrawable? = null
+    */
 
-    private lateinit var scoreImageView: ImageView
+    protected val colorBallMap: HashMap<Int, Int> = HashMap()
+
     private var sureSaveDialog: AlertDialogFragment? = null
     private var sureLoadDialog: AlertDialogFragment? = null
     private var gameOverDialog: AlertDialogFragment? = null
@@ -63,6 +63,20 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
         val nextBallHeight = (imageSizePx * 0.5f).toInt()
         val ovalBallWidth = (imageSizePx * 0.9f).toInt()
         val ovalBallHeight = (imageSizePx * 0.7f).toInt()
+
+        colorBallMap[Constants.COLOR_RED] = R.drawable.redball
+        colorBallMap[Constants.COLOR_GREEN] = R.drawable.greenball
+        colorBallMap[Constants.COLOR_BLUE] = R.drawable.blueball
+        colorBallMap[Constants.COLOR_MAGENTA] = R.drawable.magentaball
+        colorBallMap[Constants.COLOR_YELLOW] = R.drawable.yellowball
+        colorBallMap[Constants.COLOR_CYAN] = R.drawable.cyanball
+
+        /*
+        BitmapFactory.decodeResource(resources, R.drawable.box_image)?.let { bm ->
+            bitmapToDrawable(bm, ballWidth, ballHeight)?.let { draw ->
+                boxImage = draw
+            }
+        }
 
         BitmapFactory.decodeResource(resources, R.drawable.redball)?.let { bm ->
             bitmapToDrawable(bm, ballWidth, ballHeight)?.let { draw ->
@@ -135,6 +149,7 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
                 colorOvalBallMap[Constants.COLOR_CYAN] = draw
             }
         }
+        */
     }
 
     // implementing PresentView
