@@ -3,7 +3,6 @@ package com.smile.colorballs.views.compose
 import android.content.DialogInterface
 import android.content.res.Configuration
 import android.graphics.Typeface
-import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -33,7 +32,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,7 +41,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.BundleCompat
-import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
 import com.smile.colorballs.shared_composables.Composables
@@ -452,21 +449,16 @@ class MainActivity : MyViewCompose() {
         Log.d(TAG, "ShowColorBall.ballColor = $ballColor")
         Log.d(TAG, "ShowColorBall.isAnimation = ${ballInfo.isAnimation}")
         if (ballColor == 0) return  // no showing ball
-        val whichBall = ballInfo.whichBall
         /*
-        val draw: Drawable? = when(whichBall) {
-            WhichBall.BALL-> { colorBallMap[ballColor] }
-            WhichBall.OVAL_BALL-> { colorOvalBallMap[ballColor] }
-            WhichBall.NEXT_BALL-> { colorNextBallMap[ballColor] }
-            else -> { null }    // WhichBall.NO_BALL
-        }
-        */
+        val whichBall = ballInfo.whichBall
         val ratio: Float = when(whichBall) {
             WhichBall.BALL-> { 1.0f }
             WhichBall.OVAL_BALL-> { 0.7f }
             WhichBall.NEXT_BALL-> { 0.6f }
             else -> { 1.0f }    // WhichBall.NO_BALL
         }
+        */
+        val ratio = ballInfo.resizeRatio
         val drawableId = colorBallMap.getValue(ballColor)
         Column(modifier = Modifier.size(mImageSizeDp.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
