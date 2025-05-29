@@ -21,28 +21,37 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeightIn
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.BundleCompat
@@ -56,6 +65,7 @@ import com.smile.colorballs.models.GameProp
 import com.smile.colorballs.models.GridData
 import com.smile.colorballs.presenters.PresenterCompose
 import com.smile.smilelibraries.models.ExitAppTimer
+import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil
 import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
 import com.smile.smilelibraries.utilities.ScreenUtil
 
@@ -208,14 +218,6 @@ class MainActivity : MyViewCompose() {
             Toast.LENGTH_SHORT)
     }
 
-    private fun onClickMenuIcon() {
-        ScreenUtil.showToast(
-            this@MainActivity, "Menu",
-            textFontSize,
-            ScreenUtil.FontSize_Pixel_Type,
-            Toast.LENGTH_SHORT)
-    }
-
     @Composable
     fun CreateMainUI(screenX: Float, screenY: Float) {
         Log.d(TAG, "createMainUI.screenX = $screenX")
@@ -305,7 +307,7 @@ class MainActivity : MyViewCompose() {
                 .align(Alignment.CenterVertically))
             SettingButton(modifier = Modifier.weight(1f)
                 .align(Alignment.CenterVertically))
-            ShowMenuIcon(modifier = Modifier.weight(1f)
+            ShowMenu(modifier = Modifier.weight(1f)
                 .align(Alignment.CenterVertically))
         }
     }
@@ -364,15 +366,63 @@ class MainActivity : MyViewCompose() {
     }
 
     @Composable
-    fun ShowMenuIcon(modifier: Modifier) {
-        Log.d(TAG, "ShowMenuIcon.screenX = ${screenX.floatValue}")
-        Log.d(TAG, "ShowMenuIcon.screenY = ${screenY.floatValue}")
-        IconButton (onClick = { onClickMenuIcon() }, modifier = modifier) {
-            Icon(
-                painter = painterResource(R.drawable.three_dots),
-                contentDescription = "",
-                tint = Color.White
-            )
+    fun ShowMenu(modifier: Modifier) {
+        Log.d(TAG, "ShowMenu.screenX = ${screenX.floatValue}")
+        Log.d(TAG, "ShowMenu.screenY = ${screenY.floatValue}")
+        var expanded by remember { mutableStateOf(false) }
+        Box(modifier = modifier) {
+            IconButton (onClick = { expanded = !expanded }, modifier = modifier) {
+                Icon(
+                    painter = painterResource(R.drawable.three_dots),
+                    contentDescription = "",
+                    tint = Color.White
+                )
+            }
+            DropdownMenu(expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.requiredHeightIn(max = (mImageSizeDp*9f).dp)
+                    .background(color =
+                Color(getColor(android.R.color.holo_green_light)))
+                    .padding(all = 0.dp)
+            ) {
+                Composables.DropdownMenuItem(
+                    text = getString(R.string.globalTop10Str),
+                    color = Color.Black,
+                    onClick = { /*showTop10Scores(false)*/ })
+
+                Composables.DropdownMenuItem(
+                    text = getString(R.string.localTop10Score),
+                    color = Color.Black,
+                    onClick = { /*showTop10Scores(true)*/ })
+
+                Composables.DropdownMenuItem(
+                    text = getString(R.string.saveGameStr),
+                    color = Color.Black,
+                    onClick = { mPresenter.saveGame() })
+
+                Composables.DropdownMenuItem(
+                    text = getString(R.string.loadGameStr),
+                    color = Color.Black,
+                    onClick = { mPresenter.loadGame() })
+
+                Composables.DropdownMenuItem(
+                    text = getString(R.string.newGame),
+                    color = Color.Black,
+                    onClick = { mPresenter.newGame() })
+
+                Composables.DropdownMenuItem(
+                    text = getString(R.string.quitGame),
+                    color = Color.Black,
+                    onClick = { mPresenter.quitGame() })
+
+                Composables.DropdownMenuItem(
+                    text = getString(R.string.privacyPolicyString),
+                    color = Color.Black,
+                    onClick = {
+                        PrivacyPolicyUtil.startPrivacyPolicyActivity(
+                            this@MainActivity, 10) },
+                    isDivider = false)
+            }
         }
     }
 

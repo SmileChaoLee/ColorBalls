@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,9 +23,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.smile.colorballs.R
 import com.smile.colorballs.models.TopPlayer
 
 object Composables {
@@ -34,8 +44,52 @@ object Composables {
         fun buttonOkClick()
     }
 
-    private val resources = Resources.getSystem()
+    private val mResources = Resources.getSystem()
+
     var mFontSize = 24.sp
+        set(value) {
+            if (field != value) {
+                field = value
+                menuItemFontSize = value
+            }
+        }
+
+    var menuItemFontSize = mFontSize
+
+    @Composable
+    fun textUnitToDp(sp: TextUnit): Dp {
+        val dp = with(LocalDensity.current) {
+            sp.toDp()
+        }
+        return dp
+    }
+
+    @Composable
+    fun HorDivider(color: Color = Color.Black, thickness: Dp = 2.dp) {
+        HorizontalDivider(color = color,
+            modifier = Modifier.fillMaxWidth().padding(all = 0.dp),
+            thickness = thickness)
+    }
+
+    @Composable
+    fun MenuItemText(text: String, color: Color) {
+        Text(text = text, color = color,
+            fontWeight = FontWeight.Normal, fontStyle = FontStyle.Normal,
+            fontSize = menuItemFontSize)
+    }
+
+    @Composable
+    fun DropdownMenuItem(text: String, color: Color,
+                         onClick: () -> Unit,
+                         isDivider: Boolean = true) {
+        val itemHeight = textUnitToDp((menuItemFontSize.value+3).sp)
+        androidx.compose.material3.DropdownMenuItem(
+            modifier = Modifier.height(height = itemHeight)
+                .padding(all = 0.dp),
+            text = { MenuItemText(text = text, color = color ) },
+            onClick = { onClick() })
+        if (isDivider) HorDivider()
+    }
 
     // For the Top10ComposeActivity
     @Composable
