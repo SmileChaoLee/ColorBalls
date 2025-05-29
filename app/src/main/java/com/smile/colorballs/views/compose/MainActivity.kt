@@ -200,14 +200,6 @@ class MainActivity : MyViewCompose() {
         mPresenter.initGame(isNewGame)
     }
 
-    private fun onClickUndoButton() {
-        ScreenUtil.showToast(
-            this@MainActivity, "Undo",
-            textFontSize,
-            ScreenUtil.FontSize_Pixel_Type,
-            Toast.LENGTH_SHORT)
-    }
-
     private fun onClickSettingButton() {
         ScreenUtil.showToast(
             this@MainActivity, "Setting",
@@ -299,7 +291,8 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun ToolBarMenu(modifier: Modifier) {
-        Log.d(TAG, "ToolBarMenu")
+        Log.d(TAG, "ToolBarMenu.screenX = ${screenX.floatValue}")
+        Log.d(TAG, "ToolBarMenu.screenY = ${screenY.floatValue}")
         Row(modifier = modifier
             .background(color = Color(getColor(R.color.colorPrimary)))) {
             ShowCurrentScore(
@@ -319,7 +312,8 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun ShowCurrentScore(modifier: Modifier) {
-        Log.d(TAG, "ShowCurrentScore")
+        Log.d(TAG, "ShowCurrentScore.screenX = ${screenX.floatValue}")
+        Log.d(TAG, "ShowCurrentScore.screenY = ${screenY.floatValue}")
         Text(text = mPresenter.currentScore.intValue.toString(),
             modifier = modifier,
             color = Color.Red, fontSize = Composables.mFontSize
@@ -329,7 +323,8 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun SHowHighestScore(modifier: Modifier) {
-        Log.d(TAG, "SHowHighestScore")
+        Log.d(TAG, "SHowHighestScore.screenX = ${screenX.floatValue}")
+        Log.d(TAG, "SHowHighestScore.screenY = ${screenY.floatValue}")
         Text(text = mPresenter.highestScore.intValue.toString(),
             modifier = modifier,
             color = Color.White, fontSize = Composables.mFontSize
@@ -338,8 +333,10 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun UndoButton(modifier: Modifier) {
-        Log.d(TAG, "UndoButton")
-        IconButton (onClick = { onClickUndoButton() }, modifier = modifier
+        Log.d(TAG, "UndoButton.screenX = ${screenX.floatValue}")
+        Log.d(TAG, "UndoButton.screenY = ${screenY.floatValue}")
+        IconButton (onClick = { mPresenter.undoTheLast() },
+            modifier = modifier
             /*, colors = IconButtonColors(
                 containerColor = Color.Transparent,
                 contentColor = Color.White,
@@ -355,7 +352,8 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun SettingButton(modifier: Modifier) {
-        Log.d(TAG, "SettingButton")
+        Log.d(TAG, "SettingButton.screenX = ${screenX.floatValue}")
+        Log.d(TAG, "SettingButton.screenY = ${screenY.floatValue}")
         IconButton (onClick = { onClickSettingButton() }, modifier = modifier) {
             Icon(
                 painter = painterResource(R.drawable.setting),
@@ -367,7 +365,8 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun ShowMenuIcon(modifier: Modifier) {
-        Log.d(TAG, "ShowMenuIcon")
+        Log.d(TAG, "ShowMenuIcon.screenX = ${screenX.floatValue}")
+        Log.d(TAG, "ShowMenuIcon.screenY = ${screenY.floatValue}")
         IconButton (onClick = { onClickMenuIcon() }, modifier = modifier) {
             Icon(
                 painter = painterResource(R.drawable.three_dots),
@@ -379,6 +378,8 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun CreateGameView(modifier: Modifier) {
+        Log.d(TAG, "CreateGameView.screenX = ${screenX.floatValue}")
+        Log.d(TAG, "CreateGameView.screenY = ${screenY.floatValue}")
         Log.d(TAG, "CreateGameView.mImageSizeDp = $mImageSizeDp")
         Column(modifier = modifier) {
             Box {
@@ -390,6 +391,8 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun ShowGameGrid() {
+        Log.d(TAG, "ShowGameGrid.screenX = ${screenX.floatValue}")
+        Log.d(TAG, "ShowGameGrid.screenY = ${screenY.floatValue}")
         Log.d(TAG, "ShowGameGrid.mImageSizeDp = $mImageSizeDp")
         boxImage?.let {
             Log.d(TAG, "ShowGameGrid.boxImage.width = ${it.width}")
@@ -425,6 +428,8 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun ShowMessageOnScreen() {
+        Log.d(TAG, "ShowMessageOnScreen.screenX = ${screenX.floatValue}")
+        Log.d(TAG, "ShowMessageOnScreen.screenY = ${screenY.floatValue}")
         val message = mPresenter.screenMessage.value
         if (message.isEmpty()) return
         val gameViewLength = mImageSizeDp * Constants.ROW_COUNTS.toFloat()
@@ -460,6 +465,8 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun ShowColorBall(i: Int, j: Int) {
+        Log.d(TAG, "ShowColorBall.screenX = ${screenX.floatValue}")
+        Log.d(TAG, "ShowColorBall.screenY = ${screenY.floatValue}")
         val ballInfo = mPresenter.gridDataArray[i][j].value
         val ballColor = ballInfo.ballColor
         Log.d(TAG, "ShowColorBall.ballColor = $ballColor")
@@ -494,7 +501,8 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun SHowPortraitAds(modifier: Modifier) {
-        Log.d(TAG, "SHowPortraitAds") // for portrait
+        Log.d(TAG, "SHowPortraitAds.screenX = ${screenX.floatValue}")
+        Log.d(TAG, "SHowPortraitAds.screenY = ${screenY.floatValue}")
         Column(modifier = modifier.background(color = Color.Green),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
@@ -504,7 +512,8 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun SHowLandscapeAds(modifier: Modifier) {
-        Log.d(TAG, "SHowLandscapeAds") // for portrait
+        Log.d(TAG, "SHowLandscapeAds.screenX = ${screenX.floatValue}")
+        Log.d(TAG, "SHowLandscapeAds.screenY = ${screenY.floatValue}")
         Column(modifier = modifier
             .background(color = Color.Green),
             horizontalAlignment = Alignment.CenterHorizontally,
