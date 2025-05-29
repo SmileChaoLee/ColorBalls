@@ -2,6 +2,7 @@ package com.smile.colorballs.views.compose
 
 import android.content.DialogInterface
 import android.content.res.Configuration
+import android.graphics.Bitmap
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
@@ -32,11 +33,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,11 +63,9 @@ class MainActivity : MyViewCompose() {
     companion object {
         private const val TAG = "MainActivity"
     }
-    private val screenX = mutableIntStateOf(0)
-    private val screenY = mutableIntStateOf(0)
-
+    private val screenX = mutableFloatStateOf(0f)
+    private val screenY = mutableFloatStateOf(0f)
     private var interstitialAd: ShowInterstitial? = null
-    private var mImageSizeDp = 0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,7 +92,7 @@ class MainActivity : MyViewCompose() {
         setContent {
             Log.d(TAG, "onCreate.setContent")
             ColorBallsTheme {
-                CreateMainUI()
+                CreateMainUI(screenX.floatValue, screenY.floatValue)
                 Log.d(TAG, "onCreate.setContent.mImageSize = $mImageSizeDp")
                 createGame(isNewGame)
             }
@@ -155,8 +158,8 @@ class MainActivity : MyViewCompose() {
         val screen = ScreenUtil.getScreenSize(this)
         Log.d(TAG, "getScreenSize.screen.x = ${screen.x}")
         Log.d(TAG, "getScreenSize.screen.y = ${screen.y}")
-        screenX.intValue = screen.x
-        screenY.intValue = screen.y
+        screenX.floatValue = screen.x.toFloat()
+        screenY.floatValue = screen.y.toFloat()
     }
 
     private fun initPresenter(state: Bundle?): Boolean {
@@ -222,11 +225,11 @@ class MainActivity : MyViewCompose() {
     }
 
     @Composable
-    fun CreateMainUI() {
-        Log.d(TAG, "createMainUI.screenX.intValue = ${screenX.intValue}")
-        Log.d(TAG, "createMainUI.screenY.intValue = ${screenY.intValue}")
+    fun CreateMainUI(screenX: Float, screenY: Float) {
+        Log.d(TAG, "createMainUI.screenX = $screenX")
+        Log.d(TAG, "createMainUI.screenY = $screenY")
         val orientation = resources.configuration.orientation
-        val maxHeight = screenY.intValue.toFloat()
+        val maxHeight = screenY
         Log.d(TAG, "CreateMainUI.maxHeight = $maxHeight")
         var maxWidth: Float
         var barHeight: Float
@@ -234,38 +237,40 @@ class MainActivity : MyViewCompose() {
         var gHeight: Float
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
             Log.d(TAG, "CreateMainUI.ORIENTATION_PORTRAIT")
-            maxWidth = screenX.intValue.toFloat()
+            maxWidth = screenX
             barHeight = (maxHeight * 1.2f) / 10f
             adHeight = maxHeight * 0.25f
             gHeight = maxHeight - barHeight - adHeight
         } else {
             Log.d(TAG, "CreateMainUI.ORIENTATION_LANDSCAPE")
-            maxWidth = screenX.intValue.toFloat() / 2f
+            maxWidth = screenX / 2f
             barHeight = (maxHeight * 1.2f) / 10f
             adHeight = maxWidth
             gHeight = maxHeight - barHeight
         }
         Log.d(TAG, "CreateMainUI.maxWidth = $maxWidth")
         Log.d(TAG, "CreateMainUI.barHeight = $barHeight")
+        Log.d(TAG, "CreateMainUI.adHeight = $adHeight")
         Log.d(TAG, "CreateMainUI.gHeight = $gHeight")
+
         val gameSize  = if (gHeight > maxWidth) maxWidth else gHeight
         Log.d(TAG, "CreateMainUI.gameSize = $gameSize")
-        val imageSizePx = (gameSize / (Constants.ROW_COUNTS.toFloat())).toInt().toFloat()
+        var imageSizePx = (gameSize / (Constants.ROW_COUNTS.toFloat()))
         Log.d(TAG, "CreateMainUI.imageSizePx = $imageSizePx")
-        var realGameSize = (imageSizePx * Constants.ROW_COUNTS).toInt()
+        var realGameSize = (imageSizePx * Constants.ROW_COUNTS.toFloat())
         Log.d(TAG, "CreateMainUI.realGameSize = $realGameSize")
         var startPadding = ((maxWidth - realGameSize) / 2f).coerceAtLeast(0f)
         Log.d(TAG, "CreateMainUI.startPadding = $startPadding")
 
-        // set size of color balls
-        bitmapDrawableResources(imageSizePx)
-
         mImageSizeDp = ScreenUtil.pixelToDp(imageSizePx)
         Log.d(TAG, "CreateMainUI.mImageSizeDp = $mImageSizeDp")
+        // set size of color balls
+        bitmapDrawableResources()
+
         maxWidth = ScreenUtil.pixelToDp(maxWidth)
         barHeight = ScreenUtil.pixelToDp(barHeight)
-        realGameSize = ScreenUtil.pixelToDp(realGameSize.toFloat()).toInt()
-        startPadding = ScreenUtil.pixelToDp(startPadding)
+        realGameSize = ScreenUtil.pixelToDp(realGameSize)
+        startPadding = ScreenUtil.pixelToDp(startPadding).toInt().toFloat()
         Log.d(TAG, "CreateMainUI.startPadding.pixelToDp = $startPadding")
         adHeight = ScreenUtil.pixelToDp(adHeight)
 
@@ -281,15 +286,14 @@ class MainActivity : MyViewCompose() {
             if (orientation == Configuration.ORIENTATION_PORTRAIT) {
                 // Portrait
                 SHowPortraitAds(
-                    Modifier.height(height = adHeight.dp).fillMaxWidth())
+                    Modifier.fillMaxWidth().fillMaxHeight()
+                        .height(height = adHeight.dp))
             }
         }
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            /*
             SHowLandscapeAds(modifier = Modifier
-                .fillMaxHeight().width(width = adHeight.dp)
+                .fillMaxHeight().fillMaxWidth().width(width = adHeight.dp)
                 .padding(top = 0.dp, start = adHeight.dp, end = 0.dp))
-            */
         }
     }
 
@@ -315,6 +319,7 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun ShowCurrentScore(modifier: Modifier) {
+        Log.d(TAG, "ShowCurrentScore")
         Text(text = mPresenter.currentScore.intValue.toString(),
             modifier = modifier,
             color = Color.Red, fontSize = Composables.mFontSize
@@ -324,6 +329,7 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun SHowHighestScore(modifier: Modifier) {
+        Log.d(TAG, "SHowHighestScore")
         Text(text = mPresenter.highestScore.intValue.toString(),
             modifier = modifier,
             color = Color.White, fontSize = Composables.mFontSize
@@ -332,6 +338,7 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun UndoButton(modifier: Modifier) {
+        Log.d(TAG, "UndoButton")
         IconButton (onClick = { onClickUndoButton() }, modifier = modifier
             /*, colors = IconButtonColors(
                 containerColor = Color.Transparent,
@@ -348,6 +355,7 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun SettingButton(modifier: Modifier) {
+        Log.d(TAG, "SettingButton")
         IconButton (onClick = { onClickSettingButton() }, modifier = modifier) {
             Icon(
                 painter = painterResource(R.drawable.setting),
@@ -359,6 +367,7 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun ShowMenuIcon(modifier: Modifier) {
+        Log.d(TAG, "ShowMenuIcon")
         IconButton (onClick = { onClickMenuIcon() }, modifier = modifier) {
             Icon(
                 painter = painterResource(R.drawable.three_dots),
@@ -370,7 +379,7 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun CreateGameView(modifier: Modifier) {
-        Log.d(TAG, "CreateGameView.mImageSize = $mImageSizeDp")
+        Log.d(TAG, "CreateGameView.mImageSizeDp = $mImageSizeDp")
         Column(modifier = modifier) {
             Box {
                 ShowGameGrid()
@@ -381,21 +390,28 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun ShowGameGrid() {
-        Log.d(TAG, "ShowGameGrid.mImageSize = $mImageSizeDp")
-        val width0 = (mImageSizeDp * (Constants.ROW_COUNTS.toFloat()))
+        Log.d(TAG, "ShowGameGrid.mImageSizeDp = $mImageSizeDp")
+        boxImage?.let {
+            Log.d(TAG, "ShowGameGrid.boxImage.width = ${it.width}")
+            Log.d(TAG, "ShowGameGrid.boxImage.height = ${it.height}")
+        }
+        // val width0 = (mImageSizeDp * (Constants.ROW_COUNTS.toFloat()))
         Column {
             for (i in 0 until Constants.ROW_COUNTS) {
-                Row(modifier = Modifier.weight(1f).width(width = width0.dp)
-                    .fillMaxWidth()) {
+                // Row(modifier = Modifier.width(width0.dp)) {
+                Row {
                     for (j in 0 until Constants.ROW_COUNTS) {
-                        Box(modifier = Modifier.weight(1f)
+                        Box(Modifier
                             .clickable {
                             mPresenter.drawBallsAndCheckListener(i, j)
                         }) {
                             Image(
-                                modifier = Modifier.size(mImageSizeDp.dp),
-                                painter = painterResource(id = R.drawable.box_image),
+                                modifier = Modifier.size(mImageSizeDp.dp)
+                                    .padding(all = 0.dp),
+                                // painter = painterResource(id = R.drawable.box_image),
                                 // painter = rememberDrawablePainter(drawable = boxImage),
+                                // bitmap = boxImage!!.asImageBitmap(),
+                                painter = BitmapPainter(boxImage!!.asImageBitmap()),
                                 contentDescription = "",
                                 contentScale = ContentScale.FillBounds
                             )
@@ -447,31 +463,31 @@ class MainActivity : MyViewCompose() {
         val ballInfo = mPresenter.gridDataArray[i][j].value
         val ballColor = ballInfo.ballColor
         Log.d(TAG, "ShowColorBall.ballColor = $ballColor")
-        Log.d(TAG, "ShowColorBall.isAnimation = ${ballInfo.isAnimation}")
+        val isAnimation = ballInfo.isAnimation
+        Log.d(TAG, "ShowColorBall.isAnimation = $isAnimation")
+        val isReSize = ballInfo.isResize
+        Log.d(TAG, "ShowColorBall.isReSize = $isReSize")
         if (ballColor == 0) return  // no showing ball
-        /*
-        val whichBall = ballInfo.whichBall
-        val ratio: Float = when(whichBall) {
-            WhichBall.BALL-> { 1.0f }
-            WhichBall.OVAL_BALL-> { 0.7f }
-            WhichBall.NEXT_BALL-> { 0.6f }
-            else -> { 1.0f }    // WhichBall.NO_BALL
+        val bitmap: Bitmap? = when(ballInfo.whichBall) {
+            WhichBall.BALL-> { colorBallMap.getValue(ballColor) }
+            WhichBall.OVAL_BALL-> { colorOvalBallMap.getValue(ballColor) }
+            WhichBall.NEXT_BALL-> { colorNextBallMap.getValue(ballColor) }
+            WhichBall.NO_BALL -> { null }
         }
-        */
-        val ratio = ballInfo.resizeRatio
-        val drawableId = colorBallMap.getValue(ballColor)
         Column(modifier = Modifier.size(mImageSizeDp.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
-            val modifier = Modifier.background(color = Color.Transparent)
-                .size((mImageSizeDp*ratio).dp).padding(all = 0.dp)
-            val isAnimation = ballInfo.isAnimation
-            Log.d(TAG, "ShowColorBall.ballInfo.isAnimation = $isAnimation")
+            var modifier = Modifier.background(color = Color.Transparent)
+            var scale: ContentScale = ContentScale.Inside
+            if (isReSize) {
+                modifier = modifier.size(mImageSizeDp.dp).padding(all = 0.dp)
+                scale = ContentScale.Fit
+            }
             Image(
-                painter = painterResource(id = drawableId),
+                painter = BitmapPainter(bitmap!!.asImageBitmap()),
                 contentDescription = "",
                 modifier = modifier,
-                contentScale = ContentScale.FillBounds
+                contentScale = scale
             )
         }
     }

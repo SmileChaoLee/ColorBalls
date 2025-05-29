@@ -2,6 +2,7 @@ package com.smile.colorballs.views.compose
 
 import android.content.DialogInterface
 import android.graphics.Bitmap
+import android.graphics.Bitmap.createScaledBitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.Drawable
@@ -10,7 +11,6 @@ import android.util.Log
 import android.view.Gravity
 import android.view.Window
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AlertDialog
@@ -18,6 +18,7 @@ import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.interfaces.PresentViewCompose
 import com.smile.colorballs.presenters.PresenterCompose
+import com.smile.colorballs.views.compose.MainActivity.Companion
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment.DialogButtonListener
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
@@ -41,21 +42,20 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
     protected var textFontSize = 0f
     protected lateinit var mPresenter: PresenterCompose
 
-    /*
-    protected var boxImage: Drawable? = null
-    protected val colorBallMap: HashMap<Int, Drawable> = HashMap()
-    protected val colorOvalBallMap: HashMap<Int, Drawable> = HashMap()
-    protected val colorNextBallMap: HashMap<Int, Drawable> = HashMap()
-    */
-
-    protected val colorBallMap: HashMap<Int, Int> = HashMap()
+    protected var mImageSizeDp = 0f
+    protected var boxImage: Bitmap? = null
+    protected val colorBallMap: HashMap<Int, Bitmap> = HashMap()
+    protected val colorOvalBallMap: HashMap<Int, Bitmap> = HashMap()
+    protected val colorNextBallMap: HashMap<Int, Bitmap> = HashMap()
 
     private var sureSaveDialog: AlertDialogFragment? = null
     private var sureLoadDialog: AlertDialogFragment? = null
     private var gameOverDialog: AlertDialogFragment? = null
     protected var saveScoreAlertDialog: AlertDialog? = null
 
-    protected fun bitmapDrawableResources(imageSizePx: Float) {
+    protected fun bitmapDrawableResources() {
+        val imageSizePx = ScreenUtil.dpToPixel(mImageSizeDp)
+        Log.d(TAG, "bitmapDrawableResources.mImageSizeDp = $mImageSizeDp")
         Log.w(TAG, "bitmapDrawableResources.imageSizePx = $imageSizePx")
         val ballWidth = imageSizePx.toInt()
         val ballHeight = imageSizePx.toInt()
@@ -64,92 +64,63 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
         val ovalBallWidth = (imageSizePx * 0.9f).toInt()
         val ovalBallHeight = (imageSizePx * 0.7f).toInt()
 
-        colorBallMap[Constants.COLOR_RED] = R.drawable.redball
-        colorBallMap[Constants.COLOR_GREEN] = R.drawable.greenball
-        colorBallMap[Constants.COLOR_BLUE] = R.drawable.blueball
-        colorBallMap[Constants.COLOR_MAGENTA] = R.drawable.magentaball
-        colorBallMap[Constants.COLOR_YELLOW] = R.drawable.yellowball
-        colorBallMap[Constants.COLOR_CYAN] = R.drawable.cyanball
-
-        /*
-        BitmapFactory.decodeResource(resources, R.drawable.box_image)?.let { bm ->
-            bitmapToDrawable(bm, ballWidth, ballHeight)?.let { draw ->
-                boxImage = draw
-            }
+        BitmapFactory.decodeResource(resources, R.drawable.box_image).let { bm ->
+            boxImage = createScaledBitmap(bm, ballWidth, ballHeight, true)
         }
 
         BitmapFactory.decodeResource(resources, R.drawable.redball)?.let { bm ->
-            bitmapToDrawable(bm, ballWidth, ballHeight)?.let { draw ->
-                colorBallMap[Constants.COLOR_RED] = draw
-            }
-            bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
-                colorNextBallMap[Constants.COLOR_RED] = draw
-            }
-            bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
-                colorOvalBallMap[Constants.COLOR_RED] = draw
-            }
+            colorBallMap[Constants.COLOR_RED] =
+                createScaledBitmap(bm, ballWidth, ballHeight, true)
+            colorNextBallMap[Constants.COLOR_RED] =
+                createScaledBitmap(bm, nextBallWidth, nextBallHeight, true)
+            colorOvalBallMap[Constants.COLOR_RED] =
+                createScaledBitmap(bm, ovalBallWidth, ovalBallHeight, true)
         }
 
         BitmapFactory.decodeResource(resources, R.drawable.greenball)?.let { bm ->
-            bitmapToDrawable(bm, ballWidth, ballHeight)?.let { draw ->
-                colorBallMap[Constants.COLOR_GREEN] = draw
-            }
-            bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
-                colorNextBallMap[Constants.COLOR_GREEN] = draw
-            }
-            bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
-                colorOvalBallMap[Constants.COLOR_GREEN] = draw
-            }
+            colorBallMap[Constants.COLOR_GREEN] =
+                createScaledBitmap(bm, ballWidth, ballHeight, true)
+            colorNextBallMap[Constants.COLOR_GREEN] =
+                createScaledBitmap(bm, nextBallWidth, nextBallHeight, true)
+            colorOvalBallMap[Constants.COLOR_GREEN] =
+                createScaledBitmap(bm, ovalBallWidth, ovalBallHeight, true)
         }
 
         BitmapFactory.decodeResource(resources, R.drawable.blueball)?.let { bm ->
-            bitmapToDrawable(bm, ballWidth, ballHeight)?.let { draw ->
-                colorBallMap[Constants.COLOR_BLUE] = draw
-            }
-            bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
-                colorNextBallMap[Constants.COLOR_BLUE] = draw
-            }
-            bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
-                colorOvalBallMap[Constants.COLOR_BLUE] = draw
-            }
+            colorBallMap[Constants.COLOR_BLUE] =
+                createScaledBitmap(bm, ballWidth, ballHeight, true)
+            colorNextBallMap[Constants.COLOR_BLUE] =
+                createScaledBitmap(bm, nextBallWidth, nextBallHeight, true)
+            colorOvalBallMap[Constants.COLOR_BLUE] =
+                createScaledBitmap(bm, ovalBallWidth, ovalBallHeight, true)
         }
 
         BitmapFactory.decodeResource(resources, R.drawable.magentaball)?.let { bm ->
-            bitmapToDrawable(bm, ballWidth, ballHeight)?.let { draw ->
-                colorBallMap[Constants.COLOR_MAGENTA] = draw
-            }
-            bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
-                colorNextBallMap[Constants.COLOR_MAGENTA] = draw
-            }
-            bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
-                colorOvalBallMap[Constants.COLOR_MAGENTA] = draw
-            }
+            colorBallMap[Constants.COLOR_MAGENTA] =
+                createScaledBitmap(bm, ballWidth, ballHeight, true)
+            colorNextBallMap[Constants.COLOR_MAGENTA] =
+                createScaledBitmap(bm, nextBallWidth, nextBallHeight, true)
+            colorOvalBallMap[Constants.COLOR_MAGENTA] =
+                createScaledBitmap(bm, ovalBallWidth, ovalBallHeight, true)
         }
 
         BitmapFactory.decodeResource(resources, R.drawable.yellowball)?.let { bm ->
-            bitmapToDrawable(bm, ballWidth, ballHeight)?.let { draw ->
-                colorBallMap[Constants.COLOR_YELLOW] = draw
-            }
-            bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
-                colorNextBallMap[Constants.COLOR_YELLOW] = draw
-            }
-            bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
-                colorOvalBallMap[Constants.COLOR_YELLOW] = draw
-            }
+            colorBallMap[Constants.COLOR_YELLOW] =
+                createScaledBitmap(bm, ballWidth, ballHeight, true)
+            colorNextBallMap[Constants.COLOR_YELLOW] =
+                createScaledBitmap(bm, nextBallWidth, nextBallHeight, true)
+            colorOvalBallMap[Constants.COLOR_YELLOW] =
+                createScaledBitmap(bm, ovalBallWidth, ovalBallHeight, true)
         }
 
         BitmapFactory.decodeResource(resources, R.drawable.cyanball)?.let { bm ->
-            bitmapToDrawable(bm, ballWidth, ballHeight)?.let { draw ->
-                colorBallMap[Constants.COLOR_CYAN] = draw
-            }
-            bitmapToDrawable(bm, nextBallWidth, nextBallHeight)?.let { draw ->
-                colorNextBallMap[Constants.COLOR_CYAN] = draw
-            }
-            bitmapToDrawable(bm, ovalBallWidth, ovalBallHeight)?.let { draw ->
-                colorOvalBallMap[Constants.COLOR_CYAN] = draw
-            }
+            colorBallMap[Constants.COLOR_CYAN] =
+                createScaledBitmap(bm, ballWidth, ballHeight, true)
+            colorNextBallMap[Constants.COLOR_CYAN] =
+                createScaledBitmap(bm, nextBallWidth, nextBallHeight, true)
+            colorOvalBallMap[Constants.COLOR_CYAN] =
+                createScaledBitmap(bm, ovalBallWidth, ovalBallHeight, true)
         }
-        */
     }
 
     // implementing PresentView

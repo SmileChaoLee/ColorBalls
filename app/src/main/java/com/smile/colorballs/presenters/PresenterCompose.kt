@@ -98,6 +98,7 @@ class PresenterCompose(
         ColorBallsApp.isShowingLoadingMessage = mGameProp.isShowingLoadingMessage
         ColorBallsApp.isProcessingJob = mGameProp.isProcessingJob
         highestScore.intValue = presentView.getHighestScore()
+        currentScore.intValue = mGameProp.currentScore
         // displayGameView()
         if (isNewGame) {    // new game
             displayGridDataNextCells()
@@ -637,17 +638,17 @@ class PresenterCompose(
 
     private fun drawBall(i: Int, j: Int, color: Int) {
         Log.d(TAG, "drawBall.($i, $j), color = $color")
-        gridDataArray[i][j].value = ColorBallInfo(color)
+        gridDataArray[i][j].value = ColorBallInfo(color, WhichBall.BALL)
     }
 
     private fun drawOval(i: Int, j: Int, color: Int) {
         Log.d(TAG, "drawOval.($i, $j), color = $color")
-        gridDataArray[i][j].value = ColorBallInfo(color, 0.7f)
+        gridDataArray[i][j].value = ColorBallInfo(color, WhichBall.OVAL_BALL)
     }
 
     private fun drawNextBall(i: Int, j: Int, color: Int) {
         Log.d(TAG, "drawNextBall.($i, $j), color = $color")
-        gridDataArray[i][j].value = ColorBallInfo(color, 0.6f)
+        gridDataArray[i][j].value = ColorBallInfo(color, WhichBall.NEXT_BALL)
     }
 
     private fun displayNextBallsView() {

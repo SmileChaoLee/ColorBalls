@@ -6,7 +6,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class ColorBallInfo(var ballColor: Int = 0,
-                         var resizeRatio: Float = 1.0f,
-                         var whichBall: WhichBall = WhichBall.BALL,
-                         var isAnimation: Boolean = false)
+                         var whichBall: WhichBall = WhichBall.NO_BALL,
+                         var isAnimation: Boolean = false,
+                         var isResize: Boolean = false)
     :Parcelable
