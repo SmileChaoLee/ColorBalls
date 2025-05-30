@@ -18,7 +18,6 @@ import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.interfaces.PresentViewCompose
 import com.smile.colorballs.presenters.PresenterCompose
-import com.smile.colorballs.views.compose.MainActivity.Companion
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment.DialogButtonListener
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
@@ -320,7 +319,6 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
             ) { dialog: DialogInterface, _: Int ->
                 dialog.dismiss()
                 quitOrNewGame(entryPoint)
-                mPresenter.setSaveScoreAlertDialogState(entryPoint, false)
                 // saveScoreAlertDialog = null
             }
             it.setButton(DialogInterface.BUTTON_POSITIVE,
@@ -329,7 +327,6 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
                 mPresenter.saveScore(et.text.toString(), score)
                 dialog.dismiss()
                 quitOrNewGame(entryPoint)
-                mPresenter.setSaveScoreAlertDialogState(entryPoint, false)
                 // saveScoreAlertDialog = null
             }
             it.setOnShowListener { style ->

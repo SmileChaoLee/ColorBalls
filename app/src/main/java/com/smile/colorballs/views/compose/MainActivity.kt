@@ -4,7 +4,6 @@ import android.content.DialogInterface
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Typeface
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -21,7 +20,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,12 +27,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
-import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -51,18 +46,14 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.os.BundleCompat
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
 import com.smile.colorballs.shared_composables.Composables
 import com.smile.colorballs.shared_composables.ui.theme.ColorBallsTheme
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
-import com.smile.colorballs.models.GameProp
-import com.smile.colorballs.models.GridData
 import com.smile.colorballs.presenters.PresenterCompose
 import com.smile.smilelibraries.models.ExitAppTimer
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil
@@ -88,7 +79,10 @@ class MainActivity : MyViewCompose() {
                 0.0f)
         Composables.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
 
-        val isNewGame = initPresenter(savedInstanceState)
+        // val isNewGame = initPresenter(savedInstanceState)
+        Log.d(TAG, "onCreate.instantiate PresenterCompose")
+        mPresenter = PresenterCompose(this@MainActivity)
+        createGame(savedInstanceState)
 
         Log.d(TAG, "onCreate.interstitialAd")
         (application as ColorBallsApp).let {
@@ -104,7 +98,7 @@ class MainActivity : MyViewCompose() {
             ColorBallsTheme {
                 CreateMainUI(screenX.floatValue, screenY.floatValue)
                 Log.d(TAG, "onCreate.setContent.mImageSize = $mImageSizeDp")
-                createGame(isNewGame)
+                // createGame(savedInstanceState)
             }
         }
 
@@ -172,6 +166,7 @@ class MainActivity : MyViewCompose() {
         screenY.floatValue = screen.y.toFloat()
     }
 
+    /*
     private fun initPresenter(state: Bundle?): Boolean {
         // restore instance state
         val isNewGame: Boolean
@@ -203,11 +198,12 @@ class MainActivity : MyViewCompose() {
 
         return isNewGame
     }
+    */
 
-    private fun createGame(isNewGame: Boolean) {
+    private fun createGame(state: Bundle?) {
         Log.d(TAG, "CreateGame")
         saveScoreAlertDialog = null
-        mPresenter.initGame(isNewGame)
+        mPresenter.initGame(state)
     }
 
     private fun onClickSettingButton() {
@@ -228,7 +224,7 @@ class MainActivity : MyViewCompose() {
         var maxWidth: Float
         var barHeight: Float
         var adHeight: Float
-        var gHeight: Float
+        val gHeight: Float
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
             Log.d(TAG, "CreateMainUI.ORIENTATION_PORTRAIT")
             maxWidth = screenX
@@ -249,7 +245,7 @@ class MainActivity : MyViewCompose() {
 
         val gameSize  = if (gHeight > maxWidth) maxWidth else gHeight
         Log.d(TAG, "CreateMainUI.gameSize = $gameSize")
-        var imageSizePx = (gameSize / (Constants.ROW_COUNTS.toFloat()))
+        val imageSizePx = (gameSize / (Constants.ROW_COUNTS.toFloat()))
         Log.d(TAG, "CreateMainUI.imageSizePx = $imageSizePx")
         var realGameSize = (imageSizePx * Constants.ROW_COUNTS.toFloat())
         Log.d(TAG, "CreateMainUI.realGameSize = $realGameSize")
@@ -388,39 +384,59 @@ class MainActivity : MyViewCompose() {
                 Composables.DropdownMenuItem(
                     text = getString(R.string.globalTop10Str),
                     color = Color.Black,
-                    onClick = { /*showTop10Scores(false)*/ })
+                    onClick = {
+                        expanded = false
+                        /*showTop10Scores(false)*/
+                    })
 
                 Composables.DropdownMenuItem(
                     text = getString(R.string.localTop10Score),
                     color = Color.Black,
-                    onClick = { /*showTop10Scores(true)*/ })
+                    onClick = {
+                        expanded = false
+                        /*showTop10Scores(true)*/
+                    })
 
                 Composables.DropdownMenuItem(
                     text = getString(R.string.saveGameStr),
                     color = Color.Black,
-                    onClick = { mPresenter.saveGame() })
+                    onClick = {
+                        expanded = false
+                        mPresenter.saveGame()
+                    })
 
                 Composables.DropdownMenuItem(
                     text = getString(R.string.loadGameStr),
                     color = Color.Black,
-                    onClick = { mPresenter.loadGame() })
+                    onClick = {
+                        expanded = false
+                        mPresenter.loadGame()
+                    })
 
                 Composables.DropdownMenuItem(
                     text = getString(R.string.newGame),
                     color = Color.Black,
-                    onClick = { mPresenter.newGame() })
+                    onClick = {
+                        expanded = false
+                        mPresenter.newGame()
+                    })
 
                 Composables.DropdownMenuItem(
                     text = getString(R.string.quitGame),
                     color = Color.Black,
-                    onClick = { mPresenter.quitGame() })
+                    onClick = {
+                        expanded = false
+                        mPresenter.quitGame()
+                    })
 
                 Composables.DropdownMenuItem(
                     text = getString(R.string.privacyPolicyString),
                     color = Color.Black,
                     onClick = {
+                        expanded = false
                         PrivacyPolicyUtil.startPrivacyPolicyActivity(
-                            this@MainActivity, 10) },
+                            this@MainActivity, 10)
+                              },
                     isDivider = false)
             }
         }
@@ -591,8 +607,10 @@ class MainActivity : MyViewCompose() {
             exitApplication()
         } else if (entryPoint == 1) {
             //  NEW GAME
-            initPresenter(null)
+            // initPresenter(null)
+            mPresenter.initGame(null)
         }
+        mPresenter.setSaveScoreAlertDialogState(entryPoint, false)
         ColorBallsApp.isProcessingJob = false
     }
 

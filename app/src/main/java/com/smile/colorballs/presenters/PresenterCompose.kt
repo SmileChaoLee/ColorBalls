@@ -1,12 +1,14 @@
 package com.smile.colorballs.presenters
 
 import android.graphics.Point
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.os.BundleCompat
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
@@ -21,8 +23,7 @@ import java.io.IOException
 import java.nio.ByteBuffer
 
 class PresenterCompose(
-    private val presentView: PresentViewCompose,
-    val mGameProp: GameProp, val mGridData: GridData) {
+    private val presentView: PresentViewCompose) {
 
     private interface ShowScoreCallback {
         fun sCallback()
@@ -33,6 +34,8 @@ class PresenterCompose(
     private val movingBallHandler = Handler(Looper.getMainLooper())
     private val showingScoreHandler = Handler(Looper.getMainLooper())
 
+    lateinit var mGameProp: GameProp
+    lateinit var mGridData: GridData
     val currentScore = mutableIntStateOf(0)
     val highestScore = mutableIntStateOf(0)
     val screenMessage = mutableStateOf("")
@@ -93,14 +96,16 @@ class PresenterCompose(
         }
     }
 
-    fun initGame(isNewGame: Boolean) {
-        Log.d(TAG, "initGame.isNewGame = $isNewGame")
+    fun initGame(state: Bundle?) {
+        Log.d(TAG, "initGame.state = $state")
+        val isNewGame = restoreState(state)
         ColorBallsApp.isShowingLoadingMessage = mGameProp.isShowingLoadingMessage
         ColorBallsApp.isProcessingJob = mGameProp.isProcessingJob
         highestScore.intValue = presentView.getHighestScore()
         currentScore.intValue = mGameProp.currentScore
         // displayGameView()
         if (isNewGame) {    // new game
+            displayGameGridView()
             displayGridDataNextCells()
         } else {
             displayGameView()
@@ -129,6 +134,36 @@ class PresenterCompose(
                 lastPartOfInitialGame()
             }
         }
+    }
+
+    private fun restoreState(state: Bundle?): Boolean {
+        val isNewGame: Boolean
+        var gameProp: GameProp? = null
+        var gridData: GridData? = null
+        state?.let {
+            Log.d(TAG,"restoreState.state not null then restore the state")
+            gameProp =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                    BundleCompat.getParcelable(it, Constants.GAME_PROP_TAG, GameProp::class.java)
+                else it.getParcelable(Constants.GAME_PROP_TAG)
+            gridData =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                    BundleCompat.getParcelable(it, Constants.GRID_DATA_TAG, GridData::class.java)
+                else it.getParcelable(Constants.GRID_DATA_TAG)
+        }
+        if (gameProp == null || gridData == null) {
+            Log.d(TAG, "restoreState.prop or grid is null, new game")
+            gameProp = GameProp()
+            gridData = GridData()
+            isNewGame = true
+        } else {
+            isNewGame = false
+        }
+        Log.d(TAG, "restoreState.isNewGame = $isNewGame")
+        mGameProp = gameProp!!
+        mGridData = gridData!!
+
+        return isNewGame
     }
 
     private fun lastPartOfInitialGame() {
@@ -283,10 +318,12 @@ class PresenterCompose(
     }
 
     fun newGame() {
+        stopBouncyAnimation()
         presentView.showSaveScoreAlertDialog(1, mGameProp.currentScore)
     }
 
     fun quitGame() {
+        stopBouncyAnimation()
         presentView.showSaveScoreAlertDialog(0, mGameProp.currentScore)
     }
 
@@ -884,7 +921,7 @@ class PresenterCompose(
     }
 
     companion object {
-        private const val TAG = "Presenter"
+        private const val TAG = "PresenterCompose"
         private const val NUM_SAVE_FILENAME = "NumSavedGame"
         private const val SAVE_FILENAME = "SavedGame"
     }
