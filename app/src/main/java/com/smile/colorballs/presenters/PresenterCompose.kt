@@ -33,9 +33,9 @@ class PresenterCompose(
     private val bouncyBallHandler = Handler(Looper.getMainLooper())
     private val movingBallHandler = Handler(Looper.getMainLooper())
     private val showingScoreHandler = Handler(Looper.getMainLooper())
+    private var mGameProp = GameProp()
+    private var mGridData = GridData()
 
-    lateinit var mGameProp: GameProp
-    lateinit var mGridData: GridData
     val currentScore = mutableIntStateOf(0)
     val highestScore = mutableIntStateOf(0)
     val screenMessage = mutableStateOf("")
@@ -96,8 +96,20 @@ class PresenterCompose(
         }
     }
 
+    private fun setData(prop: GameProp, gData: GridData) {
+        Log.d(TAG, "setData")
+        mGameProp = prop
+        mGridData = gData
+    }
+
+    private fun initData() {
+        Log.d(TAG, "initData")
+        mGameProp.initialize()
+        mGridData.initialize()
+    }
+
     fun initGame(state: Bundle?) {
-        Log.d(TAG, "initGame.state = $state")
+        Log.d(TAG, "initGame.isNewGame = $state")
         val isNewGame = restoreState(state)
         ColorBallsApp.isShowingLoadingMessage = mGameProp.isShowingLoadingMessage
         ColorBallsApp.isProcessingJob = mGameProp.isProcessingJob
@@ -153,15 +165,14 @@ class PresenterCompose(
         }
         if (gameProp == null || gridData == null) {
             Log.d(TAG, "restoreState.prop or grid is null, new game")
-            gameProp = GameProp()
-            gridData = GridData()
+            initData()
             isNewGame = true
         } else {
+            Log.d(TAG, "restoreState.gridData!! = ${gridData!!}")
+            setData(gameProp!!, gridData!!)
             isNewGame = false
         }
         Log.d(TAG, "restoreState.isNewGame = $isNewGame")
-        mGameProp = gameProp!!
-        mGridData = gridData!!
 
         return isNewGame
     }
@@ -197,6 +208,7 @@ class PresenterCompose(
     fun onSaveInstanceState(outState: Bundle) {
         mGameProp.isShowingLoadingMessage = ColorBallsApp.isShowingLoadingMessage
         mGameProp.isProcessingJob = ColorBallsApp.isProcessingJob
+        Log.d(TAG, "onSaveInstanceState.mGridData!! = $mGridData")
         outState.putParcelable(Constants.GAME_PROP_TAG, mGameProp)
         outState.putParcelable(Constants.GRID_DATA_TAG, mGridData)
     }
@@ -398,12 +410,9 @@ class PresenterCompose(
             // save values on 9x9 grid
             for (i in 0 until Constants.ROW_COUNTS) {
                 for (j in 0 until Constants.ROW_COUNTS) {
-                    // Log.d(TAG,"startSavingGame.gridData.getCellValue(i, j) = "
-                    //         + mGridData.getCellValue(i, j))
-                    // foStream.write(mGridData.getCellValue(i, j))
                     Log.d(TAG,"startSavingGame.gridData.getCellValue(i, j) = "
-                            + gridDataArray[i][j].value.ballColor)
-                    foStream.write(gridDataArray[i][j].value.ballColor)
+                            + mGridData.getCellValue(i, j))
+                    foStream.write(mGridData.getCellValue(i, j))
                 }
             }
             // save current score
@@ -614,8 +623,7 @@ class PresenterCompose(
         }
         val numBalls = intArrayOf(0, 0, 0, 0, 0, 0)
         for (point in linkedLine) {
-            // when (mGridData.getCellValue(point.x, point.y)) {
-            when (gridDataArray[point.x][point.y].value.ballColor) {
+            when (mGridData.getCellValue(point.x, point.y)) {
                 Constants.COLOR_RED -> numBalls[0]++
                 Constants.COLOR_GREEN -> numBalls[1]++
                 Constants.COLOR_BLUE -> numBalls[2]++
@@ -789,13 +797,23 @@ class PresenterCompose(
             Log.w(TAG, "drawBallAlongPath.sizeOfPathPoint == 0")
             return
         }
+        for (i in 0 until Constants.ROW_COUNTS) {
+            for (j in 0 until Constants.ROW_COUNTS) {
+                Log.d(TAG, "drawBallAlongPath.getCellValue($i, $j) = " +
+                        "${mGridData.getCellValue(i, j)}")
+            }
+        }
+        for (item in mGridData.getPathPoint()) {
+            Log.d(TAG, "drawBallAlongPath.getPathPoint.x = ${item.x}")
+            Log.d(TAG, "drawBallAlongPath.getPathPoint.y= ${item.y}")
+        }
+        val beginI = mGridData.getPathPoint()[sizeOfPath - 1].x
+        val beginJ = mGridData.getPathPoint()[sizeOfPath - 1].y
+        Log.d(TAG, "drawBallAlongPath.beginI = $beginI, beginJ = $beginJ")
         val targetI = mGridData.getPathPoint()[0].x // the target point
         val targetJ = mGridData.getPathPoint()[0].y // the target point
         Log.d(TAG, "drawBallAlongPath.targetI = $targetI, targetJ = $targetJ")
-        val beginI = mGridData.getPathPoint()[sizeOfPath - 1].x
-        val beginJ = mGridData.getPathPoint()[sizeOfPath - 1].y
-        // val color = mGridData.getCellValue(beginI, beginJ)
-        val color = gridDataArray[beginI][beginJ].value.ballColor
+        val color = mGridData.getCellValue(beginI, beginJ)
         Log.d(TAG, "drawBallAlongPath.color = $color")
 
         val tempList = ArrayList(mGridData.getPathPoint())
@@ -804,8 +822,6 @@ class PresenterCompose(
             var countDown: Int = tempList.size * 2 - 1
             @Synchronized
             override fun run() {
-                mGameProp.threadCompleted[0] = false
-                mGameProp.isBallMoving = true
                 if (countDown >= 2) {   // eliminate start point
                     val i = countDown / 2
                     drawBall(tempList[i].x, tempList[i].y, if (ballYN) color else 0)
@@ -817,7 +833,8 @@ class PresenterCompose(
                     mGridData.setCellValue(targetI, targetJ, color)
                     drawBall(targetI, targetJ, color)
                     mGridData.regenerateNextCellIndices(Point(targetI, targetJ))
-                    //  check if there are more than five balls with same color connected together
+                    //  check if there are more than five balls
+                    //  with same color connected together
                     if (mGridData.checkMoreThanFive(targetI, targetJ)) {
                         mGameProp.lastGotScore = calculateScore(mGridData.getLightLine())
                         mGameProp.undoScore = mGameProp.currentScore
@@ -831,20 +848,25 @@ class PresenterCompose(
                                     Log.d(TAG, "drawBallAlongPath.ShowScoreCallback.sCallback")
                                     mGameProp.threadCompleted[0] = true
                                     mGameProp.isBallMoving = false
-                                    Log.d(TAG, "drawBallAlongPath.run() finished.")
+                                    Log.d(TAG, "drawBallAlongPath.run().sCallback finished.")
                                 }
                             })
-                        Log.d(TAG, "drawBallAlongPath.showScore()")
+                        Log.d(TAG, "drawBallAlongPath.showingScoreHandler.post")
                         showingScoreHandler.post(showScore)
                     } else {
-                        displayGridDataNextCells() // has a problem
-                        mGameProp.threadCompleted[0] = true
                         mGameProp.isBallMoving = false
+                        Log.d(TAG, "drawBallAlongPath.run() isBallMoving" +
+                                " = ${mGameProp.isBallMoving}")
+                        mGameProp.threadCompleted[0] = true
+                        displayGridDataNextCells() // has a problem
                         Log.d(TAG, "drawBallAlongPath.run() finished.")
                     }
                 }
             }
         }
+        Log.d(TAG, "drawBallAlongPath.movingBallHandler.post")
+        mGameProp.threadCompleted[0] = false
+        mGameProp.isBallMoving = true
         movingBallHandler.post(runnablePath)
     }
 

@@ -34,6 +34,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -70,7 +71,7 @@ class MainActivity : MyViewCompose() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        Log.d(TAG, "$TAG.onCreate")
         Log.d(TAG, "onCreate.textFontSize")
         textFontSize = ScreenUtil.suitableFontSize(
                 this, ScreenUtil.getDefaultTextSizeFromTheme(this,
@@ -79,17 +80,11 @@ class MainActivity : MyViewCompose() {
                 0.0f)
         Composables.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
 
-        // val isNewGame = initPresenter(savedInstanceState)
-        Log.d(TAG, "onCreate.instantiate PresenterCompose")
-        mPresenter = PresenterCompose(this@MainActivity)
-        createGame(savedInstanceState)
-
         Log.d(TAG, "onCreate.interstitialAd")
         (application as ColorBallsApp).let {
             interstitialAd = ShowInterstitial(this, it.facebookAds,
                 it.googleInterstitialAd)
         }
-
         Log.d(TAG, "onCreate.getScreenSize()")
         getScreenSize()
 
@@ -98,7 +93,10 @@ class MainActivity : MyViewCompose() {
             ColorBallsTheme {
                 CreateMainUI(screenX.floatValue, screenY.floatValue)
                 Log.d(TAG, "onCreate.setContent.mImageSize = $mImageSizeDp")
-                // createGame(savedInstanceState)
+                LaunchedEffect(Unit) {
+                    Log.d(TAG, "onCreate.setContent.LaunchedEffect")
+                    mPresenter.initGame(savedInstanceState)
+                }
             }
         }
 
@@ -164,46 +162,6 @@ class MainActivity : MyViewCompose() {
         Log.d(TAG, "getScreenSize.screen.y = ${screen.y}")
         screenX.floatValue = screen.x.toFloat()
         screenY.floatValue = screen.y.toFloat()
-    }
-
-    /*
-    private fun initPresenter(state: Bundle?): Boolean {
-        // restore instance state
-        val isNewGame: Boolean
-        var gameProp: GameProp? = null
-        var gridData: GridData? = null
-        state?.let {
-            Log.d(TAG,"initPresenter.state not null then restore the state")
-            gameProp =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                    BundleCompat.getParcelable(it, Constants.GAME_PROP_TAG, GameProp::class.java)
-                else it.getParcelable(Constants.GAME_PROP_TAG)
-            gridData =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                    BundleCompat.getParcelable(it, Constants.GRID_DATA_TAG, GridData::class.java)
-                else it.getParcelable(Constants.GRID_DATA_TAG)
-        }
-        if (gameProp == null || gridData == null) {
-            Log.d(TAG, "initPresenter.prop or grid is null, new game")
-            gameProp = GameProp()
-            gridData = GridData()
-            isNewGame = true
-        } else {
-            isNewGame = false
-        }
-
-        Log.d(TAG, "initPresenter.isNewGame = $isNewGame")
-
-        mPresenter = PresenterCompose(this@MainActivity, gameProp!!, gridData!!)
-
-        return isNewGame
-    }
-    */
-
-    private fun createGame(state: Bundle?) {
-        Log.d(TAG, "CreateGame")
-        saveScoreAlertDialog = null
-        mPresenter.initGame(state)
     }
 
     private fun onClickSettingButton() {
@@ -607,7 +565,6 @@ class MainActivity : MyViewCompose() {
             exitApplication()
         } else if (entryPoint == 1) {
             //  NEW GAME
-            // initPresenter(null)
             mPresenter.initGame(null)
         }
         mPresenter.setSaveScoreAlertDialogState(entryPoint, false)

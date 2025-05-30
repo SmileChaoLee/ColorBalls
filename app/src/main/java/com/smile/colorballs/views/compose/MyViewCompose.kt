@@ -18,6 +18,7 @@ import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.interfaces.PresentViewCompose
 import com.smile.colorballs.presenters.PresenterCompose
+import com.smile.colorballs.views.compose.MainActivity.Companion
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment.DialogButtonListener
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
@@ -51,6 +52,13 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
     private var sureLoadDialog: AlertDialogFragment? = null
     private var gameOverDialog: AlertDialogFragment? = null
     protected var saveScoreAlertDialog: AlertDialog? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d(TAG, "$TAG.onCreate")
+        Log.d(TAG, "onCreate.instantiate PresenterCompose")
+        mPresenter = PresenterCompose(this@MyViewCompose)
+    }
 
     protected fun bitmapDrawableResources() {
         val imageSizePx = ScreenUtil.dpToPixel(mImageSizeDp)

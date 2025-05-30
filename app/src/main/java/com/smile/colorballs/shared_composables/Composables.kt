@@ -71,7 +71,7 @@ object Composables {
     @Composable
     fun MenuItemText(text: String, color: Color) {
         Text(text = text, color = color,
-            fontWeight = FontWeight.Normal, fontStyle = FontStyle.Normal,
+            fontWeight = FontWeight.Light, fontStyle = FontStyle.Normal,
             fontSize = menuItemFontSize)
     }
 
