@@ -11,7 +11,7 @@ class Constants {
         const val HAS_NEXT_BALL = "HasNextBall"
         const val TOP10_TITLE_NAME = "Top10TitleName"
         const val TOP10_PLAYERS = "Top10Players"
-        const val TOP10_SCORES = "Top10Scores"
+        const val IS_LOCAL_TOP10 = "IsLocalTop10"
         const val GAME_ID_STRING = "GameIdString"
         const val SURE_SAVE_DIALOG_TAG = "SureSaveDialogTag"
         const val SURE_LOAD_DIALOG_TAG = "SureLoadDialogTag"

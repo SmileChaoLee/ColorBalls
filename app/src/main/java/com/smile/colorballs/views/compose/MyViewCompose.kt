@@ -52,12 +52,24 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
     private var sureLoadDialog: AlertDialogFragment? = null
     private var gameOverDialog: AlertDialogFragment? = null
     protected var saveScoreAlertDialog: AlertDialog? = null
+    protected lateinit var medalImageIds: List<Int>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "$TAG.onCreate")
         Log.d(TAG, "onCreate.instantiate PresenterCompose")
         mPresenter = PresenterCompose(this@MyViewCompose)
+        medalImageIds = listOf(
+            R.drawable.gold_medal,
+            R.drawable.silver_medal,
+            R.drawable.bronze_medal,
+            R.drawable.copper_medal,
+            R.drawable.olympics_image,
+            R.drawable.olympics_image,
+            R.drawable.olympics_image,
+            R.drawable.olympics_image,
+            R.drawable.olympics_image,
+            R.drawable.olympics_image)
     }
 
     protected fun bitmapDrawableResources() {

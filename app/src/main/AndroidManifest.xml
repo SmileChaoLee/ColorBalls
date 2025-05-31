@@ -55,6 +55,11 @@
             android:theme="@style/AppThemeTransparent">
         </activity>
         <activity
+            android:name=".views.compose.Top10ActivityCompose"
+            android:exported="false"
+            android:label="@string/title_activity_history">
+        </activity>
+        <activity
             android:name=".views.xml_base.Top10Activity"
             android:exported="false"
             android:label="@string/title_activity_history">

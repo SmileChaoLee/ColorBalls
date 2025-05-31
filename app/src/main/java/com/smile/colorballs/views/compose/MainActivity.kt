@@ -1,6 +1,7 @@
 package com.smile.colorballs.views.compose
 
 import android.content.DialogInterface
+import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Typeface
@@ -13,6 +14,9 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -37,6 +41,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -49,25 +54,37 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
 import com.smile.colorballs.shared_composables.Composables
 import com.smile.colorballs.shared_composables.ui.theme.ColorBallsTheme
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
-import com.smile.colorballs.presenters.PresenterCompose
+import com.smile.colorballs.models.TopPlayer
 import com.smile.smilelibraries.models.ExitAppTimer
+import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil
+import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
 import com.smile.smilelibraries.utilities.ScreenUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : MyViewCompose() {
     companion object {
         private const val TAG = "MainActivity"
     }
-    private val screenX = mutableFloatStateOf(0f)
-    private val screenY = mutableFloatStateOf(0f)
+    private val mOrientation = mutableIntStateOf(Configuration.ORIENTATION_PORTRAIT)
+    private var screenX = 0f
+    private var screenY = 0f
+    private val gameGridWeight = 0.7f
     private var interstitialAd: ShowInterstitial? = null
+    // the following are for Top 10 Players
+    // private lateinit var top10Launcher: ActivityResultLauncher<Intent>
+    private val top10Players = mutableStateOf(listOf<TopPlayer>())
+    private val top10TitleName = mutableStateOf("")
+    //
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,14 +105,41 @@ class MainActivity : MyViewCompose() {
         Log.d(TAG, "onCreate.getScreenSize()")
         getScreenSize()
 
+        /*
+        top10Launcher = registerForActivityResult<Intent, ActivityResult>(
+            ActivityResultContracts.StartActivityForResult()) {
+            result: ActivityResult ->
+            Log.d(TAG, "top10Launcher.result received")
+            if (result.resultCode == RESULT_OK) {
+                Log.d(TAG, "top10Launcher.Showing interstitial ads")
+                showInterstitialAd()
+            }
+        }
+        */
+
         setContent {
             Log.d(TAG, "onCreate.setContent")
             ColorBallsTheme {
-                CreateMainUI(screenX.floatValue, screenY.floatValue)
-                Log.d(TAG, "onCreate.setContent.mImageSize = $mImageSizeDp")
-                LaunchedEffect(Unit) {
-                    Log.d(TAG, "onCreate.setContent.LaunchedEffect")
-                    mPresenter.initGame(savedInstanceState)
+                mOrientation.intValue = resources.configuration.orientation
+                val backgroundColor = Color(getColor(R.color.yellow3))
+                Box(Modifier.background(color = backgroundColor)) {
+                    if (mOrientation.intValue ==
+                        Configuration.ORIENTATION_PORTRAIT) {
+                        Column {
+                            CreateMainUI(savedInstanceState,
+                                Modifier.weight(gameGridWeight))
+                            SHowPortraitAds(Modifier.fillMaxWidth()
+                                .weight(1.0f - gameGridWeight))
+                        }
+                    } else {
+                        val width = (screenX/2f).dp
+                        Row {
+                            CreateMainUI(savedInstanceState, Modifier.weight(1f))
+                            SHowLandscapeAds(modifier = Modifier.weight(1f)
+                                .fillMaxSize())
+                        }
+                    }
+                    Top10PlayerUI()
                 }
             }
         }
@@ -110,9 +154,9 @@ class MainActivity : MyViewCompose() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        Log.d(
-            TAG, "onConfigurationChanged.newConfig.orientation = " +
+        Log.d(TAG, "onConfigurationChanged.newConfig.orientation = " +
                 "${newConfig.orientation}")
+        mOrientation.intValue = newConfig.orientation
         getScreenSize()
     }
 
@@ -160,8 +204,8 @@ class MainActivity : MyViewCompose() {
         val screen = ScreenUtil.getScreenSize(this)
         Log.d(TAG, "getScreenSize.screen.x = ${screen.x}")
         Log.d(TAG, "getScreenSize.screen.y = ${screen.y}")
-        screenX.floatValue = screen.x.toFloat()
-        screenY.floatValue = screen.y.toFloat()
+        screenX = screen.x.toFloat()
+        screenY = screen.y.toFloat()
     }
 
     private fun onClickSettingButton() {
@@ -173,45 +217,76 @@ class MainActivity : MyViewCompose() {
     }
 
     @Composable
-    fun CreateMainUI(screenX: Float, screenY: Float) {
-        Log.d(TAG, "createMainUI.screenX = $screenX")
-        Log.d(TAG, "createMainUI.screenY = $screenY")
-        val orientation = resources.configuration.orientation
+    fun CreateMainUI(state: Bundle?, modifier: Modifier) {
+        Log.d(TAG, "CreateMainUI.mOrientation = $mOrientation")
+        GameView(modifier)
+        Log.d(TAG, "CreateMainUI.mImageSize = $mImageSizeDp")
+        LaunchedEffect(Unit) {
+            Log.d(TAG, "CreateMainUI.LaunchedEffect")
+            mPresenter.initGame(state)
+        }
+    }
+
+    @Composable
+    fun Top10PlayerUI() {
+        Log.d(TAG, "Top10PlayerUI.mOrientation.intValue " +
+                "= ${mOrientation.intValue}")
+        if (top10TitleName.value.isNotEmpty()) {
+            Composables.Top10Composable(
+                title = top10TitleName.value,
+                topPlayers = top10Players.value, buttonListener =
+                object : Composables.OkButtonListener {
+                    override fun buttonOkClick() {
+                        showInterstitialAd()
+                        top10TitleName.value = ""
+                    }
+                },
+                getString(R.string.okStr)
+            )
+        }
+    }
+
+    @Composable
+    fun GameView(modifier: Modifier) {
+        Log.d(TAG, "GameView.mOrientation.intValue" +
+                " = ${mOrientation.intValue}")
+        Log.d(TAG, "GameView.screenX = $screenX, screenY = $screenY")
         val maxHeight = screenY
-        Log.d(TAG, "CreateMainUI.maxHeight = $maxHeight")
+        Log.d(TAG, "GameView.maxHeight = $maxHeight")
         var maxWidth: Float
         var barHeight: Float
         var adHeight: Float
         val gHeight: Float
+        val orientation = mOrientation.intValue
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            Log.d(TAG, "CreateMainUI.ORIENTATION_PORTRAIT")
+            Log.d(TAG, "GameView.ORIENTATION_PORTRAIT")
             maxWidth = screenX
             barHeight = (maxHeight * 1.2f) / 10f
-            adHeight = maxHeight * 0.25f
+            adHeight = maxHeight * (1.0f - gameGridWeight)
             gHeight = maxHeight - barHeight - adHeight
         } else {
-            Log.d(TAG, "CreateMainUI.ORIENTATION_LANDSCAPE")
+            Log.d(TAG, "GameView.ORIENTATION_LANDSCAPE")
             maxWidth = screenX / 2f
             barHeight = (maxHeight * 1.2f) / 10f
             adHeight = maxWidth
             gHeight = maxHeight - barHeight
         }
-        Log.d(TAG, "CreateMainUI.maxWidth = $maxWidth")
-        Log.d(TAG, "CreateMainUI.barHeight = $barHeight")
-        Log.d(TAG, "CreateMainUI.adHeight = $adHeight")
-        Log.d(TAG, "CreateMainUI.gHeight = $gHeight")
+        Log.d(TAG, "GameView.maxWidth = $maxWidth")
+        Log.d(TAG, "GameView.barHeight = $barHeight")
+        Log.d(TAG, "GameView.adHeight = $adHeight")
+        Log.d(TAG, "GameView.gHeight = $gHeight")
 
         val gameSize  = if (gHeight > maxWidth) maxWidth else gHeight
-        Log.d(TAG, "CreateMainUI.gameSize = $gameSize")
+        Log.d(TAG, "GameView.gameSize = $gameSize")
         val imageSizePx = (gameSize / (Constants.ROW_COUNTS.toFloat()))
-        Log.d(TAG, "CreateMainUI.imageSizePx = $imageSizePx")
+        Log.d(TAG, "GameView.imageSizePx = $imageSizePx")
         var realGameSize = (imageSizePx * Constants.ROW_COUNTS.toFloat())
-        Log.d(TAG, "CreateMainUI.realGameSize = $realGameSize")
+        Log.d(TAG, "GameView.realGameSize = $realGameSize")
         var startPadding = ((maxWidth - realGameSize) / 2f).coerceAtLeast(0f)
-        Log.d(TAG, "CreateMainUI.startPadding = $startPadding")
+        Log.d(TAG, "GameView.startPadding = $startPadding")
 
         mImageSizeDp = ScreenUtil.pixelToDp(imageSizePx)
-        Log.d(TAG, "CreateMainUI.mImageSizeDp = $mImageSizeDp")
+        Log.d(TAG, "GameView.mImageSizeDp = $mImageSizeDp")
         // set size of color balls
         bitmapDrawableResources()
 
@@ -219,36 +294,33 @@ class MainActivity : MyViewCompose() {
         barHeight = ScreenUtil.pixelToDp(barHeight)
         realGameSize = ScreenUtil.pixelToDp(realGameSize)
         startPadding = ScreenUtil.pixelToDp(startPadding).toInt().toFloat()
-        Log.d(TAG, "CreateMainUI.startPadding.pixelToDp = $startPadding")
+        Log.d(TAG, "GameView.startPadding.pixelToDp = $startPadding")
         adHeight = ScreenUtil.pixelToDp(adHeight)
 
         val topPadding = 0f
-        val backgroundColor = Color(getColor(R.color.yellow3))
-        Column(modifier = Modifier.fillMaxHeight()
-            .width(width = maxWidth.dp)
-            .background(color = backgroundColor)) {
+        // val backgroundColor = Color(getColor(R.color.yellow3))
+        Column(modifier = modifier.fillMaxHeight()
+            // .background(color = backgroundColor)
+            .width(width = maxWidth.dp)) {
             ToolBarMenu(modifier = Modifier.height(height = barHeight.dp)
                 .padding(top = topPadding.dp, start = 0.dp))
-            CreateGameView(modifier = Modifier.height(height = realGameSize.dp)
+            GameViewGrid(modifier = Modifier.height(height = realGameSize.dp)
                     .padding(top = 0.dp, start = startPadding.dp))
+            /*
             if (orientation == Configuration.ORIENTATION_PORTRAIT) {
                 // Portrait
                 SHowPortraitAds(
                     Modifier.fillMaxWidth().fillMaxHeight()
                         .height(height = adHeight.dp))
             }
-        }
-        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            SHowLandscapeAds(modifier = Modifier
-                .fillMaxHeight().fillMaxWidth().width(width = adHeight.dp)
-                .padding(top = 0.dp, start = adHeight.dp, end = 0.dp))
+            */
         }
     }
 
     @Composable
     fun ToolBarMenu(modifier: Modifier) {
-        Log.d(TAG, "ToolBarMenu.screenX = ${screenX.floatValue}")
-        Log.d(TAG, "ToolBarMenu.screenY = ${screenY.floatValue}")
+        Log.d(TAG, "ToolBarMenu.mOrientation.intValue" +
+                " = ${mOrientation.intValue}")
         Row(modifier = modifier
             .background(color = Color(getColor(R.color.colorPrimary)))) {
             ShowCurrentScore(
@@ -268,8 +340,8 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun ShowCurrentScore(modifier: Modifier) {
-        Log.d(TAG, "ShowCurrentScore.screenX = ${screenX.floatValue}")
-        Log.d(TAG, "ShowCurrentScore.screenY = ${screenY.floatValue}")
+        Log.d(TAG, "ShowCurrentScore.mOrientation.intValue" +
+                " = ${mOrientation.intValue}")
         Text(text = mPresenter.currentScore.intValue.toString(),
             modifier = modifier,
             color = Color.Red, fontSize = Composables.mFontSize
@@ -279,8 +351,8 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun SHowHighestScore(modifier: Modifier) {
-        Log.d(TAG, "SHowHighestScore.screenX = ${screenX.floatValue}")
-        Log.d(TAG, "SHowHighestScore.screenY = ${screenY.floatValue}")
+        Log.d(TAG, "SHowHighestScore.mOrientation.intValue" +
+                " = ${mOrientation.intValue}")
         Text(text = mPresenter.highestScore.intValue.toString(),
             modifier = modifier,
             color = Color.White, fontSize = Composables.mFontSize
@@ -289,8 +361,8 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun UndoButton(modifier: Modifier) {
-        Log.d(TAG, "UndoButton.screenX = ${screenX.floatValue}")
-        Log.d(TAG, "UndoButton.screenY = ${screenY.floatValue}")
+        Log.d(TAG, "UndoButton.mOrientation.intValue" +
+                " = ${mOrientation.intValue}")
         IconButton (onClick = { mPresenter.undoTheLast() },
             modifier = modifier
             /*, colors = IconButtonColors(
@@ -308,8 +380,8 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun SettingButton(modifier: Modifier) {
-        Log.d(TAG, "SettingButton.screenX = ${screenX.floatValue}")
-        Log.d(TAG, "SettingButton.screenY = ${screenY.floatValue}")
+        Log.d(TAG, "SettingButton.mOrientation.intValue" +
+                " = ${mOrientation.intValue}")
         IconButton (onClick = { onClickSettingButton() }, modifier = modifier) {
             Icon(
                 painter = painterResource(R.drawable.setting),
@@ -321,8 +393,8 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun ShowMenu(modifier: Modifier) {
-        Log.d(TAG, "ShowMenu.screenX = ${screenX.floatValue}")
-        Log.d(TAG, "ShowMenu.screenY = ${screenY.floatValue}")
+        Log.d(TAG, "ShowMenu.mOrientation.intValue" +
+                " = ${mOrientation.intValue}")
         var expanded by remember { mutableStateOf(false) }
         Box(modifier = modifier) {
             IconButton (onClick = { expanded = !expanded }, modifier = modifier) {
@@ -344,7 +416,7 @@ class MainActivity : MyViewCompose() {
                     color = Color.Black,
                     onClick = {
                         expanded = false
-                        /*showTop10Scores(false)*/
+                        showTop10Players(false)
                     })
 
                 Composables.DropdownMenuItem(
@@ -352,7 +424,7 @@ class MainActivity : MyViewCompose() {
                     color = Color.Black,
                     onClick = {
                         expanded = false
-                        /*showTop10Scores(true)*/
+                        showTop10Players(true)
                     })
 
                 Composables.DropdownMenuItem(
@@ -400,11 +472,50 @@ class MainActivity : MyViewCompose() {
         }
     }
 
+    private fun showTop10Players(isLocal: Boolean) {
+        Log.d(TAG, "showTop10Players.isLocal = $isLocal")
+        /*
+        Intent(this@MainActivity,
+            Top10ActivityCompose::class.java).let {
+                Bundle().apply {
+                    putBoolean(Constants.IS_LOCAL_TOP10, isLocal)
+                    it.putExtras(this)
+                    top10Launcher.launch(it)
+                }
+        }
+        */
+        top10TitleName.value =
+            if (isLocal) getString(R.string.localTop10Score) else
+                getString(R.string.globalTop10Str)
+        lifecycleScope.launch(Dispatchers.IO) {
+            Log.d(TAG, "showTop10Players.lifecycleScope")
+            val players = if (isLocal) {
+                PlayerRecordRest.GetLocalTop10(
+                    ScoreSQLite(
+                        this@MainActivity
+                    )
+                )
+            } else {
+                PlayerRecordRest.GetGlobalTop10("1")
+            }
+            val top10 = ArrayList<TopPlayer>()
+            for (i in 0 until players.size) {
+                players[i].playerName?.let { name ->
+                    if (name.trim().isEmpty()) players[i].playerName = "No Name"
+                } ?: run {
+                    Log.d(TAG, "showTop10Players.players[i].playerName = null")
+                    players[i].playerName = "No Name"
+                }
+                top10.add(TopPlayer(players[i], medalImageIds[i]))
+            }
+            top10Players.value = top10
+        }
+    }
+
     @Composable
-    fun CreateGameView(modifier: Modifier) {
-        Log.d(TAG, "CreateGameView.screenX = ${screenX.floatValue}")
-        Log.d(TAG, "CreateGameView.screenY = ${screenY.floatValue}")
-        Log.d(TAG, "CreateGameView.mImageSizeDp = $mImageSizeDp")
+    fun GameViewGrid(modifier: Modifier) {
+        Log.d(TAG, "GameViewGrid.mOrientation.intValue" +
+                " = ${mOrientation.intValue}")
         Column(modifier = modifier) {
             Box {
                 ShowGameGrid()
@@ -415,8 +526,8 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun ShowGameGrid() {
-        Log.d(TAG, "ShowGameGrid.screenX = ${screenX.floatValue}")
-        Log.d(TAG, "ShowGameGrid.screenY = ${screenY.floatValue}")
+        Log.d(TAG, "ShowGameGrid.mOrientation.intValue" +
+                " = ${mOrientation.intValue}")
         Log.d(TAG, "ShowGameGrid.mImageSizeDp = $mImageSizeDp")
         boxImage?.let {
             Log.d(TAG, "ShowGameGrid.boxImage.width = ${it.width}")
@@ -452,8 +563,8 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun ShowMessageOnScreen() {
-        Log.d(TAG, "ShowMessageOnScreen.screenX = ${screenX.floatValue}")
-        Log.d(TAG, "ShowMessageOnScreen.screenY = ${screenY.floatValue}")
+        Log.d(TAG, "ShowMessageOnScreen.mOrientation.intValue" +
+                " = ${mOrientation.intValue}")
         val message = mPresenter.screenMessage.value
         if (message.isEmpty()) return
         val gameViewLength = mImageSizeDp * Constants.ROW_COUNTS.toFloat()
@@ -489,8 +600,8 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun ShowColorBall(i: Int, j: Int) {
-        Log.d(TAG, "ShowColorBall.screenX = ${screenX.floatValue}")
-        Log.d(TAG, "ShowColorBall.screenY = ${screenY.floatValue}")
+        Log.d(TAG, "ShowColorBall.mOrientation.intValue" +
+                " = ${mOrientation.intValue}")
         val ballInfo = mPresenter.gridDataArray[i][j].value
         val ballColor = ballInfo.ballColor
         Log.d(TAG, "ShowColorBall.ballColor = $ballColor")
@@ -525,8 +636,8 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun SHowPortraitAds(modifier: Modifier) {
-        Log.d(TAG, "SHowPortraitAds.screenX = ${screenX.floatValue}")
-        Log.d(TAG, "SHowPortraitAds.screenY = ${screenY.floatValue}")
+        Log.d(TAG, "SHowPortraitAds.mOrientation.intValue" +
+                " = ${mOrientation.intValue}")
         Column(modifier = modifier.background(color = Color.Green),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
@@ -536,10 +647,9 @@ class MainActivity : MyViewCompose() {
 
     @Composable
     fun SHowLandscapeAds(modifier: Modifier) {
-        Log.d(TAG, "SHowLandscapeAds.screenX = ${screenX.floatValue}")
-        Log.d(TAG, "SHowLandscapeAds.screenY = ${screenY.floatValue}")
-        Column(modifier = modifier
-            .background(color = Color.Green),
+        Log.d(TAG, "SHowLandscapeAds.mOrientation.intValue" +
+                " = ${mOrientation.intValue}")
+        Column(modifier = modifier.background(color = Color.Green),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
             Text(text = "Show Native and banner ads", fontSize = Composables.mFontSize)
