@@ -81,11 +81,12 @@ class MainActivity : MyViewCompose() {
     private val gameGridWeight = 0.7f
     private var interstitialAd: ShowInterstitial? = null
     // the following are for Top 10 Players
-    // private lateinit var top10Launcher: ActivityResultLauncher<Intent>
+    private lateinit var top10Launcher: ActivityResultLauncher<Intent>
     private val top10Players = mutableStateOf(listOf<TopPlayer>())
     private val top10TitleName = mutableStateOf("")
+    // the following are for Settings
+    private lateinit var settingLauncher: ActivityResultLauncher<Intent>
     //
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "$TAG.onCreate")
@@ -105,7 +106,6 @@ class MainActivity : MyViewCompose() {
         Log.d(TAG, "onCreate.getScreenSize()")
         getScreenSize()
 
-        /*
         top10Launcher = registerForActivityResult<Intent, ActivityResult>(
             ActivityResultContracts.StartActivityForResult()) {
             result: ActivityResult ->
@@ -115,7 +115,16 @@ class MainActivity : MyViewCompose() {
                 showInterstitialAd()
             }
         }
-        */
+
+        settingLauncher = registerForActivityResult<Intent, ActivityResult>(
+            ActivityResultContracts.StartActivityForResult()) {
+                result: ActivityResult ->
+            Log.d(TAG, "settingLauncher.result received")
+            if (result.resultCode == RESULT_OK) {
+                Log.d(TAG, "settingLauncher.Showing interstitial ads")
+                showInterstitialAd()
+            }
+        }
 
         setContent {
             Log.d(TAG, "onCreate.setContent")
@@ -208,12 +217,23 @@ class MainActivity : MyViewCompose() {
         screenY = screen.y.toFloat()
     }
 
-    private fun onClickSettingButton() {
-        ScreenUtil.showToast(
-            this@MainActivity, "Setting",
-            textFontSize,
-            ScreenUtil.FontSize_Pixel_Type,
-            Toast.LENGTH_SHORT)
+    private fun onClickSettingButton(useActivity: Boolean) {
+        if (useActivity) {
+            Intent(
+                this@MainActivity,
+                SettingActivityCompose::class.java
+            ).let {
+                Bundle().apply {
+                    putBoolean(Constants.HAS_SOUND, mPresenter.hasSound())
+                    putBoolean(Constants.IS_EASY_LEVEL, mPresenter.isEasyLevel())
+                    putBoolean(Constants.HAS_NEXT_BALL, mPresenter.hasNextBall())
+                    it.putExtras(this)
+                    settingLauncher.launch(it)
+                }
+            }
+        } else {
+
+        }
     }
 
     @Composable
@@ -306,14 +326,6 @@ class MainActivity : MyViewCompose() {
                 .padding(top = topPadding.dp, start = 0.dp))
             GameViewGrid(modifier = Modifier.height(height = realGameSize.dp)
                     .padding(top = 0.dp, start = startPadding.dp))
-            /*
-            if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-                // Portrait
-                SHowPortraitAds(
-                    Modifier.fillMaxWidth().fillMaxHeight()
-                        .height(height = adHeight.dp))
-            }
-            */
         }
     }
 
@@ -382,7 +394,8 @@ class MainActivity : MyViewCompose() {
     fun SettingButton(modifier: Modifier) {
         Log.d(TAG, "SettingButton.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
-        IconButton (onClick = { onClickSettingButton() }, modifier = modifier) {
+        IconButton (onClick = { onClickSettingButton(true) },
+            modifier = modifier) {
             Icon(
                 painter = painterResource(R.drawable.setting),
                 contentDescription = "",
@@ -416,7 +429,7 @@ class MainActivity : MyViewCompose() {
                     color = Color.Black,
                     onClick = {
                         expanded = false
-                        showTop10Players(false)
+                        showTop10Players(false, false)
                     })
 
                 Composables.DropdownMenuItem(
@@ -424,7 +437,7 @@ class MainActivity : MyViewCompose() {
                     color = Color.Black,
                     onClick = {
                         expanded = false
-                        showTop10Players(true)
+                        showTop10Players(true, false)
                     })
 
                 Composables.DropdownMenuItem(
@@ -472,43 +485,47 @@ class MainActivity : MyViewCompose() {
         }
     }
 
-    private fun showTop10Players(isLocal: Boolean) {
-        Log.d(TAG, "showTop10Players.isLocal = $isLocal")
-        /*
-        Intent(this@MainActivity,
-            Top10ActivityCompose::class.java).let {
+    private fun showTop10Players(isLocal: Boolean, useActivity: Boolean) {
+        Log.d(TAG, "showTop10Players.isLocal " +
+                "= $isLocal , useActivity = $useActivity")
+        if (useActivity) {
+            Intent(
+                this@MainActivity,
+                Top10ActivityCompose::class.java
+            ).let {
                 Bundle().apply {
                     putBoolean(Constants.IS_LOCAL_TOP10, isLocal)
                     it.putExtras(this)
                     top10Launcher.launch(it)
                 }
-        }
-        */
-        top10TitleName.value =
-            if (isLocal) getString(R.string.localTop10Score) else
-                getString(R.string.globalTop10Str)
-        lifecycleScope.launch(Dispatchers.IO) {
-            Log.d(TAG, "showTop10Players.lifecycleScope")
-            val players = if (isLocal) {
-                PlayerRecordRest.GetLocalTop10(
-                    ScoreSQLite(
-                        this@MainActivity
+            }
+        } else {
+            top10TitleName.value =
+                if (isLocal) getString(R.string.localTop10Score) else
+                    getString(R.string.globalTop10Str)
+            lifecycleScope.launch(Dispatchers.IO) {
+                Log.d(TAG, "showTop10Players.lifecycleScope")
+                val players = if (isLocal) {
+                    PlayerRecordRest.GetLocalTop10(
+                        ScoreSQLite(
+                            this@MainActivity
+                        )
                     )
-                )
-            } else {
-                PlayerRecordRest.GetGlobalTop10("1")
-            }
-            val top10 = ArrayList<TopPlayer>()
-            for (i in 0 until players.size) {
-                players[i].playerName?.let { name ->
-                    if (name.trim().isEmpty()) players[i].playerName = "No Name"
-                } ?: run {
-                    Log.d(TAG, "showTop10Players.players[i].playerName = null")
-                    players[i].playerName = "No Name"
+                } else {
+                    PlayerRecordRest.GetGlobalTop10("1")
                 }
-                top10.add(TopPlayer(players[i], medalImageIds[i]))
+                val top10 = ArrayList<TopPlayer>()
+                for (i in 0 until players.size) {
+                    players[i].playerName?.let { name ->
+                        if (name.trim().isEmpty()) players[i].playerName = "No Name"
+                    } ?: run {
+                        Log.d(TAG, "showTop10Players.players[i].playerName = null")
+                        players[i].playerName = "No Name"
+                    }
+                    top10.add(TopPlayer(players[i], medalImageIds[i]))
+                }
+                top10Players.value = top10
             }
-            top10Players.value = top10
         }
     }
 

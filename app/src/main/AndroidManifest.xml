@@ -49,6 +49,12 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".views.compose.SettingActivityCompose"
+            android:exported="false"
+            android:label="@string/settingStr"
+            android:theme="@style/AppThemeTransparent">
+        </activity>
+        <activity
             android:name=".views.xml_base.SettingActivity"
             android:exported="false"
             android:label="@string/settingStr"

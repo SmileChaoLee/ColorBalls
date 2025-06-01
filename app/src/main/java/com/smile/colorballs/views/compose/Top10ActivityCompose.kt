@@ -72,7 +72,7 @@ class Top10ActivityCompose : ComponentActivity() {
                 }
                 Log.d(TAG, "onCreate.setContent.Composables.Top10Compose")
                 Composables.Top10Composable(
-                    title = top10TitleName,
+                    title = "$top10TitleName - Activity",
                     topPlayers = top10Players.value, buttonListener =
                     object : Composables.OkButtonListener {
                         override fun buttonOkClick() {
