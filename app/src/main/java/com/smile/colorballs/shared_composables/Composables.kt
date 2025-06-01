@@ -80,7 +80,7 @@ object Composables {
     fun MenuItemText(text: String, color: Color,
                      modifier: Modifier = Modifier) {
         Text(text = text, color = color, modifier = modifier,
-            fontWeight = FontWeight.Light, fontStyle = FontStyle.Normal,
+            fontWeight = FontWeight.Normal, fontStyle = FontStyle.Normal,
             fontSize = menuItemFontSize)
     }
 
@@ -166,11 +166,12 @@ object Composables {
         val screenWidth = windowSize.width
         val screenHeight = windowSize.height    // contains navigation bar
         */
-        val textColor = Color(0xffffff00)
+        // val textColor = Color(0xffffff00)
+        val textColor = Color(0xffffa500)
         val spaceWeight = 1.0f
         val dividerWeight = 1.0f
         var setRowWeight = 3.0f    // for setting row
-        var setColumnWeight = 8.0f     // for setting column
+        var setColumnWeight = 10.0f     // for setting column
         var rowWeight = 5.0f
         var textWeight = 3.0f
         var buttonWeight = spaceWeight * 3.0f
@@ -178,7 +179,6 @@ object Composables {
             Configuration.ORIENTATION_LANDSCAPE) {
             setRowWeight = 8.0f
             setColumnWeight = 6.0f
-            // columnWidth = screen.x.toFloat() * 0.6f
             rowWeight = 8.0f
             textWeight = 6.0f
             buttonWeight = spaceWeight * 2.0f
@@ -204,7 +204,8 @@ object Composables {
                     Column(modifier = Modifier.weight(textWeight),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center) {
-                        MenuItemText(text = text, Color.White)
+                        Text(text = text, color = Color.White,
+                            fontWeight = FontWeight.Bold, fontSize = mFontSize)
                     }
                     HorDivider(
                         color = Color.White,
