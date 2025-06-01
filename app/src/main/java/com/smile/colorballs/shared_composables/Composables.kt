@@ -6,6 +6,7 @@ import android.content.res.Resources
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,10 @@ import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,16 +42,26 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smile.colorballs.R
+import com.smile.colorballs.models.EnvSetting
 import com.smile.colorballs.models.TopPlayer
-import com.smile.smilelibraries.utilities.ScreenUtil
 
 object Composables {
 
     private const val TAG = "Composables"
 
-    interface OkButtonListener {
+    interface ButtonClickListener {
         fun buttonOkClick()
         fun buttonCancelClick() = run { }
+    }
+
+    interface TextClickListener {
+        fun textClicked()
+    }
+
+    interface SettingTextClickListener {
+        fun hasSoundClick(hasSound: Boolean)
+        fun easyLevelClick(easyLevel: Boolean)
+        fun hasNextClick(hasNext: Boolean)
     }
 
     private val mResources = Resources.getSystem()
@@ -101,7 +116,7 @@ object Composables {
     // For the Top10ComposeActivity
     @Composable
     fun Top10Composable(title: String, topPlayers: List<TopPlayer>,
-                        buttonListener: OkButtonListener, oKStr: String) {
+                        buttonListener: ButtonClickListener, oKStr: String) {
         Log.d(TAG, "Top10Compose.topPlayers.size = ${topPlayers.size}")
         val imageWidth = (mFontSize.value * 3.0).dp
         Column(modifier = Modifier
@@ -158,15 +173,12 @@ object Composables {
     }
 
     @Composable
-    fun SettingCompose(activity: Activity, text: String,
-                       hasSound: Boolean, isEasy: Boolean,
-                       hasNextBall: Boolean, backgroundColor: Color) {
-        /*
-        val windowSize = LocalWindowInfo.current.containerSize
-        val screenWidth = windowSize.width
-        val screenHeight = windowSize.height    // contains navigation bar
-        */
-        // val textColor = Color(0xffffff00)
+    fun SettingCompose(activity: Activity,
+                       buttonListener: ButtonClickListener,
+                       textListener: SettingTextClickListener,
+                       text: String, backgroundColor: Color,
+                       setting: EnvSetting) {
+
         val textColor = Color(0xffffa500)
         val spaceWeight = 1.0f
         val dividerWeight = 1.0f
@@ -183,6 +195,9 @@ object Composables {
             textWeight = 6.0f
             buttonWeight = spaceWeight * 2.0f
         }
+
+        val onStr = activity.getString(R.string.onStr)
+        val offStr = activity.getString(R.string.offStr)
 
         Column(modifier = Modifier
             .fillMaxSize()
@@ -216,6 +231,9 @@ object Composables {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
+                        val yesStr = activity.getString(R.string.yesStr)
+                        val noStr = activity.getString(R.string.noStr)
+                        var hasSound by remember { mutableStateOf(setting.hasSound) }
                         MenuItemText(
                             text = activity.getString(R.string.soundStr),
                             color = textColor,
@@ -224,14 +242,18 @@ object Composables {
                                 .padding(all = 0.dp)
                         )
                         MenuItemText(
-                            text = activity.getString(R.string.onStr),
+                            text = if (hasSound) onStr else offStr,
                             Color.White,
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp)
+                                .clickable {
+                                    hasSound = !hasSound
+                                    textListener.hasSoundClick(hasSound)
+                                }
                         )
                         MenuItemText(
-                            text = activity.getString(R.string.yesStr),
+                            text = if (hasSound) yesStr else noStr,
                             color = textColor,
                             modifier = Modifier
                                 .weight(1f)
@@ -243,6 +265,11 @@ object Composables {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
+                        val no1Str = activity.getString(R.string.no1)
+                        val no2Str = activity.getString(R.string.no2)
+                        val easyStr = activity.getString(R.string.easyStr)
+                        val diffStr = activity.getString(R.string.difficultStr)
+                        var easyLevel by remember { mutableStateOf(setting.easyLevel) }
                         MenuItemText(
                             text = activity.getString(R.string.playerLevelStr),
                             color = textColor,
@@ -251,14 +278,18 @@ object Composables {
                                 .padding(all = 0.dp)
                         )
                         MenuItemText(
-                            text = activity.getString(R.string.no1),
+                            text = if (easyLevel) no1Str else no2Str,
                             Color.White,
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp)
+                                .clickable {
+                                    easyLevel = !easyLevel
+                                    textListener.easyLevelClick(easyLevel)
+                                }
                         )
                         MenuItemText(
-                            text = activity.getString(R.string.easyStr),
+                            text = if (easyLevel) easyStr else diffStr,
                             color = textColor,
                             modifier = Modifier
                                 .weight(1f)
@@ -270,6 +301,9 @@ object Composables {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
+                        val showStr = activity.getString(R.string.showStr)
+                        val noShowStr = activity.getString(R.string.noShowStr)
+                        var hasNext by remember { mutableStateOf(setting.hasNextBall) }
                         MenuItemText(
                             text = activity.getString(R.string.nextBallSettingStr),
                             color = textColor,
@@ -278,14 +312,17 @@ object Composables {
                                 .padding(all = 0.dp)
                         )
                         MenuItemText(
-                            text = activity.getString(R.string.onStr),
+                            text = if (hasNext) onStr else offStr,
                             Color.White,
                             modifier = Modifier
                                 .weight(1f)
-                                .padding(all = 0.dp)
+                                .padding(all = 0.dp).clickable {
+                                    hasNext = !hasNext
+                                    textListener.hasNextClick(hasNext)
+                                }
                         )
                         MenuItemText(
-                            text = activity.getString(R.string.showStr),
+                            text = if (hasNext) showStr else noShowStr ,
                             color = textColor,
                             modifier = Modifier
                                 .weight(1f)
@@ -298,7 +335,7 @@ object Composables {
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Button(
-                            onClick = {},
+                            onClick = { buttonListener.buttonCancelClick() },
                             modifier = Modifier.weight(buttonWeight),
                             colors = ButtonColors(
                                 containerColor = Color.Yellow,
@@ -318,7 +355,7 @@ object Composables {
                                 .weight(spaceWeight)
                         )
                         Button(
-                            onClick = {},
+                            onClick = { buttonListener.buttonOkClick() },
                             modifier = Modifier.weight(buttonWeight),
                             colors = ButtonColors(
                                 containerColor = Color.Yellow,

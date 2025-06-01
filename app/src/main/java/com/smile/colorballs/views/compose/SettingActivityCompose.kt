@@ -1,12 +1,12 @@
 package com.smile.colorballs.views.compose
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.graphics.Color
 import com.smile.colorballs.R
 import com.smile.colorballs.shared_composables.Composables
@@ -17,7 +17,6 @@ import com.smile.colorballs.viewmodel.EnvSettingViewModel
 
 class SettingActivityCompose : ComponentActivity() {
 
-    private lateinit var mSettings: EnvSetting
     private val settingViewModel : EnvSettingViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,22 +26,43 @@ class SettingActivityCompose : ComponentActivity() {
         if (savedInstanceState == null) {
             // new creation of this activity
             Log.d(TAG, "onCreate.savedInstanceState is null")
-            mSettings = EnvSetting()
+            val setting = EnvSetting()
             intent.extras?.let {
-                mSettings.hasSound = it.getBoolean(Constants.HAS_SOUND, true)
-                mSettings.easyLevel = it.getBoolean(Constants.IS_EASY_LEVEL, true)
-                mSettings.hasNextBall = it.getBoolean(Constants.HAS_NEXT_BALL, true)
+                setting.hasSound = it.getBoolean(Constants.HAS_SOUND, true)
+                setting.easyLevel = it.getBoolean(Constants.IS_EASY_LEVEL, true)
+                setting.hasNextBall = it.getBoolean(Constants.HAS_NEXT_BALL, true)
             }
-            settingViewModel.setSettings(mSettings)
+            settingViewModel.setSettings(setting)
         } else {
             // re-creation of this activity
-            settingViewModel.settings.value?.let {
-                Log.d(TAG, "onCreate.settingViewModel.settings has value")
-                mSettings = it
-            } ?: run {
-                Log.d(TAG, "onCreate.settingViewModel.settings has no value")
-                mSettings = EnvSetting()
-                settingViewModel.setSettings(mSettings)
+            Log.d(TAG, "onCreate.savedInstanceState not null")
+            if (settingViewModel.settings.value == null) {
+                settingViewModel.setSettings(EnvSetting())
+            }
+        }
+
+        val textClick = object : Composables.SettingTextClickListener {
+            override fun hasSoundClick(hasSound: Boolean) {
+                Log.d(TAG, "textClick.hasSoundClick.hasSound = $hasSound")
+                settingViewModel.setHasSound(hasSound)
+            }
+            override fun easyLevelClick(easyLevel: Boolean) {
+                Log.d(TAG, "textClick.hasSoundClick.easyLevel = $easyLevel")
+                settingViewModel.setEasyLevel(easyLevel)
+            }
+            override fun hasNextClick(hasNext: Boolean) {
+                Log.d(TAG, "textClick.hasSoundClick.hasNext = $hasNext")
+                settingViewModel.setHasNextBall(hasNext)
+            }
+        }
+
+        val buttonClick = object : Composables.ButtonClickListener  {
+            override fun buttonOkClick() {
+                returnToPrevious(confirmed = true)
+            }
+            override fun buttonCancelClick() {
+                super.buttonCancelClick()
+                returnToPrevious(confirmed = false)
             }
         }
 
@@ -51,9 +71,9 @@ class SettingActivityCompose : ComponentActivity() {
             ColorBallsTheme {
                 settingViewModel.settings.value?.let {
                     Composables.SettingCompose(this@SettingActivityCompose,
+                        buttonClick, textClick,
                         "${getString(R.string.settingStr)} - Activity",
-                        it.hasSound, it.easyLevel, it.hasNextBall,
-                        backgroundColor = Color(0xbb0000ff)
+                        backgroundColor = Color(0xbb0000ff), it
                     )
                 }
             }
@@ -62,8 +82,7 @@ class SettingActivityCompose : ComponentActivity() {
         onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 Log.d(TAG, "onBackPressedDispatcher.handleOnBackPressed")
-                setResult(RESULT_OK)
-                finish()
+                returnToPrevious(confirmed = false)
             }
         })
     }
@@ -96,6 +115,22 @@ class SettingActivityCompose : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "onDestroy()")
+    }
+
+    private fun returnToPrevious(confirmed: Boolean) {
+        Intent().let { intent ->
+            Bundle().let { bundle ->
+                settingViewModel.settings.value?.also {
+                    bundle.putBoolean(Constants.HAS_SOUND, it.hasSound)
+                    bundle.putBoolean(Constants.IS_EASY_LEVEL, it.easyLevel)
+                    bundle.putBoolean(Constants.HAS_NEXT_BALL, it.hasNextBall)
+                    intent.putExtras(bundle)
+                }
+            }
+            setResult(if (confirmed) RESULT_OK else RESULT_CANCELED,
+                intent) // can bundle some data to previous activity
+        }
+        finish()
     }
 
     companion object {

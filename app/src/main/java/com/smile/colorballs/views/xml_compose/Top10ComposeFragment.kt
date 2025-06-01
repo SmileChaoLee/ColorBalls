@@ -24,7 +24,7 @@ import com.smile.smilelibraries.player_record_rest.models.Player
  * create an instance of this fragment.
  */
 class Top10ComposeFragment: Fragment {
-    private lateinit var buttonListener: Composables.OkButtonListener
+    private lateinit var buttonListener: Composables.ButtonClickListener
     private var mContext: Context? = null
     private var top10Players: ArrayList<TopPlayer> = ArrayList()
     private var top10TitleName: String = ""
@@ -33,7 +33,7 @@ class Top10ComposeFragment: Fragment {
     constructor()
 
     @SuppressLint("ValidFragment")
-    private constructor(listener: Composables.OkButtonListener) : super() {
+    private constructor(listener: Composables.ButtonClickListener) : super() {
         Log.d(TAG, "private constructor")
         buttonListener = listener
     }
@@ -119,7 +119,7 @@ class Top10ComposeFragment: Fragment {
         @JvmStatic
         fun newInstance(top10Title: String,
                         top10Players: ArrayList<Player>,
-                        listener: Composables.OkButtonListener
+                        listener: Composables.ButtonClickListener
         ) = Top10ComposeFragment(listener).apply {
                 arguments = Bundle().apply {
                     Log.d(TAG, "newInstance.putString")

@@ -40,7 +40,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -121,6 +120,15 @@ class MainActivity : MyViewCompose() {
                 result: ActivityResult ->
             Log.d(TAG, "settingLauncher.result received")
             if (result.resultCode == RESULT_OK) {
+                val data = result.data ?: return@registerForActivityResult
+                data.extras?.let { extras ->
+                    mPresenter.setHasSound(extras.getBoolean(Constants.HAS_SOUND,
+                        true))
+                    mPresenter.setEasyLevel(extras.getBoolean(Constants.IS_EASY_LEVEL,
+                        true))
+                    mPresenter.setHasNextBall(extras.getBoolean(Constants.HAS_NEXT_BALL,
+                        true),true)
+                }
                 Log.d(TAG, "settingLauncher.Showing interstitial ads")
                 showInterstitialAd()
             }
@@ -255,7 +263,7 @@ class MainActivity : MyViewCompose() {
             Composables.Top10Composable(
                 title = top10TitleName.value,
                 topPlayers = top10Players.value, buttonListener =
-                object : Composables.OkButtonListener {
+                object : Composables.ButtonClickListener {
                     override fun buttonOkClick() {
                         showInterstitialAd()
                         top10TitleName.value = ""

@@ -693,7 +693,9 @@ class PresenterCompose(
 
     private fun drawNextBall(i: Int, j: Int, color: Int) {
         Log.d(TAG, "drawNextBall.($i, $j), color = $color")
-        gridDataArray[i][j].value = ColorBallInfo(color, WhichBall.NEXT_BALL)
+        val trueColor = if (mGameProp.hasNextBall) color else 0
+        Log.d(TAG, "drawNextBall.($i, $j), trueColor = $trueColor")
+        gridDataArray[i][j].value = ColorBallInfo(trueColor, WhichBall.NEXT_BALL)
     }
 
     private fun displayNextBallsView() {

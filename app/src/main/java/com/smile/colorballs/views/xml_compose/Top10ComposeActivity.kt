@@ -11,7 +11,6 @@ import com.smile.colorballs.R
 import com.smile.colorballs.shared_composables.Composables
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.databinding.ActivityTop10ComposeBinding
-import com.smile.colorballs.views.xml_compose.MyActivityTop10Compose.Companion
 import com.smile.smilelibraries.player_record_rest.models.Player
 
 class Top10ComposeActivity : AppCompatActivity() {
@@ -35,7 +34,7 @@ class Top10ComposeActivity : AppCompatActivity() {
         }
 
         val top10Fragment: Fragment = Top10ComposeFragment.newInstance(top10TitleName, players,
-            object : Composables.OkButtonListener {
+            object : Composables.ButtonClickListener {
                 override fun buttonOkClick() {
                     Log.d(TAG, "ComposableFunc.OkButtonListener.buttonOkClick")
                     setResult(RESULT_OK)
