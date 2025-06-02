@@ -45,6 +45,10 @@ class PresenterCompose(
         }
     }
 
+    init {
+        Log.d(TAG, "PresenterCompose.init")
+    }
+
     fun drawBallsAndCheckListener(i: Int, j: Int) {
         Log.d(TAG, "drawBallsAndCheckListener.($i, $j)")
         Log.d(TAG, "drawBallsAndCheckListener.isBallBouncing = " +

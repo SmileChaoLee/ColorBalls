@@ -33,4 +33,12 @@ class EnvSetting(hasSound : Boolean = true,
                 notifyPropertyChanged(BR.hasNextBall)
             }
         }
+
+    fun copy(envSetting: EnvSetting): EnvSetting {
+        val tempEnvSetting = EnvSetting()
+        tempEnvSetting.hasSound = envSetting.hasSound
+        tempEnvSetting.easyLevel = envSetting.easyLevel
+        tempEnvSetting.hasNextBall = envSetting.hasNextBall
+        return tempEnvSetting
+    }
 }

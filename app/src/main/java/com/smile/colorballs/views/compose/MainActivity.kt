@@ -53,27 +53,23 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.lifecycleScope
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
 import com.smile.colorballs.shared_composables.Composables
 import com.smile.colorballs.shared_composables.ui.theme.ColorBallsTheme
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
-import com.smile.colorballs.models.TopPlayer
+import com.smile.colorballs.models.EnvSetting
 import com.smile.smilelibraries.models.ExitAppTimer
-import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil
-import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
 import com.smile.smilelibraries.utilities.ScreenUtil
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class MainActivity : MyViewCompose() {
     companion object {
         private const val TAG = "MainActivity"
     }
+
     private val mOrientation = mutableIntStateOf(Configuration.ORIENTATION_PORTRAIT)
     private var screenX = 0f
     private var screenY = 0f
@@ -81,8 +77,6 @@ class MainActivity : MyViewCompose() {
     private var interstitialAd: ShowInterstitial? = null
     // the following are for Top 10 Players
     private lateinit var top10Launcher: ActivityResultLauncher<Intent>
-    private val top10Players = mutableStateOf(listOf<TopPlayer>())
-    private val top10TitleName = mutableStateOf("")
     // the following are for Settings
     private lateinit var settingLauncher: ActivityResultLauncher<Intent>
     //
@@ -143,28 +137,31 @@ class MainActivity : MyViewCompose() {
                     if (mOrientation.intValue ==
                         Configuration.ORIENTATION_PORTRAIT) {
                         Column {
-                            CreateMainUI(savedInstanceState,
-                                Modifier.weight(gameGridWeight))
+                            CreateMainUI(Modifier.weight(gameGridWeight))
                             SHowPortraitAds(Modifier.fillMaxWidth()
                                 .weight(1.0f - gameGridWeight))
                         }
                     } else {
-                        val width = (screenX/2f).dp
                         Row {
-                            CreateMainUI(savedInstanceState, Modifier.weight(1f))
+                            CreateMainUI(Modifier.weight(1f))
                             SHowLandscapeAds(modifier = Modifier.weight(1f)
                                 .fillMaxSize())
                         }
                     }
                     Top10PlayerUI()
+                    SettingUI()
                 }
+            }
+            LaunchedEffect(Unit) {
+                Log.d(TAG, "onCreate.setContent.LaunchedEffect")
+                mPresenter.initGame(savedInstanceState)
             }
         }
 
         onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 Log.d(TAG, "onBackPressedDispatcher.handleOnBackPressed")
-                onBackWasPressed()
+                if (viewModel.isMainUI) onBackWasPressed()
             }
         })
     }
@@ -225,51 +222,75 @@ class MainActivity : MyViewCompose() {
         screenY = screen.y.toFloat()
     }
 
-    private fun onClickSettingButton(useActivity: Boolean) {
-        if (useActivity) {
-            Intent(
-                this@MainActivity,
-                SettingActivityCompose::class.java
-            ).let {
-                Bundle().apply {
-                    putBoolean(Constants.HAS_SOUND, mPresenter.hasSound())
-                    putBoolean(Constants.IS_EASY_LEVEL, mPresenter.isEasyLevel())
-                    putBoolean(Constants.HAS_NEXT_BALL, mPresenter.hasNextBall())
-                    it.putExtras(this)
-                    settingLauncher.launch(it)
-                }
-            }
-        } else {
-
-        }
-    }
-
     @Composable
-    fun CreateMainUI(state: Bundle?, modifier: Modifier) {
+    fun CreateMainUI(modifier: Modifier) {
         Log.d(TAG, "CreateMainUI.mOrientation = $mOrientation")
         GameView(modifier)
         Log.d(TAG, "CreateMainUI.mImageSize = $mImageSizeDp")
-        LaunchedEffect(Unit) {
-            Log.d(TAG, "CreateMainUI.LaunchedEffect")
-            mPresenter.initGame(state)
-        }
     }
 
     @Composable
     fun Top10PlayerUI() {
         Log.d(TAG, "Top10PlayerUI.mOrientation.intValue " +
                 "= ${mOrientation.intValue}")
-        if (top10TitleName.value.isNotEmpty()) {
+        viewModel.isMainUI = true
+        val title = viewModel.top10TitleName.value
+        if (title.isNotEmpty()) {
+            viewModel.isMainUI = false
             Composables.Top10Composable(
-                title = top10TitleName.value,
-                topPlayers = top10Players.value, buttonListener =
+                title = title,
+                topPlayers = viewModel.top10Players.value, buttonListener =
                 object : Composables.ButtonClickListener {
                     override fun buttonOkClick() {
                         showInterstitialAd()
-                        top10TitleName.value = ""
+                        viewModel.setTop10TitleName("")
                     }
                 },
                 getString(R.string.okStr)
+            )
+        }
+    }
+
+    @Composable
+    fun SettingUI() {
+        Log.d(TAG, "SettingUI.mOrientation.intValue " +
+                "= ${mOrientation.intValue}")
+        viewModel.isMainUI = true
+        if (viewModel.settingTitle.value.isNotEmpty()) {
+            viewModel.isMainUI = false
+            val envSetting = EnvSetting(mPresenter.hasSound(),
+                mPresenter.isEasyLevel(), mPresenter.hasNextBall())
+            val textClick = object : Composables.SettingTextClickListener {
+                override fun hasSoundClick(hasSound: Boolean) {
+                    Log.d(TAG, "textClick.hasSoundClick.hasSound = $hasSound")
+                    envSetting.hasSound = hasSound
+                }
+                override fun easyLevelClick(easyLevel: Boolean) {
+                    Log.d(TAG, "textClick.easyLevelClick.easyLevel = $easyLevel")
+                    envSetting.easyLevel = easyLevel
+                }
+                override fun hasNextClick(hasNext: Boolean) {
+                    Log.d(TAG, "textClick.hasNextClick.hasNext = $hasNext")
+                    envSetting.hasNextBall = hasNext
+                }
+            }
+
+            val buttonClick = object : Composables.ButtonClickListener  {
+                override fun buttonOkClick() {
+                    viewModel.setSettingTitle("")
+                    mPresenter.setHasSound(envSetting.hasSound)
+                    mPresenter.setEasyLevel(envSetting.easyLevel)
+                    mPresenter.setHasNextBall(envSetting.hasNextBall, true)
+                }
+                override fun buttonCancelClick() {
+                    super.buttonCancelClick()
+                    viewModel.setSettingTitle("")
+                }
+            }
+
+            Composables.SettingCompose(this@MainActivity,
+                buttonClick, textClick, getString(R.string.settingStr),
+                backgroundColor = Color(0xbb0000ff), envSetting
             )
         }
     }
@@ -283,7 +304,7 @@ class MainActivity : MyViewCompose() {
         Log.d(TAG, "GameView.maxHeight = $maxHeight")
         var maxWidth: Float
         var barHeight: Float
-        var adHeight: Float
+        val adHeight: Float
         val gHeight: Float
         val orientation = mOrientation.intValue
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -323,7 +344,7 @@ class MainActivity : MyViewCompose() {
         realGameSize = ScreenUtil.pixelToDp(realGameSize)
         startPadding = ScreenUtil.pixelToDp(startPadding).toInt().toFloat()
         Log.d(TAG, "GameView.startPadding.pixelToDp = $startPadding")
-        adHeight = ScreenUtil.pixelToDp(adHeight)
+        // adHeight = ScreenUtil.pixelToDp(adHeight)
 
         val topPadding = 0f
         // val backgroundColor = Color(getColor(R.color.yellow3))
@@ -368,7 +389,6 @@ class MainActivity : MyViewCompose() {
         )
     }
 
-
     @Composable
     fun SHowHighestScore(modifier: Modifier) {
         Log.d(TAG, "SHowHighestScore.mOrientation.intValue" +
@@ -398,17 +418,59 @@ class MainActivity : MyViewCompose() {
         }
     }
 
+    private fun onClickSettingButton(useActivity: Boolean) {
+        if (useActivity) {
+            Intent(
+                this@MainActivity,
+                SettingActivityCompose::class.java
+            ).let {
+                Bundle().apply {
+                    putBoolean(Constants.HAS_SOUND, mPresenter.hasSound())
+                    putBoolean(Constants.IS_EASY_LEVEL, mPresenter.isEasyLevel())
+                    putBoolean(Constants.HAS_NEXT_BALL, mPresenter.hasNextBall())
+                    it.putExtras(this)
+                    settingLauncher.launch(it)
+                }
+            }
+        } else {
+            viewModel.setSettingTitle(getString(R.string.settingStr))
+        }
+    }
+
     @Composable
     fun SettingButton(modifier: Modifier) {
         Log.d(TAG, "SettingButton.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
-        IconButton (onClick = { onClickSettingButton(true) },
+        IconButton (onClick = { onClickSettingButton(useActivity = false) },
             modifier = modifier) {
             Icon(
                 painter = painterResource(R.drawable.setting),
                 contentDescription = "",
                 tint = Color.White
             )
+        }
+    }
+
+    private fun showTop10Players(isLocal: Boolean, useActivity: Boolean) {
+        Log.d(TAG, "showTop10Players.isLocal " +
+                "= $isLocal , useActivity = $useActivity")
+        if (useActivity) {
+            Intent(
+                this@MainActivity,
+                Top10ActivityCompose::class.java
+            ).let {
+                Bundle().apply {
+                    putBoolean(Constants.IS_LOCAL_TOP10, isLocal)
+                    it.putExtras(this)
+                    top10Launcher.launch(it)
+                }
+            }
+        } else {
+            viewModel.setTop10TitleName(
+                if (isLocal) getString(R.string.localTop10Score) else
+                    getString(R.string.globalTop10Str)
+            )
+            viewModel.getTop10Players(context = this@MainActivity, isLocal)
         }
     }
 
@@ -437,7 +499,7 @@ class MainActivity : MyViewCompose() {
                     color = Color.Black,
                     onClick = {
                         expanded = false
-                        showTop10Players(false, false)
+                        showTop10Players(isLocal = false, useActivity = false)
                     })
 
                 Composables.DropdownMenuItem(
@@ -445,7 +507,7 @@ class MainActivity : MyViewCompose() {
                     color = Color.Black,
                     onClick = {
                         expanded = false
-                        showTop10Players(true, false)
+                        showTop10Players(isLocal = true, useActivity = false)
                     })
 
                 Composables.DropdownMenuItem(
@@ -489,50 +551,6 @@ class MainActivity : MyViewCompose() {
                             this@MainActivity, 10)
                               },
                     isDivider = false)
-            }
-        }
-    }
-
-    private fun showTop10Players(isLocal: Boolean, useActivity: Boolean) {
-        Log.d(TAG, "showTop10Players.isLocal " +
-                "= $isLocal , useActivity = $useActivity")
-        if (useActivity) {
-            Intent(
-                this@MainActivity,
-                Top10ActivityCompose::class.java
-            ).let {
-                Bundle().apply {
-                    putBoolean(Constants.IS_LOCAL_TOP10, isLocal)
-                    it.putExtras(this)
-                    top10Launcher.launch(it)
-                }
-            }
-        } else {
-            top10TitleName.value =
-                if (isLocal) getString(R.string.localTop10Score) else
-                    getString(R.string.globalTop10Str)
-            lifecycleScope.launch(Dispatchers.IO) {
-                Log.d(TAG, "showTop10Players.lifecycleScope")
-                val players = if (isLocal) {
-                    PlayerRecordRest.GetLocalTop10(
-                        ScoreSQLite(
-                            this@MainActivity
-                        )
-                    )
-                } else {
-                    PlayerRecordRest.GetGlobalTop10("1")
-                }
-                val top10 = ArrayList<TopPlayer>()
-                for (i in 0 until players.size) {
-                    players[i].playerName?.let { name ->
-                        if (name.trim().isEmpty()) players[i].playerName = "No Name"
-                    } ?: run {
-                        Log.d(TAG, "showTop10Players.players[i].playerName = null")
-                        players[i].playerName = "No Name"
-                    }
-                    top10.add(TopPlayer(players[i], medalImageIds[i]))
-                }
-                top10Players.value = top10
             }
         }
     }

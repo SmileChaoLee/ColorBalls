@@ -13,11 +13,13 @@ import android.view.Window
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.interfaces.PresentViewCompose
 import com.smile.colorballs.presenters.PresenterCompose
+import com.smile.colorballs.viewmodel.MainViewModel
 import com.smile.colorballs.views.compose.MainActivity.Companion
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment.DialogButtonListener
@@ -39,6 +41,8 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
     abstract fun quitOrNewGame(entryPoint: Int)
     abstract fun setDialogStyle(dialog: DialogInterface)
 
+    protected val viewModel: MainViewModel by viewModels()
+
     protected var textFontSize = 0f
     protected lateinit var mPresenter: PresenterCompose
 
@@ -57,8 +61,7 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "$TAG.onCreate")
-        Log.d(TAG, "onCreate.instantiate PresenterCompose")
-        mPresenter = PresenterCompose(this@MyViewCompose)
+
         medalImageIds = listOf(
             R.drawable.gold_medal,
             R.drawable.silver_medal,
@@ -70,6 +73,11 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
             R.drawable.olympics_image,
             R.drawable.olympics_image,
             R.drawable.olympics_image)
+
+        viewModel.isMainUI = true
+        viewModel.medalImageIds = medalImageIds
+        Log.d(TAG, "onCreate.instantiate PresenterCompose")
+        mPresenter = PresenterCompose(this@MyViewCompose)
     }
 
     protected fun bitmapDrawableResources() {

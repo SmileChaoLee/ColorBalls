@@ -47,11 +47,11 @@ class SettingActivityCompose : ComponentActivity() {
                 settingViewModel.setHasSound(hasSound)
             }
             override fun easyLevelClick(easyLevel: Boolean) {
-                Log.d(TAG, "textClick.hasSoundClick.easyLevel = $easyLevel")
+                Log.d(TAG, "textClick.easyLevelClick.easyLevel = $easyLevel")
                 settingViewModel.setEasyLevel(easyLevel)
             }
             override fun hasNextClick(hasNext: Boolean) {
-                Log.d(TAG, "textClick.hasSoundClick.hasNext = $hasNext")
+                Log.d(TAG, "textClick.hasNextClick.hasNext = $hasNext")
                 settingViewModel.setHasNextBall(hasNext)
             }
         }
