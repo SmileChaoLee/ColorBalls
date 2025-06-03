@@ -788,7 +788,7 @@ class Presenter(val presentView: PresentView,
 
     private fun displayGameGridView() {
         // display the 9 x 9 game view
-        Log.d(TAG, "displayGameView")
+        Log.d(TAG, "displayGameGridView")
         try {
             for (i in 0 until rowCounts) {
                 for (j in 0 until colCounts) {

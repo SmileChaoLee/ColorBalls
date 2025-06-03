@@ -25,80 +25,13 @@ open class GridData(
     private var mUndoNextCellIndices : HashMap<Point, Int> = HashMap(),
     private val mLightLine : HashSet<Point> = HashSet(),
     private val mPathPoint : ArrayList<Point> = ArrayList()) : Parcelable {
-        /*
         init {
             randCells()
         }
-        */
 
     fun randCells(): Int {
         mNextCellIndices.clear()
         return generateNextCellIndices(0)
-    }
-
-    fun initialize() {
-        mNumOfColorsUsed = Constants.NUM_EASY
-        for (i in 0 until rowCounts) {
-            for (j in 0 until rowCounts) {
-                mCellValues[i][j] = 0
-            }
-        }
-        for (i in 0 until rowCounts) {
-            for (j in 0 until rowCounts) {
-                mBackupCells[i][j] = 0
-            }
-        }
-        mNextCellIndices.clear()
-        mUndoNextCellIndices.clear()
-        mLightLine.clear()
-        mPathPoint.clear()
-
-        randCells()
-    }
-
-    fun copy(gData: GridData) {
-        Log.d(TAG, "copy")
-        mNumOfColorsUsed = gData.mNumOfColorsUsed
-        for (i in 0 until rowCounts) {
-            System.arraycopy(gData.mCellValues[i], 0, mCellValues[i],
-                0, gData.mCellValues[i].size)
-            for (j in 0 until rowCounts) {
-                Log.d(TAG, "copy.mCellValues[$i][$j] = ${mCellValues[i][j]}")
-            }
-        }
-        for (i in 0 until rowCounts) {
-            System.arraycopy(gData.mBackupCells[i], 0, mBackupCells[i],
-                0, gData.mBackupCells[i].size)
-            for (j in 0 until rowCounts) {
-                Log.d(TAG, "copy.mBackupCells[i] = ${mBackupCells[i][j]}")
-            }
-        }
-
-        mNextCellIndices.clear()
-        mNextCellIndices.putAll(gData.mNextCellIndices)
-        for (entry in mNextCellIndices.entries) {
-            Log.d(TAG, "copy.mNextCellIndices.entry.key = ${entry.key}")
-            Log.d(TAG, "copy.mNextCellIndices.entry.value = ${entry.value}")
-        }
-
-        mUndoNextCellIndices.clear()
-        mUndoNextCellIndices.putAll(gData.mUndoNextCellIndices)
-        for (entry in mUndoNextCellIndices.entries) {
-            Log.d(TAG, "copy.mUndoNextCellIndices.entry.key = ${entry.key}")
-            Log.d(TAG, "copy.mUndoNextCellIndices.entry.value = ${entry.value}")
-        }
-
-        mLightLine.clear()
-        mLightLine.addAll(gData.mLightLine)
-        for (item in mLightLine) {
-            Log.d(TAG, "copy.mLightLine.item = $item")
-        }
-
-        mPathPoint.clear()
-        mPathPoint.addAll(gData.mPathPoint)
-        for (item in mPathPoint) {
-            Log.d(TAG, "copy.mPathPoint.item = $item")
-        }
     }
 
     fun getCellValue(i: Int, j: Int): Int {
@@ -114,13 +47,10 @@ open class GridData(
     }
 
     fun undoTheLast() {
-        // mNextCellIndices = HashMap(mUndoNextCellIndices)
-        mNextCellIndices.clear()
-        mNextCellIndices.putAll(mUndoNextCellIndices)
+        mNextCellIndices = HashMap(mUndoNextCellIndices)
         // restore CellValues;
         for (i in 0 until rowCounts) {
-            System.arraycopy(mBackupCells[i], 0, mCellValues[i],
-                0, mBackupCells[i].size)
+            System.arraycopy(mBackupCells[i], 0, mCellValues[i], 0, mBackupCells[i].size)
         }
     }
 
@@ -137,15 +67,11 @@ open class GridData(
     }
 
     fun setNextCellIndices(nextCellIndices: HashMap<Point, Int>) {
-        // mNextCellIndices = HashMap(nextCellIndices)
-        mNextCellIndices.clear()
-        mNextCellIndices.putAll(nextCellIndices)
+        mNextCellIndices = HashMap(nextCellIndices)
     }
 
     fun setUndoNextCellIndices(undoNextCellIndices: HashMap<Point, Int>) {
-        // mUndoNextCellIndices = HashMap(undoNextCellIndices)
-        mUndoNextCellIndices.clear()
-        mUndoNextCellIndices.putAll(undoNextCellIndices)
+        mUndoNextCellIndices = HashMap(undoNextCellIndices)
     }
 
     fun addNextCellIndices(point: Point) {
@@ -158,15 +84,13 @@ open class GridData(
 
     fun setCellValues(cellValues: Array<IntArray>) {
         for (i in 0 until rowCounts) {
-            System.arraycopy(cellValues[i], 0, mCellValues[i],
-                0, cellValues[i].size)
+            System.arraycopy(cellValues[i], 0, mCellValues[i], 0, cellValues[i].size)
         }
     }
 
     fun setBackupCells(backupCells: Array<IntArray>) {
         for (i in 0 until rowCounts) {
-            System.arraycopy(backupCells[i], 0, mBackupCells[i],
-                0, backupCells[i].size)
+            System.arraycopy(backupCells[i], 0, mBackupCells[i], 0, backupCells[i].size)
         }
     }
 
@@ -176,12 +100,9 @@ open class GridData(
 
     fun setLightLine(lightLine: HashSet<Point>) {
         mLightLine.clear()
-        mLightLine.addAll(lightLine)
-        /*
         for (point in lightLine) {
             mLightLine.add(Point(point))
         }
-        */
     }
 
     fun getPathPoint(): ArrayList<Point> {
@@ -315,13 +236,10 @@ open class GridData(
             return false
         }
 
-        // mUndoNextCellIndices = HashMap(mNextCellIndices)
-        mUndoNextCellIndices.clear()
-        mUndoNextCellIndices.putAll(mNextCellIndices)
+        mUndoNextCellIndices = java.util.HashMap(mNextCellIndices)
         // backup CellValues;
         for (i in 0 until rowCounts) {
-            System.arraycopy(mCellValues[i], 0, mBackupCells[i],
-                0, mCellValues[i].size)
+            System.arraycopy(mCellValues[i], 0, mBackupCells[i], 0, mCellValues[i].size)
         }
 
         return findPath(sourcePoint, targetPoint)
@@ -338,7 +256,7 @@ open class GridData(
         var thirdResult = 0
         var forthResult = 0
 
-        val tempList: MutableList<Point> = ArrayList()
+        val tempList: MutableList<Point> = java.util.ArrayList()
         val cellColor = mCellValues[x][y]
         // Log.d(TAG, "check_moreThanFive() --> cellColor = " + cellColor);
 
