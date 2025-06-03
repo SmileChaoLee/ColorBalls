@@ -4,7 +4,6 @@ import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.graphics.Bitmap.createScaledBitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
@@ -13,17 +12,29 @@ import android.view.Window
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.sp
+import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.interfaces.PresentViewCompose
 import com.smile.colorballs.presenters.PresenterCompose
+import com.smile.colorballs.shared_composables.Composables
+import com.smile.colorballs.shared_composables.ui.theme.ColorBallsTheme
 import com.smile.colorballs.viewmodel.MainViewModel
 import com.smile.colorballs.views.compose.MainActivity.Companion
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment
 import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment.DialogButtonListener
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
+import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
 import com.smile.smilelibraries.utilities.FontAndBitmapUtil
 import com.smile.smilelibraries.utilities.ScreenUtil
 import com.smile.smilelibraries.utilities.SoundPoolUtil
@@ -44,6 +55,7 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
     protected val viewModel: MainViewModel by viewModels()
 
     protected var textFontSize = 0f
+    protected var interstitialAd: ShowInterstitial? = null
     protected lateinit var mPresenter: PresenterCompose
 
     protected var mImageSizeDp = 0f
@@ -55,12 +67,26 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
     private var sureSaveDialog: AlertDialogFragment? = null
     private var sureLoadDialog: AlertDialogFragment? = null
     private var gameOverDialog: AlertDialogFragment? = null
-    protected var saveScoreAlertDialog: AlertDialog? = null
-    protected lateinit var medalImageIds: List<Int>
+    private lateinit var medalImageIds: List<Int>
+    protected var saveScoreAlertDialog: androidx.appcompat.app.AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "$TAG.onCreate")
+
+        Log.d(TAG, "onCreate.textFontSize")
+        textFontSize = ScreenUtil.suitableFontSize(
+            this, ScreenUtil.getDefaultTextSizeFromTheme(this,
+                ScreenUtil.FontSize_Pixel_Type, null),
+            ScreenUtil.FontSize_Pixel_Type,
+            0.0f)
+        Composables.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
+
+        Log.d(TAG, "onCreate.interstitialAd")
+        (application as ColorBallsApp).let {
+            interstitialAd = ShowInterstitial(this, it.facebookAds,
+                it.googleInterstitialAd)
+        }
 
         medalImageIds = listOf(
             R.drawable.gold_medal,
@@ -150,6 +176,65 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
         }
     }
 
+    @Composable
+    protected fun SaveGameDialog() {
+        Log.d(TAG, "SaveGameDialog")
+        val dialogText = mPresenter.saveGameTitle.value
+        if (dialogText.isNotEmpty()) {
+            val buttonListener = object: Composables.ButtonClickListener {
+                override fun buttonOkClick() {
+                    val numOfSaved: Int = mPresenter.readNumberOfSaved()
+                    val msg = if (mPresenter.startSavingGame(numOfSaved)) {
+                            getString(R.string.succeededSaveGameStr)
+                        } else {
+                            getString(R.string.failedSaveGameStr)
+                        }
+                    ScreenUtil.showToast(this@MyViewCompose, msg, textFontSize,
+                        ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
+                    mPresenter.setShowingSureSaveDialog(false)
+                    mPresenter.setSaveGameTitle("")
+                    showInterstitialAd()
+                }
+                override fun buttonCancelClick() {
+                    super.buttonCancelClick()
+                    mPresenter.setShowingSureSaveDialog(false)
+                    mPresenter.setSaveGameTitle("")
+                }
+            }
+            Composables.ShowDialog(this@MyViewCompose,
+                buttonListener, dialogText)
+        }
+    }
+
+    @Composable
+    protected fun LoadGameDialog() {
+        Log.d(TAG, "LoadGameDialog")
+        val dialogText = mPresenter.loadGameTitle.value
+        if (dialogText.isNotEmpty()) {
+            val buttonListener = object: Composables.ButtonClickListener {
+                override fun buttonOkClick() {
+                    val msg = if (mPresenter.startLoadingGame()) {
+                        getString(R.string.succeededLoadGameStr)
+                    } else {
+                        getString(R.string.failedLoadGameStr)
+                    }
+                    ScreenUtil.showToast(this@MyViewCompose, msg, textFontSize,
+                        ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
+                    mPresenter.setShowingSureLoadDialog(false)
+                    mPresenter.setLoadGameTitle("")
+                    showInterstitialAd()
+                }
+                override fun buttonCancelClick() {
+                    super.buttonCancelClick()
+                    mPresenter.setShowingSureLoadDialog(false)
+                    mPresenter.setLoadGameTitle("")
+                }
+            }
+            Composables.ShowDialog(this@MyViewCompose,
+                buttonListener, dialogText)
+        }
+    }
+
     // implementing PresentView
     override fun soundPool(): SoundPoolUtil {
         return SoundPoolUtil(this, R.raw.uhoh)
@@ -200,6 +285,8 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
 
     override fun showSaveGameDialog() {
         Log.d(TAG, "showSaveGameDialog")
+        mPresenter.setSaveGameTitle(getString(R.string.sureToSaveGameStr))
+        /*
         sureSaveDialog = AlertDialogFragment.newInstance(object : DialogButtonListener {
             override fun noButtonOnClick(dialogFragment: AlertDialogFragment) {
                 // cancel the action of saving game
@@ -227,7 +314,7 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
             putString(AlertDialogFragment.TextContentKey, getString(R.string.sureToSaveGameStr))
             putInt(AlertDialogFragment.FontSizeScaleTypeKey, ScreenUtil.FontSize_Pixel_Type)
             putFloat(AlertDialogFragment.TextFontSizeKey, textFontSize)
-            putInt(AlertDialogFragment.ColorKey, Color.BLUE)
+            putInt(AlertDialogFragment.ColorKey, android.graphics.Color.BLUE)
             putInt(AlertDialogFragment.WidthKey, 0) // wrap_content
             putInt(AlertDialogFragment.HeightKey, 0) // wrap_content
             putInt(AlertDialogFragment.NumButtonsKey, 2)
@@ -242,9 +329,13 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
         // Need to implement this
         // val fragment = supportFragmentManager.findFragmentByTag(Constants.SURE_SAVE_DIALOG_TAG)
         // Log.d(TAG,"MyView.showSaveGameDialog.fragment = $fragment")
+        */
     }
 
     override fun showLoadGameDialog() {
+        Log.d(TAG, "showLoadGameDialog")
+        mPresenter.setLoadGameTitle(getString(R.string.sureToLoadGameStr))
+        /*
         sureLoadDialog = AlertDialogFragment.newInstance(object : DialogButtonListener {
             override fun noButtonOnClick(dialogFragment: AlertDialogFragment) {
                 // cancel the action of loading game
@@ -281,7 +372,7 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
             putString(AlertDialogFragment.TextContentKey, getString(R.string.sureToLoadGameStr))
             putInt(AlertDialogFragment.FontSizeScaleTypeKey, ScreenUtil.FontSize_Pixel_Type)
             putFloat(AlertDialogFragment.TextFontSizeKey, textFontSize)
-            putInt(AlertDialogFragment.ColorKey, Color.BLUE)
+            putInt(AlertDialogFragment.ColorKey, android.graphics.Color.BLUE)
             putInt(AlertDialogFragment.WidthKey, 0) // wrap_content
             putInt(AlertDialogFragment.HeightKey, 0) // wrap_content
             putInt(AlertDialogFragment.NumButtonsKey, 2)
@@ -293,6 +384,7 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
                 // it.show(supportFragmentManager, Constants.SURE_LOAD_DIALOG_TAG)
             }
         }
+        */
     }
 
     override fun showGameOverDialog() {
@@ -315,7 +407,7 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
             putString(AlertDialogFragment.TextContentKey, getString(R.string.gameOverStr))
             putInt(AlertDialogFragment.FontSizeScaleTypeKey, ScreenUtil.FontSize_Pixel_Type)
             putFloat(AlertDialogFragment.TextFontSizeKey, textFontSize)
-            putInt(AlertDialogFragment.ColorKey, Color.BLUE)
+            putInt(AlertDialogFragment.ColorKey, android.graphics.Color.BLUE)
             putInt(AlertDialogFragment.WidthKey, 0) // wrap_content
             putInt(AlertDialogFragment.HeightKey, 0) // wrap_content
             putInt(AlertDialogFragment.NumButtonsKey, 2)
@@ -333,11 +425,12 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
     override fun showSaveScoreAlertDialog(entryPoint: Int, score: Int) {
         mPresenter.setSaveScoreAlertDialogState(entryPoint, true)
         val et = EditText(this)
-        et.setTextColor(Color.BLUE)
+        et.setTextColor(android.graphics.Color.BLUE)
         et.hint = getString(R.string.nameStr)
         ScreenUtil.resizeTextSize(et, textFontSize, ScreenUtil.FontSize_Pixel_Type)
         et.gravity = Gravity.CENTER
-        saveScoreAlertDialog = AlertDialog.Builder(this).create()
+        saveScoreAlertDialog = androidx.appcompat.app.AlertDialog
+            .Builder(this).create()
         saveScoreAlertDialog?.let {
             it.setTitle(null)
             it.requestWindowFeature(Window.FEATURE_NO_TITLE)

@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.os.BundleCompat
@@ -39,6 +40,21 @@ class PresenterCompose(
     val currentScore = mutableIntStateOf(0)
     val highestScore = mutableIntStateOf(0)
     val screenMessage = mutableStateOf("")
+
+    private val _saveGameTitle = mutableStateOf("")
+    val saveGameTitle: MutableState<String>
+        get() = _saveGameTitle
+    fun setSaveGameTitle(title: String) {
+        _saveGameTitle.value = title
+    }
+
+    private val _loadGameTitle = mutableStateOf("")
+    val loadGameTitle: MutableState<String>
+        get() = _loadGameTitle
+    fun setLoadGameTitle(title: String) {
+        _loadGameTitle.value = title
+    }
+
     val gridDataArray = Array(Constants.ROW_COUNTS) {
         Array(Constants.ROW_COUNTS) {
             mutableStateOf(ColorBallInfo())
@@ -344,10 +360,12 @@ class PresenterCompose(
     }
 
     fun saveGame() {
+        Log.d(TAG, "saveGame")
         presentView.showSaveGameDialog()
     }
 
     fun loadGame() {
+        Log.d(TAG, "loadGame")
         presentView.showLoadGameDialog()
     }
 

@@ -62,7 +62,6 @@ import com.smile.colorballs.constants.WhichBall
 import com.smile.colorballs.models.EnvSetting
 import com.smile.smilelibraries.models.ExitAppTimer
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil
-import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
 import com.smile.smilelibraries.utilities.ScreenUtil
 
 class MainActivity : MyViewCompose() {
@@ -74,7 +73,6 @@ class MainActivity : MyViewCompose() {
     private var screenX = 0f
     private var screenY = 0f
     private val gameGridWeight = 0.7f
-    private var interstitialAd: ShowInterstitial? = null
     // the following are for Top 10 Players
     private lateinit var top10Launcher: ActivityResultLauncher<Intent>
     // the following are for Settings
@@ -83,19 +81,6 @@ class MainActivity : MyViewCompose() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "$TAG.onCreate")
-        Log.d(TAG, "onCreate.textFontSize")
-        textFontSize = ScreenUtil.suitableFontSize(
-                this, ScreenUtil.getDefaultTextSizeFromTheme(this,
-                    ScreenUtil.FontSize_Pixel_Type, null),
-                ScreenUtil.FontSize_Pixel_Type,
-                0.0f)
-        Composables.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
-
-        Log.d(TAG, "onCreate.interstitialAd")
-        (application as ColorBallsApp).let {
-            interstitialAd = ShowInterstitial(this, it.facebookAds,
-                it.googleInterstitialAd)
-        }
         Log.d(TAG, "onCreate.getScreenSize()")
         getScreenSize()
 
@@ -150,6 +135,10 @@ class MainActivity : MyViewCompose() {
                     }
                     Top10PlayerUI()
                     SettingUI()
+                    Box {
+                        SaveGameDialog()
+                        LoadGameDialog()
+                    }
                 }
             }
             LaunchedEffect(Unit) {
@@ -281,10 +270,12 @@ class MainActivity : MyViewCompose() {
                     mPresenter.setHasSound(envSetting.hasSound)
                     mPresenter.setEasyLevel(envSetting.easyLevel)
                     mPresenter.setHasNextBall(envSetting.hasNextBall, true)
+                    showInterstitialAd()
                 }
                 override fun buttonCancelClick() {
                     super.buttonCancelClick()
                     viewModel.setSettingTitle("")
+                    showInterstitialAd()
                 }
             }
 
@@ -515,7 +506,9 @@ class MainActivity : MyViewCompose() {
                     color = Color.Black,
                     onClick = {
                         expanded = false
-                        mPresenter.saveGame()
+                        // mPresenter.saveGame()
+                        mPresenter.setSaveGameTitle(
+                            getString(R.string.sureToSaveGameStr))
                     })
 
                 Composables.DropdownMenuItem(
@@ -523,7 +516,9 @@ class MainActivity : MyViewCompose() {
                     color = Color.Black,
                     onClick = {
                         expanded = false
-                        mPresenter.loadGame()
+                        // mPresenter.loadGame()
+                        mPresenter.setLoadGameTitle(
+                            getString(R.string.sureToLoadGameStr))
                     })
 
                 Composables.DropdownMenuItem(

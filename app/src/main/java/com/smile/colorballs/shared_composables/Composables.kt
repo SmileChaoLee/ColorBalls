@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.HorizontalDivider
@@ -44,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import com.smile.colorballs.R
 import com.smile.colorballs.models.EnvSetting
 import com.smile.colorballs.models.TopPlayer
+import com.smile.colorballs.shared_composables.ui.theme.*
 
 object Composables {
 
@@ -379,5 +381,45 @@ object Composables {
                 .fillMaxWidth()
                 .weight(spaceWeight))
         }   // end of main column
+    }
+
+    @Composable
+    fun ShowDialog(activity: Activity,
+                   buttonListener: ButtonClickListener,
+                   dialogText: String) {
+        val okStr = activity.getString(R.string.okStr)
+        val noStr = activity.getString(R.string.noStr)
+        var isOpen by remember { mutableStateOf(true) }
+        // activity.getColor(android.R.color.holo_red_light))
+        val lightRed = Color(0xffff4444)
+        AlertDialog(icon = null, title  = {},
+            text = { Text(text = dialogText,
+                fontWeight = FontWeight.Medium, fontSize = mFontSize)},
+            containerColor = Color(0xffffa500),
+            textContentColor = Color.Blue,
+            onDismissRequest = { isOpen = false},
+            confirmButton = {
+                Button(onClick = {
+                    isOpen = false
+                    buttonListener.buttonOkClick()
+                }, colors = ButtonColors(
+                    containerColor = ColorPrimary,
+                    disabledContainerColor = ColorPrimary,
+                    contentColor = Color.Yellow,
+                    disabledContentColor = Color.Yellow
+                )) { Text(text = okStr, fontSize = mFontSize) }
+                            },
+            dismissButton = {
+                Button(onClick = {
+                    isOpen = false
+                    buttonListener.buttonCancelClick()
+                }, colors = ButtonColors(
+                    containerColor = ColorPrimary,
+                    disabledContainerColor = ColorPrimary,
+                    contentColor = lightRed,
+                    disabledContentColor = lightRed
+                )) { Text(text = noStr, fontSize = mFontSize) }
+            }
+        )
     }
 }
