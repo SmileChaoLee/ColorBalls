@@ -14,8 +14,8 @@ import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
 import com.smile.colorballs.interfaces.PresentViewCompose
-import com.smile.colorballs.models.GameProp
-import com.smile.colorballs.models.GridData
+import com.smile.colorballs.models.GamePropCompose
+import com.smile.colorballs.models.GridDataCompose
 import com.smile.colorballs.models.ColorBallInfo
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
 import com.smile.smilelibraries.utilities.SoundPoolUtil
@@ -34,25 +34,40 @@ class PresenterCompose(
     private val bouncyBallHandler = Handler(Looper.getMainLooper())
     private val movingBallHandler = Handler(Looper.getMainLooper())
     private val showingScoreHandler = Handler(Looper.getMainLooper())
-    private var mGameProp = GameProp()
-    private var mGridData = GridData()
+    private var mGameProp = GamePropCompose()
+    private var mGridData = GridDataCompose()
+    var mGameAction = Constants.IS_QUITING_GAME
 
     val currentScore = mutableIntStateOf(0)
     val highestScore = mutableIntStateOf(0)
     val screenMessage = mutableStateOf("")
 
-    private val _saveGameTitle = mutableStateOf("")
-    val saveGameTitle: MutableState<String>
-        get() = _saveGameTitle
-    fun setSaveGameTitle(title: String) {
-        _saveGameTitle.value = title
+    private val _saveGameText = mutableStateOf("")
+    val saveGameText: MutableState<String>
+        get() = _saveGameText
+    fun setSaveGameText(text: String) {
+        _saveGameText.value = text
     }
 
-    private val _loadGameTitle = mutableStateOf("")
-    val loadGameTitle: MutableState<String>
-        get() = _loadGameTitle
-    fun setLoadGameTitle(title: String) {
-        _loadGameTitle.value = title
+    private val _loadGameText = mutableStateOf("")
+    val loadGameText: MutableState<String>
+        get() = _loadGameText
+    fun setLoadGameText(text: String) {
+        _loadGameText.value = text
+    }
+
+    private val _gameOverText = mutableStateOf("")
+    val gameOverText: MutableState<String>
+        get() = _gameOverText
+    fun setGameOverText(text: String) {
+        _gameOverText.value = text
+    }
+
+    private val _saveScoreTitle = mutableStateOf("")
+    val saveScoreTitle: MutableState<String>
+        get() = _saveScoreTitle
+    fun setSaveScoreTitle(title: String) {
+        _saveScoreTitle.value = title
     }
 
     val gridDataArray = Array(Constants.ROW_COUNTS) {
@@ -116,7 +131,7 @@ class PresenterCompose(
         }
     }
 
-    private fun setData(prop: GameProp, gData: GridData) {
+    private fun setData(prop: GamePropCompose, gData: GridDataCompose) {
         Log.d(TAG, "setData")
         mGameProp = prop
         mGridData = gData
@@ -170,17 +185,19 @@ class PresenterCompose(
 
     private fun restoreState(state: Bundle?): Boolean {
         val isNewGame: Boolean
-        var gameProp: GameProp? = null
-        var gridData: GridData? = null
+        var gameProp: GamePropCompose? = null
+        var gridData: GridDataCompose? = null
         state?.let {
             Log.d(TAG,"restoreState.state not null then restore the state")
             gameProp =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                    BundleCompat.getParcelable(it, Constants.GAME_PROP_TAG, GameProp::class.java)
+                    BundleCompat.getParcelable(it, Constants.GAME_PROP_TAG,
+                        GamePropCompose::class.java)
                 else it.getParcelable(Constants.GAME_PROP_TAG)
             gridData =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                    BundleCompat.getParcelable(it, Constants.GRID_DATA_TAG, GridData::class.java)
+                    BundleCompat.getParcelable(it, Constants.GRID_DATA_TAG,
+                        GridDataCompose::class.java)
                 else it.getParcelable(Constants.GRID_DATA_TAG)
         }
         if (gameProp == null || gridData == null) {
@@ -301,9 +318,9 @@ class PresenterCompose(
         ColorBallsApp.isProcessingJob = false // finished
     }
 
-    fun setSaveScoreAlertDialogState(entryPoint: Int, state: Boolean) {
+    fun setSaveScoreAlertDialogState(state: Boolean) {
         ColorBallsApp.isProcessingJob = state
-        if (entryPoint == 1) {
+        if (mGameAction == Constants.IS_CREATING_GAME) {
             // new game
             setShowingNewGameDialog(state)
         } else {
@@ -313,7 +330,6 @@ class PresenterCompose(
     }
 
     fun setShowingSureSaveDialog(isShowingSureSaveDialog: Boolean) {
-
         mGameProp.isShowingSureSaveDialog = isShowingSureSaveDialog
     }
 
@@ -325,7 +341,7 @@ class PresenterCompose(
         mGameProp.isShowingGameOverDialog = isShowingGameOverDialog
     }
 
-    fun saveScore(playerName: String, score: Int) {
+    fun saveScore(playerName: String) {
         // use thread to add a record to remote database
         val restThread: Thread = object : Thread() {
             override fun run() {
@@ -333,7 +349,7 @@ class PresenterCompose(
                     // ASP.NET Core
                     val jsonObject = JSONObject()
                     jsonObject.put("PlayerName", playerName)
-                    jsonObject.put("Score", score)
+                    jsonObject.put("Score", mGameProp.currentScore)
                     jsonObject.put("GameId", Constants.GAME_ID)
                     PlayerRecordRest.addOneRecord(jsonObject)
                     Log.d(TAG, "saveScore.Succeeded to add one record to remote.")
@@ -346,17 +362,21 @@ class PresenterCompose(
         restThread.start()
 
         // save to local storage
-        presentView.addScoreInLocalTop10(playerName, score)
+        presentView.addScoreInLocalTop10(playerName, mGameProp.currentScore)
     }
 
     fun newGame() {
+        // creating a new game
         stopBouncyAnimation()
-        presentView.showSaveScoreAlertDialog(1, mGameProp.currentScore)
+        mGameAction = Constants.IS_CREATING_GAME
+        presentView.showSaveScoreAlertDialog()
     }
 
     fun quitGame() {
+        // quiting the game
         stopBouncyAnimation()
-        presentView.showSaveScoreAlertDialog(0, mGameProp.currentScore)
+        mGameAction = Constants.IS_QUITING_GAME
+        presentView.showSaveScoreAlertDialog()
     }
 
     fun saveGame() {

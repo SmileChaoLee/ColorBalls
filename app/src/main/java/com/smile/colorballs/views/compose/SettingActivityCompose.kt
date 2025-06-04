@@ -56,12 +56,11 @@ class SettingActivityCompose : ComponentActivity() {
             }
         }
 
-        val buttonClick = object : Composables.ButtonClickListener  {
-            override fun buttonOkClick() {
+        val buttonClick = object : Composables.ButtonClickListener<Unit>  {
+            override fun buttonOkClick(passedValue: Unit?) {
                 returnToPrevious(confirmed = true)
             }
-            override fun buttonCancelClick() {
-                super.buttonCancelClick()
+            override fun buttonCancelClick(passedValue: Unit?) {
                 returnToPrevious(confirmed = false)
             }
         }

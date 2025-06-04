@@ -14,7 +14,6 @@ import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
 
-    var isMainUI = true // for the backPressed
     lateinit var medalImageIds: List<Int>
 
     private val _top10Players = mutableStateOf(listOf<TopPlayer>())

@@ -34,8 +34,8 @@ class Top10ComposeActivity : AppCompatActivity() {
         }
 
         val top10Fragment: Fragment = Top10ComposeFragment.newInstance(top10TitleName, players,
-            object : Composables.ButtonClickListener {
-                override fun buttonOkClick() {
+            object : Composables.ButtonClickListener<Unit> {
+                override fun buttonOkClick(passedValue: Unit?) {
                     Log.d(TAG, "ComposableFunc.OkButtonListener.buttonOkClick")
                     setResult(RESULT_OK)
                     finish()

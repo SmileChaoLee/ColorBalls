@@ -23,7 +23,9 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,13 +53,9 @@ object Composables {
 
     private const val TAG = "Composables"
 
-    interface ButtonClickListener {
-        fun buttonOkClick()
-        fun buttonCancelClick() = run { }
-    }
-
-    interface TextClickListener {
-        fun textClicked()
+    interface ButtonClickListener<T> {
+        fun buttonOkClick(passedValue: T? = null)
+        fun buttonCancelClick(passedValue: T? = null) = run { }
     }
 
     interface SettingTextClickListener {
@@ -118,7 +116,8 @@ object Composables {
     // For the Top10ComposeActivity
     @Composable
     fun Top10Composable(title: String, topPlayers: List<TopPlayer>,
-                        buttonListener: ButtonClickListener, oKStr: String) {
+                        buttonListener: ButtonClickListener<Unit>,
+                        oKStr: String) {
         Log.d(TAG, "Top10Compose.topPlayers.size = ${topPlayers.size}")
         val imageWidth = (mFontSize.value * 3.0).dp
         Column(modifier = Modifier
@@ -176,7 +175,7 @@ object Composables {
 
     @Composable
     fun SettingCompose(activity: Activity,
-                       buttonListener: ButtonClickListener,
+                       buttonListener: ButtonClickListener<Unit>,
                        textListener: SettingTextClickListener,
                        text: String, backgroundColor: Color,
                        setting: EnvSetting) {
@@ -384,18 +383,23 @@ object Composables {
     }
 
     @Composable
-    fun ShowDialog(activity: Activity,
-                   buttonListener: ButtonClickListener,
-                   dialogText: String) {
+    fun DialogWithText(activity: Activity,
+                       buttonListener: ButtonClickListener<Unit>,
+                       dialogTitle: String, dialogText: String) {
+        Log.d(TAG, "DialogWithText")
         val okStr = activity.getString(R.string.okStr)
         val noStr = activity.getString(R.string.noStr)
         var isOpen by remember { mutableStateOf(true) }
         // activity.getColor(android.R.color.holo_red_light))
         val lightRed = Color(0xffff4444)
-        AlertDialog(icon = null, title  = {},
-            text = { Text(text = dialogText,
-                fontWeight = FontWeight.Medium, fontSize = mFontSize)},
+        AlertDialog(icon = null, title  = { if (dialogTitle.isNotEmpty())
+            Text(text = dialogTitle,
+                fontWeight = FontWeight.Medium, fontSize = mFontSize) },
+            text = { if (dialogText.isNotEmpty())
+                Text(text = dialogText,
+                fontWeight = FontWeight.Medium, fontSize = mFontSize) },
             containerColor = Color(0xffffa500),
+            titleContentColor = Color.White,
             textContentColor = Color.Blue,
             onDismissRequest = { isOpen = false},
             confirmButton = {
@@ -413,6 +417,58 @@ object Composables {
                 Button(onClick = {
                     isOpen = false
                     buttonListener.buttonCancelClick()
+                }, colors = ButtonColors(
+                    containerColor = ColorPrimary,
+                    disabledContainerColor = ColorPrimary,
+                    contentColor = lightRed,
+                    disabledContentColor = lightRed
+                )) { Text(text = noStr, fontSize = mFontSize) }
+            }
+        )
+    }
+
+    @Composable
+    fun DialogWithTextField(activity: Activity,
+                            buttonListener: ButtonClickListener<String>,
+                            dialogTitle: String, hintText: String) {
+        Log.d(TAG, "DialogWithTextField")
+
+        val lightRed = Color(0xffff4444)
+        val okStr = activity.getString(R.string.okStr)
+        val noStr = activity.getString(R.string.noStr)
+        var isOpen by remember { mutableStateOf(true) }
+        Log.d(TAG, "DialogWithTextField.isOpen = $isOpen")
+        var textValue by remember { mutableStateOf("") }
+        Log.d(TAG, "DialogWithTextField.textValue = $textValue")
+        AlertDialog(icon = null, title  = { if (dialogTitle.isNotEmpty())
+            Text(text = dialogTitle,
+                fontWeight = FontWeight.Medium, fontSize = mFontSize) },
+            text = { if (hintText.isNotEmpty())
+                TextField(value = textValue,
+                    onValueChange = { textValue = it},
+                    textStyle = LocalTextStyle.current.copy(fontSize = mFontSize),
+                    placeholder = {Text(text = hintText, color = Color.LightGray,
+                        fontWeight = FontWeight.Light, fontSize = mFontSize) }
+                    ) },
+            containerColor = Color(0xffffa500),
+            titleContentColor = Color.White,
+            textContentColor = Color.Blue,
+            onDismissRequest = { isOpen = false},
+            confirmButton = {
+                Button(onClick = {
+                    isOpen = false
+                    buttonListener.buttonOkClick(textValue)
+                }, colors = ButtonColors(
+                    containerColor = ColorPrimary,
+                    disabledContainerColor = ColorPrimary,
+                    contentColor = Color.Yellow,
+                    disabledContentColor = Color.Yellow
+                )) { Text(text = okStr, fontSize = mFontSize) }
+            },
+            dismissButton = {
+                Button(onClick = {
+                    isOpen = false
+                    buttonListener.buttonCancelClick(textValue)
                 }, colors = ButtonColors(
                     containerColor = ColorPrimary,
                     disabledContainerColor = ColorPrimary,

@@ -53,6 +53,7 @@
     <string name="continueStr">繼續</string>
     <string name="showStr">顯示</string>
     <string name="noShowStr">不顯示</string>
+    <string name="saveScoreStr">儲存得分</string>
     <string name="companyDescriptionStr">客製化軟體, 智慧型手機程式, 及網頁應用程式等開發</string>
     <string name="companyNameStr">微笑資訊有限公司</string>
     <string name="companyContactEmailStr">leechao1959@gmail.com</string>

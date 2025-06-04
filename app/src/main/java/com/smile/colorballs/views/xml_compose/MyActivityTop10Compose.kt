@@ -625,8 +625,8 @@ class MyActivityTop10Compose : MyView() {
                         top10Fragment = Top10ComposeFragment.newInstance(
                             top10ScoreTitle,
                             players,
-                            object: Composables.ButtonClickListener {
-                                override fun buttonOkClick() {
+                            object: Composables.ButtonClickListener<Unit> {
+                                override fun buttonOkClick(passedValue: Unit?) {
                                     Log.d(TAG, "MyBroadcastReceiver.Top10OkButtonListener")
                                     // remove top10Fragment to dismiss the top 10 score screen
                                     top10Fragment?.let { top10 ->

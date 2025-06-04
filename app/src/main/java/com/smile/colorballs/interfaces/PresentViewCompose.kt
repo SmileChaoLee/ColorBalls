@@ -13,7 +13,7 @@ interface PresentViewCompose {
     fun showLoadingStrOnScreen()
     fun showSavingGameStrOnScreen()
     fun showLoadingGameStrOnScreen()
-    fun showSaveScoreAlertDialog(entryPoint : Int, score : Int)
+    fun showSaveScoreAlertDialog()
     fun showSaveGameDialog()
     fun showLoadGameDialog()
     fun showGameOverDialog()

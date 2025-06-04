@@ -53,6 +53,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
 import com.smile.colorballs.shared_composables.Composables
@@ -138,6 +140,8 @@ class MainActivity : MyViewCompose() {
                     Box {
                         SaveGameDialog()
                         LoadGameDialog()
+                        GameOverDialog()
+                        SaveScoreDialog()
                     }
                 }
             }
@@ -150,7 +154,7 @@ class MainActivity : MyViewCompose() {
         onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 Log.d(TAG, "onBackPressedDispatcher.handleOnBackPressed")
-                if (viewModel.isMainUI) onBackWasPressed()
+                onBackWasPressed()
             }
         })
     }
@@ -170,7 +174,6 @@ class MainActivity : MyViewCompose() {
             ColorBallsApp.isShowingLoadingMessage = false
             ColorBallsApp.isProcessingJob = false
         }
-        saveScoreAlertDialog?.dismiss()
         mPresenter.onSaveInstanceState(outState)
 
         super.onSaveInstanceState(outState)
@@ -222,15 +225,13 @@ class MainActivity : MyViewCompose() {
     fun Top10PlayerUI() {
         Log.d(TAG, "Top10PlayerUI.mOrientation.intValue " +
                 "= ${mOrientation.intValue}")
-        viewModel.isMainUI = true
         val title = viewModel.top10TitleName.value
         if (title.isNotEmpty()) {
-            viewModel.isMainUI = false
             Composables.Top10Composable(
                 title = title,
                 topPlayers = viewModel.top10Players.value, buttonListener =
-                object : Composables.ButtonClickListener {
-                    override fun buttonOkClick() {
+                object : Composables.ButtonClickListener<Unit> {
+                    override fun buttonOkClick(passedValue: Unit?) {
                         showInterstitialAd()
                         viewModel.setTop10TitleName("")
                     }
@@ -244,9 +245,8 @@ class MainActivity : MyViewCompose() {
     fun SettingUI() {
         Log.d(TAG, "SettingUI.mOrientation.intValue " +
                 "= ${mOrientation.intValue}")
-        viewModel.isMainUI = true
         if (viewModel.settingTitle.value.isNotEmpty()) {
-            viewModel.isMainUI = false
+            var isDialogOpen by remember { mutableStateOf(true) }
             val envSetting = EnvSetting(mPresenter.hasSound(),
                 mPresenter.isEasyLevel(), mPresenter.hasNextBall())
             val textClick = object : Composables.SettingTextClickListener {
@@ -264,25 +264,31 @@ class MainActivity : MyViewCompose() {
                 }
             }
 
-            val buttonClick = object : Composables.ButtonClickListener  {
-                override fun buttonOkClick() {
+            val buttonClick = object : Composables.ButtonClickListener<Unit>  {
+                override fun buttonOkClick(passedValue: Unit?) {
                     viewModel.setSettingTitle("")
+                    isDialogOpen = false
                     mPresenter.setHasSound(envSetting.hasSound)
                     mPresenter.setEasyLevel(envSetting.easyLevel)
                     mPresenter.setHasNextBall(envSetting.hasNextBall, true)
                     showInterstitialAd()
                 }
-                override fun buttonCancelClick() {
-                    super.buttonCancelClick()
+                override fun buttonCancelClick(passedValue: Unit?) {
+                    isDialogOpen = false
                     viewModel.setSettingTitle("")
                     showInterstitialAd()
                 }
             }
 
-            Composables.SettingCompose(this@MainActivity,
-                buttonClick, textClick, getString(R.string.settingStr),
-                backgroundColor = Color(0xbb0000ff), envSetting
-            )
+            Dialog(onDismissRequest = { isDialogOpen = false },
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+                content = {
+                    Composables.SettingCompose(
+                        this@MainActivity,
+                        buttonClick, textClick, getString(R.string.settingStr),
+                        backgroundColor = Color(0xbb0000ff), envSetting
+                    )
+                })
         }
     }
 
@@ -506,9 +512,9 @@ class MainActivity : MyViewCompose() {
                     color = Color.Black,
                     onClick = {
                         expanded = false
-                        // mPresenter.saveGame()
-                        mPresenter.setSaveGameTitle(
-                            getString(R.string.sureToSaveGameStr))
+                        mPresenter.saveGame()
+                        // mPresenter.setSaveGameTitle(
+                        //     getString(R.string.sureToSaveGameStr))
                     })
 
                 Composables.DropdownMenuItem(
@@ -516,9 +522,9 @@ class MainActivity : MyViewCompose() {
                     color = Color.Black,
                     onClick = {
                         expanded = false
-                        // mPresenter.loadGame()
-                        mPresenter.setLoadGameTitle(
-                            getString(R.string.sureToLoadGameStr))
+                        mPresenter.loadGame()
+                        // mPresenter.setLoadGameTitle(
+                        //     getString(R.string.sureToLoadGameStr))
                     })
 
                 Composables.DropdownMenuItem(
@@ -579,7 +585,7 @@ class MainActivity : MyViewCompose() {
                     for (j in 0 until Constants.ROW_COUNTS) {
                         Box(Modifier
                             .clickable {
-                            mPresenter.drawBallsAndCheckListener(i, j)
+                                mPresenter.drawBallsAndCheckListener(i, j)
                         }) {
                             Image(
                                 modifier = Modifier.size(mImageSizeDp.dp)
@@ -707,15 +713,15 @@ class MainActivity : MyViewCompose() {
     }
 
     // implement the abstract methods of MyViewCompose
-    override fun quitOrNewGame(entryPoint: Int) {
-        if (entryPoint == 0) {
+    override fun quitOrNewGame() {
+        if (mPresenter.mGameAction == Constants.IS_QUITING_GAME) {
             //  END PROGRAM
             exitApplication()
-        } else if (entryPoint == 1) {
+        } else if (mPresenter.mGameAction == Constants.IS_CREATING_GAME) {
             //  NEW GAME
             mPresenter.initGame(null)
         }
-        mPresenter.setSaveScoreAlertDialogState(entryPoint, false)
+        mPresenter.setSaveScoreAlertDialogState(false)
         ColorBallsApp.isProcessingJob = false
     }
 
