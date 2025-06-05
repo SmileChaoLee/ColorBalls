@@ -243,14 +243,14 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
         if (dialogTitle.isNotEmpty()) {
             val buttonListener = object: Composables.ButtonClickListener<String> {
                 override fun buttonOkClick(passedValue: String?) {
-                    Log.d(TAG, "buttonOkClick.userName = $passedValue")
+                    Log.d(TAG, "SaveScoreDialog.buttonOkClick.userName = $passedValue")
                     mPresenter.saveScore(passedValue ?: "No Name")
                     quitOrNewGame()
                     // set SaveScoreDialog() invisible
                     mPresenter.setSaveScoreTitle("")
                 }
                 override fun buttonCancelClick(passedValue: String?) {
-                    Log.d(TAG, "buttonCancelClick.userName = $passedValue")
+                    Log.d(TAG, "SaveScoreDialog.buttonCancelClick.userName = $passedValue")
                     quitOrNewGame()
                     // set SaveScoreDialog() invisible
                     mPresenter.setSaveScoreTitle("")
@@ -313,50 +313,6 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
     override fun showSaveGameDialog() {
         Log.d(TAG, "showSaveGameDialog")
         mPresenter.setSaveGameText(getString(R.string.sureToSaveGameStr))
-        /*
-        sureSaveDialog = AlertDialogFragment.newInstance(object : DialogButtonListener {
-            override fun noButtonOnClick(dialogFragment: AlertDialogFragment) {
-                // cancel the action of saving game
-                dialogFragment.dismissAllowingStateLoss()
-                mPresenter.setShowingSureSaveDialog(false)
-            }
-
-            override fun okButtonOnClick(dialogFragment: AlertDialogFragment) {
-                // start saving game to internal storage
-                dialogFragment.dismissAllowingStateLoss()
-                mPresenter.setShowingSureSaveDialog(false)
-                val numOfSaved: Int = mPresenter.readNumberOfSaved()
-                val msg =
-                    if (mPresenter.startSavingGame(numOfSaved)) {
-                        getString(R.string.succeededSaveGameStr)
-                    } else {
-                        getString(R.string.failedSaveGameStr)
-                    }
-                ScreenUtil.showToast(this@MyViewCompose, msg, textFontSize,
-                    ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
-                showInterstitialAd()
-            }
-        })
-        Bundle().apply {
-            putString(AlertDialogFragment.TextContentKey, getString(R.string.sureToSaveGameStr))
-            putInt(AlertDialogFragment.FontSizeScaleTypeKey, ScreenUtil.FontSize_Pixel_Type)
-            putFloat(AlertDialogFragment.TextFontSizeKey, textFontSize)
-            putInt(AlertDialogFragment.ColorKey, android.graphics.Color.BLUE)
-            putInt(AlertDialogFragment.WidthKey, 0) // wrap_content
-            putInt(AlertDialogFragment.HeightKey, 0) // wrap_content
-            putInt(AlertDialogFragment.NumButtonsKey, 2)
-            putBoolean(AlertDialogFragment.IsAnimationKey, false)
-            mPresenter.setShowingSureSaveDialog(true)
-            sureSaveDialog?.let {
-                it.arguments = this
-                // Need to implement this
-                // it.show(supportFragmentManager, Constants.SURE_SAVE_DIALOG_TAG)
-            }
-        }
-        // Need to implement this
-        // val fragment = supportFragmentManager.findFragmentByTag(Constants.SURE_SAVE_DIALOG_TAG)
-        // Log.d(TAG,"MyView.showSaveGameDialog.fragment = $fragment")
-        */
     }
 
     override fun showLoadGameDialog() {

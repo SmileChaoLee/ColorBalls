@@ -438,14 +438,19 @@ object Composables {
         val noStr = activity.getString(R.string.noStr)
         var isOpen by remember { mutableStateOf(true) }
         Log.d(TAG, "DialogWithTextField.isOpen = $isOpen")
-        var textValue by remember { mutableStateOf("") }
-        Log.d(TAG, "DialogWithTextField.textValue = $textValue")
-        AlertDialog(icon = null, title  = { if (dialogTitle.isNotEmpty())
+        var returnValue = ""
+        AlertDialog(onDismissRequest = { isOpen = false },
+            icon = null, title  = { if (dialogTitle.isNotEmpty())
             Text(text = dialogTitle,
                 fontWeight = FontWeight.Medium, fontSize = mFontSize) },
-            text = { if (hintText.isNotEmpty())
+            text = { var textValue by remember { mutableStateOf("") }
+                if (hintText.isNotEmpty())
                 TextField(value = textValue,
-                    onValueChange = { textValue = it},
+                    onValueChange = {
+                        textValue = it
+                        returnValue = textValue
+                        Log.d(TAG, "DialogWithTextField.returnValue = $returnValue")
+                                    },
                     textStyle = LocalTextStyle.current.copy(fontSize = mFontSize),
                     placeholder = {Text(text = hintText, color = Color.LightGray,
                         fontWeight = FontWeight.Light, fontSize = mFontSize) }
@@ -453,11 +458,10 @@ object Composables {
             containerColor = Color(0xffffa500),
             titleContentColor = Color.White,
             textContentColor = Color.Blue,
-            onDismissRequest = { isOpen = false},
             confirmButton = {
                 Button(onClick = {
                     isOpen = false
-                    buttonListener.buttonOkClick(textValue)
+                    buttonListener.buttonOkClick(returnValue)
                 }, colors = ButtonColors(
                     containerColor = ColorPrimary,
                     disabledContainerColor = ColorPrimary,
@@ -468,7 +472,7 @@ object Composables {
             dismissButton = {
                 Button(onClick = {
                     isOpen = false
-                    buttonListener.buttonCancelClick(textValue)
+                    buttonListener.buttonCancelClick(returnValue)
                 }, colors = ButtonColors(
                     containerColor = ColorPrimary,
                     disabledContainerColor = ColorPrimary,
