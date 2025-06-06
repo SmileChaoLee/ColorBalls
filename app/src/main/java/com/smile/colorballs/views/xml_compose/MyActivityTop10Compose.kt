@@ -540,9 +540,6 @@ class MyActivityTop10Compose : MyView() {
         val testString = if (BuildConfig.DEBUG) "IMG_16_9_APP_INSTALL#" else ""
         val facebookBannerID = testString + ColorBallsApp.facebookBannerID
         val facebookBannerID2 = testString + ColorBallsApp.facebookBannerID2
-        //
-        val adaptiveBannerWidth: Float
-        val adaptiveBannerDpWidth: Float
 
         val configuration = resources.configuration
         if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -555,12 +552,11 @@ class MyActivityTop10Compose : MyView() {
                 nativeTemplate = it
                 it.showNativeAd()
             }
-            adaptiveBannerWidth = screenWidth - mainGameViewWidth
-            adaptiveBannerDpWidth = ScreenUtil.pixelToDp(adaptiveBannerWidth)
+            // adaptiveBannerWidth = screenWidth - mainGameViewWidth
         } else {
             // one more banner (adaptive banner) ad for orientation is portrait
-            adaptiveBannerWidth = mainGameViewWidth
-            adaptiveBannerDpWidth = ScreenUtil.pixelToDp(adaptiveBannerWidth)
+            val adaptiveBannerWidth = mainGameViewWidth
+            val adaptiveBannerDpWidth = ScreenUtil.pixelToDp(adaptiveBannerWidth)
             SetBannerAdView(this, null,
                 adaptiveBannerLayout, ColorBallsApp.googleAdMobBannerID2,
                 facebookBannerID2, adaptiveBannerDpWidth.toInt()).also {
@@ -569,10 +565,9 @@ class MyActivityTop10Compose : MyView() {
             }
         }
         // normal banner
-        Log.d(TAG, "adaptiveBannerDpWidth = $adaptiveBannerDpWidth")
         SetBannerAdView(this, null,
             bannerLayout, ColorBallsApp.googleAdMobBannerID,
-            facebookBannerID, adaptiveBannerDpWidth.toInt()).also {
+            facebookBannerID, 0).also {
             myBannerAdView = it
             it.showBannerAdView(0) // AdMob first
         }
