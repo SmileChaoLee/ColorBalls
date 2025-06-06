@@ -66,7 +66,7 @@ class MyActivityTop10Compose : MyView() {
     private var screenWidth = 0f
     private var screenHeight = 0f
     private var supportToolbar: Toolbar? = null
-    private var top10Fragment: Top10ComposeFragment? = null
+    private var top10Fragment: MyTop10ComposeFragment? = null
     private var mainGameViewWidth = 0f
     private var cellWidth = 0
     private var cellHeight = 0
@@ -622,11 +622,11 @@ class MyActivityTop10Compose : MyView() {
                 if (historyView != null) {
                     if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         Log.d(TAG, "MyBroadcastReceiver.ORIENTATION_LANDSCAPE")
-                        top10Fragment = Top10ComposeFragment.newInstance(
+                        top10Fragment = MyTop10ComposeFragment.newInstance(
                             top10ScoreTitle,
                             players,
-                            object: Composables.ButtonClickListener<Unit> {
-                                override fun buttonOkClick(passedValue: Unit?) {
+                            object: Composables.ButtonClickListener {
+                                override fun buttonOkClick() {
                                     Log.d(TAG, "MyBroadcastReceiver.Top10OkButtonListener")
                                     // remove top10Fragment to dismiss the top 10 score screen
                                     top10Fragment?.let { top10 ->
@@ -656,7 +656,7 @@ class MyActivityTop10Compose : MyView() {
                     Log.d(TAG, "MyBroadcastReceiver.ORIENTATION_PORTRAIT")
                     top10Fragment = null
                     Intent(applicationContext,
-                        Top10ComposeActivity::class.java).let { int ->
+                        MyTop10ComposeActivity::class.java).let { int ->
                         Bundle().apply {
                             putString(Constants.TOP10_TITLE_NAME, top10ScoreTitle)
                             putParcelableArrayList(Constants.TOP10_PLAYERS, players)

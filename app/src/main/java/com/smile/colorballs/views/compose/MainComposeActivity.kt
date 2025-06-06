@@ -61,14 +61,14 @@ import com.smile.colorballs.shared_composables.Composables
 import com.smile.colorballs.shared_composables.ui.theme.ColorBallsTheme
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
-import com.smile.colorballs.models.EnvSetting
+import com.smile.colorballs.models.Settings
 import com.smile.smilelibraries.models.ExitAppTimer
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil
 import com.smile.smilelibraries.utilities.ScreenUtil
 
-class MainActivity : MyViewCompose() {
+class MainComposeActivity : MyComposeView() {
     companion object {
-        private const val TAG = "MainActivity"
+        private const val TAG = "MainComposeActivity"
     }
 
     private val mOrientation = mutableIntStateOf(Configuration.ORIENTATION_PORTRAIT)
@@ -197,7 +197,7 @@ class MainActivity : MyViewCompose() {
             val toastFontSize = textFontSize * 0.7f
             Log.d(TAG, "toastFontSize = $toastFontSize")
             ScreenUtil.showToast(
-                this@MainActivity,
+                this@MainComposeActivity,
                 getString(R.string.backKeyToExitApp),
                 toastFontSize,
                 ScreenUtil.FontSize_Pixel_Type,
@@ -230,8 +230,8 @@ class MainActivity : MyViewCompose() {
             Composables.Top10Composable(
                 title = title,
                 topPlayers = viewModel.top10Players.value, buttonListener =
-                object : Composables.ButtonClickListener<Unit> {
-                    override fun buttonOkClick(passedValue: Unit?) {
+                object : Composables.ButtonClickListener {
+                    override fun buttonOkClick() {
                         showInterstitialAd()
                         viewModel.setTop10TitleName("")
                     }
@@ -247,33 +247,33 @@ class MainActivity : MyViewCompose() {
                 "= ${mOrientation.intValue}")
         if (viewModel.settingTitle.value.isNotEmpty()) {
             var isDialogOpen by remember { mutableStateOf(true) }
-            val envSetting = EnvSetting(mPresenter.hasSound(),
+            val setting = Settings(mPresenter.hasSound(),
                 mPresenter.isEasyLevel(), mPresenter.hasNextBall())
-            val textClick = object : Composables.SettingTextClickListener {
+            val textClick = object : Composables.SettingClickListener {
                 override fun hasSoundClick(hasSound: Boolean) {
                     Log.d(TAG, "textClick.hasSoundClick.hasSound = $hasSound")
-                    envSetting.hasSound = hasSound
+                    setting.hasSound = hasSound
                 }
                 override fun easyLevelClick(easyLevel: Boolean) {
                     Log.d(TAG, "textClick.easyLevelClick.easyLevel = $easyLevel")
-                    envSetting.easyLevel = easyLevel
+                    setting.easyLevel = easyLevel
                 }
                 override fun hasNextClick(hasNext: Boolean) {
                     Log.d(TAG, "textClick.hasNextClick.hasNext = $hasNext")
-                    envSetting.hasNextBall = hasNext
+                    setting.hasNextBall = hasNext
                 }
             }
 
-            val buttonClick = object : Composables.ButtonClickListener<Unit>  {
-                override fun buttonOkClick(passedValue: Unit?) {
+            val buttonClick = object : Composables.ButtonClickListener  {
+                override fun buttonOkClick() {
                     viewModel.setSettingTitle("")
                     isDialogOpen = false
-                    mPresenter.setHasSound(envSetting.hasSound)
-                    mPresenter.setEasyLevel(envSetting.easyLevel)
-                    mPresenter.setHasNextBall(envSetting.hasNextBall, true)
+                    mPresenter.setHasSound(setting.hasSound)
+                    mPresenter.setEasyLevel(setting.easyLevel)
+                    mPresenter.setHasNextBall(setting.hasNextBall, true)
                     showInterstitialAd()
                 }
-                override fun buttonCancelClick(passedValue: Unit?) {
+                override fun buttonCancelClick() {
                     isDialogOpen = false
                     viewModel.setSettingTitle("")
                     showInterstitialAd()
@@ -284,9 +284,9 @@ class MainActivity : MyViewCompose() {
                 properties = DialogProperties(usePlatformDefaultWidth = false),
                 content = {
                     Composables.SettingCompose(
-                        this@MainActivity,
+                        this@MainComposeActivity,
                         buttonClick, textClick, getString(R.string.settingStr),
-                        backgroundColor = Color(0xbb0000ff), envSetting
+                        backgroundColor = Color(0xbb0000ff), setting
                     )
                 })
         }
@@ -418,8 +418,8 @@ class MainActivity : MyViewCompose() {
     private fun onClickSettingButton(useActivity: Boolean) {
         if (useActivity) {
             Intent(
-                this@MainActivity,
-                SettingActivityCompose::class.java
+                this@MainComposeActivity,
+                SettingComposeActivity::class.java
             ).let {
                 Bundle().apply {
                     putBoolean(Constants.HAS_SOUND, mPresenter.hasSound())
@@ -453,8 +453,8 @@ class MainActivity : MyViewCompose() {
                 "= $isLocal , useActivity = $useActivity")
         if (useActivity) {
             Intent(
-                this@MainActivity,
-                Top10ActivityCompose::class.java
+                this@MainComposeActivity,
+                Top10ComposeActivity::class.java
             ).let {
                 Bundle().apply {
                     putBoolean(Constants.IS_LOCAL_TOP10, isLocal)
@@ -467,7 +467,7 @@ class MainActivity : MyViewCompose() {
                 if (isLocal) getString(R.string.localTop10Score) else
                     getString(R.string.globalTop10Str)
             )
-            viewModel.getTop10Players(context = this@MainActivity, isLocal)
+            viewModel.getTop10Players(context = this@MainComposeActivity, isLocal)
         }
     }
 
@@ -549,7 +549,7 @@ class MainActivity : MyViewCompose() {
                     onClick = {
                         expanded = false
                         PrivacyPolicyUtil.startPrivacyPolicyActivity(
-                            this@MainActivity, 10)
+                            this@MainComposeActivity, 10)
                               },
                     isDivider = false)
             }

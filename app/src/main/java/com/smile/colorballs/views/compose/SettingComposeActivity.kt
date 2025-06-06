@@ -11,13 +11,13 @@ import androidx.compose.ui.graphics.Color
 import com.smile.colorballs.R
 import com.smile.colorballs.shared_composables.Composables
 import com.smile.colorballs.constants.Constants
-import com.smile.colorballs.models.EnvSetting
+import com.smile.colorballs.models.Settings
 import com.smile.colorballs.shared_composables.ui.theme.ColorBallsTheme
-import com.smile.colorballs.viewmodel.EnvSettingViewModel
+import com.smile.colorballs.viewmodel.SettingComposeViewModel
 
-class SettingActivityCompose : ComponentActivity() {
+class SettingComposeActivity : ComponentActivity() {
 
-    private val settingViewModel : EnvSettingViewModel by viewModels()
+    private val settingViewModel : SettingComposeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,7 +26,7 @@ class SettingActivityCompose : ComponentActivity() {
         if (savedInstanceState == null) {
             // new creation of this activity
             Log.d(TAG, "onCreate.savedInstanceState is null")
-            val setting = EnvSetting()
+            val setting = Settings()
             intent.extras?.let {
                 setting.hasSound = it.getBoolean(Constants.HAS_SOUND, true)
                 setting.easyLevel = it.getBoolean(Constants.IS_EASY_LEVEL, true)
@@ -37,11 +37,11 @@ class SettingActivityCompose : ComponentActivity() {
             // re-creation of this activity
             Log.d(TAG, "onCreate.savedInstanceState not null")
             if (settingViewModel.settings.value == null) {
-                settingViewModel.setSettings(EnvSetting())
+                settingViewModel.setSettings(Settings())
             }
         }
 
-        val textClick = object : Composables.SettingTextClickListener {
+        val textClick = object : Composables.SettingClickListener {
             override fun hasSoundClick(hasSound: Boolean) {
                 Log.d(TAG, "textClick.hasSoundClick.hasSound = $hasSound")
                 settingViewModel.setHasSound(hasSound)
@@ -56,11 +56,11 @@ class SettingActivityCompose : ComponentActivity() {
             }
         }
 
-        val buttonClick = object : Composables.ButtonClickListener<Unit>  {
-            override fun buttonOkClick(passedValue: Unit?) {
+        val buttonClick = object : Composables.ButtonClickListener  {
+            override fun buttonOkClick() {
                 returnToPrevious(confirmed = true)
             }
-            override fun buttonCancelClick(passedValue: Unit?) {
+            override fun buttonCancelClick() {
                 returnToPrevious(confirmed = false)
             }
         }
@@ -69,7 +69,7 @@ class SettingActivityCompose : ComponentActivity() {
             Log.d(TAG, "onCreate.setContent")
             ColorBallsTheme {
                 settingViewModel.settings.value?.let {
-                    Composables.SettingCompose(this@SettingActivityCompose,
+                    Composables.SettingCompose(this@SettingComposeActivity,
                         buttonClick, textClick,
                         "${getString(R.string.settingStr)} - Activity",
                         backgroundColor = Color(0xbb0000ff), it
@@ -133,6 +133,6 @@ class SettingActivityCompose : ComponentActivity() {
     }
 
     companion object {
-        private const val TAG = "SettingActivityCompose"
+        private const val TAG = "SettingComposeActivity"
     }
 }

@@ -12,7 +12,7 @@ import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class MainViewModel : ViewModel() {
+class MainComposeViewModel : ViewModel() {
 
     lateinit var medalImageIds: List<Int>
 
@@ -57,6 +57,6 @@ class MainViewModel : ViewModel() {
     }
 
     companion object {
-        private const val TAG = "MainViewModel"
+        private const val TAG = "MainComposeViewModel"
     }
 }

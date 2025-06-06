@@ -2,7 +2,6 @@ package com.smile.colorballs.shared_composables
 
 import android.app.Activity
 import android.content.res.Configuration
-import android.content.res.Resources
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -45,7 +44,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smile.colorballs.R
-import com.smile.colorballs.models.EnvSetting
+import com.smile.colorballs.models.Settings
 import com.smile.colorballs.models.TopPlayer
 import com.smile.colorballs.shared_composables.ui.theme.*
 
@@ -53,18 +52,21 @@ object Composables {
 
     private const val TAG = "Composables"
 
-    interface ButtonClickListener<T> {
-        fun buttonOkClick(passedValue: T? = null)
-        fun buttonCancelClick(passedValue: T? = null) = run { }
+    interface ButtonClickListener {
+        fun buttonOkClick()
+        fun buttonCancelClick() = run { }
     }
 
-    interface SettingTextClickListener {
+    interface ButtonClickListenerString {
+        fun buttonOkClick(value: String?)
+        fun buttonCancelClick(value: String?) = run { }
+    }
+
+    interface SettingClickListener {
         fun hasSoundClick(hasSound: Boolean)
         fun easyLevelClick(easyLevel: Boolean)
         fun hasNextClick(hasNext: Boolean)
     }
-
-    private val mResources = Resources.getSystem()
 
     var mFontSize = 24.sp
         set(value) {
@@ -85,15 +87,15 @@ object Composables {
     }
 
     @Composable
-    fun HorDivider(color: Color = Color.Black, thickness: Dp = 2.dp,
-                   modifier: Modifier = Modifier) {
+    fun HorDivider(modifier: Modifier = Modifier,
+                   color: Color = Color.Black, thickness: Dp = 2.dp) {
         HorizontalDivider(modifier = modifier.fillMaxWidth(),
             color = color, thickness = thickness)
     }
 
     @Composable
-    fun MenuItemText(text: String, color: Color,
-                     modifier: Modifier = Modifier) {
+    fun MenuItemText(modifier: Modifier = Modifier,
+                     text: String, color: Color) {
         Text(text = text, color = color, modifier = modifier,
             fontWeight = FontWeight.Normal, fontStyle = FontStyle.Normal,
             fontSize = menuItemFontSize)
@@ -116,7 +118,7 @@ object Composables {
     // For the Top10ComposeActivity
     @Composable
     fun Top10Composable(title: String, topPlayers: List<TopPlayer>,
-                        buttonListener: ButtonClickListener<Unit>,
+                        buttonListener: ButtonClickListener,
                         oKStr: String) {
         Log.d(TAG, "Top10Compose.topPlayers.size = ${topPlayers.size}")
         val imageWidth = (mFontSize.value * 3.0).dp
@@ -175,10 +177,10 @@ object Composables {
 
     @Composable
     fun SettingCompose(activity: Activity,
-                       buttonListener: ButtonClickListener<Unit>,
-                       textListener: SettingTextClickListener,
+                       buttonListener: ButtonClickListener,
+                       textListener: SettingClickListener,
                        text: String, backgroundColor: Color,
-                       setting: EnvSetting) {
+                       setting: Settings) {
 
         val textColor = Color(0xffffa500)
         val spaceWeight = 1.0f
@@ -243,15 +245,15 @@ object Composables {
                                 .padding(all = 0.dp)
                         )
                         MenuItemText(
-                            text = if (hasSound) onStr else offStr,
-                            Color.White,
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp)
                                 .clickable {
                                     hasSound = !hasSound
                                     textListener.hasSoundClick(hasSound)
-                                }
+                                },
+                            text = if (hasSound) onStr else offStr,
+                            Color.White
                         )
                         MenuItemText(
                             text = if (hasSound) yesStr else noStr,
@@ -279,15 +281,15 @@ object Composables {
                                 .padding(all = 0.dp)
                         )
                         MenuItemText(
-                            text = if (easyLevel) no1Str else no2Str,
-                            Color.White,
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp)
                                 .clickable {
                                     easyLevel = !easyLevel
                                     textListener.easyLevelClick(easyLevel)
-                                }
+                                },
+                            text = if (easyLevel) no1Str else no2Str,
+                            Color.White
                         )
                         MenuItemText(
                             text = if (easyLevel) easyStr else diffStr,
@@ -313,14 +315,14 @@ object Composables {
                                 .padding(all = 0.dp)
                         )
                         MenuItemText(
-                            text = if (hasNext) onStr else offStr,
-                            Color.White,
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp).clickable {
                                     hasNext = !hasNext
                                     textListener.hasNextClick(hasNext)
-                                }
+                                },
+                            text = if (hasNext) onStr else offStr,
+                            Color.White
                         )
                         MenuItemText(
                             text = if (hasNext) showStr else noShowStr ,
@@ -384,7 +386,7 @@ object Composables {
 
     @Composable
     fun DialogWithText(activity: Activity,
-                       buttonListener: ButtonClickListener<Unit>,
+                       buttonListener: ButtonClickListener,
                        dialogTitle: String, dialogText: String) {
         Log.d(TAG, "DialogWithText")
         val okStr = activity.getString(R.string.okStr)
@@ -429,7 +431,7 @@ object Composables {
 
     @Composable
     fun DialogWithTextField(activity: Activity,
-                            buttonListener: ButtonClickListener<String>,
+                            buttonListener: ButtonClickListenerString,
                             dialogTitle: String, hintText: String) {
         Log.d(TAG, "DialogWithTextField")
 

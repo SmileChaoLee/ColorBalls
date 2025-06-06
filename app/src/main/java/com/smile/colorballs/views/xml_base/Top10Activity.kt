@@ -12,8 +12,6 @@ import com.smile.colorballs.R
 import com.smile.colorballs.views.xml_base.Top10Fragment.Top10OkButtonListener
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.databinding.ActivityTop10Binding
-import com.smile.colorballs.views.xml_compose.Top10ComposeActivity
-import com.smile.colorballs.views.xml_compose.Top10ComposeActivity.Companion
 import com.smile.smilelibraries.player_record_rest.models.Player
 
 class Top10Activity : AppCompatActivity() {

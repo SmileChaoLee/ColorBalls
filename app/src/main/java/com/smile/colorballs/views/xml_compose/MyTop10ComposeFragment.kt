@@ -20,11 +20,11 @@ import com.smile.smilelibraries.player_record_rest.models.Player
 
 /**
  * A simple [Fragment] subclass.
- * Use the [Top10ComposeFragment.newInstance] factory method to
+ * Use the [MyTop10ComposeFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class Top10ComposeFragment: Fragment {
-    private lateinit var buttonListener: Composables.ButtonClickListener<Unit>
+class MyTop10ComposeFragment: Fragment {
+    private lateinit var buttonListener: Composables.ButtonClickListener
     private var mContext: Context? = null
     private var top10Players: ArrayList<TopPlayer> = ArrayList()
     private var top10TitleName: String = ""
@@ -33,7 +33,7 @@ class Top10ComposeFragment: Fragment {
     constructor()
 
     @SuppressLint("ValidFragment")
-    private constructor(listener: Composables.ButtonClickListener<Unit>)
+    private constructor(listener: Composables.ButtonClickListener)
             : super() {
         Log.d(TAG, "private constructor")
         buttonListener = listener
@@ -91,7 +91,7 @@ class Top10ComposeFragment: Fragment {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         Log.d(TAG, "onCreateView")
         // Inflate the layout for this fragment
         // return inflater.inflate(R.layout.fragment_top10_compose, container, false)
@@ -110,7 +110,7 @@ class Top10ComposeFragment: Fragment {
     }
 
     companion object {
-        private const val TAG = "Top10ComposeFragment"
+        private const val TAG = "MyTop10ComposeFragment"
         /**
          * Use this factory method to create a new instance of
          * this fragment using the provided parameters.
@@ -120,8 +120,8 @@ class Top10ComposeFragment: Fragment {
         @JvmStatic
         fun newInstance(top10Title: String,
                         top10Players: ArrayList<Player>,
-                        listener: Composables.ButtonClickListener<Unit>
-        ) = Top10ComposeFragment(listener).apply {
+                        listener: Composables.ButtonClickListener
+        ) = MyTop10ComposeFragment(listener).apply {
                 arguments = Bundle().apply {
                     Log.d(TAG, "newInstance.putString")
                     putString(Constants.TOP10_TITLE_NAME, top10Title)

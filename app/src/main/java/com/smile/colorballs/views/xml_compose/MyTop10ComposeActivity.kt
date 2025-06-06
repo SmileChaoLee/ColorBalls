@@ -13,7 +13,7 @@ import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.databinding.ActivityTop10ComposeBinding
 import com.smile.smilelibraries.player_record_rest.models.Player
 
-class Top10ComposeActivity : AppCompatActivity() {
+class MyTop10ComposeActivity : AppCompatActivity() {
     private lateinit var binding : ActivityTop10ComposeBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate")
@@ -33,9 +33,9 @@ class Top10ComposeActivity : AppCompatActivity() {
             } else it.getParcelableArrayList(Constants.TOP10_PLAYERS)!!
         }
 
-        val top10Fragment: Fragment = Top10ComposeFragment.newInstance(top10TitleName, players,
-            object : Composables.ButtonClickListener<Unit> {
-                override fun buttonOkClick(passedValue: Unit?) {
+        val top10Fragment: Fragment = MyTop10ComposeFragment.newInstance(top10TitleName, players,
+            object : Composables.ButtonClickListener {
+                override fun buttonOkClick() {
                     Log.d(TAG, "ComposableFunc.OkButtonListener.buttonOkClick")
                     setResult(RESULT_OK)
                     finish()
@@ -96,6 +96,6 @@ class Top10ComposeActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val TAG = "Top10ComposeActivity"
+        private const val TAG = "MyTop10ComposeActivity"
     }
 }

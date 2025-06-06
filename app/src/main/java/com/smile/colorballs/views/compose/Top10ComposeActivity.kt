@@ -17,7 +17,7 @@ import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class Top10ActivityCompose : ComponentActivity() {
+class Top10ComposeActivity : ComponentActivity() {
 
     private val top10Players = mutableStateOf(listOf<TopPlayer>())
     private var top10TitleName: String = ""
@@ -53,7 +53,7 @@ class Top10ActivityCompose : ComponentActivity() {
                     launch(Dispatchers.IO) {
                         val players = if (isLocal) {
                             PlayerRecordRest.GetLocalTop10(ScoreSQLite(
-                                this@Top10ActivityCompose))
+                                this@Top10ComposeActivity))
                         } else {
                             PlayerRecordRest.GetGlobalTop10("1")
                         }
@@ -74,8 +74,8 @@ class Top10ActivityCompose : ComponentActivity() {
                 Composables.Top10Composable(
                     title = "$top10TitleName - Activity",
                     topPlayers = top10Players.value, buttonListener =
-                    object : Composables.ButtonClickListener<Unit> {
-                        override fun buttonOkClick(passedValue: Unit?) {
+                    object : Composables.ButtonClickListener {
+                        override fun buttonOkClick() {
                             Log.d(TAG, "Composables.OkButtonListener.buttonOkClick")
                             setResult(RESULT_OK)
                             finish()
@@ -126,6 +126,6 @@ class Top10ActivityCompose : ComponentActivity() {
     }
 
     companion object {
-        private const val TAG = "Top10ActivityCompose"
+        private const val TAG = "Top10ComposeActivity"
     }
 }

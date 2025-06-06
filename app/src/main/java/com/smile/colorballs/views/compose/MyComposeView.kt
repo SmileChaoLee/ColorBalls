@@ -18,7 +18,7 @@ import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.interfaces.PresentViewCompose
 import com.smile.colorballs.presenters.PresenterCompose
 import com.smile.colorballs.shared_composables.Composables
-import com.smile.colorballs.viewmodel.MainViewModel
+import com.smile.colorballs.viewmodel.MainComposeViewModel
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
 import com.smile.smilelibraries.utilities.FontAndBitmapUtil
@@ -28,17 +28,17 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
-abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
+abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
 
     companion object {
-        private const val TAG = "MyViewCompose"
+        private const val TAG = "MyComposeView"
     }
 
     abstract fun showInterstitialAd()
     abstract fun quitOrNewGame()
     abstract fun setDialogStyle(dialog: DialogInterface)
 
-    protected val viewModel: MainViewModel by viewModels()
+    protected val viewModel: MainComposeViewModel by viewModels()
 
     protected var textFontSize = 0f
     protected var interstitialAd: ShowInterstitial? = null
@@ -84,7 +84,7 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
 
         viewModel.medalImageIds = medalImageIds
         Log.d(TAG, "onCreate.instantiate PresenterCompose")
-        mPresenter = PresenterCompose(this@MyViewCompose)
+        mPresenter = PresenterCompose(this@MyComposeView)
     }
 
     protected fun bitmapDrawableResources() {
@@ -162,26 +162,26 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
         Log.d(TAG, "SaveGameDialog")
         val dialogText = mPresenter.saveGameText.value
         if (dialogText.isNotEmpty()) {
-            val buttonListener = object: Composables.ButtonClickListener<Unit> {
-                override fun buttonOkClick(passedValue: Unit?) {
+            val buttonListener = object: Composables.ButtonClickListener {
+                override fun buttonOkClick() {
                     val numOfSaved: Int = mPresenter.readNumberOfSaved()
                     val msg = if (mPresenter.startSavingGame(numOfSaved)) {
                             getString(R.string.succeededSaveGameStr)
                         } else {
                             getString(R.string.failedSaveGameStr)
                         }
-                    ScreenUtil.showToast(this@MyViewCompose, msg, textFontSize,
+                    ScreenUtil.showToast(this@MyComposeView, msg, textFontSize,
                         ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
                     mPresenter.setShowingSureSaveDialog(false)
                     mPresenter.setSaveGameText("")
                     showInterstitialAd()
                 }
-                override fun buttonCancelClick(passedValue: Unit?) {
+                override fun buttonCancelClick() {
                     mPresenter.setShowingSureSaveDialog(false)
                     mPresenter.setSaveGameText("")
                 }
             }
-            Composables.DialogWithText(this@MyViewCompose,
+            Composables.DialogWithText(this@MyComposeView,
                 buttonListener, "", dialogText)
         }
     }
@@ -191,25 +191,25 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
         Log.d(TAG, "LoadGameDialog")
         val dialogText = mPresenter.loadGameText.value
         if (dialogText.isNotEmpty()) {
-            val buttonListener = object: Composables.ButtonClickListener<Unit> {
-                override fun buttonOkClick(passedValue: Unit?) {
+            val buttonListener = object: Composables.ButtonClickListener {
+                override fun buttonOkClick() {
                     val msg = if (mPresenter.startLoadingGame()) {
                         getString(R.string.succeededLoadGameStr)
                     } else {
                         getString(R.string.failedLoadGameStr)
                     }
-                    ScreenUtil.showToast(this@MyViewCompose, msg, textFontSize,
+                    ScreenUtil.showToast(this@MyComposeView, msg, textFontSize,
                         ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
                     mPresenter.setShowingSureLoadDialog(false)
                     mPresenter.setLoadGameText("")
                     showInterstitialAd()
                 }
-                override fun buttonCancelClick(passedValue: Unit?) {
+                override fun buttonCancelClick() {
                     mPresenter.setShowingSureLoadDialog(false)
                     mPresenter.setLoadGameText("")
                 }
             }
-            Composables.DialogWithText(this@MyViewCompose,
+            Composables.DialogWithText(this@MyComposeView,
                 buttonListener, "", dialogText)
         }
     }
@@ -219,19 +219,19 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
         Log.d(TAG, "GameOverDialog")
         val dialogText = mPresenter.gameOverText.value
         if (dialogText.isNotEmpty()) {
-            val buttonListener = object: Composables.ButtonClickListener<Unit> {
-                override fun buttonOkClick(passedVlaue: Unit?) {
+            val buttonListener = object: Composables.ButtonClickListener {
+                override fun buttonOkClick() {
                     mPresenter.newGame()
                     mPresenter.setShowingGameOverDialog(false)
                     mPresenter.setGameOverText("")
                 }
-                override fun buttonCancelClick(passedVlaue: Unit?) {
+                override fun buttonCancelClick() {
                     mPresenter.quitGame()
                     mPresenter.setShowingGameOverDialog(false)
                     mPresenter.setGameOverText("")
                 }
             }
-            Composables.DialogWithText(this@MyViewCompose,
+            Composables.DialogWithText(this@MyComposeView,
                 buttonListener, "", dialogText)
         }
     }
@@ -241,23 +241,23 @@ abstract class MyViewCompose: ComponentActivity(), PresentViewCompose {
         Log.d(TAG, "SaveScoreDialog")
         val dialogTitle = mPresenter.saveScoreTitle.value
         if (dialogTitle.isNotEmpty()) {
-            val buttonListener = object: Composables.ButtonClickListener<String> {
-                override fun buttonOkClick(passedValue: String?) {
-                    Log.d(TAG, "SaveScoreDialog.buttonOkClick.userName = $passedValue")
-                    mPresenter.saveScore(passedValue ?: "No Name")
+            val buttonListener = object: Composables.ButtonClickListenerString {
+                override fun buttonOkClick(value: String?) {
+                    Log.d(TAG, "SaveScoreDialog.buttonOkClick.value = $value")
+                    mPresenter.saveScore(value ?: "No Name")
                     quitOrNewGame()
                     // set SaveScoreDialog() invisible
                     mPresenter.setSaveScoreTitle("")
                 }
-                override fun buttonCancelClick(passedValue: String?) {
-                    Log.d(TAG, "SaveScoreDialog.buttonCancelClick.userName = $passedValue")
+                override fun buttonCancelClick(value: String?) {
+                    Log.d(TAG, "SaveScoreDialog.buttonCancelClick.value = $value")
                     quitOrNewGame()
                     // set SaveScoreDialog() invisible
                     mPresenter.setSaveScoreTitle("")
                 }
             }
             val hitStr = getString(R.string.nameStr)
-            Composables.DialogWithTextField(this@MyViewCompose,
+            Composables.DialogWithTextField(this@MyComposeView,
                 buttonListener, dialogTitle, hitStr)
         }
     }
