@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -430,6 +431,21 @@ object Composables {
     }
 
     @Composable
+    fun textFieldValue(hintText: String): String {
+        var textValue by rememberSaveable { mutableStateOf("") }
+        TextField(value = textValue,
+            onValueChange = {
+                textValue = it
+                Log.d(TAG, "textFieldValue.textValue = $textValue")
+            },
+            textStyle = LocalTextStyle.current.copy(fontSize = mFontSize),
+            placeholder = {Text(text = hintText, color = Color.LightGray,
+                fontWeight = FontWeight.Light, fontSize = mFontSize) }
+        )
+        return textValue
+    }
+
+    @Composable
     fun DialogWithTextField(activity: Activity,
                             buttonListener: ButtonClickListenerString,
                             dialogTitle: String, hintText: String) {
@@ -445,18 +461,9 @@ object Composables {
             icon = null, title  = { if (dialogTitle.isNotEmpty())
             Text(text = dialogTitle,
                 fontWeight = FontWeight.Medium, fontSize = mFontSize) },
-            text = { var textValue by remember { mutableStateOf("") }
-                if (hintText.isNotEmpty())
-                TextField(value = textValue,
-                    onValueChange = {
-                        textValue = it
-                        returnValue = textValue
-                        Log.d(TAG, "DialogWithTextField.returnValue = $returnValue")
-                                    },
-                    textStyle = LocalTextStyle.current.copy(fontSize = mFontSize),
-                    placeholder = {Text(text = hintText, color = Color.LightGray,
-                        fontWeight = FontWeight.Light, fontSize = mFontSize) }
-                    ) },
+            text = { if (hintText.isNotEmpty())
+                returnValue = textFieldValue(hintText)
+                   },
             containerColor = Color(0xffffa500),
             titleContentColor = Color.White,
             textContentColor = Color.Blue,
