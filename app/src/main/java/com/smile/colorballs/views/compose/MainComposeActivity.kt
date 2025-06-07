@@ -1,23 +1,16 @@
 package com.smile.colorballs.views.compose
 
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
-import android.graphics.Typeface
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
-import android.view.WindowManager
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -50,6 +43,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -682,10 +677,16 @@ class MainComposeActivity : MyComposeView() {
     fun SHowPortraitAds(modifier: Modifier) {
         Log.d(TAG, "SHowPortraitAds.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
-        Column(modifier = modifier.background(color = Color.Green),
+        val adWidth = with(LocalDensity.current) {
+            LocalWindowInfo.current.containerSize.width
+                .toDp().value.toInt()
+        }
+        Column(modifier = modifier.fillMaxHeight()
+            .background(color = Color.Green),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
-            Text(text = "Show portrait banner ads", fontSize = Composables.mFontSize)
+                ShowAdmobNormalBanner(modifier = modifier)
+                ShowAdmobAdaptiveBanner(modifier = modifier, width = adWidth)
         }
     }
 
@@ -698,57 +699,5 @@ class MainComposeActivity : MyComposeView() {
             verticalArrangement = Arrangement.Center) {
             Text(text = "Show Native and banner ads", fontSize = Composables.mFontSize)
         }
-    }
-
-    private fun exitApplication() {
-        val handlerClose = Handler(Looper.getMainLooper())
-        val timeDelay = 200
-        // exit application
-        handlerClose.postDelayed({ this.finish() }, timeDelay.toLong())
-    }
-
-    override fun showInterstitialAd() {
-        Log.d(TAG, "showInterstitialAd = $interstitialAd")
-        interstitialAd?.ShowAdThread()?.startShowAd(0) // AdMob first
-    }
-
-    // implement the abstract methods of MyViewCompose
-    override fun quitOrNewGame() {
-        if (mPresenter.mGameAction == Constants.IS_QUITING_GAME) {
-            //  END PROGRAM
-            exitApplication()
-        } else if (mPresenter.mGameAction == Constants.IS_CREATING_GAME) {
-            //  NEW GAME
-            mPresenter.initGame(null)
-        }
-        mPresenter.setSaveScoreAlertDialogState(false)
-        ColorBallsApp.isProcessingJob = false
-    }
-
-    override fun setDialogStyle(dialog: DialogInterface) {
-        val dlg = dialog as AlertDialog
-        (dlg.window)?.apply {
-            addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
-            setDimAmount(0.0f) // no dim for background screen
-            setLayout(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT)
-            setBackgroundDrawableResource(R.drawable.dialog_board_image)
-        }
-
-        val nBtn = dlg.getButton(DialogInterface.BUTTON_NEGATIVE)
-        ScreenUtil.resizeTextSize(nBtn, textFontSize, ScreenUtil.FontSize_Pixel_Type)
-        nBtn.typeface = Typeface.DEFAULT_BOLD
-        nBtn.setTextColor(android.graphics.Color.RED)
-
-        val layoutParams = nBtn.layoutParams as LinearLayout.LayoutParams
-        layoutParams.weight = 10f
-        nBtn.layoutParams = layoutParams
-
-        val pBtn = dlg.getButton(DialogInterface.BUTTON_POSITIVE)
-        ScreenUtil.resizeTextSize(pBtn, textFontSize, ScreenUtil.FontSize_Pixel_Type)
-        pBtn.typeface = Typeface.DEFAULT_BOLD
-        pBtn.setTextColor(android.graphics.Color.rgb(0x00, 0x64, 0x00))
-        pBtn.layoutParams = layoutParams
     }
 }

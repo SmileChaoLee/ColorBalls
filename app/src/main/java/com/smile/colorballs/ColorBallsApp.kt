@@ -55,7 +55,7 @@ class ColorBallsApp : MultiDexApplication() {
             applicationContext
         ) {
             Log.d(
-                TAG, "Google AdMob was initialized successfully."
+                TAG, "Facebook ads was initialized successfully."
             )
         }
         googleInterstitialAd = AdMobInterstitial(applicationContext, googleAdMobInterstitialID)

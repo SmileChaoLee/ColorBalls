@@ -1,17 +1,30 @@
 package com.smile.colorballs.views.compose
 
-import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.graphics.Bitmap.createScaledBitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import com.facebook.ads.Ad
+import com.facebook.ads.AdError
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
+import com.smile.colorballs.BuildConfig
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
@@ -34,16 +47,10 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
         private const val TAG = "MyComposeView"
     }
 
-    abstract fun showInterstitialAd()
-    abstract fun quitOrNewGame()
-    abstract fun setDialogStyle(dialog: DialogInterface)
-
     protected val viewModel: MainComposeViewModel by viewModels()
-
     protected var textFontSize = 0f
     protected var interstitialAd: ShowInterstitial? = null
     protected lateinit var mPresenter: PresenterCompose
-
     protected var mImageSizeDp = 0f
     protected var boxImage: Bitmap? = null
     protected val colorBallMap: HashMap<Int, Bitmap> = HashMap()
@@ -51,6 +58,8 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
     protected val colorNextBallMap: HashMap<Int, Bitmap> = HashMap()
 
     private lateinit var medalImageIds: List<Int>
+    private val isBanner1AdMob = mutableStateOf(true)
+    private val isBanner2AdMob = mutableStateOf(true)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,6 +94,11 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
         viewModel.medalImageIds = medalImageIds
         Log.d(TAG, "onCreate.instantiate PresenterCompose")
         mPresenter = PresenterCompose(this@MyComposeView)
+    }
+
+    protected fun showInterstitialAd() {
+        Log.d(TAG, "showInterstitialAd = $interstitialAd")
+        interstitialAd?.ShowAdThread()?.startShowAd(0) // AdMob first
     }
 
     protected fun bitmapDrawableResources() {
@@ -155,6 +169,25 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
             colorOvalBallMap[Constants.COLOR_CYAN] =
                 createScaledBitmap(bm, ovalBallWidth, ovalBallHeight, true)
         }
+    }
+
+    private fun exitApplication() {
+        val handlerClose = Handler(Looper.getMainLooper())
+        val timeDelay = 200
+        // exit application
+        handlerClose.postDelayed({ this.finish() }, timeDelay.toLong())
+    }
+
+    private fun quitOrNewGame() {
+        if (mPresenter.mGameAction == Constants.IS_QUITING_GAME) {
+            //  END PROGRAM
+            exitApplication()
+        } else if (mPresenter.mGameAction == Constants.IS_CREATING_GAME) {
+            //  NEW GAME
+            mPresenter.initGame(null)
+        }
+        mPresenter.setSaveScoreAlertDialogState(false)
+        ColorBallsApp.isProcessingJob = false
     }
 
     @Composable
@@ -262,7 +295,89 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
         }
     }
 
-    // implementing PresentView
+    @Composable
+    private fun ShowAdmobBanner(modifier: Modifier = Modifier,
+                                adId: String, width: Int = 0) {
+        Log.d(TAG, "ShowAdmobBanner.adId = $adId")
+        AndroidView(
+            modifier = modifier,
+            factory = { context ->
+                val adView = AdView(context)
+                adView.apply {
+                    val adMobAdSize = if (width != 0)
+                        getCurrentOrientationAnchoredAdaptiveBannerAdSize(
+                        this@MyComposeView, width) // adaptive banner
+                    else AdSize.BANNER // normal banner
+
+                    val listener = object : AdListener() {
+                        override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                            super.onAdFailedToLoad(loadAdError)
+                            Log.d(TAG, "ShowAdmobBanner.failed.adId = $adId")
+                        }
+                        override fun onAdLoaded() {
+                            super.onAdLoaded()
+                            Log.d(TAG, "ShowAdmobBanner.succeeded.adId = $adId")
+                        }
+                    }
+
+                    setAdSize(adMobAdSize)
+                    adUnitId = adId
+                    adListener = listener
+                    loadAd(AdRequest.Builder().build())
+                }
+            }
+        )
+    }
+
+    @Composable
+    protected fun ShowAdmobNormalBanner(modifier: Modifier = Modifier) {
+        val adId = ColorBallsApp.googleAdMobBannerID
+        Log.d(TAG, "ShowAdmobNormalBanner.adId = $adId")
+        ShowAdmobBanner(modifier = modifier, adId = adId)
+    }
+
+    @Composable
+    protected fun ShowAdmobAdaptiveBanner(modifier: Modifier = Modifier, width: Int) {
+        val adId = ColorBallsApp.googleAdMobBannerID2
+        Log.d(TAG, "ShowAdmobAdaptiveBanner.adId = $adId")
+        ShowAdmobBanner(modifier = modifier, adId = adId, width = width)
+    }
+
+    @Composable
+    protected fun ShowFacebookBanner(modifier: Modifier = Modifier, adId: String) {
+        Log.d(TAG, "ShowFacebookBanner.adId = $adId")
+        // adId == ColorBallsApp.facebookBannerID)
+        // adId == ColorBallsApp.facebookBannerID2)
+        AndroidView(
+            modifier = modifier,
+            factory = { context ->
+                val pId = if (BuildConfig.DEBUG) "IMG_16_9_APP_INSTALL#$adId" else adId
+                val faceAdview = com.facebook.ads.AdView(context, pId,
+                    com.facebook.ads.AdSize.BANNER_HEIGHT_50)
+                faceAdview.apply {
+                    val listener = object : com.facebook.ads.AdListener {
+                        override fun onError(p0: Ad?, p1: AdError?) {
+                            Log.d(TAG, "ShowFacebookBanner.onError.adId = $adId")
+                        }
+                        override fun onAdLoaded(p0: Ad?) {
+                            Log.d(TAG, "ShowFacebookBanner.onAdLoaded.adId = $adId")
+                        }
+                        override fun onAdClicked(p0: Ad?) {
+                            Log.d(TAG, "ShowFacebookBanner.onAdClicked.adId = $adId")
+                        }
+                        override fun onLoggingImpression(p0: Ad?) {
+                            Log.d(TAG, "ShowFacebookBanner.onLoggingImpression.adId = $adId")
+                        }
+                    }
+                    Log.d(TAG, "ShowFacebookBanner.loadAd.adId = $adId")
+                    loadAd(buildLoadAdConfig()
+                        .withAdListener(listener).build())
+                }
+            }
+        )
+    }
+
+    // implementing PresentViewCompose
     override fun soundPool(): SoundPoolUtil {
         return SoundPoolUtil(this, R.raw.uhoh)
     }

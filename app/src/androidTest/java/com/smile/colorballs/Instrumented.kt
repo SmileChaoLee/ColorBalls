@@ -18,6 +18,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withHint
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.smile.colorballs.views.xml_base.MyActivity
 import org.hamcrest.CoreMatchers
 import org.junit.After
 import org.junit.AfterClass
