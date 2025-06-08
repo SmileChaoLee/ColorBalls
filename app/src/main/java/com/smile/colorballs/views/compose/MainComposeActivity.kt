@@ -243,17 +243,23 @@ class MainComposeActivity : MyComposeView() {
                 "= ${mOrientation.intValue}")
         val title = viewModel.top10TitleName.value
         if (title.isNotEmpty()) {
-            Composables.Top10Composable(
-                title = title,
-                topPlayers = viewModel.top10Players.value, buttonListener =
-                object : Composables.ButtonClickListener {
-                    override fun buttonOkClick() {
-                        showInterstitialAd()
-                        viewModel.setTop10TitleName("")
-                    }
-                },
-                getString(R.string.okStr)
-            )
+            var isDialogOpen by remember { mutableStateOf(true) }
+            Dialog(onDismissRequest = { isDialogOpen = false },
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+                content = {
+                    Composables.Top10Composable(
+                        title = title,
+                        topPlayers = viewModel.top10Players.value, buttonListener =
+                        object : Composables.ButtonClickListener {
+                            override fun buttonOkClick() {
+                                isDialogOpen = false
+                                showInterstitialAd()
+                                viewModel.setTop10TitleName("")
+                            }
+                        },
+                        getString(R.string.okStr)
+                    )
+                })
         }
     }
 
