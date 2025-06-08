@@ -43,8 +43,8 @@ public class NativeAdvancedAd {
             public void onNativeAdLoaded(NativeAd nativeAd) {
                 // You must call destroy on old ads when you are done with them,
                 // otherwise you will have a memory leak.
-                if (nativeAd != null) {
-                    nativeAd.destroy();
+                if (mNativeAd != null) {
+                    mNativeAd.destroy();
                 }
                 mNativeAd = nativeAd;
                 isNativeAdLoaded = true;

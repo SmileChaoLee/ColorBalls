@@ -3,8 +3,10 @@ package com.smile.colorballs.views.compose
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -50,12 +52,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.google.accompanist.drawablepainter.rememberDrawablePainter
+import com.google.android.gms.ads.nativead.NativeAd
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
 import com.smile.colorballs.shared_composables.Composables
 import com.smile.colorballs.shared_composables.ui.theme.ColorBallsTheme
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
+import com.smile.colorballs.models.GoogleNativeAd
 import com.smile.colorballs.models.Settings
 import com.smile.smilelibraries.models.ExitAppTimer
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil
@@ -126,8 +131,7 @@ class MainComposeActivity : MyComposeView() {
                     } else {
                         Row {
                             CreateMainUI(Modifier.weight(1f))
-                            SHowLandscapeAds(modifier = Modifier.weight(1f)
-                                .fillMaxSize())
+                            ShowLandscapeAds(modifier = Modifier.weight(1f))
                         }
                     }
                     Top10PlayerUI()
@@ -154,6 +158,26 @@ class MainComposeActivity : MyComposeView() {
         })
     }
 
+    override fun onStart() {
+        super.onStart()
+        Log.d(TAG, "onStart")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "onResume")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d(TAG, "onPause")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d(TAG, "onStop")
+    }
+
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         Log.d(TAG, "onConfigurationChanged.newConfig.orientation = " +
@@ -177,8 +201,6 @@ class MainComposeActivity : MyComposeView() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "onDestroy")
-        mPresenter.release()
-        interstitialAd?.releaseInterstitial()
     }
 
     private fun onBackWasPressed() {
@@ -681,8 +703,7 @@ class MainComposeActivity : MyComposeView() {
             LocalWindowInfo.current.containerSize.width
                 .toDp().value.toInt()
         }
-        Column(modifier = modifier.fillMaxHeight()
-            .background(color = Color.Green),
+        Column(modifier = modifier.fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
                 ShowAdmobNormalBanner(modifier = modifier)
@@ -691,13 +712,41 @@ class MainComposeActivity : MyComposeView() {
     }
 
     @Composable
-    fun SHowLandscapeAds(modifier: Modifier) {
-        Log.d(TAG, "SHowLandscapeAds.mOrientation.intValue" +
+    fun ShowLandscapeAds(modifier: Modifier) {
+        Log.d(TAG, "ShowLandscapeAds.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
-        Column(modifier = modifier.background(color = Color.Green),
+        Column(modifier = modifier.fillMaxHeight().
+            fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
-            Text(text = "Show Native and banner ads", fontSize = Composables.mFontSize)
+            Column(modifier = Modifier.weight(8.0f)) {
+                var nativeAd by remember { mutableStateOf<NativeAd?>(null) }
+                LaunchedEffect(Unit) {
+                    object : GoogleNativeAd(this@MainComposeActivity,
+                        ColorBallsApp.googleAdMobNativeID) {
+                        override fun setNativeAd(ad: NativeAd?) {
+                            nativeAd = ad
+                        }
+                    }
+                }
+                nativeAd?.let {
+                    MyNativeAdView(ad = it) { ad, _ ->
+                        Row(modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center) {
+                            val icon: Drawable? = ad.icon?.drawable
+                            icon?.let { drawable ->
+                                Image(
+                                    painter = rememberDrawablePainter(drawable = drawable),
+                                    contentDescription = ""/*ad.icon?.contentDescription*/,
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            ShowAdmobNormalBanner(modifier = Modifier.weight(2.0f))
         }
     }
 }

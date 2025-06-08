@@ -1,19 +1,25 @@
 package com.smile.colorballs.views.compose
 
+// For google native ads
 import android.graphics.Bitmap
 import android.graphics.Bitmap.createScaledBitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.facebook.ads.Ad
@@ -24,6 +30,8 @@ import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.nativead.NativeAd
+import com.google.android.gms.ads.nativead.NativeAdView
 import com.smile.colorballs.BuildConfig
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
@@ -49,7 +57,6 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
 
     protected val viewModel: MainComposeViewModel by viewModels()
     protected var textFontSize = 0f
-    protected var interstitialAd: ShowInterstitial? = null
     protected lateinit var mPresenter: PresenterCompose
     protected var mImageSizeDp = 0f
     protected var boxImage: Bitmap? = null
@@ -57,9 +64,8 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
     protected val colorOvalBallMap: HashMap<Int, Bitmap> = HashMap()
     protected val colorNextBallMap: HashMap<Int, Bitmap> = HashMap()
 
+    private var interstitialAd: ShowInterstitial? = null
     private lateinit var medalImageIds: List<Int>
-    private val isBanner1AdMob = mutableStateOf(true)
-    private val isBanner2AdMob = mutableStateOf(true)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,6 +100,13 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
         viewModel.medalImageIds = medalImageIds
         Log.d(TAG, "onCreate.instantiate PresenterCompose")
         mPresenter = PresenterCompose(this@MyComposeView)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "onDestroy")
+        mPresenter.release()
+        interstitialAd?.releaseInterstitial()
     }
 
     protected fun showInterstitialAd() {
@@ -191,7 +204,7 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
     }
 
     @Composable
-    protected fun SaveGameDialog() {
+    fun SaveGameDialog() {
         Log.d(TAG, "SaveGameDialog")
         val dialogText = mPresenter.saveGameText.value
         if (dialogText.isNotEmpty()) {
@@ -220,7 +233,7 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
     }
 
     @Composable
-    protected fun LoadGameDialog() {
+    fun LoadGameDialog() {
         Log.d(TAG, "LoadGameDialog")
         val dialogText = mPresenter.loadGameText.value
         if (dialogText.isNotEmpty()) {
@@ -248,7 +261,7 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
     }
 
     @Composable
-    protected fun GameOverDialog() {
+    fun GameOverDialog() {
         Log.d(TAG, "GameOverDialog")
         val dialogText = mPresenter.gameOverText.value
         if (dialogText.isNotEmpty()) {
@@ -270,7 +283,7 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
     }
 
     @Composable
-    protected fun SaveScoreDialog() {
+    fun SaveScoreDialog() {
         Log.d(TAG, "SaveScoreDialog")
         val dialogTitle = mPresenter.saveScoreTitle.value
         if (dialogTitle.isNotEmpty()) {
@@ -330,21 +343,53 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
     }
 
     @Composable
-    protected fun ShowAdmobNormalBanner(modifier: Modifier = Modifier) {
+    fun ShowAdmobNormalBanner(modifier: Modifier = Modifier) {
         val adId = ColorBallsApp.googleAdMobBannerID
         Log.d(TAG, "ShowAdmobNormalBanner.adId = $adId")
         ShowAdmobBanner(modifier = modifier, adId = adId)
     }
 
     @Composable
-    protected fun ShowAdmobAdaptiveBanner(modifier: Modifier = Modifier, width: Int) {
+    fun ShowAdmobAdaptiveBanner(modifier: Modifier = Modifier, width: Int) {
         val adId = ColorBallsApp.googleAdMobBannerID2
         Log.d(TAG, "ShowAdmobAdaptiveBanner.adId = $adId")
         ShowAdmobBanner(modifier = modifier, adId = adId, width = width)
     }
 
     @Composable
-    protected fun ShowFacebookBanner(modifier: Modifier = Modifier, adId: String) {
+    fun MyNativeAdView(
+        ad: NativeAd,
+        adContent: @Composable (ad: NativeAd, view: View) -> Unit,) {
+        Log.d(TAG, "MyNativeAdView")
+        val contentViewId by rememberSaveable { mutableIntStateOf(View.generateViewId()) }
+        val adViewId by rememberSaveable { mutableIntStateOf(View.generateViewId()) }
+        Log.d(TAG, "MyNativeAdView.AndroidView")
+        AndroidView(
+            factory = { context ->
+                Log.d(TAG, "MyNativeAdView.AndroidView.factory")
+                val contentView = ComposeView(context).apply {
+                    id = contentViewId
+                }
+                NativeAdView(context).apply {
+                    id = adViewId
+                    addView(contentView)
+                }
+            },
+            update = { nativeAdView ->
+                Log.d(TAG, "MyNativeAdView.AndroidView.update")
+                val adView = nativeAdView.findViewById<NativeAdView>(adViewId)
+                val contentView = nativeAdView.findViewById<ComposeView>(contentViewId)
+                Log.d(TAG, "MyNativeAdView.AndroidView.update.setNativeAd()")
+                adView.setNativeAd(ad)
+                adView.background = ColorDrawable(-0x1)
+                adView.callToActionView = contentView
+                contentView.setContent { adContent(ad, contentView) }
+            }
+        )
+    }
+
+    @Composable
+    fun ShowFacebookBanner(modifier: Modifier = Modifier, adId: String) {
         Log.d(TAG, "ShowFacebookBanner.adId = $adId")
         // adId == ColorBallsApp.facebookBannerID)
         // adId == ColorBallsApp.facebookBannerID2)

@@ -245,7 +245,7 @@ class PresenterCompose(
     fun onSaveInstanceState(outState: Bundle) {
         mGameProp.isShowingLoadingMessage = ColorBallsApp.isShowingLoadingMessage
         mGameProp.isProcessingJob = ColorBallsApp.isProcessingJob
-        Log.d(TAG, "onSaveInstanceState.mGridData!! = $mGridData")
+        Log.d(TAG, "onSaveInstanceState.mGridData = $mGridData")
         outState.putParcelable(Constants.GAME_PROP_TAG, mGameProp)
         outState.putParcelable(Constants.GRID_DATA_TAG, mGridData)
     }
