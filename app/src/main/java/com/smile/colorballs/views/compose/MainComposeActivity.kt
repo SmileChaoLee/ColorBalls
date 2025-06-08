@@ -6,7 +6,6 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -60,7 +59,7 @@ import com.smile.colorballs.shared_composables.Composables
 import com.smile.colorballs.shared_composables.ui.theme.ColorBallsTheme
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
-import com.smile.colorballs.models.GoogleNativeAd
+import com.smile.GoogleNativeAd
 import com.smile.colorballs.models.Settings
 import com.smile.smilelibraries.models.ExitAppTimer
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil
@@ -712,6 +711,40 @@ class MainComposeActivity : MyComposeView() {
     }
 
     @Composable
+    fun ShowNativeAd(modifier: Modifier = Modifier) {
+        Log.d(TAG, "ShowNativeAd.mOrientation.intValue" +
+                " = ${mOrientation.intValue}")
+        Column(modifier = modifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center) {
+            var nativeAd by remember { mutableStateOf<NativeAd?>(null) }
+            LaunchedEffect(Unit) {
+                object : GoogleNativeAd(this@MainComposeActivity,
+                    ColorBallsApp.googleAdMobNativeID) {
+                    override fun setNativeAd(ad: NativeAd?) {
+                        Log.d(TAG, "ShowNativeAd.GoogleNativeAd.setNativeAd")
+                        nativeAd = ad
+                    }
+                }
+            }
+            nativeAd?.let {
+                MyNativeAdView(ad = it) { ad, _ ->
+                    Row(modifier = Modifier.weight(1f)) {
+                        val icon: Drawable? = ad.icon?.drawable
+                        icon?.let { drawable ->
+                            Image(
+                                painter = rememberDrawablePainter(drawable = drawable),
+                                contentDescription = ""/*ad.icon?.contentDescription*/,
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
     fun ShowLandscapeAds(modifier: Modifier) {
         Log.d(TAG, "ShowLandscapeAds.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
@@ -719,33 +752,7 @@ class MainComposeActivity : MyComposeView() {
             fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
-            Column(modifier = Modifier.weight(8.0f)) {
-                var nativeAd by remember { mutableStateOf<NativeAd?>(null) }
-                LaunchedEffect(Unit) {
-                    object : GoogleNativeAd(this@MainComposeActivity,
-                        ColorBallsApp.googleAdMobNativeID) {
-                        override fun setNativeAd(ad: NativeAd?) {
-                            nativeAd = ad
-                        }
-                    }
-                }
-                nativeAd?.let {
-                    MyNativeAdView(ad = it) { ad, _ ->
-                        Row(modifier = Modifier.weight(1f),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center) {
-                            val icon: Drawable? = ad.icon?.drawable
-                            icon?.let { drawable ->
-                                Image(
-                                    painter = rememberDrawablePainter(drawable = drawable),
-                                    contentDescription = ""/*ad.icon?.contentDescription*/,
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+            ShowNativeAd(modifier = Modifier.weight(8.0f))
             ShowAdmobNormalBanner(modifier = Modifier.weight(2.0f))
         }
     }
