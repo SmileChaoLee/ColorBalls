@@ -1,6 +1,7 @@
 package com.smile.colorballs.views.compose
 
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
@@ -63,6 +64,7 @@ import com.smile.colorballs.shared_composables.ui.theme.ColorBallsTheme
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
 import com.smile.GoogleNativeAd
+import com.smile.colorballs.BuildConfig
 import com.smile.colorballs.models.Settings
 import com.smile.colorballs.shared_composables.ui.theme.ColorPrimary
 import com.smile.smilelibraries.models.ExitAppTimer
@@ -86,6 +88,17 @@ class MainComposeActivity : MyComposeView() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "$TAG.onCreate")
+
+        if (!BuildConfig.DEBUG) {
+            requestedOrientation = if (ScreenUtil.isTablet(this@MainComposeActivity)) {
+                // Table then change orientation to Landscape
+                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            } else {
+                // phone then change orientation to Portrait
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            }
+        }
+
         Log.d(TAG, "onCreate.getScreenSize()")
         getScreenSize()
 

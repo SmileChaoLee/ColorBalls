@@ -22,7 +22,6 @@
 
         <activity
             android:name=".views.compose.MainComposeActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

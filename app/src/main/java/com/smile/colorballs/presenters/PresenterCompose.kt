@@ -184,7 +184,7 @@ class PresenterCompose(
     }
 
     private fun restoreState(state: Bundle?): Boolean {
-        val isNewGame: Boolean
+        var isNewGame: Boolean
         var gameProp: GamePropCompose? = null
         var gridData: GridDataCompose? = null
         state?.let {
@@ -200,16 +200,30 @@ class PresenterCompose(
                         GridDataCompose::class.java)
                 else it.getParcelable(Constants.GRID_DATA_TAG)
         }
-        if (gameProp == null || gridData == null) {
-            Log.d(TAG, "restoreState.prop or grid is null, new game")
-            initData()
-            isNewGame = true
-        } else {
+        isNewGame = true
+        if (gameProp != null && gridData != null) {
             Log.d(TAG, "restoreState.gridData!! = ${gridData!!}")
-            setData(gameProp!!, gridData!!)
-            isNewGame = false
+            gridData?.apply {
+                for (i in 0 until Constants.ROW_COUNTS) {
+                    for (j in 0 until Constants.ROW_COUNTS) {
+                        if (getCellValue(i, j) != 0) {
+                            // has value, so not a new game
+                            isNewGame = false
+                            break
+                        }
+                    }
+                }
+                if (isNewGame) {
+                    Log.d(TAG, "restoreState.CellValues are all 0")
+                }
+            }
         }
         Log.d(TAG, "restoreState.isNewGame = $isNewGame")
+        if (isNewGame) {
+            initData()
+        } else {
+            setData(gameProp!!, gridData!!)
+        }
 
         return isNewGame
     }
