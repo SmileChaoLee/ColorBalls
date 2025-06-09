@@ -1,4 +1,4 @@
-package com.smile
+package com.smile.smilelibraries
 
 import android.content.Context
 import android.os.Handler
@@ -17,7 +17,7 @@ abstract class GoogleNativeAd(
     companion object {
         private const val TAG = "GoogleNativeAd"
         private const val MAX_LOAD_NUM = 15
-        private const val FIVE_MINUTES = 300000L // 300 seconds
+        private const val TWO_MINUTES = 120000L // 120 seconds
         private const val ONE_MINUTE = 60000L    // 60 seconds
     }
 
@@ -26,20 +26,20 @@ abstract class GoogleNativeAd(
     private val mBuilder: AdLoader.Builder = AdLoader.Builder(context, adId)
     private val mAdLoader: AdLoader
     private var mNativeAd: NativeAd? = null
-    private var isAdLoaded = false
-    private var numberOfLoad = 0
     private val timerHandler = Handler(Looper.getMainLooper())
     private val timerRunnable: Runnable = object : Runnable {
         override fun run() {
             timerHandler.removeCallbacksAndMessages(null)
             loadOneAd()
-            // 5 minutes later
-            timerHandler.postDelayed(this, FIVE_MINUTES)
+            timerHandler.postDelayed(this, TWO_MINUTES)
         }
     }
+    private var isAdLoaded = false
+    private var numberOfLoad = 0
 
     init {
         mBuilder.forNativeAd { nativeAd ->
+            Log.d(TAG, "forNativeAd().adId = $adId")
             Log.d(TAG, "forNativeAd().nativeAd = $nativeAd")
             mNativeAd?.destroy()
             mNativeAd = nativeAd
@@ -48,34 +48,34 @@ abstract class GoogleNativeAd(
         mAdLoader = mBuilder.withAdListener(object : AdListener() {
             override fun onAdFailedToLoad(loadAdError: LoadAdError) {
                 super.onAdFailedToLoad(loadAdError)
-                Log.d(TAG,"onAdFailedToLoad().mNumberOfLoad = $numberOfLoad")
+                Log.d(TAG,"onAdFailedToLoad.adId = $adId")
+                Log.d(TAG,"onAdFailedToLoad.mNumberOfLoad = $numberOfLoad")
                 isAdLoaded = false
                 timerHandler.removeCallbacksAndMessages(null)
                 if (numberOfLoad < MAX_LOAD_NUM) {
-                    Log.d(TAG,"LonAdFailedToLoad().loadOneAd()")
                     numberOfLoad++
-                    // 60 seconds later
                     timerHandler.postDelayed(timerRunnable, ONE_MINUTE)
                 } else {
+                    Log.d(TAG,"onAdFailedToLoad.adId = $adId")
+                    Log.d(TAG,"onAdFailedToLoad.more than $MAX_LOAD_NUM")
                     numberOfLoad = 0 // set back to zero
-                    Log.d(TAG,"onAdFailedToLoad().Failed " +
-                            "more than $MAX_LOAD_NUM")
-                    // 5 minutes later
-                    timerHandler.postDelayed(timerRunnable, FIVE_MINUTES)
+                    timerHandler.postDelayed(timerRunnable, TWO_MINUTES)
                 }
             }
             override fun onAdLoaded() {
-                Log.d(TAG, "onAdLoaded.Succeeded.numberOfLoad = $numberOfLoad")
-                numberOfLoad = 0    // set to 0
+                Log.d(TAG,"onAdLoaded.adId = $adId")
+                Log.d(TAG, "onAdLoaded.numberOfLoad = $numberOfLoad")
                 isAdLoaded = true
+                numberOfLoad = 0    // set to 0
             }
         }).build()
 
-        // loadOneAd()
         timerHandler.post(timerRunnable)
+        Log.d(TAG, "GoogleNativeAd for $adId created")
     }
 
     private fun loadOneAd() {
+        Log.d(TAG, "loadOneAd().adId = $adId")
         Log.d(TAG, "loadOneAd().numberOfLoad = $numberOfLoad")
         mAdLoader.loadAd(AdRequest.Builder().build())
     }

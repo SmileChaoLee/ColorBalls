@@ -15,15 +15,17 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.facebook.ads.Ad
-import com.facebook.ads.AdError
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
@@ -40,6 +42,8 @@ import com.smile.colorballs.interfaces.PresentViewCompose
 import com.smile.colorballs.presenters.PresenterCompose
 import com.smile.colorballs.shared_composables.Composables
 import com.smile.colorballs.viewmodel.MainComposeViewModel
+import com.smile.smilelibraries.AdMobBanner
+import com.smile.smilelibraries.FacebookBanner
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
 import com.smile.smilelibraries.utilities.FontAndBitmapUtil
@@ -53,9 +57,6 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
 
     companion object {
         private const val TAG = "MyComposeView"
-        private const val MAX_LOAD_NUM = 15
-        private const val FIVE_MINUTES = 300000L // 300 seconds
-        private const val ONE_MINUTE = 60000L    // 60 seconds
     }
     protected val viewModel: MainComposeViewModel by viewModels()
     protected var textFontSize = 0f
@@ -311,35 +312,16 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
     }
 
     @Composable
-    private fun ShowAdmobBanner(modifier: Modifier = Modifier,
+    fun ShowAdmobBanner(modifier: Modifier = Modifier,
                                 adId: String, width: Int = 0) {
         Log.d(TAG, "ShowAdmobBanner.adId = $adId")
         AndroidView(
             modifier = modifier,
             factory = { context ->
-                val adView = AdView(context)
-                adView.apply {
-                    val adMobAdSize = if (width != 0)
-                        getCurrentOrientationAnchoredAdaptiveBannerAdSize(
-                        this@MyComposeView, width) // adaptive banner
-                    else AdSize.BANNER // normal banner
-
-                    val listener = object : AdListener() {
-                        override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                            super.onAdFailedToLoad(loadAdError)
-                            Log.d(TAG, "ShowAdmobBanner.failed.adId = $adId")
-                        }
-                        override fun onAdLoaded() {
-                            super.onAdLoaded()
-                            Log.d(TAG, "ShowAdmobBanner.succeeded.adId = $adId")
-                        }
-                    }
-
-                    setAdSize(adMobAdSize)
-                    adUnitId = adId
-                    adListener = listener
-                    loadAd(AdRequest.Builder().build())
-                }
+                AdView(context)
+            },
+            update = { adView ->
+                AdMobBanner(adView, adId, width)
             }
         )
     }
@@ -395,65 +377,16 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
     @Composable
     fun ShowFacebookBanner(modifier: Modifier = Modifier, adId: String) {
         // val adId = ColorBallsApp.facebookBannerID
+        val pId = if (BuildConfig.DEBUG) "IMG_16_9_APP_INSTALL#$adId" else adId
         Log.d(TAG, "ShowFacebookBanner.adId = $adId")
-        var numberOfLoad = 0
-        var faceAdview: com.facebook.ads.AdView? = null
-        var faceListener: com.facebook.ads.AdListener? = null
-        val handler = Handler(Looper.getMainLooper())
-        val runnable: Runnable = object : Runnable {
-            override fun run() {
-                handler.removeCallbacksAndMessages(null)
-                faceAdview?.apply {
-                    faceListener?.let { listener ->
-                        loadAd(
-                            buildLoadAdConfig()
-                                .withAdListener(listener).build()
-                        )
-                    }
-                }
-                // 5 minutes later
-                handler.postDelayed(this, FIVE_MINUTES)
-            }
-        }
         AndroidView(
             modifier = modifier,
             factory = { context ->
-                val pId = if (BuildConfig.DEBUG) "IMG_16_9_APP_INSTALL#$adId" else adId
-                faceAdview = com.facebook.ads.AdView(context, pId,
+                com.facebook.ads.AdView(context, pId,
                     com.facebook.ads.AdSize.BANNER_HEIGHT_50)
-                faceAdview?.apply {
-                    faceListener = object : com.facebook.ads.AdListener {
-                        override fun onError(p0: Ad?, p1: AdError?) {
-                            Log.d(TAG, "ShowFacebookBanner.onError.adId = $adId")
-                            handler.removeCallbacksAndMessages(null)
-                            if (numberOfLoad < MAX_LOAD_NUM) {
-                                Log.d(TAG,"ShowFacebookBanner.numberOfLoad =" +
-                                        " $numberOfLoad")
-                                numberOfLoad++
-                                // 60 seconds later
-                                handler.postDelayed(runnable, ONE_MINUTE)
-                            } else {
-                                numberOfLoad = 0 // set back to zero
-                                Log.d(TAG,"ShowFacebookBanner.onError " +
-                                        "more than $MAX_LOAD_NUM")
-                                // 5 minutes later
-                                handler.postDelayed(runnable, FIVE_MINUTES)
-                            }
-                        }
-                        override fun onAdLoaded(p0: Ad?) {
-                            Log.d(TAG, "ShowFacebookBanner.onAdLoaded.adId = $adId")
-                            numberOfLoad = 0
-                        }
-                        override fun onAdClicked(p0: Ad?) {
-                            Log.d(TAG, "ShowFacebookBanner.onAdClicked.adId = $adId")
-                        }
-                        override fun onLoggingImpression(p0: Ad?) {
-                            Log.d(TAG, "ShowFacebookBanner.onLoggingImpression.adId = $adId")
-                        }
-                    }
-                    Log.d(TAG, "ShowFacebookBanner.loadAd.adId = $adId")
-                    handler.post(runnable)
-                }!!
+            },
+            update = { faceAdView ->
+                FacebookBanner(faceAdView)
             }
         )
     }

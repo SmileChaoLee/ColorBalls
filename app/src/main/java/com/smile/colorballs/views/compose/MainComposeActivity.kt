@@ -63,10 +63,10 @@ import com.smile.colorballs.shared_composables.Composables
 import com.smile.colorballs.shared_composables.ui.theme.ColorBallsTheme
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
-import com.smile.GoogleNativeAd
+import com.smile.smilelibraries.GoogleNativeAd
 import com.smile.colorballs.BuildConfig
 import com.smile.colorballs.models.Settings
-import com.smile.colorballs.shared_composables.ui.theme.ColorPrimary
+import com.smile.colorballs.shared_composables.ui.theme.*
 import com.smile.smilelibraries.models.ExitAppTimer
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil
 import com.smile.smilelibraries.utilities.ScreenUtil
@@ -135,7 +135,7 @@ class MainComposeActivity : MyComposeView() {
             Log.d(TAG, "onCreate.setContent")
             ColorBallsTheme {
                 mOrientation.intValue = resources.configuration.orientation
-                val backgroundColor = Color(getColor(R.color.yellow3))
+                val backgroundColor = Yellow3
                 Box(Modifier.background(color = backgroundColor)) {
                     if (mOrientation.intValue ==
                         Configuration.ORIENTATION_PORTRAIT) {
@@ -513,8 +513,9 @@ class MainComposeActivity : MyComposeView() {
     @Composable
     fun ShowMenu(modifier: Modifier) {
         Log.d(TAG, "ShowMenu.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
+                 " = ${mOrientation.intValue}")
         var expanded by remember { mutableStateOf(false) }
+        Log.d(TAG, "ShowMenu.expanded = $expanded")
         Box(modifier = modifier) {
             IconButton (onClick = { expanded = !expanded }, modifier = modifier) {
                 Icon(
@@ -727,11 +728,12 @@ class MainComposeActivity : MyComposeView() {
         }
         Column(modifier = modifier.fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center) {
-                ShowFacebookBanner(modifier = modifier,
-                    ColorBallsApp.facebookBannerID)
-                // ShowAdmobNormalBanner(modifier = modifier)
-                ShowAdmobAdaptiveBanner(modifier = modifier, width = adWidth)
+            verticalArrangement = Arrangement.Top) {
+            ShowAdmobNormalBanner(modifier = Modifier.weight(1.0f))
+            ShowFacebookBanner(modifier = Modifier.weight(1.0f),
+                ColorBallsApp.facebookBannerID)
+            ShowFacebookBanner(modifier = Modifier.weight(1.0f),
+                ColorBallsApp.facebookBannerID2)
         }
     }
 
@@ -816,10 +818,13 @@ class MainComposeActivity : MyComposeView() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
             ShowNativeAd(modifier = Modifier.weight(8.0f))
-            // ShowAdmobNormalBanner(modifier = Modifier.weight(2.0f))
+            ShowAdmobAdaptiveBanner(modifier = Modifier.weight(2.0f),
+                width = 0)
+            /*
             ShowFacebookBanner(modifier = Modifier.weight(2.0f)
                 .padding(top = 10.dp),
                 ColorBallsApp.facebookBannerID2)
+            */
         }
     }
 }
