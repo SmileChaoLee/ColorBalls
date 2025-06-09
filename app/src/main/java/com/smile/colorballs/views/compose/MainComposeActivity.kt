@@ -27,9 +27,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -61,6 +64,7 @@ import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
 import com.smile.GoogleNativeAd
 import com.smile.colorballs.models.Settings
+import com.smile.colorballs.shared_composables.ui.theme.ColorPrimary
 import com.smile.smilelibraries.models.ExitAppTimer
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil
 import com.smile.smilelibraries.utilities.ScreenUtil
@@ -110,7 +114,7 @@ class MainComposeActivity : MyComposeView() {
                         true),true)
                 }
                 Log.d(TAG, "settingLauncher.Showing interstitial ads")
-                showInterstitialAd()
+                // showInterstitialAd()
             }
         }
 
@@ -293,12 +297,12 @@ class MainComposeActivity : MyComposeView() {
                     mPresenter.setHasSound(setting.hasSound)
                     mPresenter.setEasyLevel(setting.easyLevel)
                     mPresenter.setHasNextBall(setting.hasNextBall, true)
-                    showInterstitialAd()
+                    // showInterstitialAd()
                 }
                 override fun buttonCancelClick() {
                     isDialogOpen = false
                     viewModel.setSettingTitle("")
-                    showInterstitialAd()
+                    // showInterstitialAd()
                 }
             }
 
@@ -711,7 +715,9 @@ class MainComposeActivity : MyComposeView() {
         Column(modifier = modifier.fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
-                ShowAdmobNormalBanner(modifier = modifier)
+                ShowFacebookBanner(modifier = modifier,
+                    ColorBallsApp.facebookBannerID)
+                // ShowAdmobNormalBanner(modifier = modifier)
                 ShowAdmobAdaptiveBanner(modifier = modifier, width = adWidth)
         }
     }
@@ -720,33 +726,68 @@ class MainComposeActivity : MyComposeView() {
     fun ShowNativeAd(modifier: Modifier = Modifier) {
         Log.d(TAG, "ShowNativeAd.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
-        Column(modifier = modifier,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center) {
-            var nativeAd by remember { mutableStateOf<NativeAd?>(null) }
-            LaunchedEffect(Unit) {
-                object : GoogleNativeAd(this@MainComposeActivity,
-                    ColorBallsApp.googleAdMobNativeID) {
-                    override fun setNativeAd(ad: NativeAd?) {
-                        Log.d(TAG, "ShowNativeAd.GoogleNativeAd.setNativeAd")
-                        nativeAd = ad
-                    }
+        var nativeAd by remember { mutableStateOf<NativeAd?>(null) }
+        LaunchedEffect(Unit) {
+            object : GoogleNativeAd(this@MainComposeActivity,
+                ColorBallsApp.googleAdMobNativeID) {
+                override fun setNativeAd(ad: NativeAd?) {
+                    Log.d(TAG, "ShowNativeAd.GoogleNativeAd.setNativeAd")
+                    nativeAd = ad
                 }
             }
-            nativeAd?.let {
-                MyNativeAdView(ad = it) { ad, _ ->
-                    Row(modifier = Modifier.weight(1f)) {
+        }   // end of LaunchedEffect
+        nativeAd?.let {
+            MyNativeAdView(modifier = modifier, ad = it) { ad, view ->
+                // head Column
+                Column(modifier = modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center) {
+                    // head Row
+                    Row(
+                        modifier = Modifier.weight(8.0f).fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
                         val icon: Drawable? = ad.icon?.drawable
                         icon?.let { drawable ->
                             Image(
                                 painter = rememberDrawablePainter(drawable = drawable),
                                 contentDescription = ""/*ad.icon?.contentDescription*/,
-                                contentScale = ContentScale.Crop
+                                contentScale = ContentScale.Fit
                             )
                         }
-                    }
-                }
-            }
+                        Column {
+                            Text(
+                                text = ad.headline ?: "",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            Text(
+                                text = ad.body ?: "",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }   // end of Column
+                    }   // end of head Row
+                    // Column for Button
+                    ad.callToAction?.let { cta ->
+                        Log.d(TAG, "ShowNativeAd.callToAction.cta = $cta")
+                        Column(modifier = Modifier.weight(2.0f).fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Button(onClick = {
+                                view.performClick()
+                            }, colors = ButtonColors(
+                                containerColor = ColorPrimary,
+                                disabledContainerColor = ColorPrimary,
+                                contentColor = Color.Yellow,
+                                disabledContentColor = Color.Yellow)
+                            ) { Text(text = cta, fontSize = Composables.mFontSize) }
+                        }
+                    }   // end of ad.callToAction */
+                }   // end of head Column
+            }   // end of MyNativeAdView
         }
     }
 
@@ -754,12 +795,18 @@ class MainComposeActivity : MyComposeView() {
     fun ShowLandscapeAds(modifier: Modifier) {
         Log.d(TAG, "ShowLandscapeAds.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
-        Column(modifier = modifier.fillMaxHeight().
-            fillMaxWidth(),
+        val colHeight = with(LocalDensity.current) {
+            screenY.toDp()
+        }
+        Column(modifier = modifier.height(height = colHeight)
+            .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
             ShowNativeAd(modifier = Modifier.weight(8.0f))
-            ShowAdmobNormalBanner(modifier = Modifier.weight(2.0f))
+            // ShowAdmobNormalBanner(modifier = Modifier.weight(2.0f))
+            ShowFacebookBanner(modifier = Modifier.weight(2.0f)
+                .padding(top = 10.dp),
+                ColorBallsApp.facebookBannerID2)
         }
     }
 }
