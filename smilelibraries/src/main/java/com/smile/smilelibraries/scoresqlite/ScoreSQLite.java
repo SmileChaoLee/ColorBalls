@@ -16,16 +16,17 @@ import java.util.ArrayList;
 public class ScoreSQLite extends SQLiteOpenHelper {
 
     private static String TAG = "ScoreSQLite";
-    private static final String _id = new String("id");
-    private static final String playerName = new String("playerName");
-    private static final String playerScore = new String("playerScore");
+    private static final String _id = "id";
+    private static final String playerName = "playerName";
+    private static final String playerScore = "playerScore";
 
-    private static final String dbName = new String("colorBallDatabase.db");
-    private static final String tableName = new String("score");
-    private static final String createTable = "create table if not exists " + tableName + " ("
+    private static final String dbName = "colorBallDatabase.db";
+    private static final String tableName = "score";
+    private static final String createTable = "create table if not exists "
+            + tableName + " ("
             + _id + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + playerName + " TEXT NOT NULL ,  " + playerScore + " INTEGER );";
-    private static final String upDateTable = new String("update");
+    private static final String upDateTable = "update";
 
     private static final int dbVersion = 2;
 
@@ -66,7 +67,8 @@ public class ScoreSQLite extends SQLiteOpenHelper {
         openScoreDatabase();
         if (scoreDatabase != null) {
             try {
-                String sql = "select playerScore from " + tableName + " order by playerScore desc limit 1";
+                String sql = "select playerScore from " + tableName +
+                        " order by playerScore desc limit 1";
                 Cursor cur = scoreDatabase.rawQuery(sql, new String[]{});
                 if (cur.moveToFirst()) {
                     highestScore = cur.getInt(0);
@@ -87,12 +89,15 @@ public class ScoreSQLite extends SQLiteOpenHelper {
 
         openScoreDatabase();
         if (scoreDatabase != null) {
-            String temp = new String("");
+            String temp = "";
             int score = 0;
             // int i = 0;
             Pair<String, Integer> pair;
 
-            Cursor cur = scoreDatabase.query(tableName, new String[] {"playerName","playerScore"}, null, null, null, null, "playerScore desc", "10");
+            Cursor cur = scoreDatabase.query(tableName, new String[]
+                    {"playerName","playerScore"}, null,
+                    null, null, null,
+                    "playerScore desc", "10");
             if (cur.moveToFirst()) {
                 do {
                     temp = cur.getString(0);
@@ -118,11 +123,13 @@ public class ScoreSQLite extends SQLiteOpenHelper {
         openScoreDatabase();
         if (scoreDatabase != null) {
             // succeeded to open
-            String temp = new String("");
+            String temp = "";
             int score = 0;
             Pair<String, Integer> pair;
             try {
-                Cursor cur = scoreDatabase.query(tableName, new String[] {"playerName", "playerScore"},null,null,null,null,null);
+                Cursor cur = scoreDatabase.query(tableName, new String[]
+                        {"playerName", "playerScore"},null,
+                        null,null,null,null);
                 if (cur.moveToFirst()) {
                     do {
                         temp = cur.getString(0);
@@ -148,7 +155,10 @@ public class ScoreSQLite extends SQLiteOpenHelper {
         if (scoreDatabase != null) {
             // succeeded to open database
             try {
-                Cursor cur = scoreDatabase.query(tableName, new String[]{"playerScore"}, null, null, null, null, "playerScore desc", "10");
+                Cursor cur = scoreDatabase.query(tableName, new String[]
+                        {"playerScore"}, null, null,
+                        null, null, "playerScore desc",
+                        "10");
                 if (cur.getCount() < 10) {
                     // less than 10 scores
                     yn = true;
@@ -187,13 +197,17 @@ public class ScoreSQLite extends SQLiteOpenHelper {
                 if (cur.moveToFirst()) {
                     if (cur.getInt(0) >= 100) {
                         //   Over 100 records,   delete one record
-                        sql = "delete from " + tableName + " where playerScore in ( select playerScore from " + tableName + " order by playerScore limit 1);";
+                        sql = "delete from " + tableName +
+                                " where playerScore in (" +
+                                "select playerScore from " + tableName +
+                                " order by playerScore limit 1);";
                         scoreDatabase.execSQL(sql);
                     }
                 }
                 cur.close();
                 //  insert one record into table    SCORE
-                System.out.println("addScore(final String name , final int score) --> score " + score);
+                Log.d(TAG, "addScore(final String name , final int score).score "
+                        + score);
                 sql = "insert into " + tableName + " ( playerName , playerScore) values ("
                         + "'" + name + "'," + String.valueOf(score) + ");";
                 scoreDatabase.execSQL(sql);
@@ -221,7 +235,9 @@ public class ScoreSQLite extends SQLiteOpenHelper {
             openScoreDatabase();
             if (scoreDatabase != null) {
                 try {
-                    String query = "DELETE FROM " + tableName + " WHERE id NOT IN (SELECT ID FROM " + tableName + " ORDER BY " + playerScore + " DESC LIMIT 10)";
+                    String query = "DELETE FROM " + tableName +
+                            " WHERE id NOT IN (SELECT ID FROM " + tableName +
+                            " ORDER BY " + playerScore + " DESC LIMIT 10)";
                     scoreDatabase.execSQL(query);
                 } catch (SQLException ex) {
                     ex.printStackTrace();

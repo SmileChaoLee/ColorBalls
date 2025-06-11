@@ -15,23 +15,14 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdSize
-import com.google.android.gms.ads.AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize
 import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdView
 import com.smile.colorballs.BuildConfig
@@ -40,8 +31,8 @@ import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.interfaces.PresentViewCompose
 import com.smile.colorballs.presenters.PresenterCompose
-import com.smile.colorballs.shared_composables.Composables
 import com.smile.colorballs.viewmodel.MainComposeViewModel
+import com.smile.colorballs.shared_composables.Composables
 import com.smile.smilelibraries.AdMobBanner
 import com.smile.smilelibraries.FacebookBanner
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
@@ -60,7 +51,6 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
     }
     protected val viewModel: MainComposeViewModel by viewModels()
     protected var textFontSize = 0f
-    protected lateinit var mPresenter: PresenterCompose
     protected var mImageSizeDp = 0f
     protected var boxImage: Bitmap? = null
     protected val colorBallMap: HashMap<Int, Bitmap> = HashMap()
@@ -68,7 +58,6 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
     protected val colorNextBallMap: HashMap<Int, Bitmap> = HashMap()
 
     private var interstitialAd: ShowInterstitial? = null
-    private lateinit var medalImageIds: List<Int>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,27 +77,14 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
                 it.googleInterstitialAd)
         }
 
-        medalImageIds = listOf(
-            R.drawable.gold_medal,
-            R.drawable.silver_medal,
-            R.drawable.bronze_medal,
-            R.drawable.copper_medal,
-            R.drawable.olympics_image,
-            R.drawable.olympics_image,
-            R.drawable.olympics_image,
-            R.drawable.olympics_image,
-            R.drawable.olympics_image,
-            R.drawable.olympics_image)
-
-        viewModel.medalImageIds = medalImageIds
         Log.d(TAG, "onCreate.instantiate PresenterCompose")
-        mPresenter = PresenterCompose(this@MyComposeView)
+        viewModel.setPresenter(PresenterCompose(this@MyComposeView))
     }
 
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "onDestroy")
-        mPresenter.release()
+        viewModel.release()
         interstitialAd?.releaseInterstitial()
     }
 
@@ -195,39 +171,39 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
     }
 
     private fun quitOrNewGame() {
-        if (mPresenter.mGameAction == Constants.IS_QUITING_GAME) {
+        if (viewModel.mGameAction == Constants.IS_QUITING_GAME) {
             //  END PROGRAM
             exitApplication()
-        } else if (mPresenter.mGameAction == Constants.IS_CREATING_GAME) {
+        } else if (viewModel.mGameAction == Constants.IS_CREATING_GAME) {
             //  NEW GAME
-            mPresenter.initGame(null)
+            viewModel.initGame(null)
         }
-        mPresenter.setSaveScoreAlertDialogState(false)
+        viewModel.setSaveScoreAlertDialogState(false)
         ColorBallsApp.isProcessingJob = false
     }
 
     @Composable
     fun SaveGameDialog() {
         Log.d(TAG, "SaveGameDialog")
-        val dialogText = mPresenter.saveGameText.value
+        val dialogText = viewModel.saveGameText.value
         if (dialogText.isNotEmpty()) {
             val buttonListener = object: Composables.ButtonClickListener {
                 override fun buttonOkClick() {
-                    val numOfSaved: Int = mPresenter.readNumberOfSaved()
-                    val msg = if (mPresenter.startSavingGame(numOfSaved)) {
+                    val numOfSaved: Int = viewModel.readNumberOfSaved()
+                    val msg = if (viewModel.startSavingGame(numOfSaved)) {
                             getString(R.string.succeededSaveGameStr)
                         } else {
                             getString(R.string.failedSaveGameStr)
                         }
                     ScreenUtil.showToast(this@MyComposeView, msg, textFontSize,
                         ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
-                    mPresenter.setShowingSureSaveDialog(false)
-                    mPresenter.setSaveGameText("")
+                    viewModel.setShowingSureSaveDialog(false)
+                    viewModel.setSaveGameText("")
                     showInterstitialAd()
                 }
                 override fun buttonCancelClick() {
-                    mPresenter.setShowingSureSaveDialog(false)
-                    mPresenter.setSaveGameText("")
+                    viewModel.setShowingSureSaveDialog(false)
+                    viewModel.setSaveGameText("")
                 }
             }
             Composables.DialogWithText(this@MyComposeView,
@@ -238,24 +214,24 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
     @Composable
     fun LoadGameDialog() {
         Log.d(TAG, "LoadGameDialog")
-        val dialogText = mPresenter.loadGameText.value
+        val dialogText = viewModel.loadGameText.value
         if (dialogText.isNotEmpty()) {
             val buttonListener = object: Composables.ButtonClickListener {
                 override fun buttonOkClick() {
-                    val msg = if (mPresenter.startLoadingGame()) {
+                    val msg = if (viewModel.startLoadingGame()) {
                         getString(R.string.succeededLoadGameStr)
                     } else {
                         getString(R.string.failedLoadGameStr)
                     }
                     ScreenUtil.showToast(this@MyComposeView, msg, textFontSize,
                         ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
-                    mPresenter.setShowingSureLoadDialog(false)
-                    mPresenter.setLoadGameText("")
+                    viewModel.setShowingSureLoadDialog(false)
+                    viewModel.setLoadGameText("")
                     showInterstitialAd()
                 }
                 override fun buttonCancelClick() {
-                    mPresenter.setShowingSureLoadDialog(false)
-                    mPresenter.setLoadGameText("")
+                    viewModel.setShowingSureLoadDialog(false)
+                    viewModel.setLoadGameText("")
                 }
             }
             Composables.DialogWithText(this@MyComposeView,
@@ -266,18 +242,18 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
     @Composable
     fun GameOverDialog() {
         Log.d(TAG, "GameOverDialog")
-        val dialogText = mPresenter.gameOverText.value
+        val dialogText = viewModel.gameOverText.value
         if (dialogText.isNotEmpty()) {
             val buttonListener = object: Composables.ButtonClickListener {
                 override fun buttonOkClick() {
-                    mPresenter.newGame()
-                    mPresenter.setShowingGameOverDialog(false)
-                    mPresenter.setGameOverText("")
+                    viewModel.newGame()
+                    viewModel.setShowingGameOverDialog(false)
+                    viewModel.setGameOverText("")
                 }
                 override fun buttonCancelClick() {
-                    mPresenter.quitGame()
-                    mPresenter.setShowingGameOverDialog(false)
-                    mPresenter.setGameOverText("")
+                    viewModel.quitGame()
+                    viewModel.setShowingGameOverDialog(false)
+                    viewModel.setGameOverText("")
                 }
             }
             Composables.DialogWithText(this@MyComposeView,
@@ -288,21 +264,21 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
     @Composable
     fun SaveScoreDialog() {
         Log.d(TAG, "SaveScoreDialog")
-        val dialogTitle = mPresenter.saveScoreTitle.value
+        val dialogTitle = viewModel.saveScoreTitle.value
         if (dialogTitle.isNotEmpty()) {
             val buttonListener = object: Composables.ButtonClickListenerString {
                 override fun buttonOkClick(value: String?) {
                     Log.d(TAG, "SaveScoreDialog.buttonOkClick.value = $value")
-                    mPresenter.saveScore(value ?: "No Name")
+                    viewModel.saveScore(value ?: "No Name")
                     quitOrNewGame()
                     // set SaveScoreDialog() invisible
-                    mPresenter.setSaveScoreTitle("")
+                    viewModel.setSaveScoreTitle("")
                 }
                 override fun buttonCancelClick(value: String?) {
                     Log.d(TAG, "SaveScoreDialog.buttonCancelClick.value = $value")
                     quitOrNewGame()
                     // set SaveScoreDialog() invisible
-                    mPresenter.setSaveScoreTitle("")
+                    viewModel.setSaveScoreTitle("")
                 }
             }
             val hitStr = getString(R.string.nameStr)
@@ -392,6 +368,35 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
     }
 
     // implementing PresentViewCompose
+    override fun getMedalImageIds(): List<Int> {
+        val medalImageIds = listOf(
+            R.drawable.gold_medal,
+            R.drawable.silver_medal,
+            R.drawable.bronze_medal,
+            R.drawable.copper_medal,
+            R.drawable.olympics_image,
+            R.drawable.olympics_image,
+            R.drawable.olympics_image,
+            R.drawable.olympics_image,
+            R.drawable.olympics_image,
+            R.drawable.olympics_image)
+        return medalImageIds
+    }
+
+    override fun getLoadingStr() = getString(R.string.loadingStr)
+
+    override fun geSavingGameStr() = getString(R.string.savingGameStr)
+
+    override fun getLoadingGameStr() = getString(R.string.loadingGameStr)
+
+    override fun getSureToSaveGameStr() = getString(R.string.sureToSaveGameStr)
+
+    override fun getSureToLoadGameStr() = getString(R.string.sureToLoadGameStr)
+
+    override fun getGameOverStr() = getString(R.string.gameOverStr)
+
+    override fun getSaveScoreStr() = getString(R.string.saveScoreStr)
+
     override fun soundPool(): SoundPoolUtil {
         return SoundPoolUtil(this, R.raw.uhoh)
     }
@@ -427,34 +432,5 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
             width, height)
     }
 
-    override fun showLoadingStrOnScreen() {
-        mPresenter.screenMessage.value = getString(R.string.loadingStr)
-    }
-
-    override fun showSavingGameStrOnScreen() {
-        mPresenter.screenMessage.value = getString(R.string.savingGameStr)
-    }
-
-    override fun showLoadingGameStrOnScreen() {
-        mPresenter.screenMessage.value = getString(R.string.loadingGameStr)
-    }
-
-    override fun showSaveGameDialog() {
-        Log.d(TAG, "showSaveGameDialog")
-        mPresenter.setSaveGameText(getString(R.string.sureToSaveGameStr))
-    }
-
-    override fun showLoadGameDialog() {
-        Log.d(TAG, "showLoadGameDialog")
-        mPresenter.setLoadGameText(getString(R.string.sureToLoadGameStr))
-    }
-
-    override fun showGameOverDialog() {
-        mPresenter.setGameOverText(getString(R.string.gameOverStr))
-    }
-
-    override fun showSaveScoreAlertDialog() {
-        mPresenter.setSaveScoreTitle(getString(R.string.saveScoreStr))
-    }
     // end of implementing
 }

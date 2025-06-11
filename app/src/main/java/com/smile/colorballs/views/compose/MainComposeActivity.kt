@@ -119,11 +119,11 @@ class MainComposeActivity : MyComposeView() {
             if (result.resultCode == RESULT_OK) {
                 val data = result.data ?: return@registerForActivityResult
                 data.extras?.let { extras ->
-                    mPresenter.setHasSound(extras.getBoolean(Constants.HAS_SOUND,
+                    viewModel.setHasSound(extras.getBoolean(Constants.HAS_SOUND,
                         true))
-                    mPresenter.setEasyLevel(extras.getBoolean(Constants.IS_EASY_LEVEL,
+                    viewModel.setEasyLevel(extras.getBoolean(Constants.IS_EASY_LEVEL,
                         true))
-                    mPresenter.setHasNextBall(extras.getBoolean(Constants.HAS_NEXT_BALL,
+                    viewModel.setHasNextBall(extras.getBoolean(Constants.HAS_NEXT_BALL,
                         true),true)
                 }
                 Log.d(TAG, "settingLauncher.Showing interstitial ads")
@@ -162,7 +162,7 @@ class MainComposeActivity : MyComposeView() {
             }
             LaunchedEffect(Unit) {
                 Log.d(TAG, "onCreate.setContent.LaunchedEffect")
-                mPresenter.initGame(savedInstanceState)
+                viewModel.initGame(savedInstanceState)
             }
         }
 
@@ -209,7 +209,7 @@ class MainComposeActivity : MyComposeView() {
             ColorBallsApp.isShowingLoadingMessage = false
             ColorBallsApp.isProcessingJob = false
         }
-        mPresenter.onSaveInstanceState(outState)
+        viewModel.onSaveInstanceState(outState)
 
         super.onSaveInstanceState(outState)
     }
@@ -224,7 +224,7 @@ class MainComposeActivity : MyComposeView() {
         // change back button behavior
         val exitAppTimer = ExitAppTimer.getInstance(1000) // singleton class
         if (exitAppTimer.canExit()) {
-            mPresenter.quitGame() //   from   END PROGRAM
+            viewModel.quitGame() //   from   END PROGRAM
         } else {
             exitAppTimer.start()
             val toastFontSize = textFontSize * 0.7f
@@ -286,8 +286,8 @@ class MainComposeActivity : MyComposeView() {
                 "= ${mOrientation.intValue}")
         if (viewModel.settingTitle.value.isNotEmpty()) {
             var isDialogOpen by remember { mutableStateOf(true) }
-            val setting = Settings(mPresenter.hasSound(),
-                mPresenter.isEasyLevel(), mPresenter.hasNextBall())
+            val setting = Settings(viewModel.hasSound(),
+                viewModel.isEasyLevel(), viewModel.hasNextBall())
             val textClick = object : Composables.SettingClickListener {
                 override fun hasSoundClick(hasSound: Boolean) {
                     Log.d(TAG, "textClick.hasSoundClick.hasSound = $hasSound")
@@ -307,9 +307,9 @@ class MainComposeActivity : MyComposeView() {
                 override fun buttonOkClick() {
                     viewModel.setSettingTitle("")
                     isDialogOpen = false
-                    mPresenter.setHasSound(setting.hasSound)
-                    mPresenter.setEasyLevel(setting.easyLevel)
-                    mPresenter.setHasNextBall(setting.hasNextBall, true)
+                    viewModel.setHasSound(setting.hasSound)
+                    viewModel.setEasyLevel(setting.easyLevel)
+                    viewModel.setHasNextBall(setting.hasNextBall, true)
                     // showInterstitialAd()
                 }
                 override fun buttonCancelClick() {
@@ -419,7 +419,7 @@ class MainComposeActivity : MyComposeView() {
     fun ShowCurrentScore(modifier: Modifier) {
         Log.d(TAG, "ShowCurrentScore.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
-        Text(text = mPresenter.currentScore.intValue.toString(),
+        Text(text = viewModel.currentScore.intValue.toString(),
             modifier = modifier,
             color = Color.Red, fontSize = Composables.mFontSize
         )
@@ -429,7 +429,7 @@ class MainComposeActivity : MyComposeView() {
     fun SHowHighestScore(modifier: Modifier) {
         Log.d(TAG, "SHowHighestScore.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
-        Text(text = mPresenter.highestScore.intValue.toString(),
+        Text(text = viewModel.highestScore.intValue.toString(),
             modifier = modifier,
             color = Color.White, fontSize = Composables.mFontSize
         )
@@ -439,7 +439,7 @@ class MainComposeActivity : MyComposeView() {
     fun UndoButton(modifier: Modifier) {
         Log.d(TAG, "UndoButton.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
-        IconButton (onClick = { mPresenter.undoTheLast() },
+        IconButton (onClick = { viewModel.undoTheLast() },
             modifier = modifier
             /*, colors = IconButtonColors(
                 containerColor = Color.Transparent,
@@ -461,9 +461,9 @@ class MainComposeActivity : MyComposeView() {
                 SettingComposeActivity::class.java
             ).let {
                 Bundle().apply {
-                    putBoolean(Constants.HAS_SOUND, mPresenter.hasSound())
-                    putBoolean(Constants.IS_EASY_LEVEL, mPresenter.isEasyLevel())
-                    putBoolean(Constants.HAS_NEXT_BALL, mPresenter.hasNextBall())
+                    putBoolean(Constants.HAS_SOUND, viewModel.hasSound())
+                    putBoolean(Constants.IS_EASY_LEVEL, viewModel.isEasyLevel())
+                    putBoolean(Constants.HAS_NEXT_BALL, viewModel.hasNextBall())
                     it.putExtras(this)
                     settingLauncher.launch(it)
                 }
@@ -552,7 +552,7 @@ class MainComposeActivity : MyComposeView() {
                     color = Color.Black,
                     onClick = {
                         expanded = false
-                        mPresenter.saveGame()
+                        viewModel.saveGame()
                         // mPresenter.setSaveGameTitle(
                         //     getString(R.string.sureToSaveGameStr))
                     })
@@ -562,7 +562,7 @@ class MainComposeActivity : MyComposeView() {
                     color = Color.Black,
                     onClick = {
                         expanded = false
-                        mPresenter.loadGame()
+                        viewModel.loadGame()
                         // mPresenter.setLoadGameTitle(
                         //     getString(R.string.sureToLoadGameStr))
                     })
@@ -572,7 +572,7 @@ class MainComposeActivity : MyComposeView() {
                     color = Color.Black,
                     onClick = {
                         expanded = false
-                        mPresenter.newGame()
+                        viewModel.newGame()
                     })
 
                 Composables.DropdownMenuItem(
@@ -580,7 +580,7 @@ class MainComposeActivity : MyComposeView() {
                     color = Color.Black,
                     onClick = {
                         expanded = false
-                        mPresenter.quitGame()
+                        viewModel.quitGame()
                     })
 
                 Composables.DropdownMenuItem(
@@ -625,7 +625,7 @@ class MainComposeActivity : MyComposeView() {
                     for (j in 0 until Constants.ROW_COUNTS) {
                         Box(Modifier
                             .clickable {
-                                mPresenter.drawBallsAndCheckListener(i, j)
+                                viewModel.drawBallsAndCheckListener(i, j)
                         }) {
                             Image(
                                 modifier = Modifier.size(mImageSizeDp.dp)
@@ -649,7 +649,7 @@ class MainComposeActivity : MyComposeView() {
     fun ShowMessageOnScreen() {
         Log.d(TAG, "ShowMessageOnScreen.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
-        val message = mPresenter.screenMessage.value
+        val message = viewModel.screenMessage.value
         if (message.isEmpty()) return
         val gameViewLength = mImageSizeDp * Constants.ROW_COUNTS.toFloat()
         val width = (gameViewLength/2f).dp
@@ -686,7 +686,7 @@ class MainComposeActivity : MyComposeView() {
     fun ShowColorBall(i: Int, j: Int) {
         Log.d(TAG, "ShowColorBall.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
-        val ballInfo = mPresenter.gridDataArray[i][j].value
+        val ballInfo = viewModel.gridDataArray[i][j].value
         val ballColor = ballInfo.ballColor
         Log.d(TAG, "ShowColorBall.ballColor = $ballColor")
         val isAnimation = ballInfo.isAnimation
