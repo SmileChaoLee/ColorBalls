@@ -20,7 +20,7 @@
     <string name="okStr">確定</string>
     <string name="yesStr">是</string>
     <string name="noStr">否</string>
-    <string name="gameOverStr">遊戲結束.\n是否繼續?</string>
+    <string name="gameOverStr">遊戲結束. 是否繼續?</string>
     <string name="cancelStr">取消</string>
     <string name="submitStr">送出</string>
     <string name="nameStr">輸入你的名字</string>
