@@ -15,7 +15,7 @@ private const val ballNumCompleted = Constants.BALL_NUM_COMPLETED - 1
 private val mRandom: Random = Random(System.currentTimeMillis())
 
 @Parcelize
-open class GridDataCompose(
+class GridDataCompose(
     private var mNumOfColorsUsed : Int = Constants.NUM_EASY,
     private val mCellValues : Array<IntArray> =
         Array(rowCounts) { IntArray(colCounts){0} },
@@ -25,11 +25,6 @@ open class GridDataCompose(
     private var mUndoNextCellIndices : HashMap<Point, Int> = HashMap(),
     private val mLightLine : HashSet<Point> = HashSet(),
     private val mPathPoint : ArrayList<Point> = ArrayList()) : Parcelable {
-        /*
-        init {
-            randCells()
-        }
-        */
 
     fun randCells(): Int {
         mNextCellIndices.clear()
@@ -56,49 +51,28 @@ open class GridDataCompose(
         randCells()
     }
 
-    fun copy(gData: GridDataCompose) {
+    fun copy(gData: GridDataCompose): GridDataCompose {
         Log.d(TAG, "copy")
-        mNumOfColorsUsed = gData.mNumOfColorsUsed
+        val newGridData = GridDataCompose()
+        newGridData.mNumOfColorsUsed = gData.mNumOfColorsUsed
         for (i in 0 until rowCounts) {
-            System.arraycopy(gData.mCellValues[i], 0, mCellValues[i],
+            System.arraycopy(gData.mCellValues[i], 0, newGridData.mCellValues[i],
                 0, gData.mCellValues[i].size)
-            for (j in 0 until rowCounts) {
-                Log.d(TAG, "copy.mCellValues[$i][$j] = ${mCellValues[i][j]}")
-            }
         }
         for (i in 0 until rowCounts) {
-            System.arraycopy(gData.mBackupCells[i], 0, mBackupCells[i],
+            System.arraycopy(gData.mBackupCells[i], 0, newGridData.mBackupCells[i],
                 0, gData.mBackupCells[i].size)
-            for (j in 0 until rowCounts) {
-                Log.d(TAG, "copy.mBackupCells[i] = ${mBackupCells[i][j]}")
-            }
         }
+        newGridData.mNextCellIndices.clear()
+        newGridData.mNextCellIndices.putAll(gData.mNextCellIndices)
+        newGridData.mUndoNextCellIndices.clear()
+        newGridData.mUndoNextCellIndices.putAll(gData.mUndoNextCellIndices)
+        newGridData.mLightLine.clear()
+        newGridData.mLightLine.addAll(gData.mLightLine)
+        newGridData.mPathPoint.clear()
+        newGridData.mPathPoint.addAll(gData.mPathPoint)
 
-        mNextCellIndices.clear()
-        mNextCellIndices.putAll(gData.mNextCellIndices)
-        for (entry in mNextCellIndices.entries) {
-            Log.d(TAG, "copy.mNextCellIndices.entry.key = ${entry.key}")
-            Log.d(TAG, "copy.mNextCellIndices.entry.value = ${entry.value}")
-        }
-
-        mUndoNextCellIndices.clear()
-        mUndoNextCellIndices.putAll(gData.mUndoNextCellIndices)
-        for (entry in mUndoNextCellIndices.entries) {
-            Log.d(TAG, "copy.mUndoNextCellIndices.entry.key = ${entry.key}")
-            Log.d(TAG, "copy.mUndoNextCellIndices.entry.value = ${entry.value}")
-        }
-
-        mLightLine.clear()
-        mLightLine.addAll(gData.mLightLine)
-        for (item in mLightLine) {
-            Log.d(TAG, "copy.mLightLine.item = $item")
-        }
-
-        mPathPoint.clear()
-        mPathPoint.addAll(gData.mPathPoint)
-        for (item in mPathPoint) {
-            Log.d(TAG, "copy.mPathPoint.item = $item")
-        }
+        return newGridData
     }
 
     fun getCellValue(i: Int, j: Int): Int {

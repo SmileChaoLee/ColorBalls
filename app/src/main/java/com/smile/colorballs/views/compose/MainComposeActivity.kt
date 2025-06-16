@@ -41,6 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -617,15 +618,13 @@ class MainComposeActivity : MyComposeView() {
             Log.d(TAG, "ShowGameGrid.boxImage.width = ${it.width}")
             Log.d(TAG, "ShowGameGrid.boxImage.height = ${it.height}")
         }
-        // val width0 = (mImageSizeDp * (Constants.ROW_COUNTS.toFloat()))
         Column {
             for (i in 0 until Constants.ROW_COUNTS) {
-                // Row(modifier = Modifier.width(width0.dp)) {
                 Row {
                     for (j in 0 until Constants.ROW_COUNTS) {
                         Box(Modifier
                             .clickable {
-                                viewModel.drawBallsAndCheckListener(i, j)
+                                viewModel.cellClickListener(i, j)
                         }) {
                             Image(
                                 modifier = Modifier.size(mImageSizeDp.dp)
@@ -654,13 +653,6 @@ class MainComposeActivity : MyComposeView() {
         val gameViewLength = mImageSizeDp * Constants.ROW_COUNTS.toFloat()
         val width = (gameViewLength/2f).dp
         val height = (gameViewLength/4f).dp
-        /*
-        if (resources.configuration.orientation
-            == Configuration.ORIENTATION_LANDSCAPE) {
-            width = (screenY.floatValue/6f).dp
-            height = (screenX.floatValue/3f).dp
-        }
-         */
         val modifier = Modifier.fillMaxSize()
             .background(color = Color.Transparent)
         Column( modifier = modifier,
@@ -700,6 +692,7 @@ class MainComposeActivity : MyComposeView() {
             WhichBall.NEXT_BALL-> { colorNextBallMap.getValue(ballColor) }
             WhichBall.NO_BALL -> { null }
         }
+        var expanded by rememberSaveable { mutableStateOf(isAnimation) }
         Column(modifier = Modifier.size(mImageSizeDp.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
@@ -712,8 +705,8 @@ class MainComposeActivity : MyComposeView() {
             Image(
                 painter = BitmapPainter(bitmap!!.asImageBitmap()),
                 contentDescription = "",
-                modifier = modifier,
-                contentScale = scale
+                contentScale = scale,
+                modifier = modifier
             )
         }
     }

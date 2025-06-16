@@ -23,6 +23,7 @@ import com.smile.colorballs.models.TopPlayer
 import com.smile.colorballs.presenters.PresenterCompose
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
+import com.smile.smilelibraries.utilities.SoundPoolUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -49,6 +50,7 @@ class MainComposeViewModel: ViewModel() {
     private var sureToLoadGameStr = ""
     private var gameOverStr = ""
     private var saveScoreStr = ""
+    private lateinit var soundPool: SoundPoolUtil
     private lateinit var medalImageIds: List<Int>
 
     var mGameAction = Constants.IS_QUITING_GAME
@@ -122,6 +124,7 @@ class MainComposeViewModel: ViewModel() {
         sureToLoadGameStr = mPresenter.sureToLoadGameStr
         gameOverStr = mPresenter.gameOverStr
         saveScoreStr = mPresenter.saveScoreStr
+        soundPool = mPresenter.soundPool
     }
 
     fun getTop10Players(context: Context, isLocal: Boolean) {
@@ -146,33 +149,30 @@ class MainComposeViewModel: ViewModel() {
         }
     }
 
-    fun drawBallsAndCheckListener(i: Int, j: Int) {
-        Log.d(TAG, "drawBallsAndCheckListener.($i, $j)")
+    fun cellClickListener(i: Int, j: Int) {
+        Log.d(TAG, "cellClickListener.($i, $j)")
         Log.d(
-            TAG, "drawBallsAndCheckListener.isBallBouncing = " +
+            TAG, "cellClickListener.isBallBouncing = " +
                 "${mGameProp.isBallBouncing}")
         val ballColor = mGridData.getCellValue(i, j)
         if (!mGameProp.isBallBouncing) {
-            // if (mGridData.getCellValue(i, j) != 0) {
             if (ballColor != 0) {
-                if ((mGameProp.bouncyBallIndexI == -1) && (mGameProp.bouncyBallIndexJ == -1)) {
+                if ((mGameProp.bouncyBallIndexI == -1) &&
+                    (mGameProp.bouncyBallIndexJ == -1)) {
                     mGameProp.isBallBouncing = true
-                    drawBouncyBall(i, j, mGridData.getCellValue(i, j))
+                    drawBouncyBall(i, j)
                     mGameProp.bouncyBallIndexI = i
                     mGameProp.bouncyBallIndexJ = j
                 }
             }
         } else {
-            // cancel the bouncy timer
             val bouncyI = mGameProp.bouncyBallIndexI
             val bouncyJ = mGameProp.bouncyBallIndexJ
-            // if (mGridData.getCellValue(i, j) == 0) {
             if (ballColor == 0) {
-                //   blank cell
                 if ((bouncyI >= 0) && (bouncyJ >= 0)) {
                     if (mGridData.canMoveCellToCell(Point(bouncyI, bouncyJ), Point(i, j))) {
-                        // cancel the timer
                         mGameProp.isBallBouncing = false
+                        // cancel the bouncy timer
                         stopBouncyAnimation()
                         mGameProp.bouncyBallIndexI = -1
                         mGameProp.bouncyBallIndexJ = -1
@@ -181,7 +181,7 @@ class MainComposeViewModel: ViewModel() {
                     } else {
                         //  make a sound
                         if (mGameProp.hasSound) {
-                            mPresenter.soundPool.playSound()
+                            soundPool.playSound()
                         }
                     }
                 }
@@ -190,7 +190,7 @@ class MainComposeViewModel: ViewModel() {
                 if ((bouncyI >= 0) && (bouncyJ >= 0)) {
                     stopBouncyAnimation()
                     drawBall(bouncyI, bouncyJ, mGridData.getCellValue(bouncyI, bouncyJ))
-                    drawBouncyBall(i, j, mGridData.getCellValue(i, j))
+                    drawBouncyBall(i, j)
                     mGameProp.bouncyBallIndexI = i
                     mGameProp.bouncyBallIndexJ = j
                 }
@@ -297,9 +297,7 @@ class MainComposeViewModel: ViewModel() {
 
     private fun lastPartOfInitialGame() {
         if (mGameProp.isBallBouncing) {
-            val i = mGameProp.bouncyBallIndexI
-            val j = mGameProp.bouncyBallIndexJ
-            drawBouncyBall(i, j, mGridData.getCellValue(i, j))
+            drawBouncyBall(mGameProp.bouncyBallIndexI, mGameProp.bouncyBallIndexJ)
         }
         if (mGameProp.isShowingNewGameDialog) {
             Log.d(TAG, "lastPartOfInitialGame.newGame()")
@@ -329,15 +327,6 @@ class MainComposeViewModel: ViewModel() {
         Log.d(TAG, "onSaveInstanceState.mGridData = $mGridData")
         outState.putParcelable(Constants.GAME_PROP_TAG, mGameProp)
         outState.putParcelable(Constants.GRID_DATA_TAG, mGridData)
-    }
-
-    fun completedAll(): Boolean {
-        for (thCompleted in mGameProp.threadCompleted) {
-            if (!thCompleted) {
-                return false
-            }
-        }
-        return true
     }
 
     fun hasSound(): Boolean {
@@ -739,7 +728,7 @@ class MainComposeViewModel: ViewModel() {
         stopBouncyAnimation()
         showingScoreHandler.removeCallbacksAndMessages(null)
         movingBallHandler.removeCallbacksAndMessages(null)
-        mPresenter.soundPool.release()
+        soundPool.release()
     }
 
     private fun gameOver() {
@@ -792,7 +781,8 @@ class MainComposeViewModel: ViewModel() {
         return totalScore
     }
 
-    private fun drawBouncyBall(i: Int, j: Int, color: Int) {
+    private fun drawBouncyBall(i: Int, j: Int) {
+        val color = mGridData.getCellValue(i, j)
         Log.d(TAG, "drawBouncyBall.($i, $j), color = $color")
         var whichBall= WhichBall.BALL
         object : Runnable {
@@ -978,7 +968,6 @@ class MainComposeViewModel: ViewModel() {
                             false, object : ShowScoreCallback {
                                 override fun sCallback() {
                                     Log.d(TAG, "drawBallAlongPath.ShowScoreCallback.sCallback")
-                                    mGameProp.threadCompleted[0] = true
                                     mGameProp.isBallMoving = false
                                     Log.d(TAG, "drawBallAlongPath.run().sCallback finished.")
                                 }
@@ -987,10 +976,7 @@ class MainComposeViewModel: ViewModel() {
                         showingScoreHandler.post(showScore)
                     } else {
                         mGameProp.isBallMoving = false
-                        Log.d(
-                            TAG, "drawBallAlongPath.run() isBallMoving" +
-                                " = ${mGameProp.isBallMoving}")
-                        mGameProp.threadCompleted[0] = true
+                        Log.d(TAG, "drawBallAlongPath.run().displayGridDataNextCells")
                         displayGridDataNextCells() // has a problem
                         Log.d(TAG, "drawBallAlongPath.run() finished.")
                     }
@@ -998,7 +984,6 @@ class MainComposeViewModel: ViewModel() {
             }
         }
         Log.d(TAG, "drawBallAlongPath.movingBallHandler.post")
-        mGameProp.threadCompleted[0] = false
         mGameProp.isBallMoving = true
         movingBallHandler.post(runnablePath)
     }
@@ -1014,7 +999,6 @@ class MainComposeViewModel: ViewModel() {
             Log.d(TAG, "ShowScore")
             pointSet = HashSet(linkedPoint)
             mGameProp.isShowNextBallsAfterBlinking = isNextBalls
-            mGameProp.threadCompleted[1] = false
             mGameProp.isShowingScoreMessage = true
         }
 
@@ -1041,7 +1025,6 @@ class MainComposeViewModel: ViewModel() {
                         Log.d(TAG, "ShowScore.onProgressUpdate.displayNextBallsView")
                         displayNextBallsView()
                     }
-                    mGameProp.threadCompleted[1] = true // user can start input command
                     mGameProp.isShowingScoreMessage = false
                 }
                 4 -> {
@@ -1068,7 +1051,6 @@ class MainComposeViewModel: ViewModel() {
                 } else {
                     showingScoreHandler.removeCallbacksAndMessages(null)
                     onProgressUpdate(4) // dismiss showing message
-                    mGameProp.threadCompleted[1] = true
                     mGameProp.isShowingScoreMessage = false
                     callback.sCallback()
                 }

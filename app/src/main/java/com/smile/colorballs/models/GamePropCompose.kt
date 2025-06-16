@@ -4,7 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-class GamePropCompose(
+data class GamePropCompose(
     var isShowingLoadingMessage : Boolean = false,
     var isShowingScoreMessage : Boolean = false,
     var isShowNextBallsAfterBlinking : Boolean = false,
@@ -14,8 +14,6 @@ class GamePropCompose(
     var isShowingSureSaveDialog : Boolean = false,
     var isShowingSureLoadDialog : Boolean = false,
     var isShowingGameOverDialog : Boolean = false,
-    var threadCompleted : BooleanArray =
-        booleanArrayOf(true,true,true,true,true,true,true,true,true,true),
     var bouncyBallIndexI : Int = -1,
     var bouncyBallIndexJ : Int = -1,
     var isBallBouncing : Boolean = false,
@@ -38,8 +36,6 @@ class GamePropCompose(
         isShowingSureSaveDialog = false
         isShowingSureLoadDialog = false
         isShowingGameOverDialog = false
-        threadCompleted =
-            booleanArrayOf(true, true, true, true, true, true, true, true, true, true)
         bouncyBallIndexI = -1
         bouncyBallIndexJ = -1
         isBallBouncing = false
@@ -51,29 +47,5 @@ class GamePropCompose(
         isEasyLevel = true
         hasSound = true
         hasNextBall = true
-    }
-
-    fun copy (prop: GamePropCompose) {
-        isShowingLoadingMessage = prop.isShowingLoadingMessage
-        isShowingLoadingMessage = prop.isShowingScoreMessage
-        isShowNextBallsAfterBlinking = prop.isShowNextBallsAfterBlinking
-        isProcessingJob = prop.isProcessingJob
-        isShowingNewGameDialog = prop.isShowingNewGameDialog
-        isShowingQuitGameDialog = prop.isShowingQuitGameDialog
-        isShowingSureSaveDialog = prop.isShowingSureSaveDialog
-        isShowingSureLoadDialog = prop.isShowingSureLoadDialog
-        isShowingGameOverDialog = prop.isShowingGameOverDialog
-        threadCompleted = prop.threadCompleted
-        bouncyBallIndexI = prop.bouncyBallIndexI
-        bouncyBallIndexJ = prop.bouncyBallIndexJ
-        isBallBouncing = prop.isBallBouncing
-        isBallMoving = prop.isBallMoving
-        undoEnable = prop.undoEnable
-        currentScore = prop.currentScore
-        undoScore = prop.undoScore
-        lastGotScore = prop.lastGotScore
-        isEasyLevel = prop.isEasyLevel
-        hasSound = prop.hasSound
-        hasNextBall = prop.hasNextBall
     }
 }
