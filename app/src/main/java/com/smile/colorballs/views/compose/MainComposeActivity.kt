@@ -41,7 +41,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,7 +49,6 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -103,7 +101,7 @@ class MainComposeActivity : MyComposeView() {
         Log.d(TAG, "onCreate.getScreenSize()")
         getScreenSize()
 
-        top10Launcher = registerForActivityResult<Intent, ActivityResult>(
+        top10Launcher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
             result: ActivityResult ->
             Log.d(TAG, "top10Launcher.result received")
@@ -113,7 +111,7 @@ class MainComposeActivity : MyComposeView() {
             }
         }
 
-        settingLauncher = registerForActivityResult<Intent, ActivityResult>(
+        settingLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
             Log.d(TAG, "settingLauncher.result received")
@@ -262,22 +260,24 @@ class MainComposeActivity : MyComposeView() {
         val title = viewModel.top10TitleName.value
         if (title.isNotEmpty()) {
             var isDialogOpen by remember { mutableStateOf(true) }
-            Dialog(onDismissRequest = { isDialogOpen = false },
-                properties = DialogProperties(usePlatformDefaultWidth = false),
-                content = {
-                    Composables.Top10Composable(
-                        title = title,
-                        topPlayers = viewModel.top10Players.value, buttonListener =
-                        object : Composables.ButtonClickListener {
-                            override fun buttonOkClick() {
-                                isDialogOpen = false
-                                showInterstitialAd()
-                                viewModel.setTop10TitleName("")
-                            }
-                        },
-                        getString(R.string.okStr)
-                    )
-                })
+            if (isDialogOpen) {
+                Dialog(onDismissRequest = { isDialogOpen = false },
+                    properties = DialogProperties(usePlatformDefaultWidth = false),
+                    content = {
+                        Composables.Top10Composable(
+                            title = title,
+                            topPlayers = viewModel.top10Players.value, buttonListener =
+                            object : Composables.ButtonClickListener {
+                                override fun buttonOkClick() {
+                                    isDialogOpen = false
+                                    showInterstitialAd()
+                                    viewModel.setTop10TitleName("")
+                                }
+                            },
+                            getString(R.string.okStr)
+                        )
+                    })
+            }
         }
     }
 
@@ -319,16 +319,17 @@ class MainComposeActivity : MyComposeView() {
                     // showInterstitialAd()
                 }
             }
-
-            Dialog(onDismissRequest = { isDialogOpen = false },
-                properties = DialogProperties(usePlatformDefaultWidth = false),
-                content = {
-                    Composables.SettingCompose(
-                        this@MainComposeActivity,
-                        buttonClick, textClick, getString(R.string.settingStr),
-                        backgroundColor = Color(0xbb0000ff), setting
-                    )
-                })
+            if (isDialogOpen) {
+                Dialog(onDismissRequest = { isDialogOpen = false },
+                    properties = DialogProperties(usePlatformDefaultWidth = false),
+                    content = {
+                        Composables.SettingCompose(
+                            this@MainComposeActivity,
+                            buttonClick, textClick, getString(R.string.settingStr),
+                            backgroundColor = Color(0xbb0000ff), setting
+                        )
+                    })
+            }
         }
     }
 
@@ -692,7 +693,6 @@ class MainComposeActivity : MyComposeView() {
             WhichBall.NEXT_BALL-> { colorNextBallMap.getValue(ballColor) }
             WhichBall.NO_BALL -> { null }
         }
-        var expanded by rememberSaveable { mutableStateOf(isAnimation) }
         Column(modifier = Modifier.size(mImageSizeDp.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
@@ -715,10 +715,12 @@ class MainComposeActivity : MyComposeView() {
     fun SHowPortraitAds(modifier: Modifier) {
         Log.d(TAG, "SHowPortraitAds.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
+        /*
         val adWidth = with(LocalDensity.current) {
             LocalWindowInfo.current.containerSize.width
                 .toDp().value.toInt()
         }
+        */
         Column(modifier = modifier.fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top) {
