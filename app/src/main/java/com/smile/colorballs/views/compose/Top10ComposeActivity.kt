@@ -55,7 +55,7 @@ class Top10ComposeActivity : ComponentActivity() {
                             PlayerRecordRest.GetLocalTop10(ScoreSQLite(
                                 this@Top10ComposeActivity))
                         } else {
-                            PlayerRecordRest.GetGlobalTop10("1")
+                            PlayerRecordRest.GetGlobalTop10(Constants.GAME_ID)
                         }
                         val top10 = ArrayList<TopPlayer>()
                         for (i in 0 until players.size) {

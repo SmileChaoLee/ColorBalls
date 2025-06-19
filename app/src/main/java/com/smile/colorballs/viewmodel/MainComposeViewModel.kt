@@ -133,7 +133,7 @@ class MainComposeViewModel: ViewModel() {
             val players = if (isLocal) {
                 PlayerRecordRest.GetLocalTop10(ScoreSQLite(context))
             } else {
-                PlayerRecordRest.GetGlobalTop10("1")
+                PlayerRecordRest.GetGlobalTop10(Constants.GAME_ID)
             }
             val top10 = ArrayList<TopPlayer>()
             for (i in 0 until players.size) {

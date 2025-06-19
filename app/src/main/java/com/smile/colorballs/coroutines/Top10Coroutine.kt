@@ -36,7 +36,7 @@ object Top10Coroutine {
     suspend fun getGlobalAndSendBack(context: Context) {
         withContext(Dispatchers.IO) {
             Log.d(TAG, "getLocalAndSendBack.PlayerRecordRest.GetGlobalTop10()")
-            val players = PlayerRecordRest.GetGlobalTop10("1")
+            val players = PlayerRecordRest.GetGlobalTop10(Constants.GAME_ID)
             Intent(Constants.GLOBAL_TOP10_ACTION_NAME).let {
                 Bundle().apply {
                     putParcelableArrayList(Constants.TOP10_PLAYERS, players)
