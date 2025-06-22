@@ -725,10 +725,11 @@ class MainComposeActivity : MyComposeView() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top) {
             ShowAdmobNormalBanner(modifier = Modifier.weight(1.0f))
+            ShowAdmobAdaptiveBanner(modifier = Modifier.weight(1.0f), 0)
             ShowFacebookBanner(modifier = Modifier.weight(1.0f),
                 ColorBallsApp.facebookBannerID)
-            ShowFacebookBanner(modifier = Modifier.weight(1.0f),
-                ColorBallsApp.facebookBannerID2)
+            // ShowFacebookBanner(modifier = Modifier.weight(1.0f),
+            //     ColorBallsApp.facebookBannerID2)
         }
     }
 
