@@ -392,8 +392,6 @@ object Composables {
         Log.d(TAG, "DialogWithText")
         val okStr = activity.getString(R.string.okStr)
         val noStr = activity.getString(R.string.noStr)
-        var isOpen by remember { mutableStateOf(true) }
-        // activity.getColor(android.R.color.holo_red_light))
         val lightRed = Color(0xffff4444)
         AlertDialog(icon = null, title  = { if (dialogTitle.isNotEmpty())
             Text(text = dialogTitle,
@@ -404,10 +402,10 @@ object Composables {
             containerColor = Color(0xffffa500),
             titleContentColor = Color.White,
             textContentColor = Color.Blue,
-            onDismissRequest = { isOpen = false},
+            onDismissRequest = { /* isOpen = false */},
             confirmButton = {
                 Button(onClick = {
-                    isOpen = false
+                    // isOpen = false
                     buttonListener.buttonOkClick()
                 }, colors = ButtonColors(
                     containerColor = ColorPrimary,
@@ -418,7 +416,7 @@ object Composables {
                             },
             dismissButton = {
                 Button(onClick = {
-                    isOpen = false
+                    // isOpen = false
                     buttonListener.buttonCancelClick()
                 }, colors = ButtonColors(
                     containerColor = ColorPrimary,
@@ -454,53 +452,49 @@ object Composables {
         val lightRed = Color(0xffff4444)
         val okStr = activity.getString(R.string.okStr)
         val noStr = activity.getString(R.string.noStr)
-        var isOpen by remember { mutableStateOf(true) }
-        Log.d(TAG, "DialogWithTextField.isOpen = $isOpen")
-        if (isOpen) {
-            var returnValue = ""
-            Log.d(TAG, "DialogWithTextField.AlertDialog")
-            AlertDialog(onDismissRequest = { isOpen = false },
-                icon = null, title = {
-                    if (dialogTitle.isNotEmpty())
-                        Text(
-                            text = dialogTitle,
-                            fontWeight = FontWeight.Medium, fontSize = mFontSize
-                        )
-                },
-                text = {
-                    if (hintText.isNotEmpty())
-                        returnValue = textFieldValue(hintText)
-                },
-                containerColor = Color(0xffffa500),
-                titleContentColor = Color.White,
-                textContentColor = Color.Blue,
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            isOpen = false
-                            buttonListener.buttonOkClick(returnValue)
-                        }, colors = ButtonColors(
-                            containerColor = ColorPrimary,
-                            disabledContainerColor = ColorPrimary,
-                            contentColor = Color.Yellow,
-                            disabledContentColor = Color.Yellow
-                        )
-                    ) { Text(text = okStr, fontSize = mFontSize) }
-                },
-                dismissButton = {
-                    Button(
-                        onClick = {
-                            isOpen = false
-                            buttonListener.buttonCancelClick(returnValue)
-                        }, colors = ButtonColors(
-                            containerColor = ColorPrimary,
-                            disabledContainerColor = ColorPrimary,
-                            contentColor = lightRed,
-                            disabledContentColor = lightRed
-                        )
-                    ) { Text(text = noStr, fontSize = mFontSize) }
-                }
-            )
-        }
+        var returnValue = ""
+        Log.d(TAG, "DialogWithTextField.AlertDialog")
+        AlertDialog(onDismissRequest = { /* isOpen = false */ },
+            icon = null, title = {
+                if (dialogTitle.isNotEmpty())
+                    Text(
+                        text = dialogTitle,
+                        fontWeight = FontWeight.Medium, fontSize = mFontSize
+                    )
+            },
+            text = {
+                if (hintText.isNotEmpty())
+                    returnValue = textFieldValue(hintText)
+            },
+            containerColor = Color(0xffffa500),
+            titleContentColor = Color.White,
+            textContentColor = Color.Blue,
+            confirmButton = {
+                Button(
+                    onClick = {
+                        // isOpen = false
+                        buttonListener.buttonOkClick(returnValue)
+                    }, colors = ButtonColors(
+                        containerColor = ColorPrimary,
+                        disabledContainerColor = ColorPrimary,
+                        contentColor = Color.Yellow,
+                        disabledContentColor = Color.Yellow
+                    )
+                ) { Text(text = okStr, fontSize = mFontSize) }
+            },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        // isOpen = false
+                        buttonListener.buttonCancelClick(returnValue)
+                    }, colors = ButtonColors(
+                        containerColor = ColorPrimary,
+                        disabledContainerColor = ColorPrimary,
+                        contentColor = lightRed,
+                        disabledContentColor = lightRed
+                    )
+                ) { Text(text = noStr, fontSize = mFontSize) }
+            }
+        )
     }
 }
