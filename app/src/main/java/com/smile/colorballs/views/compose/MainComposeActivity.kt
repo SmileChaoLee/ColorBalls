@@ -847,8 +847,7 @@ class MainComposeActivity : MyComposeView() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
             ShowNativeAd(modifier = Modifier.weight(8.0f))
-            ShowAdmobAdaptiveBanner(modifier = Modifier.weight(2.0f),
-                width = 0)
+            ShowAdmobNormalBanner(modifier = Modifier.weight(2.0f))
             /*
             ShowFacebookBanner(modifier = Modifier.weight(2.0f)
                 .padding(top = 10.dp),
