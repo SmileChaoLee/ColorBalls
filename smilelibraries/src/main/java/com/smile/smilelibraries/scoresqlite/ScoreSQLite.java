@@ -46,6 +46,7 @@ public class ScoreSQLite extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase database , int oldVersion , int newVersion) {
+        Log.d(TAG, "onUpgrade()");
         database.execSQL("DROP TABLE IF EXISTS " + tableName);
         onCreate(database);
     }
@@ -62,8 +63,8 @@ public class ScoreSQLite extends SQLiteOpenHelper {
     }
 
     public int readHighestScore() {
-        int highestScore = 0;
         Log.d(TAG, "readHighestScore()");
+        int highestScore = 0;
         openScoreDatabase();
         if (scoreDatabase != null) {
             try {
@@ -77,16 +78,15 @@ public class ScoreSQLite extends SQLiteOpenHelper {
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
-            closeScoreDatabase();
         }
+        closeScoreDatabase();
 
         return highestScore;
     }
 
     public ArrayList<Pair<String, Integer>> readTop10ScoreList() {
-
+        Log.d(TAG, "readTop10ScoreList()");
         ArrayList<Pair<String, Integer>> result = new ArrayList<>();
-
         openScoreDatabase();
         if (scoreDatabase != null) {
             String temp = "";
@@ -109,17 +109,15 @@ public class ScoreSQLite extends SQLiteOpenHelper {
                 } while (cur.moveToNext());
             }
             cur.close();
-
-            closeScoreDatabase();
         }
+        closeScoreDatabase();
 
         return result;
     }
 
     public ArrayList<Pair<String, Integer>> readAllScores() {
-
+        Log.d(TAG, "readAllScores()");
         ArrayList<Pair<String, Integer>> result = new ArrayList<>();
-
         openScoreDatabase();
         if (scoreDatabase != null) {
             // succeeded to open
@@ -148,9 +146,8 @@ public class ScoreSQLite extends SQLiteOpenHelper {
     }
 
     public boolean isInTop10(int score) {
-
+        Log.d(TAG, "isInTop10()");
         boolean yn = false;
-
         openScoreDatabase();
         if (scoreDatabase != null) {
             // succeeded to open database
@@ -176,19 +173,18 @@ public class ScoreSQLite extends SQLiteOpenHelper {
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
-            closeScoreDatabase();
         }
-
+        closeScoreDatabase();
         return yn;
     }
 
     public void addScore(final String name , final int score) {
+        Log.d(TAG, "addScore()");
         /*
         String sql = "update " + tableName +" set playerName="+"'"+name+"'"
                 + ","+"playerScore="+String.valueOf(score)
                 + " where playerName='ChaoLee'";
         */
-
         openScoreDatabase();
         if (scoreDatabase != null) {
             try {
@@ -214,12 +210,12 @@ public class ScoreSQLite extends SQLiteOpenHelper {
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
-            closeScoreDatabase();
         }
+        closeScoreDatabase();
     }
 
     public void deleteOneScore(final int id) {
-
+        Log.d(TAG, "deleteOneScore()");
         openScoreDatabase();
         if (scoreDatabase != null) {
             try {
@@ -227,41 +223,45 @@ public class ScoreSQLite extends SQLiteOpenHelper {
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
-            closeScoreDatabase();
         }
+        closeScoreDatabase();
     }
 
     public void deleteAllAfterTop10() {
-            openScoreDatabase();
-            if (scoreDatabase != null) {
-                try {
-                    String query = "DELETE FROM " + tableName +
-                            " WHERE id NOT IN (SELECT ID FROM " + tableName +
-                            " ORDER BY " + playerScore + " DESC LIMIT 10)";
-                    scoreDatabase.execSQL(query);
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-                closeScoreDatabase();
+        Log.d(TAG, "deleteAllAfterTop10()");
+        openScoreDatabase();
+        if (scoreDatabase != null) {
+            try {
+                String query = "DELETE FROM " + tableName +
+                        " WHERE id NOT IN (SELECT ID FROM " + tableName +
+                        " ORDER BY " + playerScore + " DESC LIMIT 10)";
+                scoreDatabase.execSQL(query);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
             }
+        }
+        closeScoreDatabase();
     }
 
     public void deleteAllScore() {
-            openScoreDatabase();
-            if (scoreDatabase != null) {
-                try {
-                    scoreDatabase.delete(tableName, null,null);
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-                closeScoreDatabase();
+        Log.d(TAG, "deleteAllScore()");
+        openScoreDatabase();
+        if (scoreDatabase != null) {
+            try {
+                scoreDatabase.delete(tableName, null,null);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
             }
+        }
+        closeScoreDatabase();
     }
 
     private void closeScoreDatabase() {
+        Log.d(TAG, "closeScoreDatabase()");
         if (scoreDatabase != null) {
             try {
                 scoreDatabase.close();
+                Log.d(TAG, "closeScoreDatabase().scoreDatabase.close()");
                 scoreDatabase = null;
             } catch (SQLException ex) {
                 ex.printStackTrace();

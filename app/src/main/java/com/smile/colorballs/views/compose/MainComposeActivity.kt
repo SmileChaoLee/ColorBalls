@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
@@ -549,10 +550,11 @@ class MainComposeActivity : MyComposeView() {
             }
             DropdownMenu(expanded = expanded,
                 onDismissRequest = { expanded = false },
-                modifier = Modifier.requiredHeightIn(max = (mImageSizeDp*9f).dp)
+                modifier = Modifier.requiredHeightIn(max = (mImageSizeDp*12f).dp)
+                    .requiredWidth((mImageSizeDp*5.0f).dp)
                     .background(color =
                 Color(getColor(android.R.color.holo_green_light)))
-                    .padding(all = 0.dp)
+                    .padding(all = 0.dp),
             ) {
                 val isGlobalTop10Clicked = remember { mutableStateOf(false) }
                 Composables.DropdownMenuItem(

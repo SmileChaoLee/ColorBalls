@@ -12,7 +12,7 @@ class PresenterCompose(private val presentView: PresentViewCompose) {
     val gameOverStr = presentView.getGameOverStr()
     val saveScoreStr = presentView. getSaveScoreStr()
     val soundPool: SoundPoolUtil = presentView.soundPool()
-    val highestScore = presentView.getHighestScore()
+    fun highestScore() = presentView.getHighestScore()
     fun fileInputStream(filename: String) = presentView.fileInputStream(filename)
     fun fileOutputStream(filename: String) = presentView.fileOutputStream(filename)
     fun addScoreInLocalTop10(playerName: String, score: Int) =

@@ -211,14 +211,16 @@ class MainComposeViewModel: ViewModel() {
     }
 
     fun initGame(state: Bundle?) {
-        Log.d(TAG, "initGame.isNewGame = $state")
+        Log.d(TAG, "initGame = $state")
         val isNewGame = restoreState(state)
         ColorBallsApp.isShowingLoadingMessage = mGameProp.isShowingLoadingMessage
         ColorBallsApp.isProcessingJob = mGameProp.isProcessingJob
-        highestScore.intValue = mPresenter.highestScore
+        highestScore.intValue = mPresenter.highestScore()
+        Log.d(TAG, "initGame.highestScore = ${highestScore.intValue}")
         currentScore.intValue = mGameProp.currentScore
         // displayGameView()
         if (isNewGame) {    // new game
+            Log.d(TAG, "initGame.isNewGame")
             displayGameGridView()
             displayGridDataNextCells()
         } else {
