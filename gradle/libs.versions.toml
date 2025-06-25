@@ -77,6 +77,6 @@ robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectr
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version = "2.2.0" }
-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version = "2.2.0" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version = "1.9.25" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version = "2.0.0" }
 
