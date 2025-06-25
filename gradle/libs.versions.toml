@@ -2,7 +2,7 @@
 accompanistDrawablepainter = "0.37.3"
 agp = "8.6.1"
 appcompat = "1.7.1"
-audienceNetworkSdk = "6.19.0"
+audienceNetworkSdk = "6.20.0"
 composeBomVersion = "2025.06.01"
 constraintlayout = "2.2.1"
 converterGson = "2.6.4"
@@ -12,7 +12,6 @@ firebaseAds = "23.6.0"
 firebaseCore = "21.1.1"
 fragmentKtx = "1.8.8"
 inferAnnotation = "0.18.0"
-kotlin = "1.9.0"
 coreKtx = "1.16.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -23,7 +22,6 @@ kotlinxCoroutinesTest = "1.10.2"
 legacySupportV4 = "1.0.0"
 lifecycleRuntimeKtx = "2.9.1"
 activityCompose = "1.10.1"
-composeBom = "2024.04.01"
 mockitoCore = "4.8.0"
 multidex = "2.0.1"
 playServicesAds = "24.4.0"
@@ -36,8 +34,6 @@ uiautomator = "2.3.0"
 [libraries]
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanistDrawablepainter" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
-#noinspection SimilarGradleDependency
-#androidx-compose-bom-v20250600 = { module = "androidx.compose:compose-bom", version.ref = "composeBomVersion" }
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-databinding-runtime = { module = "androidx.databinding:databinding-runtime", version.ref = "databindingRuntime" }
@@ -50,7 +46,7 @@ androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version
 androidx-rules = { module = "androidx.test:rules", version.ref = "coreKtxVersion" }
 androidx-truth = { module = "androidx.test.ext:truth", version.ref = "truth" }
 androidx-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiautomator" }
-audience-network-sdk = { module = "com.facebook.android:audience-network-sdk", version = "6.20.0" }
+audience-network-sdk = { module = "com.facebook.android:audience-network-sdk", version.ref = "audienceNetworkSdk" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 core-ktx = { module = "androidx.test:core-ktx", version.ref = "coreKtxVersion" }
 firebase-ads = { module = "com.google.firebase:firebase-ads", version.ref = "firebaseAds" }
@@ -73,20 +69,14 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
-material3 = { module = "androidx.compose.material3:material3" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
 play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
-ui = { module = "androidx.compose.ui:ui" }
-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version = "2.2.0" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version = "2.2.0" }
 
