@@ -19,7 +19,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -161,7 +160,6 @@ class MainComposeActivity : MyComposeView() {
                     Box {
                         SaveGameDialog()
                         LoadGameDialog()
-                        GameOverDialog()
                         SaveScoreDialog()
                     }
                 }
@@ -611,16 +609,6 @@ class MainComposeActivity : MyComposeView() {
                         expanded = false
                         showColorWhenClick(isNewGameClicked)
                         viewModel.newGame()
-                    })
-
-                val isQuitGameClicked = remember { mutableStateOf(false) }
-                Composables.DropdownMenuItem(
-                    text = getString(R.string.quitGame),
-                    color = if (isQuitGameClicked.value) Color.Red else Color.Black,
-                    onClick = {
-                        expanded = false
-                        showColorWhenClick(isQuitGameClicked)
-                        viewModel.quitGame()
                     })
 
                 val isPrivacyClicked = remember { mutableStateOf(false) }

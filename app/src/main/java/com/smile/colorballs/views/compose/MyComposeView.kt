@@ -2,10 +2,7 @@ package com.smile.colorballs.views.compose
 
 // For google native ads
 import android.graphics.Bitmap
-import android.graphics.Bitmap.createScaledBitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -37,12 +34,13 @@ import com.smile.smilelibraries.AdMobBanner
 import com.smile.smilelibraries.FacebookBanner
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
-import com.smile.smilelibraries.utilities.FontAndBitmapUtil
 import com.smile.smilelibraries.utilities.ScreenUtil
 import com.smile.smilelibraries.utilities.SoundPoolUtil
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import androidx.core.graphics.scale
+import androidx.core.graphics.drawable.toDrawable
 
 abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
 
@@ -105,61 +103,61 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
         val ovalBallHeight = (imageSizePx * 0.7f).toInt()
 
         BitmapFactory.decodeResource(resources, R.drawable.box_image).let { bm ->
-            boxImage = createScaledBitmap(bm, ballWidth, ballHeight, true)
+            boxImage = bm.scale(ballWidth, ballHeight)
         }
 
         BitmapFactory.decodeResource(resources, R.drawable.redball)?.let { bm ->
             colorBallMap[Constants.COLOR_RED] =
-                createScaledBitmap(bm, ballWidth, ballHeight, true)
+                bm.scale(ballWidth, ballHeight)
             colorNextBallMap[Constants.COLOR_RED] =
-                createScaledBitmap(bm, nextBallWidth, nextBallHeight, true)
+                bm.scale(nextBallWidth, nextBallHeight)
             colorOvalBallMap[Constants.COLOR_RED] =
-                createScaledBitmap(bm, ovalBallWidth, ovalBallHeight, true)
+                bm.scale(ovalBallWidth, ovalBallHeight)
         }
 
         BitmapFactory.decodeResource(resources, R.drawable.greenball)?.let { bm ->
             colorBallMap[Constants.COLOR_GREEN] =
-                createScaledBitmap(bm, ballWidth, ballHeight, true)
+                bm.scale(ballWidth, ballHeight)
             colorNextBallMap[Constants.COLOR_GREEN] =
-                createScaledBitmap(bm, nextBallWidth, nextBallHeight, true)
+                bm.scale(nextBallWidth, nextBallHeight)
             colorOvalBallMap[Constants.COLOR_GREEN] =
-                createScaledBitmap(bm, ovalBallWidth, ovalBallHeight, true)
+                bm.scale(ovalBallWidth, ovalBallHeight)
         }
 
         BitmapFactory.decodeResource(resources, R.drawable.blueball)?.let { bm ->
             colorBallMap[Constants.COLOR_BLUE] =
-                createScaledBitmap(bm, ballWidth, ballHeight, true)
+                bm.scale(ballWidth, ballHeight)
             colorNextBallMap[Constants.COLOR_BLUE] =
-                createScaledBitmap(bm, nextBallWidth, nextBallHeight, true)
+                bm.scale(nextBallWidth, nextBallHeight)
             colorOvalBallMap[Constants.COLOR_BLUE] =
-                createScaledBitmap(bm, ovalBallWidth, ovalBallHeight, true)
+                bm.scale(ovalBallWidth, ovalBallHeight)
         }
 
         BitmapFactory.decodeResource(resources, R.drawable.magentaball)?.let { bm ->
             colorBallMap[Constants.COLOR_MAGENTA] =
-                createScaledBitmap(bm, ballWidth, ballHeight, true)
+                bm.scale(ballWidth, ballHeight)
             colorNextBallMap[Constants.COLOR_MAGENTA] =
-                createScaledBitmap(bm, nextBallWidth, nextBallHeight, true)
+                bm.scale(nextBallWidth, nextBallHeight)
             colorOvalBallMap[Constants.COLOR_MAGENTA] =
-                createScaledBitmap(bm, ovalBallWidth, ovalBallHeight, true)
+                bm.scale(ovalBallWidth, ovalBallHeight)
         }
 
         BitmapFactory.decodeResource(resources, R.drawable.yellowball)?.let { bm ->
             colorBallMap[Constants.COLOR_YELLOW] =
-                createScaledBitmap(bm, ballWidth, ballHeight, true)
+                bm.scale(ballWidth, ballHeight)
             colorNextBallMap[Constants.COLOR_YELLOW] =
-                createScaledBitmap(bm, nextBallWidth, nextBallHeight, true)
+                bm.scale(nextBallWidth, nextBallHeight)
             colorOvalBallMap[Constants.COLOR_YELLOW] =
-                createScaledBitmap(bm, ovalBallWidth, ovalBallHeight, true)
+                bm.scale(ovalBallWidth, ovalBallHeight)
         }
 
         BitmapFactory.decodeResource(resources, R.drawable.cyanball)?.let { bm ->
             colorBallMap[Constants.COLOR_CYAN] =
-                createScaledBitmap(bm, ballWidth, ballHeight, true)
+                bm.scale(ballWidth, ballHeight)
             colorNextBallMap[Constants.COLOR_CYAN] =
-                createScaledBitmap(bm, nextBallWidth, nextBallHeight, true)
+                bm.scale(nextBallWidth, nextBallHeight)
             colorOvalBallMap[Constants.COLOR_CYAN] =
-                createScaledBitmap(bm, ovalBallWidth, ovalBallHeight, true)
+                bm.scale(ovalBallWidth, ovalBallHeight)
         }
     }
 
@@ -240,28 +238,6 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
     }
 
     @Composable
-    fun GameOverDialog() {
-        Log.d(TAG, "GameOverDialog")
-        val dialogText = viewModel.gameOverText.value
-        if (dialogText.isNotEmpty()) {
-            val buttonListener = object: Composables.ButtonClickListener {
-                override fun buttonOkClick() {
-                    viewModel.newGame()
-                    viewModel.setShowingGameOverDialog(false)
-                    viewModel.setGameOverText("")
-                }
-                override fun buttonCancelClick() {
-                    viewModel.quitGame()
-                    viewModel.setShowingGameOverDialog(false)
-                    viewModel.setGameOverText("")
-                }
-            }
-            Composables.DialogWithText(this@MyComposeView,
-                buttonListener, "", dialogText)
-        }
-    }
-
-    @Composable
     fun SaveScoreDialog() {
         Log.d(TAG, "SaveScoreDialog")
         val dialogTitle = viewModel.saveScoreTitle.value
@@ -320,7 +296,8 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
     fun MyNativeAdView(
         modifier: Modifier = Modifier,
         ad: NativeAd,
-        adContent: @Composable (ad: NativeAd, view: View) -> Unit,) {
+        adContent: @Composable (ad: NativeAd, view: View) -> Unit,
+    ) {
         Log.d(TAG, "MyNativeAdView")
         val contentViewId by rememberSaveable { mutableIntStateOf(View.generateViewId()) }
         val adViewId by rememberSaveable { mutableIntStateOf(View.generateViewId()) }
@@ -343,7 +320,7 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
                 val contentView = nativeAdView.findViewById<ComposeView>(contentViewId)
                 Log.d(TAG, "MyNativeAdView.AndroidView.update.setNativeAd()")
                 adView.setNativeAd(ad)
-                adView.background = ColorDrawable(-0x1)
+                adView.background = (-0x1).toDrawable()
                 adView.callToActionView = contentView
                 contentView.setContent { adContent(ad, contentView) }
             }
@@ -426,11 +403,5 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
     override fun fileOutputStream(fileName : String): FileOutputStream {
         return FileOutputStream(File(filesDir, fileName))
     }
-
-    private fun bitmapToDrawable(bm : Bitmap, width : Int, height : Int) : Drawable? {
-        return FontAndBitmapUtil.convertBitmapToDrawable(this, bm,
-            width, height)
-    }
-
     // end of implementing
 }

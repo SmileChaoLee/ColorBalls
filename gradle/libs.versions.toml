@@ -1,6 +1,6 @@
 [versions]
 accompanistDrawablepainter = "0.37.3"
-agp = "8.6.1"
+agp = "8.11.0"
 appcompat = "1.7.1"
 audienceNetworkSdk = "6.20.0"
 composeBomVersion = "2025.06.01"

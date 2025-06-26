@@ -97,7 +97,10 @@ object Composables {
     @Composable
     fun MenuItemText(modifier: Modifier = Modifier,
                      text: String, color: Color) {
-        Text(text = text, color = color, modifier = modifier,
+        Text(
+            modifier = modifier,
+            lineHeight = (menuItemFontSize.value + 2f).sp,
+            text = text, color = color,
             fontWeight = FontWeight.Normal, fontStyle = FontStyle.Normal,
             fontSize = menuItemFontSize)
     }

@@ -90,13 +90,6 @@ class MainComposeViewModel: ViewModel() {
         _loadGameText.value = text
     }
 
-    private val _gameOverText = mutableStateOf("")
-    val gameOverText: MutableState<String>
-        get() = _gameOverText
-    fun setGameOverText(text: String) {
-        _gameOverText.value = text
-    }
-
     private val _saveScoreTitle = mutableStateOf("")
     val saveScoreTitle: MutableState<String>
         get() = _saveScoreTitle
@@ -271,8 +264,8 @@ class MainComposeViewModel: ViewModel() {
         }
         isNewGame = true
         if (gameProp != null && gridData != null) {
-            Log.d(TAG, "restoreState.gridData!! = ${gridData!!}")
-            gridData?.apply {
+            Log.d(TAG, "restoreState.gridData!! = $gridData")
+            gridData.apply {
                 for (i in 0 until Constants.ROW_COUNTS) {
                     for (j in 0 until Constants.ROW_COUNTS) {
                         if (getCellValue(i, j) != 0) {
@@ -316,10 +309,6 @@ class MainComposeViewModel: ViewModel() {
         if (mGameProp.isShowingSureLoadDialog) {
             Log.d(TAG, "lastPartOfInitialGame.loadGame()")
             loadGame()
-        }
-        if (mGameProp.isShowingGameOverDialog) {
-            Log.d(TAG, "lastPartOfInitialGame.gameOver()")
-            gameOver()
         }
     }
 
@@ -407,10 +396,6 @@ class MainComposeViewModel: ViewModel() {
 
     fun setShowingSureLoadDialog(isShowingSureLoadDialog: Boolean) {
         mGameProp.isShowingSureLoadDialog = isShowingSureLoadDialog
-    }
-
-    fun setShowingGameOverDialog(isShowingGameOverDialog: Boolean) {
-        mGameProp.isShowingGameOverDialog = isShowingGameOverDialog
     }
 
     fun saveScore(playerName: String) {
@@ -734,7 +719,11 @@ class MainComposeViewModel: ViewModel() {
     }
 
     private fun gameOver() {
-        setGameOverText(gameOverStr)
+        Log.d(TAG, "gameOver")
+        if (hasSound()) {
+            soundPool.playSound()
+        }
+        newGame()
     }
 
     private fun calculateScore(linkedLine: HashSet<Point>?): Int {

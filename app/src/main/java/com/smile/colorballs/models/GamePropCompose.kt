@@ -13,7 +13,6 @@ data class GamePropCompose(
     var isShowingQuitGameDialog : Boolean = false,
     var isShowingSureSaveDialog : Boolean = false,
     var isShowingSureLoadDialog : Boolean = false,
-    var isShowingGameOverDialog : Boolean = false,
     var bouncyBallIndexI : Int = -1,
     var bouncyBallIndexJ : Int = -1,
     var isBallBouncing : Boolean = false,
@@ -35,7 +34,6 @@ data class GamePropCompose(
         isShowingQuitGameDialog = false
         isShowingSureSaveDialog = false
         isShowingSureLoadDialog = false
-        isShowingGameOverDialog = false
         bouncyBallIndexI = -1
         bouncyBallIndexJ = -1
         isBallBouncing = false
