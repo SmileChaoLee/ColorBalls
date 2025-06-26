@@ -270,7 +270,7 @@ class MainComposeActivity : MyComposeView() {
     fun Top10PlayerUI() {
         Log.d(TAG, "Top10PlayerUI.mOrientation.intValue " +
                 "= ${mOrientation.intValue}")
-        val title = viewModel.top10TitleName.value
+        val title = viewModel.getTop10TitleName()
         if (title.isNotEmpty()) {
             var isDialogOpen by remember { mutableStateOf(true) }
             if (isDialogOpen) {
@@ -279,7 +279,7 @@ class MainComposeActivity : MyComposeView() {
                     content = {
                         Composables.Top10Composable(
                             title = title,
-                            topPlayers = viewModel.top10Players.value, buttonListener =
+                            topPlayers = viewModel.getTop10Players(), buttonListener =
                             object : Composables.ButtonClickListener {
                                 override fun buttonOkClick() {
                                     isDialogOpen = false
@@ -298,7 +298,7 @@ class MainComposeActivity : MyComposeView() {
     fun SettingUI() {
         Log.d(TAG, "SettingUI.mOrientation.intValue " +
                 "= ${mOrientation.intValue}")
-        if (viewModel.settingTitle.value.isNotEmpty()) {
+        if (viewModel.getSettingTitle().isNotEmpty()) {
             var isDialogOpen by remember { mutableStateOf(true) }
             val setting = Settings(viewModel.hasSound(),
                 viewModel.isEasyLevel(), viewModel.hasNextBall())
@@ -434,7 +434,7 @@ class MainComposeActivity : MyComposeView() {
     fun ShowCurrentScore(modifier: Modifier) {
         Log.d(TAG, "ShowCurrentScore.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
-        Text(text = viewModel.currentScore.intValue.toString(),
+        Text(text = viewModel.getCurrentScore().toString(),
             modifier = modifier,
             color = Color.Red, fontSize = Composables.mFontSize
         )
@@ -444,7 +444,7 @@ class MainComposeActivity : MyComposeView() {
     fun SHowHighestScore(modifier: Modifier) {
         Log.d(TAG, "SHowHighestScore.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
-        Text(text = viewModel.highestScore.intValue.toString(),
+        Text(text = viewModel.getHighestScore().toString(),
             modifier = modifier,
             color = Color.White, fontSize = Composables.mFontSize
         )
@@ -677,7 +677,7 @@ class MainComposeActivity : MyComposeView() {
     fun ShowMessageOnScreen() {
         Log.d(TAG, "ShowMessageOnScreen.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
-        val message = viewModel.screenMessage.value
+        val message = viewModel.getScreenMessage()
         if (message.isEmpty()) return
         val gameViewLength = mImageSizeDp * Constants.ROW_COUNTS.toFloat()
         val width = (gameViewLength/2f).dp

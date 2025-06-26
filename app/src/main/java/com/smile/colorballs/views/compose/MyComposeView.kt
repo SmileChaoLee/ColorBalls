@@ -183,7 +183,7 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
     @Composable
     fun SaveGameDialog() {
         Log.d(TAG, "SaveGameDialog")
-        val dialogText = viewModel.saveGameText.value
+        val dialogText = viewModel.getSaveGameText()
         if (dialogText.isNotEmpty()) {
             val buttonListener = object: Composables.ButtonClickListener {
                 override fun buttonOkClick() {
@@ -212,7 +212,7 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
     @Composable
     fun LoadGameDialog() {
         Log.d(TAG, "LoadGameDialog")
-        val dialogText = viewModel.loadGameText.value
+        val dialogText = viewModel.getLoadGameText()
         if (dialogText.isNotEmpty()) {
             val buttonListener = object: Composables.ButtonClickListener {
                 override fun buttonOkClick() {
@@ -240,7 +240,7 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
     @Composable
     fun SaveScoreDialog() {
         Log.d(TAG, "SaveScoreDialog")
-        val dialogTitle = viewModel.saveScoreTitle.value
+        val dialogTitle = viewModel.getSaveScoreTitle()
         if (dialogTitle.isNotEmpty()) {
             val buttonListener = object: Composables.ButtonClickListenerString {
                 override fun buttonOkClick(value: String?) {
