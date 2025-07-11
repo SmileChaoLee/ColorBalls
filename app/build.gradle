@@ -27,8 +27,8 @@ android {
         targetSdk 36
         multiDexEnabled true
 
-        versionCode 7610
-        versionName "7.610"
+        versionCode 7700
+        versionName "7.700"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         signingConfig signingConfigs.config
@@ -120,9 +120,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
 
-    implementation project(':smilelibraries')
-    implementation project(':NativeTemplatesModels')
-
     implementation libs.androidx.lifecycle.livedata.ktx
     implementation libs.androidx.lifecycle.viewmodel.ktx
     implementation libs.androidx.fragment.ktx
@@ -135,8 +132,12 @@ dependencies {
     implementation libs.androidx.ui.graphics
     implementation libs.androidx.ui.tooling.preview
     implementation libs.androidx.material3
-
     implementation libs.accompanist.drawablepainter
+
+    implementation libs.billing.ktx
+
+    implementation project(':smilelibraries')
+    implementation project(':NativeTemplatesModels')
 
     testImplementation libs.junit
     testImplementation libs.androidx.espresso.core
