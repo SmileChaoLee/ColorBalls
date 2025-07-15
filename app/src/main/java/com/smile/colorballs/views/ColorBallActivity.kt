@@ -1,4 +1,4 @@
-package com.smile.colorballs.views.compose
+package com.smile.colorballs.views
 
 import android.content.Intent
 import android.content.pm.ActivityInfo
@@ -60,14 +60,14 @@ import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.google.android.gms.ads.nativead.NativeAd
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
-import com.smile.colorballs.shared_composables.Composables
-import com.smile.colorballs.shared_composables.ui.theme.ColorBallsTheme
+import com.smile.colorballs.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
 import com.smile.smilelibraries.GoogleNativeAd
 import com.smile.colorballs.BuildConfig
 import com.smile.colorballs.models.Settings
-import com.smile.colorballs.shared_composables.ui.theme.*
+import com.smile.colorballs.views.ui.theme.ColorPrimary
+import com.smile.colorballs.views.ui.theme.Yellow3
 import com.smile.smilelibraries.models.ExitAppTimer
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil
 import com.smile.smilelibraries.utilities.ScreenUtil
@@ -76,9 +76,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class MainComposeActivity : MyComposeView() {
+class ColorBallActivity : MyView() {
     companion object {
-        private const val TAG = "MainComposeActivity"
+        private const val TAG = "ColorBallActivity"
     }
 
     private val mOrientation = mutableIntStateOf(Configuration.ORIENTATION_PORTRAIT)
@@ -95,7 +95,7 @@ class MainComposeActivity : MyComposeView() {
         Log.d(TAG, "$TAG.onCreate")
 
         if (!BuildConfig.DEBUG) {
-            requestedOrientation = if (ScreenUtil.isTablet(this@MainComposeActivity)) {
+            requestedOrientation = if (ScreenUtil.isTablet(this@ColorBallActivity)) {
                 // Table then change orientation to Landscape
                 ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             } else {
@@ -234,7 +234,7 @@ class MainComposeActivity : MyComposeView() {
             val toastFontSize = textFontSize * 0.7f
             Log.d(TAG, "toastFontSize = $toastFontSize")
             ScreenUtil.showToast(
-                this@MainComposeActivity,
+                this@ColorBallActivity,
                 getString(R.string.backKeyToExitApp),
                 toastFontSize,
                 ScreenUtil.FontSize_Pixel_Type,
@@ -337,7 +337,7 @@ class MainComposeActivity : MyComposeView() {
                     properties = DialogProperties(usePlatformDefaultWidth = false),
                     content = {
                         Composables.SettingCompose(
-                            this@MainComposeActivity,
+                            this@ColorBallActivity,
                             buttonClick, textClick, getString(R.string.settingStr),
                             backgroundColor = Color(0xbb0000ff), setting
                         )
@@ -476,8 +476,8 @@ class MainComposeActivity : MyComposeView() {
     private fun onClickSettingButton(useActivity: Boolean) {
         if (useActivity) {
             Intent(
-                this@MainComposeActivity,
-                SettingComposeActivity::class.java
+                this@ColorBallActivity,
+                SettingActivity::class.java
             ).let {
                 Bundle().apply {
                     putBoolean(Constants.HAS_SOUND, viewModel.hasSound())
@@ -515,8 +515,8 @@ class MainComposeActivity : MyComposeView() {
                 "= $isLocal , useActivity = $useActivity")
         if (useActivity) {
             Intent(
-                this@MainComposeActivity,
-                Top10ComposeActivity::class.java
+                this@ColorBallActivity,
+                Top10Activity::class.java
             ).let {
                 Bundle().apply {
                     putBoolean(Constants.IS_LOCAL_TOP10, isLocal)
@@ -529,7 +529,7 @@ class MainComposeActivity : MyComposeView() {
                 if (isLocal) getString(R.string.localTop10Score) else
                     getString(R.string.globalTop10Str)
             )
-            viewModel.getTop10Players(context = this@MainComposeActivity, isLocal)
+            viewModel.getTop10Players(context = this@ColorBallActivity, isLocal)
         }
     }
 
@@ -619,7 +619,7 @@ class MainComposeActivity : MyComposeView() {
                         expanded = false
                         showColorWhenClick(isPrivacyClicked)
                         PrivacyPolicyUtil.startPrivacyPolicyActivity(
-                            this@MainComposeActivity, 10)
+                            this@ColorBallActivity, 10)
                               },
                     isDivider = false)
             }
@@ -767,7 +767,7 @@ class MainComposeActivity : MyComposeView() {
                 " = ${mOrientation.intValue}")
         var nativeAd by remember { mutableStateOf<NativeAd?>(null) }
         LaunchedEffect(Unit) {
-            object : GoogleNativeAd(this@MainComposeActivity,
+            object : GoogleNativeAd(this@ColorBallActivity,
                 ColorBallsApp.googleAdMobNativeID) {
                 override fun setNativeAd(ad: NativeAd?) {
                     Log.d(TAG, "ShowNativeAd.GoogleNativeAd.setNativeAd")

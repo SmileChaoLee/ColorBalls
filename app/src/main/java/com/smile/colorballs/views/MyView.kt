@@ -1,6 +1,5 @@
-package com.smile.colorballs.views.compose
+package com.smile.colorballs.views
 
-// For google native ads
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -28,8 +27,7 @@ import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.interfaces.PresentViewCompose
 import com.smile.colorballs.presenters.PresenterCompose
-import com.smile.colorballs.viewmodel.MainComposeViewModel
-import com.smile.colorballs.shared_composables.Composables
+import com.smile.colorballs.viewmodel.ColorBallViewModel
 import com.smile.smilelibraries.AdMobBanner
 import com.smile.smilelibraries.FacebookBanner
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
@@ -41,13 +39,14 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import androidx.core.graphics.scale
 import androidx.core.graphics.drawable.toDrawable
+import com.facebook.ads.AdSize
 
-abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
+abstract class MyView: ComponentActivity(), PresentViewCompose {
 
     companion object {
-        private const val TAG = "MyComposeView"
+        private const val TAG = "MyView"
     }
-    protected val viewModel: MainComposeViewModel by viewModels()
+    protected val viewModel: ColorBallViewModel by viewModels()
     protected var textFontSize = 0f
     protected var mImageSizeDp = 0f
     protected var boxImage: Bitmap? = null
@@ -70,13 +69,14 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
         Composables.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
 
         Log.d(TAG, "onCreate.interstitialAd")
+        Log.d(TAG, "onCreate.application = $application")
         (application as ColorBallsApp).let {
             interstitialAd = ShowInterstitial(this, it.facebookAds,
                 it.googleInterstitialAd)
         }
 
         Log.d(TAG, "onCreate.instantiate PresenterCompose")
-        viewModel.setPresenter(PresenterCompose(this@MyComposeView))
+        viewModel.setPresenter(PresenterCompose(this@MyView))
     }
 
     override fun onDestroy() {
@@ -193,7 +193,7 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
                         } else {
                             getString(R.string.failedSaveGameStr)
                         }
-                    ScreenUtil.showToast(this@MyComposeView, msg, textFontSize,
+                    ScreenUtil.showToast(this@MyView, msg, textFontSize,
                         ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
                     viewModel.setShowingSureSaveDialog(false)
                     viewModel.setSaveGameText("")
@@ -204,7 +204,7 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
                     viewModel.setSaveGameText("")
                 }
             }
-            Composables.DialogWithText(this@MyComposeView,
+            Composables.DialogWithText(this@MyView,
                 buttonListener, "", dialogText)
         }
     }
@@ -221,7 +221,7 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
                     } else {
                         getString(R.string.failedLoadGameStr)
                     }
-                    ScreenUtil.showToast(this@MyComposeView, msg, textFontSize,
+                    ScreenUtil.showToast(this@MyView, msg, textFontSize,
                         ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
                     viewModel.setShowingSureLoadDialog(false)
                     viewModel.setLoadGameText("")
@@ -232,7 +232,7 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
                     viewModel.setLoadGameText("")
                 }
             }
-            Composables.DialogWithText(this@MyComposeView,
+            Composables.DialogWithText(this@MyView,
                 buttonListener, "", dialogText)
         }
     }
@@ -258,7 +258,7 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
                 }
             }
             val hitStr = getString(R.string.nameStr)
-            Composables.DialogWithTextField(this@MyComposeView,
+            Composables.DialogWithTextField(this@MyView,
                 buttonListener, dialogTitle, hitStr)
         }
     }
@@ -336,7 +336,7 @@ abstract class MyComposeView: ComponentActivity(), PresentViewCompose {
             modifier = modifier,
             factory = { context ->
                 com.facebook.ads.AdView(context, pId,
-                    com.facebook.ads.AdSize.BANNER_HEIGHT_50)
+                    AdSize.BANNER_HEIGHT_50)
             },
             update = { faceAdView ->
                 FacebookBanner(faceAdView)

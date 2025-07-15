@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.smile.colorballs.models.Settings
 
-class SettingComposeViewModel : ViewModel() {
+class SettingViewModel : ViewModel() {
     private val _settings = MutableLiveData<Settings>()
     val settings : LiveData<Settings>
         get() = _settings

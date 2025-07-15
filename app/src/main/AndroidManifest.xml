@@ -22,7 +22,7 @@
             android:required="false" />
 
         <activity
-            android:name=".views.compose.MainComposeActivity"
+            android:name=".views.ColorBallActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,47 +31,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".views.xml_compose.MyActivityTop10Compose"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".views.xml_base.MyActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".views.compose.SettingComposeActivity"
+            android:name=".views.SettingActivity"
             android:exported="false"
             android:label="@string/settingStr"
             android:theme="@style/AppThemeTransparent">
         </activity>
         <activity
-            android:name=".views.xml_base.SettingActivity"
-            android:exported="false"
-            android:label="@string/settingStr"
-            android:theme="@style/AppThemeTransparent">
-        </activity>
-        <activity
-            android:name=".views.compose.Top10ComposeActivity"
-            android:exported="false"
-            android:label="@string/title_activity_history">
-        </activity>
-        <activity
-            android:name=".views.xml_base.Top10Activity"
-            android:exported="false"
-            android:label="@string/title_activity_history">
-        </activity>
-        <activity
-            android:name=".views.xml_compose.MyTop10ComposeActivity"
+            android:name=".views.Top10Activity"
             android:exported="false"
             android:label="@string/title_activity_history">
         </activity>

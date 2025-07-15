@@ -1,4 +1,4 @@
-package com.smile.colorballs.views.compose
+package com.smile.colorballs.views
 
 import android.content.Intent
 import android.os.Bundle
@@ -9,15 +9,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.ui.graphics.Color
 import com.smile.colorballs.R
-import com.smile.colorballs.shared_composables.Composables
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.models.Settings
-import com.smile.colorballs.shared_composables.ui.theme.ColorBallsTheme
-import com.smile.colorballs.viewmodel.SettingComposeViewModel
+import com.smile.colorballs.views.ui.theme.ColorBallsTheme
+import com.smile.colorballs.viewmodel.SettingViewModel
 
-class SettingComposeActivity : ComponentActivity() {
+class SettingActivity : ComponentActivity() {
 
-    private val settingViewModel : SettingComposeViewModel by viewModels()
+    private val settingViewModel : SettingViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,7 +68,7 @@ class SettingComposeActivity : ComponentActivity() {
             Log.d(TAG, "onCreate.setContent")
             ColorBallsTheme {
                 settingViewModel.settings.value?.let {
-                    Composables.SettingCompose(this@SettingComposeActivity,
+                    Composables.SettingCompose(this@SettingActivity,
                         buttonClick, textClick,
                         "${getString(R.string.settingStr)} - Activity",
                         backgroundColor = Color(0xbb0000ff), it
@@ -133,6 +132,6 @@ class SettingComposeActivity : ComponentActivity() {
     }
 
     companion object {
-        private const val TAG = "SettingComposeActivity"
+        private const val TAG = "SettingActivity"
     }
 }

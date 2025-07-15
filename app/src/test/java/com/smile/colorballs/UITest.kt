@@ -3,10 +3,6 @@ package com.smile.colorballs
 import android.content.Context
 import android.content.res.Resources
 import android.os.SystemClock
-import android.view.Menu
-import android.view.MenuItem
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Lifecycle.State
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -16,8 +12,7 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.coroutines.Top10Coroutine
-import com.smile.colorballs.views.xml_base.MyActivity
-import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment
+import com.smile.colorballs.views.ColorBallActivity
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.AfterClass
@@ -32,13 +27,12 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowActivity
-import org.robolectric.shadows.ShadowAlertDialog
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = ColorBallsApp::class, manifest = "AndroidManifest.xml")
 class UITest {
     private var appContext : Context? = null
-    private lateinit var activity : MyActivity
+    private lateinit var activity : ColorBallActivity
     private lateinit var resource : Resources
     private val oneSecond = 1000 // 1 second
     private val threeSeconds = 3000 // 3 seconds
@@ -48,7 +42,7 @@ class UITest {
     fun test_PreRun() {
         println("test_PreRun.before each test case.")
         appContext = ApplicationProvider.getApplicationContext()
-        controller = Robolectric.buildActivity(MyActivity::class.java)
+        controller = Robolectric.buildActivity(ColorBallActivity::class.java)
         controller?.let {
             it.setup().visible()
             activity = it.get()
@@ -80,6 +74,7 @@ class UITest {
             ColorBallsApp.googleAdMobBannerID)
     }
 
+    /*
     @Test
     fun test_undoSubmenu() {
         onView(withId(R.id.undoGame)).perform(click())
@@ -99,7 +94,9 @@ class UITest {
             SystemClock.sleep(threeSeconds.toLong())
         }
     }
+    */
 
+    /*
     private fun actionSubMenu() : MenuItem? {
         println("actionSubMenu")
         controller?.let {
@@ -125,45 +122,25 @@ class UITest {
                 Assert.assertEquals(resource.getString(R.string.privacyPolicyString),
                     subIt.getItem(6).title.toString())
             }
-            // the following is for the testing purpose
-            /*
-            menuItem.subMenu?.let { mIt ->
-                for (i in 0..<mIt.size()) {
-                    val mItem = mIt.getItem(i)
-                    println("for.mItem.title = ${mItem.title}, isVisible = ${mItem.isVisible}")
-                }
-                for (mItem in mIt.iterator()) {
-                    println("foreach.mItem.title = ${mItem.title}, isVisible = ${mItem.isVisible}")
-                }
-            }
-            */
-            //
             return menuItem
         } ?: run {
             println("actionSubMenu.controller is null.")
             return null
         }
     }
+    */
 
-    private fun whichActionSubMenu(position: Int) {
-        println("whichActionSubMenu")
-        actionSubMenu()?.let {
-            // click on gameAction submenu
-            controller?.get()?.onOptionsItemSelected(it.subMenu?.getItem(position)!!)
-            SystemClock.sleep(oneSecond.toLong())
-        }
-    }
-
+    /*
     @Test
     fun test_moreActionSubmenu() {
         actionSubMenu()
         SystemClock.sleep(threeSeconds.toLong())
         Espresso.pressBack()
     }
+    */
 
     @Test
     fun test_globalTop10SubmenuService() {
-        whichActionSubMenu(0)
         controller?.let {
             val shadowActivity = shadowOf(activity)
             val expectedServiceName = "com.smile.colorballs.services.GlobalTop10Service"
@@ -179,7 +156,6 @@ class UITest {
 
     @Test
     fun test_globalTop10SubmenuCoroutine() = runTest {
-        whichActionSubMenu(1)
         Top10Coroutine.getGlobalAndSendBack(appContext!!)
         println("test_globalTop10SubmenuCoroutine.Top10Coroutine.isBroadcastSent = " +
                 "${Top10Coroutine.isBroadcastSent}")
@@ -188,13 +164,13 @@ class UITest {
 
     @Test
     fun test_localTop10SubmenuCoroutine() = runTest {
-        whichActionSubMenu(1)
         Top10Coroutine.getLocalAndSendBack(appContext!!)
         println("test_localTop10SubmenuCoroutine.Top10Coroutine.isBroadcastSent = " +
                 "${Top10Coroutine.isBroadcastSent}")
         Assert.assertTrue(Top10Coroutine.isBroadcastSent)
     }
 
+    /*
     private fun alertDialogFragment(stringId: Int, tag : String) : AlertDialogFragment? {
         println("alertDialogFragment")
         controller?.let {
@@ -228,12 +204,15 @@ class UITest {
             return null
         }
     }
-
+    */
+        /*
     private fun saveGameSubmenu() : AlertDialogFragment? {
         whichActionSubMenu(2)
         return alertDialogFragment(R.string.sureToSaveGameStr, Constants.SURE_SAVE_DIALOG_TAG)
     }
+    */
 
+    /*
     @Test
     fun test_saveGameSubmenuOk() {
         println("test_saveGameSubmenuOk")
@@ -242,7 +221,9 @@ class UITest {
             it.okButton.performClick()
         }
     }
+    */
 
+    /*
     @Test
     fun test_saveGameSubmenuNo() {
         println("test_saveGameSubmenuNo")
@@ -251,12 +232,16 @@ class UITest {
             it.noButton.performClick()
         }
     }
+    */
 
+    /*
     private fun loadGameSubmenu() : AlertDialogFragment? {
         whichActionSubMenu(3)
         return alertDialogFragment(R.string.sureToLoadGameStr, Constants.SURE_LOAD_DIALOG_TAG)
     }
+    */
 
+    /*
     @Test
     fun test_loadGameSubmenuOk() {
         println("test_loadGameSubmenuOk")
@@ -265,7 +250,9 @@ class UITest {
             it.okButton.performClick()
         }
     }
+    */
 
+    /*
     @Test
     fun test_loadGameSubmenuNo() {
         println("test_loadGameSubmenuNo")
@@ -274,7 +261,9 @@ class UITest {
             it.noButton.performClick()
         }
     }
+    */
 
+    /*
     private fun alertDialog() : AlertDialog? {
         controller?.let {
             val alertDialog = (ShadowAlertDialog.getLatestDialog() as AlertDialog).apply {
@@ -295,12 +284,16 @@ class UITest {
             return null
         }
     }
+    */
 
+    /*
     private fun newGameSubmenu() : AlertDialog? {
         whichActionSubMenu(4)
         return alertDialog()
     }
+    */
 
+    /*
     @Test
     fun test_newGameSubmenuSubmit() {
         println("test_newGameSubmenuSubmit")
@@ -309,7 +302,9 @@ class UITest {
             it.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
         }
     }
+    */
 
+    /*
     @Test
     fun test_newGameSubmenuCancel() {
         println("test_newGameSubmenuCancel")
@@ -318,12 +313,16 @@ class UITest {
             it.getButton(AlertDialog.BUTTON_NEGATIVE).performClick()
         }
     }
+    */
 
+    /*
     private fun quitGameSubmenu() : AlertDialog? {
         whichActionSubMenu(5)
         return alertDialog()
     }
+    */
 
+    /*
     @Test
     fun test_quitGameSubmenuSubmit() {
         println("test_quitGameSubmenuSubmit")
@@ -332,7 +331,9 @@ class UITest {
             it.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
         }
     }
+    */
 
+    /*
     @Test
     fun test_quitGameSubmenuCancel() {
         println("test_quitGameSubmenuCancel")
@@ -341,7 +342,9 @@ class UITest {
             it.getButton(AlertDialog.BUTTON_NEGATIVE).performClick()
         }
     }
+    */
 
+    /*
     @Test
     fun test_privatePolicySubmenu() {
         println("test_privatePolicySubmenu")
@@ -350,11 +353,12 @@ class UITest {
         // onView(withId(R.id.privacyPolicyWebView)).check(matches(isDisplayed()))
         Espresso.pressBack()
     }
+    */
 
     companion object {
         private const val PACKAGE_NAME = "com.smile.colorballs"
-        private var scenario : ActivityScenario<MyActivity>? = null
-        private var controller : ActivityController<MyActivity>? = null
+        private var scenario : ActivityScenario<ColorBallActivity>? = null
+        private var controller : ActivityController<ColorBallActivity>? = null
 
         @JvmStatic
         @BeforeClass

@@ -1,4 +1,4 @@
-package com.smile.colorballs.views.compose
+package com.smile.colorballs.views
 
 import android.os.Bundle
 import android.util.Log
@@ -8,16 +8,16 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import com.smile.colorballs.R
-import com.smile.colorballs.shared_composables.Composables
+import com.smile.colorballs.views.Composables
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.models.TopPlayer
-import com.smile.colorballs.shared_composables.ui.theme.ColorBallsTheme
+import com.smile.colorballs.views.ui.theme.ColorBallsTheme
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class Top10ComposeActivity : ComponentActivity() {
+class Top10Activity : ComponentActivity() {
 
     private val top10Players = mutableStateOf(listOf<TopPlayer>())
     private var top10TitleName: String = ""
@@ -53,7 +53,7 @@ class Top10ComposeActivity : ComponentActivity() {
                     launch(Dispatchers.IO) {
                         val players = if (isLocal) {
                             PlayerRecordRest.GetLocalTop10(ScoreSQLite(
-                                this@Top10ComposeActivity))
+                                this@Top10Activity))
                         } else {
                             PlayerRecordRest.GetGlobalTop10(Constants.GAME_ID)
                         }
@@ -126,6 +126,6 @@ class Top10ComposeActivity : ComponentActivity() {
     }
 
     companion object {
-        private const val TAG = "Top10ComposeActivity"
+        private const val TAG = "Top10Activity"
     }
 }

@@ -1,4 +1,4 @@
-package com.smile.colorballs.shared_composables.ui.theme
+package com.smile.colorballs.views.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

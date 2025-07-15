@@ -75,11 +75,13 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
+    /*
     kotlinOptions {
-        jvmTarget = '17'
+        jvmTarget = '17'    // deprecated
         // for default fun of Kotlin
-        freeCompilerArgs = ['-Xjvm-default=all']
+        freeCompilerArgs = ['-Xjvm-default=all']    // deprecated
     }
+    */
 
     testOptions {
         unitTests {

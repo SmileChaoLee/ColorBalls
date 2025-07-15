@@ -29,7 +29,7 @@ import org.json.JSONObject
 import java.io.IOException
 import java.nio.ByteBuffer
 
-class MainComposeViewModel: ViewModel() {
+class ColorBallViewModel: ViewModel() {
 
     private interface ShowScoreCallback {
         fun sCallback()
@@ -1061,7 +1061,7 @@ class MainComposeViewModel: ViewModel() {
     }
 
     companion object {
-        private const val TAG = "MainComposeViewModel"
+        private const val TAG = "ColorBallViewModel"
         private const val NUM_SAVE_FILENAME = "NumSavedGame"
         private const val SAVE_FILENAME = "SavedGame"
     }
