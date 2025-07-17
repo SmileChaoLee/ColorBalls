@@ -1,6 +1,5 @@
 package com.smile.colorballs.viewmodel
 
-import android.content.Context
 import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
@@ -11,7 +10,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.os.BundleCompat
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
@@ -20,7 +18,9 @@ import com.smile.colorballs.models.GridDataCompose
 import com.smile.colorballs.models.ColorBallInfo
 import com.smile.colorballs.models.TopPlayer
 import com.smile.colorballs.presenters.PresenterCompose
+import com.smile.smilelibraries.models.Player
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
+import com.smile.smilelibraries.roomdatabase.ScoreDatabase
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 import com.smile.smilelibraries.utilities.SoundPoolUtil
 import kotlinx.coroutines.Dispatchers
@@ -53,24 +53,6 @@ class ColorBallViewModel: ViewModel() {
     private lateinit var medalImageIds: List<Int>
 
     var mGameAction = Constants.IS_QUITING_GAME
-
-    private val top10Players = mutableStateOf(listOf<TopPlayer>())
-    fun getTop10Players() = top10Players.value
-    private fun setTop10Players(players: ArrayList<TopPlayer>) {
-        top10Players.value = players
-    }
-
-    private val top10TitleName = mutableStateOf("")
-    fun getTop10TitleName() = top10TitleName.value
-    fun setTop10TitleName(titleName: String) {
-        top10TitleName.value = titleName
-    }
-
-    private val settingTitle = mutableStateOf("")
-    fun getSettingTitle() = settingTitle.value
-    fun setSettingTitle(titleName: String) {
-        settingTitle.value = titleName
-    }
 
     private val currentScore = mutableIntStateOf(0)
     fun getCurrentScore() = currentScore.intValue
@@ -129,28 +111,6 @@ class ColorBallViewModel: ViewModel() {
         gameOverStr = mPresenter.gameOverStr
         saveScoreStr = mPresenter.saveScoreStr
         soundPool = mPresenter.soundPool
-    }
-
-    fun getTop10Players(context: Context, isLocal: Boolean) {
-        viewModelScope.launch(Dispatchers.IO) {
-            Log.d(TAG, "showTop10Players.lifecycleScope")
-            val players = if (isLocal) {
-                PlayerRecordRest.GetLocalTop10(ScoreSQLite(context))
-            } else {
-                PlayerRecordRest.GetGlobalTop10(Constants.GAME_ID)
-            }
-            val top10 = ArrayList<TopPlayer>()
-            for (i in 0 until players.size) {
-                players[i].playerName?.let { name ->
-                    if (name.trim().isEmpty()) players[i].playerName = "No Name"
-                } ?: run {
-                    Log.d(TAG, "showTop10Players.players[i].playerName = null")
-                    players[i].playerName = "No Name"
-                }
-                top10.add(TopPlayer(players[i], medalImageIds[i]))
-            }
-            setTop10Players(top10)
-        }
     }
 
     fun cellClickListener(i: Int, j: Int) {
