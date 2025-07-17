@@ -15,7 +15,7 @@ import java.util.ArrayList;
  */
 public class ScoreSQLite extends SQLiteOpenHelper {
 
-    private static String TAG = "ScoreSQLite";
+    private static final String TAG = "ScoreSQLite";
     private static final String _id = "id";
     private static final String playerName = "playerName";
     private static final String playerScore = "playerScore";
@@ -29,13 +29,10 @@ public class ScoreSQLite extends SQLiteOpenHelper {
     private static final String upDateTable = "update";
 
     private static final int dbVersion = 2;
-
-    private Context myContext;
     private SQLiteDatabase scoreDatabase;
 
     public ScoreSQLite(Context context) {
         super(context, dbName,null,dbVersion);
-        myContext = context;
         scoreDatabase = null;
     }
 
@@ -52,18 +49,16 @@ public class ScoreSQLite extends SQLiteOpenHelper {
     }
 
     private void openScoreDatabase() {
-        Log.d(TAG, "openScoreDatabase()");
+        Log.d(TAG, "openScoreDatabase");
         try {
-            Log.d(TAG, "openScoreDatabase().getWritableDatabase");
             scoreDatabase = getWritableDatabase();
         } catch (SQLException ex) {
-            Log.d(TAG, "openScoreDatabase().getWritableDatabase Exception");
-            ex.printStackTrace();
+            Log.d(TAG, "openScoreDatabase.Exception: " + ex.getMessage());
         }
     }
 
     public int readHighestScore() {
-        Log.d(TAG, "readHighestScore()");
+        Log.d(TAG, "readHighestScore");
         int highestScore = 0;
         openScoreDatabase();
         if (scoreDatabase != null) {
@@ -76,7 +71,7 @@ public class ScoreSQLite extends SQLiteOpenHelper {
                 }
                 cur.close();
             } catch (SQLException ex) {
-                ex.printStackTrace();
+                Log.d(TAG, "readHighestScore.Exception: " + ex.getMessage());
             }
         }
         closeScoreDatabase();
@@ -85,7 +80,7 @@ public class ScoreSQLite extends SQLiteOpenHelper {
     }
 
     public ArrayList<Pair<String, Integer>> readTop10ScoreList() {
-        Log.d(TAG, "readTop10ScoreList()");
+        Log.d(TAG, "readTop10ScoreList");
         ArrayList<Pair<String, Integer>> result = new ArrayList<>();
         openScoreDatabase();
         if (scoreDatabase != null) {
@@ -116,7 +111,7 @@ public class ScoreSQLite extends SQLiteOpenHelper {
     }
 
     public ArrayList<Pair<String, Integer>> readAllScores() {
-        Log.d(TAG, "readAllScores()");
+        Log.d(TAG, "readAllScores");
         ArrayList<Pair<String, Integer>> result = new ArrayList<>();
         openScoreDatabase();
         if (scoreDatabase != null) {
@@ -138,7 +133,7 @@ public class ScoreSQLite extends SQLiteOpenHelper {
                 }
                 cur.close();
             } catch (Exception ex) {
-                ex.printStackTrace();
+                Log.d(TAG, "readAllScores.Exception: " + ex.getMessage());
             }
         }
 
@@ -146,7 +141,7 @@ public class ScoreSQLite extends SQLiteOpenHelper {
     }
 
     public boolean isInTop10(int score) {
-        Log.d(TAG, "isInTop10()");
+        Log.d(TAG, "isInTop10");
         boolean yn = false;
         openScoreDatabase();
         if (scoreDatabase != null) {
@@ -171,7 +166,7 @@ public class ScoreSQLite extends SQLiteOpenHelper {
                 }
                 cur.close();
             } catch (SQLException ex) {
-                ex.printStackTrace();
+                Log.d(TAG, "isInTop10.Exception: " + ex.getMessage());
             }
         }
         closeScoreDatabase();
@@ -179,7 +174,7 @@ public class ScoreSQLite extends SQLiteOpenHelper {
     }
 
     public void addScore(final String name , final int score) {
-        Log.d(TAG, "addScore()");
+        Log.d(TAG, "addScore");
         /*
         String sql = "update " + tableName +" set playerName="+"'"+name+"'"
                 + ","+"playerScore="+String.valueOf(score)
@@ -208,27 +203,27 @@ public class ScoreSQLite extends SQLiteOpenHelper {
                         + "'" + name + "'," + String.valueOf(score) + ");";
                 scoreDatabase.execSQL(sql);
             } catch (SQLException ex) {
-                ex.printStackTrace();
+                Log.d(TAG, "addScore.Exception: " + ex.getMessage());
             }
         }
         closeScoreDatabase();
     }
 
     public void deleteOneScore(final int id) {
-        Log.d(TAG, "deleteOneScore()");
+        Log.d(TAG, "deleteOneScore");
         openScoreDatabase();
         if (scoreDatabase != null) {
             try {
                 scoreDatabase.delete(tableName, _id + "=" + id,null);
             } catch (SQLException ex) {
-                ex.printStackTrace();
+                Log.d(TAG, "deleteOneScore.Exception: " + ex.getMessage());
             }
         }
         closeScoreDatabase();
     }
 
     public void deleteAllAfterTop10() {
-        Log.d(TAG, "deleteAllAfterTop10()");
+        Log.d(TAG, "deleteAllAfterTop10");
         openScoreDatabase();
         if (scoreDatabase != null) {
             try {
@@ -237,34 +232,33 @@ public class ScoreSQLite extends SQLiteOpenHelper {
                         " ORDER BY " + playerScore + " DESC LIMIT 10)";
                 scoreDatabase.execSQL(query);
             } catch (SQLException ex) {
-                ex.printStackTrace();
+                Log.d(TAG, "deleteAllAfterTop10.Exception: " + ex.getMessage());
             }
         }
         closeScoreDatabase();
     }
 
     public void deleteAllScore() {
-        Log.d(TAG, "deleteAllScore()");
+        Log.d(TAG, "deleteAllScore");
         openScoreDatabase();
         if (scoreDatabase != null) {
             try {
                 scoreDatabase.delete(tableName, null,null);
             } catch (SQLException ex) {
-                ex.printStackTrace();
+                Log.d(TAG, "deleteAllScore.Exception: " + ex.getMessage());
             }
         }
         closeScoreDatabase();
     }
 
     private void closeScoreDatabase() {
-        Log.d(TAG, "closeScoreDatabase()");
+        Log.d(TAG, "closeScoreDatabase");
         if (scoreDatabase != null) {
             try {
                 scoreDatabase.close();
-                Log.d(TAG, "closeScoreDatabase().scoreDatabase.close()");
                 scoreDatabase = null;
             } catch (SQLException ex) {
-                ex.printStackTrace();
+                Log.d(TAG, "closeScoreDatabase.Exception: " + ex.getMessage());
             }
         }
     }

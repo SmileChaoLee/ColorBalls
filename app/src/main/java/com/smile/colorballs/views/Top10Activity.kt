@@ -8,12 +8,12 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import com.smile.colorballs.R
-import com.smile.colorballs.views.Composables
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.models.TopPlayer
 import com.smile.colorballs.views.ui.theme.ColorBallsTheme
+import com.smile.smilelibraries.models.Player
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
-import com.smile.smilelibraries.scoresqlite.ScoreSQLite
+import com.smile.smilelibraries.roomdatabase.ScoreDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -51,11 +51,14 @@ class Top10Activity : ComponentActivity() {
                 LaunchedEffect(Unit) {
                     Log.d(TAG, "onCreate.setContent.LaunchedEffect")
                     launch(Dispatchers.IO) {
-                        val players = if (isLocal) {
-                            PlayerRecordRest.GetLocalTop10(ScoreSQLite(
-                                this@Top10Activity))
+                        val players: ArrayList<Player>
+                        if (isLocal) {
+                            val db = ScoreDatabase.getDatabase(this@Top10Activity)
+                            players = db.getLocalTop10()
+                            db.close()
+                            // PlayerRecordRest.GetLocalTop10(ScoreSQLite(context))
                         } else {
-                            PlayerRecordRest.GetGlobalTop10(Constants.GAME_ID)
+                            players = PlayerRecordRest.GetGlobalTop10(Constants.GAME_ID)
                         }
                         val top10 = ArrayList<TopPlayer>()
                         for (i in 0 until players.size) {

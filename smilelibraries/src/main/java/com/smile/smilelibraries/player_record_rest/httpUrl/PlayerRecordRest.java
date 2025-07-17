@@ -3,7 +3,7 @@ package com.smile.smilelibraries.player_record_rest.httpUrl;
 import android.util.Log;
 import android.util.Pair;
 
-import com.smile.smilelibraries.player_record_rest.models.Player;
+import com.smile.smilelibraries.models.Player;
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite;
 
 import org.json.JSONArray;
@@ -77,9 +77,7 @@ public class PlayerRecordRest {
                 yn = false;
             }
         } catch (Exception ex) {
-            String errorMsg = ex.toString();
-            Log.d(TAG, "addOneRecord.Exception occurred." + "\n" + errorMsg);
-            ex.printStackTrace();
+            Log.d(TAG, "addOneRecord.Exception = " + ex.getMessage());
             yn = false;
         }
 
@@ -131,9 +129,7 @@ public class PlayerRecordRest {
                 result[0] = FAILED;    // failed
             }
         } catch (Exception ex) {
-            String errorMsg = ex.toString();
-            Log.d(TAG, "getGlobalTop10.Exception occurred." + "\n" + errorMsg);
-            ex.printStackTrace();
+            Log.d(TAG, "getGlobalTop10.Exception = " + ex.getMessage());
             result[0] = EXCEPTION;
         }
 
@@ -162,7 +158,7 @@ public class PlayerRecordRest {
                     players.add(new Player(id, name, score, gameId));
                 }
             } catch (JSONException ex) {
-                ex.printStackTrace();
+                Log.d(TAG, "GetGlobalTop10.JSONException = " + ex.getMessage());
                 players.add(new Player(-1, "JSONException", -1, -1));
             }
         } else if (status.equals(FAILED)) {
@@ -179,7 +175,7 @@ public class PlayerRecordRest {
     public static ArrayList<Player> GetLocalTop10(ScoreSQLite scoreSQLite) {
         ArrayList<Player> players = new ArrayList<>();
         try {
-            ArrayList<Pair<String, Integer>> resultList = scoreSQLite.readTop10ScoreList();
+             ArrayList<Pair<String, Integer>> resultList = scoreSQLite.readTop10ScoreList();
             int id;
             String playerName;
             int score;
@@ -192,7 +188,7 @@ public class PlayerRecordRest {
                 players.add(new Player(id, playerName, score, gameId));
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            Log.d(TAG, "GetLocalTop10.Exception = " + ex.getMessage());
             players.add(new Player(-1, "ScoreSQLite Exception", -1, -1));
         }
 

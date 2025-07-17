@@ -1,7 +1,7 @@
 package com.smile.smilelibraries.player_record_rest.retrofit
 
 import android.util.Log
-import com.smile.smilelibraries.player_record_rest.models.Player
+import com.smile.smilelibraries.models.Player
 import com.smile.smilelibraries.retrofit.Client
 import retrofit2.Callback
 

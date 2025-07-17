@@ -9,7 +9,7 @@ import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smile.colorballs.constants.Constants
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
-import com.smile.smilelibraries.player_record_rest.models.Player
+import com.smile.smilelibraries.models.Player
 
 class GlobalTop10Service : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {

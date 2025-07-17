@@ -3,7 +3,7 @@ package com.smile.colorballs.models
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import com.smile.colorballs.BR
-import com.smile.smilelibraries.player_record_rest.models.Player
+import com.smile.smilelibraries.models.Player
 
 class TopPlayer(
     player: Player = Player(),

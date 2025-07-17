@@ -1,6 +1,6 @@
 package com.smile.smilelibraries.player_record_rest.retrofit
 
-import com.smile.smilelibraries.player_record_rest.models.Player
+import com.smile.smilelibraries.models.Player
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path

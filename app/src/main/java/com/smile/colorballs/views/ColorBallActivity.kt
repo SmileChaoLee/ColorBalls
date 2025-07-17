@@ -54,8 +54,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.google.android.gms.ads.nativead.NativeAd
 import com.smile.colorballs.ColorBallsApp
@@ -64,8 +62,6 @@ import com.smile.colorballs.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
 import com.smile.smilelibraries.GoogleNativeAd
-import com.smile.colorballs.BuildConfig
-import com.smile.colorballs.models.Settings
 import com.smile.colorballs.views.ui.theme.ColorPrimary
 import com.smile.colorballs.views.ui.theme.Yellow3
 import com.smile.smilelibraries.models.ExitAppTimer
@@ -94,14 +90,12 @@ class ColorBallActivity : MyView() {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "$TAG.onCreate")
 
-        if (!BuildConfig.DEBUG) {
-            requestedOrientation = if (ScreenUtil.isTablet(this@ColorBallActivity)) {
-                // Table then change orientation to Landscape
-                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-            } else {
-                // phone then change orientation to Portrait
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-            }
+        requestedOrientation = if (ScreenUtil.isTablet(this@ColorBallActivity)) {
+            // Table then change orientation to Landscape
+            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        } else {
+            // phone then change orientation to Portrait
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
 
         Log.d(TAG, "onCreate.getScreenSize()")
@@ -155,8 +149,8 @@ class ColorBallActivity : MyView() {
                             ShowLandscapeAds(modifier = Modifier.weight(1f))
                         }
                     }
-                    Top10PlayerUI()
-                    SettingUI()
+                    // Top10PlayerUI()
+                    // SettingUI()
                     Box {
                         SaveGameDialog()
                         LoadGameDialog()
@@ -266,6 +260,7 @@ class ColorBallActivity : MyView() {
         Log.d(TAG, "CreateMainUI.mImageSize = $mImageSizeDp")
     }
 
+    /*
     @Composable
     fun Top10PlayerUI() {
         Log.d(TAG, "Top10PlayerUI.mOrientation.intValue " +
@@ -345,6 +340,7 @@ class ColorBallActivity : MyView() {
             }
         }
     }
+    */
 
     @Composable
     fun GameView(modifier: Modifier) {
@@ -473,22 +469,18 @@ class ColorBallActivity : MyView() {
         }
     }
 
-    private fun onClickSettingButton(useActivity: Boolean) {
-        if (useActivity) {
-            Intent(
-                this@ColorBallActivity,
-                SettingActivity::class.java
-            ).let {
-                Bundle().apply {
-                    putBoolean(Constants.HAS_SOUND, viewModel.hasSound())
-                    putBoolean(Constants.IS_EASY_LEVEL, viewModel.isEasyLevel())
-                    putBoolean(Constants.HAS_NEXT_BALL, viewModel.hasNextBall())
-                    it.putExtras(this)
-                    settingLauncher.launch(it)
-                }
+    private fun onClickSettingButton() {
+        Intent(
+            this@ColorBallActivity,
+            SettingActivity::class.java
+        ).let {
+            Bundle().apply {
+                putBoolean(Constants.HAS_SOUND, viewModel.hasSound())
+                putBoolean(Constants.IS_EASY_LEVEL, viewModel.isEasyLevel())
+                putBoolean(Constants.HAS_NEXT_BALL, viewModel.hasNextBall())
+                it.putExtras(this)
+                settingLauncher.launch(it)
             }
-        } else {
-            viewModel.setSettingTitle(getString(R.string.settingStr))
         }
     }
 
@@ -499,7 +491,7 @@ class ColorBallActivity : MyView() {
         val isClicked = remember { mutableStateOf(false) }
         IconButton (onClick = {
             showColorWhenClick(isClicked)
-            onClickSettingButton(useActivity = false)
+            onClickSettingButton()
                               },
             modifier = modifier) {
             Icon(
@@ -510,26 +502,17 @@ class ColorBallActivity : MyView() {
         }
     }
 
-    private fun showTop10Players(isLocal: Boolean, useActivity: Boolean) {
-        Log.d(TAG, "showTop10Players.isLocal " +
-                "= $isLocal , useActivity = $useActivity")
-        if (useActivity) {
-            Intent(
-                this@ColorBallActivity,
-                Top10Activity::class.java
-            ).let {
-                Bundle().apply {
-                    putBoolean(Constants.IS_LOCAL_TOP10, isLocal)
-                    it.putExtras(this)
-                    top10Launcher.launch(it)
-                }
+    private fun showTop10Players(isLocal: Boolean) {
+        Log.d(TAG, "showTop10Players.isLocal = $isLocal")
+        Intent(
+            this@ColorBallActivity,
+            Top10Activity::class.java
+        ).let {
+            Bundle().apply {
+                putBoolean(Constants.IS_LOCAL_TOP10, isLocal)
+                it.putExtras(this)
+                top10Launcher.launch(it)
             }
-        } else {
-            viewModel.setTop10TitleName(
-                if (isLocal) getString(R.string.localTop10Score) else
-                    getString(R.string.globalTop10Str)
-            )
-            viewModel.getTop10Players(context = this@ColorBallActivity, isLocal)
         }
     }
 
@@ -568,7 +551,7 @@ class ColorBallActivity : MyView() {
                     onClick = {
                         expanded = false
                         showColorWhenClick(isGlobalTop10Clicked)
-                        showTop10Players(isLocal = false, useActivity = false)
+                        showTop10Players(isLocal = false)
                     })
 
                 val isLocalTop10Clicked = remember { mutableStateOf(false) }
@@ -578,7 +561,7 @@ class ColorBallActivity : MyView() {
                     onClick = {
                         expanded = false
                         showColorWhenClick(isLocalTop10Clicked)
-                        showTop10Players(isLocal = true, useActivity = false)
+                        showTop10Players(isLocal = true)
                     })
 
                 val isSaveGameClicked = remember { mutableStateOf(false) }

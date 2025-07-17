@@ -5,6 +5,8 @@ plugins {
     // id 'org.jetbrains.kotlin.android'
     id 'kotlin-parcelize'
     id 'kotlin-kapt'
+    id 'com.google.devtools.ksp'
+    id 'androidx.room'
 }
 
 android {
@@ -32,11 +34,14 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
+    /*
     kotlinOptions {
         jvmTarget = '17'
         // for default fun of Kotlin
         freeCompilerArgs = ['-Xjvm-default=all']
     }
+    */
+
     kotlin {
         jvmToolchain(17)
     }
@@ -48,6 +53,11 @@ allprojects {
     tasks.withType(JavaCompile).configureEach {
         options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
     }
+}
+
+// Add this block
+room {
+    schemaDirectory "$projectDir/schemas"
 }
 
 dependencies {
@@ -62,4 +72,11 @@ dependencies {
     // Retrofit
     implementation libs.retrofit  // support api under 21
     implementation libs.converter.gson
+    // implementation libs.androidx.room.common.jvm
+    // implementation libs.androidx.room.runtime.android
+    implementation(libs.androidx.room.runtime)
+    // To use Kotlin Symbol Processing (KSP)
+    ksp(libs.androidx.room.compiler)
+    // optional - Kotlin Extensions and Coroutines support for Room
+    implementation(libs.androidx.room.ktx)
 }

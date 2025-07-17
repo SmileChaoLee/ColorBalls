@@ -1,7 +1,6 @@
-package com.smile.smilelibraries.player_record_rest.models
+package com.smile.smilelibraries.models
 
 import android.os.Parcelable
-import androidx.databinding.BaseObservable
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 

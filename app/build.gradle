@@ -8,6 +8,8 @@ plugins {
     id 'kotlin-parcelize'
     id 'com.google.gms.google-services'
     id 'kotlin-kapt'
+    id 'com.google.devtools.ksp'
+    id 'androidx.room'
 }
 
 android {
@@ -97,6 +99,11 @@ android {
     }
 }
 
+// Add this block here and smilelibraries module
+room {
+    schemaDirectory "$projectDir/schemas"
+}
+
 allprojects {
     tasks.withType(JavaCompile).configureEach {
         options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
@@ -135,8 +142,13 @@ dependencies {
     implementation libs.androidx.ui.tooling.preview
     implementation libs.androidx.material3
     implementation libs.accompanist.drawablepainter
-
     implementation libs.billing.ktx
+
+    implementation(libs.androidx.room.runtime)
+    // To use Kotlin Symbol Processing (KSP)
+    ksp(libs.androidx.room.compiler)
+    // optional - Kotlin Extensions and Coroutines support for Room
+    implementation(libs.androidx.room.ktx)
 
     implementation project(':smilelibraries')
     implementation project(':NativeTemplatesModels')
@@ -146,6 +158,8 @@ dependencies {
     testImplementation libs.robolectric
     testImplementation libs.kotlinx.coroutines.test
     testImplementation libs.mockito.core
+    // optional - Test helpers
+    testImplementation(libs.androidx.room.testing)
     // testImplementation "org.mockito.kotlin:mockito-kotlin:4.8.0"
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.rules
