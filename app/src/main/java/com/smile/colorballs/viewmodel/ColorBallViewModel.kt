@@ -19,6 +19,8 @@ import com.smile.colorballs.models.GridDataCompose
 import com.smile.colorballs.models.ColorBallInfo
 import com.smile.colorballs.presenters.Presenter
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
+import com.smile.smilelibraries.roomdatabase.Score
+import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 import com.smile.smilelibraries.utilities.SoundPoolUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -224,6 +226,19 @@ class ColorBallViewModel: ViewModel() {
         }
     }
 
+    private fun addScoreInLocalTop10(playerName : String, score : Int) {
+        Log.d(TAG, "addScoreInLocalTop10")
+        viewModelScope.launch(Dispatchers.IO) {
+            val db = mPresenter.scoreDatabase()
+            if (db.isInTop10(score)) {
+                val scoreModel = Score(0, playerName, score)
+                db.addScore(scoreModel)
+                db.deleteAllAfterTop10()
+            }
+            db.close()
+        }
+    }
+
     private fun restoreState(state: Bundle?): Boolean {
         var isNewGame: Boolean
         var gameProp: GamePropCompose? = null
@@ -379,6 +394,7 @@ class ColorBallViewModel: ViewModel() {
 
     fun saveScore(playerName: String) {
         // use thread to add a record to remote database
+        /*
         val restThread: Thread = object : Thread() {
             override fun run() {
                 try {
@@ -396,9 +412,24 @@ class ColorBallViewModel: ViewModel() {
             }
         }
         restThread.start()
+        */
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // ASP.NET Core
+                val jsonObject = JSONObject()
+                jsonObject.put("PlayerName", playerName)
+                jsonObject.put("Score", mGameProp.currentScore)
+                jsonObject.put("GameId", Constants.GAME_ID)
+                PlayerRecordRest.addOneRecord(jsonObject)
+                Log.d(TAG, "saveScore.Succeeded to add one record to remote.")
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+                Log.d(TAG, "saveScore.Failed to add one record to remote.")
+            }
+        }
 
         // save to local storage
-        mPresenter.addScoreInLocalTop10(playerName, mGameProp.currentScore)
+        addScoreInLocalTop10(playerName, mGameProp.currentScore)
     }
 
     fun newGame() {

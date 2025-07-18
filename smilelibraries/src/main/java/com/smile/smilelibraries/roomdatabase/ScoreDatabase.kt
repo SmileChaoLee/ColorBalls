@@ -73,4 +73,9 @@ abstract class ScoreDatabase : RoomDatabase() {
         }
         return players
     }
+
+    suspend fun deleteAllAfterTop10() {
+        Log.d(TAG, "deleteAllAfterTop10")
+        scoreDao().deleteAllAfterTop10()
+    }
 }

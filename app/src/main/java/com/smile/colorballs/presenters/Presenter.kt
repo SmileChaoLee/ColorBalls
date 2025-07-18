@@ -15,6 +15,4 @@ class Presenter(private val presentView: PresentView) {
     fun scoreDatabase() = presentView.getRoomDatabase()
     fun fileInputStream(filename: String) = presentView.fileInputStream(filename)
     fun fileOutputStream(filename: String) = presentView.fileOutputStream(filename)
-    fun addScoreInLocalTop10(playerName: String, score: Int) =
-        presentView.addScoreInLocalTop10(playerName, score)
 }

@@ -383,16 +383,6 @@ abstract class MyView: ComponentActivity(), PresentView {
         return ScoreDatabase.getDatabase(this)
     }
 
-    override fun addScoreInLocalTop10(playerName : String, score : Int) {
-        val scoreSQLiteDB = ScoreSQLite(this)
-        if (scoreSQLiteDB.isInTop10(score)) {
-            // inside top 10, then record the current score
-            scoreSQLiteDB.addScore(playerName, score)
-            scoreSQLiteDB.deleteAllAfterTop10() // only keep the top 10
-        }
-        scoreSQLiteDB.close()
-    }
-
     override fun fileInputStream(fileName : String): FileInputStream {
         return FileInputStream(File(filesDir, fileName))
     }

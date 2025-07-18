@@ -16,7 +16,6 @@ interface PresentView {
     fun getSaveScoreStr(): String
     fun soundPool() : SoundPoolUtil
     fun getRoomDatabase(): ScoreDatabase
-    fun addScoreInLocalTop10(playerName : String, score : Int)
     fun fileInputStream(fileName : String) : FileInputStream
     fun fileOutputStream(fileName : String) : FileOutputStream
 }
