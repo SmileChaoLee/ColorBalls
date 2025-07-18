@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.os.BundleCompat
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
@@ -19,6 +20,8 @@ import com.smile.colorballs.models.ColorBallInfo
 import com.smile.colorballs.presenters.Presenter
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
 import com.smile.smilelibraries.utilities.SoundPoolUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -173,7 +176,8 @@ class ColorBallViewModel: ViewModel() {
         val isNewGame = restoreState(state)
         ColorBallsApp.isShowingLoadingMessage = mGameProp.isShowingLoadingMessage
         ColorBallsApp.isProcessingJob = mGameProp.isProcessingJob
-        setHighestScore(mPresenter.highestScore())
+        getAndSetHighestScore() // a coroutine operation
+        // setHighestScore(mPresenter.highestScore())
         Log.d(TAG, "initGame.getHighestScore() = ${getHighestScore()}")
         setCurrentScore(mGameProp.currentScore)
         // displayGameView()
@@ -207,6 +211,14 @@ class ColorBallViewModel: ViewModel() {
             } else {
                 lastPartOfInitialGame()
             }
+        }
+    }
+
+    private fun getAndSetHighestScore() {
+        Log.d(TAG, "getAndSetHighestScore")
+        viewModelScope.launch(Dispatchers.IO) {
+            val score = mPresenter.scoreDatabase().getHighestScore()
+            setHighestScore(score)
         }
     }
 

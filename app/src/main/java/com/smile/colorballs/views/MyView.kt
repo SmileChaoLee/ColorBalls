@@ -40,6 +40,7 @@ import java.io.FileOutputStream
 import androidx.core.graphics.scale
 import androidx.core.graphics.drawable.toDrawable
 import com.facebook.ads.AdSize
+import com.smile.smilelibraries.roomdatabase.ScoreDatabase
 
 abstract class MyView: ComponentActivity(), PresentViewCompose {
 
@@ -378,12 +379,8 @@ abstract class MyView: ComponentActivity(), PresentViewCompose {
         return SoundPoolUtil(this, R.raw.uhoh)
     }
 
-    override fun getHighestScore() : Int {
-        Log.d(TAG, "getHighestScore")
-        val scoreSQLiteDB = ScoreSQLite(this)
-        val score = scoreSQLiteDB.readHighestScore()
-        scoreSQLiteDB.close()
-        return score
+    override fun getRoomDatabase(): ScoreDatabase {
+        return ScoreDatabase.getDatabase(this)
     }
 
     override fun addScoreInLocalTop10(playerName : String, score : Int) {

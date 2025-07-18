@@ -1,6 +1,6 @@
 package com.smile.colorballs.interfaces
 
-import com.smile.colorballs.R
+import com.smile.smilelibraries.roomdatabase.ScoreDatabase
 import com.smile.smilelibraries.utilities.SoundPoolUtil
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -15,7 +15,7 @@ interface PresentViewCompose {
     fun getGameOverStr(): String
     fun getSaveScoreStr(): String
     fun soundPool() : SoundPoolUtil
-    fun getHighestScore() : Int
+    fun getRoomDatabase(): ScoreDatabase
     fun addScoreInLocalTop10(playerName : String, score : Int)
     fun fileInputStream(fileName : String) : FileInputStream
     fun fileOutputStream(fileName : String) : FileOutputStream

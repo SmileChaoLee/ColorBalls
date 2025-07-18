@@ -23,6 +23,7 @@ abstract class ScoreDatabase : RoomDatabase() {
             }
         }
         fun getDatabase(context: Context): ScoreDatabase {
+            Log.d(TAG, "getDatabase")
             return synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
@@ -41,6 +42,10 @@ abstract class ScoreDatabase : RoomDatabase() {
     suspend fun addScore(score: Score): Long {
         Log.d(TAG, "addScore.score = $score")
         return scoreDao().insertOneScore(score)
+    }
+
+    suspend fun getHighestScore(): Int {
+        return scoreDao().getHighestScore()
     }
 
     suspend fun isInTop10(score: Int): Boolean {
