@@ -26,7 +26,7 @@ import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.interfaces.PresentViewCompose
-import com.smile.colorballs.presenters.PresenterCompose
+import com.smile.colorballs.presenters.Presenter
 import com.smile.colorballs.viewmodel.ColorBallViewModel
 import com.smile.smilelibraries.AdMobBanner
 import com.smile.smilelibraries.FacebookBanner
@@ -76,7 +76,7 @@ abstract class MyView: ComponentActivity(), PresentViewCompose {
         }
 
         Log.d(TAG, "onCreate.instantiate PresenterCompose")
-        viewModel.setPresenter(PresenterCompose(this@MyView))
+        viewModel.setPresenter(Presenter(this@MyView))
     }
 
     override fun onDestroy() {

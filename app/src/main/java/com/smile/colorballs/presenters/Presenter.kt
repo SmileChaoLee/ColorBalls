@@ -2,7 +2,7 @@ package com.smile.colorballs.presenters
 import com.smile.colorballs.interfaces.PresentViewCompose
 import com.smile.smilelibraries.utilities.SoundPoolUtil
 
-class PresenterCompose(private val presentView: PresentViewCompose) {
+class Presenter(private val presentView: PresentViewCompose) {
     val medalImageIds = presentView.getMedalImageIds()
     val loadingStr = presentView.getLoadingStr()
     val savingGameStr = presentView.geSavingGameStr()

@@ -16,15 +16,9 @@ import com.smile.colorballs.constants.WhichBall
 import com.smile.colorballs.models.GamePropCompose
 import com.smile.colorballs.models.GridDataCompose
 import com.smile.colorballs.models.ColorBallInfo
-import com.smile.colorballs.models.TopPlayer
-import com.smile.colorballs.presenters.PresenterCompose
-import com.smile.smilelibraries.models.Player
+import com.smile.colorballs.presenters.Presenter
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
-import com.smile.smilelibraries.roomdatabase.ScoreDatabase
-import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 import com.smile.smilelibraries.utilities.SoundPoolUtil
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -35,7 +29,7 @@ class ColorBallViewModel: ViewModel() {
         fun sCallback()
     }
 
-    private lateinit var mPresenter: PresenterCompose
+    private lateinit var mPresenter: Presenter
     private val bouncyBallHandler = Handler(Looper.getMainLooper())
     private val movingBallHandler = Handler(Looper.getMainLooper())
     private val showingScoreHandler = Handler(Looper.getMainLooper())
@@ -100,7 +94,7 @@ class ColorBallViewModel: ViewModel() {
         Log.d(TAG, "MainComposeViewModel.init")
     }
 
-    fun setPresenter(presenter: PresenterCompose) {
+    fun setPresenter(presenter: Presenter) {
         mPresenter = presenter
         medalImageIds = mPresenter.medalImageIds
         loadingStr = mPresenter.loadingStr
