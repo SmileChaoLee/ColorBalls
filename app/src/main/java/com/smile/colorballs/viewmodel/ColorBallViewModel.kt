@@ -217,7 +217,9 @@ class ColorBallViewModel: ViewModel() {
     private fun getAndSetHighestScore() {
         Log.d(TAG, "getAndSetHighestScore")
         viewModelScope.launch(Dispatchers.IO) {
-            val score = mPresenter.scoreDatabase().getHighestScore()
+            val db = mPresenter.scoreDatabase()
+            val score = db.getHighestScore()
+            db.close()
             setHighestScore(score)
         }
     }

@@ -6,7 +6,6 @@ import android.graphics.Point
 import android.widget.ImageView
 import androidx.test.core.app.ApplicationProvider
 import com.smile.colorballs.constants.Constants
-import com.smile.colorballs.interfaces.PresentView
 import com.smile.colorballs.models.GameProp
 import com.smile.colorballs.models.GridData
 import org.junit.After
@@ -64,13 +63,14 @@ open class UnitTest {
     @Spy
     private val gameProp = GameProp()
     @Mock
-    private lateinit var presentView: PresentView
+    // private lateinit var presentView: PresentView
     @InjectMocks
     // private lateinit var presenter: Presenter
 
     private lateinit var appContext : Context
     private lateinit var resources : Resources
 
+    /*
     @Before
     fun setUp() {
         println("setUp")
@@ -92,6 +92,7 @@ open class UnitTest {
         // doNothing().`when`(presentView).showGameOverDialog()
         // presenter.initGame(1000, 1000, isNewGame = true)
     }
+    */
 
     @After
     fun tearDown() {
