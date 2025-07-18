@@ -25,7 +25,7 @@ import com.smile.colorballs.BuildConfig
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
-import com.smile.colorballs.interfaces.PresentViewCompose
+import com.smile.colorballs.interfaces.PresentView
 import com.smile.colorballs.presenters.Presenter
 import com.smile.colorballs.viewmodel.ColorBallViewModel
 import com.smile.smilelibraries.AdMobBanner
@@ -42,7 +42,7 @@ import androidx.core.graphics.drawable.toDrawable
 import com.facebook.ads.AdSize
 import com.smile.smilelibraries.roomdatabase.ScoreDatabase
 
-abstract class MyView: ComponentActivity(), PresentViewCompose {
+abstract class MyView: ComponentActivity(), PresentView {
 
     companion object {
         private const val TAG = "MyView"

@@ -5,7 +5,7 @@ import com.smile.smilelibraries.utilities.SoundPoolUtil
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
-interface PresentViewCompose {
+interface PresentView {
     fun getMedalImageIds(): List<Int>
     fun getLoadingStr(): String
     fun geSavingGameStr(): String
