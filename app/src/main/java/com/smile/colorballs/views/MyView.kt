@@ -164,7 +164,7 @@ abstract class MyView: ComponentActivity(), PresentView {
 
     private fun exitApplication() {
         val handlerClose = Handler(Looper.getMainLooper())
-        val timeDelay = 200
+        val timeDelay = 1000
         // exit application
         handlerClose.postDelayed({ this.finish() }, timeDelay.toLong())
     }
