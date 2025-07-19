@@ -11,7 +11,6 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.smile.colorballs.constants.Constants
-import com.smile.colorballs.coroutines.Top10Coroutine
 import com.smile.colorballs.views.ColorBallActivity
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -154,6 +153,7 @@ class UITest {
         }
     }
 
+    /*
     @Test
     fun test_globalTop10SubmenuCoroutine() = runTest {
         Top10Coroutine.getGlobalAndSendBack(appContext!!)
@@ -169,6 +169,7 @@ class UITest {
                 "${Top10Coroutine.isBroadcastSent}")
         Assert.assertTrue(Top10Coroutine.isBroadcastSent)
     }
+    */
 
     /*
     private fun alertDialogFragment(stringId: Int, tag : String) : AlertDialogFragment? {

@@ -231,8 +231,9 @@ class ColorBallViewModel: ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             val db = mPresenter.scoreDatabase()
             if (db.isInTop10(score)) {
-                val scoreModel = Score(0, playerName, score)
-                db.addScore(scoreModel)
+                val scoreModel = Score(playerName = playerName, playerScore = score)
+                val rowId = db.addScore(scoreModel)
+                Log.d(TAG, "addScoreInLocalTop10.rowId = $rowId")
                 db.deleteAllAfterTop10()
             }
             db.close()
@@ -393,6 +394,7 @@ class ColorBallViewModel: ViewModel() {
     }
 
     fun saveScore(playerName: String) {
+        Log.d(TAG, "saveScore")
         // use thread to add a record to remote database
         /*
         val restThread: Thread = object : Thread() {

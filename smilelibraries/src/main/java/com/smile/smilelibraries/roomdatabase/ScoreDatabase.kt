@@ -41,41 +41,68 @@ abstract class ScoreDatabase : RoomDatabase() {
 
     suspend fun addScore(score: Score): Long {
         Log.d(TAG, "addScore.score = $score")
-        return scoreDao().insertOneScore(score)
+        val tempScore = Score(  // use the default value, null for id
+            playerName = score.playerName,
+            playerScore = score.playerScore
+        )
+        try {
+            return scoreDao().insertOneScore(tempScore)
+        } catch (ex: Exception) {
+            Log.e(TAG, "addScore.Exception: ${ex.message}")
+            return -1L  // Return -1 to indicate an error
+        }
     }
 
     suspend fun getHighestScore(): Int {
-        return scoreDao().getHighestScore()
+        try {
+            return scoreDao().getHighestScore()
+        } catch (ex: Exception) {
+            Log.e(TAG, "getHighestScore.Exception: ${ex.message}")
+            return -1  // Return -1 to indicate an error
+        }
     }
 
     suspend fun isInTop10(score: Int): Boolean {
         Log.d(TAG, "isInTop10.score = $score")
-        val top10Scores = scoreDao().readTop10ScoreList()
-        return if (top10Scores.size < 10) {
-            true
-        } else {
-            score >= (top10Scores.last().playerScore ?: 0)
+        try {
+            val top10Scores = scoreDao().readTop10ScoreList()
+            return if (top10Scores.size < 10) {
+                true
+            } else {
+                score >= (top10Scores.last().playerScore ?: 0)
+            }
+        } catch (ex: Exception) {
+            Log.e(TAG, "isInTop10.Exception: ${ex.message}")
+            return false  // Return false to indicate an error
         }
     }
 
     suspend fun getLocalTop10(): ArrayList<Player> {
         Log.d(TAG, "getLocalTop10")
-        val top10Scores = scoreDao().readTop10ScoreList()
         val players = ArrayList<Player>()
-        for (score in top10Scores) {
-            val player = Player(
-                id = score.id?.toInt(),
-                playerName = score.playerName,
-                score = score.playerScore,
-                gameId = -1 // not be used in this context
-            )
-            players.add(player)
+        try {
+            val top10Scores = scoreDao().readTop10ScoreList()
+            for (score in top10Scores) {
+                val player = Player(
+                    id = score.id?.toInt(),
+                    playerName = score.playerName,
+                    score = score.playerScore,
+                    gameId = -1 // not be used in this context
+                )
+                players.add(player)
+            }
+        } catch (ex: Exception) {
+            Log.e(TAG, "getLocalTop10.Exception: ${ex.message}")
         }
         return players
     }
 
     suspend fun deleteAllAfterTop10() {
         Log.d(TAG, "deleteAllAfterTop10")
-        scoreDao().deleteAllAfterTop10()
+        try {
+            scoreDao().deleteAllAfterTop10()
+        } catch (ex: Exception) {
+            Log.e(TAG, "deleteAllAfterTop10.Exception: ${ex.message}")
+        }
     }
 }
