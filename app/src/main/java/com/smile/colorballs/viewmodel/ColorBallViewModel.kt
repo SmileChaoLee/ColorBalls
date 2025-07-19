@@ -178,9 +178,6 @@ class ColorBallViewModel: ViewModel() {
         val isNewGame = restoreState(state)
         ColorBallsApp.isShowingLoadingMessage = mGameProp.isShowingLoadingMessage
         ColorBallsApp.isProcessingJob = mGameProp.isProcessingJob
-        getAndSetHighestScore() // a coroutine operation
-        // setHighestScore(mPresenter.highestScore())
-        Log.d(TAG, "initGame.getHighestScore() = ${getHighestScore()}")
         setCurrentScore(mGameProp.currentScore)
         // displayGameView()
         if (isNewGame) {    // new game
@@ -214,6 +211,7 @@ class ColorBallViewModel: ViewModel() {
                 lastPartOfInitialGame()
             }
         }
+        getAndSetHighestScore() // a coroutine operation
     }
 
     private fun getAndSetHighestScore() {
@@ -221,6 +219,7 @@ class ColorBallViewModel: ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             val db = mPresenter.scoreDatabase()
             val score = db.getHighestScore()
+            Log.d(TAG, "getAndSetHighestScore.score = $score")
             db.close()
             setHighestScore(score)
         }
@@ -237,6 +236,8 @@ class ColorBallViewModel: ViewModel() {
                 db.deleteAllAfterTop10()
             }
             db.close()
+            // get the highest score after adding
+            getAndSetHighestScore()
         }
     }
 
@@ -396,7 +397,6 @@ class ColorBallViewModel: ViewModel() {
     fun saveScore(playerName: String) {
         Log.d(TAG, "saveScore")
         // use thread to add a record to remote database
-        /*
         val restThread: Thread = object : Thread() {
             override fun run() {
                 try {
@@ -414,21 +414,6 @@ class ColorBallViewModel: ViewModel() {
             }
         }
         restThread.start()
-        */
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                // ASP.NET Core
-                val jsonObject = JSONObject()
-                jsonObject.put("PlayerName", playerName)
-                jsonObject.put("Score", mGameProp.currentScore)
-                jsonObject.put("GameId", Constants.GAME_ID)
-                PlayerRecordRest.addOneRecord(jsonObject)
-                Log.d(TAG, "saveScore.Succeeded to add one record to remote.")
-            } catch (ex: Exception) {
-                ex.printStackTrace()
-                Log.d(TAG, "saveScore.Failed to add one record to remote.")
-            }
-        }
 
         // save to local storage
         addScoreInLocalTop10(playerName, mGameProp.currentScore)
