@@ -92,16 +92,14 @@ abstract class MyView: ComponentActivity(), PresentView {
         interstitialAd?.ShowAdThread()?.startShowAd(0) // AdMob first
     }
 
-    protected fun bitmapDrawableResources() {
-        val imageSizePx = ScreenUtil.dpToPixel(mImageSizeDp)
-        Log.d(TAG, "bitmapDrawableResources.mImageSizeDp = $mImageSizeDp")
-        Log.w(TAG, "bitmapDrawableResources.imageSizePx = $imageSizePx")
-        val ballWidth = imageSizePx.toInt()
-        val ballHeight = imageSizePx.toInt()
-        val nextBallWidth = (imageSizePx * 0.5f).toInt()
-        val nextBallHeight = (imageSizePx * 0.5f).toInt()
-        val ovalBallWidth = (imageSizePx * 0.9f).toInt()
-        val ovalBallHeight = (imageSizePx * 0.7f).toInt()
+    protected fun bitmapDrawableResources(sizePx: Float) {
+        Log.w(TAG, "bitmapDrawableResources.imageSizePx = $sizePx")
+        val ballWidth = sizePx.toInt()
+        val ballHeight = sizePx.toInt()
+        val nextBallWidth = (sizePx * 0.5f).toInt()
+        val nextBallHeight = (sizePx * 0.5f).toInt()
+        val ovalBallWidth = (sizePx * 0.9f).toInt()
+        val ovalBallHeight = (sizePx * 0.7f).toInt()
 
         BitmapFactory.decodeResource(resources, R.drawable.box_image).let { bm ->
             boxImage = bm.scale(ballWidth, ballHeight)

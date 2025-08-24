@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.DropdownMenu
@@ -80,7 +79,7 @@ class ColorBallActivity : MyView() {
     private val mOrientation = mutableIntStateOf(Configuration.ORIENTATION_PORTRAIT)
     private var screenX = 0f
     private var screenY = 0f
-    private val gameGridWeight = 0.7f
+    private val gameGridWeight = 7.0f
     // the following are for Top 10 Players
     private lateinit var top10Launcher: ActivityResultLauncher<Intent>
     // the following are for Settings
@@ -139,13 +138,13 @@ class ColorBallActivity : MyView() {
                     if (mOrientation.intValue ==
                         Configuration.ORIENTATION_PORTRAIT) {
                         Column {
-                            CreateMainUI(Modifier.weight(gameGridWeight))
+                            GameView(Modifier.weight(gameGridWeight))
                             SHowPortraitAds(Modifier.fillMaxWidth()
-                                .weight(1.0f - gameGridWeight))
+                                .weight(10.0f - gameGridWeight))
                         }
                     } else {
                         Row {
-                            CreateMainUI(Modifier.weight(1f))
+                            GameView(Modifier.weight(1f))
                             ShowLandscapeAds(modifier = Modifier.weight(1f))
                         }
                     }
@@ -253,13 +252,6 @@ class ColorBallActivity : MyView() {
         }
     }
 
-    @Composable
-    fun CreateMainUI(modifier: Modifier) {
-        Log.d(TAG, "CreateMainUI.mOrientation = $mOrientation")
-        GameView(modifier)
-        Log.d(TAG, "CreateMainUI.mImageSize = $mImageSizeDp")
-    }
-
     /*
     @Composable
     fun Top10PlayerUI() {
@@ -342,6 +334,7 @@ class ColorBallActivity : MyView() {
     }
     */
 
+    /*
     @Composable
     fun GameView(modifier: Modifier) {
         Log.d(TAG, "GameView.mOrientation.intValue" +
@@ -402,6 +395,49 @@ class ColorBallActivity : MyView() {
                 .padding(top = topPadding.dp, start = 0.dp))
             GameViewGrid(modifier = Modifier.height(height = realGameSize.dp)
                     .padding(top = 0.dp, start = startPadding.dp))
+        }
+    }
+    */
+
+    @Composable
+    fun GameView(modifier: Modifier) {
+        Log.d(TAG, "GameView.mOrientation.intValue = ${mOrientation.intValue}")
+        Log.d(TAG, "GameView.screenX = $screenX, screenY = $screenY")
+        var maxWidth = screenX
+        // val barWeight = 10.0f - gameGridWeight
+        val barWeight = 1.0f
+        val gameWeight = gameGridWeight
+        if (mOrientation.intValue == Configuration.ORIENTATION_LANDSCAPE) {
+            Log.d(TAG, "GameView.ORIENTATION_LANDSCAPE")
+            maxWidth = screenX/2.0f
+            // barWeight = 1.0f
+            // gameWeight = 7.0f
+        }
+        val gridHeight = ScreenUtil.pixelToDp(screenY) * gameWeight / 10.0f
+        Log.d(TAG, "GameView.gridHeight = $gridHeight")
+        val heightPerBall = gridHeight / Constants.ROW_COUNTS
+        Log.d(TAG, "GameView.heightPerBall = $heightPerBall")
+        val widthPerBall = ScreenUtil.pixelToDp(maxWidth) / Constants.COLUMN_COUNTS
+        Log.d(TAG, "GameView.widthPerBall = $widthPerBall")
+        // set size of color balls
+        mImageSizeDp = if (heightPerBall>widthPerBall) widthPerBall
+        else heightPerBall
+        Log.d(TAG, "GameView.mImageSizeDp = $mImageSizeDp")
+        Log.d(TAG, "GameView.mImageSizeDp*Constants.COLUMNS " +
+                "= ${mImageSizeDp*Constants.COLUMN_COUNTS}")
+        val sizePx = ScreenUtil.dpToPixel(mImageSizeDp)
+        bitmapDrawableResources(sizePx)
+
+        val topPadding = 0f
+        // val backgroundColor = Color(getColor(R.color.yellow3))
+        Column(modifier = modifier.fillMaxHeight()) {
+            ToolBarMenu(modifier = Modifier.weight(barWeight)
+                .padding(top = topPadding.dp, start = 0.dp))
+            Column(modifier = Modifier.weight(gameWeight),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center) {
+                GameViewGrid()
+            }
         }
     }
 
@@ -609,12 +645,28 @@ class ColorBallActivity : MyView() {
         }
     }
 
+    /*
     @Composable
-    fun GameViewGrid(modifier: Modifier) {
+    fun GameViewGrid(modifier: Modifier = Modifier) {
         Log.d(TAG, "GameViewGrid.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         Column(modifier = modifier) {
             Box {
+                ShowGameGrid()
+                ShowMessageOnScreen()
+            }
+        }
+    }
+    */
+
+    @Composable
+    fun GameViewGrid(modifier: Modifier = Modifier) {
+        Log.d(TAG, "GameViewGrid.mOrientation.intValue" +
+                    " = ${mOrientation.intValue}")
+        Column(modifier = modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center) {
+            Box(contentAlignment = Alignment.Center) {
                 ShowGameGrid()
                 ShowMessageOnScreen()
             }
@@ -656,6 +708,7 @@ class ColorBallActivity : MyView() {
         }
     }
 
+    /*
     @Composable
     fun ShowMessageOnScreen() {
         Log.d(TAG, "ShowMessageOnScreen.mOrientation.intValue" +
@@ -671,6 +724,34 @@ class ColorBallActivity : MyView() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
             Box(modifier = Modifier.size(width = width, height = height)){
+                Image(
+                    painter = painterResource(id = R.drawable.dialog_board_image),
+                    contentDescription = "",
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier.size(width = width, height = height)
+                )
+                Text(
+                    modifier = Modifier.align(alignment = Alignment.Center),
+                    text = message,
+                    color = Color.Red, fontSize = textFontSize.sp
+                )
+            }
+        }
+    }
+    */
+
+    @Composable
+    fun ShowMessageOnScreen() {
+        Log.d(TAG, "ShowMessageOnScreen.mOrientation.intValue" +
+                " = ${mOrientation.intValue}")
+        val message = viewModel.getScreenMessage()
+        if (message.isEmpty()) return
+        val gameViewLength = mImageSizeDp * Constants.COLUMN_COUNTS.toFloat()
+        val width = (gameViewLength/2f).dp
+        val height = (gameViewLength/4f).dp
+        val modifier = Modifier.background(color = Color.Transparent)
+        Column(modifier = modifier) {
+            Box {
                 Image(
                     painter = painterResource(id = R.drawable.dialog_board_image),
                     contentDescription = "",
