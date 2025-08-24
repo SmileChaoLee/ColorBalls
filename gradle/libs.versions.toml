@@ -1,6 +1,6 @@
 [versions]
 accompanistDrawablepainter = "0.37.3"
-agp = "8.11.1"
+agp = "8.12.1"
 appcompat = "1.7.1"
 audienceNetworkSdk = "6.20.0"
 billingKtx = "8.0.0"
