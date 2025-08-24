@@ -6,8 +6,8 @@ import android.graphics.Point
 import android.widget.ImageView
 import androidx.test.core.app.ApplicationProvider
 import com.smile.colorballs.constants.Constants
-import com.smile.colorballs.models.GameProp
-import com.smile.colorballs.models.GridData
+import com.smile.colorballs.models.GamePropCompose
+import com.smile.colorballs.models.GridDataCompose
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -34,7 +34,7 @@ open class UnitTest {
     // private val gridData = GridData(Constants.NUM_EASY, twoDimArray,
     //     twoDimArray, hashMap, hashMap, hashSet, arrayList)
     @Spy
-    private val gridData = GridData()
+    private val gridData = GridDataCompose()
     /*
     @Spy
     private val gameProp = GameProp(
@@ -61,7 +61,7 @@ open class UnitTest {
         hasNextBall = true)
     */
     @Spy
-    private val gameProp = GameProp()
+    private val gameProp = GamePropCompose()
     @Mock
     // private lateinit var presentView: PresentView
     @InjectMocks
