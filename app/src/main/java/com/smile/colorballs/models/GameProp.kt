@@ -4,7 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class GamePropCompose(
+data class GameProp(
     var isShowingLoadingMessage : Boolean = false,
     var isShowingScoreMessage : Boolean = false,
     var isShowNextBallsAfterBlinking : Boolean = false,

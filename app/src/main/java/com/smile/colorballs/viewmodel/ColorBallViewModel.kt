@@ -14,8 +14,8 @@ import androidx.lifecycle.viewModelScope
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
-import com.smile.colorballs.models.GamePropCompose
-import com.smile.colorballs.models.GridDataCompose
+import com.smile.colorballs.models.GameProp
+import com.smile.colorballs.models.GridData
 import com.smile.colorballs.models.ColorBallInfo
 import com.smile.colorballs.presenters.Presenter
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
@@ -37,8 +37,8 @@ class ColorBallViewModel: ViewModel() {
     private val bouncyBallHandler = Handler(Looper.getMainLooper())
     private val movingBallHandler = Handler(Looper.getMainLooper())
     private val showingScoreHandler = Handler(Looper.getMainLooper())
-    private var mGameProp = GamePropCompose()
-    private var mGridData = GridDataCompose()
+    private var mGameProp = GameProp()
+    private var mGridData = GridData()
 
     private var loadingStr = ""
     private var savingGameStr = ""
@@ -161,7 +161,7 @@ class ColorBallViewModel: ViewModel() {
         }
     }
 
-    private fun setData(prop: GamePropCompose, gData: GridDataCompose) {
+    private fun setData(prop: GameProp, gData: GridData) {
         Log.d(TAG, "setData")
         mGameProp = prop
         mGridData = gData
@@ -245,19 +245,19 @@ class ColorBallViewModel: ViewModel() {
 
     private fun restoreState(state: Bundle?): Boolean {
         var isNewGame: Boolean
-        var gameProp: GamePropCompose? = null
-        var gridData: GridDataCompose? = null
+        var gameProp: GameProp? = null
+        var gridData: GridData? = null
         state?.let {
             Log.d(TAG,"restoreState.state not null then restore the state")
             gameProp =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                     BundleCompat.getParcelable(it, Constants.GAME_PROP_TAG,
-                        GamePropCompose::class.java)
+                        GameProp::class.java)
                 else it.getParcelable(Constants.GAME_PROP_TAG)
             gridData =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                     BundleCompat.getParcelable(it, Constants.GRID_DATA_TAG,
-                        GridDataCompose::class.java)
+                        GridData::class.java)
                 else it.getParcelable(Constants.GRID_DATA_TAG)
         }
         isNewGame = true

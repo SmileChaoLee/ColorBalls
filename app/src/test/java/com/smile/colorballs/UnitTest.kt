@@ -3,20 +3,13 @@ package com.smile.colorballs
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Point
-import android.widget.ImageView
-import androidx.test.core.app.ApplicationProvider
 import com.smile.colorballs.constants.Constants
-import com.smile.colorballs.models.GamePropCompose
-import com.smile.colorballs.models.GridDataCompose
+import com.smile.colorballs.models.GameProp
+import com.smile.colorballs.models.GridData
 import org.junit.After
-import org.junit.Assert
-import org.junit.Before
 import org.junit.runner.RunWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito.anyInt
-import org.mockito.Mockito.`when`
-import org.mockito.MockitoAnnotations
 import org.mockito.Spy
 import org.robolectric.RobolectricTestRunner
 
@@ -34,7 +27,7 @@ open class UnitTest {
     // private val gridData = GridData(Constants.NUM_EASY, twoDimArray,
     //     twoDimArray, hashMap, hashMap, hashSet, arrayList)
     @Spy
-    private val gridData = GridDataCompose()
+    private val gridData = GridData()
     /*
     @Spy
     private val gameProp = GameProp(
@@ -61,7 +54,7 @@ open class UnitTest {
         hasNextBall = true)
     */
     @Spy
-    private val gameProp = GamePropCompose()
+    private val gameProp = GameProp()
     @Mock
     // private lateinit var presentView: PresentView
     @InjectMocks

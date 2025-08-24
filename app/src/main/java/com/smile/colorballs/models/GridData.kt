@@ -15,7 +15,7 @@ private const val ballNumCompleted = Constants.BALL_NUM_COMPLETED - 1
 private val mRandom: Random = Random(System.currentTimeMillis())
 
 @Parcelize
-class GridDataCompose(
+class GridData(
     private var mNumOfColorsUsed : Int = Constants.NUM_EASY,
     private val mCellValues : Array<IntArray> =
         Array(rowCounts) { IntArray(colCounts){0} },
@@ -51,9 +51,9 @@ class GridDataCompose(
         randCells()
     }
 
-    fun copy(gData: GridDataCompose): GridDataCompose {
+    fun copy(gData: GridData): GridData {
         Log.d(TAG, "copy")
-        val newGridData = GridDataCompose()
+        val newGridData = GridData()
         newGridData.mNumOfColorsUsed = gData.mNumOfColorsUsed
         for (i in 0 until rowCounts) {
             System.arraycopy(gData.mCellValues[i], 0, newGridData.mCellValues[i],
