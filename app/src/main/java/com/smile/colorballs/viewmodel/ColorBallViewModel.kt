@@ -20,7 +20,6 @@ import com.smile.colorballs.models.ColorBallInfo
 import com.smile.colorballs.presenters.Presenter
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
 import com.smile.smilelibraries.roomdatabase.Score
-import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 import com.smile.smilelibraries.utilities.SoundPoolUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -114,9 +113,10 @@ class ColorBallViewModel: ViewModel() {
 
     fun cellClickListener(i: Int, j: Int) {
         Log.d(TAG, "cellClickListener.($i, $j)")
-        Log.d(
-            TAG, "cellClickListener.isBallBouncing = " +
+        Log.d(TAG, "cellClickListener.isBallBouncing = " +
                 "${mGameProp.isBallBouncing}")
+        if (ColorBallsApp.isProcessingJob) return
+
         val ballColor = mGridData.getCellValue(i, j)
         if (!mGameProp.isBallBouncing) {
             if (ballColor != 0) {
@@ -175,9 +175,10 @@ class ColorBallViewModel: ViewModel() {
 
     fun initGame(state: Bundle?) {
         Log.d(TAG, "initGame = $state")
+        // ColorBallsApp.isProcessingJob = mGameProp.isProcessingJob
+        ColorBallsApp.isProcessingJob = true
         val isNewGame = restoreState(state)
         ColorBallsApp.isShowingLoadingMessage = mGameProp.isShowingLoadingMessage
-        ColorBallsApp.isProcessingJob = mGameProp.isProcessingJob
         setCurrentScore(mGameProp.currentScore)
         // displayGameView()
         if (isNewGame) {    // new game
@@ -212,6 +213,7 @@ class ColorBallViewModel: ViewModel() {
             }
         }
         getAndSetHighestScore() // a coroutine operation
+        ColorBallsApp.isProcessingJob = false
     }
 
     private fun getAndSetHighestScore() {
@@ -310,7 +312,7 @@ class ColorBallViewModel: ViewModel() {
 
     fun onSaveInstanceState(outState: Bundle) {
         mGameProp.isShowingLoadingMessage = ColorBallsApp.isShowingLoadingMessage
-        mGameProp.isProcessingJob = ColorBallsApp.isProcessingJob
+        // mGameProp.isProcessingJob = ColorBallsApp.isProcessingJob
         Log.d(TAG, "onSaveInstanceState.mGridData = $mGridData")
         outState.putParcelable(Constants.GAME_PROP_TAG, mGameProp)
         outState.putParcelable(Constants.GRID_DATA_TAG, mGridData)
@@ -370,7 +372,6 @@ class ColorBallViewModel: ViewModel() {
         displayGameView()
         mGameProp.currentScore = mGameProp.undoScore
         setCurrentScore(mGameProp.currentScore)
-        // completedPath = true;
         mGameProp.undoEnable = false
         ColorBallsApp.isProcessingJob = false // finished
     }
@@ -901,6 +902,8 @@ class ColorBallViewModel: ViewModel() {
     }
 
     private fun drawBallAlongPath() {
+        mGameProp.isBallMoving = true
+        ColorBallsApp.isProcessingJob = true
         val sizeOfPath = mGridData.getPathPoint().size
         if (sizeOfPath == 0) {
             Log.w(TAG, "drawBallAlongPath.sizeOfPathPoint == 0")
@@ -932,6 +935,7 @@ class ColorBallViewModel: ViewModel() {
             var countDown: Int = tempList.size * 2 - 1
             @Synchronized
             override fun run() {
+                movingBallHandler.removeCallbacksAndMessages(null)
                 if (countDown >= 2) {   // eliminate start point
                     val i = countDown / 2
                     drawBall(tempList[i].x, tempList[i].y, if (ballYN) color else 0)
@@ -963,16 +967,16 @@ class ColorBallViewModel: ViewModel() {
                         Log.d(TAG, "drawBallAlongPath.showingScoreHandler.post")
                         showingScoreHandler.post(showScore)
                     } else {
-                        mGameProp.isBallMoving = false
                         Log.d(TAG, "drawBallAlongPath.run().displayGridDataNextCells")
                         displayGridDataNextCells() // has a problem
                         Log.d(TAG, "drawBallAlongPath.run() finished.")
+                        mGameProp.isBallMoving = false
+                        ColorBallsApp.isProcessingJob = false
                     }
                 }
             }
         }
         Log.d(TAG, "drawBallAlongPath.movingBallHandler.post")
-        mGameProp.isBallMoving = true
         movingBallHandler.post(runnablePath)
     }
 
@@ -988,6 +992,7 @@ class ColorBallViewModel: ViewModel() {
             pointSet = HashSet(linkedPoint)
             mGameProp.isShowNextBallsAfterBlinking = isNextBalls
             mGameProp.isShowingScoreMessage = true
+            ColorBallsApp.isProcessingJob = true
         }
 
         @Synchronized
@@ -1013,11 +1018,12 @@ class ColorBallViewModel: ViewModel() {
                         Log.d(TAG, "ShowScore.onProgressUpdate.displayNextBallsView")
                         displayNextBallsView()
                     }
-                    mGameProp.isShowingScoreMessage = false
                 }
                 4 -> {
                     Log.d(TAG, "ShowScore.onProgressUpdate.dismissShowMessageOnScreen.")
                     setScreenMessage("")
+                    mGameProp.isShowingScoreMessage = false
+                    ColorBallsApp.isProcessingJob = false
                 }
                 else -> {}
             }
@@ -1028,6 +1034,7 @@ class ColorBallViewModel: ViewModel() {
             val twinkleCountDown = 5
             mCounter++
             Log.d(TAG, "ShowScore.run().mCounter = $mCounter")
+            showingScoreHandler.removeCallbacksAndMessages(null)
             if (mCounter <= twinkleCountDown) {
                 val md = mCounter % 2 // modulus
                 onProgressUpdate(md)
@@ -1037,9 +1044,7 @@ class ColorBallViewModel: ViewModel() {
                     onProgressUpdate(3) // show score
                     showingScoreHandler.postDelayed(this, 500)
                 } else {
-                    showingScoreHandler.removeCallbacksAndMessages(null)
                     onProgressUpdate(4) // dismiss showing message
-                    mGameProp.isShowingScoreMessage = false
                     callback.sCallback()
                 }
             }
