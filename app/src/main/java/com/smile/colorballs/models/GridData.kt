@@ -4,6 +4,7 @@ import android.graphics.Point
 import android.os.Parcelable
 import android.util.Log
 import com.smile.colorballs.constants.Constants
+import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import java.util.Random
 import java.util.Stack
@@ -11,20 +12,26 @@ import kotlin.math.min
 
 private val rowCounts = Constants.ROW_COUNTS
 private val colCounts = Constants.COLUMN_COUNTS
-private const val ballNumCompleted = Constants.BALL_NUM_COMPLETED - 1
-private val mRandom: Random = Random(System.currentTimeMillis())
+private val mRandomCell: Random = Random(System.currentTimeMillis())
+private val mRandomBall: Random = Random(System.currentTimeMillis()+1000L)
 
 @Parcelize
 class GridData(
     private var mNumOfColorsUsed : Int = Constants.NUM_EASY,
     private val mCellValues : Array<IntArray> =
-        Array(rowCounts) { IntArray(colCounts){0} },
+        Array(rowCounts) { IntArray(colCounts) },
     private val mBackupCells : Array<IntArray> =
-        Array(rowCounts) { IntArray(colCounts){0} },
+        Array(rowCounts) { IntArray(colCounts) },
     private var mNextCellIndices : HashMap<Point, Int> = HashMap(),
     private var mUndoNextCellIndices : HashMap<Point, Int> = HashMap(),
     private val mLightLine : HashSet<Point> = HashSet(),
     private val mPathPoint : ArrayList<Point> = ArrayList()) : Parcelable {
+        @IgnoredOnParcel
+        var lastBall = 0
+        @IgnoredOnParcel
+        var isMoreThanThree = false
+        @IgnoredOnParcel
+        var lastMovedCell = Point(0, 0)
 
     fun randCells(): Int {
         mNextCellIndices.clear()
@@ -176,26 +183,43 @@ class GridData(
         val vacantSize = vacantCellList.size
         Log.d(TAG, "generateNextCellIndices.vacantSize = $vacantSize")
         if (vacantSize == 0) {
+            isMoreThanThree = false
             return 0 // no vacant so game over
         }
 
         val maxLoop = if (cColor != 0) 1 else vacantSize
         var k = 0
-        var n1: Int
-        var nn: Int
+        var ballColor: Int
         var point: Point
         val loopNum = min(Constants.BALL_NUM_ONE_TIME.toDouble(), maxLoop.toDouble())
         while (k < loopNum && mNextCellIndices.size < vacantSize) {
-            n1 = mRandom.nextInt(vacantSize)
-            point = vacantCellList[n1]
-            if (!mNextCellIndices.containsKey(point) && !point.equals(exclusiveCell)) {
-                nn = mRandom.nextInt(mNumOfColorsUsed)
-                mNextCellIndices[vacantCellList[n1]] = Constants.BallColor[nn]
-                k++
+            point = vacantCellList[mRandomCell.nextInt(vacantSize)]
+            if (isMoreThanThree) {
+                // if has more than 3 balls with same color
+                // make the game a little more difficult
+                // increase the possibility of next indices around the neighbor
+                // of (targetI, targetJ)
+                val mLoop = 5
+                var count = 0
+                while (count < mLoop) {
+                    if (Math.abs(point.x-lastMovedCell.x) >= 2 || Math.abs(point.y-lastMovedCell.y) >= 2) {
+                        // not in the closer neighbor, generate again
+                        point = vacantCellList[mRandomCell.nextInt(vacantSize)]
+                        count++
+                    } else {
+                        break
+                    }
+                }
             }
+            ballColor = Constants.BallColor[mRandomBall.nextInt(mNumOfColorsUsed)]
+            // cannot be the last ball moved in order to make the game
+            // a little more difficult
+            if (mNextCellIndices.containsKey(point) || point.equals(exclusiveCell) || ballColor == lastBall) continue
+            mNextCellIndices[point] = ballColor
+            k++
         }
-        val numOfTotalBalls = rowCounts * colCounts - vacantSize
-        Log.d(TAG, "generateNextCellIndices.k = $k, numOfTotalBalls = $numOfTotalBalls")
+        isMoreThanThree = false
+
         return vacantSize
     }
 
@@ -241,7 +265,7 @@ class GridData(
 
         var shortestPathLength = 0 // the length of the shortest path
         var found = false
-        while (!found && (cellStack.size != 0)) {
+        while (!found && (cellStack.isNotEmpty())) {
             shortestPathLength++
             val tempStack = Stack<Cell>()
             do {
@@ -304,6 +328,15 @@ class GridData(
 
     fun checkMoreThanFive(x: Int, y: Int): Boolean {
         Log.d(TAG, "checkMoreThanFive.x = $x, y = $y")
+        return checkMoreThanNumber(x, y, Constants.BALL_NUM_COMPLETED)
+    }
+
+    fun checkMoreThanThree(x: Int, y: Int): Boolean {
+        Log.d(TAG, "checkMoreThanThere.x = $x, y = $y")
+        return checkMoreThanNumber(x, y, Constants.BALL_NUM_COMPLETED-2)
+    }
+
+    private fun checkMoreThanNumber(x: Int, y: Int, checkNum: Int): Boolean {
         mLightLine.clear()
         mLightLine.add(Point(x, y))
         var i: Int
@@ -333,7 +366,7 @@ class GridData(
             i--
         }
 
-        if (num_b >= ballNumCompleted) {
+        if (num_b >= (checkNum - 1)) {
             // end
             for (temp in tempList) {
                 if (!mLightLine.contains(temp)) {
@@ -355,7 +388,7 @@ class GridData(
             i++
         }
 
-        if (num_b >= ballNumCompleted) {
+        if (num_b >= (checkNum - 1)) {
             // end
             for (temp in tempList) {
                 if (!mLightLine.contains(temp)) {
@@ -388,7 +421,7 @@ class GridData(
             j++
         }
 
-        if (num_b >= ballNumCompleted) {
+        if (num_b >= (checkNum - 1)) {
             // end
             for (temp in tempList) {
                 if (!mLightLine.contains(temp)) {
@@ -413,7 +446,7 @@ class GridData(
             j--
         }
 
-        if (num_b >= ballNumCompleted) {
+        if (num_b >= (checkNum - 1)) {
             // end
             for (temp in tempList) {
                 if (!mLightLine.contains(temp)) {
@@ -440,7 +473,7 @@ class GridData(
             j++
         }
 
-        if (num_b >= ballNumCompleted) {
+        if (num_b >= (checkNum - 1)) {
             // end
             for (temp in tempList) {
                 if (!mLightLine.contains(temp)) {
@@ -462,7 +495,7 @@ class GridData(
             j--
         }
 
-        if (num_b >= ballNumCompleted) {
+        if (num_b >= (checkNum - 1)) {
             // end
             for (temp in tempList) {
                 if (!mLightLine.contains(temp)) {
@@ -495,7 +528,7 @@ class GridData(
             j++
         }
 
-        if (num_b >= ballNumCompleted) {
+        if (num_b >= (checkNum - 1)) {
             // end
             for (temp in tempList) {
                 if (!mLightLine.contains(temp)) {
@@ -520,7 +553,7 @@ class GridData(
             j--
         }
 
-        if (num_b >= ballNumCompleted) {
+        if (num_b >= (checkNum - 1)) {
             // end
             for (temp in tempList) {
                 if (!mLightLine.contains(temp)) {

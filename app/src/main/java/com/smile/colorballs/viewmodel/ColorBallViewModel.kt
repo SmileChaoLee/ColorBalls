@@ -909,17 +909,6 @@ class ColorBallViewModel: ViewModel() {
             Log.w(TAG, "drawBallAlongPath.sizeOfPathPoint == 0")
             return
         }
-        for (i in 0 until Constants.ROW_COUNTS) {
-            for (j in 0 until Constants.ROW_COUNTS) {
-                Log.d(
-                    TAG, "drawBallAlongPath.getCellValue($i, $j) = " +
-                        "${mGridData.getCellValue(i, j)}")
-            }
-        }
-        for (item in mGridData.getPathPoint()) {
-            Log.d(TAG, "drawBallAlongPath.getPathPoint.x = ${item.x}")
-            Log.d(TAG, "drawBallAlongPath.getPathPoint.y= ${item.y}")
-        }
         val beginI = mGridData.getPathPoint()[sizeOfPath - 1].x
         val beginJ = mGridData.getPathPoint()[sizeOfPath - 1].y
         Log.d(TAG, "drawBallAlongPath.beginI = $beginI, beginJ = $beginJ")
@@ -928,6 +917,7 @@ class ColorBallViewModel: ViewModel() {
         Log.d(TAG, "drawBallAlongPath.targetI = $targetI, targetJ = $targetJ")
         val color = mGridData.getCellValue(beginI, beginJ)
         Log.d(TAG, "drawBallAlongPath.color = $color")
+        mGridData.lastBall = color  // last ball clicked
 
         val tempList = ArrayList(mGridData.getPathPoint())
         val runnablePath: Runnable = object : Runnable {
@@ -967,6 +957,8 @@ class ColorBallViewModel: ViewModel() {
                         showingScoreHandler.post(showScore)
                     } else {
                         mGridData.regenerateNextCellIndices(Point(targetI, targetJ))
+                        mGridData.isMoreThanThree = mGridData.checkMoreThanThree(targetI, targetJ)
+                        mGridData.lastMovedCell = Point(targetI, targetJ)
                         Log.d(TAG, "drawBallAlongPath.run().displayGridDataNextCells")
                         displayGridDataNextCells() // has a problem
                         Log.d(TAG, "drawBallAlongPath.run() finished.")
