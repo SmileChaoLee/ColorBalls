@@ -946,7 +946,6 @@ class ColorBallViewModel: ViewModel() {
                     clearCell(beginI, beginJ) // blank the original cell. Added on 2020-09-16
                     mGridData.setCellValue(targetI, targetJ, color)
                     drawBall(targetI, targetJ, color)
-                    mGridData.regenerateNextCellIndices(Point(targetI, targetJ))
                     //  check if there are more than five balls
                     //  with same color connected together
                     if (mGridData.checkMoreThanFive(targetI, targetJ)) {
@@ -967,6 +966,7 @@ class ColorBallViewModel: ViewModel() {
                         Log.d(TAG, "drawBallAlongPath.showingScoreHandler.post")
                         showingScoreHandler.post(showScore)
                     } else {
+                        mGridData.regenerateNextCellIndices(Point(targetI, targetJ))
                         Log.d(TAG, "drawBallAlongPath.run().displayGridDataNextCells")
                         displayGridDataNextCells() // has a problem
                         Log.d(TAG, "drawBallAlongPath.run() finished.")

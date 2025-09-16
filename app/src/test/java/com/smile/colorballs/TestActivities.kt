@@ -1,32 +1,11 @@
 package com.smile.colorballs
 
 import android.content.Context
-import android.content.Intent
-import android.widget.Button
-import android.widget.ListView
-import android.widget.TextView
-import android.widget.ToggleButton
-import androidx.lifecycle.Lifecycle.State
-import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
-import com.smile.colorballs.constants.Constants
-import com.smile.colorballs.views.ColorBallActivity
-import com.smile.colorballs.views.SettingActivity
-import com.smile.colorballs.views.Top10Activity
 import org.junit.After
-import org.junit.Assert
 import org.junit.Before
-import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.android.controller.ActivityController
 
 @RunWith(RobolectricTestRunner::class)
 class TestActivities {

@@ -104,10 +104,13 @@ class ColorBallActivity : MyView() {
             ActivityResultContracts.StartActivityForResult()) {
             result: ActivityResult ->
             Log.d(TAG, "top10Launcher.result received")
+            /*
             if (result.resultCode == RESULT_OK) {
                 Log.d(TAG, "top10Launcher.Showing interstitial ads")
                 showInterstitialAd()
             }
+            */
+            showInterstitialAd()
         }
 
         settingLauncher = registerForActivityResult(
@@ -125,8 +128,8 @@ class ColorBallActivity : MyView() {
                         true),true)
                 }
                 Log.d(TAG, "settingLauncher.Showing interstitial ads")
-                // showInterstitialAd()
             }
+            showInterstitialAd()
         }
 
         setContent {
@@ -508,7 +511,7 @@ class ColorBallActivity : MyView() {
     private fun onClickSettingButton() {
         Intent(
             this@ColorBallActivity,
-            SettingActivity::class.java
+            CbSettingActivity::class.java
         ).let {
             Bundle().apply {
                 putBoolean(Constants.HAS_SOUND, viewModel.hasSound())
@@ -817,7 +820,7 @@ class ColorBallActivity : MyView() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top) {
             ShowAdmobNormalBanner(modifier = Modifier.weight(1.0f))
-            ShowAdmobAdaptiveBanner(modifier = Modifier.weight(1.0f), 0)
+            // ShowAdmobAdaptiveBanner(modifier = Modifier.weight(1.0f), 0)
             ShowFacebookBanner(modifier = Modifier.weight(1.0f),
                 ColorBallsApp.facebookBannerID)
             // ShowFacebookBanner(modifier = Modifier.weight(1.0f),

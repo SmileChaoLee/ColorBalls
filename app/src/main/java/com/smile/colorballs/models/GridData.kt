@@ -28,7 +28,7 @@ class GridData(
 
     fun randCells(): Int {
         mNextCellIndices.clear()
-        return generateNextCellIndices(0)
+        return generateNextCellIndices(0, null)
     }
 
     fun initialize() {
@@ -162,7 +162,7 @@ class GridData(
         return mPathPoint
     }
 
-    private fun generateNextCellIndices(cColor: Int): Int {
+    private fun generateNextCellIndices(cColor: Int, exclusiveCell: Point?): Int {
         Log.d(TAG, "generateNextCellIndices.cColor = $cColor")
         // find the all vacant cell that are not occupied by color balls
         val vacantCellList = java.util.ArrayList<Point>()
@@ -184,10 +184,11 @@ class GridData(
         var n1: Int
         var nn: Int
         var point: Point
-        while (k < min(Constants.BALL_NUM_ONE_TIME.toDouble(), maxLoop.toDouble())) {
+        val loopNum = min(Constants.BALL_NUM_ONE_TIME.toDouble(), maxLoop.toDouble())
+        while (k < loopNum && mNextCellIndices.size < vacantSize) {
             n1 = mRandom.nextInt(vacantSize)
             point = vacantCellList[n1]
-            if (!mNextCellIndices.containsKey(point)) {
+            if (!mNextCellIndices.containsKey(point) && !point.equals(exclusiveCell)) {
                 nn = mRandom.nextInt(mNumOfColorsUsed)
                 mNextCellIndices[vacantCellList[n1]] = Constants.BallColor[nn]
                 k++
@@ -205,7 +206,7 @@ class GridData(
             // generate only one next cell index
             mNextCellIndices.remove(point)?.let {
                 Log.d(TAG, "regenerateNextCellIndices.cellColor = $it")
-                generateNextCellIndices(it)
+                generateNextCellIndices(it, point)
             }
         }
     }

@@ -14,7 +14,7 @@ import com.smile.colorballs.models.Settings
 import com.smile.colorballs.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs.viewmodel.SettingViewModel
 
-class SettingActivity : ComponentActivity() {
+class CbSettingActivity : ComponentActivity() {
 
     private val settingViewModel : SettingViewModel by viewModels()
 
@@ -68,7 +68,7 @@ class SettingActivity : ComponentActivity() {
             Log.d(TAG, "onCreate.setContent")
             ColorBallsTheme {
                 settingViewModel.settings.value?.let {
-                    Composables.SettingCompose(this@SettingActivity,
+                    Composables.SettingCompose(this@CbSettingActivity,
                         buttonClick, textClick,
                         "${getString(R.string.settingStr)} - Activity",
                         backgroundColor = Color(0xbb0000ff), it
@@ -132,6 +132,6 @@ class SettingActivity : ComponentActivity() {
     }
 
     companion object {
-        private const val TAG = "SettingActivity"
+        private const val TAG = "CbSettingActivity"
     }
 }
