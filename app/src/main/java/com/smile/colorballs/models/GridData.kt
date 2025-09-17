@@ -28,10 +28,6 @@ class GridData(
     private val mPathPoint : ArrayList<Point> = ArrayList()) : Parcelable {
         @IgnoredOnParcel
         var lastBall = 0
-        @IgnoredOnParcel
-        var isMoreThanThree = false
-        @IgnoredOnParcel
-        var lastMovedCell = Point(0, 0)
 
     fun randCells(): Int {
         mNextCellIndices.clear()
@@ -183,7 +179,6 @@ class GridData(
         val vacantSize = vacantCellList.size
         Log.d(TAG, "generateNextCellIndices.vacantSize = $vacantSize")
         if (vacantSize == 0) {
-            isMoreThanThree = false
             return 0 // no vacant so game over
         }
 
@@ -194,23 +189,6 @@ class GridData(
         val loopNum = min(Constants.BALL_NUM_ONE_TIME.toDouble(), maxLoop.toDouble())
         while (k < loopNum && mNextCellIndices.size < vacantSize) {
             point = vacantCellList[mRandomCell.nextInt(vacantSize)]
-            if (isMoreThanThree) {
-                // if has more than 3 balls with same color
-                // make the game a little more difficult
-                // increase the possibility of next indices around the neighbor
-                // of (targetI, targetJ)
-                val mLoop = 5
-                var count = 0
-                while (count < mLoop) {
-                    if (Math.abs(point.x-lastMovedCell.x) >= 2 || Math.abs(point.y-lastMovedCell.y) >= 2) {
-                        // not in the closer neighbor, generate again
-                        point = vacantCellList[mRandomCell.nextInt(vacantSize)]
-                        count++
-                    } else {
-                        break
-                    }
-                }
-            }
             ballColor = Constants.BallColor[mRandomBall.nextInt(mNumOfColorsUsed)]
             // cannot be the last ball moved in order to make the game
             // a little more difficult
@@ -218,7 +196,6 @@ class GridData(
             mNextCellIndices[point] = ballColor
             k++
         }
-        isMoreThanThree = false
 
         return vacantSize
     }

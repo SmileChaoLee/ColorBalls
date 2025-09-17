@@ -957,8 +957,6 @@ class ColorBallViewModel: ViewModel() {
                         showingScoreHandler.post(showScore)
                     } else {
                         mGridData.regenerateNextCellIndices(Point(targetI, targetJ))
-                        mGridData.isMoreThanThree = mGridData.checkMoreThanThree(targetI, targetJ)
-                        mGridData.lastMovedCell = Point(targetI, targetJ)
                         Log.d(TAG, "drawBallAlongPath.run().displayGridDataNextCells")
                         displayGridDataNextCells() // has a problem
                         Log.d(TAG, "drawBallAlongPath.run() finished.")
