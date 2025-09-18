@@ -26,8 +26,6 @@ class GridData(
     private var mUndoNextCellIndices : HashMap<Point, Int> = HashMap(),
     private val mLightLine : HashSet<Point> = HashSet(),
     private val mPathPoint : ArrayList<Point> = ArrayList()) : Parcelable {
-        @IgnoredOnParcel
-        var lastBall = 0
 
     fun randCells(): Int {
         mNextCellIndices.clear()
@@ -190,9 +188,7 @@ class GridData(
         while (k < loopNum && mNextCellIndices.size < vacantSize) {
             point = vacantCellList[mRandomCell.nextInt(vacantSize)]
             ballColor = Constants.BallColor[mRandomBall.nextInt(mNumOfColorsUsed)]
-            // cannot be the last ball moved in order to make the game
-            // a little more difficult
-            if (mNextCellIndices.containsKey(point) || point.equals(exclusiveCell) || ballColor == lastBall) continue
+            if (mNextCellIndices.containsKey(point) || point.equals(exclusiveCell)) continue
             mNextCellIndices[point] = ballColor
             k++
         }

@@ -917,7 +917,6 @@ class ColorBallViewModel: ViewModel() {
         Log.d(TAG, "drawBallAlongPath.targetI = $targetI, targetJ = $targetJ")
         val color = mGridData.getCellValue(beginI, beginJ)
         Log.d(TAG, "drawBallAlongPath.color = $color")
-        mGridData.lastBall = color  // last ball clicked
 
         val tempList = ArrayList(mGridData.getPathPoint())
         val runnablePath: Runnable = object : Runnable {
