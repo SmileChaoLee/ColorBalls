@@ -22,13 +22,21 @@
             android:required="false" />
 
         <activity
-            android:name=".views.ColorBallActivity"
+            android:name=".views.MainCBallActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".views.ColorBallActivity"
+            android:exported="false">
+        </activity>
+        <activity
+            android:name=".views.BarrierCBallActivity"
+            android:exported="false">
         </activity>
         <activity
             android:name=".views.CbSettingActivity"

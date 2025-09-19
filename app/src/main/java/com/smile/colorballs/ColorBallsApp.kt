@@ -69,6 +69,8 @@ class ColorBallsApp : MultiDexApplication() {
     companion object {
         private const val TAG = "ColorBallsApp"
         @JvmField
+        var textFontSize: Float = 0f
+        @JvmField
         var isProcessingJob = false
         @JvmField
         var isShowingLoadingMessage = false

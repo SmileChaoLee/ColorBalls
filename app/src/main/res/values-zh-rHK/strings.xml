@@ -57,4 +57,6 @@
     <string name="companyDescriptionStr">客製化軟體, 智慧型手機程式, 及網頁應用程式等開發</string>
     <string name="companyNameStr">微笑資訊有限公司</string>
     <string name="companyContactEmailStr">leechao1959@gmail.com</string>
+    <string name="noBarrierColorBall">無障礙分佈</string>
+    <string name="barrierColorBall">有障礙分佈</string>
 </resources>

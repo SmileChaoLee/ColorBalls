@@ -5,6 +5,11 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class GameProp(
+    /**
+     * whichGame = 0 : Empty distribution
+     * whichGame = 1 : Random distribution
+     */
+    var whichGame: Int = 0,
     var isShowingLoadingMessage : Boolean = false,
     var isShowingScoreMessage : Boolean = false,
     var isShowNextBallsAfterBlinking : Boolean = false,

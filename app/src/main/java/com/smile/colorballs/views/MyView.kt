@@ -30,7 +30,6 @@ import com.smile.colorballs.presenters.Presenter
 import com.smile.colorballs.viewmodel.ColorBallViewModel
 import com.smile.smilelibraries.AdMobBanner
 import com.smile.smilelibraries.FacebookBanner
-import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
 import com.smile.smilelibraries.utilities.ScreenUtil
 import com.smile.smilelibraries.utilities.SoundPoolUtil
@@ -62,11 +61,7 @@ abstract class MyView: ComponentActivity(), PresentView {
         Log.d(TAG, "$TAG.onCreate")
 
         Log.d(TAG, "onCreate.textFontSize")
-        textFontSize = ScreenUtil.suitableFontSize(
-            this, ScreenUtil.getDefaultTextSizeFromTheme(this,
-                ScreenUtil.FontSize_Pixel_Type, null),
-            ScreenUtil.FontSize_Pixel_Type,
-            0.0f)
+        textFontSize = ColorBallsApp.textFontSize
         Composables.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
 
         Log.d(TAG, "onCreate.interstitialAd")
@@ -156,6 +151,15 @@ abstract class MyView: ComponentActivity(), PresentView {
             colorNextBallMap[Constants.COLOR_CYAN] =
                 bm.scale(nextBallWidth, nextBallHeight)
             colorOvalBallMap[Constants.COLOR_CYAN] =
+                bm.scale(ovalBallWidth, ovalBallHeight)
+        }
+
+        BitmapFactory.decodeResource(resources, R.drawable.barrier)?.let { bm ->
+            colorBallMap[Constants.COLOR_BARRIER] =
+                bm.scale(ballWidth, ballHeight)
+            colorNextBallMap[Constants.COLOR_BARRIER] =
+                bm.scale(nextBallWidth, nextBallHeight)
+            colorOvalBallMap[Constants.COLOR_BARRIER] =
                 bm.scale(ovalBallWidth, ovalBallHeight)
         }
     }

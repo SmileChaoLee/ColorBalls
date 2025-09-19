@@ -57,4 +57,6 @@
     <string name="companyDescriptionStr">客制化软体, 智慧型手机程序, 及网页应用程序等开发</string>
     <string name="companyNameStr">微笑资讯有限公司</string>
     <string name="companyContactEmailStr">leechao1959@gmail.com</string>
+    <string name="noBarrierColorBall">無障礙分佈</string>
+    <string name="barrierColorBall">有障礙分佈</string>
 </resources>

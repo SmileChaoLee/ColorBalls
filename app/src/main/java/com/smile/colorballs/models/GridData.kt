@@ -3,6 +3,7 @@ package com.smile.colorballs.models
 import android.graphics.Point
 import android.os.Parcelable
 import android.util.Log
+import androidx.compose.ui.unit.Constraints
 import com.smile.colorballs.constants.Constants
 import kotlinx.parcelize.Parcelize
 import java.util.Random
@@ -26,12 +27,41 @@ class GridData(
     private val mLightLine : HashSet<Point> = HashSet(),
     private val mPathPoint : ArrayList<Point> = ArrayList()) : Parcelable {
 
-    fun randCells(): Int {
+    fun randThreeCells(): Int {
+        Log.d(TAG, "randThreeCells")
         mNextCellIndices.clear()
         return generateNextCellIndices(0, null)
     }
 
-    fun initialize() {
+    fun randomBarriersAndCells() {
+        Log.d(TAG, "randomBarriersAndCells")
+        // randomly generate barriers in 9x9 grid
+        val set: HashSet<Point> = HashSet()
+        var nn = 0
+        var point: Point
+        var loopNum = 0
+        while (loopNum < Constants.NUM_BARRIERS) {
+            nn = mRandomCell.nextInt(rowCounts * colCounts)
+            // nn = row * rowCounts + col
+            val row = nn / rowCounts
+            val col = nn % rowCounts
+            point = Point(row, col)
+            if (!set.contains(point)) {
+                set.add(Point(row, col))
+                mCellValues[row][col] = Constants.COLOR_BARRIER
+                loopNum++
+            }
+        }
+        randThreeCells()
+    }
+
+    fun randomGrid() {
+        Log.d(TAG, "randomGrid")
+        // randomly generate some color balls and distribute in the grid
+        randThreeCells()
+    }
+
+    fun initialize(whichGame: Int) {
         mNumOfColorsUsed = Constants.NUM_EASY
         for (i in 0 until rowCounts) {
             for (j in 0 until rowCounts) {
@@ -47,8 +77,17 @@ class GridData(
         mUndoNextCellIndices.clear()
         mLightLine.clear()
         mPathPoint.clear()
-
-        randCells()
+        when(whichGame) {
+            0-> {   // no barriers
+                randThreeCells()
+            }
+            1-> {   // has barriers
+                randomBarriersAndCells()
+            }
+            else -> {
+                randomGrid()
+            }
+        }
     }
 
     fun copy(gData: GridData): GridData {

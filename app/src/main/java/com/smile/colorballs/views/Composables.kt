@@ -77,6 +77,13 @@ object Composables {
             }
         }
 
+    var toastFontSize = (mFontSize.value * 0.7f).sp
+        set(value) {
+            if (field != value) {
+                field = value
+            }
+        }
+
     private var menuItemFontSize = mFontSize
 
     @Composable

@@ -71,15 +71,23 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class ColorBallActivity : MyView() {
-    companion object {
-        private const val TAG = "ColorBallActivity"
+open class ColorBallActivity : MyView() {
+    private var mTAG : String = "ColorBallActivity"
+    fun setTag(tag: String) {
+        Log.d(mTAG, "setTag.tag = $tag")
+        mTAG = tag
     }
 
     private val mOrientation = mutableIntStateOf(Configuration.ORIENTATION_PORTRAIT)
     private var screenX = 0f
     private var screenY = 0f
     private val gameGridWeight = 7.0f
+
+    /**
+     * whichGame = 0 : Empty distribution
+     * whichGame = 1 : Random distribution
+     */
+    var whichGame = 0
     // the following are for Top 10 Players
     private lateinit var top10Launcher: ActivityResultLauncher<Intent>
     // the following are for Settings
@@ -87,7 +95,7 @@ class ColorBallActivity : MyView() {
     //
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(TAG, "$TAG.onCreate")
+        Log.d(mTAG, "$mTAG.onCreate")
 
         requestedOrientation = if (ScreenUtil.isTablet(this@ColorBallActivity)) {
             // Table then change orientation to Landscape
@@ -97,16 +105,16 @@ class ColorBallActivity : MyView() {
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
 
-        Log.d(TAG, "onCreate.getScreenSize()")
+        Log.d(mTAG, "onCreate.getScreenSize()")
         getScreenSize()
 
         top10Launcher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
             result: ActivityResult ->
-            Log.d(TAG, "top10Launcher.result received")
+            Log.d(mTAG, "top10Launcher.result received")
             /*
             if (result.resultCode == RESULT_OK) {
-                Log.d(TAG, "top10Launcher.Showing interstitial ads")
+                Log.d(mTAG, "top10Launcher.Showing interstitial ads")
                 showInterstitialAd()
             }
             */
@@ -116,7 +124,7 @@ class ColorBallActivity : MyView() {
         settingLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            Log.d(TAG, "settingLauncher.result received")
+            Log.d(mTAG, "settingLauncher.result received")
             if (result.resultCode == RESULT_OK) {
                 val data = result.data ?: return@registerForActivityResult
                 data.extras?.let { extras ->
@@ -127,13 +135,13 @@ class ColorBallActivity : MyView() {
                     viewModel.setHasNextBall(extras.getBoolean(Constants.HAS_NEXT_BALL,
                         true),true)
                 }
-                Log.d(TAG, "settingLauncher.Showing interstitial ads")
+                Log.d(mTAG, "settingLauncher.Showing interstitial ads")
             }
             showInterstitialAd()
         }
 
         setContent {
-            Log.d(TAG, "onCreate.setContent")
+            Log.d(mTAG, "onCreate.setContent")
             ColorBallsTheme {
                 mOrientation.intValue = resources.configuration.orientation
                 val backgroundColor = Yellow3
@@ -161,14 +169,15 @@ class ColorBallActivity : MyView() {
                 }
             }
             LaunchedEffect(Unit) {
-                Log.d(TAG, "onCreate.setContent.LaunchedEffect")
+                Log.d(mTAG, "onCreate.setContent.LaunchedEffect")
+                viewModel.setWhichGame(whichGame)
                 viewModel.initGame(savedInstanceState)
             }
         }
 
         onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                Log.d(TAG, "onBackPressedDispatcher.handleOnBackPressed")
+                Log.d(mTAG, "onBackPressedDispatcher.handleOnBackPressed")
                 onBackWasPressed()
             }
         })
@@ -176,34 +185,34 @@ class ColorBallActivity : MyView() {
 
     override fun onStart() {
         super.onStart()
-        Log.d(TAG, "onStart")
+        Log.d(mTAG, "onStart")
     }
 
     override fun onResume() {
         super.onResume()
-        Log.d(TAG, "onResume")
+        Log.d(mTAG, "onResume")
     }
 
     override fun onPause() {
         super.onPause()
-        Log.d(TAG, "onPause")
+        Log.d(mTAG, "onPause")
     }
 
     override fun onStop() {
         super.onStop()
-        Log.d(TAG, "onStop")
+        Log.d(mTAG, "onStop")
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        Log.d(TAG, "onConfigurationChanged.newConfig.orientation = " +
+        Log.d(mTAG, "onConfigurationChanged.newConfig.orientation = " +
                 "${newConfig.orientation}")
         mOrientation.intValue = newConfig.orientation
         getScreenSize()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        Log.d(TAG, "onSaveInstanceState")
+        Log.d(mTAG, "onSaveInstanceState")
         if (isChangingConfigurations) {
             // configuration is changing then remove top10Fragment
             ColorBallsApp.isShowingLoadingMessage = false
@@ -216,7 +225,7 @@ class ColorBallActivity : MyView() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d(TAG, "onDestroy")
+        Log.d(mTAG, "onDestroy")
     }
 
     private fun onBackWasPressed() {
@@ -228,7 +237,7 @@ class ColorBallActivity : MyView() {
         } else {
             exitAppTimer.start()
             val toastFontSize = textFontSize * 0.7f
-            Log.d(TAG, "toastFontSize = $toastFontSize")
+            Log.d(mTAG, "toastFontSize = $toastFontSize")
             ScreenUtil.showToast(
                 this@ColorBallActivity,
                 getString(R.string.backKeyToExitApp),
@@ -241,8 +250,8 @@ class ColorBallActivity : MyView() {
 
     private fun getScreenSize() {
         val screen = ScreenUtil.getScreenSize(this)
-        Log.d(TAG, "getScreenSize.screen.x = ${screen.x}")
-        Log.d(TAG, "getScreenSize.screen.y = ${screen.y}")
+        Log.d(mTAG, "getScreenSize.screen.x = ${screen.x}")
+        Log.d(mTAG, "getScreenSize.screen.y = ${screen.y}")
         screenX = screen.x.toFloat()
         screenY = screen.y.toFloat()
     }
@@ -258,7 +267,7 @@ class ColorBallActivity : MyView() {
     /*
     @Composable
     fun Top10PlayerUI() {
-        Log.d(TAG, "Top10PlayerUI.mOrientation.intValue " +
+        Log.d(mTAG, "Top10PlayerUI.mOrientation.intValue " +
                 "= ${mOrientation.intValue}")
         val title = viewModel.getTop10TitleName()
         if (title.isNotEmpty()) {
@@ -286,7 +295,7 @@ class ColorBallActivity : MyView() {
 
     @Composable
     fun SettingUI() {
-        Log.d(TAG, "SettingUI.mOrientation.intValue " +
+        Log.d(mTAG, "SettingUI.mOrientation.intValue " +
                 "= ${mOrientation.intValue}")
         if (viewModel.getSettingTitle().isNotEmpty()) {
             var isDialogOpen by remember { mutableStateOf(true) }
@@ -294,15 +303,15 @@ class ColorBallActivity : MyView() {
                 viewModel.isEasyLevel(), viewModel.hasNextBall())
             val textClick = object : Composables.SettingClickListener {
                 override fun hasSoundClick(hasSound: Boolean) {
-                    Log.d(TAG, "textClick.hasSoundClick.hasSound = $hasSound")
+                    Log.d(mTAG, "textClick.hasSoundClick.hasSound = $hasSound")
                     setting.hasSound = hasSound
                 }
                 override fun easyLevelClick(easyLevel: Boolean) {
-                    Log.d(TAG, "textClick.easyLevelClick.easyLevel = $easyLevel")
+                    Log.d(mTAG, "textClick.easyLevelClick.easyLevel = $easyLevel")
                     setting.easyLevel = easyLevel
                 }
                 override fun hasNextClick(hasNext: Boolean) {
-                    Log.d(TAG, "textClick.hasNextClick.hasNext = $hasNext")
+                    Log.d(mTAG, "textClick.hasNextClick.hasNext = $hasNext")
                     setting.hasNextBall = hasNext
                 }
             }
@@ -337,96 +346,31 @@ class ColorBallActivity : MyView() {
     }
     */
 
-    /*
     @Composable
     fun GameView(modifier: Modifier) {
-        Log.d(TAG, "GameView.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
-        Log.d(TAG, "GameView.screenX = $screenX, screenY = $screenY")
-        val maxHeight = screenY
-        Log.d(TAG, "GameView.maxHeight = $maxHeight")
-        var maxWidth: Float
-        var barHeight: Float
-        val adHeight: Float
-        val gHeight: Float
-        val orientation = mOrientation.intValue
-        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            Log.d(TAG, "GameView.ORIENTATION_PORTRAIT")
-            maxWidth = screenX
-            barHeight = (maxHeight * 1.2f) / 10f
-            adHeight = maxHeight * (1.0f - gameGridWeight)
-            gHeight = maxHeight - barHeight - adHeight
-        } else {
-            Log.d(TAG, "GameView.ORIENTATION_LANDSCAPE")
-            maxWidth = screenX / 2f
-            barHeight = (maxHeight * 1.2f) / 10f
-            adHeight = maxWidth
-            gHeight = maxHeight - barHeight
-        }
-        Log.d(TAG, "GameView.maxWidth = $maxWidth")
-        Log.d(TAG, "GameView.barHeight = $barHeight")
-        Log.d(TAG, "GameView.adHeight = $adHeight")
-        Log.d(TAG, "GameView.gHeight = $gHeight")
-
-        val gameSize  = if (gHeight > maxWidth) maxWidth else gHeight
-        Log.d(TAG, "GameView.gameSize = $gameSize")
-        val imageSizePx = (gameSize / (Constants.ROW_COUNTS.toFloat()))
-        Log.d(TAG, "GameView.imageSizePx = $imageSizePx")
-        var realGameSize = (imageSizePx * Constants.ROW_COUNTS.toFloat())
-        Log.d(TAG, "GameView.realGameSize = $realGameSize")
-        var startPadding = ((maxWidth - realGameSize) / 2f).coerceAtLeast(0f)
-        Log.d(TAG, "GameView.startPadding = $startPadding")
-
-        mImageSizeDp = ScreenUtil.pixelToDp(imageSizePx)
-        Log.d(TAG, "GameView.mImageSizeDp = $mImageSizeDp")
-        // set size of color balls
-        bitmapDrawableResources()
-
-        maxWidth = ScreenUtil.pixelToDp(maxWidth)
-        barHeight = ScreenUtil.pixelToDp(barHeight)
-        realGameSize = ScreenUtil.pixelToDp(realGameSize)
-        startPadding = ScreenUtil.pixelToDp(startPadding).toInt().toFloat()
-        Log.d(TAG, "GameView.startPadding.pixelToDp = $startPadding")
-        // adHeight = ScreenUtil.pixelToDp(adHeight)
-
-        val topPadding = 0f
-        // val backgroundColor = Color(getColor(R.color.yellow3))
-        Column(modifier = modifier.fillMaxHeight()
-            // .background(color = backgroundColor)
-            .width(width = maxWidth.dp)) {
-            ToolBarMenu(modifier = Modifier.height(height = barHeight.dp)
-                .padding(top = topPadding.dp, start = 0.dp))
-            GameViewGrid(modifier = Modifier.height(height = realGameSize.dp)
-                    .padding(top = 0.dp, start = startPadding.dp))
-        }
-    }
-    */
-
-    @Composable
-    fun GameView(modifier: Modifier) {
-        Log.d(TAG, "GameView.mOrientation.intValue = ${mOrientation.intValue}")
-        Log.d(TAG, "GameView.screenX = $screenX, screenY = $screenY")
+        Log.d(mTAG, "GameView.mOrientation.intValue = ${mOrientation.intValue}")
+        Log.d(mTAG, "GameView.screenX = $screenX, screenY = $screenY")
         var maxWidth = screenX
         // val barWeight = 10.0f - gameGridWeight
         val barWeight = 1.0f
         val gameWeight = gameGridWeight
         if (mOrientation.intValue == Configuration.ORIENTATION_LANDSCAPE) {
-            Log.d(TAG, "GameView.ORIENTATION_LANDSCAPE")
+            Log.d(mTAG, "GameView.ORIENTATION_LANDSCAPE")
             maxWidth = screenX/2.0f
             // barWeight = 1.0f
             // gameWeight = 7.0f
         }
         val gridHeight = ScreenUtil.pixelToDp(screenY) * gameWeight / 10.0f
-        Log.d(TAG, "GameView.gridHeight = $gridHeight")
+        Log.d(mTAG, "GameView.gridHeight = $gridHeight")
         val heightPerBall = gridHeight / Constants.ROW_COUNTS
-        Log.d(TAG, "GameView.heightPerBall = $heightPerBall")
+        Log.d(mTAG, "GameView.heightPerBall = $heightPerBall")
         val widthPerBall = ScreenUtil.pixelToDp(maxWidth) / Constants.COLUMN_COUNTS
-        Log.d(TAG, "GameView.widthPerBall = $widthPerBall")
+        Log.d(mTAG, "GameView.widthPerBall = $widthPerBall")
         // set size of color balls
         mImageSizeDp = if (heightPerBall>widthPerBall) widthPerBall
         else heightPerBall
-        Log.d(TAG, "GameView.mImageSizeDp = $mImageSizeDp")
-        Log.d(TAG, "GameView.mImageSizeDp*Constants.COLUMNS " +
+        Log.d(mTAG, "GameView.mImageSizeDp = $mImageSizeDp")
+        Log.d(mTAG, "GameView.mImageSizeDp*Constants.COLUMNS " +
                 "= ${mImageSizeDp*Constants.COLUMN_COUNTS}")
         val sizePx = ScreenUtil.dpToPixel(mImageSizeDp)
         bitmapDrawableResources(sizePx)
@@ -446,7 +390,7 @@ class ColorBallActivity : MyView() {
 
     @Composable
     fun ToolBarMenu(modifier: Modifier) {
-        Log.d(TAG, "ToolBarMenu.mOrientation.intValue" +
+        Log.d(mTAG, "ToolBarMenu.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         Row(modifier = modifier
             .background(color = Color(getColor(R.color.colorPrimary)))) {
@@ -467,7 +411,7 @@ class ColorBallActivity : MyView() {
 
     @Composable
     fun ShowCurrentScore(modifier: Modifier) {
-        Log.d(TAG, "ShowCurrentScore.mOrientation.intValue" +
+        Log.d(mTAG, "ShowCurrentScore.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         Text(text = viewModel.getCurrentScore().toString(),
             modifier = modifier,
@@ -477,7 +421,7 @@ class ColorBallActivity : MyView() {
 
     @Composable
     fun SHowHighestScore(modifier: Modifier) {
-        Log.d(TAG, "SHowHighestScore.mOrientation.intValue" +
+        Log.d(mTAG, "SHowHighestScore.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         Text(text = viewModel.getHighestScore().toString(),
             modifier = modifier,
@@ -487,7 +431,7 @@ class ColorBallActivity : MyView() {
 
     @Composable
     fun UndoButton(modifier: Modifier) {
-        Log.d(TAG, "UndoButton.mOrientation.intValue" +
+        Log.d(mTAG, "UndoButton.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         val isClicked = remember { mutableStateOf(false) }
             IconButton (onClick = {
@@ -525,7 +469,7 @@ class ColorBallActivity : MyView() {
 
     @Composable
     fun SettingButton(modifier: Modifier) {
-        Log.d(TAG, "SettingButton.mOrientation.intValue" +
+        Log.d(mTAG, "SettingButton.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         val isClicked = remember { mutableStateOf(false) }
         IconButton (onClick = {
@@ -542,7 +486,7 @@ class ColorBallActivity : MyView() {
     }
 
     private fun showTop10Players(isLocal: Boolean) {
-        Log.d(TAG, "showTop10Players.isLocal = $isLocal")
+        Log.d(mTAG, "showTop10Players.isLocal = $isLocal")
         Intent(
             this@ColorBallActivity,
             Top10Activity::class.java
@@ -557,7 +501,7 @@ class ColorBallActivity : MyView() {
 
     @Composable
     fun ShowMenu(modifier: Modifier) {
-        Log.d(TAG, "ShowMenu.mOrientation.intValue" +
+        Log.d(mTAG, "ShowMenu.mOrientation.intValue" +
                  " = ${mOrientation.intValue}")
         val dropdownWidth =
             if (mOrientation.intValue == Configuration.ORIENTATION_PORTRAIT) {
@@ -566,7 +510,7 @@ class ColorBallActivity : MyView() {
                 mImageSizeDp * 8.0f
             }
         var expanded by remember { mutableStateOf(false) }
-        Log.d(TAG, "ShowMenu.expanded = $expanded")
+        Log.d(mTAG, "ShowMenu.expanded = $expanded")
         Column(modifier = modifier) {
             IconButton (onClick = { expanded = !expanded }, modifier = modifier) {
                 Icon(
@@ -648,23 +592,9 @@ class ColorBallActivity : MyView() {
         }
     }
 
-    /*
     @Composable
     fun GameViewGrid(modifier: Modifier = Modifier) {
-        Log.d(TAG, "GameViewGrid.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
-        Column(modifier = modifier) {
-            Box {
-                ShowGameGrid()
-                ShowMessageOnScreen()
-            }
-        }
-    }
-    */
-
-    @Composable
-    fun GameViewGrid(modifier: Modifier = Modifier) {
-        Log.d(TAG, "GameViewGrid.mOrientation.intValue" +
+        Log.d(mTAG, "GameViewGrid.mOrientation.intValue" +
                     " = ${mOrientation.intValue}")
         Column(modifier = modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -678,12 +608,12 @@ class ColorBallActivity : MyView() {
 
     @Composable
     fun ShowGameGrid() {
-        Log.d(TAG, "ShowGameGrid.mOrientation.intValue" +
+        Log.d(mTAG, "ShowGameGrid.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
-        Log.d(TAG, "ShowGameGrid.mImageSizeDp = $mImageSizeDp")
+        Log.d(mTAG, "ShowGameGrid.mImageSizeDp = $mImageSizeDp")
         boxImage?.let {
-            Log.d(TAG, "ShowGameGrid.boxImage.width = ${it.width}")
-            Log.d(TAG, "ShowGameGrid.boxImage.height = ${it.height}")
+            Log.d(mTAG, "ShowGameGrid.boxImage.width = ${it.width}")
+            Log.d(mTAG, "ShowGameGrid.boxImage.height = ${it.height}")
         }
         Column {
             for (i in 0 until Constants.ROW_COUNTS) {
@@ -711,41 +641,9 @@ class ColorBallActivity : MyView() {
         }
     }
 
-    /*
     @Composable
     fun ShowMessageOnScreen() {
-        Log.d(TAG, "ShowMessageOnScreen.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
-        val message = viewModel.getScreenMessage()
-        if (message.isEmpty()) return
-        val gameViewLength = mImageSizeDp * Constants.ROW_COUNTS.toFloat()
-        val width = (gameViewLength/2f).dp
-        val height = (gameViewLength/4f).dp
-        val modifier = Modifier.fillMaxSize()
-            .background(color = Color.Transparent)
-        Column( modifier = modifier,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center) {
-            Box(modifier = Modifier.size(width = width, height = height)){
-                Image(
-                    painter = painterResource(id = R.drawable.dialog_board_image),
-                    contentDescription = "",
-                    contentScale = ContentScale.FillBounds,
-                    modifier = Modifier.size(width = width, height = height)
-                )
-                Text(
-                    modifier = Modifier.align(alignment = Alignment.Center),
-                    text = message,
-                    color = Color.Red, fontSize = textFontSize.sp
-                )
-            }
-        }
-    }
-    */
-
-    @Composable
-    fun ShowMessageOnScreen() {
-        Log.d(TAG, "ShowMessageOnScreen.mOrientation.intValue" +
+        Log.d(mTAG, "ShowMessageOnScreen.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         val message = viewModel.getScreenMessage()
         if (message.isEmpty()) return
@@ -772,15 +670,15 @@ class ColorBallActivity : MyView() {
 
     @Composable
     fun ShowColorBall(i: Int, j: Int) {
-        Log.d(TAG, "ShowColorBall.mOrientation.intValue" +
+        Log.d(mTAG, "ShowColorBall.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         val ballInfo = viewModel.gridDataArray[i][j].value
         val ballColor = ballInfo.ballColor
-        Log.d(TAG, "ShowColorBall.ballColor = $ballColor")
+        Log.d(mTAG, "ShowColorBall.ballColor = $ballColor")
         val isAnimation = ballInfo.isAnimation
-        Log.d(TAG, "ShowColorBall.isAnimation = $isAnimation")
+        Log.d(mTAG, "ShowColorBall.isAnimation = $isAnimation")
         val isReSize = ballInfo.isResize
-        Log.d(TAG, "ShowColorBall.isReSize = $isReSize")
+        Log.d(mTAG, "ShowColorBall.isReSize = $isReSize")
         if (ballColor == 0) return  // no showing ball
         val bitmap: Bitmap? = when(ballInfo.whichBall) {
             WhichBall.BALL-> { colorBallMap.getValue(ballColor) }
@@ -808,7 +706,7 @@ class ColorBallActivity : MyView() {
 
     @Composable
     fun SHowPortraitAds(modifier: Modifier) {
-        Log.d(TAG, "SHowPortraitAds.mOrientation.intValue" +
+        Log.d(mTAG, "SHowPortraitAds.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         /*
         val adWidth = with(LocalDensity.current) {
@@ -830,14 +728,14 @@ class ColorBallActivity : MyView() {
 
     @Composable
     fun ShowNativeAd(modifier: Modifier = Modifier) {
-        Log.d(TAG, "ShowNativeAd.mOrientation.intValue" +
+        Log.d(mTAG, "ShowNativeAd.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         var nativeAd by remember { mutableStateOf<NativeAd?>(null) }
         LaunchedEffect(Unit) {
             object : GoogleNativeAd(this@ColorBallActivity,
                 ColorBallsApp.googleAdMobNativeID) {
                 override fun setNativeAd(ad: NativeAd?) {
-                    Log.d(TAG, "ShowNativeAd.GoogleNativeAd.setNativeAd")
+                    Log.d(mTAG, "ShowNativeAd.GoogleNativeAd.setNativeAd")
                     nativeAd = ad
                 }
             }
@@ -877,7 +775,7 @@ class ColorBallActivity : MyView() {
                     }   // end of head Row
                     // Column for Button
                     ad.callToAction?.let { cta ->
-                        Log.d(TAG, "ShowNativeAd.callToAction.cta = $cta")
+                        Log.d(mTAG, "ShowNativeAd.callToAction.cta = $cta")
                         Column(modifier = Modifier.weight(2.0f).fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
@@ -899,7 +797,7 @@ class ColorBallActivity : MyView() {
 
     @Composable
     fun ShowLandscapeAds(modifier: Modifier) {
-        Log.d(TAG, "ShowLandscapeAds.mOrientation.intValue" +
+        Log.d(mTAG, "ShowLandscapeAds.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         val colHeight = with(LocalDensity.current) {
             screenY.toDp()

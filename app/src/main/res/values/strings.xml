@@ -58,4 +58,6 @@
     <string name="companyDescriptionStr">Design customized software, Apps, Smart phone Apps and Web Apps.</string>
     <string name="companyNameStr">Smile Information Inc.</string>
     <string name="companyContactEmailStr">leechao1959@gmail.com</string>
+    <string name="noBarrierColorBall">No Barriers</string>
+    <string name="barrierColorBall">Has Barriers</string>
 </resources>

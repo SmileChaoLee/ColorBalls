@@ -88,6 +88,10 @@ class ColorBallViewModel: ViewModel() {
         saveScoreTitle.value = title
     }
 
+    fun setWhichGame(whichGame: Int) {
+        mGameProp.whichGame = whichGame
+    }
+
     val gridDataArray = Array(Constants.ROW_COUNTS) {
         Array(Constants.ROW_COUNTS) {
             mutableStateOf(ColorBallInfo())
@@ -116,8 +120,8 @@ class ColorBallViewModel: ViewModel() {
         Log.d(TAG, "cellClickListener.isBallBouncing = " +
                 "${mGameProp.isBallBouncing}")
         if (ColorBallsApp.isProcessingJob) return
-
         val ballColor = mGridData.getCellValue(i, j)
+        if (ballColor == Constants.COLOR_BARRIER) return
         if (!mGameProp.isBallBouncing) {
             if (ballColor != 0) {
                 if ((mGameProp.bouncyBallIndexI == -1) &&
@@ -170,7 +174,7 @@ class ColorBallViewModel: ViewModel() {
     private fun initData() {
         Log.d(TAG, "initData")
         mGameProp.initialize()
-        mGridData.initialize()
+        mGridData.initialize(mGameProp.whichGame)
     }
 
     fun initGame(state: Bundle?) {
@@ -821,7 +825,7 @@ class ColorBallViewModel: ViewModel() {
     }
 
     private fun displayNextColorBalls() {
-        if (mGridData.randCells() == 0) {
+        if (mGridData.randThreeCells() == 0) {
             // no vacant, so game over
             gameOver()
             return
