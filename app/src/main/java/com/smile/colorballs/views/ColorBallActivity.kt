@@ -60,6 +60,7 @@ import com.smile.colorballs.R
 import com.smile.colorballs.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
+import com.smile.colorballs.constants.WhichGame
 import com.smile.smilelibraries.GoogleNativeAd
 import com.smile.colorballs.views.ui.theme.ColorPrimary
 import com.smile.colorballs.views.ui.theme.Yellow3
@@ -87,7 +88,7 @@ open class ColorBallActivity : MyView() {
      * whichGame = 0 : Empty distribution
      * whichGame = 1 : Random distribution
      */
-    var whichGame = 0
+    var whichGame = WhichGame.NO_BARRIER
     // the following are for Top 10 Players
     private lateinit var top10Launcher: ActivityResultLauncher<Intent>
     // the following are for Settings

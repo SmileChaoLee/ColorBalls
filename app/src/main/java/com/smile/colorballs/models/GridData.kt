@@ -3,8 +3,8 @@ package com.smile.colorballs.models
 import android.graphics.Point
 import android.os.Parcelable
 import android.util.Log
-import androidx.compose.ui.unit.Constraints
 import com.smile.colorballs.constants.Constants
+import com.smile.colorballs.constants.WhichGame
 import kotlinx.parcelize.Parcelize
 import java.util.Random
 import java.util.Stack
@@ -12,7 +12,7 @@ import kotlin.math.min
 
 private val rowCounts = Constants.ROW_COUNTS
 private val colCounts = Constants.COLUMN_COUNTS
-private val mRandomCell: Random = Random(System.currentTimeMillis())
+private val mRandomIndex: Random = Random(System.currentTimeMillis())
 private val mRandomBall: Random = Random(System.currentTimeMillis()+1000L)
 
 @Parcelize
@@ -37,14 +37,13 @@ class GridData(
         Log.d(TAG, "randomBarriersAndCells")
         // randomly generate barriers in 9x9 grid
         val set: HashSet<Point> = HashSet()
-        var nn = 0
+        var row: Int
+        var col: Int
         var point: Point
         var loopNum = 0
         while (loopNum < Constants.NUM_BARRIERS) {
-            nn = mRandomCell.nextInt(rowCounts * colCounts)
-            // nn = row * rowCounts + col
-            val row = nn / rowCounts
-            val col = nn % rowCounts
+            row = mRandomIndex.nextInt(rowCounts)
+            col = mRandomIndex.nextInt(colCounts)
             point = Point(row, col)
             if (!set.contains(point)) {
                 set.add(Point(row, col))
@@ -61,7 +60,7 @@ class GridData(
         randThreeCells()
     }
 
-    fun initialize(whichGame: Int) {
+    fun initialize(whichGame: WhichGame) {
         mNumOfColorsUsed = Constants.NUM_EASY
         for (i in 0 until rowCounts) {
             for (j in 0 until rowCounts) {
@@ -78,13 +77,13 @@ class GridData(
         mLightLine.clear()
         mPathPoint.clear()
         when(whichGame) {
-            0-> {   // no barriers
+            WhichGame.NO_BARRIER -> {   // no barriers
                 randThreeCells()
             }
-            1-> {   // has barriers
+            WhichGame.HAS_BARRIER -> {   // has barriers
                 randomBarriersAndCells()
             }
-            else -> {
+            WhichGame.EXIST_BALLS -> {
                 randomGrid()
             }
         }
@@ -204,15 +203,14 @@ class GridData(
     private fun generateNextCellIndices(cColor: Int, exclusiveCell: Point?): Int {
         Log.d(TAG, "generateNextCellIndices.cColor = $cColor")
         // find the all vacant cell that are not occupied by color balls
-        val vacantCellList = java.util.ArrayList<Point>()
+        var vacantSize = 0
         for (i in 0 until rowCounts) {
             for (j in 0 until colCounts) {
                 if (mCellValues[i][j] == 0) {
-                    vacantCellList.add(Point(i, j))
+                    vacantSize++
                 }
             }
         }
-        val vacantSize = vacantCellList.size
         Log.d(TAG, "generateNextCellIndices.vacantSize = $vacantSize")
         if (vacantSize == 0) {
             return 0 // no vacant so game over
@@ -220,15 +218,21 @@ class GridData(
 
         val maxLoop = if (cColor != 0) 1 else vacantSize
         var k = 0
+        var row: Int
+        var col: Int
         var ballColor: Int
         var point: Point
         val loopNum = min(Constants.BALL_NUM_ONE_TIME.toDouble(), maxLoop.toDouble())
         while (k < loopNum && mNextCellIndices.size < vacantSize) {
-            point = vacantCellList[mRandomCell.nextInt(vacantSize)]
-            ballColor = Constants.BallColor[mRandomBall.nextInt(mNumOfColorsUsed)]
-            if (mNextCellIndices.containsKey(point) || point.equals(exclusiveCell)) continue
-            mNextCellIndices[point] = ballColor
-            k++
+            row = mRandomIndex.nextInt(rowCounts)
+            col = mRandomIndex.nextInt(colCounts)
+            if (mCellValues[row][col] == 0) {
+                point = Point(row, col)
+                ballColor = Constants.BallColor[mRandomBall.nextInt(mNumOfColorsUsed)]
+                if (mNextCellIndices.containsKey(point) || point.equals(exclusiveCell)) continue
+                mNextCellIndices[point] = ballColor
+                k++
+            }
         }
 
         return vacantSize
@@ -340,11 +344,6 @@ class GridData(
     fun checkMoreThanFive(x: Int, y: Int): Boolean {
         Log.d(TAG, "checkMoreThanFive.x = $x, y = $y")
         return checkMoreThanNumber(x, y, Constants.BALL_NUM_COMPLETED)
-    }
-
-    fun checkMoreThanThree(x: Int, y: Int): Boolean {
-        Log.d(TAG, "checkMoreThanThere.x = $x, y = $y")
-        return checkMoreThanNumber(x, y, Constants.BALL_NUM_COMPLETED-2)
     }
 
     private fun checkMoreThanNumber(x: Int, y: Int, checkNum: Int): Boolean {

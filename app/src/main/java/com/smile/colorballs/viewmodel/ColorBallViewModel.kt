@@ -14,6 +14,7 @@ import androidx.lifecycle.viewModelScope
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
+import com.smile.colorballs.constants.WhichGame
 import com.smile.colorballs.models.GameProp
 import com.smile.colorballs.models.GridData
 import com.smile.colorballs.models.ColorBallInfo
@@ -88,7 +89,7 @@ class ColorBallViewModel: ViewModel() {
         saveScoreTitle.value = title
     }
 
-    fun setWhichGame(whichGame: Int) {
+    fun setWhichGame(whichGame: WhichGame) {
         mGameProp.whichGame = whichGame
     }
 
@@ -749,7 +750,11 @@ class ColorBallViewModel: ViewModel() {
         // 7 balls --> 5 + (6-5)*2 + (7-5)*2
         // 8 balls --> 5 + (6-5)*2 + (7-5)*2 + (8-5)*2
         // n balls --> 5 + (6-5)*2 + (7-5)*2 + ... + (n-5)*2
-        val minScore = 5
+        val minScore = when(mGameProp.whichGame) {
+            WhichGame.NO_BARRIER -> 5
+            WhichGame.HAS_BARRIER -> 15
+            WhichGame.EXIST_BALLS -> 10
+        }
         var totalScore = 0
         for (numBall in numBalls) {
             if (numBall >= 5) {
