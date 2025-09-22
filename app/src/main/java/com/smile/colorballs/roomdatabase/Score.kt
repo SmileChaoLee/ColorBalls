@@ -1,4 +1,4 @@
-package com.smile.smilelibraries.roomdatabase
+package com.smile.colorballs.roomdatabase
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

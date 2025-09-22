@@ -13,7 +13,7 @@ import com.smile.colorballs.models.TopPlayer
 import com.smile.colorballs.views.ui.theme.ColorBallsTheme
 import com.smile.smilelibraries.models.Player
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
-import com.smile.smilelibraries.roomdatabase.ScoreDatabase
+import com.smile.colorballs.roomdatabase.ScoreDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -26,9 +26,13 @@ class Top10Activity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate")
 
+        var gameId = Constants.GAME_NO_BARRIER_ID
+        var databaseName = "colorBallDatabase.db"
         var isLocal = false // default is Global top10
         intent.extras?.let {
-            isLocal = it.getBoolean(Constants.IS_LOCAL_TOP10, false)
+            gameId = it.getString(Constants.GAME_ID, gameId)
+            databaseName = it.getString(Constants.DATABASE_NAME,databaseName)
+            isLocal = it.getBoolean(Constants.IS_LOCAL_TOP10, isLocal)
         }
         top10TitleName =
             if (isLocal) getString(R.string.localTop10Score) else
@@ -53,12 +57,12 @@ class Top10Activity : ComponentActivity() {
                     launch(Dispatchers.IO) {
                         val players: ArrayList<Player>
                         if (isLocal) {
-                            val db = ScoreDatabase.getDatabase(this@Top10Activity)
+                            val db = ScoreDatabase.getDatabase(this@Top10Activity,
+                                databaseName)
                             players = db.getLocalTop10()
                             db.close()
-                            // PlayerRecordRest.GetLocalTop10(ScoreSQLite(context))
                         } else {
-                            players = PlayerRecordRest.GetGlobalTop10(Constants.GAME_ID)
+                            players = PlayerRecordRest.GetGlobalTop10(gameId)
                         }
                         val top10 = ArrayList<TopPlayer>()
                         for (i in 0 until players.size) {

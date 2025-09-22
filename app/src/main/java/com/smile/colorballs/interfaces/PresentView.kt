@@ -1,6 +1,6 @@
 package com.smile.colorballs.interfaces
 
-import com.smile.smilelibraries.roomdatabase.ScoreDatabase
+import com.smile.colorballs.roomdatabase.ScoreDatabase
 import com.smile.smilelibraries.utilities.SoundPoolUtil
 import java.io.FileInputStream
 import java.io.FileOutputStream

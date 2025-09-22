@@ -83,7 +83,7 @@ class GridData(
             WhichGame.HAS_BARRIER -> {   // has barriers
                 randomBarriersAndCells()
             }
-            WhichGame.EXIST_BALLS -> {
+            WhichGame.RESOLVE_GRID -> {
                 randomGrid()
             }
         }

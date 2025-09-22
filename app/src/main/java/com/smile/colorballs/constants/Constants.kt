@@ -4,17 +4,17 @@ import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
 
 object Constants {
-    const val GAME_ID = "1"
+    const val GAME_NO_BARRIER_ID = "1"
+    const val GAME_HAS_BARRIER_ID = "6"
+    const val GAME_RESOLVE_GRID_ID = "7"
+    const val GAME_ID = "GameId"
+    const val DATABASE_NAME = "DatabaseName"
     const val HAS_SOUND = "HasSound"
     const val IS_EASY_LEVEL = "IsEasyLevel"
     const val HAS_NEXT_BALL = "HasNextBall"
-    const val TOP10_TITLE_NAME = "Top10TitleName"
     const val TOP10_PLAYERS = "Top10Players"
     const val IS_LOCAL_TOP10 = "IsLocalTop10"
     const val GAME_ID_STRING = "GameIdString"
-    const val SURE_SAVE_DIALOG_TAG = "SureSaveDialogTag"
-    const val SURE_LOAD_DIALOG_TAG = "SureLoadDialogTag"
-    const val GAME_OVER_DIALOG_TAG = "GameOverDialogTag"
     // 10->RED, 20->GREEN, 30->BLUE, 40->MAGENTA, 50->YELLOW, 60->Cyan
     const val COLOR_RED = 10
     const val COLOR_GREEN = 20

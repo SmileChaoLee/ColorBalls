@@ -60,7 +60,6 @@ import com.smile.colorballs.R
 import com.smile.colorballs.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
-import com.smile.colorballs.constants.WhichGame
 import com.smile.smilelibraries.GoogleNativeAd
 import com.smile.colorballs.views.ui.theme.ColorPrimary
 import com.smile.colorballs.views.ui.theme.Yellow3
@@ -84,11 +83,6 @@ open class ColorBallActivity : MyView() {
     private var screenY = 0f
     private val gameGridWeight = 7.0f
 
-    /**
-     * whichGame = 0 : Empty distribution
-     * whichGame = 1 : Random distribution
-     */
-    var whichGame = WhichGame.NO_BARRIER
     // the following are for Top 10 Players
     private lateinit var top10Launcher: ActivityResultLauncher<Intent>
     // the following are for Settings
@@ -113,12 +107,6 @@ open class ColorBallActivity : MyView() {
             ActivityResultContracts.StartActivityForResult()) {
             result: ActivityResult ->
             Log.d(mTAG, "top10Launcher.result received")
-            /*
-            if (result.resultCode == RESULT_OK) {
-                Log.d(mTAG, "top10Launcher.Showing interstitial ads")
-                showInterstitialAd()
-            }
-            */
             showInterstitialAd()
         }
 
@@ -171,7 +159,6 @@ open class ColorBallActivity : MyView() {
             }
             LaunchedEffect(Unit) {
                 Log.d(mTAG, "onCreate.setContent.LaunchedEffect")
-                viewModel.setWhichGame(whichGame)
                 viewModel.initGame(savedInstanceState)
             }
         }
@@ -264,88 +251,6 @@ open class ColorBallActivity : MyView() {
             isClicked.value = false
         }
     }
-
-    /*
-    @Composable
-    fun Top10PlayerUI() {
-        Log.d(mTAG, "Top10PlayerUI.mOrientation.intValue " +
-                "= ${mOrientation.intValue}")
-        val title = viewModel.getTop10TitleName()
-        if (title.isNotEmpty()) {
-            var isDialogOpen by remember { mutableStateOf(true) }
-            if (isDialogOpen) {
-                Dialog(onDismissRequest = { isDialogOpen = false },
-                    properties = DialogProperties(usePlatformDefaultWidth = false),
-                    content = {
-                        Composables.Top10Composable(
-                            title = title,
-                            topPlayers = viewModel.getTop10Players(), buttonListener =
-                            object : Composables.ButtonClickListener {
-                                override fun buttonOkClick() {
-                                    isDialogOpen = false
-                                    showInterstitialAd()
-                                    viewModel.setTop10TitleName("")
-                                }
-                            },
-                            getString(R.string.okStr)
-                        )
-                    })
-            }
-        }
-    }
-
-    @Composable
-    fun SettingUI() {
-        Log.d(mTAG, "SettingUI.mOrientation.intValue " +
-                "= ${mOrientation.intValue}")
-        if (viewModel.getSettingTitle().isNotEmpty()) {
-            var isDialogOpen by remember { mutableStateOf(true) }
-            val setting = Settings(viewModel.hasSound(),
-                viewModel.isEasyLevel(), viewModel.hasNextBall())
-            val textClick = object : Composables.SettingClickListener {
-                override fun hasSoundClick(hasSound: Boolean) {
-                    Log.d(mTAG, "textClick.hasSoundClick.hasSound = $hasSound")
-                    setting.hasSound = hasSound
-                }
-                override fun easyLevelClick(easyLevel: Boolean) {
-                    Log.d(mTAG, "textClick.easyLevelClick.easyLevel = $easyLevel")
-                    setting.easyLevel = easyLevel
-                }
-                override fun hasNextClick(hasNext: Boolean) {
-                    Log.d(mTAG, "textClick.hasNextClick.hasNext = $hasNext")
-                    setting.hasNextBall = hasNext
-                }
-            }
-
-            val buttonClick = object : Composables.ButtonClickListener  {
-                override fun buttonOkClick() {
-                    viewModel.setSettingTitle("")
-                    isDialogOpen = false
-                    viewModel.setHasSound(setting.hasSound)
-                    viewModel.setEasyLevel(setting.easyLevel)
-                    viewModel.setHasNextBall(setting.hasNextBall, true)
-                    // showInterstitialAd()
-                }
-                override fun buttonCancelClick() {
-                    isDialogOpen = false
-                    viewModel.setSettingTitle("")
-                    // showInterstitialAd()
-                }
-            }
-            if (isDialogOpen) {
-                Dialog(onDismissRequest = { isDialogOpen = false },
-                    properties = DialogProperties(usePlatformDefaultWidth = false),
-                    content = {
-                        Composables.SettingCompose(
-                            this@ColorBallActivity,
-                            buttonClick, textClick, getString(R.string.settingStr),
-                            backgroundColor = Color(0xbb0000ff), setting
-                        )
-                    })
-            }
-        }
-    }
-    */
 
     @Composable
     fun GameView(modifier: Modifier) {
@@ -493,6 +398,8 @@ open class ColorBallActivity : MyView() {
             Top10Activity::class.java
         ).let {
             Bundle().apply {
+                putString(Constants.GAME_ID, viewModel.getGameId())
+                putString(Constants.DATABASE_NAME, viewModel.getDatabaseName())
                 putBoolean(Constants.IS_LOCAL_TOP10, isLocal)
                 it.putExtras(this)
                 top10Launcher.launch(it)

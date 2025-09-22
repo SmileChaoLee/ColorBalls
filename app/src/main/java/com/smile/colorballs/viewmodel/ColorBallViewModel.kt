@@ -20,7 +20,7 @@ import com.smile.colorballs.models.GridData
 import com.smile.colorballs.models.ColorBallInfo
 import com.smile.colorballs.presenters.Presenter
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
-import com.smile.smilelibraries.roomdatabase.Score
+import com.smile.colorballs.roomdatabase.Score
 import com.smile.smilelibraries.utilities.SoundPoolUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -91,6 +91,10 @@ class ColorBallViewModel: ViewModel() {
 
     fun setWhichGame(whichGame: WhichGame) {
         mGameProp.whichGame = whichGame
+    }
+
+    fun getWhichGame(): WhichGame {
+        return mGameProp.whichGame
     }
 
     val gridDataArray = Array(Constants.ROW_COUNTS) {
@@ -410,7 +414,7 @@ class ColorBallViewModel: ViewModel() {
                     val jsonObject = JSONObject()
                     jsonObject.put("PlayerName", playerName)
                     jsonObject.put("Score", mGameProp.currentScore)
-                    jsonObject.put("GameId", Constants.GAME_ID)
+                    jsonObject.put("GameId", getGameId())
                     PlayerRecordRest.addOneRecord(jsonObject)
                     Log.d(TAG, "saveScore.Succeeded to add one record to remote.")
                 } catch (ex: Exception) {
@@ -463,6 +467,24 @@ class ColorBallViewModel: ViewModel() {
         return numOfSaved
     }
 
+    fun getGameId() = when(getWhichGame()) {
+        WhichGame.NO_BARRIER -> Constants.GAME_NO_BARRIER_ID
+        WhichGame.HAS_BARRIER -> Constants.GAME_HAS_BARRIER_ID
+        WhichGame.RESOLVE_GRID -> Constants.GAME_RESOLVE_GRID_ID
+    }
+
+    fun getDatabaseName() = when(getWhichGame()) {
+        WhichGame.NO_BARRIER -> "colorBallDatabase.db"
+        WhichGame.HAS_BARRIER -> "colorBallDatabase1.db"
+        WhichGame.RESOLVE_GRID -> "colorBallDatabase2.db"
+    }
+
+    private fun getSaveFileName() = when(mGameProp.whichGame) {
+        WhichGame.NO_BARRIER -> SAVE_NO_BARRIER
+        WhichGame.HAS_BARRIER -> SAVE_HAS_BARRIER
+        WhichGame.RESOLVE_GRID -> SAVE_RESOLVE_GRID
+    }
+
     fun startSavingGame(num: Int): Boolean {
         Log.d(TAG, "startSavingGame")
         ColorBallsApp.isProcessingJob = true
@@ -471,7 +493,8 @@ class ColorBallViewModel: ViewModel() {
         var numOfSaved = num
         var succeeded = true
         try {
-            var foStream = mPresenter.fileOutputStream(SAVE_FILENAME)
+            val fileName = getSaveFileName()
+            var foStream = mPresenter.fileOutputStream(fileName)
             // save settings
             Log.d(TAG, "startSavingGame.hasSound = " + mGameProp.hasSound)
             if (mGameProp.hasSound) foStream.write(1) else foStream.write(0)
@@ -597,11 +620,12 @@ class ColorBallViewModel: ViewModel() {
             mGridData.setNextCellIndices(HashMap())
             mGridData.setUndoNextCellIndices(HashMap())
             Log.d(TAG, "startLoadingGame.Creating inputFile")
+            val fileName = getSaveFileName()
             // File inputFile = new File(mContext.getFilesDir(), savedGameFileName);
             // long fileSizeInByte = inputFile.length();
             // Log.d(TAG, "startLoadingGame.File size = " + fileSizeInByte);
             // FileInputStream fiStream = new FileInputStream(inputFile);
-            val fiStream = mPresenter.fileInputStream(SAVE_FILENAME)
+            val fiStream = mPresenter.fileInputStream(fileName)
             Log.d(TAG, "startLoadingGame.available() = " + fiStream.available())
             Log.d(TAG, "startLoadingGame.getChannel().size() = " + fiStream.channel.size())
             // game sound
@@ -750,11 +774,7 @@ class ColorBallViewModel: ViewModel() {
         // 7 balls --> 5 + (6-5)*2 + (7-5)*2
         // 8 balls --> 5 + (6-5)*2 + (7-5)*2 + (8-5)*2
         // n balls --> 5 + (6-5)*2 + (7-5)*2 + ... + (n-5)*2
-        val minScore = when(mGameProp.whichGame) {
-            WhichGame.NO_BARRIER -> 5
-            WhichGame.HAS_BARRIER -> 15
-            WhichGame.EXIST_BALLS -> 10
-        }
+        val minScore = 5
         var totalScore = 0
         for (numBall in numBalls) {
             if (numBall >= 5) {
@@ -1052,6 +1072,8 @@ class ColorBallViewModel: ViewModel() {
     companion object {
         private const val TAG = "ColorBallViewModel"
         private const val NUM_SAVE_FILENAME = "NumSavedGame"
-        private const val SAVE_FILENAME = "SavedGame"
+        private const val SAVE_NO_BARRIER = "SavedGame"
+        private const val SAVE_HAS_BARRIER = "SavedGame1"
+        private const val SAVE_RESOLVE_GRID = "SavedGame2"
     }
 }

@@ -39,7 +39,8 @@ import java.io.FileOutputStream
 import androidx.core.graphics.scale
 import androidx.core.graphics.drawable.toDrawable
 import com.facebook.ads.AdSize
-import com.smile.smilelibraries.roomdatabase.ScoreDatabase
+import com.smile.colorballs.constants.WhichGame
+import com.smile.colorballs.roomdatabase.ScoreDatabase
 
 abstract class MyView: ComponentActivity(), PresentView {
 
@@ -53,6 +54,11 @@ abstract class MyView: ComponentActivity(), PresentView {
     protected val colorBallMap: HashMap<Int, Bitmap> = HashMap()
     protected val colorOvalBallMap: HashMap<Int, Bitmap> = HashMap()
     protected val colorNextBallMap: HashMap<Int, Bitmap> = HashMap()
+    /**
+     * whichGame = 0 : Empty distribution
+     * whichGame = 1 : Random distribution
+     */
+    protected var whichGame = WhichGame.NO_BARRIER
 
     private var interstitialAd: ShowInterstitial? = null
 
@@ -73,6 +79,14 @@ abstract class MyView: ComponentActivity(), PresentView {
 
         Log.d(TAG, "onCreate.instantiate PresenterCompose")
         viewModel.setPresenter(Presenter(this@MyView))
+        if (savedInstanceState != null) {
+            // recreated
+            Log.d(TAG, "onCreate.recreated")
+            whichGame = viewModel.getWhichGame()
+        } else {
+            viewModel.setWhichGame(whichGame)
+        }
+        Log.d(TAG, "onCreate.whichGame = $whichGame")
     }
 
     override fun onDestroy() {
@@ -382,7 +396,8 @@ abstract class MyView: ComponentActivity(), PresentView {
     }
 
     override fun getRoomDatabase(): ScoreDatabase {
-        return ScoreDatabase.getDatabase(this)
+        return ScoreDatabase.getDatabase(this,
+            viewModel.getDatabaseName())
     }
 
     override fun fileInputStream(fileName : String): FileInputStream {

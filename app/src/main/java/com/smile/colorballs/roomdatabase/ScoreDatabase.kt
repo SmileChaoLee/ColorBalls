@@ -1,4 +1,4 @@
-package com.smile.smilelibraries.roomdatabase
+package com.smile.colorballs.roomdatabase
 
 import android.content.Context
 import android.util.Log
@@ -22,13 +22,13 @@ abstract class ScoreDatabase : RoomDatabase() {
                 db.execSQL("DROP TABLE IF EXISTS score")
             }
         }
-        fun getDatabase(context: Context): ScoreDatabase {
+        fun getDatabase(context: Context, databaseName: String): ScoreDatabase {
             Log.d(TAG, "getDatabase")
             return synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     ScoreDatabase::class.java,
-                    "colorBallDatabase.db"
+                    databaseName
                 )
                     // IMPORTANT: Add migration strategies here if your schema changes
                     // .addMigrations(MIGRATION_1_2, MIGRATION_2_3) // Example
