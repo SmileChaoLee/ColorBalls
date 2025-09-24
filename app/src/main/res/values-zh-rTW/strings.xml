@@ -59,4 +59,9 @@
     <string name="companyContactEmailStr">leechao1959@gmail.com</string>
     <string name="noBarrierColorBall">無障礙分佈</string>
     <string name="barrierColorBall">有障礙分佈</string>
+
+    <!--    For BallsRemover   -->
+    <string name="removeBalls">移除色球</string>
+    <string name="fillColumnStr">填滿空白欄</string>
+    <string name="createNewGameStr">建立新遊戲?</string>
 </resources>

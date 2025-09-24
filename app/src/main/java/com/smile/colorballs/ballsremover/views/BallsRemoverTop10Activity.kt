@@ -1,4 +1,4 @@
-package com.smile.colorballs.views
+package com.smile.colorballs.ballsremover.views
 
 import android.os.Bundle
 import android.util.Log
@@ -7,17 +7,18 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
+import com.smile.colorballs.ballsremover.BallsRemoverComposables
 import com.smile.colorballs.R
+import com.smile.colorballs.ballsremover.constants.BallsRemoverConstants
+import com.smile.colorballs.ballsremover.models.TopPlayer
 import com.smile.colorballs.constants.Constants
-import com.smile.colorballs.models.TopPlayer
 import com.smile.colorballs.views.ui.theme.ColorBallsTheme
-import com.smile.smilelibraries.models.Player
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
-import com.smile.colorballs.roomdatabase.ScoreDatabase
+import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class Top10Activity : ComponentActivity() {
+class BallsRemoverTop10Activity : ComponentActivity() {
 
     private val top10Players = mutableStateOf(listOf<TopPlayer>())
     private var top10TitleName: String = ""
@@ -26,13 +27,13 @@ class Top10Activity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate")
 
-        var gameId = Constants.GAME_NO_BARRIER_ID
-        var databaseName = Constants.NO_BARRIER_DATABASE_NAME
+        var gameId = BallsRemoverConstants.BALLS_REMOVER_GAME_ID
+        var databaseName = BallsRemoverConstants.BALLS_REMOVER_DATABASE_NAME
         var isLocal = false // default is Global top10
         intent.extras?.let {
-            gameId = it.getString(Constants.GAME_ID, gameId)
+            gameId = it.getString(Constants.GAME_ID,gameId)
             databaseName = it.getString(Constants.DATABASE_NAME,databaseName)
-            isLocal = it.getBoolean(Constants.IS_LOCAL_TOP10, isLocal)
+            isLocal = it.getBoolean(Constants.IS_LOCAL_TOP10,isLocal)
         }
         top10TitleName =
             if (isLocal) getString(R.string.localTop10Score) else
@@ -47,22 +48,19 @@ class Top10Activity : ComponentActivity() {
             R.drawable.olympics_image,
             R.drawable.olympics_image,
             R.drawable.olympics_image,
-            R.drawable.olympics_image)
+            R.drawable.olympics_image
+        )
 
         setContent {
-            Log.d(TAG, "onCreate.setContent.Composables.Top10Compose")
             ColorBallsTheme {
                 LaunchedEffect(Unit) {
                     Log.d(TAG, "onCreate.setContent.LaunchedEffect")
                     launch(Dispatchers.IO) {
-                        val players: ArrayList<Player>
-                        if (isLocal) {
-                            val db = ScoreDatabase.getDatabase(this@Top10Activity,
-                                databaseName)
-                            players = db.getLocalTop10()
-                            db.close()
+                        val players = if (isLocal) {
+                            PlayerRecordRest.GetLocalTop10(ScoreSQLite(
+                                this@BallsRemoverTop10Activity, databaseName))
                         } else {
-                            players = PlayerRecordRest.GetGlobalTop10(gameId)
+                            PlayerRecordRest.GetGlobalTop10(gameId)
                         }
                         val top10 = ArrayList<TopPlayer>()
                         for (i in 0 until players.size) {
@@ -78,10 +76,10 @@ class Top10Activity : ComponentActivity() {
                     }
                 }
                 Log.d(TAG, "onCreate.setContent.Composables.Top10Compose")
-                Composables.Top10Composable(
+                BallsRemoverComposables.Top10Composable(
                     title = top10TitleName,
                     topPlayers = top10Players.value, buttonListener =
-                    object : Composables.ButtonClickListener {
+                    object : BallsRemoverComposables.ButtonClickListener {
                         override fun buttonOkClick() {
                             Log.d(TAG, "Composables.OkButtonListener.buttonOkClick")
                             setResult(RESULT_OK)
@@ -133,6 +131,6 @@ class Top10Activity : ComponentActivity() {
     }
 
     companion object {
-        private const val TAG = "Top10Activity"
+        private const val TAG = "BallsRemTop10Activity"
     }
 }

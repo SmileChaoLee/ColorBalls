@@ -23,7 +23,7 @@ class LocalTop10Service : Service() {
 
     private fun getDataAndSendBack() {
         Log.d(TAG, "getDataAndSendBack")
-        ScoreSQLite(applicationContext).let {
+        ScoreSQLite(applicationContext, Constants.NO_BARRIER_DATABASE_NAME).let {
             Log.d(TAG, "getDataAndSendBack.PlayerRecordRest.GetLocalTop10()")
             val players = PlayerRecordRest.GetLocalTop10(it)
             it.close()

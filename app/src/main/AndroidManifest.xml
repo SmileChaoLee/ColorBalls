@@ -49,7 +49,6 @@
             android:exported="false"
             android:label="@string/title_activity_history">
         </activity>
-
         <service
             android:name=".services.GlobalTop10Service"
             android:enabled="true"
@@ -58,6 +57,22 @@
             android:name=".services.LocalTop10Service"
             android:enabled="true"
             android:exported="false" />
+
+        <activity
+            android:name=".ballsremover.views.BallsRemoverActivity"
+            android:exported="false">
+        </activity>
+        <activity
+            android:name=".ballsremover.views.BallsRemoverSetActivity"
+            android:exported="false"
+            android:label="@string/settingStr"
+            android:theme="@style/AppThemeTransparent">
+        </activity>
+        <activity
+            android:name=".ballsremover.views.BallsRemoverTop10Activity"
+            android:exported="false"
+            android:label="@string/title_activity_history">
+        </activity>
     </application>
 
 </manifest>

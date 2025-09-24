@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
+import com.smile.colorballs.ballsremover.views.BallsRemoverActivity
 import com.smile.colorballs.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs.views.ui.theme.Yellow3
 import com.smile.smilelibraries.utilities.ScreenUtil
@@ -58,8 +59,10 @@ open class MainCBallActivity : ComponentActivity() {
     private var fontSize = 0f
     // the following are for ColorBallActivity
     private lateinit var cBallLauncher: ActivityResultLauncher<Intent>
-    // the following are for RandomCBallActivity
-    private lateinit var randomCbLauncher: ActivityResultLauncher<Intent>
+    // the following are for BarrierCBallActivity
+    private lateinit var barrierCBLauncher: ActivityResultLauncher<Intent>
+    // the following are for BallsRemoverActivity
+    private lateinit var ballsRemoverLauncher: ActivityResultLauncher<Intent>
     //
     private val loadingMessage = mutableStateOf("")
 
@@ -88,10 +91,17 @@ open class MainCBallActivity : ComponentActivity() {
             loadingMessage.value = ""
         }
 
-        randomCbLauncher = registerForActivityResult(
+        barrierCBLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            Log.d(TAG, "randomCbLauncher.result received")
+            Log.d(TAG, "barrierCBLauncher.result received")
+            loadingMessage.value = ""
+        }
+
+        ballsRemoverLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) {
+                result: ActivityResult ->
+            Log.d(TAG, "ballsRemoverLauncher.result received")
             loadingMessage.value = ""
         }
 
@@ -133,16 +143,6 @@ open class MainCBallActivity : ComponentActivity() {
         finish()
     }
 
-    private fun startRandomCBallActivity() {
-        Intent(
-            this@MainCBallActivity,
-            BarrierCBallActivity::class.java
-        ).also {
-            loadingMessage.value = getString(R.string.loadingStr)
-            randomCbLauncher.launch(it)
-        }
-    }
-
     private fun startColorBallActivity() {
         Intent(
             this@MainCBallActivity,
@@ -150,6 +150,26 @@ open class MainCBallActivity : ComponentActivity() {
         ).also {
             loadingMessage.value = getString(R.string.loadingStr)
             cBallLauncher.launch(it)
+        }
+    }
+
+    private fun startBarrierCBallActivity() {
+        Intent(
+            this@MainCBallActivity,
+            BarrierCBallActivity::class.java
+        ).also {
+            loadingMessage.value = getString(R.string.loadingStr)
+            barrierCBLauncher.launch(it)
+        }
+    }
+
+    private fun startBallsRemoverActivity() {
+        Intent(
+            this@MainCBallActivity,
+            BallsRemoverActivity::class.java
+        ).also {
+            loadingMessage.value = getString(R.string.loadingStr)
+            ballsRemoverLauncher.launch(it)
         }
     }
 
@@ -231,7 +251,7 @@ open class MainCBallActivity : ComponentActivity() {
                     CoroutineScope(Dispatchers.Default).launch {
                         barrierClicked.value = true
                         delay(200)
-                        startRandomCBallActivity()
+                        startBarrierCBallActivity()
                         barrierClicked.value = false
                     }
                 },
@@ -252,6 +272,49 @@ open class MainCBallActivity : ComponentActivity() {
                 )
             )
             { Text(text = getString(R.string.barrierColorBall),
+                fontSize = Composables.mFontSize) }
+        }
+    }
+
+    @Composable
+    fun BallsRemoverButton(modifier: Modifier = Modifier,
+                             buttonWidth: Float,
+                             buttonHeight: Float,
+                             textLineHeight: TextUnit) {
+        Log.d(TAG, "BallsRemoverButton")
+        val buttonBackground = Color.Transparent
+        val buttonContentColor = Color.Green
+        val buttonContainerColor = Color.Blue
+        Column(modifier = modifier,
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Center) {
+            val bRemoverClicked = remember { mutableStateOf(false) }
+            Button(
+                onClick = {
+                    CoroutineScope(Dispatchers.Default).launch {
+                        bRemoverClicked.value = true
+                        delay(200)
+                        startBallsRemoverActivity()
+                        bRemoverClicked.value = false
+                    }
+                },
+                modifier = Modifier//.weight(1.0f)
+                    .width(width = buttonWidth.dp)
+                    .height(height = buttonHeight.dp)
+                    .background(color = buttonBackground),
+                colors = ButtonColors(
+                    containerColor =
+                        if (!bRemoverClicked.value) buttonContainerColor
+                        else Color.Cyan,
+                    disabledContainerColor = buttonContainerColor,
+                    contentColor =
+                        if (!bRemoverClicked.value)
+                            buttonContentColor
+                        else Color.Red ,
+                    disabledContentColor = buttonContentColor
+                )
+            )
+            { Text(text = getString(R.string.removeBalls),
                 fontSize = Composables.mFontSize) }
         }
     }
@@ -291,6 +354,8 @@ open class MainCBallActivity : ComponentActivity() {
                     NoBarrierCBallButton(modifier = Modifier.weight(1.0f),
                         buttonWidth, buttonHeight, textLineHeight)
                     BarrierCBallButton(modifier = Modifier.weight(1.0f),
+                        buttonWidth, buttonHeight, textLineHeight)
+                    BallsRemoverButton(modifier = Modifier.weight(1.0f),
                         buttonWidth, buttonHeight, textLineHeight)
                 }
                 Spacer(modifier = Modifier

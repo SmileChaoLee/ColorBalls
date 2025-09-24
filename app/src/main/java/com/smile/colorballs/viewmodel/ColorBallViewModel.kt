@@ -474,15 +474,15 @@ class ColorBallViewModel: ViewModel() {
     }
 
     fun getDatabaseName() = when(getWhichGame()) {
-        WhichGame.NO_BARRIER -> "colorBallDatabase.db"
-        WhichGame.HAS_BARRIER -> "colorBallDatabase1.db"
-        WhichGame.RESOLVE_GRID -> "colorBallDatabase2.db"
+        WhichGame.NO_BARRIER -> Constants.NO_BARRIER_DATABASE_NAME
+        WhichGame.HAS_BARRIER -> Constants.HAS_BARRIER_DATABASE_NAME
+        WhichGame.RESOLVE_GRID -> Constants.RESOLVE_GRID_DATABASE_NAME
     }
 
     private fun getSaveFileName() = when(mGameProp.whichGame) {
-        WhichGame.NO_BARRIER -> SAVE_NO_BARRIER
-        WhichGame.HAS_BARRIER -> SAVE_HAS_BARRIER
-        WhichGame.RESOLVE_GRID -> SAVE_RESOLVE_GRID
+        WhichGame.NO_BARRIER -> Constants.SAVE_NO_BARRIER
+        WhichGame.HAS_BARRIER -> Constants.SAVE_HAS_BARRIER
+        WhichGame.RESOLVE_GRID -> Constants.SAVE_RESOLVE_GRID
     }
 
     fun startSavingGame(num: Int): Boolean {
@@ -1072,8 +1072,5 @@ class ColorBallViewModel: ViewModel() {
     companion object {
         private const val TAG = "ColorBallViewModel"
         private const val NUM_SAVE_FILENAME = "NumSavedGame"
-        private const val SAVE_NO_BARRIER = "SavedGame"
-        private const val SAVE_HAS_BARRIER = "SavedGame1"
-        private const val SAVE_RESOLVE_GRID = "SavedGame2"
     }
 }

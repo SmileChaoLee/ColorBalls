@@ -19,8 +19,6 @@ public class ScoreSQLite extends SQLiteOpenHelper {
     private static final String _id = "id";
     private static final String playerName = "playerName";
     private static final String playerScore = "playerScore";
-
-    private static final String dbName = "colorBallDatabase.db";
     private static final String tableName = "score";
     private static final String createTable = "create table if not exists "
             + tableName + " ("
@@ -31,8 +29,8 @@ public class ScoreSQLite extends SQLiteOpenHelper {
     private static final int dbVersion = 2;
     private SQLiteDatabase scoreDatabase;
 
-    public ScoreSQLite(Context context) {
-        super(context, dbName,null,dbVersion);
+    public ScoreSQLite(Context context, String databaseName) {
+        super(context, databaseName,null,dbVersion);
         scoreDatabase = null;
     }
 

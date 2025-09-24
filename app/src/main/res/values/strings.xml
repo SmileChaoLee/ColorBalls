@@ -60,4 +60,9 @@
     <string name="companyContactEmailStr">leechao1959@gmail.com</string>
     <string name="noBarrierColorBall">No Barriers</string>
     <string name="barrierColorBall">Has Barriers</string>
+
+    <!--    For BallsRemover   -->
+    <string name="removeBalls">Remove Balls</string>
+    <string name="fillColumnStr">Fill Column</string>
+    <string name="createNewGameStr">Create a New Game?</string>
 </resources>
