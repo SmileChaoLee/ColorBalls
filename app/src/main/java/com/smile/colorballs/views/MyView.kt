@@ -41,6 +41,7 @@ import androidx.core.graphics.drawable.toDrawable
 import com.facebook.ads.AdSize
 import com.smile.colorballs.constants.WhichGame
 import com.smile.colorballs.roomdatabase.ScoreDatabase
+import com.smile.smilelibraries.interfaces.DismissFunction
 
 abstract class MyView: ComponentActivity(), PresentView {
 
@@ -191,7 +192,22 @@ abstract class MyView: ComponentActivity(), PresentView {
             exitApplication()
         } else if (viewModel.mGameAction == Constants.IS_CREATING_GAME) {
             //  NEW GAME
-            viewModel.initGame(null)
+            interstitialAd?.apply {
+                ShowAdThread(object : DismissFunction {
+                    override fun backgroundWork() {
+                        Log.d(TAG, "quitOrNewGame.backgroundWork")
+                    }
+                    override fun executeDismiss() {
+                        Log.d(TAG, "quitOrNewGame.executeDismiss")
+                        viewModel.initGame(null)
+                    }
+                    override fun afterFinished(isAdShown: Boolean) {
+                        Log.d(TAG, "quitOrNewGame.afterFinished.isAdShown= $isAdShown")
+                        if (!isAdShown) viewModel.initGame(null)
+                    }
+                }).startShowAd(0)
+            }
+            // viewModel.initGame(null)
         }
         viewModel.setSaveScoreAlertDialogState(false)
         ColorBallsApp.isProcessingJob = false
