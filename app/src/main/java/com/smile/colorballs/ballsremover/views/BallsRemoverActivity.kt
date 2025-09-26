@@ -1,6 +1,7 @@
 package com.smile.colorballs.ballsremover.views
 
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
@@ -54,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.google.android.gms.ads.nativead.NativeAd
+import com.smile.colorballs.BuildConfig
 import com.smile.colorballs.ballsremover.BallsRemoverComposables
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.ballsremover.constants.BallsRemoverConstants
@@ -74,7 +76,8 @@ class BallsRemoverActivity : BallsRemoverView() {
 
     private val mOrientation =
         mutableIntStateOf(Configuration.ORIENTATION_PORTRAIT)
-    private val gameGridWeight = 7.0f   // 9.0f
+    private val menuBarWeight = 1.0f
+    private val gameGridWeight = 7.0f
     private var screenX = 0f
     private var screenY = 0f
     private var mImageSizeDp = 0f
@@ -86,7 +89,15 @@ class BallsRemoverActivity : BallsRemoverView() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "$TAG.onCreate")
-        mOrientation.intValue = resources.configuration.orientation
+        if (!BuildConfig.DEBUG) {
+            requestedOrientation = if (ScreenUtil.isTablet(this@BallsRemoverActivity)) {
+                // Table then change orientation to Landscape
+                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            } else {
+                // phone then change orientation to Portrait
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            }
+        }
 
         Log.d(TAG, "onCreate.getScreenSize()")
         getScreenSize()
@@ -135,7 +146,7 @@ class BallsRemoverActivity : BallsRemoverView() {
                         Column {
                             GameView(Modifier.weight(gameGridWeight))
                             SHowPortraitAds(Modifier.fillMaxWidth()
-                                .weight(10.0f - gameGridWeight))
+                                .weight(10.0f - menuBarWeight - gameGridWeight))
                         }
                     } else {
                         Row {
@@ -246,13 +257,12 @@ class BallsRemoverActivity : BallsRemoverView() {
         Log.d(TAG, "GameView.mOrientation.intValue = ${mOrientation.intValue}")
         Log.d(TAG, "GameView.screenX = $screenX, screenY = $screenY")
         var maxWidth = screenX
-        // val barWeight = 10.0f - gameGridWeight
-        val barWeight = 1.0f
+        // menuBarWeight = 1.0f
         var gameWeight = gameGridWeight
         if (mOrientation.intValue == Configuration.ORIENTATION_LANDSCAPE) {
             Log.d(TAG, "GameView.ORIENTATION_LANDSCAPE")
             maxWidth = screenX/2.0f
-            // barWeight = 1.0f
+            // menuBarWeight = 1.0f
             gameWeight = 9.0f
         }
         val gridHeight = ScreenUtil.pixelToDp(screenY) * gameWeight / 10.0f
@@ -261,19 +271,20 @@ class BallsRemoverActivity : BallsRemoverView() {
         Log.d(TAG, "GameView.heightPerBall = $heightPerBall")
         val widthPerBall = ScreenUtil.pixelToDp(maxWidth) / BallsRemoverConstants.COLUMN_COUNTS
         Log.d(TAG, "GameView.widthPerBall = $widthPerBall")
+
         // set size of color balls
-        mImageSizeDp = if (heightPerBall>widthPerBall) widthPerBall
+        mImageSizeDp = if (heightPerBall>widthPerBall)  widthPerBall
         else heightPerBall
+        mImageSizeDp = (mImageSizeDp*100f).toInt().toFloat() / 100f
+        //
         Log.d(TAG, "GameView.mImageSizeDp = $mImageSizeDp")
-        Log.d(TAG, "GameView.mImageSizeDp*Constants.COLUMNS " +
-                "= ${mImageSizeDp*BallsRemoverConstants.COLUMN_COUNTS}")
         val sizePx = ScreenUtil.dpToPixel(mImageSizeDp)
         bitmapDrawableResources(sizePx)
 
         val topPadding = 0f
         // val backgroundColor = Color(getColor(R.color.yellow3))
         Column(modifier = modifier.fillMaxHeight()) {
-            ToolBarMenu(modifier = Modifier.weight(barWeight)
+            ToolBarMenu(modifier = Modifier.weight(menuBarWeight)
                 .padding(top = topPadding.dp, start = 0.dp))
             Column(modifier = Modifier.weight(gameWeight),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -498,8 +509,7 @@ class BallsRemoverActivity : BallsRemoverView() {
 
     @Composable
     fun GameViewGrid(modifier: Modifier = Modifier) {
-        Log.d(
-            TAG, "GameViewGrid.mOrientation.intValue" +
+        Log.d(TAG, "GameViewGrid.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         Column(modifier = modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -513,17 +523,15 @@ class BallsRemoverActivity : BallsRemoverView() {
 
     @Composable
     fun ShowGameGrid() {
-        Log.d(
-            TAG, "ShowGameGrid.mOrientation.intValue" +
+        Log.d(TAG, "ShowGameGrid.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         Log.d(TAG, "ShowGameGrid.mImageSizeDp = $mImageSizeDp")
         Column {
             for (i in 0 until BallsRemoverConstants.ROW_COUNTS) {
-                Row {
+                Row(modifier = Modifier.padding(all = 0.dp)) {
                     for (j in 0 until BallsRemoverConstants.COLUMN_COUNTS) {
                         Box {
-                            Image(
-                                modifier = Modifier.size(mImageSizeDp.dp)
+                            Image(modifier = Modifier.size(mImageSizeDp.dp)
                                     .padding(all = 0.dp),
                                 // painter = painterResource(id = R.drawable.box_image),
                                 // painter = rememberDrawablePainter(drawable = boxImage),

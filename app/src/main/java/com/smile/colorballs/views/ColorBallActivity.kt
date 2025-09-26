@@ -5,6 +5,7 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -55,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.google.android.gms.ads.nativead.NativeAd
+import com.smile.colorballs.BuildConfig
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
 import com.smile.colorballs.views.ui.theme.ColorBallsTheme
@@ -81,6 +83,7 @@ open class ColorBallActivity : MyView() {
     private val mOrientation = mutableIntStateOf(Configuration.ORIENTATION_PORTRAIT)
     private var screenX = 0f
     private var screenY = 0f
+    private val menuBarWeight = 1.0f
     private val gameGridWeight = 7.0f
 
     // the following are for Top 10 Players
@@ -91,16 +94,15 @@ open class ColorBallActivity : MyView() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(mTAG, "$mTAG.onCreate")
-
-        /*
-        requestedOrientation = if (ScreenUtil.isTablet(this@ColorBallActivity)) {
-            // Table then change orientation to Landscape
-            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        } else {
-            // phone then change orientation to Portrait
-            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        if (!BuildConfig.DEBUG) {
+            requestedOrientation = if (ScreenUtil.isTablet(this@ColorBallActivity)) {
+                // Table then change orientation to Landscape
+                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            } else {
+                // phone then change orientation to Portrait
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            }
         }
-        */
 
         Log.d(mTAG, "onCreate.getScreenSize()")
         getScreenSize()
@@ -142,7 +144,7 @@ open class ColorBallActivity : MyView() {
                         Column {
                             GameView(Modifier.weight(gameGridWeight))
                             SHowPortraitAds(Modifier.fillMaxWidth()
-                                .weight(10.0f - gameGridWeight))
+                                .weight(10.0f - menuBarWeight - gameGridWeight))
                         }
                     } else {
                         Row {
@@ -260,12 +262,12 @@ open class ColorBallActivity : MyView() {
         Log.d(mTAG, "GameView.screenX = $screenX, screenY = $screenY")
         var maxWidth = screenX
         // val barWeight = 10.0f - gameGridWeight
-        val barWeight = 1.0f
+        // menuBarWeight = 1.0f
         var gameWeight = gameGridWeight
         if (mOrientation.intValue == Configuration.ORIENTATION_LANDSCAPE) {
             Log.d(mTAG, "GameView.ORIENTATION_LANDSCAPE")
             maxWidth = screenX/2.0f
-            // barWeight = 1.0f
+            // menuBarWeight = 1.0f
             gameWeight = 9.0f
         }
         val gridHeight = ScreenUtil.pixelToDp(screenY) * gameWeight / 10.0f
@@ -277,6 +279,7 @@ open class ColorBallActivity : MyView() {
         // set size of color balls
         mImageSizeDp = if (heightPerBall>widthPerBall) widthPerBall
         else heightPerBall
+        mImageSizeDp = (mImageSizeDp*100f).toInt().toFloat() / 100f
         Log.d(mTAG, "GameView.mImageSizeDp = $mImageSizeDp")
         Log.d(mTAG, "GameView.mImageSizeDp*Constants.COLUMNS " +
                 "= ${mImageSizeDp*Constants.COLUMN_COUNTS}")
@@ -286,7 +289,7 @@ open class ColorBallActivity : MyView() {
         val topPadding = 0f
         // val backgroundColor = Color(getColor(R.color.yellow3))
         Column(modifier = modifier.fillMaxHeight()) {
-            ToolBarMenu(modifier = Modifier.weight(barWeight)
+            ToolBarMenu(modifier = Modifier.weight(menuBarWeight)
                 .padding(top = topPadding.dp, start = 0.dp))
             Column(modifier = Modifier.weight(gameWeight),
                 horizontalAlignment = Alignment.CenterHorizontally,
