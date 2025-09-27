@@ -1,11 +1,9 @@
 package com.smile.colorballs.views
 
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -56,7 +54,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.google.android.gms.ads.nativead.NativeAd
-import com.smile.colorballs.BuildConfig
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
 import com.smile.colorballs.views.ui.theme.ColorBallsTheme
@@ -92,18 +89,8 @@ open class ColorBallActivity : MyView() {
     private lateinit var settingLauncher: ActivityResultLauncher<Intent>
     //
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         Log.d(mTAG, "$mTAG.onCreate")
-        if (!BuildConfig.DEBUG) {
-            requestedOrientation = if (ScreenUtil.isTablet(this@ColorBallActivity)) {
-                // Table then change orientation to Landscape
-                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-            } else {
-                // phone then change orientation to Portrait
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-            }
-        }
-
+        super.onCreate(savedInstanceState)
         Log.d(mTAG, "onCreate.getScreenSize()")
         getScreenSize()
 
@@ -630,11 +617,11 @@ open class ColorBallActivity : MyView() {
         Column(modifier = modifier.fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top) {
-            ShowAdmobNormalBanner(modifier = Modifier.weight(1.0f))
-            // ShowAdmobAdaptiveBanner(modifier = Modifier.weight(1.0f), 0)
-            ShowFacebookBanner(modifier = Modifier.weight(1.0f),
+            Composables.ShowAdmobNormalBanner(modifier = Modifier.weight(1.0f))
+            // Composables.ShowAdmobAdaptiveBanner(modifier = Modifier.weight(1.0f), 0)
+            Composables.ShowFacebookBanner(modifier = Modifier.weight(1.0f),
                 ColorBallsApp.facebookBannerID)
-            // ShowFacebookBanner(modifier = Modifier.weight(1.0f),
+            // Composables.ShowFacebookBanner(modifier = Modifier.weight(1.0f),
             //     ColorBallsApp.facebookBannerID2)
         }
     }
@@ -654,7 +641,7 @@ open class ColorBallActivity : MyView() {
             }
         }   // end of LaunchedEffect
         nativeAd?.let {
-            MyNativeAdView(modifier = modifier, ad = it) { ad, view ->
+            Composables.MyNativeAdView(modifier = modifier, ad = it) { ad, view ->
                 // head Column
                 Column(modifier = modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -720,9 +707,9 @@ open class ColorBallActivity : MyView() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
             ShowNativeAd(modifier = Modifier.weight(8.0f))
-            ShowAdmobNormalBanner(modifier = Modifier.weight(2.0f))
+            Composables.ShowAdmobNormalBanner(modifier = Modifier.weight(2.0f))
             /*
-            ShowFacebookBanner(modifier = Modifier.weight(2.0f)
+            Composables.ShowFacebookBanner(modifier = Modifier.weight(2.0f)
                 .padding(top = 10.dp),
                 ColorBallsApp.facebookBannerID2)
             */

@@ -57,6 +57,8 @@ abstract class BallsRemoverView: ComponentActivity(),
     private var interstitialAd: ShowInterstitial? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG, "$TAG.onCreate")
+        super.onCreate(savedInstanceState)
         if (!BuildConfig.DEBUG) {
             requestedOrientation = if (ScreenUtil.isTablet(this@BallsRemoverView)) {
                 // Table then change orientation to Landscape
@@ -66,25 +68,18 @@ abstract class BallsRemoverView: ComponentActivity(),
                 ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             }
         }
-        super.onCreate(savedInstanceState)
 
-        Log.d(TAG, "$TAG.onCreate")
         Log.d(TAG, "onCreate.textFontSize")
-        textFontSize = ScreenUtil.suitableFontSize(
-            this, ScreenUtil.getDefaultTextSizeFromTheme(this,
-                ScreenUtil.FontSize_Pixel_Type, null),
-            ScreenUtil.FontSize_Pixel_Type,
-            0.0f)
+        textFontSize = ColorBallsApp.textFontSize
         BallsRemoverComposables.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
 
         Log.d(TAG, "onCreate.interstitialAd")
-
         (application as ColorBallsApp).let {
             interstitialAd = ShowInterstitial(this, null,
                 it.googleInterstitialAd)
         }
 
-        Log.d(TAG, "onCreate.instantiate MainPresenter")
+        Log.d(TAG, "onCreate.instantiate BallsRemoverPresenter")
         viewModel.setPresenter(BallsRemoverPresenter(this@BallsRemoverView))
     }
 
@@ -160,7 +155,7 @@ abstract class BallsRemoverView: ComponentActivity(),
 
     private fun exitApplication() {
         val handlerClose = Handler(Looper.getMainLooper())
-        val timeDelay = 200
+        val timeDelay = 1000
         // exit application
         handlerClose.postDelayed({ this.finish() }, timeDelay.toLong())
     }
@@ -283,80 +278,6 @@ abstract class BallsRemoverView: ComponentActivity(),
                 viewModel.timesPlayed = 0
             }
         }
-    }
-
-    @Composable
-    fun ShowAdmobBanner(modifier: Modifier = Modifier,
-                                adId: String, width: Int = 0) {
-        Log.d(TAG, "ShowAdmobBanner.adId = $adId")
-        AndroidView(
-            modifier = modifier,
-            factory = { context ->
-                AdView(context)
-            },
-            update = { adView ->
-                AdMobBanner(adView, adId, width)
-            }
-        )
-    }
-
-    @Composable
-    fun ShowAdmobNormalBanner(modifier: Modifier = Modifier) {
-        val adId = ColorBallsApp.googleAdMobBannerID
-        Log.d(TAG, "ShowAdmobNormalBanner.adId = $adId")
-        ShowAdmobBanner(modifier = modifier, adId = adId)
-    }
-
-    @Composable
-    fun MyNativeAdView(
-        modifier: Modifier = Modifier,
-        ad: NativeAd,
-        adContent: @Composable (ad: NativeAd, view: View) -> Unit,
-    ) {
-        Log.d(TAG, "MyNativeAdView")
-        val contentViewId by rememberSaveable { mutableIntStateOf(View.generateViewId()) }
-        val adViewId by rememberSaveable { mutableIntStateOf(View.generateViewId()) }
-        Log.d(TAG, "MyNativeAdView.AndroidView")
-        AndroidView(
-            modifier = modifier,
-            factory = { context ->
-                Log.d(TAG, "MyNativeAdView.AndroidView.factory")
-                val contentView = ComposeView(context).apply {
-                    id = contentViewId
-                }
-                NativeAdView(context).apply {
-                    id = adViewId
-                    addView(contentView)
-                }
-            },
-            update = { nativeAdView ->
-                Log.d(TAG, "MyNativeAdView.AndroidView.update")
-                val adView = nativeAdView.findViewById<NativeAdView>(adViewId)
-                val contentView = nativeAdView.findViewById<ComposeView>(contentViewId)
-                Log.d(TAG, "MyNativeAdView.AndroidView.update.setNativeAd()")
-                adView.setNativeAd(ad)
-                adView.background = (-0x1).toDrawable() // white color
-                adView.callToActionView = contentView
-                contentView.setContent { adContent(ad, contentView) }
-            }
-        )
-    }
-
-    @Composable
-    fun ShowFacebookBanner(modifier: Modifier = Modifier, adId: String) {
-        // val adId = ColorBallsApp.facebookBannerID
-        val pId = if (BuildConfig.DEBUG) "IMG_16_9_APP_INSTALL#$adId" else adId
-        Log.d(TAG, "ShowFacebookBanner.adId = $adId")
-        AndroidView(
-            modifier = modifier,
-            factory = { context ->
-                com.facebook.ads.AdView(context, pId,
-                    AdSize.BANNER_HEIGHT_50)
-            },
-            update = { faceAdView ->
-                FacebookBanner(faceAdView)
-            }
-        )
     }
 
     // implementing MainPresentView

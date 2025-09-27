@@ -1,7 +1,6 @@
 package com.smile.colorballs.ballsremover.views
 
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
@@ -55,7 +54,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.google.android.gms.ads.nativead.NativeAd
-import com.smile.colorballs.BuildConfig
 import com.smile.colorballs.ballsremover.BallsRemoverComposables
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.ballsremover.constants.BallsRemoverConstants
@@ -64,6 +62,7 @@ import com.smile.colorballs.ballsremover.constants.WhichBall
 import com.smile.colorballs.views.ui.theme.*
 import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
+import com.smile.colorballs.views.Composables
 import com.smile.smilelibraries.models.ExitAppTimer
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil
 import com.smile.smilelibraries.utilities.ScreenUtil
@@ -87,18 +86,8 @@ class BallsRemoverActivity : BallsRemoverView() {
     private lateinit var settingLauncher: ActivityResultLauncher<Intent>
     //
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         Log.d(TAG, "$TAG.onCreate")
-        if (!BuildConfig.DEBUG) {
-            requestedOrientation = if (ScreenUtil.isTablet(this@BallsRemoverActivity)) {
-                // Table then change orientation to Landscape
-                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-            } else {
-                // phone then change orientation to Portrait
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-            }
-        }
-
+        super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate.getScreenSize()")
         getScreenSize()
 
@@ -627,9 +616,9 @@ class BallsRemoverActivity : BallsRemoverView() {
         Column(modifier = modifier.fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top) {
-            ShowAdmobNormalBanner(modifier = Modifier.weight(1.0f))
-            // ShowAdmobAdaptiveBanner(modifier = Modifier.weight(1.0f), 0)
-            ShowFacebookBanner(modifier = Modifier.weight(1.0f),
+            Composables.ShowAdmobNormalBanner(modifier = Modifier.weight(1.0f))
+            // Composables.ShowAdmobAdaptiveBanner(modifier = Modifier.weight(1.0f), 0)
+            Composables.ShowFacebookBanner(modifier = Modifier.weight(1.0f),
                 ColorBallsApp.facebookBannerID)
             // ShowFacebookBanner(modifier = Modifier.weight(1.0f),
             //     ColorBallsApp.facebookBannerID2)
@@ -654,7 +643,7 @@ class BallsRemoverActivity : BallsRemoverView() {
             }
         }   // end of LaunchedEffect
         nativeAd?.let {
-            MyNativeAdView(modifier = modifier, ad = it) { ad, view ->
+            Composables.MyNativeAdView(modifier = modifier, ad = it) { ad, view ->
                 // head Column
                 Column(modifier = modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -721,7 +710,7 @@ class BallsRemoverActivity : BallsRemoverView() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
             ShowNativeAd(modifier = Modifier.weight(8.0f))
-            ShowAdmobNormalBanner(modifier = Modifier.weight(2.0f))
+            Composables.ShowAdmobNormalBanner(modifier = Modifier.weight(2.0f))
         }
     }
 

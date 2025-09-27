@@ -3,6 +3,7 @@ package com.smile.colorballs.views
 import android.app.Activity
 import android.content.res.Configuration
 import android.util.Log
+import android.view.View
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -35,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -44,10 +47,20 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.graphics.drawable.toDrawable
+import com.facebook.ads.AdSize
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.nativead.NativeAd
+import com.google.android.gms.ads.nativead.NativeAdView
+import com.smile.colorballs.BuildConfig
+import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
 import com.smile.colorballs.models.Settings
 import com.smile.colorballs.models.TopPlayer
 import com.smile.colorballs.views.ui.theme.ColorPrimary
+import com.smile.smilelibraries.AdMobBanner
+import com.smile.smilelibraries.FacebookBanner
 
 object Composables {
 
@@ -558,6 +571,87 @@ object Composables {
                         disabledContentColor = lightRed
                     )
                 ) { Text(text = noStr, fontSize = mFontSize) }
+            }
+        )
+    }
+
+    @Composable
+    fun ShowAdmobBanner(modifier: Modifier = Modifier,
+                        adId: String, width: Int = 0) {
+        Log.d(TAG, "ShowAdmobBanner.adId = $adId")
+        AndroidView(
+            modifier = modifier,
+            factory = { context ->
+                AdView(context)
+            },
+            update = { adView ->
+                AdMobBanner(adView, adId, width)
+            }
+        )
+    }
+
+    @Composable
+    fun ShowAdmobNormalBanner(modifier: Modifier = Modifier) {
+        val adId = ColorBallsApp.googleAdMobBannerID
+        Log.d(TAG, "ShowAdmobNormalBanner.adId = $adId")
+        ShowAdmobBanner(modifier = modifier, adId = adId)
+    }
+
+    @Composable
+    fun ShowAdmobAdaptiveBanner(modifier: Modifier = Modifier, width: Int) {
+        val adId = ColorBallsApp.googleAdMobBannerID2
+        Log.d(TAG, "ShowAdmobAdaptiveBanner.adId = $adId")
+        ShowAdmobBanner(modifier = modifier, adId = adId, width = width)
+    }
+
+    @Composable
+    fun MyNativeAdView(
+        modifier: Modifier = Modifier,
+        ad: NativeAd,
+        adContent: @Composable (ad: NativeAd, view: View) -> Unit,
+    ) {
+        Log.d(TAG, "MyNativeAdView")
+        val contentViewId by rememberSaveable { mutableIntStateOf(View.generateViewId()) }
+        val adViewId by rememberSaveable { mutableIntStateOf(View.generateViewId()) }
+        Log.d(TAG, "MyNativeAdView.AndroidView")
+        AndroidView(
+            modifier = modifier,
+            factory = { context ->
+                Log.d(TAG, "MyNativeAdView.AndroidView.factory")
+                val contentView = ComposeView(context).apply {
+                    id = contentViewId
+                }
+                NativeAdView(context).apply {
+                    id = adViewId
+                    addView(contentView)
+                }
+            },
+            update = { nativeAdView ->
+                Log.d(TAG, "MyNativeAdView.AndroidView.update")
+                val adView = nativeAdView.findViewById<NativeAdView>(adViewId)
+                val contentView = nativeAdView.findViewById<ComposeView>(contentViewId)
+                Log.d(TAG, "MyNativeAdView.AndroidView.update.setNativeAd()")
+                adView.setNativeAd(ad)
+                adView.background = (-0x1).toDrawable()
+                adView.callToActionView = contentView
+                contentView.setContent { adContent(ad, contentView) }
+            }
+        )
+    }
+
+    @Composable
+    fun ShowFacebookBanner(modifier: Modifier = Modifier, adId: String) {
+        // val adId = ColorBallsApp.facebookBannerID
+        val pId = if (BuildConfig.DEBUG) "IMG_16_9_APP_INSTALL#$adId" else adId
+        Log.d(TAG, "ShowFacebookBanner.adId = $adId")
+        AndroidView(
+            modifier = modifier,
+            factory = { context ->
+                com.facebook.ads.AdView(context, pId,
+                    AdSize.BANNER_HEIGHT_50)
+            },
+            update = { faceAdView ->
+                FacebookBanner(faceAdView)
             }
         )
     }

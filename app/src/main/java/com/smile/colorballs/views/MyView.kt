@@ -1,5 +1,6 @@
 package com.smile.colorballs.views
 
+import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -64,15 +65,23 @@ abstract class MyView: ComponentActivity(), PresentView {
     private var interstitialAd: ShowInterstitial? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         Log.d(TAG, "$TAG.onCreate")
+        super.onCreate(savedInstanceState)
+        if (!BuildConfig.DEBUG) {
+            requestedOrientation = if (ScreenUtil.isTablet(this@MyView)) {
+                // Table then change orientation to Landscape
+                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            } else {
+                // phone then change orientation to Portrait
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            }
+        }
 
         Log.d(TAG, "onCreate.textFontSize")
         textFontSize = ColorBallsApp.textFontSize
         Composables.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
 
         Log.d(TAG, "onCreate.interstitialAd")
-        Log.d(TAG, "onCreate.application = $application")
         (application as ColorBallsApp).let {
             interstitialAd = ShowInterstitial(this, it.facebookAds,
                 it.googleInterstitialAd)
@@ -207,7 +216,6 @@ abstract class MyView: ComponentActivity(), PresentView {
                     }
                 }).startShowAd(0)
             }
-            // viewModel.initGame(null)
         }
         viewModel.setSaveScoreAlertDialogState(false)
         ColorBallsApp.isProcessingJob = false
@@ -294,87 +302,6 @@ abstract class MyView: ComponentActivity(), PresentView {
             Composables.DialogWithTextField(this@MyView,
                 buttonListener, dialogTitle, hitStr)
         }
-    }
-
-    @Composable
-    fun ShowAdmobBanner(modifier: Modifier = Modifier,
-                                adId: String, width: Int = 0) {
-        Log.d(TAG, "ShowAdmobBanner.adId = $adId")
-        AndroidView(
-            modifier = modifier,
-            factory = { context ->
-                AdView(context)
-            },
-            update = { adView ->
-                AdMobBanner(adView, adId, width)
-            }
-        )
-    }
-
-    @Composable
-    fun ShowAdmobNormalBanner(modifier: Modifier = Modifier) {
-        val adId = ColorBallsApp.googleAdMobBannerID
-        Log.d(TAG, "ShowAdmobNormalBanner.adId = $adId")
-        ShowAdmobBanner(modifier = modifier, adId = adId)
-    }
-
-    @Composable
-    fun ShowAdmobAdaptiveBanner(modifier: Modifier = Modifier, width: Int) {
-        val adId = ColorBallsApp.googleAdMobBannerID2
-        Log.d(TAG, "ShowAdmobAdaptiveBanner.adId = $adId")
-        ShowAdmobBanner(modifier = modifier, adId = adId, width = width)
-    }
-
-    @Composable
-    fun MyNativeAdView(
-        modifier: Modifier = Modifier,
-        ad: NativeAd,
-        adContent: @Composable (ad: NativeAd, view: View) -> Unit,
-    ) {
-        Log.d(TAG, "MyNativeAdView")
-        val contentViewId by rememberSaveable { mutableIntStateOf(View.generateViewId()) }
-        val adViewId by rememberSaveable { mutableIntStateOf(View.generateViewId()) }
-        Log.d(TAG, "MyNativeAdView.AndroidView")
-        AndroidView(
-            modifier = modifier,
-            factory = { context ->
-                Log.d(TAG, "MyNativeAdView.AndroidView.factory")
-                val contentView = ComposeView(context).apply {
-                    id = contentViewId
-                }
-                NativeAdView(context).apply {
-                    id = adViewId
-                    addView(contentView)
-                }
-            },
-            update = { nativeAdView ->
-                Log.d(TAG, "MyNativeAdView.AndroidView.update")
-                val adView = nativeAdView.findViewById<NativeAdView>(adViewId)
-                val contentView = nativeAdView.findViewById<ComposeView>(contentViewId)
-                Log.d(TAG, "MyNativeAdView.AndroidView.update.setNativeAd()")
-                adView.setNativeAd(ad)
-                adView.background = (-0x1).toDrawable()
-                adView.callToActionView = contentView
-                contentView.setContent { adContent(ad, contentView) }
-            }
-        )
-    }
-
-    @Composable
-    fun ShowFacebookBanner(modifier: Modifier = Modifier, adId: String) {
-        // val adId = ColorBallsApp.facebookBannerID
-        val pId = if (BuildConfig.DEBUG) "IMG_16_9_APP_INSTALL#$adId" else adId
-        Log.d(TAG, "ShowFacebookBanner.adId = $adId")
-        AndroidView(
-            modifier = modifier,
-            factory = { context ->
-                com.facebook.ads.AdView(context, pId,
-                    AdSize.BANNER_HEIGHT_50)
-            },
-            update = { faceAdView ->
-                FacebookBanner(faceAdView)
-            }
-        )
     }
 
     // implementing PresentViewCompose
