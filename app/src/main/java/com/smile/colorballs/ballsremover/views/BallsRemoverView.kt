@@ -7,21 +7,11 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.nativead.NativeAd
-import com.google.android.gms.ads.nativead.NativeAdView
 import com.smile.colorballs.ballsremover.BallsRemoverComposables
 import com.smile.colorballs.BuildConfig
 import com.smile.colorballs.R
@@ -30,7 +20,6 @@ import com.smile.colorballs.ballsremover.constants.BallsRemoverConstants
 import com.smile.colorballs.ballsremover.interfaces.BallsRemoverPresentView
 import com.smile.colorballs.ballsremover.presenters.BallsRemoverPresenter
 import com.smile.colorballs.ballsremover.viewmodels.BallsRemoverViewModel
-import com.smile.smilelibraries.AdMobBanner
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
 import com.smile.smilelibraries.utilities.ScreenUtil
@@ -39,10 +28,6 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import androidx.core.graphics.scale
-import androidx.core.graphics.drawable.toDrawable
-import com.facebook.ads.AdSize
-import com.smile.colorballs.views.MyView
-import com.smile.smilelibraries.FacebookBanner
 
 abstract class BallsRemoverView: ComponentActivity(),
     BallsRemoverPresentView {
