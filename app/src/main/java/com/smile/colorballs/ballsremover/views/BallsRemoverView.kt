@@ -27,6 +27,8 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import androidx.core.graphics.scale
+import com.smile.colorballs.constants.Constants
+import com.smile.colorballs.constants.WhichGame
 import com.smile.colorballs.views.CbComposable
 
 abstract class BallsRemoverView: ComponentActivity(),
@@ -37,6 +39,7 @@ abstract class BallsRemoverView: ComponentActivity(),
     protected var boxImage: Bitmap? = null
     protected val colorBallMap: HashMap<Int, Bitmap> = HashMap()
     protected val colorOvalBallMap: HashMap<Int, Bitmap> = HashMap()
+    protected var whichGame = WhichGame.REMOVE_BALLS
 
     private val databaseName = "balls_remover.db"
     private var interstitialAd: ShowInterstitial? = null
@@ -96,44 +99,44 @@ abstract class BallsRemoverView: ComponentActivity(),
                 "= ${ScreenUtil.pixelToDp(boxImage?.height!!.toFloat())}")
 
         BitmapFactory.decodeResource(resources, R.drawable.redball)?.let { bm ->
-            colorBallMap[BallsRemoverConstants.COLOR_RED] =
+            colorBallMap[Constants.COLOR_RED] =
                 bm.scale(ballWidth, ballHeight)
-            colorOvalBallMap[BallsRemoverConstants.COLOR_RED] =
+            colorOvalBallMap[Constants.COLOR_RED] =
                 bm.scale(ovalBallWidth, ovalBallHeight)
         }
 
         BitmapFactory.decodeResource(resources, R.drawable.greenball)?.let { bm ->
-            colorBallMap[BallsRemoverConstants.COLOR_GREEN] =
+            colorBallMap[Constants.COLOR_GREEN] =
                 bm.scale(ballWidth, ballHeight)
-            colorOvalBallMap[BallsRemoverConstants.COLOR_GREEN] =
+            colorOvalBallMap[Constants.COLOR_GREEN] =
                 bm.scale(ovalBallWidth, ovalBallHeight)
         }
 
         BitmapFactory.decodeResource(resources, R.drawable.blueball)?.let { bm ->
-            colorBallMap[BallsRemoverConstants.COLOR_BLUE] =
+            colorBallMap[Constants.COLOR_BLUE] =
                 bm.scale(ballWidth, ballHeight)
-            colorOvalBallMap[BallsRemoverConstants.COLOR_BLUE] =
+            colorOvalBallMap[Constants.COLOR_BLUE] =
                 bm.scale(ovalBallWidth, ovalBallHeight)
         }
 
         BitmapFactory.decodeResource(resources, R.drawable.magentaball)?.let { bm ->
-            colorBallMap[BallsRemoverConstants.COLOR_MAGENTA] =
+            colorBallMap[Constants.COLOR_MAGENTA] =
                 bm.scale(ballWidth, ballHeight)
-            colorOvalBallMap[BallsRemoverConstants.COLOR_MAGENTA] =
+            colorOvalBallMap[Constants.COLOR_MAGENTA] =
                 bm.scale(ovalBallWidth, ovalBallHeight)
         }
 
         BitmapFactory.decodeResource(resources, R.drawable.yellowball)?.let { bm ->
-            colorBallMap[BallsRemoverConstants.COLOR_YELLOW] =
+            colorBallMap[Constants.COLOR_YELLOW] =
                 bm.scale(ballWidth, ballHeight)
-            colorOvalBallMap[BallsRemoverConstants.COLOR_YELLOW] =
+            colorOvalBallMap[Constants.COLOR_YELLOW] =
                 bm.scale(ovalBallWidth, ovalBallHeight)
         }
 
         BitmapFactory.decodeResource(resources, R.drawable.cyanball)?.let { bm ->
-            colorBallMap[BallsRemoverConstants.COLOR_CYAN] =
+            colorBallMap[Constants.COLOR_CYAN] =
                 bm.scale(ballWidth, ballHeight)
-            colorOvalBallMap[BallsRemoverConstants.COLOR_CYAN] =
+            colorOvalBallMap[Constants.COLOR_CYAN] =
                 bm.scale(ovalBallWidth, ovalBallHeight)
         }
     }
@@ -146,10 +149,10 @@ abstract class BallsRemoverView: ComponentActivity(),
     }
 
     private fun quitOrNewGame() {
-        if (viewModel.mGameAction == BallsRemoverConstants.IS_QUITING_GAME) {
+        if (viewModel.mGameAction == Constants.IS_QUITING_GAME) {
             //  END PROGRAM
             exitApplication()
-        } else if (viewModel.mGameAction == BallsRemoverConstants.IS_CREATING_GAME) {
+        } else if (viewModel.mGameAction == Constants.IS_CREATING_GAME) {
             //  NEW GAME
             viewModel.initGame(null)
         }

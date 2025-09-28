@@ -391,8 +391,8 @@ class BallsRemoverActivity : BallsRemoverView() {
             this@BallsRemoverActivity, Top10Activity::class.java
         ).let {
             Bundle().apply {
-                putString(Constants.GAME_ID, BallsRemoverConstants.BALLS_REMOVER_GAME_ID)
-                putString(Constants.DATABASE_NAME, BallsRemoverConstants.BALLS_REMOVER_DATABASE_NAME)
+                putString(Constants.GAME_ID, Constants.BALLS_REMOVER_GAME_ID)
+                putString(Constants.DATABASE_NAME, Constants.BALLS_REMOVER_DATABASE_NAME)
                 putBoolean(Constants.IS_LOCAL_TOP10, isLocal)
                 it.putExtras(this)
                 top10Launcher.launch(it)

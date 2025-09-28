@@ -5,12 +5,14 @@ import com.smile.colorballs.R
 
 object Constants {
     const val GAME_NO_BARRIER_ID = "1"
+    const val BALLS_REMOVER_GAME_ID = "5"
     const val GAME_HAS_BARRIER_ID = "6"
     const val GAME_RESOLVE_GRID_ID = "7"
     const val GAME_ID = "GameId"
     const val NO_BARRIER_DATABASE_NAME = "colorBallDatabase.db"
     const val HAS_BARRIER_DATABASE_NAME = "colorBallDatabase1.db"
     const val RESOLVE_GRID_DATABASE_NAME = "colorBallDatabase2.db"
+    const val BALLS_REMOVER_DATABASE_NAME = "balls_remover.db"
     const val DATABASE_NAME = "DatabaseName"
     const val SAVE_NO_BARRIER = "SavedGame"
     const val SAVE_HAS_BARRIER = "SavedGame1"
@@ -32,9 +34,9 @@ object Constants {
     const val COLOR_BARRIER = 100
     const val NUM_BARRIERS = 8
     const val BALL_NUM_COMPLETED = 5
-    const val NUM_EASY= 5
+    const val NUM_BALLS_USED_EASY= 5
     // 6 colors for difficult level
-    const val NUM_DIFFICULT = 6
+    const val NUM_BALLS_USED_DIFF = 6
     @JvmField
     val ROW_COUNTS = ColorBallsApp.mResources.getInteger(R.integer.rowCounts)
     @JvmField

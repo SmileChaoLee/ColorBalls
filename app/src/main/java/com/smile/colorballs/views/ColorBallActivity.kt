@@ -59,6 +59,7 @@ import com.smile.colorballs.R
 import com.smile.colorballs.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
+import com.smile.colorballs.tools.Utils
 import com.smile.smilelibraries.GoogleNativeAd
 import com.smile.colorballs.views.ui.theme.ColorPrimary
 import com.smile.colorballs.views.ui.theme.Yellow3
@@ -390,8 +391,8 @@ open class ColorBallActivity : MyView() {
             Top10Activity::class.java
         ).let {
             Bundle().apply {
-                putString(Constants.GAME_ID, viewModel.getGameId())
-                putString(Constants.DATABASE_NAME, viewModel.getDatabaseName())
+                putString(Constants.GAME_ID, Utils.getGameId(viewModel.getWhichGame()))
+                putString(Constants.DATABASE_NAME, Utils.getDatabaseName(viewModel.getWhichGame()))
                 putBoolean(Constants.IS_LOCAL_TOP10, isLocal)
                 it.putExtras(this)
                 top10Launcher.launch(it)

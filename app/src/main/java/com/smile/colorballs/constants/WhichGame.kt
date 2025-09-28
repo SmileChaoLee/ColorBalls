@@ -4,4 +4,5 @@ enum class WhichGame {
     NO_BARRIER,
     HAS_BARRIER,
     RESOLVE_GRID,
+    REMOVE_BALLS
 }

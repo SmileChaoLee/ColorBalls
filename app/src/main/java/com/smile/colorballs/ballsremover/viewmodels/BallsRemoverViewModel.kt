@@ -50,7 +50,7 @@ class BallsRemoverViewModel: ViewModel() {
     private lateinit var soundPool: SoundPoolUtil
     private lateinit var medalImageIds: List<Int>
 
-    var mGameAction = BallsRemoverConstants.IS_QUITING_GAME
+    var mGameAction = Constants.IS_QUITING_GAME
     var timesPlayed = 0
 
     private val currentScore = mutableIntStateOf(0)
@@ -242,8 +242,8 @@ class BallsRemoverViewModel: ViewModel() {
     }
     fun setEasyLevel(easyLevel: Boolean) {
         settings.easyLevel = easyLevel
-        val num = if (easyLevel) BallsRemoverConstants.NUM_BALLS_USED_EASY
-        else BallsRemoverConstants.NUM_BALLS_USED_DIFF
+        val num = if (easyLevel) Constants.NUM_BALLS_USED_EASY
+        else Constants.NUM_BALLS_USED_DIFF
         mGridData.setNumBallsUsed(num)
     }
 
@@ -276,7 +276,7 @@ class BallsRemoverViewModel: ViewModel() {
                     val jsonObject = JSONObject()
                     jsonObject.put("PlayerName", playerName)
                     jsonObject.put("Score", mGameProp.currentScore)
-                    jsonObject.put("GameId", BallsRemoverConstants.BALLS_REMOVER_GAME_ID)
+                    jsonObject.put("GameId", Constants.BALLS_REMOVER_GAME_ID)
                     PlayerRecordRest.addOneRecord(jsonObject)
                     Log.d(TAG, "saveScore.Succeeded to add one record to remote.")
                 } catch (ex: Exception) {
@@ -292,7 +292,7 @@ class BallsRemoverViewModel: ViewModel() {
 
     fun isCreatingNewGame() {
         Log.d(TAG, "isCreatingNewGame")
-        mGameAction = BallsRemoverConstants.IS_CREATING_GAME
+        mGameAction = Constants.IS_CREATING_GAME
         setCreateNewGameText(createNewGameStr)
     }
 
@@ -301,14 +301,14 @@ class BallsRemoverViewModel: ViewModel() {
         Log.d(TAG, "newGame")
         timesPlayed++
         Log.d(TAG, "newGame.timesPlayed = $timesPlayed")
-        mGameAction = BallsRemoverConstants.IS_CREATING_GAME
+        mGameAction = Constants.IS_CREATING_GAME
         setSaveScoreTitle(saveScoreStr)
     }
 
     fun quitGame() {
         // quiting the game
         Log.d(TAG, "newGame")
-        mGameAction = BallsRemoverConstants.IS_QUITING_GAME
+        mGameAction = Constants.IS_QUITING_GAME
         setSaveScoreTitle(saveScoreStr)
     }
 

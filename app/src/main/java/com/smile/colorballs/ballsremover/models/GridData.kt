@@ -4,6 +4,7 @@ import android.graphics.Point
 import android.os.Parcelable
 import android.util.Log
 import com.smile.colorballs.ballsremover.constants.BallsRemoverConstants
+import com.smile.colorballs.constants.Constants
 import kotlinx.parcelize.Parcelize
 import java.util.Random
 import java.util.Stack
@@ -12,7 +13,7 @@ private val mRandom: Random = Random(System.currentTimeMillis())
 
 @Parcelize
 class GridData(
-    private var mNumOfColorsUsed : Int = BallsRemoverConstants.NUM_BALLS_USED_EASY,
+    private var mNumOfColorsUsed : Int = Constants.NUM_BALLS_USED_EASY,
     private val mCellValues : Array<IntArray> =
         Array(BallsRemoverConstants.ROW_COUNTS) { IntArray(BallsRemoverConstants.COLUMN_COUNTS){0} },
     private val mBackupCells : Array<IntArray> =
@@ -33,7 +34,7 @@ class GridData(
         Log.d(TAG, "generateColumnBalls.column = $column")
         for (i in 0 until BallsRemoverConstants.ROW_COUNTS) {
             val nn = mRandom.nextInt(mNumOfColorsUsed)
-            mCellValues[i][column] = BallsRemoverConstants.BallColor[nn]
+            mCellValues[i][column] = Constants.BallColor[nn]
         }
     }
 

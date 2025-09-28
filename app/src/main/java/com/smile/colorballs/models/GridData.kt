@@ -17,7 +17,7 @@ private val mRandomBall: Random = Random(System.currentTimeMillis()+1000L)
 
 @Parcelize
 class GridData(
-    private var mNumOfColorsUsed : Int = Constants.NUM_EASY,
+    private var mNumOfColorsUsed : Int = Constants.NUM_BALLS_USED_EASY,
     private val mCellValues : Array<IntArray> =
         Array(rowCounts) { IntArray(colCounts) },
     private val mBackupCells : Array<IntArray> =
@@ -61,7 +61,7 @@ class GridData(
     }
 
     fun initialize(whichGame: WhichGame) {
-        mNumOfColorsUsed = Constants.NUM_EASY
+        mNumOfColorsUsed = Constants.NUM_BALLS_USED_EASY
         for (i in 0 until rowCounts) {
             for (j in 0 until rowCounts) {
                 mCellValues[i][j] = 0
@@ -86,6 +86,7 @@ class GridData(
             WhichGame.RESOLVE_GRID -> {
                 randomGrid()
             }
+            WhichGame.REMOVE_BALLS -> { /* do nothing*/ }
         }
     }
 

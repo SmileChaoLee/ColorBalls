@@ -6,10 +6,6 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class GameProp(
-    /**
-     * whichGame = 0 : Empty distribution
-     * whichGame = 1 : Random distribution
-     */
     var whichGame: WhichGame = WhichGame.NO_BARRIER,
     var isShowingLoadingMessage : Boolean = false,
     var isShowingScoreMessage : Boolean = false,

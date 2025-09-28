@@ -28,6 +28,7 @@ import java.io.FileOutputStream
 import androidx.core.graphics.scale
 import com.smile.colorballs.constants.WhichGame
 import com.smile.colorballs.roomdatabase.ScoreDatabase
+import com.smile.colorballs.tools.Utils
 import com.smile.smilelibraries.interfaces.DismissFunction
 
 abstract class MyView: ComponentActivity(), PresentView {
@@ -42,10 +43,6 @@ abstract class MyView: ComponentActivity(), PresentView {
     protected val colorBallMap: HashMap<Int, Bitmap> = HashMap()
     protected val colorOvalBallMap: HashMap<Int, Bitmap> = HashMap()
     protected val colorNextBallMap: HashMap<Int, Bitmap> = HashMap()
-    /**
-     * whichGame = 0 : Empty distribution
-     * whichGame = 1 : Random distribution
-     */
     protected var whichGame = WhichGame.NO_BARRIER
 
     private var interstitialAd: ShowInterstitial? = null
@@ -326,7 +323,7 @@ abstract class MyView: ComponentActivity(), PresentView {
 
     override fun getRoomDatabase(): ScoreDatabase {
         return ScoreDatabase.getDatabase(this,
-            viewModel.getDatabaseName())
+            Utils.getDatabaseName(whichGame))
     }
 
     override fun fileInputStream(fileName : String): FileInputStream {

@@ -21,6 +21,7 @@ import com.smile.colorballs.models.ColorBallInfo
 import com.smile.colorballs.presenters.Presenter
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
 import com.smile.colorballs.roomdatabase.Score
+import com.smile.colorballs.tools.Utils
 import com.smile.smilelibraries.utilities.SoundPoolUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -345,7 +346,7 @@ class ColorBallViewModel: ViewModel() {
 
     fun setEasyLevel(yn: Boolean) {
         mGameProp.isEasyLevel = yn
-        mGridData.setNumOfColorsUsed(if (yn) Constants.NUM_EASY else Constants.NUM_DIFFICULT)
+        mGridData.setNumOfColorsUsed(if (yn) Constants.NUM_BALLS_USED_EASY else Constants.NUM_BALLS_USED_DIFF)
     }
 
     fun hasNext(): Boolean {
@@ -414,7 +415,7 @@ class ColorBallViewModel: ViewModel() {
                     val jsonObject = JSONObject()
                     jsonObject.put("PlayerName", playerName)
                     jsonObject.put("Score", mGameProp.currentScore)
-                    jsonObject.put("GameId", getGameId())
+                    jsonObject.put("GameId", Utils.getGameId(getWhichGame()))
                     PlayerRecordRest.addOneRecord(jsonObject)
                     Log.d(TAG, "saveScore.Succeeded to add one record to remote.")
                 } catch (ex: Exception) {
@@ -467,24 +468,6 @@ class ColorBallViewModel: ViewModel() {
         return numOfSaved
     }
 
-    fun getGameId() = when(getWhichGame()) {
-        WhichGame.NO_BARRIER -> Constants.GAME_NO_BARRIER_ID
-        WhichGame.HAS_BARRIER -> Constants.GAME_HAS_BARRIER_ID
-        WhichGame.RESOLVE_GRID -> Constants.GAME_RESOLVE_GRID_ID
-    }
-
-    fun getDatabaseName() = when(getWhichGame()) {
-        WhichGame.NO_BARRIER -> Constants.NO_BARRIER_DATABASE_NAME
-        WhichGame.HAS_BARRIER -> Constants.HAS_BARRIER_DATABASE_NAME
-        WhichGame.RESOLVE_GRID -> Constants.RESOLVE_GRID_DATABASE_NAME
-    }
-
-    private fun getSaveFileName() = when(mGameProp.whichGame) {
-        WhichGame.NO_BARRIER -> Constants.SAVE_NO_BARRIER
-        WhichGame.HAS_BARRIER -> Constants.SAVE_HAS_BARRIER
-        WhichGame.RESOLVE_GRID -> Constants.SAVE_RESOLVE_GRID
-    }
-
     fun startSavingGame(num: Int): Boolean {
         Log.d(TAG, "startSavingGame")
         ColorBallsApp.isProcessingJob = true
@@ -493,7 +476,7 @@ class ColorBallViewModel: ViewModel() {
         var numOfSaved = num
         var succeeded = true
         try {
-            val fileName = getSaveFileName()
+            val fileName = Utils.getSaveFileName(getWhichGame())
             var foStream = mPresenter.fileOutputStream(fileName)
             // save settings
             Log.d(TAG, "startSavingGame.hasSound = " + mGameProp.hasSound)
@@ -511,7 +494,7 @@ class ColorBallViewModel: ViewModel() {
                 foStream.write(value)
             }
             var sz = mGridData.getNextCellIndices().size
-            for (i in sz until Constants.NUM_DIFFICULT) {
+            for (i in sz until Constants.NUM_BALLS_USED_DIFF) {
                 Log.d(TAG, "startSavingGame.nextCellIndices.getValue() = " + 0)
                 foStream.write(0)
             }
@@ -558,7 +541,7 @@ class ColorBallViewModel: ViewModel() {
                 foStream.write(value)
             }
             sz = mGridData.getUndoNextCellIndices().size
-            for (i in sz until Constants.NUM_DIFFICULT) {
+            for (i in sz until Constants.NUM_BALLS_USED_DIFF) {
                 Log.d(TAG, "startSavingGame.undoNextCellIndices.getValue() = " + 0)
                 foStream.write(0)
             }
@@ -606,12 +589,12 @@ class ColorBallViewModel: ViewModel() {
         val isEasyLevel: Boolean
         val hasNextBall: Boolean
         var ballNumOneTime: Int
-        val nextBalls = IntArray(Constants.NUM_DIFFICULT)
+        val nextBalls = IntArray(Constants.NUM_BALLS_USED_DIFF)
         val gameCells = Array(Constants.ROW_COUNTS) {
             IntArray(Constants.ROW_COUNTS) }
         val cScore: Int
         val isUndoEnable: Boolean
-        val undoNextBalls = IntArray(Constants.NUM_DIFFICULT)
+        val undoNextBalls = IntArray(Constants.NUM_BALLS_USED_DIFF)
         val backupCells = Array(Constants.ROW_COUNTS) {
             IntArray(Constants.ROW_COUNTS) }
         var unScore = mGameProp.undoScore
@@ -620,7 +603,7 @@ class ColorBallViewModel: ViewModel() {
             mGridData.setNextCellIndices(HashMap())
             mGridData.setUndoNextCellIndices(HashMap())
             Log.d(TAG, "startLoadingGame.Creating inputFile")
-            val fileName = getSaveFileName()
+            val fileName = Utils.getSaveFileName(getWhichGame())
             // File inputFile = new File(mContext.getFilesDir(), savedGameFileName);
             // long fileSizeInByte = inputFile.length();
             // Log.d(TAG, "startLoadingGame.File size = " + fileSizeInByte);
@@ -642,7 +625,7 @@ class ColorBallViewModel: ViewModel() {
             Log.d(TAG, "startLoadingGame.hasNextBall = $hasNextBall")
             ballNumOneTime = fiStream.read()
             Log.i(TAG, "startLoadingGame.ballNumOneTime = $ballNumOneTime")
-            for (i in 0 until Constants.NUM_DIFFICULT) {
+            for (i in 0 until Constants.NUM_BALLS_USED_DIFF) {
                 nextBalls[i] = fiStream.read()
                 Log.d(TAG, "startLoadingGame.nextCellIndices.cell.getColor() = " + nextBalls[i])
             }
@@ -685,7 +668,7 @@ class ColorBallViewModel: ViewModel() {
             if (isUndoEnable) {
                 ballNumOneTime = fiStream.read()
                 Log.d(TAG, "startLoadingGame.ballNumOneTime = $ballNumOneTime")
-                for (i in 0 until Constants.NUM_DIFFICULT) {
+                for (i in 0 until Constants.NUM_BALLS_USED_DIFF) {
                     undoNextBalls[i] = fiStream.read()
                     Log.d(
                         TAG,"startLoadingGame.undoNextCellIndices.getValue() = "
