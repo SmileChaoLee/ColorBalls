@@ -357,6 +357,7 @@ open class ColorBallActivity : MyView() {
             CbSettingActivity::class.java
         ).let {
             Bundle().apply {
+                putString(Constants.GAME_ID, Utils.getGameId(viewModel.getWhichGame()))
                 putBoolean(Constants.HAS_SOUND, viewModel.hasSound())
                 putBoolean(Constants.EASY_LEVEL, viewModel.isEasyLevel())
                 putBoolean(Constants.HAS_NEXT, viewModel.hasNext())

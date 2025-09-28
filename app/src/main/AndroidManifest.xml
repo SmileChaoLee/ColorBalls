@@ -62,12 +62,6 @@
             android:name=".ballsremover.views.BallsRemoverActivity"
             android:exported="false">
         </activity>
-        <activity
-            android:name=".ballsremover.views.BallsRemoverSetActivity"
-            android:exported="false"
-            android:label="@string/settingStr"
-            android:theme="@style/AppThemeTransparent">
-        </activity>
     </application>
 
 </manifest>

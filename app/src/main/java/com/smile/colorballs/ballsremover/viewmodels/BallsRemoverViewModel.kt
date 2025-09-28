@@ -18,6 +18,7 @@ import com.smile.colorballs.ballsremover.models.GridData
 import com.smile.colorballs.ballsremover.presenters.BallsRemoverPresenter
 import com.smile.colorballs.ballsremover.constants.WhichBall
 import com.smile.colorballs.constants.Constants
+import com.smile.colorballs.constants.WhichGame
 import com.smile.colorballs.models.Settings
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
 import com.smile.smilelibraries.utilities.SoundPoolUtil
@@ -93,6 +94,10 @@ class BallsRemoverViewModel: ViewModel() {
     fun getSaveScoreTitle() = saveScoreTitle.value
     fun setSaveScoreTitle(title: String) {
         saveScoreTitle.value = title
+    }
+
+    fun getWhichGame(): WhichGame {
+        return mGameProp.whichGame
     }
 
     val gridDataArray = Array(BallsRemoverConstants.ROW_COUNTS) {

@@ -61,7 +61,9 @@ import com.smile.colorballs.ballsremover.constants.WhichBall
 import com.smile.colorballs.views.ui.theme.*
 import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
+import com.smile.colorballs.tools.Utils
 import com.smile.colorballs.views.CbComposable
+import com.smile.colorballs.views.CbSettingActivity
 import com.smile.colorballs.views.Top10Activity
 import com.smile.smilelibraries.models.ExitAppTimer
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil
@@ -354,9 +356,10 @@ class BallsRemoverActivity : BallsRemoverView() {
     private fun onClickSettingButton() {
         Intent(
             this@BallsRemoverActivity,
-            BallsRemoverSetActivity::class.java
+            CbSettingActivity::class.java
         ).let {
             Bundle().apply {
+                putString(Constants.GAME_ID, Utils.getGameId(viewModel.getWhichGame()))
                 putBoolean(Constants.HAS_SOUND, viewModel.hasSound())
                 putBoolean(Constants.EASY_LEVEL, viewModel.isEasyLevel())
                 putBoolean(Constants.HAS_NEXT, viewModel.hasNext())

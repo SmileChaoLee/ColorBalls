@@ -22,11 +22,13 @@ class CbSettingActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate")
 
+        var gameId = Constants.GAME_NO_BARRIER_ID
         if (savedInstanceState == null) {
             // new creation of this activity
             Log.d(TAG, "onCreate.savedInstanceState is null")
             val setting = Settings()
             intent.extras?.let {
+                gameId = it.getString(Constants.GAME_ID, gameId)
                 setting.hasSound = it.getBoolean(Constants.HAS_SOUND, true)
                 setting.easyLevel = it.getBoolean(Constants.EASY_LEVEL, true)
                 setting.hasNext = it.getBoolean(Constants.HAS_NEXT, true)
@@ -34,6 +36,7 @@ class CbSettingActivity : ComponentActivity() {
             settingViewModel.setSettings(setting)
         } else {
             // re-creation of this activity
+            gameId = settingViewModel.gameId
             Log.d(TAG, "onCreate.savedInstanceState not null")
             if (settingViewModel.settings.value == null) {
                 settingViewModel.setSettings(Settings())
@@ -65,7 +68,12 @@ class CbSettingActivity : ComponentActivity() {
         }
 
         setContent {
-            Log.d(TAG, "onCreate.setContent")
+            Log.d(TAG, "onCreate.setContent.gameId = $gameId")
+            val hasNextStr = if (gameId == Constants.BALLS_REMOVER_GAME_ID) {
+                getString(R.string.fillColumnStr)
+            } else {
+                getString(R.string.nextBallSettingStr)
+            }
             ColorBallsTheme {
                 settingViewModel.settings.value?.let {
                     CbComposable.SettingCompose(
@@ -74,7 +82,7 @@ class CbSettingActivity : ComponentActivity() {
                         getString(R.string.settingStr),
                         getString(R.string.soundStr),
                         getString(R.string.playerLevelStr),
-                        getString(R.string.nextBallSettingStr),
+                        hasNextStr,
                         getString(R.string.onStr),
                         getString(R.string.offStr),
                         getString(R.string.yesStr),
