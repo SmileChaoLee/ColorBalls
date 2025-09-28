@@ -29,7 +29,7 @@ data class GameProp(
     var lastGotScore : Int = 0,
     var isEasyLevel : Boolean = true,
     var hasSound : Boolean = true,
-    var hasNextBall : Boolean = true) : Parcelable {
+    var hasNext : Boolean = true) : Parcelable {
 
     fun initialize() {
         isShowingLoadingMessage = false
@@ -50,6 +50,6 @@ data class GameProp(
         lastGotScore = 0
         isEasyLevel = true
         hasSound = true
-        hasNextBall = true
+        hasNext = true
     }
 }

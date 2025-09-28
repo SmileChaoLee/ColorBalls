@@ -10,15 +10,15 @@ import androidx.activity.viewModels
 import androidx.compose.ui.graphics.Color
 import com.smile.colorballs.ballsremover.BallsRemoverComposables
 import com.smile.colorballs.R
-import com.smile.colorballs.ballsremover.constants.BallsRemoverConstants
-import com.smile.colorballs.ballsremover.models.Settings
+import com.smile.colorballs.constants.Constants
+import com.smile.colorballs.models.Settings
 import com.smile.colorballs.views.ui.theme.ColorBallsTheme
-import com.smile.colorballs.ballsremover.viewmodels.BallsRemoverSetViewModel
+import com.smile.colorballs.viewmodel.SettingViewModel
 import com.smile.colorballs.views.CbComposable
 
 class BallsRemoverSetActivity : ComponentActivity() {
 
-    private val ballsRemoverSetViewModel : BallsRemoverSetViewModel by viewModels()
+    private val ballsRemoverSetViewModel : SettingViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,9 +29,9 @@ class BallsRemoverSetActivity : ComponentActivity() {
             Log.d(TAG, "onCreate.savedInstanceState is null")
             val setting = Settings()
             intent.extras?.let {
-                setting.hasSound = it.getBoolean(BallsRemoverConstants.HAS_SOUND, true)
-                setting.gameLevel = it.getInt(BallsRemoverConstants.GAME_LEVEL, BallsRemoverConstants.EASY_LEVEL)
-                setting.fillColumn = it.getBoolean(BallsRemoverConstants.FILL_COLUMN, true)
+                setting.hasSound = it.getBoolean(Constants.HAS_SOUND, true)
+                setting.easyLevel = it.getBoolean(Constants.EASY_LEVEL, true)
+                setting.hasNext = it.getBoolean(Constants.HAS_NEXT, true)
             }
             ballsRemoverSetViewModel.setSettings(setting)
         } else {
@@ -42,18 +42,18 @@ class BallsRemoverSetActivity : ComponentActivity() {
             }
         }
 
-        val textClick = object : CbComposable.BRemSettingClickListener {
+        val textClick = object : CbComposable.SettingClickListener {
             override fun hasSoundClick(hasSound: Boolean) {
                 Log.d(TAG, "textClick.hasSoundClick.hasSound = $hasSound")
                 ballsRemoverSetViewModel.setHasSound(hasSound)
             }
-            override fun gameLevelClick(gameLevel: Int) {
-                Log.d(TAG, "textClick.gameLevelClick.gameLevel = $gameLevel")
-                ballsRemoverSetViewModel.setGameLevel(gameLevel)
+            override fun easyLevelClick(easyLevel: Boolean) {
+                Log.d(TAG, "textClick.easyLevelClick.easyLevel = $easyLevel")
+                ballsRemoverSetViewModel.setEasyLevel(easyLevel)
             }
-            override fun isFillColumnClick(fillColumn: Boolean) {
-                Log.d(TAG, "textClick.isFillColumnClick.hasNext = $fillColumn")
-                ballsRemoverSetViewModel.setFillColumn(fillColumn)
+            override fun hasNextClick(hasNext: Boolean) {
+                Log.d(TAG, "textClick.hasNextClick.hasNext = $hasNext")
+                ballsRemoverSetViewModel.setHasNext(hasNext)
             }
         }
 
@@ -122,9 +122,9 @@ class BallsRemoverSetActivity : ComponentActivity() {
         Intent().let { intent ->
             Bundle().let { bundle ->
                 ballsRemoverSetViewModel.settings.value?.also {
-                    bundle.putBoolean(BallsRemoverConstants.HAS_SOUND, it.hasSound)
-                    bundle.putInt(BallsRemoverConstants.GAME_LEVEL, it.gameLevel)
-                    bundle.putBoolean(BallsRemoverConstants.FILL_COLUMN, it.fillColumn)
+                    bundle.putBoolean(Constants.HAS_SOUND, it.hasSound)
+                    bundle.putBoolean(Constants.EASY_LEVEL, it.easyLevel)
+                    bundle.putBoolean(Constants.HAS_NEXT, it.hasNext)
                     intent.putExtras(bundle)
                 }
             }

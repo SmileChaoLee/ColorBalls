@@ -28,8 +28,8 @@ class CbSettingActivity : ComponentActivity() {
             val setting = Settings()
             intent.extras?.let {
                 setting.hasSound = it.getBoolean(Constants.HAS_SOUND, true)
-                setting.easyLevel = it.getBoolean(Constants.IS_EASY_LEVEL, true)
-                setting.hasNextBall = it.getBoolean(Constants.HAS_NEXT_BALL, true)
+                setting.easyLevel = it.getBoolean(Constants.EASY_LEVEL, true)
+                setting.hasNext = it.getBoolean(Constants.HAS_NEXT, true)
             }
             settingViewModel.setSettings(setting)
         } else {
@@ -45,13 +45,13 @@ class CbSettingActivity : ComponentActivity() {
                 Log.d(TAG, "textClick.hasSoundClick.hasSound = $hasSound")
                 settingViewModel.setHasSound(hasSound)
             }
-            override fun gameLevelClick(easyLevel: Boolean) {
+            override fun easyLevelClick(easyLevel: Boolean) {
                 Log.d(TAG, "textClick.easyLevelClick.easyLevel = $easyLevel")
                 settingViewModel.setEasyLevel(easyLevel)
             }
             override fun hasNextClick(hasNext: Boolean) {
                 Log.d(TAG, "textClick.hasNextClick.hasNext = $hasNext")
-                settingViewModel.setHasNextBall(hasNext)
+                settingViewModel.setHasNext(hasNext)
             }
         }
 
@@ -120,8 +120,8 @@ class CbSettingActivity : ComponentActivity() {
             Bundle().let { bundle ->
                 settingViewModel.settings.value?.also {
                     bundle.putBoolean(Constants.HAS_SOUND, it.hasSound)
-                    bundle.putBoolean(Constants.IS_EASY_LEVEL, it.easyLevel)
-                    bundle.putBoolean(Constants.HAS_NEXT_BALL, it.hasNextBall)
+                    bundle.putBoolean(Constants.EASY_LEVEL, it.easyLevel)
+                    bundle.putBoolean(Constants.HAS_NEXT, it.hasNext)
                     intent.putExtras(bundle)
                 }
             }

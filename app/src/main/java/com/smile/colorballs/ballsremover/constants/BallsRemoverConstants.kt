@@ -3,13 +3,8 @@ package com.smile.colorballs.ballsremover.constants
 object BallsRemoverConstants {
     const val BALLS_REMOVER_GAME_ID = "5"
     const val BALLS_REMOVER_DATABASE_NAME = "balls_remover.db"
-    const val HAS_SOUND = "HasSound"
-    const val GAME_LEVEL = "GameLevel"
-    const val FILL_COLUMN = "FillColumn"
     const val NUM_BALLS_USED_EASY = 5
     const val NUM_BALLS_USED_DIFF = 6
-    const val EASY_LEVEL = 0
-    const val DIFFICULT_LEVEL = 1
     // 10->RED, 20->GREEN, 30->BLUE, 40->MAGENTA, 50->YELLOW, 60->Cyan
     const val COLOR_RED = 10
     const val COLOR_GREEN = 20

@@ -348,12 +348,12 @@ class ColorBallViewModel: ViewModel() {
         mGridData.setNumOfColorsUsed(if (yn) Constants.NUM_EASY else Constants.NUM_DIFFICULT)
     }
 
-    fun hasNextBall(): Boolean {
-        return mGameProp.hasNextBall
+    fun hasNext(): Boolean {
+        return mGameProp.hasNext
     }
 
-    fun setHasNextBall(hasNextBall: Boolean, isNextBalls: Boolean) {
-        mGameProp.hasNextBall = hasNextBall
+    fun setHasNext(hasNextBall: Boolean, isNextBalls: Boolean) {
+        mGameProp.hasNext = hasNextBall
         if (isNextBalls) {
             displayNextBallsView()
         }
@@ -500,8 +500,8 @@ class ColorBallViewModel: ViewModel() {
             if (mGameProp.hasSound) foStream.write(1) else foStream.write(0)
             Log.d(TAG, "startSavingGame.isEasyLevel = " + mGameProp.isEasyLevel)
             if (mGameProp.isEasyLevel) foStream.write(1) else foStream.write(0)
-            Log.d(TAG, "startSavingGame.hasNextBall = " + mGameProp.hasNextBall)
-            if (mGameProp.hasNextBall) foStream.write(1) else foStream.write(0)
+            Log.d(TAG, "startSavingGame.hasNextBall = " + mGameProp.hasNext)
+            if (mGameProp.hasNext) foStream.write(1) else foStream.write(0)
             // save next balls
             // foStream.write(gridData.ballNumOneTime);
             Log.d(TAG, "startSavingGame.ballNumOneTime = " + Constants.BALL_NUM_ONE_TIME)
@@ -709,7 +709,7 @@ class ColorBallViewModel: ViewModel() {
             // refresh Main UI with loaded data
             setHasSound(hasSound)
             setEasyLevel(isEasyLevel)
-            setHasNextBall(hasNextBall, false)
+            setHasNext(hasNextBall, false)
             var kk = 0
             for (entry in mGridData.getNextCellIndices().entries) {
                 entry.setValue(nextBalls[kk++])
@@ -830,7 +830,7 @@ class ColorBallViewModel: ViewModel() {
 
     private fun drawNextBall(i: Int, j: Int, color: Int) {
         Log.d(TAG, "drawNextBall.($i, $j), color = $color")
-        val trueColor = if (mGameProp.hasNextBall) color else 0
+        val trueColor = if (mGameProp.hasNext) color else 0
         Log.d(TAG, "drawNextBall.($i, $j), trueColor = $trueColor")
         gridDataArray[i][j].value = ColorBallInfo(trueColor, WhichBall.NEXT_BALL)
     }

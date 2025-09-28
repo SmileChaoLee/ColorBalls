@@ -78,14 +78,8 @@ object CbComposable {
 
     interface SettingClickListener {
         fun hasSoundClick(hasSound: Boolean)
-        fun gameLevelClick(easyLevel: Boolean)
+        fun easyLevelClick(easyLevel: Boolean)
         fun hasNextClick(hasNext: Boolean)
-    }
-
-    interface BRemSettingClickListener {
-        fun hasSoundClick(hasSound: Boolean)
-        fun gameLevelClick(gameLevel: Int)
-        fun isFillColumnClick(fillColumn: Boolean)
     }
 
     var mFontSize = 24.sp
@@ -352,7 +346,7 @@ object CbComposable {
                                 .padding(all = 0.dp)
                                 .clickable {
                                     easyLevel = !easyLevel
-                                    textListener.gameLevelClick(easyLevel)
+                                    textListener.easyLevelClick(easyLevel)
                                 },
                             text = if (easyLevel) no1Str else no2Str,
                             Color.White
@@ -372,7 +366,7 @@ object CbComposable {
                     ) {
                         val showStr = activity.getString(R.string.showStr)
                         val noShowStr = activity.getString(R.string.noShowStr)
-                        var hasNext by remember { mutableStateOf(setting.hasNextBall) }
+                        var hasNext by remember { mutableStateOf(setting.hasNext) }
                         MenuItemText(
                             text = activity.getString(R.string.nextBallSettingStr),
                             color = textColor,

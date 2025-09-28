@@ -32,9 +32,9 @@ class SettingViewModel : ViewModel() {
         }
     }
 
-    fun setHasNextBall(hasNextBall: Boolean) {
+    fun setHasNext(hasNextBall: Boolean) {
         _settings.value?.let {
-            it.hasNextBall = hasNextBall
+            it.hasNext = hasNextBall
             // Have to trigger notifyPropertyChanged of Settings model
             // _settings.postValue(it)
             _settings.value = it

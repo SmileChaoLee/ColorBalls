@@ -103,19 +103,19 @@ class BallsRemoverActivity : BallsRemoverView() {
                 result: ActivityResult ->
             Log.d(TAG, "settingLauncher.result received")
             if (result.resultCode == RESULT_OK) {
-                val originalLevel = viewModel.gameLevel()
-                var newGameLevel = originalLevel
+                val originalLevel = viewModel.isEasyLevel()
+                var newEasyLevel: Boolean = originalLevel
                 val data = result.data ?: return@registerForActivityResult
                 data.extras?.let { extras ->
-                    viewModel.setHasSound(extras.getBoolean(BallsRemoverConstants.HAS_SOUND,
+                    viewModel.setHasSound(extras.getBoolean(Constants.HAS_SOUND,
                         true))
-                    newGameLevel = extras.getInt(BallsRemoverConstants.GAME_LEVEL,
-                        BallsRemoverConstants.EASY_LEVEL)
-                    viewModel.setGameLevel(newGameLevel)
-                    viewModel.setFillColumn(extras.getBoolean(BallsRemoverConstants.FILL_COLUMN,
+                    newEasyLevel = extras.getBoolean(Constants.EASY_LEVEL,
+                        originalLevel)
+                    viewModel.setEasyLevel(newEasyLevel)
+                    viewModel.setHasNext(extras.getBoolean(Constants.HAS_NEXT,
                         true))
                 }
-                if (newGameLevel != originalLevel) {
+                if (newEasyLevel != originalLevel) {
                     // game levels are different, create a new game?
                     viewModel.isCreatingNewGame()
                 }
@@ -357,9 +357,9 @@ class BallsRemoverActivity : BallsRemoverView() {
             BallsRemoverSetActivity::class.java
         ).let {
             Bundle().apply {
-                putBoolean(BallsRemoverConstants.HAS_SOUND, viewModel.hasSound())
-                putInt(BallsRemoverConstants.GAME_LEVEL, viewModel.gameLevel())
-                putBoolean(BallsRemoverConstants.FILL_COLUMN, viewModel.fillColumn())
+                putBoolean(Constants.HAS_SOUND, viewModel.hasSound())
+                putBoolean(Constants.EASY_LEVEL, viewModel.isEasyLevel())
+                putBoolean(Constants.HAS_NEXT, viewModel.hasNext())
                 it.putExtras(this)
                 settingLauncher.launch(it)
             }

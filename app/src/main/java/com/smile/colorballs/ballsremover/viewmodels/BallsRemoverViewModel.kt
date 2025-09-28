@@ -17,8 +17,8 @@ import com.smile.colorballs.ballsremover.models.GameProp
 import com.smile.colorballs.ballsremover.models.GridData
 import com.smile.colorballs.ballsremover.presenters.BallsRemoverPresenter
 import com.smile.colorballs.ballsremover.constants.WhichBall
-import com.smile.colorballs.ballsremover.models.Settings
 import com.smile.colorballs.constants.Constants
+import com.smile.colorballs.models.Settings
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
 import com.smile.smilelibraries.utilities.SoundPoolUtil
 import kotlinx.coroutines.Dispatchers
@@ -138,7 +138,7 @@ class BallsRemoverViewModel: ViewModel() {
                         Log.d(TAG, "cellClickListener.sCallback")
                         viewModelScope.launch(Dispatchers.Default) {
                             // Refresh the game view
-                            mGridData.refreshColorBalls(fillColumn())
+                            mGridData.refreshColorBalls(hasNext())
                             delay(200)
                             displayGameGridView()
                             ColorBallsApp.isProcessingJob = false
@@ -230,28 +230,28 @@ class BallsRemoverViewModel: ViewModel() {
         outState.putParcelable(BallsRemoverConstants.GRID_DATA_TAG, mGridData)
     }
 
-    fun setHasSound(hasSound: Boolean) {
-        settings.hasSound = hasSound
-    }
     fun hasSound(): Boolean {
         return settings.hasSound
     }
+    fun setHasSound(hasSound: Boolean) {
+        settings.hasSound = hasSound
+    }
 
-    fun setGameLevel(gameLevel: Int) {
-        settings.gameLevel = gameLevel
-        val num = if (gameLevel == BallsRemoverConstants.EASY_LEVEL) BallsRemoverConstants.NUM_BALLS_USED_EASY
+    fun isEasyLevel(): Boolean {
+        return settings.easyLevel
+    }
+    fun setEasyLevel(easyLevel: Boolean) {
+        settings.easyLevel = easyLevel
+        val num = if (easyLevel) BallsRemoverConstants.NUM_BALLS_USED_EASY
         else BallsRemoverConstants.NUM_BALLS_USED_DIFF
         mGridData.setNumBallsUsed(num)
     }
-    fun gameLevel(): Int {
-        return settings.gameLevel
-    }
 
-    fun setFillColumn(fillColumn: Boolean) {
-        settings.fillColumn = fillColumn
+    fun hasNext(): Boolean {
+        return settings.hasNext
     }
-    fun fillColumn(): Boolean {
-        return settings.fillColumn
+    fun setHasNext(fillColumn: Boolean) {
+        settings.hasNext = fillColumn
     }
 
     fun undoTheLast() {
@@ -331,8 +331,8 @@ class BallsRemoverViewModel: ViewModel() {
             val foStream = mPresenter.fileOutputStream(Constants.SAVE_BALLS_REMOVER)
             // save settings
             if (hasSound()) foStream.write(1) else foStream.write(0)
-            foStream.write(gameLevel())
-            if (fillColumn()) foStream.write(1) else foStream.write(0)
+            if (isEasyLevel()) foStream.write(1) else foStream.write(0)
+            if (hasNext()) foStream.write(1) else foStream.write(0)
             // save values on game grid
             for (i in 0 until BallsRemoverConstants.ROW_COUNTS) {
                 for (j in 0 until BallsRemoverConstants.COLUMN_COUNTS) {
@@ -373,8 +373,8 @@ class BallsRemoverViewModel: ViewModel() {
         setScreenMessage(loadingGameStr)
         var succeeded = true
         val hasSound: Boolean
-        val gameLevel: Int
-        val fillColumn: Boolean
+        val isEasyLevel: Boolean
+        val hasNext: Boolean
         val gameCells = Array(BallsRemoverConstants.ROW_COUNTS) {
             IntArray(BallsRemoverConstants.COLUMN_COUNTS) }
         val cScore: Int
@@ -389,12 +389,13 @@ class BallsRemoverViewModel: ViewModel() {
             // read game settings
             var bValue = fiStream.read()
             hasSound = bValue == 1
-            gameLevel = fiStream.read()
             bValue = fiStream.read()
-            fillColumn = bValue == 1
+            isEasyLevel = bValue == 1
+            bValue = fiStream.read()
+            hasNext = bValue == 1
             settings.hasSound = hasSound
-            settings.gameLevel = gameLevel
-            settings.fillColumn = fillColumn
+            settings.easyLevel = isEasyLevel
+            settings.hasNext = hasNext
             // load values on game grid
             for (i in 0 until BallsRemoverConstants.ROW_COUNTS) {
                 for (j in 0 until BallsRemoverConstants.COLUMN_COUNTS) {
@@ -466,8 +467,8 @@ class BallsRemoverViewModel: ViewModel() {
         // 10 points for each ball if it is 4 balls
         // 12 points for each ball if it is 5 balls
         val minBalls = 2
-        val minScoreEach = if (gameLevel() == BallsRemoverConstants.EASY_LEVEL ) 5 else 6
-        val plusScore = if (gameLevel() == BallsRemoverConstants.EASY_LEVEL ) 1 else 2
+        val minScoreEach = if (isEasyLevel()) 5 else 6
+        val plusScore = if (isEasyLevel()) 1 else 2
         val numBalls = linkedLine.size
         val totalScore = (minScoreEach + (numBalls - minBalls) * plusScore) * numBalls
         return totalScore

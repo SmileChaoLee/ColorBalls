@@ -110,9 +110,9 @@ open class ColorBallActivity : MyView() {
                 data.extras?.let { extras ->
                     viewModel.setHasSound(extras.getBoolean(Constants.HAS_SOUND,
                         true))
-                    viewModel.setEasyLevel(extras.getBoolean(Constants.IS_EASY_LEVEL,
+                    viewModel.setEasyLevel(extras.getBoolean(Constants.EASY_LEVEL,
                         true))
-                    viewModel.setHasNextBall(extras.getBoolean(Constants.HAS_NEXT_BALL,
+                    viewModel.setHasNext(extras.getBoolean(Constants.HAS_NEXT,
                         true),true)
                 }
             }
@@ -357,8 +357,8 @@ open class ColorBallActivity : MyView() {
         ).let {
             Bundle().apply {
                 putBoolean(Constants.HAS_SOUND, viewModel.hasSound())
-                putBoolean(Constants.IS_EASY_LEVEL, viewModel.isEasyLevel())
-                putBoolean(Constants.HAS_NEXT_BALL, viewModel.hasNextBall())
+                putBoolean(Constants.EASY_LEVEL, viewModel.isEasyLevel())
+                putBoolean(Constants.HAS_NEXT, viewModel.hasNext())
                 it.putExtras(this)
                 settingLauncher.launch(it)
             }

@@ -17,7 +17,6 @@ import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -27,8 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.smile.colorballs.ballsremover.constants.BallsRemoverConstants
-import com.smile.colorballs.ballsremover.models.Settings
+import com.smile.colorballs.models.Settings
 import com.smile.colorballs.R
 import com.smile.colorballs.views.CbComposable
 
@@ -38,7 +36,7 @@ object BallsRemoverComposables {
     fun SettingCompose(
         activity: Activity,
         buttonListener: CbComposable.ButtonClickListener,
-        textListener: CbComposable.BRemSettingClickListener,
+        textListener: CbComposable.SettingClickListener,
         text: String, backgroundColor: Color,
         setting: Settings
     ) {
@@ -143,7 +141,7 @@ object BallsRemoverComposables {
                         val no2Str = activity.getString(R.string.no2)
                         val easyStr = activity.getString(R.string.easyStr)
                         val diffStr = activity.getString(R.string.difficultStr)
-                        var gameLevel by remember { mutableIntStateOf(setting.gameLevel) }
+                        var gameLevel by remember { mutableStateOf(setting.easyLevel) }
                         CbComposable.MenuItemText(
                             text = activity.getString(R.string.playerLevelStr),
                             color = textColor,
@@ -156,15 +154,14 @@ object BallsRemoverComposables {
                                 .weight(1f)
                                 .padding(all = 0.dp)
                                 .clickable {
-                                    gameLevel = if (gameLevel == BallsRemoverConstants.EASY_LEVEL) BallsRemoverConstants.DIFFICULT_LEVEL
-                                    else BallsRemoverConstants.EASY_LEVEL
-                                    textListener.gameLevelClick(gameLevel)
+                                    gameLevel = !gameLevel
+                                    textListener.easyLevelClick(gameLevel)
                                 },
-                            text = if (gameLevel == BallsRemoverConstants.EASY_LEVEL) no1Str else no2Str,
+                            text = if (gameLevel) no1Str else no2Str,
                             Color.White
                         )
                         CbComposable.MenuItemText(
-                            text = if (gameLevel == BallsRemoverConstants.EASY_LEVEL) easyStr else diffStr,
+                            text = if (gameLevel) easyStr else diffStr,
                             color = textColor,
                             modifier = Modifier
                                 .weight(1f)
@@ -176,7 +173,7 @@ object BallsRemoverComposables {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        var fillColumn by remember { mutableStateOf(setting.fillColumn) }
+                        var fillColumn by remember { mutableStateOf(setting.hasNext) }
                         CbComposable.MenuItemText(
                             text = activity.getString(R.string.fillColumnStr),
                             color = textColor,
@@ -189,7 +186,7 @@ object BallsRemoverComposables {
                                 .weight(1f)
                                 .padding(all = 0.dp).clickable {
                                     fillColumn = !fillColumn
-                                    textListener.isFillColumnClick(fillColumn)
+                                    textListener.hasNextClick(fillColumn)
                                 },
                             text = if (fillColumn) onStr else offStr,
                             Color.White
