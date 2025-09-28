@@ -226,8 +226,8 @@ object CbComposable {
 
     @Composable
     fun SettingCompose(
-        buttonListener: CbComposable.ButtonClickListener,
-        textListener: CbComposable.SettingClickListener,
+        buttonListener: ButtonClickListener,
+        textListener: SettingClickListener,
         backgroundColor: Color,
         setting: Settings, title: String,
         soundStr: String, playerLevelStr: String, hasNextStr: String,
@@ -289,10 +289,10 @@ object CbComposable {
                     ) {
                         Text(
                             text = title, color = Color.White,
-                            fontWeight = FontWeight.Bold, fontSize = CbComposable.mFontSize
+                            fontWeight = FontWeight.Bold, fontSize = mFontSize
                         )
                     }
-                    CbComposable.HorDivider(
+                    HorDivider(
                         color = Color.White,
                         modifier = Modifier.weight(dividerWeight)
                     )
@@ -302,7 +302,7 @@ object CbComposable {
                         horizontalArrangement = Arrangement.Center
                     ) {
                         var hasSound by remember { mutableStateOf(setting.hasSound) }
-                        CbComposable.MenuItemText(
+                        MenuItemText(
                             // text = activity.getString(R.string.soundStr),
                             text = soundStr,
                             color = textColor,
@@ -310,7 +310,7 @@ object CbComposable {
                                 .weight(1f)
                                 .padding(all = 0.dp)
                         )
-                        CbComposable.MenuItemText(
+                        MenuItemText(
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp)
@@ -321,7 +321,7 @@ object CbComposable {
                             text = if (hasSound) onStr else offStr,
                             Color.White
                         )
-                        CbComposable.MenuItemText(
+                        MenuItemText(
                             text = if (hasSound) yesStr else noStr,
                             color = textColor,
                             modifier = Modifier
@@ -339,7 +339,7 @@ object CbComposable {
                         // val easyStr = activity.getString(R.string.easyStr)
                         // val diffStr = activity.getString(R.string.difficultStr)
                         var easyLevel by remember { mutableStateOf(setting.easyLevel) }
-                        CbComposable.MenuItemText(
+                        MenuItemText(
                             // text = activity.getString(R.string.playerLevelStr),
                             text = playerLevelStr,
                             color = textColor,
@@ -347,7 +347,7 @@ object CbComposable {
                                 .weight(1f)
                                 .padding(all = 0.dp)
                         )
-                        CbComposable.MenuItemText(
+                        MenuItemText(
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp)
@@ -358,7 +358,7 @@ object CbComposable {
                             text = if (easyLevel) no1Str else no2Str,
                             Color.White
                         )
-                        CbComposable.MenuItemText(
+                        MenuItemText(
                             text = if (easyLevel) easyStr else diffStr,
                             color = textColor,
                             modifier = Modifier
@@ -371,8 +371,8 @@ object CbComposable {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        var fillColumn by remember { mutableStateOf(setting.hasNext) }
-                        CbComposable.MenuItemText(
+                        var hasNext by remember { mutableStateOf(setting.hasNext) }
+                        MenuItemText(
                             // text = activity.getString(R.string.fillColumnStr),
                             text = hasNextStr,
                             color = textColor,
@@ -380,18 +380,18 @@ object CbComposable {
                                 .weight(1f)
                                 .padding(all = 0.dp)
                         )
-                        CbComposable.MenuItemText(
+                        MenuItemText(
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp).clickable {
-                                    fillColumn = !fillColumn
-                                    textListener.hasNextClick(fillColumn)
+                                    hasNext = !hasNext
+                                    textListener.hasNextClick(hasNext)
                                 },
-                            text = if (fillColumn) onStr else offStr,
+                            text = if (hasNext) onStr else offStr,
                             Color.White
                         )
-                        CbComposable.MenuItemText(
-                            text = if (fillColumn) yesStr else noStr,
+                        MenuItemText(
+                            text = if (hasNext) yesStr else noStr,
                             color = textColor,
                             modifier = Modifier
                                 .weight(1f)
@@ -416,7 +416,7 @@ object CbComposable {
                             Text(
                                 // text = activity.getString(R.string.cancelStr),
                                 text = cancelStr,
-                                fontSize = CbComposable.mFontSize
+                                fontSize = mFontSize
                             )
                         }
                         Spacer(
@@ -437,7 +437,7 @@ object CbComposable {
                             Text(
                                 // text = activity.getString(R.string.okStr),
                                 text = okStr,
-                                fontSize = CbComposable.mFontSize
+                                fontSize = mFontSize
                             )
                         }
                     }
