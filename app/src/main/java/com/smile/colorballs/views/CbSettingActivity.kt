@@ -68,10 +68,23 @@ class CbSettingActivity : ComponentActivity() {
             Log.d(TAG, "onCreate.setContent")
             ColorBallsTheme {
                 settingViewModel.settings.value?.let {
-                    CbComposable.SettingCompose(this@CbSettingActivity,
+                    CbComposable.SettingCompose(
                         buttonClick, textClick,
-                        "${getString(R.string.settingStr)} - Activity",
-                        backgroundColor = Color(0xbb0000ff), it
+                        backgroundColor = Color(0xbb0000ff), it,
+                        getString(R.string.settingStr),
+                        getString(R.string.soundStr),
+                        getString(R.string.playerLevelStr),
+                        getString(R.string.nextBallSettingStr),
+                        getString(R.string.onStr),
+                        getString(R.string.offStr),
+                        getString(R.string.yesStr),
+                        getString(R.string.noStr),
+                        getString(R.string.no1),
+                        getString(R.string.no2),
+                        getString(R.string.easyStr),
+                        getString(R.string.difficultStr),
+                        getString(R.string.okStr),
+                        getString(R.string.cancelStr)
                     )
                 }
             }

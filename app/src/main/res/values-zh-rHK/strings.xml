@@ -35,7 +35,7 @@
     <string name="noSoundStr">無聲</string>
     <string name="onStr">開</string>
     <string name="offStr">關</string>
-    <string name="showingAdsStr">廣告顯示中 ...</string>
+    <string name="showingAdsStr">廣告顯示中 …</string>
     <string name="saveGameStr">儲存遊戲</string>
     <string name="loadGameStr">載入遊戲</string>
     <string name="rotateDevice">旋轉設備</string>

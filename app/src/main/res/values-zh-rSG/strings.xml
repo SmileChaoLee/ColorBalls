@@ -35,7 +35,7 @@
     <string name="noSoundStr">无声</string>
     <string name="onStr">开</string>
     <string name="offStr">关</string>
-    <string name="showingAdsStr">广告显示中 ...</string>
+    <string name="showingAdsStr">广告显示中 …</string>
     <string name="saveGameStr">储存游戏</string>
     <string name="loadGameStr">载入游戏</string>
     <string name="moreActionStr">更多</string>

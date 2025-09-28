@@ -36,7 +36,7 @@
     <string name="noSoundStr">No</string>
     <string name="onStr">On</string>
     <string name="offStr">Off</string>
-    <string name="showingAdsStr">Showing Ads ...</string>
+    <string name="showingAdsStr">Showing Ads …</string>
     <string name="saveGameStr">Save Game</string>
     <string name="loadGameStr">Load Game</string>
     <string name="rotateDevice">Rotate Device</string>

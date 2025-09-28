@@ -8,7 +8,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.ui.graphics.Color
-import com.smile.colorballs.ballsremover.BallsRemoverComposables
 import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.models.Settings
@@ -70,11 +69,23 @@ class BallsRemoverSetActivity : ComponentActivity() {
             Log.d(TAG, "onCreate.setContent")
             ColorBallsTheme {
                 ballsRemoverSetViewModel.settings.value?.let {
-                    BallsRemoverComposables.SettingCompose(
-                        this@BallsRemoverSetActivity,
+                    CbComposable.SettingCompose(
                         buttonClick, textClick,
+                        backgroundColor = Color(0xbb0000ff), it,
                         getString(R.string.settingStr),
-                        backgroundColor = Color(0xbb0000ff), it
+                        getString(R.string.soundStr),
+                        getString(R.string.playerLevelStr),
+                        getString(R.string.fillColumnStr),
+                        getString(R.string.onStr),
+                        getString(R.string.offStr),
+                        getString(R.string.yesStr),
+                        getString(R.string.noStr),
+                        getString(R.string.no1),
+                        getString(R.string.no2),
+                        getString(R.string.easyStr),
+                        getString(R.string.difficultStr),
+                        getString(R.string.okStr),
+                        getString(R.string.cancelStr)
                     )
                 }
             }
