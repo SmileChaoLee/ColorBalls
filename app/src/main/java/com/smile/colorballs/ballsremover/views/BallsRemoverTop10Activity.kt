@@ -7,11 +7,11 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
-import com.smile.colorballs.ballsremover.BallsRemoverComposables
 import com.smile.colorballs.R
 import com.smile.colorballs.ballsremover.constants.BallsRemoverConstants
-import com.smile.colorballs.ballsremover.models.TopPlayer
 import com.smile.colorballs.constants.Constants
+import com.smile.colorballs.models.TopPlayer
+import com.smile.colorballs.views.CbComposable
 import com.smile.colorballs.views.ui.theme.ColorBallsTheme
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
@@ -76,10 +76,10 @@ class BallsRemoverTop10Activity : ComponentActivity() {
                     }
                 }
                 Log.d(TAG, "onCreate.setContent.Composables.Top10Compose")
-                BallsRemoverComposables.Top10Composable(
+                CbComposable.Top10Composable(
                     title = top10TitleName,
                     topPlayers = top10Players.value, buttonListener =
-                    object : BallsRemoverComposables.ButtonClickListener {
+                    object : CbComposable.ButtonClickListener {
                         override fun buttonOkClick() {
                             Log.d(TAG, "Composables.OkButtonListener.buttonOkClick")
                             setResult(RESULT_OK)

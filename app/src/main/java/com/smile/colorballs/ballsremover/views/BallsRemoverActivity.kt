@@ -54,7 +54,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.google.android.gms.ads.nativead.NativeAd
-import com.smile.colorballs.ballsremover.BallsRemoverComposables
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.ballsremover.constants.BallsRemoverConstants
 import com.smile.smilelibraries.GoogleNativeAd
@@ -62,7 +61,7 @@ import com.smile.colorballs.ballsremover.constants.WhichBall
 import com.smile.colorballs.views.ui.theme.*
 import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
-import com.smile.colorballs.views.Composables
+import com.smile.colorballs.views.CbComposable
 import com.smile.smilelibraries.models.ExitAppTimer
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil
 import com.smile.smilelibraries.utilities.ScreenUtil
@@ -95,7 +94,7 @@ class BallsRemoverActivity : BallsRemoverView() {
             ActivityResultContracts.StartActivityForResult()) {
             result: ActivityResult ->
             Log.d(TAG, "top10Launcher.result received")
-            showInterstitialAd()
+            // showInterstitialAd()
         }
 
         settingLauncher = registerForActivityResult(
@@ -121,7 +120,7 @@ class BallsRemoverActivity : BallsRemoverView() {
                 }
                 Log.d(TAG, "settingLauncher.Showing interstitial ads")
             }
-            showInterstitialAd()
+            // showInterstitialAd()
         }
 
         setContent {
@@ -313,7 +312,7 @@ class BallsRemoverActivity : BallsRemoverView() {
                 " = ${mOrientation.intValue}")
         Text(text = viewModel.getCurrentScore().toString(),
             modifier = modifier,
-            color = Color.Green, fontSize = BallsRemoverComposables.mFontSize
+            color = Color.Green, fontSize = CbComposable.mFontSize
         )
     }
 
@@ -324,7 +323,7 @@ class BallsRemoverActivity : BallsRemoverView() {
                 " = ${mOrientation.intValue}")
         Text(text = viewModel.getHighestScore().toString(),
             modifier = modifier,
-            color = Color.White, fontSize = BallsRemoverComposables.mFontSize
+            color = Color.White, fontSize = CbComposable.mFontSize
         )
     }
 
@@ -430,7 +429,7 @@ class BallsRemoverActivity : BallsRemoverView() {
                     .padding(all = 0.dp)
             ) {
                 val isGlobalTop10Clicked = remember { mutableStateOf(false) }
-                BallsRemoverComposables.DropdownMenuItem(
+                CbComposable.DropdownMenuItem(
                     text = getString(R.string.globalTop10Str),
                     color = if (isGlobalTop10Clicked.value) Color.Red else Color.Black,
                     onClick = {
@@ -440,7 +439,7 @@ class BallsRemoverActivity : BallsRemoverView() {
                     })
 
                 val isLocalTop10Clicked = remember { mutableStateOf(false) }
-                BallsRemoverComposables.DropdownMenuItem(
+                CbComposable.DropdownMenuItem(
                     text = getString(R.string.localTop10Score),
                     color = if (isLocalTop10Clicked.value) Color.Red else Color.Black,
                     onClick = {
@@ -450,7 +449,7 @@ class BallsRemoverActivity : BallsRemoverView() {
                     })
 
                 val isSaveGameClicked = remember { mutableStateOf(false) }
-                BallsRemoverComposables.DropdownMenuItem(
+                CbComposable.DropdownMenuItem(
                     text = getString(R.string.saveGameStr),
                     color = if (isSaveGameClicked.value) Color.Red else Color.Black,
                     onClick = {
@@ -460,7 +459,7 @@ class BallsRemoverActivity : BallsRemoverView() {
                     })
 
                 val isLoadGameClicked = remember { mutableStateOf(false) }
-                BallsRemoverComposables.DropdownMenuItem(
+                CbComposable.DropdownMenuItem(
                     text = getString(R.string.loadGameStr),
                     color = if (isLoadGameClicked.value) Color.Red else Color.Black,
                     onClick = {
@@ -470,7 +469,7 @@ class BallsRemoverActivity : BallsRemoverView() {
                     })
 
                 val isNewGameClicked = remember { mutableStateOf(false) }
-                BallsRemoverComposables.DropdownMenuItem(
+                CbComposable.DropdownMenuItem(
                     text = getString(R.string.newGame),
                     color = if (isNewGameClicked.value) Color.Red else Color.Black,
                     onClick = {
@@ -480,7 +479,7 @@ class BallsRemoverActivity : BallsRemoverView() {
                     })
 
                 val isPrivacyClicked = remember { mutableStateOf(false) }
-                BallsRemoverComposables.DropdownMenuItem(
+                CbComposable.DropdownMenuItem(
                     text = getString(R.string.privacyPolicyString),
                     color = if (isPrivacyClicked.value) Color.Red else Color.Black,
                     onClick = {
@@ -616,9 +615,9 @@ class BallsRemoverActivity : BallsRemoverView() {
         Column(modifier = modifier.fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top) {
-            Composables.ShowAdmobNormalBanner(modifier = Modifier.weight(1.0f))
+            CbComposable.ShowAdmobNormalBanner(modifier = Modifier.weight(1.0f))
             // Composables.ShowAdmobAdaptiveBanner(modifier = Modifier.weight(1.0f), 0)
-            Composables.ShowFacebookBanner(modifier = Modifier.weight(1.0f),
+            CbComposable.ShowFacebookBanner(modifier = Modifier.weight(1.0f),
                 ColorBallsApp.facebookBannerID)
             // ShowFacebookBanner(modifier = Modifier.weight(1.0f),
             //     ColorBallsApp.facebookBannerID2)
@@ -643,7 +642,7 @@ class BallsRemoverActivity : BallsRemoverView() {
             }
         }   // end of LaunchedEffect
         nativeAd?.let {
-            Composables.MyNativeAdView(modifier = modifier, ad = it) { ad, view ->
+            CbComposable.MyNativeAdView(modifier = modifier, ad = it) { ad, view ->
                 // head Column
                 Column(modifier = modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -689,7 +688,7 @@ class BallsRemoverActivity : BallsRemoverView() {
                                 disabledContainerColor = ColorPrimary,
                                 contentColor = Color.Yellow,
                                 disabledContentColor = Color.Yellow)
-                            ) { Text(text = cta, fontSize = BallsRemoverComposables.mFontSize) }
+                            ) { Text(text = cta, fontSize = CbComposable.mFontSize) }
                         }
                     }   // end of ad.callToAction */
                 }   // end of head Column
@@ -710,7 +709,7 @@ class BallsRemoverActivity : BallsRemoverView() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
             ShowNativeAd(modifier = Modifier.weight(8.0f))
-            Composables.ShowAdmobNormalBanner(modifier = Modifier.weight(2.0f))
+            CbComposable.ShowAdmobNormalBanner(modifier = Modifier.weight(2.0f))
         }
     }
 

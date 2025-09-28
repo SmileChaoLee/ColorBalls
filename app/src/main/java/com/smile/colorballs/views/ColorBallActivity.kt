@@ -98,7 +98,7 @@ open class ColorBallActivity : MyView() {
             ActivityResultContracts.StartActivityForResult()) {
             result: ActivityResult ->
             Log.d(mTAG, "top10Launcher.result received")
-            showInterstitialAd()
+            // showInterstitialAd()
         }
 
         settingLauncher = registerForActivityResult(
@@ -115,9 +115,9 @@ open class ColorBallActivity : MyView() {
                     viewModel.setHasNextBall(extras.getBoolean(Constants.HAS_NEXT_BALL,
                         true),true)
                 }
-                Log.d(mTAG, "settingLauncher.Showing interstitial ads")
             }
-            showInterstitialAd()
+            // Log.d(mTAG, "settingLauncher.Showing interstitial ads")
+            // showInterstitialAd()
         }
 
         setContent {
@@ -313,7 +313,7 @@ open class ColorBallActivity : MyView() {
                 " = ${mOrientation.intValue}")
         Text(text = viewModel.getCurrentScore().toString(),
             modifier = modifier,
-            color = Color.Red, fontSize = Composables.mFontSize
+            color = Color.Red, fontSize = CbComposable.mFontSize
         )
     }
 
@@ -323,7 +323,7 @@ open class ColorBallActivity : MyView() {
                 " = ${mOrientation.intValue}")
         Text(text = viewModel.getHighestScore().toString(),
             modifier = modifier,
-            color = Color.White, fontSize = Composables.mFontSize
+            color = Color.White, fontSize = CbComposable.mFontSize
         )
     }
 
@@ -428,7 +428,7 @@ open class ColorBallActivity : MyView() {
                     .padding(all = 0.dp),
             ) {
                 val isGlobalTop10Clicked = remember { mutableStateOf(false) }
-                Composables.DropdownMenuItem(
+                CbComposable.DropdownMenuItem(
                     text = getString(R.string.globalTop10Str),
                     color = if (isGlobalTop10Clicked.value) Color.Red else Color.Black,
                     onClick = {
@@ -438,7 +438,7 @@ open class ColorBallActivity : MyView() {
                     })
 
                 val isLocalTop10Clicked = remember { mutableStateOf(false) }
-                Composables.DropdownMenuItem(
+                CbComposable.DropdownMenuItem(
                     text = getString(R.string.localTop10Score),
                     color = if (isLocalTop10Clicked.value) Color.Red else Color.Black,
                     onClick = {
@@ -448,7 +448,7 @@ open class ColorBallActivity : MyView() {
                     })
 
                 val isSaveGameClicked = remember { mutableStateOf(false) }
-                Composables.DropdownMenuItem(
+                CbComposable.DropdownMenuItem(
                     text = getString(R.string.saveGameStr),
                     color = if (isSaveGameClicked.value) Color.Red else Color.Black,
                     onClick = {
@@ -458,7 +458,7 @@ open class ColorBallActivity : MyView() {
                     })
 
                 val isLoadGameClicked = remember { mutableStateOf(false) }
-                Composables.DropdownMenuItem(
+                CbComposable.DropdownMenuItem(
                     text = getString(R.string.loadGameStr),
                     color = if (isLoadGameClicked.value) Color.Red else Color.Black,
                     onClick = {
@@ -468,7 +468,7 @@ open class ColorBallActivity : MyView() {
                     })
 
                 val isNewGameClicked = remember { mutableStateOf(false) }
-                Composables.DropdownMenuItem(
+                CbComposable.DropdownMenuItem(
                     text = getString(R.string.newGame),
                     color = if (isNewGameClicked.value) Color.Red else Color.Black,
                     onClick = {
@@ -478,7 +478,7 @@ open class ColorBallActivity : MyView() {
                     })
 
                 val isPrivacyClicked = remember { mutableStateOf(false) }
-                Composables.DropdownMenuItem(
+                CbComposable.DropdownMenuItem(
                     text = getString(R.string.privacyPolicyString),
                     color = if (isPrivacyClicked.value) Color.Red else Color.Black,
                     onClick = {
@@ -617,9 +617,9 @@ open class ColorBallActivity : MyView() {
         Column(modifier = modifier.fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top) {
-            Composables.ShowAdmobNormalBanner(modifier = Modifier.weight(1.0f))
+            CbComposable.ShowAdmobNormalBanner(modifier = Modifier.weight(1.0f))
             // Composables.ShowAdmobAdaptiveBanner(modifier = Modifier.weight(1.0f), 0)
-            Composables.ShowFacebookBanner(modifier = Modifier.weight(1.0f),
+            CbComposable.ShowFacebookBanner(modifier = Modifier.weight(1.0f),
                 ColorBallsApp.facebookBannerID)
             // Composables.ShowFacebookBanner(modifier = Modifier.weight(1.0f),
             //     ColorBallsApp.facebookBannerID2)
@@ -641,7 +641,7 @@ open class ColorBallActivity : MyView() {
             }
         }   // end of LaunchedEffect
         nativeAd?.let {
-            Composables.MyNativeAdView(modifier = modifier, ad = it) { ad, view ->
+            CbComposable.MyNativeAdView(modifier = modifier, ad = it) { ad, view ->
                 // head Column
                 Column(modifier = modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -687,7 +687,7 @@ open class ColorBallActivity : MyView() {
                                 disabledContainerColor = ColorPrimary,
                                 contentColor = Color.Yellow,
                                 disabledContentColor = Color.Yellow)
-                            ) { Text(text = cta, fontSize = Composables.mFontSize) }
+                            ) { Text(text = cta, fontSize = CbComposable.mFontSize) }
                         }
                     }   // end of ad.callToAction */
                 }   // end of head Column
@@ -707,7 +707,7 @@ open class ColorBallActivity : MyView() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
             ShowNativeAd(modifier = Modifier.weight(8.0f))
-            Composables.ShowAdmobNormalBanner(modifier = Modifier.weight(2.0f))
+            CbComposable.ShowAdmobNormalBanner(modifier = Modifier.weight(2.0f))
             /*
             Composables.ShowFacebookBanner(modifier = Modifier.weight(2.0f)
                 .padding(top = 10.dp),

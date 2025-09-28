@@ -12,7 +12,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.sp
-import com.smile.colorballs.ballsremover.BallsRemoverComposables
 import com.smile.colorballs.BuildConfig
 import com.smile.colorballs.R
 import com.smile.colorballs.ColorBallsApp
@@ -28,6 +27,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import androidx.core.graphics.scale
+import com.smile.colorballs.views.CbComposable
 
 abstract class BallsRemoverView: ComponentActivity(),
     BallsRemoverPresentView {
@@ -56,7 +56,7 @@ abstract class BallsRemoverView: ComponentActivity(),
 
         Log.d(TAG, "onCreate.textFontSize")
         textFontSize = ColorBallsApp.textFontSize
-        BallsRemoverComposables.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
+        CbComposable.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
 
         Log.d(TAG, "onCreate.interstitialAd")
         (application as ColorBallsApp).let {
@@ -160,7 +160,7 @@ abstract class BallsRemoverView: ComponentActivity(),
         Log.d(TAG, "CreateNewGameDialog")
         val dialogText = viewModel.getCreateNewGameText()
         if (dialogText.isNotEmpty()) {
-            val buttonListener = object: BallsRemoverComposables.ButtonClickListener {
+            val buttonListener = object: CbComposable.ButtonClickListener {
                 override fun buttonOkClick() {
                     viewModel.setCreateNewGameText("")
                     quitOrNewGame()
@@ -169,7 +169,7 @@ abstract class BallsRemoverView: ComponentActivity(),
                     viewModel.setCreateNewGameText("")
                 }
             }
-            BallsRemoverComposables.DialogWithText(
+            CbComposable.DialogWithText(
                 this@BallsRemoverView,
                 buttonListener, "", dialogText
             )
@@ -181,7 +181,7 @@ abstract class BallsRemoverView: ComponentActivity(),
         Log.d(TAG, "SaveGameDialog")
         val dialogText = viewModel.getSaveGameText()
         if (dialogText.isNotEmpty()) {
-            val buttonListener = object: BallsRemoverComposables.ButtonClickListener {
+            val buttonListener = object: CbComposable.ButtonClickListener {
                 override fun buttonOkClick() {
                     val msg = if (viewModel.startSavingGame()) {
                             getString(R.string.succeededSaveGameStr)
@@ -191,13 +191,13 @@ abstract class BallsRemoverView: ComponentActivity(),
                     ScreenUtil.showToast(this@BallsRemoverView, msg, textFontSize,
                         ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
                     viewModel.setSaveGameText("")
-                    showInterstitialAd()
+                    // showInterstitialAd()
                 }
                 override fun buttonCancelClick() {
                     viewModel.setSaveGameText("")
                 }
             }
-            BallsRemoverComposables.DialogWithText(
+            CbComposable.DialogWithText(
                 this@BallsRemoverView,
                 buttonListener, "", dialogText
             )
@@ -209,7 +209,7 @@ abstract class BallsRemoverView: ComponentActivity(),
         Log.d(TAG, "LoadGameDialog")
         val dialogText = viewModel.getLoadGameText()
         if (dialogText.isNotEmpty()) {
-            val buttonListener = object: BallsRemoverComposables.ButtonClickListener {
+            val buttonListener = object: CbComposable.ButtonClickListener {
                 override fun buttonOkClick() {
                     val msg = if (viewModel.startLoadingGame()) {
                         getString(R.string.succeededLoadGameStr)
@@ -219,13 +219,13 @@ abstract class BallsRemoverView: ComponentActivity(),
                     ScreenUtil.showToast(this@BallsRemoverView, msg, textFontSize,
                         ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
                     viewModel.setLoadGameText("")
-                    showInterstitialAd()
+                    // showInterstitialAd()
                 }
                 override fun buttonCancelClick() {
                     viewModel.setLoadGameText("")
                 }
             }
-            BallsRemoverComposables.DialogWithText(
+            CbComposable.DialogWithText(
                 this@BallsRemoverView,
                 buttonListener, "", dialogText
             )
@@ -237,7 +237,7 @@ abstract class BallsRemoverView: ComponentActivity(),
         Log.d(TAG, "SaveScoreDialog")
         val dialogTitle = viewModel.getSaveScoreTitle()
         if (dialogTitle.isNotEmpty()) {
-            val buttonListener = object: BallsRemoverComposables.ButtonClickListenerString {
+            val buttonListener = object: CbComposable.ButtonClickListenerString {
                 override fun buttonOkClick(value: String?) {
                     Log.d(TAG, "SaveScoreDialog.buttonOkClick.value = $value")
                     viewModel.saveScore(value ?: "No Name")
@@ -252,7 +252,7 @@ abstract class BallsRemoverView: ComponentActivity(),
                 }
             }
             val hitStr = getString(R.string.nameStr)
-            BallsRemoverComposables.DialogWithTextField(
+            CbComposable.DialogWithTextField(
                 this@BallsRemoverView,
                 buttonListener, dialogTitle, hitStr
             )

@@ -65,7 +65,7 @@ abstract class MyView: ComponentActivity(), PresentView {
 
         Log.d(TAG, "onCreate.textFontSize")
         textFontSize = ColorBallsApp.textFontSize
-        Composables.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
+        CbComposable.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
 
         Log.d(TAG, "onCreate.interstitialAd")
         (application as ColorBallsApp).let {
@@ -212,7 +212,7 @@ abstract class MyView: ComponentActivity(), PresentView {
         Log.d(TAG, "SaveGameDialog")
         val dialogText = viewModel.getSaveGameText()
         if (dialogText.isNotEmpty()) {
-            val buttonListener = object: Composables.ButtonClickListener {
+            val buttonListener = object: CbComposable.ButtonClickListener {
                 override fun buttonOkClick() {
                     val numOfSaved: Int = viewModel.readNumberOfSaved()
                     val msg = if (viewModel.startSavingGame(numOfSaved)) {
@@ -224,14 +224,14 @@ abstract class MyView: ComponentActivity(), PresentView {
                         ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
                     viewModel.setShowingSureSaveDialog(false)
                     viewModel.setSaveGameText("")
-                    showInterstitialAd()
+                    // showInterstitialAd()
                 }
                 override fun buttonCancelClick() {
                     viewModel.setShowingSureSaveDialog(false)
                     viewModel.setSaveGameText("")
                 }
             }
-            Composables.DialogWithText(this@MyView,
+            CbComposable.DialogWithText(this@MyView,
                 buttonListener, "", dialogText)
         }
     }
@@ -241,7 +241,7 @@ abstract class MyView: ComponentActivity(), PresentView {
         Log.d(TAG, "LoadGameDialog")
         val dialogText = viewModel.getLoadGameText()
         if (dialogText.isNotEmpty()) {
-            val buttonListener = object: Composables.ButtonClickListener {
+            val buttonListener = object: CbComposable.ButtonClickListener {
                 override fun buttonOkClick() {
                     val msg = if (viewModel.startLoadingGame()) {
                         getString(R.string.succeededLoadGameStr)
@@ -252,14 +252,14 @@ abstract class MyView: ComponentActivity(), PresentView {
                         ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
                     viewModel.setShowingSureLoadDialog(false)
                     viewModel.setLoadGameText("")
-                    showInterstitialAd()
+                    // showInterstitialAd()
                 }
                 override fun buttonCancelClick() {
                     viewModel.setShowingSureLoadDialog(false)
                     viewModel.setLoadGameText("")
                 }
             }
-            Composables.DialogWithText(this@MyView,
+            CbComposable.DialogWithText(this@MyView,
                 buttonListener, "", dialogText)
         }
     }
@@ -269,7 +269,7 @@ abstract class MyView: ComponentActivity(), PresentView {
         Log.d(TAG, "SaveScoreDialog")
         val dialogTitle = viewModel.getSaveScoreTitle()
         if (dialogTitle.isNotEmpty()) {
-            val buttonListener = object: Composables.ButtonClickListenerString {
+            val buttonListener = object: CbComposable.ButtonClickListenerString {
                 override fun buttonOkClick(value: String?) {
                     Log.d(TAG, "SaveScoreDialog.buttonOkClick.value = $value")
                     viewModel.saveScore(value ?: "No Name")
@@ -285,7 +285,7 @@ abstract class MyView: ComponentActivity(), PresentView {
                 }
             }
             val hitStr = getString(R.string.nameStr)
-            Composables.DialogWithTextField(this@MyView,
+            CbComposable.DialogWithTextField(this@MyView,
                 buttonListener, dialogTitle, hitStr)
         }
     }

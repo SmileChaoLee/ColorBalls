@@ -81,8 +81,8 @@ open class MainCBallActivity : ComponentActivity() {
         fontSize = ScreenUtil.suitableFontScale(this@MainCBallActivity,
             ScreenUtil.FontSize_Pixel_Type, 0.0f)
         ColorBallsApp.textFontSize = textFontSize
-        Composables.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
-        Composables.toastFontSize = ScreenUtil.pixelToDp(toastTextSize).sp
+        CbComposable.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
+        CbComposable.toastFontSize = ScreenUtil.pixelToDp(toastTextSize).sp
 
         cBallLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
@@ -186,7 +186,7 @@ open class MainCBallActivity : ComponentActivity() {
             verticalArrangement = Arrangement.Center) {
             Text(text = getString(R.string.loadingStr),
                 color = Color.Blue, fontWeight = FontWeight.Bold,
-                fontSize = Composables.mFontSize.times(2.0f))
+                fontSize = CbComposable.mFontSize.times(2.0f))
         }
     }
 
@@ -229,7 +229,7 @@ open class MainCBallActivity : ComponentActivity() {
                 )
             )
             { Text(text = getString(R.string.noBarrierColorBall),
-                fontSize = Composables.mFontSize) }
+                fontSize = CbComposable.mFontSize) }
         }
     }
 
@@ -272,7 +272,7 @@ open class MainCBallActivity : ComponentActivity() {
                 )
             )
             { Text(text = getString(R.string.barrierColorBall),
-                fontSize = Composables.mFontSize) }
+                fontSize = CbComposable.mFontSize) }
         }
     }
 
@@ -315,7 +315,7 @@ open class MainCBallActivity : ComponentActivity() {
                 )
             )
             { Text(text = getString(R.string.removeBalls),
-                fontSize = Composables.mFontSize) }
+                fontSize = CbComposable.mFontSize) }
         }
     }
 
@@ -338,7 +338,7 @@ open class MainCBallActivity : ComponentActivity() {
         val buttonHeight = maxHeight * (10.0f - (verSpacerWeight * 2.0f)) / 50.0f
         Log.d(TAG, "CreateMainUI.buttonHeight = $buttonHeight")
         val backgroundColor = Yellow3
-        val textLineHeight = (Composables.toastFontSize.value + 5.0f).sp
+        val textLineHeight = (CbComposable.toastFontSize.value + 5.0f).sp
         Column(modifier = Modifier
             .fillMaxSize()
             .background(color = backgroundColor)) {

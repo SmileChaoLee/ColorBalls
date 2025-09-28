@@ -2,8 +2,6 @@ package com.smile.colorballs.ballsremover
 
 import android.app.Activity
 import android.content.res.Configuration
-import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,206 +11,34 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.smile.colorballs.ballsremover.constants.BallsRemoverConstants
 import com.smile.colorballs.ballsremover.models.Settings
-import com.smile.colorballs.ballsremover.models.TopPlayer
-import com.smile.colorballs.views.ui.theme.ColorPrimary
 import com.smile.colorballs.R
-import kotlin.run
-import kotlin.text.isNotEmpty
+import com.smile.colorballs.views.CbComposable
 
 object BallsRemoverComposables {
-
-    private const val TAG = "BallsRemComposable"
-
-    interface ButtonClickListener {
-        fun buttonOkClick()
-        fun buttonCancelClick() = run { }
-    }
-
-    interface ButtonClickListenerString {
-        fun buttonOkClick(value: String?)
-        fun buttonCancelClick(value: String?) = run { }
-    }
-
-    interface SettingClickListener {
-        fun hasSoundClick(hasSound: Boolean)
-        fun gameLevelClick(gameLevel: Int)
-        fun isFillColumnClick(fillColumn: Boolean)
-    }
-
-    var mFontSize = 24.sp
-        set(value) {
-            if (field != value) {
-                field = value
-                menuItemFontSize = value
-            }
-        }
-
-    private var menuItemFontSize = mFontSize
-
-    @Composable
-    fun textUnitToDp(sp: TextUnit): Dp {
-        val dp = with(LocalDensity.current) {
-            sp.toDp()
-        }
-        return dp
-    }
-
-    @Composable
-    fun HorDivider(
-        modifier: Modifier = Modifier,
-        color: Color = Color.Black, thickness: Dp = 2.dp
-    ) {
-        HorizontalDivider(
-            modifier = modifier.fillMaxWidth(),
-            color = color, thickness = thickness
-        )
-    }
-
-    @Composable
-    fun MenuItemText(
-        modifier: Modifier = Modifier,
-        text: String, color: Color
-    ) {
-        Text(modifier = modifier,
-            lineHeight = (menuItemFontSize.value + 2f).sp,
-            text = text, color = color,
-            fontWeight = FontWeight.Normal, fontStyle = FontStyle.Normal,
-            fontSize = menuItemFontSize
-        )
-    }
-
-    @Composable
-    fun DropdownMenuItem(
-        text: String, color: Color,
-        onClick: () -> Unit,
-        isDivider: Boolean = true
-    ) {
-        val itemHeight = textUnitToDp((menuItemFontSize.value + 12).sp)
-        androidx.compose.material3.DropdownMenuItem(
-            modifier = Modifier
-                .height(height = itemHeight)
-                .padding(all = 0.dp),
-            text = { MenuItemText(text = text, color = color) },
-            onClick = { onClick() })
-        if (isDivider) HorDivider()
-    }
-
-    // For the Top10ComposeActivity
-    @Composable
-    fun Top10Composable(
-        title: String, topPlayers: List<TopPlayer>,
-        buttonListener: ButtonClickListener,
-        oKStr: String
-    ) {
-        Log.d(TAG, "Top10Composable.topPlayers.size = ${topPlayers.size}")
-        val imageWidth = (mFontSize.value * 3.0).dp
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = Color(0xff90e5c4))
-        ) {
-            Text(text = title, fontSize = mFontSize, color = Color.Blue)
-            HorizontalDivider(
-                color = Color.Black,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .size(10.dp)
-            )
-            LazyColumn(modifier = Modifier.weight(1f)) {
-                items(topPlayers) { topPlayer ->
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        Column(modifier = Modifier.weight(3f)) {
-                            Text(
-                                text = topPlayer.player.playerName!!,
-                                color = Color.Red, fontSize = mFontSize
-                            )
-                            Text(
-                                text = topPlayer.player.score!!.toString(),
-                                color = Color.Red, fontSize = mFontSize
-                            )
-                        }
-                        Image(
-                            modifier = Modifier
-                                .weight(2f)
-                                .size(imageWidth),
-                            painter = painterResource(id = topPlayer.medal),
-                            contentDescription = "", // Accessibility text
-                            contentScale = ContentScale.Fit
-                        )
-                    }
-                    HorizontalDivider(
-                        color = Color.Blue,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .size(5.dp)
-                    )
-                }
-            }
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(color = Color.Blue)/*.weight(10f, true)*/,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Button(
-                    onClick = { buttonListener.buttonOkClick() },
-                    /* modifier = Modifier
-                    .size(buttonWidth, height = buttonHeight)
-                    .weight(weight = 1f, fill = true)
-                    .align(Alignment.CenterHorizontally)
-                    .background(color = Color.Green), */
-                    colors = ButtonColors(
-                        containerColor = Color.Cyan,
-                        disabledContainerColor = Color.DarkGray,
-                        contentColor = Color.Red,
-                        disabledContentColor = Color.LightGray
-                    )
-                )
-                { Text(text = oKStr, fontSize = mFontSize) }
-            }
-        }
-    }
 
     @Composable
     fun SettingCompose(
         activity: Activity,
-        buttonListener: ButtonClickListener,
-        textListener: SettingClickListener,
+        buttonListener: CbComposable.ButtonClickListener,
+        textListener: CbComposable.BRemSettingClickListener,
         text: String, backgroundColor: Color,
         setting: Settings
     ) {
@@ -269,10 +95,10 @@ object BallsRemoverComposables {
                     ) {
                         Text(
                             text = text, color = Color.White,
-                            fontWeight = FontWeight.Bold, fontSize = mFontSize
+                            fontWeight = FontWeight.Bold, fontSize = CbComposable.mFontSize
                         )
                     }
-                    HorDivider(
+                    CbComposable.HorDivider(
                         color = Color.White,
                         modifier = Modifier.weight(dividerWeight)
                     )
@@ -282,14 +108,14 @@ object BallsRemoverComposables {
                         horizontalArrangement = Arrangement.Center
                     ) {
                         var hasSound by remember { mutableStateOf(setting.hasSound) }
-                        MenuItemText(
+                        CbComposable.MenuItemText(
                             text = activity.getString(R.string.soundStr),
                             color = textColor,
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp)
                         )
-                        MenuItemText(
+                        CbComposable.MenuItemText(
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp)
@@ -300,7 +126,7 @@ object BallsRemoverComposables {
                             text = if (hasSound) onStr else offStr,
                             Color.White
                         )
-                        MenuItemText(
+                        CbComposable.MenuItemText(
                             text = if (hasSound) yesStr else noStr,
                             color = textColor,
                             modifier = Modifier
@@ -318,14 +144,14 @@ object BallsRemoverComposables {
                         val easyStr = activity.getString(R.string.easyStr)
                         val diffStr = activity.getString(R.string.difficultStr)
                         var gameLevel by remember { mutableIntStateOf(setting.gameLevel) }
-                        MenuItemText(
+                        CbComposable.MenuItemText(
                             text = activity.getString(R.string.playerLevelStr),
                             color = textColor,
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp)
                         )
-                        MenuItemText(
+                        CbComposable.MenuItemText(
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp)
@@ -337,7 +163,7 @@ object BallsRemoverComposables {
                             text = if (gameLevel == BallsRemoverConstants.EASY_LEVEL) no1Str else no2Str,
                             Color.White
                         )
-                        MenuItemText(
+                        CbComposable.MenuItemText(
                             text = if (gameLevel == BallsRemoverConstants.EASY_LEVEL) easyStr else diffStr,
                             color = textColor,
                             modifier = Modifier
@@ -351,14 +177,14 @@ object BallsRemoverComposables {
                         horizontalArrangement = Arrangement.Center
                     ) {
                         var fillColumn by remember { mutableStateOf(setting.fillColumn) }
-                        MenuItemText(
+                        CbComposable.MenuItemText(
                             text = activity.getString(R.string.fillColumnStr),
                             color = textColor,
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp)
                         )
-                        MenuItemText(
+                        CbComposable.MenuItemText(
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp).clickable {
@@ -368,7 +194,7 @@ object BallsRemoverComposables {
                             text = if (fillColumn) onStr else offStr,
                             Color.White
                         )
-                        MenuItemText(
+                        CbComposable.MenuItemText(
                             text = if (fillColumn) yesStr else noStr,
                             color = textColor,
                             modifier = Modifier
@@ -393,7 +219,7 @@ object BallsRemoverComposables {
                         ) {
                             Text(
                                 text = activity.getString(R.string.cancelStr),
-                                fontSize = mFontSize
+                                fontSize = CbComposable.mFontSize
                             )
                         }
                         Spacer(
@@ -413,7 +239,7 @@ object BallsRemoverComposables {
                         ) {
                             Text(
                                 text = activity.getString(R.string.okStr),
-                                fontSize = mFontSize
+                                fontSize = CbComposable.mFontSize
                             )
                         }
                     }
@@ -430,137 +256,5 @@ object BallsRemoverComposables {
                     .weight(spaceWeight)
             )
         }   // end of main column
-    }
-
-    @Composable
-    fun DialogWithText(
-        activity: Activity,
-        buttonListener: ButtonClickListener,
-        dialogTitle: String, dialogText: String
-    ) {
-        Log.d(TAG, "DialogWithText")
-        val okStr = activity.getString(R.string.okStr)
-        val noStr = activity.getString(R.string.noStr)
-        val lightRed = Color(0xffff4444)
-        AlertDialog(icon = null, title = {
-            if (dialogTitle.isNotEmpty())
-                Text(
-                    text = dialogTitle,
-                    fontWeight = FontWeight.Medium, fontSize = mFontSize
-                )
-        },
-            text = {
-                if (dialogText.isNotEmpty())
-                    Text(
-                        text = dialogText,
-                        fontWeight = FontWeight.Medium, fontSize = mFontSize
-                    )
-            },
-            containerColor = Color(0xffffa500),
-            titleContentColor = Color.White,
-            textContentColor = Color.Blue,
-            onDismissRequest = { /* isOpen = false */ },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        // isOpen = false
-                        buttonListener.buttonOkClick()
-                    }, colors = ButtonColors(
-                        containerColor = ColorPrimary,
-                        disabledContainerColor = ColorPrimary,
-                        contentColor = Color.Yellow,
-                        disabledContentColor = Color.Yellow
-                    )
-                ) { Text(text = okStr, fontSize = mFontSize) }
-            },
-            dismissButton = {
-                Button(
-                    onClick = {
-                        // isOpen = false
-                        buttonListener.buttonCancelClick()
-                    }, colors = ButtonColors(
-                        containerColor = ColorPrimary,
-                        disabledContainerColor = ColorPrimary,
-                        contentColor = lightRed,
-                        disabledContentColor = lightRed
-                    )
-                ) { Text(text = noStr, fontSize = mFontSize) }
-            }
-        )
-    }
-
-    @Composable
-    fun textFieldValue(hintText: String): String {
-        var textValue by rememberSaveable { mutableStateOf("") }
-        TextField(value = textValue,
-            onValueChange = {
-                textValue = it
-                Log.d(TAG, "textFieldValue.textValue = $textValue")
-            },
-            textStyle = LocalTextStyle.current.copy(fontSize = mFontSize),
-            placeholder = {
-                Text(
-                    text = hintText, color = Color.LightGray,
-                    fontWeight = FontWeight.Light, fontSize = mFontSize
-                )
-            }
-        )
-        return textValue
-    }
-
-    @Composable
-    fun DialogWithTextField(
-        activity: Activity,
-        buttonListener: ButtonClickListenerString,
-        dialogTitle: String, hintText: String
-    ) {
-        Log.d(TAG, "DialogWithTextField")
-        val lightRed = Color(0xffff4444)
-        val okStr = activity.getString(R.string.okStr)
-        val noStr = activity.getString(R.string.noStr)
-        var returnValue = ""
-        Log.d(TAG, "DialogWithTextField.AlertDialog")
-        AlertDialog(onDismissRequest = { /* isOpen = false */ },
-            icon = null, title = {
-                if (dialogTitle.isNotEmpty())
-                    Text(
-                        text = dialogTitle,
-                        fontWeight = FontWeight.Medium, fontSize = mFontSize
-                    )
-            },
-            text = {
-                if (hintText.isNotEmpty())
-                    returnValue = textFieldValue(hintText)
-            },
-            containerColor = Color(0xffffa500),
-            titleContentColor = Color.White,
-            textContentColor = Color.Blue,
-            confirmButton = {
-                Button(
-                    onClick = {
-                        // isOpen = false
-                        buttonListener.buttonOkClick(returnValue)
-                    }, colors = ButtonColors(
-                        containerColor = ColorPrimary,
-                        disabledContainerColor = ColorPrimary,
-                        contentColor = Color.Yellow,
-                        disabledContentColor = Color.Yellow
-                    )
-                ) { Text(text = okStr, fontSize = mFontSize) }
-            },
-            dismissButton = {
-                Button(
-                    onClick = {
-                        // isOpen = false
-                        buttonListener.buttonCancelClick(returnValue)
-                    }, colors = ButtonColors(
-                        containerColor = ColorPrimary,
-                        disabledContainerColor = ColorPrimary,
-                        contentColor = lightRed,
-                        disabledContentColor = lightRed
-                    )
-                ) { Text(text = noStr, fontSize = mFontSize) }
-            }
-        )
     }
 }

@@ -40,12 +40,12 @@ class CbSettingActivity : ComponentActivity() {
             }
         }
 
-        val textClick = object : Composables.SettingClickListener {
+        val textClick = object : CbComposable.SettingClickListener {
             override fun hasSoundClick(hasSound: Boolean) {
                 Log.d(TAG, "textClick.hasSoundClick.hasSound = $hasSound")
                 settingViewModel.setHasSound(hasSound)
             }
-            override fun easyLevelClick(easyLevel: Boolean) {
+            override fun gameLevelClick(easyLevel: Boolean) {
                 Log.d(TAG, "textClick.easyLevelClick.easyLevel = $easyLevel")
                 settingViewModel.setEasyLevel(easyLevel)
             }
@@ -55,7 +55,7 @@ class CbSettingActivity : ComponentActivity() {
             }
         }
 
-        val buttonClick = object : Composables.ButtonClickListener  {
+        val buttonClick = object : CbComposable.ButtonClickListener  {
             override fun buttonOkClick() {
                 returnToPrevious(confirmed = true)
             }
@@ -68,7 +68,7 @@ class CbSettingActivity : ComponentActivity() {
             Log.d(TAG, "onCreate.setContent")
             ColorBallsTheme {
                 settingViewModel.settings.value?.let {
-                    Composables.SettingCompose(this@CbSettingActivity,
+                    CbComposable.SettingCompose(this@CbSettingActivity,
                         buttonClick, textClick,
                         "${getString(R.string.settingStr)} - Activity",
                         backgroundColor = Color(0xbb0000ff), it

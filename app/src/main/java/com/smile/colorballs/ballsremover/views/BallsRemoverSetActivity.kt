@@ -14,6 +14,7 @@ import com.smile.colorballs.ballsremover.constants.BallsRemoverConstants
 import com.smile.colorballs.ballsremover.models.Settings
 import com.smile.colorballs.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs.ballsremover.viewmodels.BallsRemoverSetViewModel
+import com.smile.colorballs.views.CbComposable
 
 class BallsRemoverSetActivity : ComponentActivity() {
 
@@ -41,7 +42,7 @@ class BallsRemoverSetActivity : ComponentActivity() {
             }
         }
 
-        val textClick = object : BallsRemoverComposables.SettingClickListener {
+        val textClick = object : CbComposable.BRemSettingClickListener {
             override fun hasSoundClick(hasSound: Boolean) {
                 Log.d(TAG, "textClick.hasSoundClick.hasSound = $hasSound")
                 ballsRemoverSetViewModel.setHasSound(hasSound)
@@ -56,7 +57,7 @@ class BallsRemoverSetActivity : ComponentActivity() {
             }
         }
 
-        val buttonClick = object : BallsRemoverComposables.ButtonClickListener {
+        val buttonClick = object : CbComposable.ButtonClickListener {
             override fun buttonOkClick() {
                 returnToPrevious(confirmed = true)
             }

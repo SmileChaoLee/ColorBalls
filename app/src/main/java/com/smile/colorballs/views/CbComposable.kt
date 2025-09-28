@@ -62,9 +62,9 @@ import com.smile.colorballs.views.ui.theme.ColorPrimary
 import com.smile.smilelibraries.AdMobBanner
 import com.smile.smilelibraries.FacebookBanner
 
-object Composables {
+object CbComposable {
 
-    private const val TAG = "Composables"
+    private const val TAG = "CbComposable"
 
     interface ButtonClickListener {
         fun buttonOkClick()
@@ -78,8 +78,14 @@ object Composables {
 
     interface SettingClickListener {
         fun hasSoundClick(hasSound: Boolean)
-        fun easyLevelClick(easyLevel: Boolean)
+        fun gameLevelClick(easyLevel: Boolean)
         fun hasNextClick(hasNext: Boolean)
+    }
+
+    interface BRemSettingClickListener {
+        fun hasSoundClick(hasSound: Boolean)
+        fun gameLevelClick(gameLevel: Int)
+        fun isFillColumnClick(fillColumn: Boolean)
     }
 
     var mFontSize = 24.sp
@@ -108,8 +114,9 @@ object Composables {
     }
 
     @Composable
-    fun HorDivider(modifier: Modifier = Modifier.Companion,
-                   color: Color = Color.Companion.Black, thickness: Dp = 2.dp
+    fun HorDivider(
+        modifier: Modifier = Modifier,
+        color: Color = Color.Black, thickness: Dp = 2.dp
     ) {
         HorizontalDivider(
             modifier = modifier.fillMaxWidth(),
@@ -118,100 +125,104 @@ object Composables {
     }
 
     @Composable
-    fun MenuItemText(modifier: Modifier = Modifier.Companion,
-                     text: String, color: Color
+    fun MenuItemText(
+        modifier: Modifier = Modifier,
+        text: String, color: Color
     ) {
         Text(
             modifier = modifier,
             lineHeight = (menuItemFontSize.value + 2f).sp,
             text = text, color = color,
-            fontWeight = FontWeight.Companion.Normal, fontStyle = FontStyle.Companion.Normal,
+            fontWeight = FontWeight.Normal, fontStyle = FontStyle.Normal,
             fontSize = menuItemFontSize
         )
     }
 
     @Composable
-    fun DropdownMenuItem(text: String, color: Color,
-                         onClick: () -> Unit,
-                         isDivider: Boolean = true) {
+    fun DropdownMenuItem(
+        text: String, color: Color,
+        onClick: () -> Unit,
+        isDivider: Boolean = true
+    ) {
         val itemHeight = textUnitToDp((menuItemFontSize.value + 12).sp)
         androidx.compose.material3.DropdownMenuItem(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .height(height = itemHeight)
                 .padding(all = 0.dp),
-            text = { MenuItemText(text = text, color = color ) },
+            text = { MenuItemText(text = text, color = color) },
             onClick = { onClick() })
         if (isDivider) HorDivider()
     }
 
-    // For the Top10ComposeActivity
     @Composable
-    fun Top10Composable(title: String, topPlayers: List<TopPlayer>,
-                        buttonListener: ButtonClickListener,
-                        oKStr: String) {
-        Log.d(TAG, "Top10Compose.topPlayers.size = ${topPlayers.size}")
+    fun Top10Composable(
+        title: String, topPlayers: List<TopPlayer>,
+        buttonListener: ButtonClickListener,
+        oKStr: String
+    ) {
+        Log.d(TAG, "Top10Composable.topPlayers.size = ${topPlayers.size}")
         val imageWidth = (mFontSize.value * 3.0).dp
         Column(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .fillMaxSize()
                 .background(color = Color(0xff90e5c4))
         ) {
-            Text(text = title, fontSize = mFontSize, color = Color.Companion.Blue)
+            Text(text = title, fontSize = mFontSize, color = Color.Blue)
             HorizontalDivider(
-                color = Color.Companion.Black,
-                modifier = Modifier.Companion
+                color = Color.Black,
+                modifier = Modifier
                     .fillMaxWidth()
                     .size(10.dp)
             )
-            LazyColumn(modifier = Modifier.Companion.weight(1f)) {
+            LazyColumn(modifier = Modifier.weight(1f)) {
                 items(topPlayers) { topPlayer ->
-                    Row(modifier = Modifier.Companion.fillMaxWidth()) {
-                        Column(modifier = Modifier.Companion.weight(3f)) {
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.weight(3f)) {
                             Text(
                                 text = topPlayer.player.playerName!!,
-                                color = Color.Companion.Red, fontSize = mFontSize
+                                color = Color.Red, fontSize = mFontSize
                             )
                             Text(
                                 text = topPlayer.player.score!!.toString(),
-                                color = Color.Companion.Red, fontSize = mFontSize
+                                color = Color.Red, fontSize = mFontSize
                             )
                         }
                         Image(
-                            modifier = Modifier.Companion
+                            modifier = Modifier
                                 .weight(2f)
                                 .size(imageWidth),
                             painter = painterResource(id = topPlayer.medal),
                             contentDescription = "", // Accessibility text
-                            contentScale = ContentScale.Companion.Fit
+                            contentScale = ContentScale.Fit
                         )
                     }
                     HorizontalDivider(
-                        color = Color.Companion.Blue,
-                        modifier = Modifier.Companion
+                        color = Color.Blue,
+                        modifier = Modifier
                             .fillMaxWidth()
                             .size(5.dp)
                     )
                 }
             }
             Column(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .fillMaxWidth()
-                    .background(color = Color.Companion.Blue)/*.weight(10f, true)*/,
-                horizontalAlignment = Alignment.Companion.CenterHorizontally,
+                    .background(color = Color.Blue)/*.weight(10f, true)*/,
+                horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
                 Button(
                     onClick = { buttonListener.buttonOkClick() },
                     /* modifier = Modifier
-                        .size(buttonWidth, height = buttonHeight)
-                        .weight(weight = 1f, fill = true)
-                        .align(Alignment.CenterHorizontally)
-                        .background(color = Color.Green), */
+                    .size(buttonWidth, height = buttonHeight)
+                    .weight(weight = 1f, fill = true)
+                    .align(Alignment.CenterHorizontally)
+                    .background(color = Color.Green), */
                     colors = ButtonColors(
-                        containerColor = Color.Companion.Cyan,
-                        disabledContainerColor = Color.Companion.DarkGray,
-                        contentColor = Color.Companion.Red,
-                        disabledContentColor = Color.Companion.LightGray
+                        containerColor = Color.Cyan,
+                        disabledContainerColor = Color.DarkGray,
+                        contentColor = Color.Red,
+                        disabledContentColor = Color.LightGray
                     )
                 )
                 { Text(text = oKStr, fontSize = mFontSize) }
@@ -248,45 +259,45 @@ object Composables {
         val offStr = activity.getString(R.string.offStr)
 
         Column(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .fillMaxSize()
-                .background(color = Color.Companion.Transparent)
+                .background(color = Color.Transparent)
         ) { // main column
             Spacer(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .fillMaxWidth()
                     .weight(spaceWeight)
             )
-            Row(modifier = Modifier.Companion.weight(setRowWeight)) {    // setting row
+            Row(modifier = Modifier.weight(setRowWeight)) {    // setting row
                 Spacer(
-                    modifier = Modifier.Companion
+                    modifier = Modifier
                         .fillMaxHeight()
                         .weight(spaceWeight)
                 )
                 Column(
-                    modifier = Modifier.Companion
+                    modifier = Modifier
                         .background(color = backgroundColor)
                         .weight(setColumnWeight),
-                    horizontalAlignment = Alignment.Companion.CenterHorizontally,
+                    horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) { // setting column
                     Column(
-                        modifier = Modifier.Companion.weight(textWeight),
-                        horizontalAlignment = Alignment.Companion.CenterHorizontally,
+                        modifier = Modifier.weight(textWeight),
+                        horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = text, color = Color.Companion.White,
-                            fontWeight = FontWeight.Companion.Bold, fontSize = mFontSize
+                            text = text, color = Color.White,
+                            fontWeight = FontWeight.Bold, fontSize = mFontSize
                         )
                     }
                     HorDivider(
-                        color = Color.Companion.White,
-                        modifier = Modifier.Companion.weight(dividerWeight)
+                        color = Color.White,
+                        modifier = Modifier.weight(dividerWeight)
                     )
                     Row(
-                        Modifier.Companion.weight(rowWeight),
-                        verticalAlignment = Alignment.Companion.CenterVertically,
+                        Modifier.weight(rowWeight),
+                        verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
                         val yesStr = activity.getString(R.string.yesStr)
@@ -295,12 +306,12 @@ object Composables {
                         MenuItemText(
                             text = activity.getString(R.string.soundStr),
                             color = textColor,
-                            modifier = Modifier.Companion
+                            modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp)
                         )
                         MenuItemText(
-                            modifier = Modifier.Companion
+                            modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp)
                                 .clickable {
@@ -308,19 +319,19 @@ object Composables {
                                     textListener.hasSoundClick(hasSound)
                                 },
                             text = if (hasSound) onStr else offStr,
-                            Color.Companion.White
+                            Color.White
                         )
                         MenuItemText(
                             text = if (hasSound) yesStr else noStr,
                             color = textColor,
-                            modifier = Modifier.Companion
+                            modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp)
                         )
                     }
                     Row(
-                        Modifier.Companion.weight(rowWeight),
-                        verticalAlignment = Alignment.Companion.CenterVertically,
+                        Modifier.weight(rowWeight),
+                        verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
                         val no1Str = activity.getString(R.string.no1)
@@ -331,32 +342,32 @@ object Composables {
                         MenuItemText(
                             text = activity.getString(R.string.playerLevelStr),
                             color = textColor,
-                            modifier = Modifier.Companion
+                            modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp)
                         )
                         MenuItemText(
-                            modifier = Modifier.Companion
+                            modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp)
                                 .clickable {
                                     easyLevel = !easyLevel
-                                    textListener.easyLevelClick(easyLevel)
+                                    textListener.gameLevelClick(easyLevel)
                                 },
                             text = if (easyLevel) no1Str else no2Str,
-                            Color.Companion.White
+                            Color.White
                         )
                         MenuItemText(
                             text = if (easyLevel) easyStr else diffStr,
                             color = textColor,
-                            modifier = Modifier.Companion
+                            modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp)
                         )
                     }
                     Row(
-                        Modifier.Companion.weight(rowWeight),
-                        verticalAlignment = Alignment.Companion.CenterVertically,
+                        Modifier.weight(rowWeight),
+                        verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
                         val showStr = activity.getString(R.string.showStr)
@@ -365,41 +376,41 @@ object Composables {
                         MenuItemText(
                             text = activity.getString(R.string.nextBallSettingStr),
                             color = textColor,
-                            modifier = Modifier.Companion
+                            modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp)
                         )
                         MenuItemText(
-                            modifier = Modifier.Companion
+                            modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp).clickable {
                                     hasNext = !hasNext
                                     textListener.hasNextClick(hasNext)
                                 },
                             text = if (hasNext) onStr else offStr,
-                            Color.Companion.White
+                            Color.White
                         )
                         MenuItemText(
                             text = if (hasNext) showStr else noShowStr,
                             color = textColor,
-                            modifier = Modifier.Companion
+                            modifier = Modifier
                                 .weight(1f)
                                 .padding(all = 0.dp)
                         )
                     }
                     Row(
-                        Modifier.Companion.weight(rowWeight),
-                        verticalAlignment = Alignment.Companion.CenterVertically,
+                        Modifier.weight(rowWeight),
+                        verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Button(
                             onClick = { buttonListener.buttonCancelClick() },
-                            modifier = Modifier.Companion.weight(buttonWeight),
+                            modifier = Modifier.weight(buttonWeight),
                             colors = ButtonColors(
-                                containerColor = Color.Companion.Yellow,
-                                disabledContentColor = Color.Companion.Yellow,
-                                contentColor = Color.Companion.Red,
-                                disabledContainerColor = Color.Companion.Red,
+                                containerColor = Color.Yellow,
+                                disabledContentColor = Color.Yellow,
+                                contentColor = Color.Red,
+                                disabledContainerColor = Color.Red,
                             )
                         ) {
                             Text(
@@ -408,18 +419,18 @@ object Composables {
                             )
                         }
                         Spacer(
-                            modifier = Modifier.Companion
+                            modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(spaceWeight)
                         )
                         Button(
                             onClick = { buttonListener.buttonOkClick() },
-                            modifier = Modifier.Companion.weight(buttonWeight),
+                            modifier = Modifier.weight(buttonWeight),
                             colors = ButtonColors(
-                                containerColor = Color.Companion.Yellow,
-                                disabledContentColor = Color.Companion.Yellow,
-                                contentColor = Color.Companion.Blue,
-                                disabledContainerColor = Color.Companion.Blue
+                                containerColor = Color.Yellow,
+                                disabledContentColor = Color.Yellow,
+                                contentColor = Color.Blue,
+                                disabledContainerColor = Color.Blue
                             )
                         ) {
                             Text(
@@ -430,13 +441,13 @@ object Composables {
                     }
                 }   // end of setting column
                 Spacer(
-                    modifier = Modifier.Companion
+                    modifier = Modifier
                         .fillMaxHeight()
                         .weight(spaceWeight)
                 )
             }   // end of setting row
             Spacer(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .fillMaxWidth()
                     .weight(spaceWeight)
             )
@@ -456,19 +467,19 @@ object Composables {
                 if (dialogTitle.isNotEmpty())
                     Text(
                         text = dialogTitle,
-                        fontWeight = FontWeight.Companion.Medium, fontSize = mFontSize
+                        fontWeight = FontWeight.Medium, fontSize = mFontSize
                     )
             },
             text = {
                 if (dialogText.isNotEmpty())
                     Text(
                         text = dialogText,
-                        fontWeight = FontWeight.Companion.Medium, fontSize = mFontSize
+                        fontWeight = FontWeight.Medium, fontSize = mFontSize
                     )
             },
             containerColor = Color(0xffffa500),
-            titleContentColor = Color.Companion.White,
-            textContentColor = Color.Companion.Blue,
+            titleContentColor = Color.White,
+            textContentColor = Color.Blue,
             onDismissRequest = { /* isOpen = false */ },
             confirmButton = {
                 Button(
@@ -478,8 +489,8 @@ object Composables {
                     }, colors = ButtonColors(
                         containerColor = ColorPrimary,
                         disabledContainerColor = ColorPrimary,
-                        contentColor = Color.Companion.Yellow,
-                        disabledContentColor = Color.Companion.Yellow
+                        contentColor = Color.Yellow,
+                        disabledContentColor = Color.Yellow
                     )
                 ) { Text(text = okStr, fontSize = mFontSize) }
             },
@@ -511,8 +522,8 @@ object Composables {
             textStyle = LocalTextStyle.current.copy(fontSize = mFontSize),
             placeholder = {
                 Text(
-                    text = hintText, color = Color.Companion.LightGray,
-                    fontWeight = FontWeight.Companion.Light, fontSize = mFontSize
+                    text = hintText, color = Color.LightGray,
+                    fontWeight = FontWeight.Light, fontSize = mFontSize
                 )
             }
         )
@@ -536,7 +547,7 @@ object Composables {
                 if (dialogTitle.isNotEmpty())
                     Text(
                         text = dialogTitle,
-                        fontWeight = FontWeight.Companion.Medium, fontSize = mFontSize
+                        fontWeight = FontWeight.Medium, fontSize = mFontSize
                     )
             },
             text = {
@@ -544,8 +555,8 @@ object Composables {
                     returnValue = textFieldValue(hintText)
             },
             containerColor = Color(0xffffa500),
-            titleContentColor = Color.Companion.White,
-            textContentColor = Color.Companion.Blue,
+            titleContentColor = Color.White,
+            textContentColor = Color.Blue,
             confirmButton = {
                 Button(
                     onClick = {
@@ -554,8 +565,8 @@ object Composables {
                     }, colors = ButtonColors(
                         containerColor = ColorPrimary,
                         disabledContainerColor = ColorPrimary,
-                        contentColor = Color.Companion.Yellow,
-                        disabledContentColor = Color.Companion.Yellow
+                        contentColor = Color.Yellow,
+                        disabledContentColor = Color.Yellow
                     )
                 ) { Text(text = okStr, fontSize = mFontSize) }
             },
