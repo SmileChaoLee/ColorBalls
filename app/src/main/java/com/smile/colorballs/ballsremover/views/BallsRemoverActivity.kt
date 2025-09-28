@@ -62,6 +62,7 @@ import com.smile.colorballs.views.ui.theme.*
 import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.views.CbComposable
+import com.smile.colorballs.views.Top10Activity
 import com.smile.smilelibraries.models.ExitAppTimer
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil
 import com.smile.smilelibraries.utilities.ScreenUtil
@@ -387,8 +388,7 @@ class BallsRemoverActivity : BallsRemoverView() {
     private fun showTop10Players(isLocal: Boolean) {
         Log.d(TAG, "showTop10Players.isLocal = $isLocal")
         Intent(
-            this@BallsRemoverActivity,
-            BallsRemoverTop10Activity::class.java
+            this@BallsRemoverActivity, Top10Activity::class.java
         ).let {
             Bundle().apply {
                 putString(Constants.GAME_ID, BallsRemoverConstants.BALLS_REMOVER_GAME_ID)

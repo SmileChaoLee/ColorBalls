@@ -68,11 +68,6 @@
             android:label="@string/settingStr"
             android:theme="@style/AppThemeTransparent">
         </activity>
-        <activity
-            android:name=".ballsremover.views.BallsRemoverTop10Activity"
-            android:exported="false"
-            android:label="@string/title_activity_history">
-        </activity>
     </application>
 
 </manifest>
