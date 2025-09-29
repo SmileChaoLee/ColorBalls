@@ -28,21 +28,20 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import androidx.core.graphics.scale
 import com.smile.colorballs.constants.Constants
-import com.smile.colorballs.constants.WhichGame
+import com.smile.colorballs.interfaces.GameOptions
 import com.smile.colorballs.views.CbComposable
 
 abstract class BallsRemoverView: ComponentActivity(),
-    BallsRemoverPresentView {
+    BallsRemoverPresentView, GameOptions {
 
     protected val viewModel: BallsRemoverViewModel by viewModels()
     protected var textFontSize = 0f
     protected var boxImage: Bitmap? = null
     protected val colorBallMap: HashMap<Int, Bitmap> = HashMap()
     protected val colorOvalBallMap: HashMap<Int, Bitmap> = HashMap()
-    protected var whichGame = WhichGame.REMOVE_BALLS
 
-    private val databaseName = "balls_remover.db"
     private var interstitialAd: ShowInterstitial? = null
+    private lateinit var mGameOptions: GameOptions
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "$TAG.onCreate")
@@ -67,7 +66,8 @@ abstract class BallsRemoverView: ComponentActivity(),
                 it.googleInterstitialAd)
         }
 
-        Log.d(TAG, "onCreate.instantiate BallsRemoverPresenter")
+        mGameOptions = this as GameOptions
+        mGameOptions.setWhichGame()
         viewModel.setPresenter(BallsRemoverPresenter(this@BallsRemoverView))
     }
 
@@ -305,7 +305,8 @@ abstract class BallsRemoverView: ComponentActivity(),
 
     override fun getHighestScore() : Int {
         Log.d(TAG, "getHighestScore")
-        val scoreSQLiteDB = ScoreSQLite(this, databaseName)
+        val scoreSQLiteDB = ScoreSQLite(this,
+            Constants.BALLS_REMOVER_DATABASE_NAME)
         val score = scoreSQLiteDB.readHighestScore()
         Log.d(TAG, "getHighestScore.score = $score")
         scoreSQLiteDB.close()
@@ -314,7 +315,8 @@ abstract class BallsRemoverView: ComponentActivity(),
 
     override fun addScoreInLocalTop10(playerName : String, score : Int) {
         Log.d(TAG, "addScoreInLocalTop10")
-        val scoreSQLiteDB = ScoreSQLite(this, databaseName)
+        val scoreSQLiteDB = ScoreSQLite(this,
+            Constants.BALLS_REMOVER_DATABASE_NAME)
         if (scoreSQLiteDB.isInTop10(score)) {
             // inside top 10, then record the current score
             scoreSQLiteDB.addScore(playerName, score)

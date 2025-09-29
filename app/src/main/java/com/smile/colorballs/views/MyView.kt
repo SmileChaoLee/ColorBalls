@@ -31,7 +31,8 @@ import com.smile.colorballs.roomdatabase.ScoreDatabase
 import com.smile.colorballs.tools.Utils
 import com.smile.smilelibraries.interfaces.DismissFunction
 
-abstract class MyView: ComponentActivity(), PresentView {
+abstract class MyView: ComponentActivity()
+    , PresentView, GameOptions {
 
     companion object {
         private const val TAG = "MyView"

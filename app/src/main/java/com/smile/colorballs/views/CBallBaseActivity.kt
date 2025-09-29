@@ -72,7 +72,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-open class CBallBaseActivity : MyView() {
+abstract class CBallBaseActivity : MyView() {
 
     private var mTAG = "CBallBaseActivity"
     fun setTag(tag: String) {

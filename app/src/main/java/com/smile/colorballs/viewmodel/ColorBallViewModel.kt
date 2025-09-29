@@ -16,7 +16,7 @@ import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
 import com.smile.colorballs.constants.WhichGame
 import com.smile.colorballs.models.GameProp
-import com.smile.colorballs.models.GridData
+import com.smile.colorballs.models.CBallGridData
 import com.smile.colorballs.models.ColorBallInfo
 import com.smile.colorballs.presenters.CBallPresenter
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
@@ -40,7 +40,7 @@ class ColorBallViewModel: ViewModel() {
     private val movingBallHandler = Handler(Looper.getMainLooper())
     private val showingScoreHandler = Handler(Looper.getMainLooper())
     private var mGameProp = GameProp()
-    private var mGridData = GridData()
+    private var mGridData = CBallGridData()
 
     private var loadingStr = ""
     private var savingGameStr = ""
@@ -171,7 +171,7 @@ class ColorBallViewModel: ViewModel() {
         }
     }
 
-    private fun setData(prop: GameProp, gData: GridData) {
+    private fun setData(prop: GameProp, gData: CBallGridData) {
         Log.d(TAG, "setData")
         mGameProp = prop
         mGridData = gData
@@ -256,7 +256,7 @@ class ColorBallViewModel: ViewModel() {
     private fun restoreState(state: Bundle?): Boolean {
         var isNewGame: Boolean
         var gameProp: GameProp? = null
-        var gridData: GridData? = null
+        var gridData: CBallGridData? = null
         state?.let {
             Log.d(TAG,"restoreState.state not null then restore the state")
             gameProp =
@@ -267,7 +267,7 @@ class ColorBallViewModel: ViewModel() {
             gridData =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                     BundleCompat.getParcelable(it, Constants.GRID_DATA_TAG,
-                        GridData::class.java)
+                        CBallGridData::class.java)
                 else it.getParcelable(Constants.GRID_DATA_TAG)
         }
         isNewGame = true

@@ -61,6 +61,7 @@ import com.smile.colorballs.views.ui.theme.*
 import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
+import com.smile.colorballs.constants.WhichGame
 import com.smile.colorballs.tools.Utils
 import com.smile.colorballs.views.CbComposable
 import com.smile.colorballs.views.CbSettingActivity
@@ -715,6 +716,11 @@ class BallsRemoverActivity : BallsRemoverView() {
             ShowNativeAd(modifier = Modifier.weight(8.0f))
             CbComposable.ShowAdmobNormalBanner(modifier = Modifier.weight(2.0f))
         }
+    }
+
+    override fun setWhichGame() {
+        Log.d(TAG, "setWhichGame")
+        viewModel.setWhichGame(WhichGame.REMOVE_BALLS)
     }
 
     companion object {

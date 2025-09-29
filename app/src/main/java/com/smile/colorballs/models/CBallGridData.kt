@@ -1,0 +1,540 @@
+package com.smile.colorballs.models
+
+import android.graphics.Point
+import android.os.Parcelable
+import android.util.Log
+import com.smile.colorballs.constants.Constants
+import com.smile.colorballs.constants.WhichGame
+import kotlinx.parcelize.Parcelize
+import java.util.Random
+import java.util.Stack
+import kotlin.collections.HashMap
+import kotlin.math.min
+
+private val mRandomIndex: Random = Random(System.currentTimeMillis())
+private val mRandomBall: Random = Random(System.currentTimeMillis()+1000L)
+
+@Parcelize
+class CBallGridData(
+    override val rowCounts: Int = Constants.ROW_COUNTS,
+    override val colCounts: Int = Constants.COLUMN_COUNTS,
+    override var mNumOfColorsUsed : Int = Constants.NUM_BALLS_USED_EASY,
+    override val mCellValues : Array<IntArray> =
+        Array(rowCounts) { IntArray(colCounts) },
+    override val mBackupCells : Array<IntArray> =
+        Array(rowCounts) { IntArray(colCounts) },
+    override val mLightLine : HashSet<Point> = HashSet(),
+    private var mUndoNextCellIndices : HashMap<Point, Int> = HashMap(),
+    private var mNextCellIndices : HashMap<Point, Int> = HashMap(),
+    private val mPathPoint : ArrayList<Point> = ArrayList())
+    : GridData(rowCounts, colCounts, mNumOfColorsUsed
+        ,mCellValues, mBackupCells, mLightLine) ,Parcelable {
+
+    fun randThreeCells(): Int {
+        Log.d(TAG, "randThreeCells")
+        mNextCellIndices.clear()
+        return generateNextCellIndices(0, null)
+    }
+
+    fun randomBarriersAndCells() {
+        Log.d(TAG, "randomBarriersAndCells")
+        // randomly generate barriers in 9x9 grid
+        val set: HashSet<Point> = HashSet()
+        var row: Int
+        var col: Int
+        var point: Point
+        var loopNum = 0
+        while (loopNum < Constants.NUM_BARRIERS) {
+            row = mRandomIndex.nextInt(rowCounts)
+            col = mRandomIndex.nextInt(colCounts)
+            point = Point(row, col)
+            if (!set.contains(point)) {
+                set.add(Point(row, col))
+                mCellValues[row][col] = Constants.COLOR_BARRIER
+                loopNum++
+            }
+        }
+        randThreeCells()
+    }
+
+    fun randomGrid() {
+        Log.d(TAG, "randomGrid")
+        // randomly generate some color balls and distribute in the grid
+        randThreeCells()
+    }
+
+    fun initialize(whichGame: WhichGame) {
+        mNumOfColorsUsed = Constants.NUM_BALLS_USED_EASY
+        for (i in 0 until rowCounts) {
+            for (j in 0 until rowCounts) {
+                mCellValues[i][j] = 0
+            }
+        }
+        for (i in 0 until rowCounts) {
+            for (j in 0 until rowCounts) {
+                mBackupCells[i][j] = 0
+            }
+        }
+        mNextCellIndices.clear()
+        mUndoNextCellIndices.clear()
+        mLightLine.clear()
+        mPathPoint.clear()
+        when(whichGame) {
+            WhichGame.NO_BARRIER -> {   // no barriers
+                randThreeCells()
+            }
+            WhichGame.HAS_BARRIER -> {   // has barriers
+                randomBarriersAndCells()
+            }
+            WhichGame.RESOLVE_GRID -> {
+                randomGrid()
+            }
+            WhichGame.REMOVE_BALLS -> { /* do nothing*/ }
+        }
+    }
+
+    fun copy(gData: CBallGridData): CBallGridData {
+        Log.d(TAG, "copy")
+        val newGridData = CBallGridData()
+        newGridData.copy(gData)
+        newGridData.mNextCellIndices.clear()
+        newGridData.mNextCellIndices.putAll(gData.mNextCellIndices)
+        newGridData.mUndoNextCellIndices.clear()
+        newGridData.mUndoNextCellIndices.putAll(gData.mUndoNextCellIndices)
+        newGridData.mPathPoint.clear()
+        newGridData.mPathPoint.addAll(gData.mPathPoint)
+
+        return newGridData
+    }
+
+    override fun undoTheLast() {
+        mNextCellIndices.clear()
+        mNextCellIndices.putAll(mUndoNextCellIndices)
+        // restore CellValues;
+        for (i in 0 until rowCounts) {
+            System.arraycopy(mBackupCells[i], 0, mCellValues[i],
+                0, mBackupCells[i].size)
+        }
+    }
+
+    fun getNextCellIndices(): HashMap<Point, Int> {
+        return mNextCellIndices
+    }
+
+    fun getUndoNextCellIndices(): HashMap<Point, Int> {
+        return mUndoNextCellIndices
+    }
+
+    fun setNextCellIndices(nextCellIndices: HashMap<Point, Int>) {
+        mNextCellIndices.clear()
+        mNextCellIndices.putAll(nextCellIndices)
+    }
+
+    fun setUndoNextCellIndices(undoNextCellIndices: HashMap<Point, Int>) {
+        mUndoNextCellIndices.clear()
+        mUndoNextCellIndices.putAll(undoNextCellIndices)
+    }
+
+    fun addNextCellIndices(point: Point) {
+        mNextCellIndices[point] = mCellValues[point.x][point.y]
+    }
+
+    fun addUndoNextCellIndices(point: Point) {
+        mUndoNextCellIndices[point] = mCellValues[point.x][point.y]
+    }
+
+    fun setLightLine(lightLine: HashSet<Point>) {
+        mLightLine.clear()
+        mLightLine.addAll(lightLine)
+    }
+
+    fun getPathPoint(): ArrayList<Point> {
+        return mPathPoint
+    }
+
+    private fun generateNextCellIndices(cColor: Int, exclusiveCell: Point?): Int {
+        Log.d(TAG, "generateNextCellIndices.cColor = $cColor")
+        // find the all vacant cell that are not occupied by color balls
+        var vacantSize = 0
+        for (i in 0 until rowCounts) {
+            for (j in 0 until colCounts) {
+                if (mCellValues[i][j] == 0) {
+                    vacantSize++
+                }
+            }
+        }
+        Log.d(TAG, "generateNextCellIndices.vacantSize = $vacantSize")
+        if (vacantSize == 0) {
+            return 0 // no vacant so game over
+        }
+
+        val maxLoop = if (cColor != 0) 1 else vacantSize
+        var k = 0
+        var row: Int
+        var col: Int
+        var ballColor: Int
+        var point: Point
+        val loopNum = min(Constants.BALL_NUM_ONE_TIME.toDouble(), maxLoop.toDouble())
+        while (k < loopNum && mNextCellIndices.size < vacantSize) {
+            row = mRandomIndex.nextInt(rowCounts)
+            col = mRandomIndex.nextInt(colCounts)
+            if (mCellValues[row][col] == 0) {
+                point = Point(row, col)
+                ballColor = Constants.BallColor[mRandomBall.nextInt(mNumOfColorsUsed)]
+                if (mNextCellIndices.containsKey(point) || point.equals(exclusiveCell)) continue
+                mNextCellIndices[point] = ballColor
+                k++
+            }
+        }
+
+        return vacantSize
+    }
+
+    fun regenerateNextCellIndices(point: Point?) {
+        Log.d(TAG, "regenerateNextCellIndices")
+        if (mNextCellIndices.containsKey(point)) {
+            // if nextCellIndices contains the target cell
+            // generate only one next cell index
+            mNextCellIndices.remove(point)?.let {
+                Log.d(TAG, "regenerateNextCellIndices.cellColor = $it")
+                generateNextCellIndices(it, point)
+            }
+        }
+    }
+
+    private fun addCellToStack(
+        stack: Stack<Cell>,
+        parent: Cell,
+        dx: Int,
+        dy: Int,
+        target: Point,
+        traversed: java.util.HashSet<Point>
+    ): Boolean {
+        val pTemp = Point(parent.coordinate)
+        pTemp[pTemp.x + dx] = pTemp.y + dy
+        if (!traversed.contains(pTemp)) {
+            // has not been checked
+            if ((pTemp.x in 0..<rowCounts) && (pTemp.y in 0..<colCounts)
+                && (mCellValues[pTemp.x][pTemp.y] == 0)) {
+                val temp = Cell(pTemp, parent)
+                stack.push(temp)
+                traversed.add(pTemp)
+            }
+        }
+
+        return (pTemp == target)
+    }
+
+    private fun findPath(source: Point, target: Point): Boolean {
+        val traversed = HashSet<Point>()
+        var cellStack = Stack<Cell>()
+        cellStack.push(Cell(source, null))
+
+        var shortestPathLength = 0 // the length of the shortest path
+        var found = false
+        while (!found && (cellStack.isNotEmpty())) {
+            shortestPathLength++
+            val tempStack = Stack<Cell>()
+            do {
+                val tempCell = cellStack.pop()
+                found = addCellToStack(tempStack, tempCell, 0, 1, target, traversed)
+                if (found) break
+                found = addCellToStack(tempStack, tempCell, 0, -1, target, traversed)
+                if (found) break
+                found = addCellToStack(tempStack, tempCell, 1, 0, target, traversed)
+                if (found) break
+                found = addCellToStack(tempStack, tempCell, -1, 0, target, traversed)
+                if (found) break
+            } while (cellStack.size != 0)
+
+            cellStack = tempStack
+        }
+        // val lastCellStack = cellStack
+
+        mPathPoint.clear() // added at 10:43 pm on 2017-10-19
+        if (found) {
+            Log.d(TAG, "shortestPathLength = $shortestPathLength")
+            Log.d(TAG, "cellStack.size() = " + cellStack.size)
+            var c = cellStack.pop()
+            while (c != null) {
+                mPathPoint.add(Point(c.coordinate))
+                c = c.parentCell
+            }
+            val sizePathPoint = mPathPoint.size
+            Log.d(TAG, "pathPoint.size() = $sizePathPoint")
+            if (sizePathPoint > 0) {
+                Log.d(TAG, "pathPoint(0) = " + mPathPoint[0])
+                Log.d(TAG, "pathPoint(pathPoint.size()-1) = " + mPathPoint[sizePathPoint - 1])
+            } else {
+                found = false
+            }
+        }
+
+        return found
+    }
+
+    fun canMoveCellToCell(sourcePoint: Point, targetPoint: Point): Boolean {
+        if (mCellValues[sourcePoint.x][sourcePoint.y] == 0) {
+            return false
+        }
+        if (mCellValues[targetPoint.x][targetPoint.y] != 0) {
+            return false
+        }
+
+        // mUndoNextCellIndices = HashMap(mNextCellIndices)
+        mUndoNextCellIndices.clear()
+        mUndoNextCellIndices.putAll(mNextCellIndices)
+        // backup CellValues;
+        for (i in 0 until rowCounts) {
+            System.arraycopy(mCellValues[i], 0, mBackupCells[i],
+                0, mCellValues[i].size)
+        }
+
+        return findPath(sourcePoint, targetPoint)
+    }
+
+    fun checkMoreThanFive(x: Int, y: Int): Boolean {
+        Log.d(TAG, "checkMoreThanFive.x = $x, y = $y")
+        return checkMoreThanNumber(x, y, Constants.BALL_NUM_COMPLETED)
+    }
+
+    private fun checkMoreThanNumber(x: Int, y: Int, checkNum: Int): Boolean {
+        mLightLine.clear()
+        mLightLine.add(Point(x, y))
+        var i: Int
+        var j: Int
+        var firstResult = 0
+        var secondResult = 0
+        var thirdResult = 0
+        var forthResult = 0
+
+        val tempList: MutableList<Point> = ArrayList()
+        val cellColor = mCellValues[x][y]
+        // Log.d(TAG, "check_moreThanFive() --> cellColor = " + cellColor);
+
+        //first
+        var first_i = 0
+        var end_i = rowCounts - 1
+        var num_b = 0
+
+        i = x - 1
+        while (i >= first_i) {
+            if (mCellValues[i][y] == cellColor) {
+                num_b++
+                tempList.add(Point(i, y))
+            } else {
+                i = first_i
+            }
+            i--
+        }
+
+        if (num_b >= (checkNum - 1)) {
+            // end
+            for (temp in tempList) {
+                if (!mLightLine.contains(temp)) {
+                    mLightLine.add(Point(temp))
+                }
+            }
+            tempList.clear()
+            firstResult = 1
+        }
+
+        i = x + 1
+        while (i <= end_i) {
+            if (mCellValues[i][y] == cellColor) {
+                num_b++
+                tempList.add(Point(i, y))
+            } else {
+                i = end_i
+            }
+            i++
+        }
+
+        if (num_b >= (checkNum - 1)) {
+            // end
+            for (temp in tempList) {
+                if (!mLightLine.contains(temp)) {
+                    mLightLine.add(Point(temp))
+                }
+            }
+            firstResult = 1
+        }
+        tempList.clear()
+
+        //second
+        first_i = 0
+        end_i = rowCounts - 1
+
+        var first_j = colCounts - 1
+        var end_j = 0
+
+        num_b = 0
+        i = x - 1
+        j = y + 1
+        while ((i >= first_i) && (j <= first_j)) {
+            if (mCellValues[i][j] == cellColor) {
+                num_b++
+                tempList.add(Point(i, j))
+            } else {
+                i = first_i
+                j = first_j
+            }
+            i--
+            j++
+        }
+
+        if (num_b >= (checkNum - 1)) {
+            // end
+            for (temp in tempList) {
+                if (!mLightLine.contains(temp)) {
+                    mLightLine.add(Point(temp))
+                }
+            }
+            tempList.clear()
+            secondResult = 1
+        }
+
+        i = x + 1
+        j = y - 1
+        while ((i <= end_i) && (j >= end_j)) {
+            if (mCellValues[i][j] == cellColor) {
+                num_b++
+                tempList.add(Point(i, j))
+            } else {
+                i = end_i
+                j = end_j
+            }
+            i++
+            j--
+        }
+
+        if (num_b >= (checkNum - 1)) {
+            // end
+            for (temp in tempList) {
+                if (!mLightLine.contains(temp)) {
+                    mLightLine.add(Point(temp))
+                }
+            }
+            secondResult = 1
+        }
+        tempList.clear()
+
+        //third
+        first_j = colCounts - 1
+        end_j = 0
+
+        num_b = 0
+        j = y + 1
+        while (j <= first_j) {
+            if (mCellValues[x][j] == cellColor) {
+                num_b++
+                tempList.add(Point(x, j))
+            } else {
+                j = first_j
+            }
+            j++
+        }
+
+        if (num_b >= (checkNum - 1)) {
+            // end
+            for (temp in tempList) {
+                if (!mLightLine.contains(temp)) {
+                    mLightLine.add(Point(temp))
+                }
+            }
+            tempList.clear()
+            thirdResult = 1
+        }
+
+        j = y - 1
+        while (j >= end_j) {
+            if (mCellValues[x][j] == cellColor) {
+                num_b++
+                tempList.add(Point(x, j))
+            } else {
+                j = end_j
+            }
+            j--
+        }
+
+        if (num_b >= (checkNum - 1)) {
+            // end
+            for (temp in tempList) {
+                if (!mLightLine.contains(temp)) {
+                    mLightLine.add(Point(temp))
+                }
+            }
+            thirdResult = 1
+        }
+        tempList.clear()
+
+        //forth
+        first_i = rowCounts - 1
+        end_i = 0
+
+        first_j = colCounts - 1
+        end_j = 0
+
+        num_b = 0
+        i = x + 1
+        j = y + 1
+        while ((i <= first_i) && (j <= first_j)) {
+            if (mCellValues[i][j] == cellColor) {
+                num_b++
+                tempList.add(Point(i, j))
+            } else {
+                i = first_i
+                j = first_j
+            }
+            i++
+            j++
+        }
+
+        if (num_b >= (checkNum - 1)) {
+            // end
+            for (temp in tempList) {
+                if (!mLightLine.contains(temp)) {
+                    mLightLine.add(Point(temp))
+                }
+            }
+            tempList.clear()
+            forthResult = 1
+        }
+
+        i = x - 1
+        j = y - 1
+        while ((i >= end_i) && (j >= end_j)) {
+            if (mCellValues[i][j] == cellColor) {
+                num_b++
+                tempList.add(Point(i, j))
+            } else {
+                i = end_i
+                j = end_j
+            }
+            i--
+            j--
+        }
+
+        if (num_b >= (checkNum - 1)) {
+            // end
+            for (temp in tempList) {
+                if (!mLightLine.contains(temp)) {
+                    mLightLine.add(Point(temp))
+                }
+            }
+            forthResult = 1
+        }
+        tempList.clear()
+
+        if ((firstResult == 1) || (secondResult == 1) || (thirdResult == 1) || (forthResult == 1)) {
+            return true
+        } else {
+            mLightLine.clear()
+            return false
+        }
+    }
+
+    companion object {
+        private const val TAG: String = "GridData"
+    }
+}

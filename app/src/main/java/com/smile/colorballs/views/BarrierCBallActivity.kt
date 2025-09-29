@@ -2,9 +2,8 @@ package com.smile.colorballs.views
 
 import android.util.Log
 import com.smile.colorballs.constants.WhichGame
-import com.smile.colorballs.interfaces.GameOptions
 
-class BarrierCBallActivity : CBallBaseActivity(), GameOptions {
+class BarrierCBallActivity : CBallBaseActivity() {
 
     private val mTAG : String = "BarrierCBActivity"
     init {

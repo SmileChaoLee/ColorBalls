@@ -12,7 +12,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.ballsremover.constants.BallsRemoverConstants
-import com.smile.colorballs.ballsremover.models.GridData
+import com.smile.colorballs.models.GridData
 import com.smile.colorballs.ballsremover.presenters.BallsRemoverPresenter
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
@@ -94,6 +94,10 @@ class BallsRemoverViewModel: ViewModel() {
     fun getSaveScoreTitle() = saveScoreTitle.value
     fun setSaveScoreTitle(title: String) {
         saveScoreTitle.value = title
+    }
+
+    fun setWhichGame(whichGame: WhichGame) {
+        mGameProp.whichGame = whichGame
     }
 
     fun getWhichGame(): WhichGame {
@@ -249,7 +253,7 @@ class BallsRemoverViewModel: ViewModel() {
         settings.easyLevel = easyLevel
         val num = if (easyLevel) Constants.NUM_BALLS_USED_EASY
         else Constants.NUM_BALLS_USED_DIFF
-        mGridData.setNumBallsUsed(num)
+        mGridData.setNumOfColorsUsed(num)
     }
 
     fun hasNext(): Boolean {
