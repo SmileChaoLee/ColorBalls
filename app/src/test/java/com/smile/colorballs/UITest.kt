@@ -2,17 +2,12 @@ package com.smile.colorballs
 
 import android.content.Context
 import android.content.res.Resources
-import android.os.SystemClock
 import androidx.lifecycle.Lifecycle.State
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.smile.colorballs.constants.Constants
-import com.smile.colorballs.views.ColorBallActivity
-import kotlinx.coroutines.test.runTest
+import com.smile.colorballs.views.CBallBaseActivity
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Assert
@@ -25,13 +20,12 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowActivity
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = ColorBallsApp::class, manifest = "AndroidManifest.xml")
 class UITest {
     private var appContext : Context? = null
-    private lateinit var activity : ColorBallActivity
+    private lateinit var activity : CBallBaseActivity
     private lateinit var resource : Resources
     private val oneSecond = 1000 // 1 second
     private val threeSeconds = 3000 // 3 seconds
@@ -41,7 +35,7 @@ class UITest {
     fun test_PreRun() {
         println("test_PreRun.before each test case.")
         appContext = ApplicationProvider.getApplicationContext()
-        controller = Robolectric.buildActivity(ColorBallActivity::class.java)
+        controller = Robolectric.buildActivity(CBallBaseActivity::class.java)
         controller?.let {
             it.setup().visible()
             activity = it.get()
@@ -358,8 +352,8 @@ class UITest {
 
     companion object {
         private const val PACKAGE_NAME = "com.smile.colorballs"
-        private var scenario : ActivityScenario<ColorBallActivity>? = null
-        private var controller : ActivityController<ColorBallActivity>? = null
+        private var scenario : ActivityScenario<CBallBaseActivity>? = null
+        private var controller : ActivityController<CBallBaseActivity>? = null
 
         @JvmStatic
         @BeforeClass

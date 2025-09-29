@@ -18,7 +18,7 @@ import com.smile.colorballs.constants.WhichGame
 import com.smile.colorballs.models.GameProp
 import com.smile.colorballs.models.GridData
 import com.smile.colorballs.models.ColorBallInfo
-import com.smile.colorballs.presenters.Presenter
+import com.smile.colorballs.presenters.CBallPresenter
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
 import com.smile.colorballs.roomdatabase.Score
 import com.smile.colorballs.tools.Utils
@@ -35,7 +35,7 @@ class ColorBallViewModel: ViewModel() {
         fun sCallback()
     }
 
-    private lateinit var mPresenter: Presenter
+    private lateinit var mPresenter: CBallPresenter
     private val bouncyBallHandler = Handler(Looper.getMainLooper())
     private val movingBallHandler = Handler(Looper.getMainLooper())
     private val showingScoreHandler = Handler(Looper.getMainLooper())
@@ -108,7 +108,7 @@ class ColorBallViewModel: ViewModel() {
         Log.d(TAG, "MainComposeViewModel.init")
     }
 
-    fun setPresenter(presenter: Presenter) {
+    fun setPresenter(presenter: CBallPresenter) {
         mPresenter = presenter
         medalImageIds = mPresenter.medalImageIds
         loadingStr = mPresenter.loadingStr

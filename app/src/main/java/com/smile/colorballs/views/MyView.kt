@@ -17,7 +17,7 @@ import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.interfaces.PresentView
-import com.smile.colorballs.presenters.Presenter
+import com.smile.colorballs.presenters.CBallPresenter
 import com.smile.colorballs.viewmodel.ColorBallViewModel
 import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
 import com.smile.smilelibraries.utilities.ScreenUtil
@@ -26,7 +26,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import androidx.core.graphics.scale
-import com.smile.colorballs.constants.WhichGame
+import com.smile.colorballs.interfaces.GameOptions
 import com.smile.colorballs.roomdatabase.ScoreDatabase
 import com.smile.colorballs.tools.Utils
 import com.smile.smilelibraries.interfaces.DismissFunction
@@ -43,9 +43,9 @@ abstract class MyView: ComponentActivity(), PresentView {
     protected val colorBallMap: HashMap<Int, Bitmap> = HashMap()
     protected val colorOvalBallMap: HashMap<Int, Bitmap> = HashMap()
     protected val colorNextBallMap: HashMap<Int, Bitmap> = HashMap()
-    protected var whichGame = WhichGame.NO_BARRIER
 
     private var interstitialAd: ShowInterstitial? = null
+    private lateinit var mGameOptions: GameOptions
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "$TAG.onCreate")
@@ -70,16 +70,10 @@ abstract class MyView: ComponentActivity(), PresentView {
                 it.googleInterstitialAd)
         }
 
-        Log.d(TAG, "onCreate.instantiate PresenterCompose")
-        viewModel.setPresenter(Presenter(this@MyView))
-        if (savedInstanceState != null) {
-            // recreated
-            Log.d(TAG, "onCreate.recreated")
-            whichGame = viewModel.getWhichGame()
-        } else {
-            viewModel.setWhichGame(whichGame)
-        }
-        Log.d(TAG, "onCreate.whichGame = $whichGame")
+        mGameOptions = this as GameOptions
+        mGameOptions.setWhichGame()
+        viewModel.setPresenter(CBallPresenter(this@MyView))
+        Log.d(TAG, "onCreate.whichGame = ${viewModel.getWhichGame()}")
     }
 
     override fun onDestroy() {
@@ -323,7 +317,7 @@ abstract class MyView: ComponentActivity(), PresentView {
 
     override fun getRoomDatabase(): ScoreDatabase {
         return ScoreDatabase.getDatabase(this,
-            Utils.getDatabaseName(whichGame))
+            Utils.getDatabaseName(viewModel.getWhichGame()))
     }
 
     override fun fileInputStream(fileName : String): FileInputStream {

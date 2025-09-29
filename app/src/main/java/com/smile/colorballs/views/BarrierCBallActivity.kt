@@ -2,12 +2,17 @@ package com.smile.colorballs.views
 
 import android.util.Log
 import com.smile.colorballs.constants.WhichGame
+import com.smile.colorballs.interfaces.GameOptions
 
-class BarrierCBallActivity : ColorBallActivity() {
-    private val mTAG : String = "BarrierCBallActivity"
+class BarrierCBallActivity : CBallBaseActivity(), GameOptions {
+
+    private val mTAG : String = "BarrierCBActivity"
     init {
-        Log.d(mTAG, "")
         setTag(mTAG)
-        whichGame = WhichGame.HAS_BARRIER
+    }
+
+    override fun setWhichGame() {
+        Log.d(mTAG, "setWhichGame")
+        viewModel.setWhichGame(WhichGame.HAS_BARRIER)
     }
 }
