@@ -179,7 +179,7 @@ class ColorBallViewModel: ViewModel() {
 
     private fun initData() {
         Log.d(TAG, "initData")
-        mGameProp.initialize()
+        mGameProp.initialize(getWhichGame())
         mGridData.initialize(mGameProp.whichGame)
     }
 
