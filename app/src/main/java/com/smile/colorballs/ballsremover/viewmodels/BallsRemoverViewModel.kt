@@ -13,13 +13,15 @@ import androidx.lifecycle.viewModelScope
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.ballsremover.constants.BallsRemoverConstants
 import com.smile.colorballs.models.GridData
-import com.smile.colorballs.ballsremover.presenters.BallsRemoverPresenter
+import com.smile.colorballs.ballsremover.presenters.BallsRmPresenter
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichBall
 import com.smile.colorballs.constants.WhichGame
 import com.smile.colorballs.models.ColorBallInfo
 import com.smile.colorballs.models.GameProp
 import com.smile.colorballs.models.Settings
+import com.smile.colorballs.roomdatabase.Score
+import com.smile.colorballs.tools.Utils
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
 import com.smile.smilelibraries.utilities.SoundPoolUtil
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +37,7 @@ class BallsRemoverViewModel: ViewModel() {
         fun sCallback()
     }
 
-    private lateinit var mPresenter: BallsRemoverPresenter
+    private lateinit var mPresenter: BallsRmPresenter
     private val showingScoreHandler = Handler(Looper.getMainLooper())
     private var mGameProp = GameProp()
     private var mGridData = GridData()
@@ -114,7 +116,7 @@ class BallsRemoverViewModel: ViewModel() {
         Log.d(TAG, "MainViewModel.init")
     }
 
-    fun setPresenter(presenter: BallsRemoverPresenter) {
+    fun setPresenter(presenter: BallsRmPresenter) {
         mPresenter = presenter
         medalImageIds = mPresenter.medalImageIds
         loadingStr = mPresenter.loadingStr
@@ -176,9 +178,10 @@ class BallsRemoverViewModel: ViewModel() {
 
     fun initGame(state: Bundle?) {
         Log.d(TAG, "initGame = $state")
+        ColorBallsApp.isProcessingJob = true
         val isNewGame = restoreState(state)
-        setHighestScore(mPresenter.highestScore())
-        Log.d(TAG, "initGame.highestScore = ${getHighestScore()}")
+        // setHighestScore(mPresenter.highestScore())
+        // Log.d(TAG, "initGame.highestScore = ${getHighestScore()}")
         setCurrentScore(mGameProp.currentScore)
         if (isNewGame) {
             // generate
@@ -186,6 +189,35 @@ class BallsRemoverViewModel: ViewModel() {
             mGridData.generateColorBalls()
         }
         displayGameGridView()
+        getAndSetHighestScore() // a coroutine operation
+        ColorBallsApp.isProcessingJob = false
+    }
+
+    private fun getAndSetHighestScore() {
+        Log.d(TAG, "getAndSetHighestScore")
+        viewModelScope.launch(Dispatchers.IO) {
+            val db = mPresenter.scoreDatabase()
+            val score = db.getHighestScore()
+            Log.d(TAG, "getAndSetHighestScore.score = $score")
+            db.close()
+            setHighestScore(score)
+        }
+    }
+
+    private fun addScoreInLocalTop10(playerName : String, score : Int) {
+        Log.d(TAG, "addScoreInLocalTop10")
+        viewModelScope.launch(Dispatchers.IO) {
+            val db = mPresenter.scoreDatabase()
+            if (db.isInTop10(score)) {
+                val scoreModel = Score(playerName = playerName, playerScore = score)
+                val rowId = db.addScore(scoreModel)
+                Log.d(TAG, "addScoreInLocalTop10.rowId = $rowId")
+                db.deleteAllAfterTop10()
+            }
+            db.close()
+            // get the highest score after adding
+            getAndSetHighestScore()
+        }
     }
 
     private fun restoreState(state: Bundle?): Boolean {
@@ -277,6 +309,7 @@ class BallsRemoverViewModel: ViewModel() {
     }
 
     fun saveScore(playerName: String) {
+        Log.d(TAG, "saveScore")
         // use thread to add a record to remote database
         val restThread: Thread = object : Thread() {
             override fun run() {
@@ -285,7 +318,7 @@ class BallsRemoverViewModel: ViewModel() {
                     val jsonObject = JSONObject()
                     jsonObject.put("PlayerName", playerName)
                     jsonObject.put("Score", mGameProp.currentScore)
-                    jsonObject.put("GameId", Constants.BALLS_REMOVER_GAME_ID)
+                    jsonObject.put("GameId", Utils.getGameId(getWhichGame()))
                     PlayerRecordRest.addOneRecord(jsonObject)
                     Log.d(TAG, "saveScore.Succeeded to add one record to remote.")
                 } catch (ex: Exception) {
@@ -295,8 +328,9 @@ class BallsRemoverViewModel: ViewModel() {
             }
         }
         restThread.start()
+
         // save to local storage
-        mPresenter.addScoreInLocalTop10(playerName, mGameProp.currentScore)
+        addScoreInLocalTop10(playerName, mGameProp.currentScore)
     }
 
     fun isCreatingNewGame() {

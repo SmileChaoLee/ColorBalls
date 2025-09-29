@@ -1,12 +1,12 @@
-package com.smile.colorballs.ballsremover.interfaces
+package com.smile.colorballs.interfaces
 
+import com.smile.colorballs.roomdatabase.ScoreDatabase
 import com.smile.smilelibraries.utilities.SoundPoolUtil
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
-interface BallsRemoverPresentView {
+interface BasePresentView {
     fun getMedalImageIds(): List<Int>
-    fun getCreateNewGameStr(): String
     fun getLoadingStr(): String
     fun geSavingGameStr(): String
     fun getLoadingGameStr(): String
@@ -14,8 +14,7 @@ interface BallsRemoverPresentView {
     fun getSureToLoadGameStr(): String
     fun getSaveScoreStr(): String
     fun soundPool() : SoundPoolUtil
-    fun getHighestScore() : Int
-    fun addScoreInLocalTop10(playerName : String, score : Int)
+    fun getRoomDatabase(): ScoreDatabase
     fun fileInputStream(fileName : String) : FileInputStream
     fun fileOutputStream(fileName : String) : FileOutputStream
 }

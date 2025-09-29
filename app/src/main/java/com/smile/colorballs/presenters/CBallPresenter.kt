@@ -1,18 +1,7 @@
 package com.smile.colorballs.presenters
-import com.smile.colorballs.interfaces.PresentView
-import com.smile.smilelibraries.utilities.SoundPoolUtil
+import com.smile.colorballs.interfaces.CBallPresentView
 
-class CBallPresenter(private val presentView: PresentView) {
-    val medalImageIds = presentView.getMedalImageIds()
-    val loadingStr = presentView.getLoadingStr()
-    val savingGameStr = presentView.geSavingGameStr()
-    val loadingGameStr =  presentView.getLoadingGameStr()
-    val sureToSaveGameStr = presentView.getSureToSaveGameStr()
-    val sureToLoadGameStr = presentView.getSureToLoadGameStr()
+class CBallPresenter(private val presentView: CBallPresentView)
+    : BasePresenter(presentView) {
     val gameOverStr = presentView.getGameOverStr()
-    val saveScoreStr = presentView. getSaveScoreStr()
-    val soundPool: SoundPoolUtil = presentView.soundPool()
-    fun scoreDatabase() = presentView.getRoomDatabase()
-    fun fileInputStream(filename: String) = presentView.fileInputStream(filename)
-    fun fileOutputStream(filename: String) = presentView.fileOutputStream(filename)
 }

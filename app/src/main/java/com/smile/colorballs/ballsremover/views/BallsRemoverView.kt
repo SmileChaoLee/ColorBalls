@@ -16,10 +16,9 @@ import com.smile.colorballs.BuildConfig
 import com.smile.colorballs.R
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.ballsremover.constants.BallsRemoverConstants
-import com.smile.colorballs.ballsremover.interfaces.BallsRemoverPresentView
-import com.smile.colorballs.ballsremover.presenters.BallsRemoverPresenter
+import com.smile.colorballs.ballsremover.interfaces.BallsRmPresentView
+import com.smile.colorballs.ballsremover.presenters.BallsRmPresenter
 import com.smile.colorballs.ballsremover.viewmodels.BallsRemoverViewModel
-import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
 import com.smile.smilelibraries.utilities.ScreenUtil
 import com.smile.smilelibraries.utilities.SoundPoolUtil
@@ -29,10 +28,12 @@ import java.io.FileOutputStream
 import androidx.core.graphics.scale
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.interfaces.GameOptions
+import com.smile.colorballs.roomdatabase.ScoreDatabase
+import com.smile.colorballs.tools.Utils
 import com.smile.colorballs.views.CbComposable
 
 abstract class BallsRemoverView: ComponentActivity(),
-    BallsRemoverPresentView, GameOptions {
+    BallsRmPresentView, GameOptions {
 
     protected val viewModel: BallsRemoverViewModel by viewModels()
     protected var textFontSize = 0f
@@ -68,7 +69,7 @@ abstract class BallsRemoverView: ComponentActivity(),
 
         mGameOptions = this as GameOptions
         mGameOptions.setWhichGame()
-        viewModel.setPresenter(BallsRemoverPresenter(this@BallsRemoverView))
+        viewModel.setPresenter(BallsRmPresenter(this@BallsRemoverView))
     }
 
     override fun onDestroy() {
@@ -303,26 +304,9 @@ abstract class BallsRemoverView: ComponentActivity(),
         return SoundPoolUtil(this, R.raw.uhoh)
     }
 
-    override fun getHighestScore() : Int {
-        Log.d(TAG, "getHighestScore")
-        val scoreSQLiteDB = ScoreSQLite(this,
-            Constants.BALLS_REMOVER_DATABASE_NAME)
-        val score = scoreSQLiteDB.readHighestScore()
-        Log.d(TAG, "getHighestScore.score = $score")
-        scoreSQLiteDB.close()
-        return score
-    }
-
-    override fun addScoreInLocalTop10(playerName : String, score : Int) {
-        Log.d(TAG, "addScoreInLocalTop10")
-        val scoreSQLiteDB = ScoreSQLite(this,
-            Constants.BALLS_REMOVER_DATABASE_NAME)
-        if (scoreSQLiteDB.isInTop10(score)) {
-            // inside top 10, then record the current score
-            scoreSQLiteDB.addScore(playerName, score)
-            scoreSQLiteDB.deleteAllAfterTop10() // only keep the top 10
-        }
-        scoreSQLiteDB.close()
+    override fun getRoomDatabase(): ScoreDatabase {
+        return ScoreDatabase.getDatabase(this,
+            Utils.getDatabaseName(viewModel.getWhichGame()))
     }
 
     override fun fileInputStream(fileName : String): FileInputStream {

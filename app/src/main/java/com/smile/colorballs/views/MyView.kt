@@ -16,7 +16,7 @@ import com.smile.colorballs.BuildConfig
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
-import com.smile.colorballs.interfaces.PresentView
+import com.smile.colorballs.interfaces.CBallPresentView
 import com.smile.colorballs.presenters.CBallPresenter
 import com.smile.colorballs.viewmodel.ColorBallViewModel
 import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
@@ -32,7 +32,7 @@ import com.smile.colorballs.tools.Utils
 import com.smile.smilelibraries.interfaces.DismissFunction
 
 abstract class MyView: ComponentActivity()
-    , PresentView, GameOptions {
+    , CBallPresentView, GameOptions {
 
     companion object {
         private const val TAG = "MyView"
