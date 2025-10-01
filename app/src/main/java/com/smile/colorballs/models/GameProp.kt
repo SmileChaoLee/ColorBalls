@@ -5,29 +5,17 @@ import com.smile.colorballs.constants.WhichGame
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class GameProp(
-    var whichGame: WhichGame = WhichGame.NO_BARRIER,
-    var undoEnable : Boolean = false,
-    var currentScore : Int = 0,
-    var undoScore : Int = 0,
-    var lastGotScore : Int = 0,
-    var isEasyLevel : Boolean = true,
-    var hasSound : Boolean = true,
-    var hasNext : Boolean = true,
-    var isShowingLoadingMessage : Boolean = false,
-    var isShowingScoreMessage : Boolean = false,
-    var isShowNextBallsAfterBlinking : Boolean = false,
-    var isProcessingJob : Boolean = false,
-    var isShowingNewGameDialog : Boolean = false,
-    var isShowingQuitGameDialog : Boolean = false,
-    var isShowingSureSaveDialog : Boolean = false,
-    var isShowingSureLoadDialog : Boolean = false,
-    var bouncyBallIndexI : Int = -1,
-    var bouncyBallIndexJ : Int = -1,
-    var isBallBouncing : Boolean = false,
-    var isBallMoving : Boolean = false) : Parcelable {
+open class GameProp(
+    open var whichGame: WhichGame = WhichGame.NO_BARRIER,
+    open var undoEnable : Boolean = false,
+    open var currentScore : Int = 0,
+    open var undoScore : Int = 0,
+    open var lastGotScore : Int = 0,
+    open var isEasyLevel : Boolean = true,
+    open var hasSound : Boolean = true,
+    open var hasNext : Boolean = true) : Parcelable {
 
-    fun initialize(whGame: WhichGame) {
+    open fun initialize(whGame: WhichGame) {
         whichGame = whGame
         undoEnable = false
         currentScore = 0
@@ -36,17 +24,5 @@ data class GameProp(
         isEasyLevel = true
         hasSound = true
         hasNext = true
-        isShowingLoadingMessage = false
-        isShowingScoreMessage = false
-        isShowNextBallsAfterBlinking = false
-        isProcessingJob = false
-        isShowingNewGameDialog = false
-        isShowingQuitGameDialog = false
-        isShowingSureSaveDialog = false
-        isShowingSureLoadDialog = false
-        bouncyBallIndexI = -1
-        bouncyBallIndexJ = -1
-        isBallBouncing = false
-        isBallMoving = false
     }
 }

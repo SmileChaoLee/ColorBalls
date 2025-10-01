@@ -6,7 +6,6 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 
 interface BasePresentView {
-    fun getMedalImageIds(): List<Int>
     fun getLoadingStr(): String
     fun geSavingGameStr(): String
     fun getLoadingGameStr(): String

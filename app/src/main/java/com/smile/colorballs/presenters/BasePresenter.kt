@@ -3,7 +3,6 @@ import com.smile.colorballs.interfaces.BasePresentView
 import com.smile.smilelibraries.utilities.SoundPoolUtil
 
 open class BasePresenter(private val presentView: BasePresentView) {
-    val medalImageIds = presentView.getMedalImageIds()
     val loadingStr = presentView.getLoadingStr()
     val savingGameStr = presentView.geSavingGameStr()
     val loadingGameStr =  presentView.getLoadingGameStr()

@@ -55,7 +55,6 @@ import androidx.compose.ui.unit.sp
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.google.android.gms.ads.nativead.NativeAd
 import com.smile.colorballs.ColorBallsApp
-import com.smile.colorballs.ballsremover.constants.BallsRemoverConstants
 import com.smile.smilelibraries.GoogleNativeAd
 import com.smile.colorballs.views.ui.theme.*
 import com.smile.colorballs.R
@@ -74,7 +73,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class BallsRemoverActivity : BallsRemoverView() {
+class BallsRemoverActivity : BallsRmView() {
 
     private val mOrientation =
         mutableIntStateOf(Configuration.ORIENTATION_PORTRAIT)
@@ -259,9 +258,11 @@ class BallsRemoverActivity : BallsRemoverView() {
         }
         val gridHeight = ScreenUtil.pixelToDp(screenY) * gameWeight / 10.0f
         Log.d(TAG, "GameView.gridHeight = $gridHeight")
-        val heightPerBall = gridHeight / BallsRemoverConstants.ROW_COUNTS
+        // val heightPerBall = gridHeight / BallsRmConstants.ROW_COUNTS
+        val heightPerBall = gridHeight / viewModel.rowCounts
         Log.d(TAG, "GameView.heightPerBall = $heightPerBall")
-        val widthPerBall = ScreenUtil.pixelToDp(maxWidth) / BallsRemoverConstants.COLUMN_COUNTS
+        // val widthPerBall = ScreenUtil.pixelToDp(maxWidth) / BallsRmConstants.COLUMN_COUNTS
+        val widthPerBall = ScreenUtil.pixelToDp(maxWidth) / viewModel.colCounts
         Log.d(TAG, "GameView.widthPerBall = $widthPerBall")
 
         // set size of color balls
@@ -395,8 +396,8 @@ class BallsRemoverActivity : BallsRemoverView() {
             this@BallsRemoverActivity, Top10Activity::class.java
         ).let {
             Bundle().apply {
-                putString(Constants.GAME_ID, Constants.BALLS_REMOVER_GAME_ID)
-                putString(Constants.DATABASE_NAME, Constants.BALLS_REMOVER_DATABASE_NAME)
+                putString(Constants.GAME_ID, Utils.getGameId(viewModel.getWhichGame()))
+                putString(Constants.DATABASE_NAME, Utils.getDatabaseName(viewModel.getWhichGame()))
                 putBoolean(Constants.IS_LOCAL_TOP10, isLocal)
                 it.putExtras(this)
                 top10Launcher.launch(it)
@@ -519,9 +520,9 @@ class BallsRemoverActivity : BallsRemoverView() {
                 " = ${mOrientation.intValue}")
         Log.d(TAG, "ShowGameGrid.mImageSizeDp = $mImageSizeDp")
         Column {
-            for (i in 0 until BallsRemoverConstants.ROW_COUNTS) {
+            for (i in 0 until viewModel.rowCounts) {
                 Row(modifier = Modifier.padding(all = 0.dp)) {
-                    for (j in 0 until BallsRemoverConstants.COLUMN_COUNTS) {
+                    for (j in 0 until viewModel.colCounts) {
                         Box {
                             Image(modifier = Modifier.size(mImageSizeDp.dp)
                                     .padding(all = 0.dp),
@@ -546,7 +547,7 @@ class BallsRemoverActivity : BallsRemoverView() {
                 " = ${mOrientation.intValue}")
         val message = viewModel.getScreenMessage()
         if (message.isEmpty()) return
-        val gameViewLength = mImageSizeDp * BallsRemoverConstants.COLUMN_COUNTS.toFloat()
+        val gameViewLength = mImageSizeDp * viewModel.colCounts.toFloat()
         val width = (gameViewLength/2f).dp
         val height = (gameViewLength/4f).dp
         val modifier = Modifier.background(color = Color.Transparent)

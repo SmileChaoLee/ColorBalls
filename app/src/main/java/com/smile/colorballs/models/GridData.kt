@@ -3,7 +3,7 @@ package com.smile.colorballs.models
 import android.graphics.Point
 import android.os.Parcelable
 import android.util.Log
-import com.smile.colorballs.ballsremover.constants.BallsRemoverConstants
+import com.smile.colorballs.ballsremover.constants.BallsRmConstants
 import com.smile.colorballs.constants.Constants
 import kotlinx.parcelize.Parcelize
 import java.util.Random
@@ -13,8 +13,8 @@ private val mRandom: Random = Random(System.currentTimeMillis())
 
 @Parcelize
 open class GridData(
-    open val rowCounts: Int = BallsRemoverConstants.ROW_COUNTS,
-    open val colCounts: Int = BallsRemoverConstants.COLUMN_COUNTS,
+    open val rowCounts: Int = BallsRmConstants.ROW_COUNTS,
+    open val colCounts: Int = BallsRmConstants.COLUMN_COUNTS,
     open var mNumOfColorsUsed : Int = Constants.NUM_BALLS_USED_EASY,
     open val mCellValues : Array<IntArray> =
         Array(rowCounts) { IntArray(colCounts) },
@@ -215,7 +215,7 @@ open class GridData(
     fun checkMoreThanTwo(x: Int, y: Int): Boolean {
         Log.d(TAG, "checkMoreThanTwo.x = $x, y = $y")
         allConnectBalls(Point(x , y))
-        if (mLightLine.size >= BallsRemoverConstants.BALL_NUM_COMPLETED) {
+        if (mLightLine.size >= BallsRmConstants.BALL_NUM_COMPLETED) {
             return true
         }
         mLightLine.clear()

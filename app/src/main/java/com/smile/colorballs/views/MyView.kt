@@ -9,16 +9,11 @@ import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.sp
 import com.smile.colorballs.BuildConfig
-import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
-import com.smile.colorballs.constants.Constants
-import com.smile.colorballs.interfaces.CBallPresentView
-import com.smile.colorballs.presenters.CBallPresenter
-import com.smile.colorballs.viewmodel.ColorBallViewModel
+import com.smile.colorballs.ColorBallsApp
 import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
 import com.smile.smilelibraries.utilities.ScreenUtil
 import com.smile.smilelibraries.utilities.SoundPoolUtil
@@ -26,26 +21,30 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import androidx.core.graphics.scale
+import com.smile.colorballs.constants.Constants
+import com.smile.colorballs.interfaces.BasePresentView
 import com.smile.colorballs.interfaces.GameOptions
+import com.smile.colorballs.presenters.BasePresenter
 import com.smile.colorballs.roomdatabase.ScoreDatabase
 import com.smile.colorballs.tools.Utils
-import com.smile.smilelibraries.interfaces.DismissFunction
+import com.smile.colorballs.viewmodel.BaseViewModel
 
-abstract class MyView: ComponentActivity()
-    , CBallPresentView, GameOptions {
+abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
-    companion object {
-        private const val TAG = "MyView"
-    }
-    protected val viewModel: ColorBallViewModel by viewModels()
+    abstract fun getBasePresenter(): BasePresenter?
+    abstract fun getBaseViewModel(): BaseViewModel?
+    abstract fun ifShowInterstitialAd()
+
     protected var textFontSize = 0f
-    protected var mImageSizeDp = 0f
     protected var boxImage: Bitmap? = null
     protected val colorBallMap: HashMap<Int, Bitmap> = HashMap()
     protected val colorOvalBallMap: HashMap<Int, Bitmap> = HashMap()
     protected val colorNextBallMap: HashMap<Int, Bitmap> = HashMap()
 
     private var interstitialAd: ShowInterstitial? = null
+
+    private lateinit var basePresenter: BasePresenter
+    private lateinit var baseViewModel: BaseViewModel
     private lateinit var mGameOptions: GameOptions
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,20 +66,30 @@ abstract class MyView: ComponentActivity()
 
         Log.d(TAG, "onCreate.interstitialAd")
         (application as ColorBallsApp).let {
-            interstitialAd = ShowInterstitial(this, it.facebookAds,
+            interstitialAd = ShowInterstitial(this, null,
                 it.googleInterstitialAd)
         }
-
+        getBasePresenter()?.let {
+            basePresenter = it
+        } ?: run {
+            Log.d(TAG, "onCreate.basePresenter is null so exit activity.")
+            return
+        }
+        getBaseViewModel()?.let {
+            baseViewModel = it
+        } ?: run {
+            Log.d(TAG, "onCreate.baseViewModel is null so exit activity.")
+            return
+        }
+        // The following statements must be after having basePresenter and baseViewModel
         mGameOptions = this as GameOptions
         mGameOptions.setWhichGame()
-        viewModel.setPresenter(CBallPresenter(this@MyView))
-        Log.d(TAG, "onCreate.whichGame = ${viewModel.getWhichGame()}")
     }
 
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "onDestroy")
-        viewModel.release()
+        baseViewModel.release()
         interstitialAd?.releaseInterstitial()
     }
 
@@ -90,7 +99,7 @@ abstract class MyView: ComponentActivity()
     }
 
     protected fun bitmapDrawableResources(sizePx: Float) {
-        Log.w(TAG, "bitmapDrawableResources.imageSizePx = $sizePx")
+        Log.d(TAG, "bitmapDrawableResources.imageSizePx = $sizePx")
         val ballWidth = sizePx.toInt()
         val ballHeight = sizePx.toInt()
         val nextBallWidth = (sizePx * 0.5f).toInt()
@@ -173,131 +182,102 @@ abstract class MyView: ComponentActivity()
         handlerClose.postDelayed({ this.finish() }, timeDelay.toLong())
     }
 
-    private fun quitOrNewGame() {
-        if (viewModel.mGameAction == Constants.IS_QUITING_GAME) {
+    fun quitOrNewGame() {
+        if (baseViewModel.mGameAction == Constants.IS_QUITING_GAME) {
             //  END PROGRAM
             exitApplication()
-        } else if (viewModel.mGameAction == Constants.IS_CREATING_GAME) {
+        } else if (baseViewModel.mGameAction == Constants.IS_CREATING_GAME) {
             //  NEW GAME
-            interstitialAd?.apply {
-                ShowAdThread(object : DismissFunction {
-                    override fun backgroundWork() {
-                        Log.d(TAG, "quitOrNewGame.backgroundWork")
-                    }
-                    override fun executeDismiss() {
-                        Log.d(TAG, "quitOrNewGame.executeDismiss")
-                        viewModel.initGame(null)
-                    }
-                    override fun afterFinished(isAdShown: Boolean) {
-                        Log.d(TAG, "quitOrNewGame.afterFinished.isAdShown= $isAdShown")
-                        if (!isAdShown) viewModel.initGame(null)
-                    }
-                }).startShowAd(0)
-            }
+            baseViewModel.initGame(null)
         }
-        viewModel.setSaveScoreAlertDialogState(false)
-        ColorBallsApp.isProcessingJob = false
     }
 
     @Composable
     fun SaveGameDialog() {
         Log.d(TAG, "SaveGameDialog")
-        val dialogText = viewModel.getSaveGameText()
+        val dialogText = baseViewModel.getSaveGameText()
         if (dialogText.isNotEmpty()) {
             val buttonListener = object: CbComposable.ButtonClickListener {
                 override fun buttonOkClick() {
-                    val numOfSaved: Int = viewModel.readNumberOfSaved()
-                    val msg = if (viewModel.startSavingGame(numOfSaved)) {
+                    val msg = if (baseViewModel.startSavingGame()) {
                             getString(R.string.succeededSaveGameStr)
                         } else {
                             getString(R.string.failedSaveGameStr)
                         }
                     ScreenUtil.showToast(this@MyView, msg, textFontSize,
                         ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
-                    viewModel.setShowingSureSaveDialog(false)
-                    viewModel.setSaveGameText("")
+                    baseViewModel.setSaveGameText("")
                     // showInterstitialAd()
                 }
                 override fun buttonCancelClick() {
-                    viewModel.setShowingSureSaveDialog(false)
-                    viewModel.setSaveGameText("")
+                    baseViewModel.setSaveGameText("")
                 }
             }
-            CbComposable.DialogWithText(this@MyView,
-                buttonListener, "", dialogText)
+            CbComposable.DialogWithText(
+                this@MyView,
+                buttonListener, "", dialogText
+            )
         }
     }
 
     @Composable
     fun LoadGameDialog() {
         Log.d(TAG, "LoadGameDialog")
-        val dialogText = viewModel.getLoadGameText()
+        val dialogText = baseViewModel.getLoadGameText()
         if (dialogText.isNotEmpty()) {
             val buttonListener = object: CbComposable.ButtonClickListener {
                 override fun buttonOkClick() {
-                    val msg = if (viewModel.startLoadingGame()) {
+                    val msg = if (baseViewModel.startLoadingGame()) {
                         getString(R.string.succeededLoadGameStr)
                     } else {
                         getString(R.string.failedLoadGameStr)
                     }
                     ScreenUtil.showToast(this@MyView, msg, textFontSize,
                         ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
-                    viewModel.setShowingSureLoadDialog(false)
-                    viewModel.setLoadGameText("")
+                    baseViewModel.setLoadGameText("")
                     // showInterstitialAd()
                 }
                 override fun buttonCancelClick() {
-                    viewModel.setShowingSureLoadDialog(false)
-                    viewModel.setLoadGameText("")
+                    baseViewModel.setLoadGameText("")
                 }
             }
-            CbComposable.DialogWithText(this@MyView,
-                buttonListener, "", dialogText)
+            CbComposable.DialogWithText(
+                this@MyView,
+                buttonListener, "", dialogText
+            )
         }
     }
 
     @Composable
     fun SaveScoreDialog() {
         Log.d(TAG, "SaveScoreDialog")
-        val dialogTitle = viewModel.getSaveScoreTitle()
+        val dialogTitle = baseViewModel.getSaveScoreTitle()
         if (dialogTitle.isNotEmpty()) {
             val buttonListener = object: CbComposable.ButtonClickListenerString {
                 override fun buttonOkClick(value: String?) {
                     Log.d(TAG, "SaveScoreDialog.buttonOkClick.value = $value")
-                    viewModel.saveScore(value ?: "No Name")
+                    baseViewModel.saveScore(value ?: "No Name")
                     quitOrNewGame()
-                    // set SaveScoreDialog() invisible
-                    viewModel.setSaveScoreTitle("")
+                    baseViewModel.setSaveScoreTitle("")
                 }
                 override fun buttonCancelClick(value: String?) {
                     Log.d(TAG, "SaveScoreDialog.buttonCancelClick.value = $value")
                     quitOrNewGame()
                     // set SaveScoreDialog() invisible
-                    viewModel.setSaveScoreTitle("")
+                    baseViewModel.setSaveScoreTitle("")
                 }
             }
             val hitStr = getString(R.string.nameStr)
-            CbComposable.DialogWithTextField(this@MyView,
-                buttonListener, dialogTitle, hitStr)
+            CbComposable.DialogWithTextField(
+                this@MyView,
+                buttonListener, dialogTitle, hitStr
+            )
+        } else {
+            ifShowInterstitialAd()
         }
     }
 
-    // implementing PresentViewCompose
-    override fun getMedalImageIds(): List<Int> {
-        val medalImageIds = listOf(
-            R.drawable.gold_medal,
-            R.drawable.silver_medal,
-            R.drawable.bronze_medal,
-            R.drawable.copper_medal,
-            R.drawable.olympics_image,
-            R.drawable.olympics_image,
-            R.drawable.olympics_image,
-            R.drawable.olympics_image,
-            R.drawable.olympics_image,
-            R.drawable.olympics_image)
-        return medalImageIds
-    }
-
+    // implementing BasePresentView
     override fun getLoadingStr() = getString(R.string.loadingStr)
 
     override fun geSavingGameStr() = getString(R.string.savingGameStr)
@@ -308,8 +288,6 @@ abstract class MyView: ComponentActivity()
 
     override fun getSureToLoadGameStr() = getString(R.string.sureToLoadGameStr)
 
-    override fun getGameOverStr() = getString(R.string.gameOverStr)
-
     override fun getSaveScoreStr() = getString(R.string.saveScoreStr)
 
     override fun soundPool(): SoundPoolUtil {
@@ -318,7 +296,7 @@ abstract class MyView: ComponentActivity()
 
     override fun getRoomDatabase(): ScoreDatabase {
         return ScoreDatabase.getDatabase(this,
-            Utils.getDatabaseName(viewModel.getWhichGame()))
+            Utils.getDatabaseName(baseViewModel.getWhichGame()))
     }
 
     override fun fileInputStream(fileName : String): FileInputStream {
@@ -329,4 +307,9 @@ abstract class MyView: ComponentActivity()
         return FileOutputStream(File(filesDir, fileName))
     }
     // end of implementing
+
+
+    companion object {
+        private const val TAG = "BallsRemoverView"
+    }
 }
