@@ -221,12 +221,58 @@ abstract class BaseViewModel(
         addScoreInLocalTop10(playerName, mGameProp.currentScore)
     }
 
-    private fun setShowingNewGameDialog(showingNewGameDialog: Boolean) {
+    fun setShowingMessageDialog(isShowingMessage: Boolean) {
+        mGameProp.isShowingMessage = isShowingMessage
+    }
+    fun isShowingMessageDialog() = mGameProp.isShowingMessage
+
+    fun setShowingScoreDialog(isShowingScoreMessage: Boolean) {
+        mGameProp.isShowingScoreMessage = isShowingScoreMessage
+    }
+    fun isShowingScoreDialog() = mGameProp.isShowingScoreMessage
+
+    fun setShowingSureSaveDialog(isShowingSureSaveDialog: Boolean) {
+        mGameProp.isShowingSureSaveDialog = isShowingSureSaveDialog
+    }
+    fun isShowingSureSaveDialog() =  mGameProp.isShowingSureSaveDialog
+
+    fun setShowingSureLoadDialog(isShowingSureLoadDialog: Boolean) {
+        mGameProp.isShowingSureLoadDialog = isShowingSureLoadDialog
+    }
+    fun isShowingSureLoadDialog() = mGameProp.isShowingSureLoadDialog
+
+    fun setShowingNewGameDialog(showingNewGameDialog: Boolean) {
         mGameProp.isShowingNewGameDialog = showingNewGameDialog
     }
+    fun isShowingNewGameDialog() = mGameProp.isShowingNewGameDialog
 
-    private fun setShowingQuitGameDialog(showingQuitGameDialog: Boolean) {
+    fun setShowingQuitGameDialog(showingQuitGameDialog: Boolean) {
         mGameProp.isShowingQuitGameDialog = showingQuitGameDialog
+    }
+    fun isShowingQuitGameDialog() = mGameProp.isShowingQuitGameDialog
+
+    fun setShowingCreateGameDialog(isShowingCreateGameDialog: Boolean) {
+        mGameProp.isShowingCreateGameDialog = isShowingCreateGameDialog
+    }
+    fun isShowingCreateGameDialog() = mGameProp.isShowingCreateGameDialog
+
+    fun lastPartOfInitialGame() {
+        if (isShowingNewGameDialog()) {
+            Log.d(TAG, "lastPartOfInitialGame.newGame()")
+            newGame()
+        }
+        if (isShowingQuitGameDialog()) {
+            Log.d(TAG, "lastPartOfInitialGame.show quitGame()")
+            quitGame()
+        }
+        if (isShowingSureSaveDialog()) {
+            Log.d(TAG, "lastPartOfInitialGame.saveGame()")
+            saveGame()
+        }
+        if (isShowingSureLoadDialog()) {
+            Log.d(TAG, "lastPartOfInitialGame.loadGame()")
+            loadGame()
+        }
     }
 
     fun setSaveScoreAlertDialogState(state: Boolean) {

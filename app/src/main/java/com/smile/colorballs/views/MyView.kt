@@ -490,6 +490,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         Log.d(TAG, "SaveGameDialog")
         val dialogText = baseViewModel.getSaveGameText()
         if (dialogText.isNotEmpty()) {
+            baseViewModel.setShowingSureSaveDialog(true)
             val buttonListener = object: CbComposable.ButtonClickListener {
                 override fun buttonOkClick() {
                     val msg = if (baseViewModel.startSavingGame()) {
@@ -500,10 +501,12 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
                     ScreenUtil.showToast(this@MyView, msg, textFontSize,
                         ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
                     baseViewModel.setSaveGameText("")
+                    baseViewModel.setShowingSureSaveDialog(false)
                     // showInterstitialAd()
                 }
                 override fun buttonCancelClick() {
                     baseViewModel.setSaveGameText("")
+                    baseViewModel.setShowingSureSaveDialog(false)
                 }
             }
             CbComposable.DialogWithText(
@@ -518,6 +521,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         Log.d(TAG, "LoadGameDialog")
         val dialogText = baseViewModel.getLoadGameText()
         if (dialogText.isNotEmpty()) {
+            baseViewModel.setShowingSureLoadDialog(true)
             val buttonListener = object: CbComposable.ButtonClickListener {
                 override fun buttonOkClick() {
                     val msg = if (baseViewModel.startLoadingGame()) {
@@ -528,10 +532,12 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
                     ScreenUtil.showToast(this@MyView, msg, textFontSize,
                         ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
                     baseViewModel.setLoadGameText("")
+                    baseViewModel.setShowingSureLoadDialog(false)
                     // showInterstitialAd()
                 }
                 override fun buttonCancelClick() {
                     baseViewModel.setLoadGameText("")
+                    baseViewModel.setShowingSureLoadDialog(false)
                 }
             }
             CbComposable.DialogWithText(
@@ -546,18 +552,19 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         Log.d(TAG, "SaveScoreDialog")
         val dialogTitle = baseViewModel.getSaveScoreTitle()
         if (dialogTitle.isNotEmpty()) {
+            baseViewModel.setSaveScoreAlertDialogState(true)
             val buttonListener = object: CbComposable.ButtonClickListenerString {
                 override fun buttonOkClick(value: String?) {
                     Log.d(TAG, "SaveScoreDialog.buttonOkClick.value = $value")
                     baseViewModel.saveScore(value ?: "No Name")
-                    quitOrNewGame()
                     baseViewModel.setSaveScoreTitle("")
+                    quitOrNewGame()
                 }
                 override fun buttonCancelClick(value: String?) {
                     Log.d(TAG, "SaveScoreDialog.buttonCancelClick.value = $value")
-                    quitOrNewGame()
                     // set SaveScoreDialog() invisible
                     baseViewModel.setSaveScoreTitle("")
+                    quitOrNewGame()
                 }
             }
             val hitStr = getString(R.string.nameStr)
@@ -577,6 +584,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         val message = baseViewModel.getScreenMessage()
         Log.d(TAG, "ShowMessageOnScreen.message = $message")
         if (message.isEmpty()) return
+        baseViewModel.setShowingMessageDialog(true)
         val gameViewLength = mImageSizeDp * baseViewModel.colCounts.toFloat()
         var width = (gameViewLength/2f).dp
         val widthStr = (message.length * ScreenUtil.pixelToDp(textFontSize)).dp
@@ -598,6 +606,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
                 )
             }
         }
+        baseViewModel.setShowingMessageDialog(false)
     }
 
     @Composable

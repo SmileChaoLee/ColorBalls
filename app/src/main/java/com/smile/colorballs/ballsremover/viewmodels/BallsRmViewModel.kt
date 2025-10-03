@@ -107,6 +107,13 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
         }
         displayGameGridView()
         getAndSetHighestScore() // a coroutine operation
+        if (!isNewGame) {
+            if (isShowingCreateGameDialog()) {
+                isCreatingNewGame()
+            } else {
+                lastPartOfInitialGame()
+            }
+        }
         brGameProp.isProcessingJob = false
     }
 

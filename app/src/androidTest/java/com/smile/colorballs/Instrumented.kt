@@ -14,6 +14,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withHint
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.smile.colorballs.views.ColorBallActivity
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Assert
@@ -25,7 +26,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class Instrumented {
     private var appContext: Context? = null
-    private var scenario: ActivityScenario<CBallBaseActivity>? = null
+    private var scenario: ActivityScenario<ColorBallActivity>? = null
     private val oneSecond = 1000 // 1 second
     private val threeSeconds = 3000 // 3 seconds
     private val fiveSeconds = 5000 // 5 seconds
@@ -42,7 +43,7 @@ class Instrumented {
     @Before
     fun test_PreRun() {
         Log.d(TAG, "Setting up before each test case.")
-        scenario = ActivityScenario.launch(CBallBaseActivity::class.java)
+        scenario = ActivityScenario.launch(ColorBallActivity::class.java)
         // scenario = myActivityScenarioRule.scenario
         scenario?.moveToState(State.RESUMED)    // no need in this case but no harm
         Espresso.closeSoftKeyboard()

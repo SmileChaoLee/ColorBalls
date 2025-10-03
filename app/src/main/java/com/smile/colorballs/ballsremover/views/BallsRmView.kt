@@ -34,13 +34,16 @@ abstract class BallsRmView: MyView(), BallsRmPresentView {
         Log.d(TAG, "CreateNewGameDialog")
         val dialogText = viewModel.getCreateNewGameText()
         if (dialogText.isNotEmpty()) {
+            viewModel.setShowingCreateGameDialog(true)
             val buttonListener = object: CbComposable.ButtonClickListener {
                 override fun buttonOkClick() {
                     viewModel.setCreateNewGameText("")
+                    viewModel.setShowingCreateGameDialog(false)
                     quitOrNewGame()
                 }
                 override fun buttonCancelClick() {
                     viewModel.setCreateNewGameText("")
+                    viewModel.setShowingCreateGameDialog(false)
                 }
             }
             CbComposable.DialogWithText(

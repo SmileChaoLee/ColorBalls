@@ -116,14 +116,14 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
             displayGameView()
             // display the original state before changing configuration
             // need to be tested
-            if (cbGameProp.isShowingLoadingMessage) {
+            if (isShowingMessageDialog()) {
                 setScreenMessage(loadingStr)
             }
             if (cbGameProp.isBallMoving) {
                 Log.d(TAG, "initGame.cbGameProp.isBallMoving() is true")
                 drawBallAlongPath()
             }
-            if (cbGameProp.isShowingScoreMessage) {
+            if (isShowingScoreDialog()) {
                 Log.d(TAG, "initGame.cbGameProp.isShowingScoreMessage() is true")
                 val showScore = ShowScore(
                     cbGridData.getLightLine(), cbGameProp.lastGotScore,
@@ -141,32 +141,6 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
         }
         getAndSetHighestScore() // a coroutine operation
         cbGameProp.isProcessingJob = false
-    }
-
-    private fun lastPartOfInitialGame() {
-        if (cbGameProp.isBallBouncing) {
-            drawBouncyBall(cbGameProp.bouncyBallIndexI, cbGameProp.bouncyBallIndexJ)
-        }
-        if (cbGameProp.isShowingNewGameDialog) {
-            Log.d(TAG, "lastPartOfInitialGame.newGame()")
-            newGame()
-        }
-        if (cbGameProp.isShowingQuitGameDialog) {
-            Log.d(TAG, "lastPartOfInitialGame.show quitGame()")
-            quitGame()
-        }
-        if (cbGameProp.isShowingSureSaveDialog) {
-            Log.d(TAG, "lastPartOfInitialGame.saveGame()")
-            saveGame()
-        }
-        if (cbGameProp.isShowingSureLoadDialog) {
-            Log.d(TAG, "lastPartOfInitialGame.loadGame()")
-            loadGame()
-        }
-        if (cbGameProp.isShowingGameOverDialog) {
-            Log.d(TAG, "lastPartOfInitialGame.gameOver()")
-            gameOver()
-        }
     }
 
     private fun restoreState(state: Bundle?): Boolean {
@@ -241,26 +215,6 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
         setCurrentScore(cbGameProp.currentScore)
         cbGameProp.undoEnable = false
         cbGameProp.isProcessingJob = false // finished
-    }
-
-    fun setShowingSureSaveDialog(isShowingSureSaveDialog: Boolean) {
-        cbGameProp.isShowingSureSaveDialog = isShowingSureSaveDialog
-    }
-
-    fun setShowingSureLoadDialog(isShowingSureLoadDialog: Boolean) {
-        cbGameProp.isShowingSureLoadDialog = isShowingSureLoadDialog
-    }
-
-    private fun setShowingNewGameDialog(showingNewGameDialog: Boolean) {
-        mGameProp.isShowingNewGameDialog = showingNewGameDialog
-    }
-
-    fun setShowingQuitGameDialog(showingQuitGameDialog: Boolean) {
-        mGameProp.isShowingQuitGameDialog = showingQuitGameDialog
-    }
-
-    fun setShowingGameOverDialog(isShowingGameOverDialog: Boolean) {
-        mGameProp.isShowingGameOverDialog = isShowingGameOverDialog
     }
 
     override fun newGame() {
@@ -746,7 +700,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
             Log.d(TAG, "ShowScore")
             pointSet = HashSet(linkedPoint)
             cbGameProp.isShowNextBallsAfterBlinking = isNextBalls
-            cbGameProp.isShowingScoreMessage = true
+            setShowingScoreDialog(true)
         }
 
         @Synchronized
@@ -776,7 +730,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
                 4 -> {
                     Log.d(TAG, "ShowScore.onProgressUpdate.dismissShowMessageOnScreen.")
                     setScreenMessage("")
-                    cbGameProp.isShowingScoreMessage = false
+                    setShowingScoreDialog(false)
                 }
                 else -> {}
             }
