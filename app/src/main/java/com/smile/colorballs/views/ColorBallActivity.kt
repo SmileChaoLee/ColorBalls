@@ -4,15 +4,14 @@ import android.util.Log
 import com.smile.colorballs.constants.WhichGame
 import com.smile.colorballs.interfaces.GameOptions
 
-class ColorBallActivity : CBallBaseActivity(), GameOptions {
-
-    private val mTAG : String = "ColorBallActivity"
-    init {
-        setTag(mTAG)
-    }
+class ColorBallActivity : CBallView() {
 
     override fun setWhichGame() {
-        Log.d(mTAG, "setWhichGame")
+        Log.d(TAG, "setWhichGame")
         viewModel.setWhichGame(WhichGame.NO_BARRIER)
+    }
+
+    companion object {
+        private const val TAG : String = "ColorBallActivity"
     }
 }

@@ -8,7 +8,6 @@ import android.os.Looper
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
-import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.models.GridData
 import com.smile.colorballs.ballsremover.presenters.BallsRmPresenter
 import com.smile.colorballs.constants.Constants
@@ -23,8 +22,9 @@ import java.nio.ByteBuffer
 class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
     : BaseViewModel(bRmPresenter) {
 
+    private var brGameProp: GameProp
+    private var brGridData: GridData
     private val showingScoreHandler = Handler(Looper.getMainLooper())
-
     private var createNewGameStr = ""
     var timesPlayed = 0
 
@@ -36,45 +36,43 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
 
     init {
         Log.d(TAG, "BallsRmViewModel.init")
-        mGameProp = GameProp()
-        mGridData = GridData()
+        brGameProp = GameProp()
+        brGridData = GridData()
+        mGameProp = brGameProp
+        mGridData = brGridData
         super.setProperties()
         createNewGameStr = bRmPresenter.createNewGameStr
     }
 
-    override fun initProperties(): String {
-        Log.d(TAG, "initProperties.createNewGameStr = $createNewGameStr")
-        return createNewGameStr
-    }
-
     override fun cellClickListener(i: Int, j: Int) {
         Log.d(TAG, "cellClickListener.($i, $j)")
-        if (ColorBallsApp.isProcessingJob) return
-        if (mGridData.checkMoreThanTwo(i, j)) {
-            mGridData.backupCells()
-            mGameProp.undoScore = mGameProp.currentScore
-            mGameProp.undoEnable = true
-            ColorBallsApp.isProcessingJob = true
-            val tempLine = HashSet(mGridData.getLightLine())
+        if (brGridData.getCellValue(i, j) == 0) return  // no ball
+        if (brGameProp.isProcessingJob) return
+        if (brGridData.checkMoreThanTwo(i, j)) {
+            brGridData.backupCells()
+            brGameProp.undoScore = brGameProp.currentScore
+            brGameProp.undoEnable = true
+            brGameProp.isProcessingJob = true
+            val tempLine = HashSet(brGridData.getLightLine())
             Log.d(TAG, "cellClickListener.tempLine.size = ${tempLine.size}")
-            mGameProp.lastGotScore = calculateScore(tempLine)
-            mGameProp.currentScore += mGameProp.lastGotScore
-            setCurrentScore(mGameProp.currentScore)
+            brGameProp.lastGotScore = calculateScore(tempLine)
+            brGameProp.currentScore += brGameProp.lastGotScore
+            setCurrentScore(brGameProp.currentScore)
             val showScore = ShowScore(
-                mGridData.getLightLine(), mGameProp.lastGotScore,
+                brGridData.getLightLine(), brGameProp.lastGotScore,
                 object : ShowScoreCallback {
                     override fun sCallback() {
                         Log.d(TAG, "cellClickListener.sCallback")
                         viewModelScope.launch(Dispatchers.Default) {
                             // Refresh the game view
-                            mGridData.refreshColorBalls(hasNext())
+                            brGridData.refreshColorBalls(hasNext())
                             delay(200)
                             displayGameGridView()
-                            ColorBallsApp.isProcessingJob = false
-                            if (mGridData.isGameOver()) {
+                            if (brGridData.isGameOver()) {
                                 Log.d(TAG, "cellClickListener.sCallback.gameOver()")
                                 gameOver()
                             }
+                            brGameProp.isProcessingJob = false
                         }
                     }
                 })
@@ -84,42 +82,32 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
 
     private fun setData(prop: GameProp, gData: GridData) {
         Log.d(TAG, "setData")
+        brGameProp = prop
+        brGridData = gData
+        // update mGameProp and mGridData in BaseViewModel
         mGameProp = prop
         mGridData = gData
     }
 
     private fun initData() {
         Log.d(TAG, "initData")
-        mGameProp.initialize(getWhichGame())
-        mGridData.initialize()
+        brGameProp.initializeKeepSetting(getWhichGame())
+        brGridData.initialize()
     }
 
     override fun initGame(bundle: Bundle?) {
         Log.d(TAG, "initGame = $bundle")
-        ColorBallsApp.isProcessingJob = true
+        brGameProp.isProcessingJob = true
         val isNewGame = restoreState(bundle)
-        // setHighestScore(mPresenter.highestScore())
-        // Log.d(TAG, "initGame.highestScore = ${getHighestScore()}")
-        setCurrentScore(mGameProp.currentScore)
+        setCurrentScore(brGameProp.currentScore)
         if (isNewGame) {
             // generate
             Log.d(TAG, "initGame.isNewGame")
-            mGridData.generateColorBalls()
+            brGridData.generateColorBalls()
         }
         displayGameGridView()
         getAndSetHighestScore() // a coroutine operation
-        ColorBallsApp.isProcessingJob = false
-    }
-
-    private fun getAndSetHighestScore() {
-        Log.d(TAG, "getAndSetHighestScore")
-        viewModelScope.launch(Dispatchers.IO) {
-            val db = bRmPresenter.scoreDatabase()
-            val score = db.getHighestScore()
-            Log.d(TAG, "getAndSetHighestScore.score = $score")
-            db.close()
-            setHighestScore(score)
-        }
+        brGameProp.isProcessingJob = false
     }
 
     private fun restoreState(state: Bundle?): Boolean {
@@ -167,17 +155,22 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
         return isNewGame
     }
 
-    fun undoTheLast() {
-        Log.d(TAG, "undoTheLast.undoEnable = ${mGameProp.undoEnable}")
-        if (!mGameProp.undoEnable) {
+    override fun saveInstanceState(outState: Bundle) {
+        outState.putParcelable(Constants.GAME_PROP_TAG, brGameProp)
+        outState.putParcelable(Constants.GRID_DATA_TAG, brGridData)
+    }
+
+    override fun undoTheLast() {
+        Log.d(TAG, "undoTheLast.undoEnable = ${brGameProp.undoEnable}")
+        if (!brGameProp.undoEnable) {
             return
         }
-        mGridData.undoTheLast()
+        brGridData.undoTheLast()
         // restore the screen
         displayGameGridView()
-        mGameProp.currentScore = mGameProp.undoScore
-        setCurrentScore(mGameProp.currentScore)
-        mGameProp.undoEnable = false
+        brGameProp.currentScore = brGameProp.undoScore
+        setCurrentScore(brGameProp.currentScore)
+        brGameProp.undoEnable = false
     }
 
     fun isCreatingNewGame() {
@@ -186,7 +179,7 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
         setCreateNewGameText(createNewGameStr)
     }
 
-    fun newGame() {
+    override fun newGame() {
         // creating a new game
         Log.d(TAG, "newGame")
         timesPlayed++
@@ -197,7 +190,7 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
 
     override fun startSavingGame(): Boolean {
         Log.d(TAG, "startSavingGame")
-        ColorBallsApp.isProcessingJob = true
+        brGameProp.isProcessingJob = true
         setScreenMessage(savingGameStr)
         var succeeded = true
         try {
@@ -209,23 +202,23 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
             // save values on game grid
             for (i in 0 until rowCounts) {
                 for (j in 0 until colCounts) {
-                    foStream.write(mGridData.getCellValue(i, j))
+                    foStream.write(brGridData.getCellValue(i, j))
                 }
             }
             // save backupCells
             for (i in 0 until rowCounts) {
                 for (j in 0 until colCounts) {
-                    foStream.write(mGridData.getBackupCells()[i][j])
+                    foStream.write(brGridData.getBackupCells()[i][j])
                 }
             }
             // save current score
-            val scoreByte = ByteBuffer.allocate(4).putInt(mGameProp.currentScore).array()
+            val scoreByte = ByteBuffer.allocate(4).putInt(brGameProp.currentScore).array()
             foStream.write(scoreByte)
             // save undo score
-            val undoScoreByte = ByteBuffer.allocate(4).putInt(mGameProp.undoScore).array()
+            val undoScoreByte = ByteBuffer.allocate(4).putInt(brGameProp.undoScore).array()
             foStream.write(undoScoreByte)
             // save undoEnable
-            if (mGameProp.undoEnable) foStream.write(1) else foStream.write(0)
+            if (brGameProp.undoEnable) foStream.write(1) else foStream.write(0)
             foStream.close()
             // end of writing
             Log.d(TAG, "startSavingGame.Succeeded.")
@@ -234,15 +227,16 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
             succeeded = false
             Log.d(TAG, "startSavingGame.Failed.")
         }
-        ColorBallsApp.isProcessingJob = false
         setScreenMessage("")
         Log.d(TAG, "startSavingGame.Finished")
+        brGameProp.isProcessingJob = false
+
         return succeeded
     }
 
     override fun startLoadingGame(): Boolean {
         Log.d(TAG, "startLoadingGame")
-        ColorBallsApp.isProcessingJob = true
+        brGameProp.isProcessingJob = true
         setScreenMessage(loadingGameStr)
         var succeeded = true
         val hasSound: Boolean
@@ -266,9 +260,9 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
             isEasyLevel = bValue == 1
             bValue = fiStream.read()
             hasNext = bValue == 1
-            mGameProp.hasSound = hasSound
-            mGameProp.isEasyLevel = isEasyLevel
-            mGameProp.hasNext = hasNext
+            setHasSound(hasSound)
+            setEasyLevel(isEasyLevel)
+            setHasNext(hasNext)
             // load values on game grid
             for (i in 0 until rowCounts) {
                 for (j in 0 until colCounts) {
@@ -295,29 +289,22 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
             fiStream.close()
 
             // refresh Main UI with loaded data
-            mGridData.setCellValues(gameCells)
-            mGridData.setBackupCells(backupCells)
-            mGameProp.currentScore = cScore
-            mGameProp.undoScore = unScore
-            mGameProp.undoEnable = isUndoEnable
+            brGridData.setCellValues(gameCells)
+            brGridData.setBackupCells(backupCells)
+            brGameProp.currentScore = cScore
+            brGameProp.undoScore = unScore
+            brGameProp.undoEnable = isUndoEnable
             // start update UI
-            setCurrentScore(mGameProp.currentScore)
+            setCurrentScore(brGameProp.currentScore)
             displayGameGridView()
         } catch (ex: IOException) {
             ex.printStackTrace()
             succeeded = false
         }
-        ColorBallsApp.isProcessingJob = false
         setScreenMessage("")
-        return succeeded
-    }
+        brGameProp.isProcessingJob = false
 
-    private fun gameOver() {
-        Log.d(TAG, "gameOver")
-        if (hasSound()) {
-            soundPool.playSound()
-        }
-        newGame()
+        return succeeded
     }
 
     private fun calculateScore(linkedLine: HashSet<Point>?): Int {
@@ -340,6 +327,65 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
         val numBalls = linkedLine.size
         val totalScore = (minScoreEach + (numBalls - minBalls) * plusScore) * numBalls
         return totalScore
+    }
+
+    private inner class ShowScore(
+        linkedPoint: HashSet<Point>,
+        val lastGotScore: Int,
+        val callback: ShowScoreCallback
+    ): Runnable {
+        private var pointSet: HashSet<Point>
+        private var mCounter = 0
+        init {
+            Log.d(TAG, "ShowScore")
+            pointSet = HashSet(linkedPoint)
+        }
+
+        @Synchronized
+        private fun onProgressUpdate(status: Int) {
+            when (status) {
+                0 -> for (item in pointSet) {
+                    drawBall(item.x, item.y, brGridData.getCellValue(item.x, item.y))
+                }
+                1 -> for (item in pointSet) {
+                    drawOval(item.x, item.y, brGridData.getCellValue(item.x, item.y))
+                }
+                2 -> {}
+                3 -> {
+                    setScreenMessage(lastGotScore.toString())
+                    for (item in pointSet) {
+                        clearCell(item.x, item.y)
+                        drawBall(item.x, item.y, brGridData.getCellValue(item.x, item.y))
+                    }
+                }
+                4 -> {
+                    Log.d(TAG, "ShowScore.onProgressUpdate.dismissShowMessageOnScreen.")
+                    setScreenMessage("")
+                }
+                else -> {}
+            }
+        }
+
+        @Synchronized
+        override fun run() {
+            val twinkleCountDown = 5
+            mCounter++
+            Log.d(TAG, "ShowScore.run().mCounter = $mCounter")
+            if (mCounter <= twinkleCountDown) {
+                val md = mCounter % 2 // modulus
+                onProgressUpdate(md)
+                showingScoreHandler.postDelayed(this, 150)
+            } else {
+                if (mCounter == twinkleCountDown + 1) {
+                    onProgressUpdate(3) // show score
+                    showingScoreHandler.postDelayed(this, 500)
+                } else {
+                    showingScoreHandler.removeCallbacksAndMessages(null)
+                    onProgressUpdate(4) // dismiss showing message
+                    callback.sCallback()
+                }
+            }
+        }
     }
 
     companion object {

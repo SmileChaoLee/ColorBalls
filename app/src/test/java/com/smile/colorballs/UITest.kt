@@ -7,7 +7,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import com.smile.colorballs.constants.Constants
-import com.smile.colorballs.views.CBallBaseActivity
+import com.smile.colorballs.views.ColorBallActivity
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Assert
@@ -25,7 +25,7 @@ import org.robolectric.annotation.Config
 @Config(application = ColorBallsApp::class, manifest = "AndroidManifest.xml")
 class UITest {
     private var appContext : Context? = null
-    private lateinit var activity : CBallBaseActivity
+    private lateinit var activity : ColorBallActivity
     private lateinit var resource : Resources
     private val oneSecond = 1000 // 1 second
     private val threeSeconds = 3000 // 3 seconds

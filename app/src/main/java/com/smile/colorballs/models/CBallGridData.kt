@@ -64,20 +64,9 @@ class CBallGridData(
     }
 
     fun initialize(whichGame: WhichGame) {
-        mNumOfColorsUsed = Constants.NUM_BALLS_USED_EASY
-        for (i in 0 until rowCounts) {
-            for (j in 0 until rowCounts) {
-                mCellValues[i][j] = 0
-            }
-        }
-        for (i in 0 until rowCounts) {
-            for (j in 0 until rowCounts) {
-                mBackupCells[i][j] = 0
-            }
-        }
+        super.initialize()
         mNextCellIndices.clear()
         mUndoNextCellIndices.clear()
-        mLightLine.clear()
         mPathPoint.clear()
         when(whichGame) {
             WhichGame.NO_BARRIER -> {   // no barriers

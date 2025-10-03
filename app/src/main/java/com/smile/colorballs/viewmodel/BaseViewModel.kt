@@ -1,6 +1,5 @@
 package com.smile.colorballs.viewmodel
 
-import android.graphics.Point
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -26,20 +25,22 @@ import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 abstract class BaseViewModel(
-    private val basePresenter: BasePresenter): ViewModel() {
+    private var basePresenter: BasePresenter): ViewModel() {
 
-    abstract fun initProperties(): String   // for test only
     abstract fun initGame(bundle: Bundle?)
     abstract fun cellClickListener(i: Int, j: Int)
     abstract fun startSavingGame(): Boolean
     abstract fun startLoadingGame(): Boolean
+    abstract fun saveInstanceState(outState: Bundle)
+    abstract fun newGame()
+    abstract fun undoTheLast()
 
     interface ShowScoreCallback {
         fun sCallback()
     }
 
     private val showingScoreHandler = Handler(Looper.getMainLooper())
-    private var loadingStr = ""
+    var loadingStr = ""
     var savingGameStr = ""
     var loadingGameStr = ""
     private var sureToSaveGameStr = ""
@@ -103,7 +104,11 @@ abstract class BaseViewModel(
 
     init {
         Log.d(TAG, "BaseViewModel.init")
-        Log.d(TAG, "initProperties() = ${initProperties()}")
+    }
+
+    fun setPresenter(presenter: BasePresenter) {
+        basePresenter = presenter
+        setProperties()
     }
 
     fun setProperties() {
@@ -131,7 +136,9 @@ abstract class BaseViewModel(
         return mGameProp.whichGame
     }
 
-    private fun getAndSetHighestScore() {
+    fun isProcessingJob() = mGameProp.isProcessingJob
+
+    fun getAndSetHighestScore() {
         Log.d(TAG, "getAndSetHighestScore")
         viewModelScope.launch(Dispatchers.IO) {
             val db = basePresenter.scoreDatabase()
@@ -159,9 +166,7 @@ abstract class BaseViewModel(
     }
 
     fun onSaveInstanceState(outState: Bundle) {
-        Log.d(TAG, "onSaveInstanceState.mGridData = $mGridData")
-        outState.putParcelable(Constants.GAME_PROP_TAG, mGameProp)
-        outState.putParcelable(Constants.GRID_DATA_TAG, mGridData)
+        saveInstanceState(outState)
     }
 
     fun hasSound(): Boolean {
@@ -172,6 +177,7 @@ abstract class BaseViewModel(
     }
 
     fun isEasyLevel(): Boolean {
+        Log.d(TAG, "isEasyLevel.easyLevel = ${mGameProp.isEasyLevel}")
         return mGameProp.isEasyLevel
     }
     fun setEasyLevel(easyLevel: Boolean) {
@@ -179,13 +185,15 @@ abstract class BaseViewModel(
         val num = if (easyLevel) Constants.NUM_BALLS_USED_EASY
         else Constants.NUM_BALLS_USED_DIFF
         mGridData.setNumOfColorsUsed(num)
+        Log.d(TAG, "setEasyLevel.easyLevel = ${mGameProp.isEasyLevel}")
     }
 
     fun hasNext(): Boolean {
         return mGameProp.hasNext
     }
-    fun setHasNext(fillColumn: Boolean) {
-        mGameProp.hasNext = fillColumn
+
+    fun setHasNext(hasNext: Boolean) {
+        mGameProp.hasNext = hasNext
     }
 
     fun saveScore(playerName: String) {
@@ -213,6 +221,26 @@ abstract class BaseViewModel(
         addScoreInLocalTop10(playerName, mGameProp.currentScore)
     }
 
+    private fun setShowingNewGameDialog(showingNewGameDialog: Boolean) {
+        mGameProp.isShowingNewGameDialog = showingNewGameDialog
+    }
+
+    private fun setShowingQuitGameDialog(showingQuitGameDialog: Boolean) {
+        mGameProp.isShowingQuitGameDialog = showingQuitGameDialog
+    }
+
+    fun setSaveScoreAlertDialogState(state: Boolean) {
+        // mGameProp.isProcessingJob = state
+        if (mGameAction == Constants.IS_CREATING_GAME) {
+            // new game
+            setShowingNewGameDialog(state)
+        } else {
+            // quit game
+            setShowingQuitGameDialog(state)
+        }
+        mGameProp.isProcessingJob = false
+    }
+
     fun quitGame() {
         // quiting the game
         Log.d(TAG, "quitGame")
@@ -230,9 +258,17 @@ abstract class BaseViewModel(
         setLoadGameText(sureToLoadGameStr)
     }
 
-    fun release() {
+    open fun release() {
         showingScoreHandler.removeCallbacksAndMessages(null)
         soundPool.release()
+    }
+
+    fun gameOver() {
+        Log.d(TAG, "gameOver")
+        if (hasSound()) {
+            soundPool.playSound()
+        }
+        newGame()
     }
 
     fun drawBall(i: Int, j: Int, color: Int) {
@@ -261,65 +297,6 @@ abstract class BaseViewModel(
         } catch (ex: java.lang.Exception) {
             Log.d(TAG, "displayGameGridView.Exception: ")
             ex.printStackTrace()
-        }
-    }
-
-    inner class ShowScore(
-        linkedPoint: HashSet<Point>,
-        val lastGotScore: Int,
-        val callback: ShowScoreCallback
-    ): Runnable {
-        private var pointSet: HashSet<Point>
-        private var mCounter = 0
-        init {
-            Log.d(TAG, "ShowScore")
-            pointSet = HashSet(linkedPoint)
-        }
-
-        @Synchronized
-        private fun onProgressUpdate(status: Int) {
-            when (status) {
-                0 -> for (item in pointSet) {
-                    drawBall(item.x, item.y, mGridData.getCellValue(item.x, item.y))
-                }
-                1 -> for (item in pointSet) {
-                    drawOval(item.x, item.y, mGridData.getCellValue(item.x, item.y))
-                }
-                2 -> {}
-                3 -> {
-                    setScreenMessage(lastGotScore.toString())
-                    for (item in pointSet) {
-                        clearCell(item.x, item.y)
-                        drawBall(item.x, item.y, mGridData.getCellValue(item.x, item.y))
-                    }
-                }
-                4 -> {
-                    Log.d(TAG, "ShowScore.onProgressUpdate.dismissShowMessageOnScreen.")
-                    setScreenMessage("")
-                }
-                else -> {}
-            }
-        }
-
-        @Synchronized
-        override fun run() {
-            val twinkleCountDown = 5
-            mCounter++
-            Log.d(TAG, "ShowScore.run().mCounter = $mCounter")
-            if (mCounter <= twinkleCountDown) {
-                val md = mCounter % 2 // modulus
-                onProgressUpdate(md)
-                showingScoreHandler.postDelayed(this, 150)
-            } else {
-                if (mCounter == twinkleCountDown + 1) {
-                    onProgressUpdate(3) // show score
-                    showingScoreHandler.postDelayed(this, 500)
-                } else {
-                    showingScoreHandler.removeCallbacksAndMessages(null)
-                    onProgressUpdate(4) // dismiss showing message
-                    callback.sCallback()
-                }
-            }
         }
     }
 

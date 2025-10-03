@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.Point
 import com.smile.colorballs.constants.Constants
-import com.smile.colorballs.models.GameProp
 import com.smile.colorballs.models.CBallGridData
+import com.smile.colorballs.models.GameProp
 import org.junit.After
 import org.junit.runner.RunWith
 import org.mockito.InjectMocks

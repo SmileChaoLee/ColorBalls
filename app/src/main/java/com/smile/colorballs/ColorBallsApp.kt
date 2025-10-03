@@ -18,8 +18,6 @@ class ColorBallsApp : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
         mResources = resources
-        isProcessingJob = false
-        isShowingLoadingMessage = false
         val googleAdMobInterstitialID = "ca-app-pub-8354869049759576/1276882569"
         var facebookInterstitialID = "200699663911258_200701030577788" // for colorballs
         facebookBannerID = "200699663911258_423008208347068"
@@ -70,10 +68,6 @@ class ColorBallsApp : MultiDexApplication() {
         private const val TAG = "ColorBallsApp"
         @JvmField
         var textFontSize: Float = 0f
-        @JvmField
-        var isProcessingJob = false
-        @JvmField
-        var isShowingLoadingMessage = false
         @JvmField
         var facebookBannerID = ""
         @JvmField
