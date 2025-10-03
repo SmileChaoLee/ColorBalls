@@ -90,7 +90,8 @@ import kotlinx.coroutines.launch
 
 abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
-    abstract @Composable fun CreateNewGameDialog()
+    @Composable
+    abstract fun CreateNewGameDialog()
     abstract fun getBasePresenter(): BasePresenter?
     abstract fun getBaseViewModel(): BaseViewModel?
     abstract fun setHasNextForView(hasNext: Boolean)
