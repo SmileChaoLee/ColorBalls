@@ -171,7 +171,9 @@ open class GridData(
         traversed: java.util.HashSet<Point>
     ) {
         val pTemp = Point(current)
-        pTemp[pTemp.x + dx] = pTemp.y + dy
+        // pTemp[pTemp.x + dx] = pTemp.y + dy
+        pTemp.x = pTemp.x + dx
+        pTemp.y = pTemp.y + dy
         if (!traversed.contains(pTemp)) {
             // has not been checked
             if ((pTemp.x in 0..<rowCounts)
@@ -191,14 +193,18 @@ open class GridData(
         cellStack.push(source)
         while (cellStack.isNotEmpty()) {
             val tempStack = Stack<Point>()
-            while (cellStack.isNotEmpty()) {
+            do {
                 val currCell = cellStack.pop()
                 mLightLine.add(currCell)
+                // right
                 addCellToStack(tempStack, currCell, 0, 1, traversed)
+                // left
                 addCellToStack(tempStack, currCell, 0, -1, traversed)
+                // down
                 addCellToStack(tempStack, currCell, 1, 0, traversed)
+                // up
                 addCellToStack(tempStack, currCell, -1, 0, traversed)
-            }
+            } while (cellStack.isNotEmpty())
             cellStack = tempStack
         }
     }
