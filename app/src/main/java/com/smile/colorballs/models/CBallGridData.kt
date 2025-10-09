@@ -26,7 +26,7 @@ class CBallGridData(
     override val mLightLine : HashSet<Point> = HashSet(),
     private var mUndoNextCellIndices : HashMap<Point, Int> = HashMap(),
     private var mNextCellIndices : HashMap<Point, Int> = HashMap(),
-    private val mPathPoint : ArrayList<Point> = ArrayList())
+    val mPathPoint : ArrayList<Point> = ArrayList())
     : GridData(rowCounts, colCounts, mNumOfColorsUsed
         ,mCellValues, mBackupCells, mLightLine) ,Parcelable {
 
@@ -137,10 +137,6 @@ class CBallGridData(
         mLightLine.addAll(lightLine)
     }
 
-    fun getPathPoint(): ArrayList<Point> {
-        return mPathPoint
-    }
-
     private fun generateNextCellIndices(cColor: Int, exclusiveCell: Point?): Int {
         Log.d(TAG, "generateNextCellIndices.cColor = $cColor")
         // find the all vacant cell that are not occupied by color balls
@@ -200,7 +196,9 @@ class CBallGridData(
         traversed: java.util.HashSet<Point>
     ): Boolean {
         val pTemp = Point(parent.coordinate)
-        pTemp[pTemp.x + dx] = pTemp.y + dy
+        // pTemp[pTemp.x + dx] = pTemp.y + dy
+        pTemp.x = pTemp.x + dx
+        pTemp.y = pTemp.y + dy
         if (!traversed.contains(pTemp)) {
             // has not been checked
             if ((pTemp.x in 0..<rowCounts) && (pTemp.y in 0..<colCounts)
@@ -234,7 +232,7 @@ class CBallGridData(
                 if (found) break
                 found = addCellToStack(tempStack, tempCell, -1, 0, target, traversed)
                 if (found) break
-            } while (cellStack.size != 0)
+            } while (cellStack.isNotEmpty())
 
             cellStack = tempStack
         }
@@ -254,6 +252,105 @@ class CBallGridData(
             if (sizePathPoint > 0) {
                 Log.d(TAG, "pathPoint(0) = " + mPathPoint[0])
                 Log.d(TAG, "pathPoint(pathPoint.size()-1) = " + mPathPoint[sizePathPoint - 1])
+            } else {
+                found = false
+            }
+        }
+
+        return found
+    }
+
+    private fun findPath_1(source: Point, target: Point): Boolean {
+        if ((source.x < 0 || source.x >= rowCounts) ||
+            (source.y < 0 || source.y >= colCounts)) {
+            // excess the range
+            return false
+        }
+        if ((target.x < 0 || target.x >= rowCounts) ||
+            (target.y < 0 || target.y >= colCounts)) {
+            // excess the range
+            return false
+        }
+
+        var found = false
+        val tempPoint = Point()
+        var shortestPathLength = 0
+        val traversed = HashSet<Point>()
+        var cellStack = Stack<Cell>()
+        cellStack.add(Cell(source, null))
+        while (!found && cellStack.isNotEmpty()) {
+            shortestPathLength++
+            val tempStack = Stack<Cell>()
+            do {
+                val cell = cellStack.pop()
+                val coordinate = cell.coordinate
+                // up
+                tempPoint.x = coordinate.x - 1
+                tempPoint.y = coordinate.y
+                if (tempPoint.x >= 0 && !traversed.contains(tempPoint) &&
+                    mCellValues[tempPoint.x][tempPoint.y] == 0) {
+                    // valid cell (empty cell)
+                    tempStack.add(Cell(Point(tempPoint), cell))
+                    traversed.add(Point(tempPoint))
+                    if (tempPoint == target) {
+                        found = true
+                        break
+                    }
+                }
+                // down
+                tempPoint.x = coordinate.x + 1
+                tempPoint.y = coordinate.y
+                if (tempPoint.x < rowCounts && !traversed.contains(tempPoint) &&
+                    mCellValues[tempPoint.x][tempPoint.y] == 0) {
+                    tempStack.add(Cell(Point(tempPoint), cell))
+                    traversed.add(Point(tempPoint))
+                    if (tempPoint == target) {
+                        found = true
+                        break
+                    }
+                }
+                // right
+                tempPoint.x = coordinate.x
+                tempPoint.y = coordinate.y + 1
+                if (tempPoint.y < colCounts && !traversed.contains(tempPoint) &&
+                    mCellValues[tempPoint.x][tempPoint.y] == 0) {
+                    tempStack.add(Cell(Point(tempPoint), cell))
+                    traversed.add(Point(tempPoint))
+                    if (tempPoint == target) {
+                        found = true
+                        break
+                    }
+                }
+                // left
+                tempPoint.x = coordinate.x
+                tempPoint.y = coordinate.y - 1
+                if (tempPoint.y >= 0 && !traversed.contains(tempPoint) &&
+                    mCellValues[tempPoint.x][tempPoint.y] == 0) {
+                    tempStack.add(Cell(Point(tempPoint), cell))
+                    traversed.add(Point(tempPoint))
+                    if (tempPoint == target) {
+                        found = true
+                        break
+                    }
+                }
+            } while(cellStack.isNotEmpty())
+            cellStack = tempStack
+        }
+
+        mPathPoint.clear()
+        if (found) {
+            Log.d(TAG, "findPath_1.shortestPathLength = $shortestPathLength")
+            Log.d(TAG, "findPath_1.cellStack.size = ${cellStack.size}")
+            var tempCell = cellStack.pop()
+            while (tempCell != null) {
+                mPathPoint.add(tempCell.coordinate)
+                tempCell = tempCell.parentCell
+            }
+            val sizePathPoint = mPathPoint.size
+            Log.d(TAG, "findPath_1.mPathPoint.size() = $sizePathPoint")
+            if (sizePathPoint > 0) {
+                Log.d(TAG, "findPath_1.mPathPoint(0) = " + mPathPoint[0])
+                Log.d(TAG, "findPath_1.mPathPoint(mPathPoint.size()-1) = " + mPathPoint[sizePathPoint - 1])
             } else {
                 found = false
             }

@@ -627,7 +627,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
             CbComposable.ShowAdmobAdaptiveBanner(modifier = Modifier.weight(1.0f), 0)
             CbComposable.ShowFacebookBanner(modifier = Modifier.weight(1.0f),
                 ColorBallsApp.facebookBannerID)
-            // Composables.ShowFacebookBanner(modifier = Modifier.weight(1.0f),
+            // CbComposable.ShowFacebookBanner(modifier = Modifier.weight(1.0f),
             //     ColorBallsApp.facebookBannerID2)
         }
     }

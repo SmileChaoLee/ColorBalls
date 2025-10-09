@@ -621,7 +621,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
     }
 
     private fun drawBallAlongPath() {
-        val sizeOfPath = cbGridData.getPathPoint().size
+        val sizeOfPath = cbGridData.mPathPoint.size
         if (sizeOfPath == 0) {
             Log.w(TAG, "drawBallAlongPath.sizeOfPathPoint == 0")
             return
@@ -629,16 +629,16 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
         cbGameProp.isBallMoving = true
         cbGameProp.isProcessingJob = true
 
-        val beginI = cbGridData.getPathPoint()[sizeOfPath - 1].x
-        val beginJ = cbGridData.getPathPoint()[sizeOfPath - 1].y
+        val beginI = cbGridData.mPathPoint[sizeOfPath - 1].x
+        val beginJ = cbGridData.mPathPoint[sizeOfPath - 1].y
         Log.d(TAG, "drawBallAlongPath.beginI = $beginI, beginJ = $beginJ")
-        val targetI = cbGridData.getPathPoint()[0].x // the target point
-        val targetJ = cbGridData.getPathPoint()[0].y // the target point
+        val targetI = cbGridData.mPathPoint[0].x // the target point
+        val targetJ = cbGridData.mPathPoint[0].y // the target point
         Log.d(TAG, "drawBallAlongPath.targetI = $targetI, targetJ = $targetJ")
         val color = cbGridData.getCellValue(beginI, beginJ)
         Log.d(TAG, "drawBallAlongPath.color = $color")
 
-        val tempList = ArrayList(cbGridData.getPathPoint())
+        val tempList = ArrayList(cbGridData.mPathPoint)
         val runnablePath: Runnable = object : Runnable {
             var ballYN: Boolean = true
             var countDown: Int = tempList.size * 2 - 1
