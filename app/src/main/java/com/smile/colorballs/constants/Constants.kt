@@ -1,8 +1,5 @@
 package com.smile.colorballs.constants
 
-import com.smile.colorballs.ColorBallsApp
-import com.smile.colorballs.R
-
 object Constants {
     const val GAME_NO_BARRIER_ID = "1"
     const val BALLS_REMOVER_GAME_ID = "5"
@@ -32,15 +29,13 @@ object Constants {
     const val COLOR_YELLOW = 50
     const val COLOR_CYAN = 60
     const val COLOR_BARRIER = 100
-    const val NUM_BARRIERS = 8
+    const val NUM_BARRIERS = 5  // used to be 8, but too difficult
     const val BALL_NUM_COMPLETED = 5
     const val NUM_BALLS_USED_EASY= 5
     // 6 colors for difficult level
     const val NUM_BALLS_USED_DIFF = 6
-    @JvmField
-    val ROW_COUNTS = ColorBallsApp.mResources.getInteger(R.integer.rowCounts)
-    @JvmField
-    val COLUMN_COUNTS = ColorBallsApp.mResources.getInteger(R.integer.columnCounts)
+    const val ROW_COUNTS = 9
+    const val COLUMN_COUNTS = 9
     @JvmField
     val BallColor =
         intArrayOf(COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_MAGENTA, COLOR_YELLOW, COLOR_CYAN)

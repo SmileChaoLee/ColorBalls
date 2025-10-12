@@ -17,7 +17,6 @@ class ColorBallsApp : MultiDexApplication() {
     var googleInterstitialAd: AdMobInterstitial? = null
     override fun onCreate() {
         super.onCreate()
-        mResources = resources
         val googleAdMobInterstitialID = "ca-app-pub-8354869049759576/1276882569"
         var facebookInterstitialID = "200699663911258_200701030577788" // for colorballs
         facebookBannerID = "200699663911258_423008208347068"
@@ -78,6 +77,5 @@ class ColorBallsApp : MultiDexApplication() {
         var googleAdMobBannerID2 = ""
         @JvmField
         var googleAdMobNativeID = ""
-        lateinit var mResources: Resources
     }
 }

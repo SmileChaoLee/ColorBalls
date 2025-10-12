@@ -29,8 +29,8 @@ android {
         targetSdk= 36
         multiDexEnabled true
 
-        versionCode 7860
-        versionName "7.860"
+        versionCode 7870
+        versionName "7.870"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         signingConfig signingConfigs.config
