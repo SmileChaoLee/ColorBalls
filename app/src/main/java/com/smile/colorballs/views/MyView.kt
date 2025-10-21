@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -38,6 +39,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -67,6 +69,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import androidx.core.graphics.scale
+import androidx.core.view.WindowCompat
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.google.android.gms.ads.nativead.NativeAd
 import com.smile.colorballs.constants.Constants
@@ -188,31 +191,39 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
                 }
             }
         }
-
+        enableEdgeToEdge()
+        // WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             Log.d(TAG, "onCreate.setContent")
             ColorBallsTheme {
-                mOrientation.intValue = resources.configuration.orientation
-                val backgroundColor = Yellow3
-                Box(Modifier.background(color = backgroundColor)) {
-                    if (mOrientation.intValue ==
-                        Configuration.ORIENTATION_PORTRAIT) {
-                        Column {
-                            GameView(Modifier.weight(gameGridWeight))
-                            SHowPortraitAds(Modifier.fillMaxWidth()
-                                .weight(10.0f - menuBarWeight - gameGridWeight))
+                Scaffold {innerPadding ->
+                    mOrientation.intValue = resources.configuration.orientation
+                    val backgroundColor = Yellow3
+                    Box(Modifier.padding(innerPadding)
+                        .background(color = backgroundColor)) {
+                        if (mOrientation.intValue ==
+                            Configuration.ORIENTATION_PORTRAIT
+                        ) {
+                            Column {
+                                GameView(Modifier.weight(gameGridWeight))
+                                SHowPortraitAds(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .weight(10.0f - menuBarWeight - gameGridWeight)
+                                )
+                            }
+                        } else {
+                            Row {
+                                GameView(modifier = Modifier.weight(1f))
+                                ShowLandscapeAds(modifier = Modifier.weight(1f))
+                            }
                         }
-                    } else {
-                        Row {
-                            GameView(modifier = Modifier.weight(1f))
-                            ShowLandscapeAds(modifier = Modifier.weight(1f))
+                        Box {
+                            CreateNewGameDialog()
+                            SaveGameDialog()
+                            LoadGameDialog()
+                            SaveScoreDialog()
                         }
-                    }
-                    Box {
-                        CreateNewGameDialog()
-                        SaveGameDialog()
-                        LoadGameDialog()
-                        SaveScoreDialog()
                     }
                 }
             }
@@ -435,7 +446,8 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         val topPadding = 0f
         // val backgroundColor = Color(getColor(R.color.yellow3))
         Column(modifier = modifier.fillMaxHeight()) {
-            ToolBarMenu(modifier = Modifier.weight(menuBarWeight)
+            ToolBarMenu(modifier = Modifier
+                .weight(menuBarWeight)
                 .padding(top = topPadding.dp, start = 0.dp))
             Column(modifier = Modifier.weight(gameWeight),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -452,16 +464,22 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         Row(modifier = modifier
             .background(color = Color(getColor(R.color.colorPrimary)))) {
             ShowCurrentScore(
-                Modifier.weight(2f).padding(start = 10.dp)
+                Modifier
+                    .weight(2f)
+                    .padding(start = 10.dp)
                     .align(Alignment.CenterVertically))
             SHowHighestScore(
-                Modifier.weight(2f)
+                Modifier
+                    .weight(2f)
                     .align(Alignment.CenterVertically))
-            UndoButton(modifier = Modifier.weight(1f)
+            UndoButton(modifier = Modifier
+                .weight(1f)
                 .align(Alignment.CenterVertically))
-            SettingButton(modifier = Modifier.weight(1f)
+            SettingButton(modifier = Modifier
+                .weight(1f)
                 .align(Alignment.CenterVertically))
-            ShowMenu(modifier = Modifier.weight(1f)
+            ShowMenu(modifier = Modifier
+                .weight(1f)
                 .align(Alignment.CenterVertically))
         }
     }
@@ -654,7 +672,9 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
                     verticalArrangement = Arrangement.Center) {
                     // head Row
                     Row(
-                        modifier = Modifier.weight(8.0f).fillMaxWidth(),
+                        modifier = Modifier
+                            .weight(8.0f)
+                            .fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
@@ -682,7 +702,9 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
                     // Column for Button
                     ad.callToAction?.let { cta ->
                         Log.d(TAG, "ShowNativeAd.callToAction.cta = $cta")
-                        Column(modifier = Modifier.weight(2.0f).fillMaxWidth(),
+                        Column(modifier = Modifier
+                            .weight(2.0f)
+                            .fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
@@ -708,7 +730,8 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         val colHeight = with(LocalDensity.current) {
             screenY.toDp()
         }
-        Column(modifier = modifier.height(height = colHeight)
+        Column(modifier = modifier
+            .height(height = colHeight)
             .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
@@ -830,12 +853,16 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
                     tint = if (expanded) Color.Red else Color.White
                 )
             }
-            DropdownMenu(expanded = expanded,
+            DropdownMenu(
+                expanded = expanded,
                 onDismissRequest = { expanded = false },
-                modifier = Modifier.requiredHeightIn(max = (mImageSizeDp*12f).dp)
+                modifier = Modifier
+                    .requiredHeightIn(max = (mImageSizeDp * 12f).dp)
                     .requiredWidth(dropdownWidth.dp)
-                    .background(color =
-                        Color(getColor(android.R.color.holo_green_light)))
+                    .background(
+                        color =
+                            Color(getColor(android.R.color.holo_green_light))
+                    )
                     .padding(all = 0.dp),
             ) {
                 val isGlobalTop10Clicked = remember { mutableStateOf(false) }
@@ -931,7 +958,8 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
                                 baseViewModel.cellClickListener(i, j)
                             }) {
                             Image(
-                                modifier = Modifier.size(mImageSizeDp.dp)
+                                modifier = Modifier
+                                    .size(mImageSizeDp.dp)
                                     .padding(all = 0.dp),
                                 // painter = painterResource(id = R.drawable.box_image),
                                 // painter = rememberDrawablePainter(drawable = boxImage),
@@ -973,7 +1001,9 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
             var modifier = Modifier.background(color = Color.Transparent)
             var scale: ContentScale = ContentScale.Inside
             if (isReSize) {
-                modifier = modifier.size(mImageSizeDp.dp).padding(all = 0.dp)
+                modifier = modifier
+                    .size(mImageSizeDp.dp)
+                    .padding(all = 0.dp)
                 scale = ContentScale.Fit
             }
             Image(
