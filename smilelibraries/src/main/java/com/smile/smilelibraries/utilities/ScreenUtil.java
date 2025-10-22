@@ -33,6 +33,9 @@ public final class ScreenUtil {
     public static final int FontSize_Sp_Type = 1;
     public static final int FontSize_Dip_Type = 2;
     public static final int FontSize_Pixel_Type = 3;
+    public static String DEVICE_TYPE_PHONE = "PHONE";
+    public static String DEVICE_TYPE_TABLET = "TABLET";
+    public static String DEVICE_TYPE_ANDROID_TV = "ANDROID_TV";
 
     private ScreenUtil() {}
 
@@ -372,6 +375,27 @@ public final class ScreenUtil {
     public static float getPxFontScale(Activity activity) {
         return suitableFontScale(activity,
                 ScreenUtil.FontSize_Pixel_Type, 0.0f);
+    }
+
+    public static String getDeviceType(Activity activity) {
+        Point screenSize = ScreenUtil.getScreenSize(activity);
+        float smallestWidth = Math.min(screenSize.x, screenSize.y);
+        float smallestScreenWidthDp = ScreenUtil.pixelToDp(smallestWidth);
+        String deviceType;
+        if (smallestScreenWidthDp >= 600) {
+            deviceType = DEVICE_TYPE_TABLET;
+        } else {
+            deviceType = DEVICE_TYPE_PHONE;
+        }
+        // More specific check for Android TV
+        // This requires checking UI mode, not just screen width.
+        int uiMode = activity.getResources().getConfiguration().uiMode;
+        boolean isTv = (uiMode & Configuration.UI_MODE_TYPE_TELEVISION) == Configuration.UI_MODE_TYPE_TELEVISION;
+        if (isTv) {
+            deviceType = DEVICE_TYPE_ANDROID_TV;
+        }
+
+        return deviceType;
     }
 
     public static void showToast(Activity activity, String content, float textFontSize, int fontSize_Type, int showPeriod) {
