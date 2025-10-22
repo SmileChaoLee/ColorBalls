@@ -54,9 +54,9 @@ import kotlinx.coroutines.launch
 open class MainCBallActivity : ComponentActivity() {
 
     private var screenSize = Point(0, 0)
-    private var textFontSize = 0f
-    private var toastTextSize = 0f
-    private var fontSize = 0f
+    // private var textFontSize = 0f
+    // private var toastTextSize = 0f
+    // private var fontSize = 0f
     // the following are for ColorBallActivity
     private lateinit var cBallLauncher: ActivityResultLauncher<Intent>
     // the following are for BarrierCBallActivity
@@ -72,16 +72,9 @@ open class MainCBallActivity : ComponentActivity() {
 
         screenSize = ScreenUtil.getScreenSize(this@MainCBallActivity)
 
-        val defaultTextFontSize = ScreenUtil.getDefaultTextSizeFromTheme(this@MainCBallActivity,
-            ScreenUtil.FontSize_Pixel_Type, null)
-        textFontSize = ScreenUtil.suitableFontSize(this@MainCBallActivity,
-            defaultTextFontSize,
-            ScreenUtil.FontSize_Pixel_Type,0.0f)
-        toastTextSize = textFontSize * 0.7f
-        fontSize = ScreenUtil.suitableFontScale(this@MainCBallActivity,
-            ScreenUtil.FontSize_Pixel_Type, 0.0f)
-        ColorBallsApp.textFontSize = textFontSize
-        CbComposable.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
+        ColorBallsApp.textFontSize = ScreenUtil.getPxTextFontSizeNeeded(this@MainCBallActivity)
+        val toastTextSize = ColorBallsApp.textFontSize * 0.7f
+        CbComposable.mFontSize = ScreenUtil.pixelToDp(ColorBallsApp.textFontSize).sp
         CbComposable.toastFontSize = ScreenUtil.pixelToDp(toastTextSize).sp
 
         cBallLauncher = registerForActivityResult(

@@ -14,7 +14,6 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -69,6 +68,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import androidx.core.graphics.scale
+import androidx.core.view.WindowCompat
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.google.android.gms.ads.nativead.NativeAd
 import com.smile.colorballs.constants.Constants
@@ -190,8 +190,8 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
                 }
             }
         }
-        enableEdgeToEdge()
-        // WindowCompat.setDecorFitsSystemWindows(window, false)
+        // enableEdgeToEdge()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             Log.d(TAG, "onCreate.setContent")
             ColorBallsTheme {

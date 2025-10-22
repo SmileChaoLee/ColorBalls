@@ -7,7 +7,6 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Point;
-import androidx.annotation.Nullable;
 import androidx.appcompat.widget.PopupMenu;
 
 import android.graphics.drawable.BitmapDrawable;
@@ -111,22 +110,18 @@ public final class ScreenUtil {
         return dp;
     }
 
-    public static float getDefaultTextSizeFromTheme(Context context, int fontSize_Type, @Nullable Integer themeId) {
+    public static float getDefaultTextSizeFromTheme(Context context, int fontSize_Type) {
         DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
-        TypedArray typedArray;
-        int[] attrs = new int[] {android.R.attr.textSize}; // retrieve text size from style.xml
-        if (themeId == null) {
-            typedArray = context.obtainStyledAttributes(attrs);
-        } else {
-            typedArray = context.obtainStyledAttributes(themeId, attrs);
-        }
-        float dimension = typedArray.getDimension(0,0);
+        // retrieve text size from style.xml
+        int[] attrs = new int[] {android.R.attr.textSize};
+        float defaultTextFontSize;
+        TypedArray typedArray = context.obtainStyledAttributes(attrs);
+        float dimension = typedArray.getDimension(0, 0);
         Log.d(TAG, "getDefaultTextSizeFromTheme().dimension = " + dimension);
 
         float density = displayMetrics.density;
         Log.d(TAG, "getDefaultTextSizeFromTheme().density = " + density);
 
-        float defaultTextFontSize;
         if (fontSize_Type == FontSize_Pixel_Type) {
             defaultTextFontSize = dimension;
         } else {
@@ -213,7 +208,7 @@ public final class ScreenUtil {
             xdpi = (float)displayMetrics.densityDpi;
             Log.d(TAG, "xdpi ( =  displayMetrics.densityDpi ) = " + xdpi);
         } else {
-            xdpi = (float)displayMetrics.xdpi;
+            xdpi = displayMetrics.xdpi;
             Log.d(TAG, "xdpi ( =  displayMetrics.xdpi ) = " + xdpi);
         }
 
@@ -237,7 +232,7 @@ public final class ScreenUtil {
             ydpi = (float) displayMetrics.densityDpi;
             Log.d(TAG, "ydpi (= displayMetrics.densityDpi )  = " + ydpi);
         } else {
-            ydpi = (float) displayMetrics.ydpi;
+            ydpi = displayMetrics.ydpi;
             Log.d(TAG, "ydpi (= displayMetrics.ydpi )  = " + ydpi);
         }
 
@@ -272,7 +267,7 @@ public final class ScreenUtil {
             return;
         }
 
-        float defaultMenuTextSize = getDefaultTextSizeFromTheme(wrapper, FontSize_Pixel_Type, null);
+        float defaultMenuTextSize = getDefaultTextSizeFromTheme(wrapper, FontSize_Pixel_Type);
         resizeMenuTextIconSize0(wrapper, menu, defaultMenuTextSize, fontScale);
     }
 
@@ -282,7 +277,7 @@ public final class ScreenUtil {
             return;
         }
 
-        float defaultMenuTextSize = getDefaultTextSizeFromTheme(wrapper, fontSize_Type, null);
+        float defaultMenuTextSize = getDefaultTextSizeFromTheme(wrapper, fontSize_Type);
         int menuSize = menu.size(); // for the main menu that is always showing
 
         for (int i = 0; i < menuSize; i++) {
@@ -366,7 +361,19 @@ public final class ScreenUtil {
         }
     }
 
-    @SuppressWarnings("deprecation")
+    public static float getPxTextFontSizeNeeded(Activity activity) {
+        float defaultTextFontSize = getDefaultTextSizeFromTheme(activity,
+                ScreenUtil.FontSize_Pixel_Type);
+        return suitableFontSize(activity,
+                defaultTextFontSize,
+                ScreenUtil.FontSize_Pixel_Type,0.0f);
+    }
+
+    public static float getPxFontScale(Activity activity) {
+        return suitableFontScale(activity,
+                ScreenUtil.FontSize_Pixel_Type, 0.0f);
+    }
+
     public static void showToast(Activity activity, String content, float textFontSize, int fontSize_Type, int showPeriod) {
         Toast toast = Toast.makeText(activity, content, showPeriod);
         // getView() is deprecated in API level 30
@@ -384,8 +391,7 @@ public final class ScreenUtil {
                 toast.show();
                 Log.d(TAG, "toast.show()");
             } catch (Exception e) {
-                Log.d(TAG, "ScreenUtil.showToast() exception occurred");
-                e.printStackTrace();
+                Log.e(TAG, "ScreenUtil.showToast() exception occurred", e);
             }
 
         } else {
@@ -401,7 +407,6 @@ public final class ScreenUtil {
     }
 
     // private methods
-
     private static void resizeMenuTextIconSize0(Context context, Menu menu, float defaultMenuTextSize, float fontScale) {
         if (menu == null) {
             return;
