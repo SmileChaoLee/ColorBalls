@@ -56,14 +56,14 @@
         </activity>
 
         <activity
-            android:name=".smileapps.SmileAppsActivity"
-            android:exported="false"
-            android:theme="@style/AppTheme">
+            android:name=".ballsremover.views.BallsRemoverActivity"
+            android:exported="false">
         </activity>
 
         <activity
-            android:name=".ballsremover.views.BallsRemoverActivity"
-            android:exported="false">
+            android:name=".smileapps.SmileAppsActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme">
         </activity>
 
         <service
