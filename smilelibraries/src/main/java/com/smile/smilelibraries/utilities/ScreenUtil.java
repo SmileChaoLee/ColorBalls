@@ -419,15 +419,19 @@ public final class ScreenUtil {
             }
 
         } else {
+            Log.i(TAG, "ScreenUtil.showToast() API is 30 or over");
             if (activity != null) {
                 int duration = 600;    //  0.6 seconds for Toast.LENGTH_SHORT
                 if (showPeriod == Toast.LENGTH_LONG) {
                     duration = 1200;    // 1.2 seconds
                 }
                 ShowToastMessage.showToast(activity, content, textFontSize, fontSize_Type, duration);
-                Log.d(TAG, "ShowToastMessage.showToast()");
             }
         }
+    }
+
+    public static void showToast(Activity activity, String content, float textFontSize, int showPeriod) {
+        showToast(activity, content, textFontSize, FontSize_Pixel_Type, showPeriod);
     }
 
     // private methods

@@ -130,12 +130,13 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         getScreenSize()
 
         if (!BuildConfig.DEBUG) {
-            requestedOrientation = if (ScreenUtil.isTablet(this@MyView)) {
-                // Table then change orientation to Landscape
-                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-            } else {
+            val deviceType = ScreenUtil.getDeviceType(this@MyView)
+            requestedOrientation = if (deviceType == ScreenUtil.DEVICE_TYPE_PHONE) {
                 // phone then change orientation to Portrait
                 ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            } else {
+                // Table then change orientation to Landscape
+                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             }
         }
 

@@ -1,7 +1,7 @@
 package com.smile.smilelibraries.models;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -17,11 +17,12 @@ import java.util.Queue;
 
 import static com.smile.smilelibraries.utilities.ScreenUtil.TAG;
 
-// sigleton class
+// singleton class
 public class ShowToastMessage {
 
+    @SuppressLint("StaticFieldLeak")
     private static ShowToastMessage showToastMessage;
-    private static Context mContext;
+    @SuppressLint("StaticFieldLeak")
     private static Activity mActivity;
     private final Handler mHandler;
     private final ViewGroup mRootView;
@@ -44,10 +45,10 @@ public class ShowToastMessage {
         }
 
         if (showToastMessage == null) {
-            Log.d(TAG, "showToastMessagev is null.");
+            Log.d(TAG, "showToastMessage is null.");
             showToastMessage = new ShowToastMessage(activity);
         } else {
-            Log.d(TAG, "showToastMessagev is not null.");
+            Log.d(TAG, "showToastMessage is not null.");
         }
         return showToastMessage;
     }
@@ -91,7 +92,6 @@ public class ShowToastMessage {
         mActivity = activity;
         Log.d(TAG, "mActivity = " + mActivity);
         if (mActivity != null) {
-            mContext = mActivity.getApplicationContext();
             mHandler = new Handler(Looper.getMainLooper());
             // View rootView = mActivity.getWindow().getDecorView().getRootView();
             // or
@@ -128,7 +128,6 @@ public class ShowToastMessage {
                 }
             };
         } else {
-            mContext = null;
             mHandler = null;
             mRootView = null;
             layoutForTextView = null;
