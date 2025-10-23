@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">色球</string>
-    <string name="app_name_2">五球</string>
-    <string name="app_name_pro">色球_pro</string>
     <string name="no1">1</string>
     <string name="easyStr">容易</string>
     <string name="no2">2</string>
@@ -65,5 +63,9 @@
     <string name="createNewGameStr">建立新遊戲?</string>
 
     <!-- For showing Smile Apps list -->
-    <string name="smileApps">微笑的所有安卓Apps</string>
+    <string name="smileApps">微笑的所有Apps</string>
+    <string name="karaoke_app_name">微笑卡拉OK</string>
+    <string name="video_app_name">微笑視頻播放器</string>
+    <string name="karaoke_tv_app_name">微笑電視卡拉OK</string>
+    <string name="balls_remover_name">色球移除</string>
 </resources>

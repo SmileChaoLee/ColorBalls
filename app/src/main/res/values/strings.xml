@@ -2,8 +2,6 @@
 <resources>
 
     <string name="app_name">ColorBalls</string>
-    <string name="app_name_2">FiveBalls</string>
-    <string name="app_name_pro">ColorBalls_pro</string>
     <string name="no1">1</string>
     <string name="easyStr">Easy</string>
     <string name="no2">2</string>
@@ -68,5 +66,8 @@
 
     <!-- For showing Smile Apps list -->
     <string name="smileApps">Smile All Apps</string>
-    <string name="title_activity_smile_apps">SmileAppsActivity</string>
+    <string name="karaoke_app_name">Smile Karaoke</string>
+    <string name="video_app_name">Smile VideoPlayer</string>
+    <string name="karaoke_tv_app_name">Smile TV Karaoke</string>
+    <string name="balls_remover_name">BallsRemover</string>
 </resources>

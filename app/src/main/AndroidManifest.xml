@@ -16,7 +16,6 @@
         <activity
             android:name=".smileapps.SmileAppsActivity"
             android:exported="false"
-            android:label="@string/title_activity_smile_apps"
             android:theme="@style/AppTheme" />
 
         <meta-data

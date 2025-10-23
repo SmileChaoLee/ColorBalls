@@ -48,22 +48,34 @@ class SmileAppsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        appsList.add(AndroidApp("Karaoke Player",
+        appsList.add(AndroidApp(getString(R.string.karaoke_app_name),
             R.drawable.karaoke_app_icon,
             "https://play.google.com/store/apps/details?id=com.smile.karaokeplayer"))
-        appsList.add(AndroidApp("Video Player",
+
+        appsList.add(AndroidApp(getString(R.string.video_app_name),
             R.drawable.video_app_icon,
             "https://play.google.com/store/apps/details?id=com.smile.videoplayer"))
-        appsList.add(AndroidApp("5 Color Balls",
+
+        appsList.add(AndroidApp(getString(R.string.karaoke_tv_app_name),
+            R.drawable.karaoke_tv_app_icon,
+            "https://play.google.com/store/apps/details?id=com.smile.karaoketvplayer"))
+
+        appsList.add(AndroidApp(getString(R.string.app_name),
             R.drawable.app_icon,
             "https://play.google.com/store/apps/details?id=com.smile.colorballs"))
+
+        appsList.add(AndroidApp(getString(R.string.balls_remover_name),
+            R.drawable.balls_remover_app_icon,
+            "https://play.google.com/store/apps/details?id=com.smile.ballsremover"))
+
         val backgroundColor = Yellow3
 
         enableEdgeToEdge()
         setContent {
             ColorBallsTheme {
                 Scaffold { innerPadding ->
-                    Column(modifier = Modifier.fillMaxSize()
+                    Column(modifier = Modifier
+                        .fillMaxSize()
                         .padding(innerPadding)
                         .background(backgroundColor)) {
                         Text(modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -72,7 +84,8 @@ class SmileAppsActivity : ComponentActivity() {
                             fontSize = CbComposable.mFontSize)
                         HorizontalDivider(modifier = Modifier.fillMaxWidth(),
                             thickness = 10.dp, color = Color.Black)
-                        Spacer(modifier = Modifier.fillMaxWidth()
+                        Spacer(modifier = Modifier
+                            .fillMaxWidth()
                             .height(height = 20.dp))
                         LazyColumn {
                             items(items = appsList) { item ->
@@ -86,8 +99,10 @@ class SmileAppsActivity : ComponentActivity() {
                                         )
                                         Image(
                                             modifier = Modifier
-                                                .size(CbComposable
-                                                    .textUnitToDp(CbComposable.mFontSize))
+                                                .size(
+                                                    CbComposable
+                                                        .textUnitToDp(CbComposable.mFontSize)
+                                                )
                                                 .padding(all = 0.dp),
                                             painter = painterResource(item.icon),
                                             contentDescription = "",
