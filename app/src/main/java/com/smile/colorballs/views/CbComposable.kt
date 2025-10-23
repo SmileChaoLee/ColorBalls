@@ -2,7 +2,6 @@ package com.smile.colorballs.views
 
 import android.app.Activity
 import android.content.res.Configuration
-import android.util.Log
 import android.view.View
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -58,6 +57,7 @@ import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
 import com.smile.colorballs.models.Settings
 import com.smile.colorballs.models.TopPlayer
+import com.smile.colorballs.tools.LogUtil
 import com.smile.colorballs.views.ui.theme.ColorPrimary
 import com.smile.smilelibraries.AdMobBanner
 import com.smile.smilelibraries.FacebookBanner
@@ -154,7 +154,7 @@ object CbComposable {
         buttonListener: ButtonClickListener,
         oKStr: String
     ) {
-        Log.d(TAG, "Top10Composable.topPlayers.size = ${topPlayers.size}")
+        LogUtil.d(TAG, "Top10Composable.topPlayers.size = ${topPlayers.size}")
         val imageWidth = (mFontSize.value * 3.0).dp
         Column(
             modifier = Modifier
@@ -460,7 +460,7 @@ object CbComposable {
     fun DialogWithText(activity: Activity,
                        buttonListener: ButtonClickListener,
                        dialogTitle: String, dialogText: String) {
-        Log.d(TAG, "DialogWithText")
+        LogUtil.d(TAG, "DialogWithText")
         val okStr = activity.getString(R.string.okStr)
         val noStr = activity.getString(R.string.noStr)
         val lightRed = Color(0xffff4444)
@@ -519,7 +519,7 @@ object CbComposable {
             value = textValue,
             onValueChange = {
                 textValue = it
-                Log.d(TAG, "textFieldValue.textValue = $textValue")
+                LogUtil.d(TAG, "textFieldValue.textValue = $textValue")
             },
             textStyle = LocalTextStyle.current.copy(fontSize = mFontSize),
             placeholder = {
@@ -536,13 +536,13 @@ object CbComposable {
     fun DialogWithTextField(activity: Activity,
                             buttonListener: ButtonClickListenerString,
                             dialogTitle: String, hintText: String) {
-        Log.d(TAG, "DialogWithTextField")
+        LogUtil.d(TAG, "DialogWithTextField")
 
         val lightRed = Color(0xffff4444)
         val okStr = activity.getString(R.string.okStr)
         val noStr = activity.getString(R.string.noStr)
         var returnValue = ""
-        Log.d(TAG, "DialogWithTextField.AlertDialog")
+        LogUtil.d(TAG, "DialogWithTextField.AlertDialog")
         AlertDialog(
             onDismissRequest = { /* isOpen = false */ },
             icon = null, title = {
@@ -591,7 +591,7 @@ object CbComposable {
     @Composable
     fun ShowAdmobBanner(modifier: Modifier = Modifier,
                         adId: String, width: Int = 0) {
-        Log.d(TAG, "ShowAdmobBanner.adId = $adId")
+        LogUtil.d(TAG, "ShowAdmobBanner.adId = $adId")
         AndroidView(
             modifier = modifier,
             factory = { context ->
@@ -606,14 +606,14 @@ object CbComposable {
     @Composable
     fun ShowAdmobNormalBanner(modifier: Modifier = Modifier) {
         val adId = ColorBallsApp.googleAdMobBannerID
-        Log.d(TAG, "ShowAdmobNormalBanner.adId = $adId")
+        LogUtil.d(TAG, "ShowAdmobNormalBanner.adId = $adId")
         ShowAdmobBanner(modifier = modifier, adId = adId)
     }
 
     @Composable
     fun ShowAdmobAdaptiveBanner(modifier: Modifier = Modifier, width: Int) {
         val adId = ColorBallsApp.googleAdMobBannerID2
-        Log.d(TAG, "ShowAdmobAdaptiveBanner.adId = $adId")
+        LogUtil.d(TAG, "ShowAdmobAdaptiveBanner.adId = $adId")
         ShowAdmobBanner(modifier = modifier, adId = adId, width = width)
     }
 
@@ -623,14 +623,14 @@ object CbComposable {
         ad: NativeAd,
         adContent: @Composable (ad: NativeAd, view: View) -> Unit,
     ) {
-        Log.d(TAG, "MyNativeAdView")
+        LogUtil.d(TAG, "MyNativeAdView")
         val contentViewId by rememberSaveable { mutableIntStateOf(View.generateViewId()) }
         val adViewId by rememberSaveable { mutableIntStateOf(View.generateViewId()) }
-        Log.d(TAG, "MyNativeAdView.AndroidView")
+        LogUtil.d(TAG, "MyNativeAdView.AndroidView")
         AndroidView(
             modifier = modifier,
             factory = { context ->
-                Log.d(TAG, "MyNativeAdView.AndroidView.factory")
+                LogUtil.d(TAG, "MyNativeAdView.AndroidView.factory")
                 val contentView = ComposeView(context).apply {
                     id = contentViewId
                 }
@@ -640,10 +640,10 @@ object CbComposable {
                 }
             },
             update = { nativeAdView ->
-                Log.d(TAG, "MyNativeAdView.AndroidView.update")
+                LogUtil.d(TAG, "MyNativeAdView.AndroidView.update")
                 val adView = nativeAdView.findViewById<NativeAdView>(adViewId)
                 val contentView = nativeAdView.findViewById<ComposeView>(contentViewId)
-                Log.d(TAG, "MyNativeAdView.AndroidView.update.setNativeAd()")
+                LogUtil.d(TAG, "MyNativeAdView.AndroidView.update.setNativeAd()")
                 adView.setNativeAd(ad)
                 adView.background = (-0x1).toDrawable()
                 adView.callToActionView = contentView
@@ -656,7 +656,7 @@ object CbComposable {
     fun ShowFacebookBanner(modifier: Modifier = Modifier, adId: String) {
         // val adId = ColorBallsApp.facebookBannerID
         val pId = if (BuildConfig.DEBUG) "IMG_16_9_APP_INSTALL#$adId" else adId
-        Log.d(TAG, "ShowFacebookBanner.adId = $adId")
+        LogUtil.d(TAG, "ShowFacebookBanner.adId = $adId")
         AndroidView(
             modifier = modifier,
             factory = { context ->

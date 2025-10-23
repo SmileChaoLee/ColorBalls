@@ -2,7 +2,6 @@ package com.smile.colorballs.views
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -11,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import com.smile.colorballs.R
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.models.Settings
+import com.smile.colorballs.tools.LogUtil
 import com.smile.colorballs.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs.viewmodel.SettingViewModel
 
@@ -20,12 +20,12 @@ class CbSettingActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(TAG, "onCreate")
+        LogUtil.d(TAG, "onCreate")
 
         var gameId = Constants.GAME_NO_BARRIER_ID
         if (savedInstanceState == null) {
             // new creation of this activity
-            Log.d(TAG, "onCreate.savedInstanceState is null")
+            LogUtil.d(TAG, "onCreate.savedInstanceState is null")
             val setting = Settings()
             intent.extras?.let {
                 gameId = it.getString(Constants.GAME_ID, gameId)
@@ -37,7 +37,7 @@ class CbSettingActivity : ComponentActivity() {
         } else {
             // re-creation of this activity
             gameId = settingViewModel.gameId
-            Log.d(TAG, "onCreate.savedInstanceState not null")
+            LogUtil.d(TAG, "onCreate.savedInstanceState not null")
             if (settingViewModel.settings.value == null) {
                 settingViewModel.setSettings(Settings())
             }
@@ -45,15 +45,15 @@ class CbSettingActivity : ComponentActivity() {
 
         val textClick = object : CbComposable.SettingClickListener {
             override fun hasSoundClick(hasSound: Boolean) {
-                Log.d(TAG, "textClick.hasSoundClick.hasSound = $hasSound")
+                LogUtil.d(TAG, "textClick.hasSoundClick.hasSound = $hasSound")
                 settingViewModel.setHasSound(hasSound)
             }
             override fun easyLevelClick(easyLevel: Boolean) {
-                Log.d(TAG, "textClick.easyLevelClick.easyLevel = $easyLevel")
+                LogUtil.d(TAG, "textClick.easyLevelClick.easyLevel = $easyLevel")
                 settingViewModel.setEasyLevel(easyLevel)
             }
             override fun hasNextClick(hasNext: Boolean) {
-                Log.d(TAG, "textClick.hasNextClick.hasNext = $hasNext")
+                LogUtil.d(TAG, "textClick.hasNextClick.hasNext = $hasNext")
                 settingViewModel.setHasNext(hasNext)
             }
         }
@@ -68,7 +68,7 @@ class CbSettingActivity : ComponentActivity() {
         }
 
         setContent {
-            Log.d(TAG, "onCreate.setContent.gameId = $gameId")
+            LogUtil.d(TAG, "onCreate.setContent.gameId = $gameId")
             val hasNextStr = if (gameId == Constants.BALLS_REMOVER_GAME_ID) {
                 getString(R.string.fillColumnStr)
             } else {
@@ -100,7 +100,7 @@ class CbSettingActivity : ComponentActivity() {
 
         onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                Log.d(TAG, "onBackPressedDispatcher.handleOnBackPressed")
+                LogUtil.d(TAG, "onBackPressedDispatcher.handleOnBackPressed")
                 returnToPrevious(confirmed = false)
             }
         })
@@ -108,32 +108,32 @@ class CbSettingActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        Log.d(TAG, "onStart()")
+        LogUtil.d(TAG, "onStart()")
     }
 
     override fun onResume() {
         super.onResume()
-        Log.d(TAG, "onResume()")
+        LogUtil.d(TAG, "onResume()")
     }
 
     override fun onPause() {
         super.onPause()
-        Log.d(TAG, "onPause()")
+        LogUtil.d(TAG, "onPause()")
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        Log.d(TAG, "onSaveInstanceState()")
+        LogUtil.d(TAG, "onSaveInstanceState()")
         super.onSaveInstanceState(outState)
     }
 
     override fun onStop() {
         super.onStop()
-        Log.d(TAG, "onStop()")
+        LogUtil.d(TAG, "onStop()")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d(TAG, "onDestroy()")
+        LogUtil.d(TAG, "onDestroy()")
     }
 
     private fun returnToPrevious(confirmed: Boolean) {

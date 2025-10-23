@@ -1,12 +1,12 @@
 package com.smile.colorballs.roomdatabase
 
 import android.content.Context
-import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.smile.colorballs.tools.LogUtil
 import com.smile.smilelibraries.models.Player
 
 @Database(entities = [Score::class], version = 2)
@@ -23,7 +23,7 @@ abstract class ScoreDatabase : RoomDatabase() {
             }
         }
         fun getDatabase(context: Context, databaseName: String): ScoreDatabase {
-            Log.d(TAG, "getDatabase")
+            LogUtil.i(TAG, "getDatabase")
             return synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
@@ -40,7 +40,7 @@ abstract class ScoreDatabase : RoomDatabase() {
     }
 
     suspend fun addScore(score: Score): Long {
-        Log.d(TAG, "addScore.score = $score")
+        LogUtil.i(TAG, "addScore.score = $score")
         val tempScore = Score(  // use the default value, null for id
             playerName = score.playerName,
             playerScore = score.playerScore
@@ -48,7 +48,7 @@ abstract class ScoreDatabase : RoomDatabase() {
         try {
             return scoreDao().insertOneScore(tempScore)
         } catch (ex: Exception) {
-            Log.e(TAG, "addScore.Exception: ${ex.message}")
+            LogUtil.e(TAG, "addScore.Exception: ", ex)
             return -1L  // Return -1 to indicate an error
         }
     }
@@ -57,13 +57,13 @@ abstract class ScoreDatabase : RoomDatabase() {
         try {
             return scoreDao().getHighestScore()
         } catch (ex: Exception) {
-            Log.e(TAG, "getHighestScore.Exception: ${ex.message}")
+            LogUtil.e(TAG, "getHighestScore.Exception: ", ex)
             return -1  // Return -1 to indicate an error
         }
     }
 
     suspend fun isInTop10(score: Int): Boolean {
-        Log.d(TAG, "isInTop10.score = $score")
+        LogUtil.i(TAG, "isInTop10.score = $score")
         try {
             val top10Scores = scoreDao().readTop10ScoreList()
             return if (top10Scores.size < 10) {
@@ -72,13 +72,13 @@ abstract class ScoreDatabase : RoomDatabase() {
                 score >= (top10Scores.last().playerScore ?: 0)
             }
         } catch (ex: Exception) {
-            Log.e(TAG, "isInTop10.Exception: ${ex.message}")
+            LogUtil.e(TAG, "isInTop10.Exception: ", ex)
             return false  // Return false to indicate an error
         }
     }
 
     suspend fun getLocalTop10(): ArrayList<Player> {
-        Log.d(TAG, "getLocalTop10")
+        LogUtil.i(TAG, "getLocalTop10")
         val players = ArrayList<Player>()
         try {
             val top10Scores = scoreDao().readTop10ScoreList()
@@ -92,17 +92,17 @@ abstract class ScoreDatabase : RoomDatabase() {
                 players.add(player)
             }
         } catch (ex: Exception) {
-            Log.e(TAG, "getLocalTop10.Exception: ${ex.message}")
+            LogUtil.e(TAG, "getLocalTop10.Exception: ", ex)
         }
         return players
     }
 
     suspend fun deleteAllAfterTop10() {
-        Log.d(TAG, "deleteAllAfterTop10")
+        LogUtil.i(TAG, "deleteAllAfterTop10")
         try {
             scoreDao().deleteAllAfterTop10()
         } catch (ex: Exception) {
-            Log.e(TAG, "deleteAllAfterTop10.Exception: ${ex.message}")
+            LogUtil.e(TAG, "deleteAllAfterTop10.Exception: ", ex)
         }
     }
 }

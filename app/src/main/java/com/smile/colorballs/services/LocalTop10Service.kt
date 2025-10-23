@@ -4,15 +4,15 @@ import android.app.Service
 import android.content.Intent
 import android.os.Bundle
 import android.os.IBinder
-import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.smile.colorballs.constants.Constants
+import com.smile.colorballs.tools.LogUtil
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
 import com.smile.smilelibraries.scoresqlite.ScoreSQLite
 
 class LocalTop10Service : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        Log.d(TAG, "onStartCommand")
+        LogUtil.d(TAG, "onStartCommand")
         getDataAndSendBack()
         return super.onStartCommand(intent, flags, startId)
     }
@@ -22,9 +22,9 @@ class LocalTop10Service : Service() {
     }
 
     private fun getDataAndSendBack() {
-        Log.d(TAG, "getDataAndSendBack")
+        LogUtil.d(TAG, "getDataAndSendBack")
         ScoreSQLite(applicationContext, Constants.NO_BARRIER_DATABASE_NAME).let {
-            Log.d(TAG, "getDataAndSendBack.PlayerRecordRest.GetLocalTop10()")
+            LogUtil.d(TAG, "getDataAndSendBack.PlayerRecordRest.GetLocalTop10()")
             val players = PlayerRecordRest.GetLocalTop10(it)
             it.close()
             Intent(Constants.LOCAL_TOP10_ACTION_NAME).let {
@@ -33,12 +33,12 @@ class LocalTop10Service : Service() {
                     it.putExtras(this)
                 }
                 LocalBroadcastManager.getInstance(applicationContext).apply {
-                    Log.d(TAG, "getDataAndSendBack.sent result.")
+                    LogUtil.d(TAG, "getDataAndSendBack.sent result.")
                     sendBroadcast(it)
                 }
             }
         }
-        Log.d(TAG, "getDataAndSendBack.stopSelf().")
+        LogUtil.d(TAG, "getDataAndSendBack.stopSelf().")
         stopSelf()
     }
 

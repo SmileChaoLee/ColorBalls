@@ -1,12 +1,11 @@
 package com.smile.colorballs
 
-import android.content.res.Resources
-import android.util.Log
 import androidx.multidex.MultiDexApplication
 import com.facebook.ads.AdSettings
 import com.facebook.ads.AudienceNetworkAds
 import com.facebook.ads.AudienceNetworkAds.InitResult
 import com.google.android.gms.ads.MobileAds
+import com.smile.colorballs.tools.LogUtil
 import com.smile.smilelibraries.facebook_ads_util.FacebookInterstitial
 import com.smile.smilelibraries.google_ads_util.AdMobInterstitial
 
@@ -32,8 +31,7 @@ class ColorBallsApp : MultiDexApplication() {
             AudienceNetworkAds
                 .buildInitSettings(this)
                 .withInitListener { initResult: InitResult ->
-                    Log.d(
-                        AudienceNetworkAds.TAG,
+                    LogUtil.d(AudienceNetworkAds.TAG,
                         initResult.message
                     )
                 }
@@ -51,8 +49,7 @@ class ColorBallsApp : MultiDexApplication() {
         MobileAds.initialize(
             applicationContext
         ) {
-            Log.d(
-                TAG, "Facebook ads was initialized successfully."
+            LogUtil.d(TAG, "Facebook ads was initialized successfully."
             )
         }
         googleInterstitialAd = AdMobInterstitial(applicationContext, googleAdMobInterstitialID)
@@ -60,7 +57,7 @@ class ColorBallsApp : MultiDexApplication() {
 
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
-        Log.d(TAG, "onTrimMemory.level = $level")
+        LogUtil.i(TAG, "onTrimMemory.level = $level")
     }
 
     companion object {

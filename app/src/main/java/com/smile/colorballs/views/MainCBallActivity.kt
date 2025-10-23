@@ -1,15 +1,11 @@
 package com.smile.colorballs.views
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Point
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.os.PersistableBundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -26,9 +22,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -40,9 +38,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
 import com.smile.colorballs.ballsremover.views.BallsRemoverActivity
+import com.smile.colorballs.tools.LogUtil
 import com.smile.colorballs.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs.views.ui.theme.Yellow3
 import com.smile.smilelibraries.utilities.ScreenUtil
@@ -80,36 +80,42 @@ open class MainCBallActivity : ComponentActivity() {
         cBallLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            Log.d(TAG, "cBallLauncher.result received")
+            LogUtil.i(TAG, "cBallLauncher.result received")
             loadingMessage.value = ""
         }
 
         barrierCBLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            Log.d(TAG, "barrierCBLauncher.result received")
+            LogUtil.i(TAG, "barrierCBLauncher.result received")
             loadingMessage.value = ""
         }
 
         ballsRemoverLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            Log.d(TAG, "ballsRemoverLauncher.result received")
+            LogUtil.i(TAG, "ballsRemoverLauncher.result received")
             loadingMessage.value = ""
         }
 
+        // enableEdgeToEdge()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            Log.d(TAG,"onCreate.setContent")
+            LogUtil.d(TAG,"onCreate.setContent")
+            val backgroundColor = Yellow3
             ColorBallsTheme {
-                Box {
-                    DisplayLoading()
-                    CreateMainUI()
+                Scaffold { innerPadding ->
+                    Box(Modifier.padding(innerPadding)
+                            .background(color = backgroundColor)) {
+                        DisplayLoading()
+                        CreateMainUI()
+                    }
                 }
             }
 
             onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    Log.d(TAG, "handleOnBackPressed")
+                    LogUtil.d(TAG, "handleOnBackPressed")
                     exitApp()
                 }
             })
@@ -117,7 +123,7 @@ open class MainCBallActivity : ComponentActivity() {
     }
 
     private fun exitApp() {
-        Log.d(TAG, "exitApp")
+        LogUtil.i(TAG, "exitApp")
         finish()
     }
 
@@ -173,7 +179,7 @@ open class MainCBallActivity : ComponentActivity() {
                              buttonWidth: Float,
                              buttonHeight: Float,
                              textLineHeight: TextUnit) {
-        Log.d(TAG, "NoBarrierCBallButton")
+        LogUtil.d(TAG, "NoBarrierCBallButton")
         val buttonBackground = Color.Transparent
         val buttonContentColor = Color.Green
         val buttonContainerColor = Color.Blue
@@ -216,7 +222,7 @@ open class MainCBallActivity : ComponentActivity() {
                            buttonWidth: Float,
                            buttonHeight: Float,
                            textLineHeight: TextUnit) {
-        Log.d(TAG, "BarrierCBallButton")
+        LogUtil.d(TAG, "BarrierCBallButton")
         val buttonBackground = Color.Transparent
         val buttonContentColor = Color.Green
         val buttonContainerColor = Color.Blue
@@ -259,7 +265,7 @@ open class MainCBallActivity : ComponentActivity() {
                              buttonWidth: Float,
                              buttonHeight: Float,
                              textLineHeight: TextUnit) {
-        Log.d(TAG, "BallsRemoverButton")
+        LogUtil.d(TAG, "BallsRemoverButton")
         val buttonBackground = Color.Transparent
         val buttonContentColor = Color.Green
         val buttonContainerColor = Color.Blue
@@ -297,13 +303,59 @@ open class MainCBallActivity : ComponentActivity() {
         }
     }
 
+    /*
+    @Composable
+    fun SmileAppsButton(modifier: Modifier = Modifier,
+                           buttonWidth: Float,
+                           buttonHeight: Float,
+                           textLineHeight: TextUnit) {
+        LogUtil.d(TAG, "SmileAppsButton")
+        val buttonBackground = Color.Transparent
+        val buttonContentColor = Color.Green
+        val buttonContainerColor = Color.Blue
+        Column(modifier = modifier,
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Center) {
+            val bRemoverClicked = remember { mutableStateOf(false) }
+            Button(
+                onClick = {
+                    CoroutineScope(Dispatchers.Default).launch {
+                        bRemoverClicked.value = true
+                        delay(200)
+                        startBallsRemoverActivity()
+                        bRemoverClicked.value = false
+                    }
+                },
+                modifier = Modifier//.weight(1.0f)
+                    .width(width = buttonWidth.dp)
+                    .height(height = buttonHeight.dp)
+                    .background(color = buttonBackground),
+                colors = ButtonColors(
+                    containerColor =
+                        if (!bRemoverClicked.value) buttonContainerColor
+                        else Color.Cyan,
+                    disabledContainerColor = buttonContainerColor,
+                    contentColor =
+                        if (!bRemoverClicked.value)
+                            buttonContentColor
+                        else Color.Red ,
+                    disabledContentColor = buttonContentColor
+                )
+            )
+            { Text(text = getString(R.string.removeBalls),
+                fontSize = CbComposable.mFontSize) }
+        }
+    }
+    */
+
+    /*
     @Composable
     fun CreateMainUI() {
-        Log.d(TAG, "CreateMainUI")
+        LogUtil.d(TAG, "CreateMainUI")
         if (loadingMessage.value.isNotEmpty()) return
         val maxWidth = ScreenUtil.pixelToDp(screenSize.x.toFloat())
         val maxHeight = ScreenUtil.pixelToDp(screenSize.y.toFloat())
-        Log.d(TAG, "CreateMainUI.maxHeight = $maxHeight")
+        LogUtil.d(TAG, "CreateMainUI.maxHeight = $maxHeight")
         var verSpacerWeight = 1.0f
         var horSpacerWeight = 1.0f
         if (resources.configuration.orientation
@@ -311,15 +363,14 @@ open class MainCBallActivity : ComponentActivity() {
             verSpacerWeight = 0.2f
             horSpacerWeight = 2.5f
         }
-        val buttonWidth = maxWidth * (10.0f - horSpacerWeight * 2.0f)
+        val buttonWidth = maxWidth * ((10.0f - horSpacerWeight * 2.0f) / 10.0f)
+        LogUtil.d(TAG, "CreateMainUI.buttonWidth = $buttonWidth")
         // 1 in 5
-        val buttonHeight = maxHeight * (10.0f - (verSpacerWeight * 2.0f)) / 50.0f
-        Log.d(TAG, "CreateMainUI.buttonHeight = $buttonHeight")
-        val backgroundColor = Yellow3
+        val buttonHeight = maxHeight * ((10.0f - verSpacerWeight * 2.0f) / 10.0f) / 5.0f
+        LogUtil.d(TAG, "CreateMainUI.buttonHeight = $buttonHeight")
         val textLineHeight = (CbComposable.toastFontSize.value + 5.0f).sp
         Column(modifier = Modifier
-            .fillMaxSize()
-            .background(color = backgroundColor)) {
+            .fillMaxSize()) {
             Spacer(modifier = Modifier
                 .fillMaxWidth()
                 .weight(verSpacerWeight))
@@ -345,20 +396,53 @@ open class MainCBallActivity : ComponentActivity() {
                 .weight(verSpacerWeight))
         }
     }
+    */
+
+    @Composable
+    fun CreateMainUI() {
+        LogUtil.i(TAG, "CreateMainUI")
+        if (loadingMessage.value.isNotEmpty()) return
+        val maxWidth = ScreenUtil.pixelToDp(screenSize.x.toFloat())
+        val maxHeight = ScreenUtil.pixelToDp(screenSize.y.toFloat())
+        LogUtil.d(TAG, "CreateMainUI.maxHeight = $maxHeight")
+        var verSpacerWeight = 1.0f
+        var horSpacerWeight = 1.0f
+        if (resources.configuration.orientation
+            == Configuration.ORIENTATION_LANDSCAPE) {
+            verSpacerWeight = 0.2f
+            horSpacerWeight = 2.5f
+        }
+        val buttonWidth = maxWidth * ((10.0f - horSpacerWeight * 2.0f) / 10.0f)
+        LogUtil.i(TAG, "CreateMainUI.buttonWidth = $buttonWidth")
+        // 1 in 5
+        val buttonHeight = maxHeight * ((10.0f - verSpacerWeight * 2.0f) / 10.0f) / 5.0f
+        LogUtil.i(TAG, "CreateMainUI.buttonHeight = $buttonHeight")
+        val textLineHeight = (CbComposable.toastFontSize.value + 5.0f).sp
+        Column(modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center) {
+            NoBarrierCBallButton(modifier = Modifier.weight(1.0f),
+                buttonWidth, buttonHeight, textLineHeight)
+            BarrierCBallButton(modifier = Modifier.weight(1.0f),
+                buttonWidth, buttonHeight, textLineHeight)
+            BallsRemoverButton(modifier = Modifier.weight(1.0f),
+                buttonWidth, buttonHeight, textLineHeight)
+        }
+    }
 
     override fun onResume() {
         super.onResume()
-        Log.d(TAG, "onResume")
+        LogUtil.i(TAG, "onResume")
     }
 
     override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
         super.onSaveInstanceState(outState, outPersistentState)
-        Log.d(TAG, "onSaveInstanceState()")
+        LogUtil.i(TAG, "onSaveInstanceState()")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d(TAG, "onDestroy")
+        LogUtil.i(TAG, "onDestroy")
     }
 
     companion object {

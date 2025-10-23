@@ -1,7 +1,6 @@
 package com.smile.colorballs.views
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -14,6 +13,7 @@ import com.smile.colorballs.views.ui.theme.ColorBallsTheme
 import com.smile.smilelibraries.models.Player
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
 import com.smile.colorballs.roomdatabase.ScoreDatabase
+import com.smile.colorballs.tools.LogUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -24,7 +24,7 @@ class Top10Activity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(TAG, "onCreate")
+        LogUtil.i(TAG, "onCreate")
 
         var gameId = Constants.GAME_NO_BARRIER_ID
         var databaseName = Constants.NO_BARRIER_DATABASE_NAME
@@ -50,10 +50,10 @@ class Top10Activity : ComponentActivity() {
             R.drawable.olympics_image)
 
         setContent {
-            Log.d(TAG, "onCreate.setContent.Composables.Top10Compose")
+            LogUtil.d(TAG, "onCreate.setContent.Composables.Top10Compose")
             ColorBallsTheme {
                 LaunchedEffect(Unit) {
-                    Log.d(TAG, "onCreate.setContent.LaunchedEffect")
+                    LogUtil.d(TAG, "onCreate.setContent.LaunchedEffect")
                     launch(Dispatchers.IO) {
                         val players: ArrayList<Player>
                         if (isLocal) {
@@ -69,7 +69,7 @@ class Top10Activity : ComponentActivity() {
                             players[i].playerName?.let { name ->
                                 if (name.trim().isEmpty()) players[i].playerName = "No Name"
                             } ?: run {
-                                Log.d(TAG, "onCreate.players[i].playerName = null")
+                                LogUtil.d(TAG, "onCreate.players[i].playerName = null")
                                 players[i].playerName = "No Name"
                             }
                             top10.add(TopPlayer(players[i], medalImageIds[i]))
@@ -77,13 +77,13 @@ class Top10Activity : ComponentActivity() {
                         top10Players.value = top10
                     }
                 }
-                Log.d(TAG, "onCreate.setContent.Composables.Top10Compose")
+                LogUtil.d(TAG, "onCreate.setContent.Composables.Top10Compose")
                 CbComposable.Top10Composable(
                     title = top10TitleName,
                     topPlayers = top10Players.value, buttonListener =
                     object : CbComposable.ButtonClickListener {
                         override fun buttonOkClick() {
-                            Log.d(TAG, "Composables.OkButtonListener.buttonOkClick")
+                            LogUtil.d(TAG, "Composables.OkButtonListener.buttonOkClick")
                             setResult(RESULT_OK)
                             finish()
                         }
@@ -95,7 +95,7 @@ class Top10Activity : ComponentActivity() {
 
         onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                Log.d(TAG, "onBackPressedDispatcher.handleOnBackPressed")
+                LogUtil.d(TAG, "onBackPressedDispatcher.handleOnBackPressed")
                 setResult(RESULT_OK)
                 finish()
             }
@@ -104,32 +104,32 @@ class Top10Activity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        Log.d(TAG, "onStart()")
+        LogUtil.i(TAG, "onStart()")
     }
 
     override fun onResume() {
         super.onResume()
-        Log.d(TAG, "onResume()")
+        LogUtil.i(TAG, "onResume()")
     }
 
     override fun onPause() {
         super.onPause()
-        Log.d(TAG, "onPause()")
+        LogUtil.i(TAG, "onPause()")
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        Log.d(TAG, "onSaveInstanceState()")
+        LogUtil.i(TAG, "onSaveInstanceState()")
         super.onSaveInstanceState(outState)
     }
 
     override fun onStop() {
         super.onStop()
-        Log.d(TAG, "onStop()")
+        LogUtil.i(TAG, "onStop()")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d(TAG, "onDestroy()")
+        LogUtil.i(TAG, "onDestroy()")
     }
 
     companion object {

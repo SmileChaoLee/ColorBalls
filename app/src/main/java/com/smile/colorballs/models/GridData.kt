@@ -2,9 +2,9 @@ package com.smile.colorballs.models
 
 import android.graphics.Point
 import android.os.Parcelable
-import android.util.Log
 import com.smile.colorballs.ballsremover.constants.BallsRmConstants
 import com.smile.colorballs.constants.Constants
+import com.smile.colorballs.tools.LogUtil
 import kotlinx.parcelize.Parcelize
 import java.util.Random
 import java.util.Stack
@@ -33,7 +33,7 @@ open class GridData(
     }
 
     private fun generateColumnBalls(column: Int) {
-        Log.d(TAG, "generateColumnBalls.column = $column")
+        LogUtil.i(TAG, "generateColumnBalls.column = $column")
         for (i in 0 until rowCounts) {
             val nn = mRandom.nextInt(mNumOfColorsUsed)
             mCellValues[i][column] = Constants.BallColor[nn]
@@ -47,16 +47,16 @@ open class GridData(
     }
 
     private fun needShiftColumn(fillColumn: Boolean) {
-        Log.d(TAG, "needShiftColumn.fillColumn = $fillColumn")
+        LogUtil.i(TAG, "needShiftColumn.fillColumn = $fillColumn")
         var columnLeft = colCounts
         var j = colCounts - 1
         while (j >= 0 && columnLeft > 0) {
             if (mCellValues[rowCounts-1][j] == 0) {
-                Log.d(TAG, "needShiftColumn." +
+                LogUtil.d(TAG, "needShiftColumn." +
                         "mCellValues[${rowCounts-1}][$j] = 0")
                 // this column is empty then shift column
                 for (k in j downTo 1) {
-                    Log.d(TAG, "needShiftColumn.k = $k")
+                    LogUtil.d(TAG, "needShiftColumn.k = $k")
                     for (i in 0 until rowCounts) {
                         mCellValues[i][k] = mCellValues[i][k - 1]
                     }
@@ -79,7 +79,7 @@ open class GridData(
     }
 
     fun refreshColorBalls(fillColumn: Boolean) {
-        Log.d(TAG, "refreshColorBalls.mLightLine.size = ${mLightLine.size}")
+        LogUtil.i(TAG, "refreshColorBalls.mLightLine.size = ${mLightLine.size}")
         val list = ArrayList<Point>(mLightLine)
         list.sortWith { p1: Point, p2: Point ->
             p1.x.compareTo(p2.x)
@@ -93,7 +93,7 @@ open class GridData(
             columnSet.add(point.y)
             rowMap[point.x] = columnSet
         }
-        Log.d(TAG, "refreshColorBalls.rowMap.size = ${rowMap.size}")
+        LogUtil.d(TAG, "refreshColorBalls.rowMap.size = ${rowMap.size}")
         rowMap.forEach { (key, set) ->
             set.forEach { column ->
                 for (i in key downTo 1) {
@@ -107,7 +107,7 @@ open class GridData(
     }
 
     fun copy(gData: GridData): GridData {
-        Log.d(TAG, "copy")
+        LogUtil.d(TAG, "copy")
         val newGridData = GridData()
         newGridData.mNumOfColorsUsed = gData.mNumOfColorsUsed
         for (i in 0 until rowCounts) {
@@ -133,7 +133,7 @@ open class GridData(
     }
 
     open fun undoTheLast() {
-        Log.d(TAG, "undoTheLast")
+        LogUtil.i(TAG, "undoTheLast")
         // restore CellValues;
         for (i in 0 until rowCounts) {
             System.arraycopy(mBackupCells[i], 0, mCellValues[i],
@@ -210,7 +210,7 @@ open class GridData(
     }
 
     fun backupCells() {
-        Log.d(TAG, "backupCells")
+        LogUtil.i(TAG, "backupCells")
         // backup CellValues;
         for (i in 0 until rowCounts) {
             System.arraycopy(mCellValues[i], 0, mBackupCells[i],
@@ -219,7 +219,7 @@ open class GridData(
     }
 
     fun checkMoreThanTwo(x: Int, y: Int): Boolean {
-        Log.d(TAG, "checkMoreThanTwo.x = $x, y = $y")
+        LogUtil.i(TAG, "checkMoreThanTwo.x = $x, y = $y")
         allConnectBalls(Point(x , y))
         if (mLightLine.size >= BallsRmConstants.BALL_NUM_COMPLETED) {
             return true

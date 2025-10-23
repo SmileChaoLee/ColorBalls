@@ -3,7 +3,7 @@ package com.smile.colorballs.tools
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichGame
 
-object Utils {
+object GameUtil {
 
     fun getGameId(whichGame: WhichGame) = when(whichGame) {
         WhichGame.NO_BARRIER -> Constants.GAME_NO_BARRIER_ID

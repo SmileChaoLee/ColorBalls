@@ -2,9 +2,9 @@ package com.smile.colorballs.models
 
 import android.graphics.Point
 import android.os.Parcelable
-import android.util.Log
 import com.smile.colorballs.constants.Constants
 import com.smile.colorballs.constants.WhichGame
+import com.smile.colorballs.tools.LogUtil
 import kotlinx.parcelize.Parcelize
 import java.util.Random
 import java.util.Stack
@@ -31,13 +31,13 @@ class CBallGridData(
         ,mCellValues, mBackupCells, mLightLine) ,Parcelable {
 
     fun randThreeCells(): Int {
-        Log.d(TAG, "randThreeCells")
+        LogUtil.i(TAG, "randThreeCells")
         mNextCellIndices.clear()
         return generateNextCellIndices(0, null)
     }
 
     fun randomBarriersAndCells() {
-        Log.d(TAG, "randomBarriersAndCells")
+        LogUtil.i(TAG, "randomBarriersAndCells")
         // randomly generate barriers in 9x9 grid
         val set: HashSet<Point> = HashSet()
         var row: Int
@@ -58,7 +58,7 @@ class CBallGridData(
     }
 
     fun randomGrid() {
-        Log.d(TAG, "randomGrid")
+        LogUtil.i(TAG, "randomGrid")
         // randomly generate some color balls and distribute in the grid
         randThreeCells()
     }
@@ -83,7 +83,7 @@ class CBallGridData(
     }
 
     fun copy(gData: CBallGridData): CBallGridData {
-        Log.d(TAG, "copy")
+        LogUtil.i(TAG, "copy")
         val newGridData = CBallGridData()
         newGridData.copy(gData)
         newGridData.mNextCellIndices.clear()
@@ -138,7 +138,7 @@ class CBallGridData(
     }
 
     private fun generateNextCellIndices(cColor: Int, exclusiveCell: Point?): Int {
-        Log.d(TAG, "generateNextCellIndices.cColor = $cColor")
+        LogUtil.d(TAG, "generateNextCellIndices.cColor = $cColor")
         // find the all vacant cell that are not occupied by color balls
         var vacantSize = 0
         for (i in 0 until rowCounts) {
@@ -148,7 +148,7 @@ class CBallGridData(
                 }
             }
         }
-        Log.d(TAG, "generateNextCellIndices.vacantSize = $vacantSize")
+        LogUtil.d(TAG, "generateNextCellIndices.vacantSize = $vacantSize")
         if (vacantSize == 0) {
             return 0 // no vacant so game over
         }
@@ -176,12 +176,12 @@ class CBallGridData(
     }
 
     fun regenerateNextCellIndices(point: Point?) {
-        Log.d(TAG, "regenerateNextCellIndices")
+        LogUtil.d(TAG, "regenerateNextCellIndices")
         if (mNextCellIndices.containsKey(point)) {
             // if nextCellIndices contains the target cell
             // generate only one next cell index
             mNextCellIndices.remove(point)?.let {
-                Log.d(TAG, "regenerateNextCellIndices.cellColor = $it")
+                LogUtil.d(TAG, "regenerateNextCellIndices.cellColor = $it")
                 generateNextCellIndices(it, point)
             }
         }
@@ -240,18 +240,18 @@ class CBallGridData(
 
         mPathPoint.clear() // added at 10:43 pm on 2017-10-19
         if (found) {
-            Log.d(TAG, "shortestPathLength = $shortestPathLength")
-            Log.d(TAG, "cellStack.size() = " + cellStack.size)
+            LogUtil.d(TAG, "shortestPathLength = $shortestPathLength")
+            LogUtil.d(TAG, "cellStack.size() = " + cellStack.size)
             var c = cellStack.pop()
             while (c != null) {
                 mPathPoint.add(Point(c.coordinate))
                 c = c.parentCell
             }
             val sizePathPoint = mPathPoint.size
-            Log.d(TAG, "pathPoint.size() = $sizePathPoint")
+            LogUtil.d(TAG, "pathPoint.size() = $sizePathPoint")
             if (sizePathPoint > 0) {
-                Log.d(TAG, "pathPoint(0) = " + mPathPoint[0])
-                Log.d(TAG, "pathPoint(pathPoint.size()-1) = " + mPathPoint[sizePathPoint - 1])
+                LogUtil.d(TAG, "pathPoint(0) = " + mPathPoint[0])
+                LogUtil.d(TAG, "pathPoint(pathPoint.size()-1) = " + mPathPoint[sizePathPoint - 1])
             } else {
                 found = false
             }
@@ -339,18 +339,18 @@ class CBallGridData(
 
         mPathPoint.clear()
         if (found) {
-            Log.d(TAG, "findPath_1.shortestPathLength = $shortestPathLength")
-            Log.d(TAG, "findPath_1.cellStack.size = ${cellStack.size}")
+            LogUtil.d(TAG, "findPath_1.shortestPathLength = $shortestPathLength")
+            LogUtil.d(TAG, "findPath_1.cellStack.size = ${cellStack.size}")
             var tempCell = cellStack.pop()
             while (tempCell != null) {
                 mPathPoint.add(tempCell.coordinate)
                 tempCell = tempCell.parentCell
             }
             val sizePathPoint = mPathPoint.size
-            Log.d(TAG, "findPath_1.mPathPoint.size() = $sizePathPoint")
+            LogUtil.d(TAG, "findPath_1.mPathPoint.size() = $sizePathPoint")
             if (sizePathPoint > 0) {
-                Log.d(TAG, "findPath_1.mPathPoint(0) = " + mPathPoint[0])
-                Log.d(TAG, "findPath_1.mPathPoint(mPathPoint.size()-1) = " + mPathPoint[sizePathPoint - 1])
+                LogUtil.d(TAG, "findPath_1.mPathPoint(0) = " + mPathPoint[0])
+                LogUtil.d(TAG, "findPath_1.mPathPoint(mPathPoint.size()-1) = " + mPathPoint[sizePathPoint - 1])
             } else {
                 found = false
             }
@@ -380,7 +380,7 @@ class CBallGridData(
     }
 
     fun checkMoreThanFive(x: Int, y: Int): Boolean {
-        Log.d(TAG, "checkMoreThanFive.x = $x, y = $y")
+        LogUtil.i(TAG, "checkMoreThanFive.x = $x, y = $y")
         return checkMoreThanNumber(x, y, Constants.BALL_NUM_COMPLETED)
     }
 
@@ -396,7 +396,7 @@ class CBallGridData(
 
         val tempList: MutableList<Point> = ArrayList()
         val cellColor = mCellValues[x][y]
-        // Log.d(TAG, "check_moreThanFive() --> cellColor = " + cellColor);
+        // LogUtil.d(TAG, "check_moreThanFive() --> cellColor = " + cellColor);
 
         //first
         var first_i = 0

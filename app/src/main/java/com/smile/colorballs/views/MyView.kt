@@ -9,7 +9,6 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
@@ -77,7 +76,8 @@ import com.smile.colorballs.interfaces.BasePresentView
 import com.smile.colorballs.interfaces.GameOptions
 import com.smile.colorballs.presenters.BasePresenter
 import com.smile.colorballs.roomdatabase.ScoreDatabase
-import com.smile.colorballs.tools.Utils
+import com.smile.colorballs.tools.GameUtil
+import com.smile.colorballs.tools.LogUtil
 import com.smile.colorballs.viewmodel.BaseViewModel
 import com.smile.colorballs.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs.views.ui.theme.ColorPrimary
@@ -124,9 +124,9 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
     private lateinit var top10Launcher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(TAG, "$TAG.onCreate")
+        LogUtil.i(TAG, "$TAG.onCreate")
         super.onCreate(savedInstanceState)
-        Log.d(TAG, "onCreate.getScreenSize()")
+        LogUtil.d(TAG, "onCreate.getScreenSize()")
         getScreenSize()
 
         if (!BuildConfig.DEBUG) {
@@ -140,11 +140,11 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
             }
         }
 
-        Log.d(TAG, "onCreate.textFontSize")
+        LogUtil.d(TAG, "onCreate.textFontSize")
         textFontSize = ColorBallsApp.textFontSize
         CbComposable.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
 
-        Log.d(TAG, "onCreate.interstitialAd")
+        LogUtil.d(TAG, "onCreate.interstitialAd")
         (application as ColorBallsApp).let {
             interstitialAd = ShowInterstitial(this, null,
                 it.googleInterstitialAd)
@@ -152,13 +152,13 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         getBasePresenter()?.let {
             basePresenter = it
         } ?: run {
-            Log.d(TAG, "onCreate.basePresenter is null so exit activity.")
+            LogUtil.d(TAG, "onCreate.basePresenter is null so exit activity.")
             return
         }
         getBaseViewModel()?.let {
             baseViewModel = it
         } ?: run {
-            Log.d(TAG, "onCreate.baseViewModel is null so exit activity.")
+            LogUtil.d(TAG, "onCreate.baseViewModel is null so exit activity.")
             return
         }
         // The following statements must be after having basePresenter and baseViewModel
@@ -168,13 +168,13 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         top10Launcher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            Log.d(TAG, "top10Launcher.result received")
+            LogUtil.i(TAG, "top10Launcher.result received")
         }
 
         settingLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            Log.d(TAG, "settingLauncher.result received")
+            LogUtil.i(TAG, "settingLauncher.result received")
             if (result.resultCode == RESULT_OK) {
                 val originalLevel = baseViewModel.isEasyLevel()
                 var newEasyLevel: Boolean
@@ -194,7 +194,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         // enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            Log.d(TAG, "onCreate.setContent")
+            LogUtil.i(TAG, "onCreate.setContent")
             ColorBallsTheme {
                 Scaffold {innerPadding ->
                     mOrientation.intValue = resources.configuration.orientation
@@ -228,7 +228,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
                 }
             }
             LaunchedEffect(Unit) {
-                Log.d(TAG, "onCreate.setContent.LaunchedEffect")
+                LogUtil.i(TAG, "onCreate.setContent.LaunchedEffect")
                 baseViewModel.initGame(savedInstanceState)
             }
         }
@@ -236,7 +236,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         onBackPressedDispatcher.addCallback(object
             : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                Log.d(TAG, "onBackPressedDispatcher.handleOnBackPressed")
+                LogUtil.d(TAG, "onBackPressedDispatcher.handleOnBackPressed")
                 onBackWasPressed()
             }
         })
@@ -252,7 +252,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         } else {
             exitAppTimer.start()
             val toastFontSize = textFontSize * 0.7f
-            Log.d(TAG, "toastFontSize = $toastFontSize")
+            LogUtil.d(TAG, "toastFontSize = $toastFontSize")
             ScreenUtil.showToast(
                 this@MyView,
                 getString(R.string.backKeyToExitApp),
@@ -265,60 +265,60 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     private fun getScreenSize() {
         val screen = ScreenUtil.getScreenSize(this)
-        Log.d(TAG, "getScreenSize.screen.x = ${screen.x}")
-        Log.d(TAG, "getScreenSize.screen.y = ${screen.y}")
+        LogUtil.i(TAG, "getScreenSize.screen.x = ${screen.x}")
+        LogUtil.i(TAG, "getScreenSize.screen.y = ${screen.y}")
         screenX = screen.x.toFloat()
         screenY = screen.y.toFloat()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        Log.d(TAG, "onConfigurationChanged.newConfig.orientation = " +
+        LogUtil.i(TAG, "onConfigurationChanged.newConfig.orientation = " +
                 "${newConfig.orientation}")
         mOrientation.intValue = newConfig.orientation
         getScreenSize()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        Log.d(TAG, "onSaveInstanceState")
+        LogUtil.i(TAG, "onSaveInstanceState")
         baseViewModel.onSaveInstanceState(outState)
         super.onSaveInstanceState(outState)
     }
 
     override fun onStart() {
         super.onStart()
-        Log.d(TAG, "onStart")
+        LogUtil.i(TAG, "onStart")
     }
 
     override fun onResume() {
         super.onResume()
-        Log.d(TAG, "onResume")
+        LogUtil.i(TAG, "onResume")
     }
 
     override fun onPause() {
         super.onPause()
-        Log.d(TAG, "onPause")
+        LogUtil.i(TAG, "onPause")
     }
 
     override fun onStop() {
         super.onStop()
-        Log.d(TAG, "onStop")
+        LogUtil.i(TAG, "onStop")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d(TAG, "onDestroy")
+        LogUtil.i(TAG, "onDestroy")
         baseViewModel.release()
         interstitialAd?.releaseInterstitial()
     }
 
     protected fun showInterstitialAd() {
-        Log.d(TAG, "showInterstitialAd = $interstitialAd")
+        LogUtil.i(TAG, "showInterstitialAd = $interstitialAd")
         interstitialAd?.ShowAdThread()?.startShowAd(0) // AdMob first
     }
 
     protected fun bitmapDrawableResources(sizePx: Float) {
-        Log.d(TAG, "bitmapDrawableResources.imageSizePx = $sizePx")
+        LogUtil.i(TAG, "bitmapDrawableResources.imageSizePx = $sizePx")
         val ballWidth = sizePx.toInt()
         val ballHeight = sizePx.toInt()
         val nextBallWidth = (sizePx * 0.5f).toInt()
@@ -415,31 +415,31 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     @Composable
     fun GameView(modifier: Modifier) {
-        Log.d(TAG, "GameView.mOrientation.intValue = ${mOrientation.intValue}")
-        Log.d(TAG, "GameView.screenX = $screenX, screenY = $screenY")
+        LogUtil.i(TAG, "GameView.mOrientation.intValue = ${mOrientation.intValue}")
+        LogUtil.d(TAG, "GameView.screenX = $screenX, screenY = $screenY")
         var maxWidth = screenX
         // val barWeight = 10.0f - gameGridWeight
         // menuBarWeight = 1.0f
         var gameWeight = gameGridWeight
         if (mOrientation.intValue == Configuration.ORIENTATION_LANDSCAPE) {
-            Log.d(TAG, "GameView.ORIENTATION_LANDSCAPE")
+            LogUtil.d(TAG, "GameView.ORIENTATION_LANDSCAPE")
             maxWidth = screenX/2.0f
             // menuBarWeight = 1.0f
             gameWeight = 9.0f
         }
         val gridHeight = ScreenUtil.pixelToDp(screenY) * gameWeight / 10.0f
-        Log.d(TAG, "GameView.gridHeight = $gridHeight")
+        LogUtil.d(TAG, "GameView.gridHeight = $gridHeight")
         // val heightPerBall = gridHeight / Constants.ROW_COUNTS
         val heightPerBall = gridHeight / baseViewModel.rowCounts
-        Log.d(TAG, "GameView.heightPerBall = $heightPerBall")
+        LogUtil.d(TAG, "GameView.heightPerBall = $heightPerBall")
         // val widthPerBall = ScreenUtil.pixelToDp(maxWidth) / Constants.COLUMN_COUNTS
         val widthPerBall = ScreenUtil.pixelToDp(maxWidth) / baseViewModel.colCounts
-        Log.d(TAG, "GameView.widthPerBall = $widthPerBall")
+        LogUtil.d(TAG, "GameView.widthPerBall = $widthPerBall")
         // set size of color balls
         mImageSizeDp = if (heightPerBall>widthPerBall) widthPerBall
         else heightPerBall
         mImageSizeDp = (mImageSizeDp*100f).toInt().toFloat() / 100f
-        Log.d(TAG, "GameView.mImageSizeDp = $mImageSizeDp")
+        LogUtil.d(TAG, "GameView.mImageSizeDp = $mImageSizeDp")
         val sizePx = ScreenUtil.dpToPixel(mImageSizeDp)
         bitmapDrawableResources(sizePx)
 
@@ -459,7 +459,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     @Composable
     fun ToolBarMenu(modifier: Modifier) {
-        Log.d(TAG, "ToolBarMenu.mOrientation.intValue" +
+        LogUtil.i(TAG, "ToolBarMenu.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         Row(modifier = modifier
             .background(color = Color(getColor(R.color.colorPrimary)))) {
@@ -486,7 +486,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     @Composable
     fun ShowCurrentScore(modifier: Modifier) {
-        Log.d(TAG, "ShowCurrentScore.mOrientation.intValue" +
+        LogUtil.i(TAG, "ShowCurrentScore.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         Text(text = baseViewModel.getCurrentScore().toString(),
             modifier = modifier,
@@ -496,7 +496,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     @Composable
     fun SHowHighestScore(modifier: Modifier) {
-        Log.d(TAG, "SHowHighestScore.mOrientation.intValue" +
+        LogUtil.i(TAG, "SHowHighestScore.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         Text(text = baseViewModel.getHighestScore().toString(),
             modifier = modifier,
@@ -506,7 +506,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     @Composable
     fun SaveGameDialog() {
-        Log.d(TAG, "SaveGameDialog")
+        LogUtil.i(TAG, "SaveGameDialog")
         val dialogText = baseViewModel.getSaveGameText()
         if (dialogText.isNotEmpty()) {
             baseViewModel.setShowingSureSaveDialog(true)
@@ -537,7 +537,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     @Composable
     fun LoadGameDialog() {
-        Log.d(TAG, "LoadGameDialog")
+        LogUtil.i(TAG, "LoadGameDialog")
         val dialogText = baseViewModel.getLoadGameText()
         if (dialogText.isNotEmpty()) {
             baseViewModel.setShowingSureLoadDialog(true)
@@ -568,19 +568,19 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     @Composable
     fun SaveScoreDialog() {
-        Log.d(TAG, "SaveScoreDialog")
+        LogUtil.i(TAG, "SaveScoreDialog")
         val dialogTitle = baseViewModel.getSaveScoreTitle()
         if (dialogTitle.isNotEmpty()) {
             baseViewModel.setSaveScoreAlertDialogState(true)
             val buttonListener = object: CbComposable.ButtonClickListenerString {
                 override fun buttonOkClick(value: String?) {
-                    Log.d(TAG, "SaveScoreDialog.buttonOkClick.value = $value")
+                    LogUtil.d(TAG, "SaveScoreDialog.buttonOkClick.value = $value")
                     baseViewModel.saveScore(value ?: "No Name")
                     baseViewModel.setSaveScoreTitle("")
                     quitOrNewGame()
                 }
                 override fun buttonCancelClick(value: String?) {
-                    Log.d(TAG, "SaveScoreDialog.buttonCancelClick.value = $value")
+                    LogUtil.d(TAG, "SaveScoreDialog.buttonCancelClick.value = $value")
                     // set SaveScoreDialog() invisible
                     baseViewModel.setSaveScoreTitle("")
                     quitOrNewGame()
@@ -598,10 +598,10 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     @Composable
     fun ShowMessageOnScreen() {
-        Log.d(TAG, "ShowMessageOnScreen.mOrientation.intValue" +
+        LogUtil.i(TAG, "ShowMessageOnScreen.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         val message = baseViewModel.getScreenMessage()
-        Log.d(TAG, "ShowMessageOnScreen.message = $message")
+        LogUtil.i(TAG, "ShowMessageOnScreen.message = $message")
         if (message.isEmpty()) return
         baseViewModel.setShowingMessageDialog(true)
         val gameViewLength = mImageSizeDp * baseViewModel.colCounts.toFloat()
@@ -630,7 +630,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     @Composable
     fun SHowPortraitAds(modifier: Modifier) {
-        Log.d(TAG, "SHowPortraitAds.mOrientation.intValue" +
+        LogUtil.i(TAG, "SHowPortraitAds.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         /*
         val adWidth = with(LocalDensity.current) {
@@ -652,14 +652,14 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     @Composable
     fun ShowNativeAd(modifier: Modifier = Modifier) {
-        Log.d(TAG, "ShowNativeAd.mOrientation.intValue" +
+        LogUtil.i(TAG, "ShowNativeAd.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         var nativeAd by remember { mutableStateOf<NativeAd?>(null) }
         LaunchedEffect(Unit) {
             object : GoogleNativeAd(this@MyView,
                 ColorBallsApp.googleAdMobNativeID) {
                 override fun setNativeAd(ad: NativeAd?) {
-                    Log.d(TAG, "ShowNativeAd.GoogleNativeAd.setNativeAd")
+                    LogUtil.d(TAG, "ShowNativeAd.GoogleNativeAd.setNativeAd")
                     nativeAd = ad
                 }
             }
@@ -701,7 +701,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
                     }   // end of head Row
                     // Column for Button
                     ad.callToAction?.let { cta ->
-                        Log.d(TAG, "ShowNativeAd.callToAction.cta = $cta")
+                        LogUtil.d(TAG, "ShowNativeAd.callToAction.cta = $cta")
                         Column(modifier = Modifier
                             .weight(2.0f)
                             .fillMaxWidth(),
@@ -725,7 +725,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     @Composable
     fun ShowLandscapeAds(modifier: Modifier) {
-        Log.d(TAG, "ShowLandscapeAds.mOrientation.intValue" +
+        LogUtil.i(TAG, "ShowLandscapeAds.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         val colHeight = with(LocalDensity.current) {
             screenY.toDp()
@@ -755,14 +755,14 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
     }
 
     private fun showTop10Players(isLocal: Boolean) {
-        Log.d(TAG, "showTop10Players.isLocal = $isLocal")
+        LogUtil.i(TAG, "showTop10Players.isLocal = $isLocal")
         Intent(
             this@MyView,
             Top10Activity::class.java
         ).let {
             Bundle().apply {
-                putString(Constants.GAME_ID, Utils.getGameId(baseViewModel.getWhichGame()))
-                putString(Constants.DATABASE_NAME, Utils.getDatabaseName(baseViewModel.getWhichGame()))
+                putString(Constants.GAME_ID, GameUtil.getGameId(baseViewModel.getWhichGame()))
+                putString(Constants.DATABASE_NAME, GameUtil.getDatabaseName(baseViewModel.getWhichGame()))
                 putBoolean(Constants.IS_LOCAL_TOP10, isLocal)
                 it.putExtras(this)
                 top10Launcher.launch(it)
@@ -777,9 +777,9 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
             CbSettingActivity::class.java
         ).let {
             Bundle().apply {
-                putString(Constants.GAME_ID, Utils.getGameId(baseViewModel.getWhichGame()))
+                putString(Constants.GAME_ID, GameUtil.getGameId(baseViewModel.getWhichGame()))
                 putBoolean(Constants.HAS_SOUND, baseViewModel.hasSound())
-                Log.d(TAG, "onClickSettingButton.baseViewModel.isEasyLevel() = ${baseViewModel.isEasyLevel()}")
+                LogUtil.d(TAG, "onClickSettingButton.baseViewModel.isEasyLevel() = ${baseViewModel.isEasyLevel()}")
                 putBoolean(Constants.EASY_LEVEL, baseViewModel.isEasyLevel())
                 putBoolean(Constants.HAS_NEXT, baseViewModel.hasNext())
                 it.putExtras(this)
@@ -790,7 +790,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     @Composable
     fun UndoButton(modifier: Modifier) {
-        Log.d(TAG, "UndoButton.mOrientation.intValue" +
+        LogUtil.i(TAG, "UndoButton.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         val isClicked = remember { mutableStateOf(false) }
         IconButton (onClick = {
@@ -813,7 +813,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     @Composable
     fun SettingButton(modifier: Modifier) {
-        Log.d(TAG, "SettingButton.mOrientation.intValue" +
+        LogUtil.i(TAG, "SettingButton.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         val isClicked = remember { mutableStateOf(false) }
         IconButton (onClick = {
@@ -831,7 +831,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     @Composable
     fun ShowMenu(modifier: Modifier) {
-        Log.d(TAG, "ShowMenu.mOrientation.intValue" +
+        LogUtil.i(TAG, "ShowMenu.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         val dropdownWidth =
             if (mOrientation.intValue == Configuration.ORIENTATION_PORTRAIT) {
@@ -840,7 +840,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
                 mImageSizeDp * 8.0f
             }
         var expanded by remember { mutableStateOf(false) }
-        Log.d(TAG, "ShowMenu.expanded = $expanded")
+        LogUtil.d(TAG, "ShowMenu.expanded = $expanded")
         Column(modifier = modifier) {
             IconButton (onClick = {
                 if (!baseViewModel.isProcessingJob()) {
@@ -932,7 +932,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     @Composable
     fun GameViewGrid(modifier: Modifier = Modifier) {
-        Log.d(TAG, "GameViewGrid.mOrientation.intValue" +
+        LogUtil.i(TAG, "GameViewGrid.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         Column(modifier = modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -946,9 +946,9 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     @Composable
     fun ShowGameGrid() {
-        Log.d(TAG, "ShowGameGrid.mOrientation.intValue" +
+        LogUtil.i(TAG, "ShowGameGrid.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
-        Log.d(TAG, "ShowGameGrid.mImageSizeDp = $mImageSizeDp")
+        LogUtil.d(TAG, "ShowGameGrid.mImageSizeDp = $mImageSizeDp")
         Column {
             for (i in 0 until baseViewModel.rowCounts) {
                 Row {
@@ -978,15 +978,15 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     @Composable
     fun ShowColorBall(i: Int, j: Int) {
-        Log.d(TAG, "ShowColorBall.mOrientation.intValue" +
+        LogUtil.d(TAG, "ShowColorBall.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         val ballInfo = baseViewModel.gridDataArray[i][j].value
         val ballColor = ballInfo.ballColor
-        Log.d(TAG, "ShowColorBall.ballColor = $ballColor")
+        LogUtil.d(TAG, "ShowColorBall.ballColor = $ballColor")
         val isAnimation = ballInfo.isAnimation
-        Log.d(TAG, "ShowColorBall.isAnimation = $isAnimation")
+        LogUtil.d(TAG, "ShowColorBall.isAnimation = $isAnimation")
         val isReSize = ballInfo.isResize
-        Log.d(TAG, "ShowColorBall.isReSize = $isReSize")
+        LogUtil.d(TAG, "ShowColorBall.isReSize = $isReSize")
         if (ballColor == 0) return  // no showing ball
         val bitmap: Bitmap? = when(ballInfo.whichBall) {
             WhichBall.BALL-> { colorBallMap.getValue(ballColor) }
@@ -1034,7 +1034,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     override fun getRoomDatabase(): ScoreDatabase {
         return ScoreDatabase.getDatabase(this,
-            Utils.getDatabaseName(baseViewModel.getWhichGame()))
+            GameUtil.getDatabaseName(baseViewModel.getWhichGame()))
     }
 
     override fun fileInputStream(fileName : String): FileInputStream {

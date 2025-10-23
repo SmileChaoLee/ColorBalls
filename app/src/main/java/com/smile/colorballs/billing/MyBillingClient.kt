@@ -2,13 +2,12 @@ package com.smile.colorballs.billing
 
 import android.app.Activity
 import android.content.Context
-import android.util.Log
 import com.android.billingclient.api.*
-import java.util.concurrent.Executors
+import com.smile.colorballs.tools.LogUtil
 
 class MyBillingClient(context: Context) {
 
-    private lateinit var billingClient: BillingClient
+    private var billingClient: BillingClient
     private val purchasesUpdatedListener = PurchasesUpdatedListener { billingResult, purchases ->
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
             for (purchase in purchases) {
@@ -44,17 +43,17 @@ class MyBillingClient(context: Context) {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     // The BillingClient is ready. You can query purchases here.
-                    Log.d(TAG, "BillingClient setup successful.")
+                    LogUtil.d(TAG, "BillingClient setup successful.")
                     // Query for existing purchases, products, etc.
                 } else {
-                    Log.e(TAG, "BillingClient setup failed: ${billingResult.debugMessage}")
+                    LogUtil.e(TAG, "BillingClient setup failed: ${billingResult.debugMessage}")
                 }
             }
 
             override fun onBillingServiceDisconnected() {
                 // Try to restart the connection on the next request to
                 // Google Play by calling the startConnection() method.
-                Log.w(TAG, "BillingClient disconnected. Retrying...")
+                LogUtil.w(TAG, "BillingClient disconnected. Retrying...")
                 // You might want to implement a retry mechanism with backoff.
             }
         })
@@ -67,7 +66,7 @@ class MyBillingClient(context: Context) {
         // 1. Verify the purchase on your backend server.
         // 2. Grant entitlement to the user.
         // 3. Acknowledge or consume the purchase.
-        Log.d(TAG, "Purchase successful: ${purchase.orderId}")
+        LogUtil.i(TAG, "Purchase successful: ${purchase.orderId}")
 
         if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
             if (!purchase.isAcknowledged) {
@@ -76,9 +75,9 @@ class MyBillingClient(context: Context) {
                     .build()
                 billingClient.acknowledgePurchase(acknowledgePurchaseParams) { billingResult ->
                     if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                        Log.d(TAG, "Purchase acknowledged.")
+                        LogUtil.d(TAG, "Purchase acknowledged.")
                     } else {
-                        Log.e(TAG, "Error acknowledging purchase: ${billingResult.debugMessage}")
+                        LogUtil.e(TAG, "Error acknowledging purchase: ${billingResult.debugMessage}")
                     }
                 }
             }
@@ -105,7 +104,7 @@ class MyBillingClient(context: Context) {
 
         val billingResult = billingClient.launchBillingFlow(activity, billingFlowParams)
         if (billingResult.responseCode != BillingClient.BillingResponseCode.OK) {
-            Log.e(TAG, "Failed to launch billing flow: ${billingResult.debugMessage}")
+            LogUtil.e(TAG, "Failed to launch billing flow: ${billingResult.debugMessage}")
         }
     }
 
@@ -114,7 +113,7 @@ class MyBillingClient(context: Context) {
     fun endConnection() {
         if (billingClient.isReady) {
             billingClient.endConnection()
-            Log.d(TAG, "BillingClient connection ended.")
+            LogUtil.i(TAG, "BillingClient connection ended.")
         }
     }
 

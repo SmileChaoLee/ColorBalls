@@ -1,12 +1,12 @@
 package com.smile.colorballs.views
 
-import android.util.Log
 import com.smile.colorballs.constants.WhichGame
+import com.smile.colorballs.tools.LogUtil
 
 class BarrierCBallActivity : CBallView() {
 
     override fun setWhichGame() {
-        Log.d(TAG, "setWhichGame")
+        LogUtil.i(TAG, "setWhichGame")
         viewModel.setWhichGame(WhichGame.HAS_BARRIER)
     }
 

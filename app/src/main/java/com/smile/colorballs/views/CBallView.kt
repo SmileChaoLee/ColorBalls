@@ -1,11 +1,11 @@
 package com.smile.colorballs.views
 
 import android.os.Bundle
-import android.util.Log
 import androidx.compose.runtime.Composable
 import com.smile.colorballs.R
 import com.smile.colorballs.interfaces.CBallPresentView
 import com.smile.colorballs.presenters.CBallPresenter
+import com.smile.colorballs.tools.LogUtil
 import com.smile.colorballs.viewmodel.CBallViewModel
 import com.smile.smilelibraries.interfaces.DismissFunction
 
@@ -18,7 +18,7 @@ abstract class CBallView: MyView(), CBallPresentView {
     private lateinit var mPresenter: CBallPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(TAG, "$TAG.onCreate")
+        LogUtil.i(TAG, "$TAG.onCreate")
         // Must be before super.onCreate(savedInstanceState)
         mPresenter = CBallPresenter(this)
         viewModel = CBallViewModel(mPresenter)
@@ -58,18 +58,18 @@ abstract class CBallView: MyView(), CBallPresentView {
     // end of implementing abstract fun of MyView
 
     override fun ifInterstitialWhenNewGame() {
-        Log.d(TAG, "ifInterstitialWhenNewGame")
+        LogUtil.i(TAG, "ifInterstitialWhenNewGame")
         interstitialAd?.apply {
             ShowAdThread(object : DismissFunction {
                 override fun backgroundWork() {
-                    Log.d(TAG, "backgroundWork")
+                    LogUtil.d(TAG, "backgroundWork")
                 }
                 override fun executeDismiss() {
-                    Log.d(TAG, "executeDismiss")
+                    LogUtil.d(TAG, "executeDismiss")
                     viewModel.initGame(null)
                 }
                 override fun afterFinished(isAdShown: Boolean) {
-                    Log.d(TAG, "afterFinished.isAdShown= $isAdShown")
+                    LogUtil.d(TAG, "afterFinished.isAdShown= $isAdShown")
                     if (!isAdShown) viewModel.initGame(null)
                 }
             }).startShowAd(0)

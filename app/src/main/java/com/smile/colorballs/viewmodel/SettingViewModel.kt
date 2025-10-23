@@ -1,6 +1,5 @@
 package com.smile.colorballs.viewmodel
 
-import android.provider.SyncStateContract
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel

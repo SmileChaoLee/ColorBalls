@@ -3,7 +3,6 @@ package com.smile.colorballs.viewmodel
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -17,7 +16,8 @@ import com.smile.colorballs.models.ColorBallInfo
 import com.smile.colorballs.models.GameProp
 import com.smile.colorballs.presenters.BasePresenter
 import com.smile.colorballs.roomdatabase.Score
-import com.smile.colorballs.tools.Utils
+import com.smile.colorballs.tools.GameUtil
+import com.smile.colorballs.tools.LogUtil
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
 import com.smile.smilelibraries.utilities.SoundPoolUtil
 import kotlinx.coroutines.Dispatchers
@@ -103,7 +103,7 @@ abstract class BaseViewModel(
     }
 
     init {
-        Log.d(TAG, "BaseViewModel.init")
+        LogUtil.i(TAG, "BaseViewModel.init")
     }
 
     fun setPresenter(presenter: BasePresenter) {
@@ -139,24 +139,24 @@ abstract class BaseViewModel(
     fun isProcessingJob() = mGameProp.isProcessingJob
 
     fun getAndSetHighestScore() {
-        Log.d(TAG, "getAndSetHighestScore")
+        LogUtil.i(TAG, "getAndSetHighestScore")
         viewModelScope.launch(Dispatchers.IO) {
             val db = basePresenter.scoreDatabase()
             val score = db.getHighestScore()
-            Log.d(TAG, "getAndSetHighestScore.score = $score")
+            LogUtil.d(TAG, "getAndSetHighestScore.score = $score")
             db.close()
             setHighestScore(score)
         }
     }
 
     private fun addScoreInLocalTop10(playerName : String, score : Int) {
-        Log.d(TAG, "addScoreInLocalTop10")
+        LogUtil.i(TAG, "addScoreInLocalTop10")
         viewModelScope.launch(Dispatchers.IO) {
             val db = basePresenter.scoreDatabase()
             if (db.isInTop10(score)) {
                 val scoreModel = Score(playerName = playerName, playerScore = score)
                 val rowId = db.addScore(scoreModel)
-                Log.d(TAG, "addScoreInLocalTop10.rowId = $rowId")
+                LogUtil.d(TAG, "addScoreInLocalTop10.rowId = $rowId")
                 db.deleteAllAfterTop10()
             }
             db.close()
@@ -177,7 +177,7 @@ abstract class BaseViewModel(
     }
 
     fun isEasyLevel(): Boolean {
-        Log.d(TAG, "isEasyLevel.easyLevel = ${mGameProp.isEasyLevel}")
+        LogUtil.d(TAG, "isEasyLevel.easyLevel = ${mGameProp.isEasyLevel}")
         return mGameProp.isEasyLevel
     }
     fun setEasyLevel(easyLevel: Boolean) {
@@ -185,7 +185,7 @@ abstract class BaseViewModel(
         val num = if (easyLevel) Constants.NUM_BALLS_USED_EASY
         else Constants.NUM_BALLS_USED_DIFF
         mGridData.setNumOfColorsUsed(num)
-        Log.d(TAG, "setEasyLevel.easyLevel = ${mGameProp.isEasyLevel}")
+        LogUtil.d(TAG, "setEasyLevel.easyLevel = ${mGameProp.isEasyLevel}")
     }
 
     fun hasNext(): Boolean {
@@ -197,7 +197,7 @@ abstract class BaseViewModel(
     }
 
     fun saveScore(playerName: String) {
-        Log.d(TAG, "saveScore")
+        LogUtil.i(TAG, "saveScore")
         // use thread to add a record to remote database
         val restThread: Thread = object : Thread() {
             override fun run() {
@@ -206,12 +206,12 @@ abstract class BaseViewModel(
                     val jsonObject = JSONObject()
                     jsonObject.put("PlayerName", playerName)
                     jsonObject.put("Score", mGameProp.currentScore)
-                    jsonObject.put("GameId", Utils.getGameId(getWhichGame()))
+                    jsonObject.put("GameId", GameUtil.getGameId(getWhichGame()))
                     PlayerRecordRest.addOneRecord(jsonObject)
-                    Log.d(TAG, "saveScore.Succeeded to add one record to remote.")
+                    LogUtil.d(TAG, "saveScore.Succeeded to add one record to remote.")
                 } catch (ex: Exception) {
                     ex.printStackTrace()
-                    Log.d(TAG, "saveScore.Failed to add one record to remote.")
+                    LogUtil.e(TAG, "saveScore.Failed to add one record to remote", ex)
                 }
             }
         }
@@ -258,19 +258,19 @@ abstract class BaseViewModel(
 
     fun lastPartOfInitialGame() {
         if (isShowingNewGameDialog()) {
-            Log.d(TAG, "lastPartOfInitialGame.newGame()")
+            LogUtil.i(TAG, "lastPartOfInitialGame.newGame()")
             newGame()
         }
         if (isShowingQuitGameDialog()) {
-            Log.d(TAG, "lastPartOfInitialGame.show quitGame()")
+            LogUtil.i(TAG, "lastPartOfInitialGame.show quitGame()")
             quitGame()
         }
         if (isShowingSureSaveDialog()) {
-            Log.d(TAG, "lastPartOfInitialGame.saveGame()")
+            LogUtil.i(TAG, "lastPartOfInitialGame.saveGame()")
             saveGame()
         }
         if (isShowingSureLoadDialog()) {
-            Log.d(TAG, "lastPartOfInitialGame.loadGame()")
+            LogUtil.i(TAG, "lastPartOfInitialGame.loadGame()")
             loadGame()
         }
     }
@@ -289,18 +289,18 @@ abstract class BaseViewModel(
 
     fun quitGame() {
         // quiting the game
-        Log.d(TAG, "quitGame")
+        LogUtil.i(TAG, "quitGame")
         mGameAction = Constants.IS_QUITING_GAME
         setSaveScoreTitle(saveScoreStr)
     }
 
     fun saveGame() {
-        Log.d(TAG, "saveGame")
+        LogUtil.i(TAG, "saveGame")
         setSaveGameText(sureToSaveGameStr)
     }
 
     fun loadGame() {
-        Log.d(TAG, "loadGame")
+        LogUtil.i(TAG, "loadGame")
         setLoadGameText(sureToLoadGameStr)
     }
 
@@ -310,7 +310,7 @@ abstract class BaseViewModel(
     }
 
     fun gameOver() {
-        Log.d(TAG, "gameOver")
+        LogUtil.i(TAG, "gameOver")
         if (hasSound()) {
             soundPool.playSound()
         }
@@ -318,12 +318,12 @@ abstract class BaseViewModel(
     }
 
     fun drawBall(i: Int, j: Int, color: Int) {
-        Log.d(TAG, "drawBall.($i, $j), color = $color")
+        LogUtil.d(TAG, "drawBall.($i, $j), color = $color")
         gridDataArray[i][j].value = ColorBallInfo(color, WhichBall.BALL)
     }
 
     fun drawOval(i: Int, j: Int, color: Int) {
-        Log.d(TAG, "drawOval.($i, $j), color = $color")
+        LogUtil.d(TAG, "drawOval.($i, $j), color = $color")
         gridDataArray[i][j].value = ColorBallInfo(color, WhichBall.OVAL_BALL)
     }
 
@@ -332,7 +332,7 @@ abstract class BaseViewModel(
     }
 
     fun displayGameGridView() {
-        Log.d(TAG, "displayGameGridView")
+        LogUtil.i(TAG, "displayGameGridView")
         try {
             for (i in 0 until rowCounts) {
                 for (j in 0 until colCounts) {
@@ -341,7 +341,7 @@ abstract class BaseViewModel(
                 }
             }
         } catch (ex: java.lang.Exception) {
-            Log.d(TAG, "displayGameGridView.Exception: ")
+            LogUtil.e(TAG, "displayGameGridView.Exception: ", ex)
             ex.printStackTrace()
         }
     }
