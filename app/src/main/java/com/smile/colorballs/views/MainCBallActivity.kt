@@ -16,11 +16,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -42,6 +38,7 @@ import androidx.core.view.WindowCompat
 import com.smile.colorballs.ColorBallsApp
 import com.smile.colorballs.R
 import com.smile.colorballs.ballsremover.views.BallsRemoverActivity
+import com.smile.colorballs.smileapps.SmileAppsActivity
 import com.smile.colorballs.tools.LogUtil
 import com.smile.colorballs.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs.views.ui.theme.Yellow3
@@ -54,17 +51,16 @@ import kotlinx.coroutines.launch
 open class MainCBallActivity : ComponentActivity() {
 
     private var screenSize = Point(0, 0)
-    // private var textFontSize = 0f
-    // private var toastTextSize = 0f
-    // private var fontSize = 0f
     // the following are for ColorBallActivity
     private lateinit var cBallLauncher: ActivityResultLauncher<Intent>
     // the following are for BarrierCBallActivity
     private lateinit var barrierCBLauncher: ActivityResultLauncher<Intent>
     // the following are for BallsRemoverActivity
     private lateinit var ballsRemoverLauncher: ActivityResultLauncher<Intent>
+    private lateinit var smileAppsLauncher: ActivityResultLauncher<Intent>
     //
     private val loadingMessage = mutableStateOf("")
+    private val backgroundColor = Yellow3
 
     @SuppressLint("ConfigurationScreenWidthHeight", "SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,11 +94,17 @@ open class MainCBallActivity : ComponentActivity() {
             loadingMessage.value = ""
         }
 
+        smileAppsLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) {
+                result: ActivityResult ->
+            LogUtil.i(TAG, "smileAppsLauncher.result received")
+            loadingMessage.value = ""
+        }
+
         // enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             LogUtil.d(TAG,"onCreate.setContent")
-            val backgroundColor = Yellow3
             ColorBallsTheme {
                 Scaffold { innerPadding ->
                     Box(Modifier.padding(innerPadding)
@@ -157,12 +159,21 @@ open class MainCBallActivity : ComponentActivity() {
         }
     }
 
+    private fun showSmileAppsActivity() {
+        Intent(
+            this@MainCBallActivity,
+            SmileAppsActivity::class.java
+        ).also {
+            loadingMessage.value = getString(R.string.loadingStr)
+            smileAppsLauncher.launch(it)
+        }
+    }
+
     @Composable
     fun DisplayLoading() {
         if (loadingMessage.value.isEmpty()) {
             return
         }
-        val backgroundColor = Yellow3
         Column(modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor),
@@ -303,7 +314,6 @@ open class MainCBallActivity : ComponentActivity() {
         }
     }
 
-    /*
     @Composable
     fun SmileAppsButton(modifier: Modifier = Modifier,
                            buttonWidth: Float,
@@ -316,14 +326,14 @@ open class MainCBallActivity : ComponentActivity() {
         Column(modifier = modifier,
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center) {
-            val bRemoverClicked = remember { mutableStateOf(false) }
+            val isClicked = remember { mutableStateOf(false) }
             Button(
                 onClick = {
                     CoroutineScope(Dispatchers.Default).launch {
-                        bRemoverClicked.value = true
+                        isClicked.value = true
                         delay(200)
-                        startBallsRemoverActivity()
-                        bRemoverClicked.value = false
+                        showSmileAppsActivity()
+                        isClicked.value = false
                     }
                 },
                 modifier = Modifier//.weight(1.0f)
@@ -332,21 +342,20 @@ open class MainCBallActivity : ComponentActivity() {
                     .background(color = buttonBackground),
                 colors = ButtonColors(
                     containerColor =
-                        if (!bRemoverClicked.value) buttonContainerColor
+                        if (!isClicked.value) buttonContainerColor
                         else Color.Cyan,
                     disabledContainerColor = buttonContainerColor,
                     contentColor =
-                        if (!bRemoverClicked.value)
+                        if (!isClicked.value)
                             buttonContentColor
                         else Color.Red ,
                     disabledContentColor = buttonContentColor
                 )
             )
-            { Text(text = getString(R.string.removeBalls),
+            { Text(text = getString(R.string.smileApps),
                 fontSize = CbComposable.mFontSize) }
         }
     }
-    */
 
     /*
     @Composable
@@ -426,6 +435,8 @@ open class MainCBallActivity : ComponentActivity() {
             BarrierCBallButton(modifier = Modifier.weight(1.0f),
                 buttonWidth, buttonHeight, textLineHeight)
             BallsRemoverButton(modifier = Modifier.weight(1.0f),
+                buttonWidth, buttonHeight, textLineHeight)
+            SmileAppsButton(modifier = Modifier.weight(1.0f),
                 buttonWidth, buttonHeight, textLineHeight)
         }
     }
