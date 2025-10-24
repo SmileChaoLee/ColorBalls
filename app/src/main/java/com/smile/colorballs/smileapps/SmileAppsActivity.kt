@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -34,6 +33,7 @@ import com.smile.colorballs.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs.views.CbComposable
 import com.smile.colorballs.views.ui.theme.Yellow3
 import androidx.core.net.toUri
+import androidx.core.view.WindowCompat
 import com.smile.colorballs.tools.LogUtil
 
 class SmileAppsActivity : ComponentActivity() {
@@ -70,7 +70,8 @@ class SmileAppsActivity : ComponentActivity() {
 
         val backgroundColor = Yellow3
 
-        enableEdgeToEdge()
+        // enableEdgeToEdge()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             ColorBallsTheme {
                 Scaffold { innerPadding ->
@@ -89,7 +90,12 @@ class SmileAppsActivity : ComponentActivity() {
                             .height(height = 20.dp))
                         LazyColumn {
                             items(items = appsList) { item ->
-                                Column {
+                                Column(modifier = Modifier.clickable(
+                                    onClick = {
+                                        // start the link
+                                        startAppLinkOnStore(item.appUrl)
+                                    }
+                                )) {
                                     Row {
                                         Text(
                                             text = item.appName,
@@ -109,13 +115,8 @@ class SmileAppsActivity : ComponentActivity() {
                                             contentScale = ContentScale.FillBounds
                                         )
                                     }
-                                    Text(modifier = Modifier.clickable(
-                                        onClick = {
-                                            // start the link
-                                            startAppLinkOnStore(item.appUrl)
-                                        }),
-                                        text = item.appUrl,
-                                        color = Color.Black, fontWeight = FontWeight.Normal,
+                                    Text(text = item.appUrl, color = Color.Black,
+                                        fontWeight = FontWeight.Normal,
                                         fontSize = CbComposable.mFontSize
                                     )
                                     HorizontalDivider(modifier = Modifier.fillMaxWidth(),
