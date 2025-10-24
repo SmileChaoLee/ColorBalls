@@ -62,11 +62,4 @@
     <string name="removeBalls">Remove Balls</string>
     <string name="fillColumnStr">Fill Column</string>
     <string name="createNewGameStr">Create a New Game?</string>
-
-    <!-- For showing Smile Apps list -->
-    <string name="smileApps">Smile All Apps</string>
-    <string name="karaoke_app_name">Smile Karaoke</string>
-    <string name="video_app_name">Smile VideoPlayer</string>
-    <string name="karaoke_tv_app_name">Smile TV Karaoke</string>
-    <string name="balls_remover_name">BallsRemover</string>
 </resources>

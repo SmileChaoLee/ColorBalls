@@ -61,11 +61,4 @@
     <string name="removeBalls">移除色球</string>
     <string name="fillColumnStr">填滿空白欄</string>
     <string name="createNewGameStr">建立新遊戲?</string>
-
-    <!-- For showing Smile Apps list -->
-    <string name="smileApps">微笑的所有Apps</string>
-    <string name="karaoke_app_name">微笑卡拉OK</string>
-    <string name="video_app_name">微笑視頻播放器</string>
-    <string name="karaoke_tv_app_name">微笑電視卡拉OK</string>
-    <string name="balls_remover_name">色球移除</string>
 </resources>
