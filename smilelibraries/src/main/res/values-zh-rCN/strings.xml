@@ -5,4 +5,12 @@
     <string name="okString">确定</string>
     <string name="privacyPolicyString">隐私政策</string>
     <string name="backKeyToExitApp">再按一次倒退键离开程序</string>
+
+    <!-- For showing Smile Apps list -->
+    <string name="smileApps">微笑的所有Apps</string>
+    <string name="karaoke_app_name">微笑卡拉OK</string>
+    <string name="video_app_name">微笑視頻播放器</string>
+    <string name="karaoke_tv_app_name">微笑電視卡拉OK</string>
+    <string name="color_balls_name">色球</string>
+    <string name="balls_remover_name">色球移除</string>
 </resources>
