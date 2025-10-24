@@ -61,6 +61,9 @@ open class MainCBallActivity : ComponentActivity() {
     //
     private val loadingMessage = mutableStateOf("")
     private val backgroundColor = Yellow3
+    private val buttonBackground = Color.Transparent
+    private val buttonContentColor = Color.Green
+    private val buttonContainerColor = Color.Blue
 
     @SuppressLint("ConfigurationScreenWidthHeight", "SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -191,9 +194,6 @@ open class MainCBallActivity : ComponentActivity() {
                              buttonHeight: Float,
                              textLineHeight: TextUnit) {
         LogUtil.d(TAG, "NoBarrierCBallButton")
-        val buttonBackground = Color.Transparent
-        val buttonContentColor = Color.Green
-        val buttonContainerColor = Color.Blue
         Column(modifier = modifier,
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center) {
@@ -234,9 +234,6 @@ open class MainCBallActivity : ComponentActivity() {
                            buttonHeight: Float,
                            textLineHeight: TextUnit) {
         LogUtil.d(TAG, "BarrierCBallButton")
-        val buttonBackground = Color.Transparent
-        val buttonContentColor = Color.Green
-        val buttonContainerColor = Color.Blue
         Column(modifier = modifier,
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center) {
@@ -277,9 +274,6 @@ open class MainCBallActivity : ComponentActivity() {
                              buttonHeight: Float,
                              textLineHeight: TextUnit) {
         LogUtil.d(TAG, "BallsRemoverButton")
-        val buttonBackground = Color.Transparent
-        val buttonContentColor = Color.Green
-        val buttonContainerColor = Color.Blue
         Column(modifier = modifier,
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center) {
@@ -320,9 +314,6 @@ open class MainCBallActivity : ComponentActivity() {
                            buttonHeight: Float,
                            textLineHeight: TextUnit) {
         LogUtil.d(TAG, "SmileAppsButton")
-        val buttonBackground = Color.Transparent
-        val buttonContentColor = Color.Green
-        val buttonContainerColor = Color.Blue
         Column(modifier = modifier,
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center) {
