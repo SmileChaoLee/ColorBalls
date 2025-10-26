@@ -25,8 +25,10 @@ import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -65,6 +67,11 @@ open class MainCBallActivity : ComponentActivity() {
     private val buttonContentColor = Color.Green
     private val buttonContainerColor = Color.Blue
 
+    private var isNoBarrierEnabled by mutableStateOf(true)
+    private var isBarrierEnabled by mutableStateOf(true)
+    private var isBallsRemEnabled by mutableStateOf(true)
+    private var isSmileAppsEnabled by mutableStateOf(true)
+
     @SuppressLint("ConfigurationScreenWidthHeight", "SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,6 +88,7 @@ open class MainCBallActivity : ComponentActivity() {
                 result: ActivityResult ->
             LogUtil.i(TAG, "cBallLauncher.result received")
             loadingMessage.value = ""
+            enableMainButtons()
         }
 
         barrierCBLauncher = registerForActivityResult(
@@ -88,6 +96,7 @@ open class MainCBallActivity : ComponentActivity() {
                 result: ActivityResult ->
             LogUtil.i(TAG, "barrierCBLauncher.result received")
             loadingMessage.value = ""
+            enableMainButtons()
         }
 
         ballsRemoverLauncher = registerForActivityResult(
@@ -95,6 +104,7 @@ open class MainCBallActivity : ComponentActivity() {
                 result: ActivityResult ->
             LogUtil.i(TAG, "ballsRemoverLauncher.result received")
             loadingMessage.value = ""
+            enableMainButtons()
         }
 
         smileAppsLauncher = registerForActivityResult(
@@ -102,6 +112,7 @@ open class MainCBallActivity : ComponentActivity() {
                 result: ActivityResult ->
             LogUtil.i(TAG, "smileAppsLauncher.result received")
             loadingMessage.value = ""
+            enableMainButtons()
         }
 
         // enableEdgeToEdge()
@@ -132,11 +143,26 @@ open class MainCBallActivity : ComponentActivity() {
         finish()
     }
 
+    private fun enableMainButtons() {
+        isNoBarrierEnabled = true
+        isBarrierEnabled = true
+        isBallsRemEnabled = true
+        isSmileAppsEnabled = true
+    }
+
+    private fun disableMainButtons() {
+        isNoBarrierEnabled = false
+        isBarrierEnabled = false
+        isBallsRemEnabled = false
+        isSmileAppsEnabled = false
+    }
+
     private fun startColorBallActivity() {
         Intent(
             this@MainCBallActivity,
             ColorBallActivity::class.java
         ).also {
+            disableMainButtons()
             loadingMessage.value = getString(R.string.loadingStr)
             cBallLauncher.launch(it)
         }
@@ -147,6 +173,7 @@ open class MainCBallActivity : ComponentActivity() {
             this@MainCBallActivity,
             BarrierCBallActivity::class.java
         ).also {
+            disableMainButtons()
             loadingMessage.value = getString(R.string.loadingStr)
             barrierCBLauncher.launch(it)
         }
@@ -157,6 +184,7 @@ open class MainCBallActivity : ComponentActivity() {
             this@MainCBallActivity,
             BallsRemoverActivity::class.java
         ).also {
+            disableMainButtons()
             loadingMessage.value = getString(R.string.loadingStr)
             ballsRemoverLauncher.launch(it)
         }
@@ -167,6 +195,7 @@ open class MainCBallActivity : ComponentActivity() {
             this@MainCBallActivity,
             SmileAppsActivity::class.java
         ).also {
+            disableMainButtons()
             loadingMessage.value = getString(R.string.loadingStr)
             smileAppsLauncher.launch(it)
         }
@@ -199,6 +228,7 @@ open class MainCBallActivity : ComponentActivity() {
             verticalArrangement = Arrangement.Center) {
             val noBarrierClicked = remember { mutableStateOf(false) }
             Button(
+                enabled = isNoBarrierEnabled,
                 onClick = {
                     CoroutineScope(Dispatchers.Default).launch {
                         noBarrierClicked.value = true
@@ -239,6 +269,7 @@ open class MainCBallActivity : ComponentActivity() {
             verticalArrangement = Arrangement.Center) {
             val barrierClicked = remember { mutableStateOf(false) }
             Button(
+                enabled = isBarrierEnabled,
                 onClick = {
                     CoroutineScope(Dispatchers.Default).launch {
                         barrierClicked.value = true
@@ -279,6 +310,7 @@ open class MainCBallActivity : ComponentActivity() {
             verticalArrangement = Arrangement.Center) {
             val bRemoverClicked = remember { mutableStateOf(false) }
             Button(
+                enabled = isBallsRemEnabled,
                 onClick = {
                     CoroutineScope(Dispatchers.Default).launch {
                         bRemoverClicked.value = true
@@ -319,6 +351,7 @@ open class MainCBallActivity : ComponentActivity() {
             verticalArrangement = Arrangement.Center) {
             val isClicked = remember { mutableStateOf(false) }
             Button(
+                enabled = isSmileAppsEnabled,
                 onClick = {
                     CoroutineScope(Dispatchers.Default).launch {
                         isClicked.value = true

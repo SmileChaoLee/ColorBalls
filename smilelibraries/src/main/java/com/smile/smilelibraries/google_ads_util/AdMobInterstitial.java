@@ -2,6 +2,8 @@ package com.smile.smilelibraries.google_ads_util;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -17,11 +19,24 @@ import com.smile.smilelibraries.interfaces.DismissFunction;
 public class AdMobInterstitial {
 
     private final String TAG = "AdMobInterstitial";
+    private final long TWO_MINUTES = 120000L;    // 120 seconds
+    private final long TEN_MINUTES = 600000L;    // 600 seconds
+
     private final Context mContext;
     private final String mInterstitialID;
     private InterstitialAd mInterstitialAd;
     private boolean isDismissed;
     private DismissFunction mDismissFunction = null;
+
+    private final Handler timerHandler = new Handler(Looper.getMainLooper());
+    private final Runnable timerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            timerHandler.removeCallbacksAndMessages(null);
+            loadAd();
+            timerHandler.postDelayed(this, TEN_MINUTES);
+        }
+    };
 
     private final FullScreenContentCallback mFullScreenContentCallback = new FullScreenContentCallback() {
         @Override
@@ -29,7 +44,8 @@ public class AdMobInterstitial {
             super.onAdFailedToShowFullScreenContent(adError);
             // Code to be executed when the ad failed to display.
             Log.d(TAG, "Interstitial ad failed to display.");
-            loadAd();   // load next ad
+            timerHandler.removeCallbacksAndMessages(null);
+            timerHandler.postDelayed(timerRunnable, TWO_MINUTES);
         }
 
         @Override
@@ -45,10 +61,10 @@ public class AdMobInterstitial {
             // Code to be executed when when the interstitial ad is closed.
             Log.d(TAG, "Interstitial ad dismissed.");
             isDismissed = true;
-            loadAd();   // load next ad
+            timerHandler.removeCallbacksAndMessages(null);
+            timerHandler.postDelayed(timerRunnable, TEN_MINUTES);
             if (mDismissFunction != null) {
                 mDismissFunction.executeDismiss();
-                // mDismissFunction = null;    // one time only
             }
         }
 
@@ -67,13 +83,16 @@ public class AdMobInterstitial {
             Log.d(TAG, "Interstitial onAdLoaded");
             mInterstitialAd = interstitialAd;
             mInterstitialAd.setFullScreenContentCallback(mFullScreenContentCallback);
+            timerHandler.removeCallbacksAndMessages(null);
+            timerHandler.postDelayed(timerRunnable, TEN_MINUTES);
         }
 
         @Override
         public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
             // Handle the error
             Log.d(TAG, "Interstitial onAdFailedToLoad, " + loadAdError.getMessage());
-            loadAd();
+            timerHandler.removeCallbacksAndMessages(null);
+            timerHandler.postDelayed(timerRunnable, TWO_MINUTES);
         }
     };
 

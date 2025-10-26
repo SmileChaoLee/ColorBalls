@@ -54,6 +54,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -145,10 +146,9 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         CbComposable.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
 
         LogUtil.d(TAG, "onCreate.interstitialAd")
-        (application as ColorBallsApp).let {
-            interstitialAd = ShowInterstitial(this, null,
-                it.googleInterstitialAd)
-        }
+        interstitialAd = ShowInterstitial(this, null,
+            (application as ColorBallsApp).adMobInterstitial)
+
         getBasePresenter()?.let {
             basePresenter = it
         } ?: run {
@@ -632,19 +632,21 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
     fun SHowPortraitAds(modifier: Modifier) {
         LogUtil.i(TAG, "SHowPortraitAds.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
-        /*
+
         val adWidth = with(LocalDensity.current) {
             LocalWindowInfo.current.containerSize.width
                 .toDp().value.toInt()
         }
-        */
+
         Column(modifier = modifier.fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top) {
-            // CbComposable.ShowAdmobNormalBanner(modifier = Modifier.weight(1.0f))
-            CbComposable.ShowAdmobAdaptiveBanner(modifier = Modifier.weight(1.0f), 0)
+            CbComposable.ShowAdmobNormalBanner(modifier = Modifier.weight(1.0f))
+            CbComposable.ShowAdmobAdaptiveBanner(modifier = Modifier.weight(1.0f), adWidth)
+            /*
             CbComposable.ShowFacebookBanner(modifier = Modifier.weight(1.0f),
-                ColorBallsApp.facebookBannerID)
+                ColorBallsApp.META_BANNER_ID)
+            */
             // CbComposable.ShowFacebookBanner(modifier = Modifier.weight(1.0f),
             //     ColorBallsApp.facebookBannerID2)
         }
@@ -657,7 +659,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         var nativeAd by remember { mutableStateOf<NativeAd?>(null) }
         LaunchedEffect(Unit) {
             object : GoogleNativeAd(this@MyView,
-                ColorBallsApp.googleAdMobNativeID) {
+                ColorBallsApp.ADMOB_NATIVE_ID) {
                 override fun setNativeAd(ad: NativeAd?) {
                     LogUtil.d(TAG, "ShowNativeAd.GoogleNativeAd.setNativeAd")
                     nativeAd = ad
@@ -739,7 +741,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
             // CbComposable.ShowAdmobNormalBanner(modifier = Modifier.weight(2.0f))
             CbComposable.ShowAdmobAdaptiveBanner(modifier = Modifier.weight(2.0f), 0)
             /*
-            Composables.ShowFacebookBanner(modifier = Modifier.weight(2.0f)
+            CbComposable.ShowFacebookBanner(modifier = Modifier.weight(2.0f)
                 .padding(top = 10.dp),
                 ColorBallsApp.facebookBannerID2)
             */

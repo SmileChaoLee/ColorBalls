@@ -14,8 +14,9 @@ class AdMobBanner(private val mAdView: AdView,
     companion object {
         private const val TAG = "AdMobBanner"
         private const val MAX_LOAD_NUM = 15
-        private const val TWO_MINUTES = 120000L // 120 seconds
         private const val ONE_MINUTE = 60000L    // 60 seconds
+        private const val TWO_MINUTES = 120000L // 120 seconds
+        private const val TEN_MINUTES = 600000L    // 600 seconds
     }
 
     private val timerHandler = Handler(Looper.getMainLooper())
@@ -23,7 +24,7 @@ class AdMobBanner(private val mAdView: AdView,
         override fun run() {
             timerHandler.removeCallbacksAndMessages(null)
             loadOneAd()
-            timerHandler.postDelayed(this, TWO_MINUTES)
+            timerHandler.postDelayed(this, TEN_MINUTES)
         }
     }
     private var isAdLoaded = false
@@ -44,14 +45,14 @@ class AdMobBanner(private val mAdView: AdView,
                     isAdLoaded = false
                     Log.d(TAG, "onAdFailedToLoad.adId = $adId")
                     Log.d(TAG, "onAdFailedToLoad.numberOfLoad = $numberOfLoad")
-                    // timerHandler.removeCallbacksAndMessages(null)
+                    timerHandler.removeCallbacksAndMessages(null)
                     if (numberOfLoad < MAX_LOAD_NUM) {
                         numberOfLoad++
-                        // timerHandler.postDelayed(timerRunnable, ONE_MINUTE)
+                        timerHandler.postDelayed(timerRunnable, TWO_MINUTES)
                     } else {
                         numberOfLoad = 0 // set back to zero
                         Log.d(TAG,"onAdFailedToLoad.more than $MAX_LOAD_NUM")
-                        // timerHandler.postDelayed(timerRunnable, TWO_MINUTES)
+                        timerHandler.postDelayed(timerRunnable, TEN_MINUTES)
                     }
                 }
                 override fun onAdLoaded() {

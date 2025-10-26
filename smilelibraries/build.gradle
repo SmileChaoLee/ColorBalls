@@ -10,7 +10,7 @@ plugins {
 }
 
 android {
-    compileSdk 36
+    compileSdk = 36
     defaultConfig {
         minSdk 23
         targetSdk 36
@@ -66,6 +66,7 @@ dependencies {
     implementation libs.androidx.legacy.support.v4
     implementation libs.androidx.constraintlayout
     implementation libs.audience.network.sdk
+    implementation libs.google.ads.mediation.facebook
     implementation libs.infer.annotation
     implementation libs.firebase.ads
     implementation libs.androidx.databinding.runtime

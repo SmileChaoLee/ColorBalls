@@ -121,6 +121,17 @@ dependencies {
     implementation libs.androidx.constraintlayout
     implementation libs.androidx.recyclerview
     implementation libs.audience.network.sdk
+    implementation libs.google.ads.mediation.facebook
+    // InMobi's SDK
+    implementation(libs.inmobi.ads.kotlin.sdk)
+    // AdMob's InMobi adapter
+    implementation(libs.google.ads.mediation.inmobi)
+    // ironSource's SDK
+    implementation(libs.ironsource.mediation.sdk)
+    // implementation("com.unity3d.ads-mediation:mediation-sdk:9.0.0")
+    // AdMob's ironSource adapter
+    implementation(libs.google.ads.mediation.ironsource)
+
     implementation libs.infer.annotation
     implementation libs.firebase.core
     implementation libs.firebase.ads

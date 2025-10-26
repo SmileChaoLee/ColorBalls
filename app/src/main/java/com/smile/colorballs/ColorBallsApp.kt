@@ -2,28 +2,18 @@ package com.smile.colorballs
 
 import androidx.multidex.MultiDexApplication
 import com.facebook.ads.AdSettings
-import com.facebook.ads.AudienceNetworkAds
-import com.facebook.ads.AudienceNetworkAds.InitResult
 import com.google.android.gms.ads.MobileAds
 import com.smile.colorballs.tools.LogUtil
-import com.smile.smilelibraries.facebook_ads_util.FacebookInterstitial
+// import com.smile.smilelibraries.facebook_ads_util.FacebookInterstitial
 import com.smile.smilelibraries.google_ads_util.AdMobInterstitial
 
 class ColorBallsApp : MultiDexApplication() {
-    @JvmField
-    var facebookAds: FacebookInterstitial? = null
-    @JvmField
-    var googleInterstitialAd: AdMobInterstitial? = null
+    // var facebookAds: FacebookInterstitial? = null
+    var adMobInterstitial: AdMobInterstitial? = null
     override fun onCreate() {
         super.onCreate()
-        val googleAdMobInterstitialID = "ca-app-pub-8354869049759576/1276882569"
-        var facebookInterstitialID = "200699663911258_200701030577788" // for colorballs
-        facebookBannerID = "200699663911258_423008208347068"
-        facebookBannerID2 = "200699663911258_619846328663254"
-        // Google AdMob
-        googleAdMobBannerID = "ca-app-pub-8354869049759576/3904969730"
-        googleAdMobBannerID2 = "ca-app-pub-8354869049759576/9583367128"
-        googleAdMobNativeID = "ca-app-pub-8354869049759576/2356386907"
+        /*
+        // no needed when using AdMob mediation
         if (!AudienceNetworkAds.isInitialized(this)) {
             if (BuildConfig.DEBUG) {
                 AdSettings.turnOnSDKDebugger(this)
@@ -31,28 +21,28 @@ class ColorBallsApp : MultiDexApplication() {
             AudienceNetworkAds
                 .buildInitSettings(this)
                 .withInitListener { initResult: InitResult ->
-                    LogUtil.d(AudienceNetworkAds.TAG,
-                        initResult.message
-                    )
+                    LogUtil.d(TAG,initResult.message)
                 }
                 .initialize()
         }
-        // AudienceNetworkAds.initialize(this);
+        */
+        
+        /*
         var testString = ""
         // for debug mode
         if (BuildConfig.DEBUG) {
             testString = "IMG_16_9_APP_INSTALL#"
         }
-        facebookInterstitialID = testString + facebookInterstitialID
-        //
-        facebookAds = FacebookInterstitial(applicationContext, facebookInterstitialID)
+        val fInterstitialId = testString + META_INTERSTITIAL_ID
+        facebookAds = FacebookInterstitial(applicationContext, fInterstitialId)
+        */
         MobileAds.initialize(
             applicationContext
         ) {
-            LogUtil.d(TAG, "Facebook ads was initialized successfully."
-            )
+            LogUtil.d(TAG, "AdMob ads was initialized successfully.")
         }
-        googleInterstitialAd = AdMobInterstitial(applicationContext, googleAdMobInterstitialID)
+        AdSettings.addTestDevice("f9608db1-8051-497c-a399-e9ecb6c35707")  // Samsung A10 S
+        adMobInterstitial = AdMobInterstitial(applicationContext, ADMOB_INTERSTITIAL_ID)
     }
 
     override fun onTrimMemory(level: Int) {
@@ -62,17 +52,14 @@ class ColorBallsApp : MultiDexApplication() {
 
     companion object {
         private const val TAG = "ColorBallsApp"
-        @JvmField
         var textFontSize: Float = 0f
-        @JvmField
-        var facebookBannerID = ""
-        @JvmField
-        var facebookBannerID2 = ""
-        @JvmField
-        var googleAdMobBannerID = ""
-        @JvmField
-        var googleAdMobBannerID2 = ""
-        @JvmField
-        var googleAdMobNativeID = ""
+        const val META_BANNER_ID = "200699663911258_423008208347068"
+        const val META_BANNER_ID2 = "200699663911258_619846328663254"
+        const val META_INTERSTITIAL_ID = "200699663911258_200701030577788" // for colorballs
+        // Google AdMob
+        const val ADMOB_BANNER_ID = "ca-app-pub-8354869049759576/3904969730"
+        const val ADMOB_BANNER_ID2 = "ca-app-pub-8354869049759576/9583367128"
+        const val ADMOB_NATIVE_ID = "ca-app-pub-8354869049759576/2356386907"
+        const val ADMOB_INTERSTITIAL_ID = "ca-app-pub-8354869049759576/1276882569"
     }
 }

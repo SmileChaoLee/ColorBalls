@@ -605,14 +605,14 @@ object CbComposable {
 
     @Composable
     fun ShowAdmobNormalBanner(modifier: Modifier = Modifier) {
-        val adId = ColorBallsApp.googleAdMobBannerID
+        val adId = ColorBallsApp.ADMOB_BANNER_ID
         LogUtil.d(TAG, "ShowAdmobNormalBanner.adId = $adId")
         ShowAdmobBanner(modifier = modifier, adId = adId)
     }
 
     @Composable
     fun ShowAdmobAdaptiveBanner(modifier: Modifier = Modifier, width: Int) {
-        val adId = ColorBallsApp.googleAdMobBannerID2
+        val adId = ColorBallsApp.ADMOB_BANNER_ID2
         LogUtil.d(TAG, "ShowAdmobAdaptiveBanner.adId = $adId")
         ShowAdmobBanner(modifier = modifier, adId = adId, width = width)
     }

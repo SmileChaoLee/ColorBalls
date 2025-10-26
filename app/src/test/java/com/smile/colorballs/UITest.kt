@@ -64,7 +64,7 @@ class UITest {
     @Test
     fun test_GoogleAdMobBannerID() {
         Assert.assertEquals("ca-app-pub-8354869049759576/3904969730",
-            ColorBallsApp.googleAdMobBannerID)
+            ColorBallsApp.ADMOB_BANNER_ID)
     }
 
     /*

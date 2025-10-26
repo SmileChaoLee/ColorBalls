@@ -38,7 +38,7 @@ public class ShowInterstitial {
                 facebookAd.close();
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            Log.e(TAG, "ShowInterstitial.close()", ex);
         }
     }
 
@@ -94,8 +94,7 @@ public class ShowInterstitial {
                             }
                         }
                     } catch (Exception ex) {
-                        Log.d(TAG, "showOneAd.Exception");
-                        ex.printStackTrace();
+                        Log.e(TAG, "showOneAd.Exception", ex);
                     }
 
                     finishedPreviousStep = true;
@@ -109,9 +108,8 @@ public class ShowInterstitial {
                     try {
                         Log.d(TAG, "showOneAd.synchronizedHandler.wait()");
                         synchronizedHandler.wait();
-                    } catch (InterruptedException e) {
-                        Log.d(TAG, "showOneAd.synchronizedHandler.exception");
-                        e.printStackTrace();
+                    } catch (InterruptedException ex) {
+                        Log.e(TAG, "showOneAd.synchronizedHandler.exception", ex);
                     }
                 }
             }
