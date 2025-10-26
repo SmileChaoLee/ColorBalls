@@ -1,7 +1,6 @@
 package com.smile.colorballs
 
 import androidx.multidex.MultiDexApplication
-import com.facebook.ads.AdSettings
 import com.google.android.gms.ads.MobileAds
 import com.smile.colorballs.tools.LogUtil
 // import com.smile.smilelibraries.facebook_ads_util.FacebookInterstitial
@@ -41,7 +40,7 @@ class ColorBallsApp : MultiDexApplication() {
         ) {
             LogUtil.d(TAG, "AdMob ads was initialized successfully.")
         }
-        AdSettings.addTestDevice("f9608db1-8051-497c-a399-e9ecb6c35707")  // Samsung A10 S
+        // AdSettings.addTestDevice("f9608db1-8051-497c-a399-e9ecb6c35707")  // Samsung A10 S
         adMobInterstitial = AdMobInterstitial(applicationContext, ADMOB_INTERSTITIAL_ID)
     }
 
