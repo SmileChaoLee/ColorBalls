@@ -1,4 +1,3 @@
-
 package ballsremover
 
 import com.smile.colorballs_main.BaseApp
