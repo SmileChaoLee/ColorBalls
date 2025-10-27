@@ -6,7 +6,7 @@ plugins {
     id 'kotlin-parcelize'
     id 'kotlin-kapt'
     id 'com.google.devtools.ksp'
-    // id 'androidx.room'
+    id 'androidx.room'
 }
 
 android {
@@ -47,6 +47,11 @@ android {
     }
 
     namespace 'com.smile.smilelibraries'
+
+    // Add this block
+    room {
+        schemaDirectory "$projectDir/schemas"
+    }
 }
 
 allprojects {
@@ -55,12 +60,6 @@ allprojects {
     }
 }
 
-// Add this block
-/*
-room {
-    schemaDirectory "$projectDir/schemas"
-}
-*/
 dependencies {
     implementation libs.androidx.appcompat
     implementation libs.androidx.legacy.support.v4

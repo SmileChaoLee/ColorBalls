@@ -6,41 +6,15 @@
     <uses-permission android:name="com.android.vending.BILLING" />
 
     <application
-        android:name=".ColorBallsApp"
         android:allowBackup="true"
-        android:icon="@drawable/app_icon"
-        android:label="@string/app_name"
+        android:icon="@drawable/color_balls_app_icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
 
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-8354869049759576~1891379677" />
-
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
-
-        <activity
-            android:name=".views.MainCBallActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".views.ColorBallActivity"
-            android:exported="false">
-        </activity>
-
-        <activity
-            android:name=".views.BarrierCBallActivity"
-            android:exported="false">
-        </activity>
 
         <activity
             android:name=".views.CbSettingActivity"
@@ -53,11 +27,6 @@
             android:name=".views.Top10Activity"
             android:exported="false"
             android:label="@string/title_activity_history">
-        </activity>
-
-        <activity
-            android:name=".ballsremover.views.BallsRemoverActivity"
-            android:exported="false">
         </activity>
 
         <activity

@@ -26,11 +26,9 @@ android {
 
     defaultConfig {
         minSdk = 23
-        targetSdk= 36
+        targetSdk = 36
         multiDexEnabled true
 
-        versionCode 7951
-        versionName "7.951"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         signingConfig signingConfigs.config
@@ -39,10 +37,45 @@ android {
         }
     }
 
+    flavorDimensions += ["product"]
+    productFlavors {
+        create("colorballs") {
+            dimension = "product"
+            versionCode 7951
+            versionName "7.951"
+            applicationId = "com.smile.colorballs"
+            isDefault = true
+        }
+        create("ballsremover") {
+            dimension = "product"
+            versionCode 150
+            versionName "1.50"
+            applicationId = "com.smile.ballsremover"
+        }
+    }
+
     sourceSets {
         main {
-            java {
-                srcDir 'src/main/java'
+            java.srcDirs +=  ["src/main/java"]
+            res.srcDirs += "src/main/res"
+            manifest {
+                srcFile "src/main/AndroidManifest.xml"
+            }
+        }
+
+        colorballs {
+            java.srcDirs += ["src/colorballs/java", "src/ballsremover/java"]
+            res.srcDirs += ["src/colorballs/java", "src/ballsremover/java"]
+            manifest {
+                srcFile "src/colorballs/AndroidManifest.xml"
+            }
+        }
+
+        ballsremover {
+            java.srcDirs += ["src/ballsremover/java"]
+            res.srcDirs += ["src/ballsremover/res"]
+            manifest {
+                srcFile "src/ballsremover/AndroidManifest.xml"
             }
         }
     }
@@ -92,16 +125,17 @@ android {
         }
     }
 
-    namespace 'com.smile.colorballs'
-    testNamespace 'com.smile.colorballs.androidTest'
     composeOptions {
         kotlinCompilerExtensionVersion '1.5.15'
     }
-}
 
-// Add this block here and smilelibraries module
-room {
-    schemaDirectory "$projectDir/schemas"
+    namespace 'com.smile.colorballs_main'
+    testNamespace 'com.smile.colorballs_main.androidTest'
+
+    // Add this block here and smilelibraries module
+    room {
+        schemaDirectory "$projectDir/schemas"
+    }
 }
 
 allprojects {

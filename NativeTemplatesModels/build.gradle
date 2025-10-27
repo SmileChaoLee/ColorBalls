@@ -6,13 +6,12 @@ plugins {
 }
 
 android {
-    compileSdk 36
+    compileSdk = 36
     defaultConfig {
         minSdk 23
         targetSdk 36
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
     }
 
     buildTypes {
@@ -25,9 +24,6 @@ android {
 
     ndkVersion '22.1.7171670'
     namespace 'com.google.android.ads.nativetemplates'
-    kotlinOptions {
-        jvmTarget = '17'
-    }
 }
 
 dependencies {
