@@ -4,9 +4,9 @@
 
     <application
         tools:replace="android:icon"
-        android:name=".ColorBallsApp"
+        android:name="colorballs.ColorBallsApp"
         android:icon="@drawable/color_balls_app_icon"
-        android:label="@string/app_name">
+        android:label="@string/color_balls_name">
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"

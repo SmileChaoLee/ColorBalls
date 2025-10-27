@@ -67,7 +67,7 @@ class Instrumented {
     @Test
     fun test_GoogleAdMobBannerID() {
         Assert.assertEquals("ca-app-pub-8354869049759576/3904969730",
-            ColorBallsApp.ADMOB_BANNER_ID)
+            BaseApp.ADMOB_BANNER_ID)
     }
 
     /*

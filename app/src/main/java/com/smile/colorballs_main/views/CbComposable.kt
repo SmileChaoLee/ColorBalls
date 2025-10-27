@@ -53,7 +53,6 @@ import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdView
 import com.smile.colorballs_main.BuildConfig
-import com.smile.colorballs_main.ColorBallsApp
 import com.smile.colorballs_main.R
 import com.smile.colorballs_main.models.Settings
 import com.smile.colorballs_main.models.TopPlayer
@@ -590,31 +589,30 @@ object CbComposable {
 
     @Composable
     fun ShowAdmobBanner(modifier: Modifier = Modifier,
-                        adId: String, width: Int = 0) {
-        LogUtil.d(TAG, "ShowAdmobBanner.adId = $adId")
+                        bannerID: String, width: Int = 0) {
+        LogUtil.d(TAG, "ShowAdmobBanner.bannerID = $bannerID")
         AndroidView(
             modifier = modifier,
             factory = { context ->
                 AdView(context)
             },
             update = { adView ->
-                AdMobBanner(adView, adId, width)
+                AdMobBanner(adView, bannerID, width)
             }
         )
     }
 
     @Composable
-    fun ShowAdmobNormalBanner(modifier: Modifier = Modifier) {
-        val adId = ColorBallsApp.ADMOB_BANNER_ID
-        LogUtil.d(TAG, "ShowAdmobNormalBanner.adId = $adId")
-        ShowAdmobBanner(modifier = modifier, adId = adId)
+    fun ShowAdmobNormalBanner(modifier: Modifier = Modifier, bannerID: String) {
+        LogUtil.d(TAG, "ShowAdmobNormalBanner.bannerID = $bannerID")
+        ShowAdmobBanner(modifier = modifier, bannerID = bannerID)
     }
 
     @Composable
-    fun ShowAdmobAdaptiveBanner(modifier: Modifier = Modifier, width: Int) {
-        val adId = ColorBallsApp.ADMOB_BANNER_ID2
-        LogUtil.d(TAG, "ShowAdmobAdaptiveBanner.adId = $adId")
-        ShowAdmobBanner(modifier = modifier, adId = adId, width = width)
+    fun ShowAdmobAdaptiveBanner(modifier: Modifier = Modifier,
+                                bannerID2: String, width: Int) {
+        LogUtil.d(TAG, "ShowAdmobAdaptiveBanner.bannerID2 = $bannerID2")
+        ShowAdmobBanner(modifier = modifier, bannerID = bannerID2, width = width)
     }
 
     @Composable

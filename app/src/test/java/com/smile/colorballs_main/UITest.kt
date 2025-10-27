@@ -22,7 +22,7 @@ import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = ColorBallsApp::class, manifest = "AndroidManifest.xml")
+@Config(application = BaseApp::class, manifest = "AndroidManifest.xml")
 class UITest {
     private var appContext : Context? = null
     private lateinit var activity : ColorBallActivity
@@ -64,7 +64,7 @@ class UITest {
     @Test
     fun test_GoogleAdMobBannerID() {
         Assert.assertEquals("ca-app-pub-8354869049759576/3904969730",
-            ColorBallsApp.ADMOB_BANNER_ID)
+            BaseApp.ADMOB_BANNER_ID)
     }
 
     /*

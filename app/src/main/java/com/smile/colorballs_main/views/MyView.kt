@@ -50,7 +50,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-// import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
@@ -61,7 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smile.colorballs_main.BuildConfig
 import com.smile.colorballs_main.R
-import com.smile.colorballs_main.ColorBallsApp
+import com.smile.colorballs_main.BaseApp
 import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
 import com.smile.smilelibraries.utilities.ScreenUtil
 import com.smile.smilelibraries.utilities.SoundPoolUtil
@@ -112,7 +111,6 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
     protected val mOrientation = mutableIntStateOf(Configuration.ORIENTATION_PORTRAIT)
     protected var screenX = 0f
     protected var screenY = 0f
-    protected var textFontSize = 0f
     protected var boxImage: Bitmap? = null
     protected var mImageSizeDp = 0f
     protected val colorBallMap: HashMap<Int, Bitmap> = HashMap()
@@ -120,6 +118,8 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
     protected val colorNextBallMap: HashMap<Int, Bitmap> = HashMap()
     protected var interstitialAd: ShowInterstitial? = null
 
+    private var textFontSize = 0f
+    private lateinit var mBaseApp: BaseApp
     private lateinit var basePresenter: BasePresenter
     private lateinit var baseViewModel: BaseViewModel
     private lateinit var mGameOptions: GameOptions
@@ -131,9 +131,16 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         LogUtil.i(TAG, "$TAG.onCreate")
-        super.onCreate(savedInstanceState)
-        LogUtil.d(TAG, "onCreate.getScreenSize()")
+        BaseApp.textFontSize = ScreenUtil.getPxTextFontSizeNeeded(this@MyView)
+        textFontSize = BaseApp.textFontSize
+        val toastTextSize = BaseApp.textFontSize * 0.7f
+        CbComposable.mFontSize = ScreenUtil.pixelToDp(BaseApp.textFontSize).sp
+        CbComposable.toastFontSize = ScreenUtil.pixelToDp(toastTextSize).sp
         getScreenSize()
+
+        mBaseApp = application as BaseApp
+
+        super.onCreate(savedInstanceState)
 
         if (!BuildConfig.DEBUG) {
             val deviceType = ScreenUtil.getDeviceType(this@MyView)
@@ -146,13 +153,9 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
             }
         }
 
-        LogUtil.d(TAG, "onCreate.textFontSize")
-        textFontSize = ColorBallsApp.textFontSize
-        CbComposable.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
-
         LogUtil.d(TAG, "onCreate.interstitialAd")
         interstitialAd = ShowInterstitial(this, null,
-            (application as ColorBallsApp).adMobInterstitial)
+            mBaseApp.adMobInterstitial)
 
         getBasePresenter()?.let {
             basePresenter = it
@@ -648,14 +651,10 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         Column(modifier = modifier.fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top) {
-            CbComposable.ShowAdmobNormalBanner(modifier = Modifier.weight(1.0f))
-            CbComposable.ShowAdmobAdaptiveBanner(modifier = Modifier.weight(1.0f), adWidth)
-            /*
-            CbComposable.ShowFacebookBanner(modifier = Modifier.weight(1.0f),
-                ColorBallsApp.META_BANNER_ID)
-            */
-            // CbComposable.ShowFacebookBanner(modifier = Modifier.weight(1.0f),
-            //     ColorBallsApp.facebookBannerID2)
+            CbComposable.ShowAdmobNormalBanner(modifier = Modifier.weight(1.0f),
+                mBaseApp.getBannerID())
+            CbComposable.ShowAdmobAdaptiveBanner(modifier = Modifier.weight(1.0f),
+                mBaseApp.getBannerID2(), adWidth)
         }
     }
 
@@ -666,7 +665,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         var nativeAd by remember { mutableStateOf<NativeAd?>(null) }
         LaunchedEffect(Unit) {
             object : GoogleNativeAd(this@MyView,
-                ColorBallsApp.ADMOB_NATIVE_ID) {
+                mBaseApp.getNativeID()) {
                 override fun setNativeAd(ad: NativeAd?) {
                     LogUtil.d(TAG, "ShowNativeAd.GoogleNativeAd.setNativeAd")
                     nativeAd = ad
@@ -745,13 +744,8 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
             ShowNativeAd(modifier = Modifier.weight(8.0f))
-            // CbComposable.ShowAdmobNormalBanner(modifier = Modifier.weight(2.0f))
-            CbComposable.ShowAdmobAdaptiveBanner(modifier = Modifier.weight(2.0f), 0)
-            /*
-            CbComposable.ShowFacebookBanner(modifier = Modifier.weight(2.0f)
-                .padding(top = 10.dp),
-                ColorBallsApp.facebookBannerID2)
-            */
+            CbComposable.ShowAdmobAdaptiveBanner(modifier = Modifier.weight(2.0f),
+                mBaseApp.getBannerID2(), 0)
         }
     }
 
