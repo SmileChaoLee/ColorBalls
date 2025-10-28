@@ -119,6 +119,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
     protected var interstitialAd: ShowInterstitial? = null
 
     private var textFontSize = 0f
+    private var toastTextSize = 0f
     private lateinit var mBaseApp: BaseApp
     private lateinit var basePresenter: BasePresenter
     private lateinit var baseViewModel: BaseViewModel
@@ -131,10 +132,9 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         LogUtil.i(TAG, "$TAG.onCreate")
-        BaseApp.textFontSize = ScreenUtil.getPxTextFontSizeNeeded(this@MyView)
-        textFontSize = BaseApp.textFontSize
-        val toastTextSize = BaseApp.textFontSize * 0.7f
-        CbComposable.mFontSize = ScreenUtil.pixelToDp(BaseApp.textFontSize).sp
+        textFontSize = ScreenUtil.getPxTextFontSizeNeeded(this@MyView)
+        toastTextSize = textFontSize * 0.7f
+        CbComposable.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
         CbComposable.toastFontSize = ScreenUtil.pixelToDp(toastTextSize).sp
         getScreenSize()
 

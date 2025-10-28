@@ -10,7 +10,6 @@ abstract class BaseApp : MultiDexApplication() {
 
     companion object {
         private const val TAG = "BaseApp"
-        var textFontSize: Float = 0f
     }
 
     abstract fun getBannerID(): String
@@ -22,6 +21,7 @@ abstract class BaseApp : MultiDexApplication() {
     var adMobInterstitial: AdMobInterstitial? = null
     override fun onCreate() {
         super.onCreate()
+        LogUtil.i(TAG, "onCreate")
         /*
         // no needed when using AdMob mediation
         if (!AudienceNetworkAds.isInitialized(this)) {

@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import com.smile.colorballs_main.R
 import ballsremover.views.BallsRemoverActivity
-import com.smile.colorballs_main.BaseApp
 import com.smile.colorballs_main.smileapps.SmileAppsActivity
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.views.CbComposable
@@ -53,6 +52,8 @@ import kotlinx.coroutines.launch
 
 open class MainCBallActivity : ComponentActivity() {
 
+    private var textFontSize = 0f
+    private var toastTextSize = 0f
     private var screenSize = Point(0, 0)
     // the following are for ColorBallActivity
     private lateinit var cBallLauncher: ActivityResultLauncher<Intent>
@@ -75,9 +76,9 @@ open class MainCBallActivity : ComponentActivity() {
 
     @SuppressLint("ConfigurationScreenWidthHeight", "SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
-        BaseApp.textFontSize = ScreenUtil.getPxTextFontSizeNeeded(this@MainCBallActivity)
-        val toastTextSize = BaseApp.textFontSize * 0.7f
-        CbComposable.mFontSize = ScreenUtil.pixelToDp(BaseApp.textFontSize).sp
+        textFontSize = ScreenUtil.getPxTextFontSizeNeeded(this@MainCBallActivity)
+        toastTextSize = textFontSize * 0.7f
+        CbComposable.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
         CbComposable.toastFontSize = ScreenUtil.pixelToDp(toastTextSize).sp
         screenSize = ScreenUtil.getScreenSize(this@MainCBallActivity)
 
