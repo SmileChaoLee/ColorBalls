@@ -6,6 +6,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.unit.sp
 import com.smile.colorballs_main.R
 import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.models.TopPlayer
@@ -14,6 +15,7 @@ import com.smile.smilelibraries.models.Player
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
 import com.smile.colorballs_main.roomdatabase.ScoreDatabase
 import com.smile.colorballs_main.tools.LogUtil
+import com.smile.smilelibraries.utilities.ScreenUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -23,8 +25,14 @@ class Top10Activity : ComponentActivity() {
     private var top10TitleName: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         LogUtil.i(TAG, "onCreate")
+
+        val textFontSize = ScreenUtil.getPxTextFontSizeNeeded(this@Top10Activity)
+        val toastTextSize = textFontSize * 0.7f
+        CbComposable.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
+        CbComposable.toastFontSize = ScreenUtil.pixelToDp(toastTextSize).sp
+
+        super.onCreate(savedInstanceState)
 
         var gameId = Constants.GAME_NO_BARRIER_ID
         var databaseName = Constants.NO_BARRIER_DATABASE_NAME

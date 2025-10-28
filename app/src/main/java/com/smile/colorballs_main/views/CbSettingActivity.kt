@@ -7,20 +7,28 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
 import com.smile.colorballs_main.R
 import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.models.Settings
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs_main.viewmodel.SettingViewModel
+import com.smile.smilelibraries.utilities.ScreenUtil
 
 class CbSettingActivity : ComponentActivity() {
 
     private val settingViewModel : SettingViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         LogUtil.d(TAG, "onCreate")
+
+        val textFontSize = ScreenUtil.getPxTextFontSizeNeeded(this@CbSettingActivity)
+        val toastTextSize = textFontSize * 0.7f
+        CbComposable.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
+        CbComposable.toastFontSize = ScreenUtil.pixelToDp(toastTextSize).sp
+
+        super.onCreate(savedInstanceState)
 
         var gameId = Constants.GAME_NO_BARRIER_ID
         if (savedInstanceState == null) {
