@@ -27,17 +27,24 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.smile.colorballs_main.R
 import com.smile.colorballs_main.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs_main.views.CbComposable
 import com.smile.colorballs_main.views.ui.theme.Yellow3
 import androidx.core.view.WindowCompat
 import com.smile.smilelibraries.utilities.AppLinkUtil
+import com.smile.smilelibraries.utilities.ScreenUtil
 
 class SmileAppsActivity : ComponentActivity() {
 
     @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
+        val textFontSize = ScreenUtil.getPxTextFontSizeNeeded(this@SmileAppsActivity)
+        val toastTextSize = textFontSize * 0.7f
+        CbComposable.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
+        CbComposable.toastFontSize = ScreenUtil.pixelToDp(toastTextSize).sp
+
         super.onCreate(savedInstanceState)
 
         val appList = AppLinkUtil.getAppList(this@SmileAppsActivity)
@@ -101,9 +108,5 @@ class SmileAppsActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    companion object {
-        private const val TAG = "SmileAppsActivity"
     }
 }
