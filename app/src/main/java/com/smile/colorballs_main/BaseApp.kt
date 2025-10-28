@@ -18,7 +18,6 @@ abstract class BaseApp : MultiDexApplication() {
     abstract fun getInterstitial(): AdMobInterstitial
 
     // var facebookAds: FacebookInterstitial? = null
-    var adMobInterstitial: AdMobInterstitial? = null
     override fun onCreate() {
         super.onCreate()
         LogUtil.i(TAG, "onCreate")
@@ -52,7 +51,6 @@ abstract class BaseApp : MultiDexApplication() {
             LogUtil.d(TAG, "AdMob ads was initialized successfully.")
         }
         // AdSettings.addTestDevice("f9608db1-8051-497c-a399-e9ecb6c35707")  // Samsung A10 S
-        adMobInterstitial = getInterstitial()
     }
 
     override fun onTrimMemory(level: Int) {

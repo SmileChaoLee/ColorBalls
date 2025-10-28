@@ -84,6 +84,7 @@ import com.smile.colorballs_main.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs_main.views.ui.theme.ColorPrimary
 import com.smile.colorballs_main.views.ui.theme.Yellow3
 import com.smile.smilelibraries.GoogleNativeAd
+import com.smile.smilelibraries.interfaces.DismissFunction
 import com.smile.smilelibraries.models.ExitAppTimer
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil
 import kotlinx.coroutines.CoroutineScope
@@ -120,7 +121,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     private var textFontSize = 0f
     private var toastTextSize = 0f
-    private lateinit var mBaseApp: BaseApp
+    private var mBaseApp: BaseApp? = null
     private lateinit var basePresenter: BasePresenter
     private lateinit var baseViewModel: BaseViewModel
     private lateinit var mGameOptions: GameOptions
@@ -138,7 +139,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         CbComposable.toastFontSize = ScreenUtil.pixelToDp(toastTextSize).sp
         getScreenSize()
 
-        mBaseApp = application as BaseApp
+        mBaseApp = application as? BaseApp
 
         super.onCreate(savedInstanceState)
 
@@ -155,7 +156,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
         LogUtil.d(TAG, "onCreate.interstitialAd")
         interstitialAd = ShowInterstitial(this, null,
-            mBaseApp.adMobInterstitial)
+            mBaseApp?.getInterstitial())
 
         getBasePresenter()?.let {
             basePresenter = it
@@ -402,11 +403,29 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         }
     }
 
+    private fun finishThisActivity() {
+        LogUtil.i(TAG, "finishThisActivity = $interstitialAd")
+        interstitialAd?.ShowAdThread(object: DismissFunction {
+            override fun backgroundWork() {
+                // do nothing
+            }
+
+            override fun executeDismiss() {
+                finish()    // finish() after dismissing ad
+            }
+
+            override fun afterFinished(isAdShown: Boolean) {
+                if (!isAdShown) finish() // no ad, then finish
+            }
+        })?.startShowAd(0) ?: finish()
+    }
+
     private fun exitApplication() {
         val handlerClose = Handler(Looper.getMainLooper())
         val timeDelay = 1000
         // exit application
-        handlerClose.postDelayed({ this.finish() }, timeDelay.toLong())
+        handlerClose.postDelayed({ finishThisActivity() },
+            timeDelay.toLong())
     }
 
     fun quitOrNewGame() {
@@ -651,10 +670,12 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         Column(modifier = modifier.fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top) {
-            CbComposable.ShowAdmobNormalBanner(modifier = Modifier.weight(1.0f),
-                mBaseApp.getBannerID())
-            CbComposable.ShowAdmobAdaptiveBanner(modifier = Modifier.weight(1.0f),
-                mBaseApp.getBannerID2(), adWidth)
+            mBaseApp?.let {
+                CbComposable.ShowAdmobNormalBanner(modifier = Modifier.weight(1.0f),
+                    it.getBannerID())
+                CbComposable.ShowAdmobAdaptiveBanner(modifier = Modifier.weight(1.0f),
+                    it.getBannerID2(), adWidth)
+            }
         }
     }
 
@@ -664,11 +685,13 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
                 " = ${mOrientation.intValue}")
         var nativeAd by remember { mutableStateOf<NativeAd?>(null) }
         LaunchedEffect(Unit) {
-            object : GoogleNativeAd(this@MyView,
-                mBaseApp.getNativeID()) {
-                override fun setNativeAd(ad: NativeAd?) {
-                    LogUtil.d(TAG, "ShowNativeAd.GoogleNativeAd.setNativeAd")
-                    nativeAd = ad
+            mBaseApp?.let {
+                object : GoogleNativeAd(
+                    this@MyView,it.getNativeID()) {
+                    override fun setNativeAd(ad: NativeAd?) {
+                        LogUtil.d(TAG, "ShowNativeAd.GoogleNativeAd.setNativeAd")
+                        nativeAd = ad
+                    }
                 }
             }
         }   // end of LaunchedEffect
@@ -744,8 +767,11 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
             ShowNativeAd(modifier = Modifier.weight(8.0f))
-            CbComposable.ShowAdmobAdaptiveBanner(modifier = Modifier.weight(2.0f),
-                mBaseApp.getBannerID2(), 0)
+            mBaseApp?.let {
+                CbComposable.ShowAdmobAdaptiveBanner(
+                    modifier = Modifier.weight(2.0f),
+                    it.getBannerID2(), 0)
+            }
         }
     }
 

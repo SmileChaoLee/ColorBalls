@@ -17,6 +17,11 @@
             android:required="false" />
 
         <activity
+            android:name=".views.BaseCBallActivity"
+            android:exported="false">
+        </activity>
+
+        <activity
             android:name=".views.CbSettingActivity"
             android:exported="false"
             android:label="@string/settingStr"

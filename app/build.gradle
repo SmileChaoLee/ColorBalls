@@ -41,15 +41,15 @@ android {
     productFlavors {
         create("colorballs") {
             dimension = "product"
-            versionCode 7962
-            versionName "7.962"
+            versionCode 7963
+            versionName "7.963"
             applicationId = "com.smile.colorballs"
             isDefault = true
         }
         create("ballsremover") {
             dimension = "product"
-            versionCode 162
-            versionName "1.62"
+            versionCode 163
+            versionName "1.63"
             applicationId = "com.smile.ballsremover"
         }
     }
