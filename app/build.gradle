@@ -154,7 +154,7 @@ dependencies {
     implementation libs.androidx.appcompat
     implementation libs.androidx.constraintlayout
     implementation libs.androidx.recyclerview
-    implementation(libs.user.messaging.platform)
+    implementation libs.user.messaging.platform
     // Meta Audience Network
     implementation libs.audience.network.sdk
     implementation libs.google.ads.mediation.facebook

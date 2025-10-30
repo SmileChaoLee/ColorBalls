@@ -69,6 +69,7 @@ dependencies {
     implementation libs.infer.annotation
     implementation libs.firebase.ads
     implementation libs.androidx.databinding.runtime
+    implementation libs.user.messaging.platform
 
     // Retrofit
     implementation libs.retrofit  // support api under 21
