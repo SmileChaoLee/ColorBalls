@@ -25,6 +25,7 @@ import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,8 +40,11 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import com.smile.colorballs_main.R
 import ballsremover.views.BallsRemoverActivity
+import com.google.android.ump.ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA
+import com.smile.colorballs_main.BuildConfig
 import com.smile.colorballs_main.smileapps.SmileAppsActivity
 import com.smile.colorballs_main.tools.LogUtil
+import com.smile.smilelibraries.utilities.UmpUtil
 import com.smile.colorballs_main.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs_main.views.ui.theme.Yellow3
 import com.smile.smilelibraries.utilities.ScreenUtil
@@ -77,6 +81,7 @@ abstract class BaseCBallActivity : ComponentActivity() {
     private val buttonBackground = Color.Transparent
     private val buttonContentColor = Color.Green
     private val buttonContainerColor = Color.Blue
+    private var isBackPressedEnabled = true
 
     private var isNoBarrierEnabled by mutableStateOf(true)
     private var isBarrierEnabled by mutableStateOf(true)
@@ -125,32 +130,58 @@ abstract class BaseCBallActivity : ComponentActivity() {
             enableMainButtons()
         }
 
+        disableExitApp()
+        disableMainButtons()
         // enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             LogUtil.d(mTAG,"onCreate.setContent")
             ColorBallsTheme {
                 Scaffold { innerPadding ->
-                    Box(Modifier.padding(innerPadding)
-                            .background(color = backgroundColor)) {
+                    Box(
+                        Modifier.padding(innerPadding)
+                            .background(color = backgroundColor)
+                    ) {
                         DisplayLoading()
                         CreateMainUI()
                     }
                 }
             }
+            LaunchedEffect(Unit) {
+                val deviceHashedId =
+                    if (BuildConfig.DEBUG) "8F6C5B0830E624E8D8BFFB5853B4EDDD" else ""
+                UmpUtil.initConsentInformation(this@BaseCBallActivity,
+                    DEBUG_GEOGRAPHY_EEA,deviceHashedId,
+                    object : UmpUtil.UmpInterface {
+                        override fun callback() {
+                            LogUtil.d(mTAG, "onCreate.initConsentInformation.finished")
+                            enableMainButtons()
+                            enableExitApp()
+                        }
+                    })
+            }
+        }
 
-            onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
+        onBackPressedDispatcher.addCallback(
+            object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     LogUtil.d(mTAG, "handleOnBackPressed")
                     exitApp()
                 }
             })
-        }
+    }
+
+    private fun enableExitApp() {
+        isBackPressedEnabled = true
+    }
+
+    private fun disableExitApp() {
+        isBackPressedEnabled = false
     }
 
     private fun exitApp() {
-        LogUtil.i(mTAG, "exitApp")
-        finish()
+        LogUtil.i(mTAG, "exitApp.isBackPressedEnabled = $isBackPressedEnabled")
+        if (isBackPressedEnabled) finish()
     }
 
     private fun enableMainButtons() {

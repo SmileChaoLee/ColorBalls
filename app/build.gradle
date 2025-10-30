@@ -41,15 +41,15 @@ android {
     productFlavors {
         create("colorballs") {
             dimension = "product"
-            versionCode 7963
-            versionName "7.963"
+            versionCode 8000
+            versionName "8.000"
             applicationId = "com.smile.colorballs"
             isDefault = true
         }
         create("ballsremover") {
             dimension = "product"
-            versionCode 163
-            versionName "1.63"
+            versionCode 180
+            versionName "1.80"
             applicationId = "com.smile.ballsremover"
         }
     }
@@ -154,6 +154,8 @@ dependencies {
     implementation libs.androidx.appcompat
     implementation libs.androidx.constraintlayout
     implementation libs.androidx.recyclerview
+    implementation(libs.user.messaging.platform)
+    // Meta Audience Network
     implementation libs.audience.network.sdk
     implementation libs.google.ads.mediation.facebook
     // InMobi's SDK
@@ -165,6 +167,10 @@ dependencies {
     // implementation("com.unity3d.ads-mediation:mediation-sdk:9.0.0")
     // AdMob's ironSource adapter
     implementation(libs.google.ads.mediation.ironsource)
+    // applovin's SDK
+    implementation libs.applovin.sdk
+    // AppLovin AdMob adapter
+    implementation libs.google.ads.mediation.applovin
 
     implementation libs.infer.annotation
     implementation libs.firebase.core

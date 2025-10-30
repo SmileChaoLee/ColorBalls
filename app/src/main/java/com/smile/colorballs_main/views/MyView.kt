@@ -79,6 +79,7 @@ import com.smile.colorballs_main.presenters.BasePresenter
 import com.smile.colorballs_main.roomdatabase.ScoreDatabase
 import com.smile.colorballs_main.tools.GameUtil
 import com.smile.colorballs_main.tools.LogUtil
+import com.smile.smilelibraries.utilities.UmpUtil
 import com.smile.colorballs_main.viewmodel.BaseViewModel
 import com.smile.colorballs_main.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs_main.views.ui.theme.ColorPrimary
@@ -133,6 +134,8 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         LogUtil.i(TAG, "$TAG.onCreate")
+        LogUtil.i(TAG, "onCreate.canRequestAds = ${UmpUtil.canRequestAds()}")
+        LogUtil.i(TAG, "onCreate.consentStatus = ${UmpUtil.getConsentStatus()}")
         textFontSize = ScreenUtil.getPxTextFontSizeNeeded(this@MyView)
         toastTextSize = textFontSize * 0.7f
         CbComposable.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
@@ -323,6 +326,8 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     protected fun showInterstitialAd() {
         LogUtil.i(TAG, "showInterstitialAd = $interstitialAd")
+        LogUtil.i(TAG, "showInterstitialAd.canRequestAds = ${UmpUtil.canRequestAds()}")
+        LogUtil.i(TAG, "showInterstitialAd.consentStatus = ${UmpUtil.getConsentStatus()}")
         interstitialAd?.ShowAdThread()?.startShowAd(0) // AdMob first
     }
 
@@ -405,6 +410,8 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     private fun finishThisActivity() {
         LogUtil.i(TAG, "finishThisActivity = $interstitialAd")
+        LogUtil.i(TAG, "finishThisActivity.canRequestAds = ${UmpUtil.canRequestAds()}")
+        LogUtil.i(TAG, "finishThisActivity.consentStatus = ${UmpUtil.getConsentStatus()}")
         interstitialAd?.ShowAdThread(object: DismissFunction {
             override fun backgroundWork() {
                 // do nothing
