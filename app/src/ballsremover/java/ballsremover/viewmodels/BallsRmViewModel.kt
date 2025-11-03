@@ -23,6 +23,10 @@ import java.nio.ByteBuffer
 class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
     : BaseViewModel(bRmPresenter) {
 
+    companion object {
+        private const val TAG = "BallsRmViewModel"
+    }
+
     private var brGameProp: GameProp
     private var brGridData: GridData
     private val showingScoreHandler = Handler(Looper.getMainLooper())
@@ -61,7 +65,10 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
             brGameProp.currentScore += brGameProp.lastGotScore
             setCurrentScore(brGameProp.currentScore)
             val showScore = ShowScore(
-                brGridData.getLightLine(), brGameProp.lastGotScore,
+                brGridData,
+                brGridData.getLightLine(),
+                brGameProp.lastGotScore,
+                false /* no used*/,
                 object : ShowScoreCallback {
                     override fun sCallback() {
                         LogUtil.d(TAG, "cellClickListener.sCallback")
@@ -316,6 +323,10 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
         return succeeded
     }
 
+    override fun dealWithIsNextBalls(isNextBalls: Boolean) {
+        // do nothing
+    }
+
     private fun calculateScore(linkedLine: HashSet<Point>?): Int {
         if (linkedLine == null) {
             return 0
@@ -338,7 +349,7 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
         return totalScore
     }
 
-    private inner class ShowScore(
+    private inner class ShowScore_old(
         linkedPoint: HashSet<Point>,
         val lastGotScore: Int,
         val callback: ShowScoreCallback
@@ -359,7 +370,9 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
                 1 -> for (item in pointSet) {
                     drawOval(item.x, item.y, brGridData.getCellValue(item.x, item.y))
                 }
-                2 -> {}
+                2 -> for (item in pointSet) {
+                    drawFirework(item.x, item.y)
+                }
                 3 -> {
                     setScreenMessage(lastGotScore.toString())
                     for (item in pointSet) {
@@ -380,24 +393,27 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
             val twinkleCountDown = 5
             mCounter++
             LogUtil.d(TAG, "ShowScore.run().mCounter = $mCounter")
+            showingScoreHandler.removeCallbacksAndMessages(null)
             if (mCounter <= twinkleCountDown) {
                 val md = mCounter % 2 // modulus
                 onProgressUpdate(md)
-                showingScoreHandler.postDelayed(this, 150)
+                showingScoreHandler.postDelayed(this, 100)
             } else {
-                if (mCounter == twinkleCountDown + 1) {
-                    onProgressUpdate(3) // show score
-                    showingScoreHandler.postDelayed(this, 500)
-                } else {
-                    showingScoreHandler.removeCallbacksAndMessages(null)
-                    onProgressUpdate(4) // dismiss showing message
-                    callback.sCallback()
+                when (mCounter) {
+                    twinkleCountDown + 1 -> {
+                        onProgressUpdate(2) // show the flash
+                        showingScoreHandler.postDelayed(this, 100)
+                    }
+                    twinkleCountDown + 2 -> {
+                        onProgressUpdate(3) // show score
+                        showingScoreHandler.postDelayed(this, 500)
+                    }
+                    else -> {
+                        onProgressUpdate(4) // dismiss showing message
+                        callback.sCallback()
+                    }
                 }
             }
         }
-    }
-
-    companion object {
-        private const val TAG = "BallsRmViewModel"
     }
 }

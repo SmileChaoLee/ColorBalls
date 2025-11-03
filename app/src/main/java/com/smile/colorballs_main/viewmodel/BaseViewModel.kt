@@ -1,5 +1,6 @@
 package com.smile.colorballs_main.viewmodel
 
+import android.graphics.Point
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -27,6 +28,10 @@ import org.json.JSONObject
 abstract class BaseViewModel(
     private var basePresenter: BasePresenter): ViewModel() {
 
+    companion object {
+        private const val TAG = "BaseViewModel"
+    }
+
     abstract fun initGame(bundle: Bundle?)
     abstract fun cellClickListener(i: Int, j: Int)
     abstract fun startSavingGame(): Boolean
@@ -34,6 +39,7 @@ abstract class BaseViewModel(
     abstract fun saveInstanceState(outState: Bundle)
     abstract fun newGame()
     abstract fun undoTheLast()
+    abstract fun dealWithIsNextBalls(isNextBalls: Boolean)
 
     interface ShowScoreCallback {
         fun sCallback()
@@ -323,6 +329,11 @@ abstract class BaseViewModel(
         gridDataArray[i][j].value = ColorBallInfo(color, WhichBall.OVAL_BALL)
     }
 
+    fun drawFirework(i: Int, j: Int) {
+        LogUtil.d(TAG, "drawFirework.($i, $j)")
+        drawBall(i, j, Constants.COLOR_FIREWORK)
+    }
+
     fun clearCell(i: Int, j: Int) {
         mGridData.setCellValue(i, j, 0)
     }
@@ -342,7 +353,76 @@ abstract class BaseViewModel(
         }
     }
 
-    companion object {
-        private const val TAG = "BaseViewModel"
+    inner class ShowScore(
+        val gridData: GridData,
+        linkedPoint: HashSet<Point>,
+        val lastGotScore: Int, val isNextBalls: Boolean,
+        val callback: ShowScoreCallback
+    ): Runnable {
+        private var pointSet: HashSet<Point>
+        private var mCounter = 0
+        init {
+            LogUtil.i(TAG, "ShowScore")
+            pointSet = HashSet(linkedPoint)
+            mGameProp.isShowNextBallsAfterBlinking = isNextBalls
+            setShowingScoreDialog(true)
+        }
+
+        @Synchronized
+        private fun onProgressUpdate(status: Int) {
+            when (status) {
+                0 -> for (item in pointSet) {
+                    drawBall(item.x, item.y, gridData.getCellValue(item.x, item.y))
+                }
+                1 -> for (item in pointSet) {
+                    drawOval(item.x, item.y, gridData.getCellValue(item.x, item.y))
+                }
+                2 -> for (item in pointSet) {
+                    drawFirework(item.x, item.y)
+                }
+                3 -> {
+                    setScreenMessage(lastGotScore.toString())
+                    for (item in pointSet) {
+                        clearCell(item.x, item.y)
+                        drawBall(item.x, item.y, gridData.getCellValue(item.x, item.y))
+                    }
+                    dealWithIsNextBalls(isNextBalls)
+                }
+                4 -> {
+                    LogUtil.d(TAG, "ShowScore.onProgressUpdate.dismissShowMessageOnScreen.")
+                    setScreenMessage("")
+                    setShowingScoreDialog(false)
+                }
+                else -> {}
+            }
+        }
+
+        @Synchronized
+        override fun run() {
+            val twinkleCountDown = 5
+            mCounter++
+            LogUtil.d(TAG, "ShowScore.run().mCounter = $mCounter")
+            showingScoreHandler.removeCallbacksAndMessages(null)
+            if (mCounter <= twinkleCountDown) {
+                val md = mCounter % 2 // modulus
+                onProgressUpdate(md)
+                showingScoreHandler.postDelayed(this, 100)
+            } else {
+                when (mCounter) {
+                    twinkleCountDown + 1 -> {
+                        onProgressUpdate(2) // show the flash
+                        showingScoreHandler.postDelayed(this, 600)
+                    }
+                    twinkleCountDown + 2 -> {
+                        onProgressUpdate(3) // show score
+                        showingScoreHandler.postDelayed(this, 500)
+                    }
+                    else -> {
+                        onProgressUpdate(4) // dismiss showing message
+                        callback.sCallback()
+                    }
+                }
+            }
+        }
     }
 }

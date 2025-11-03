@@ -407,6 +407,15 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
             colorOvalBallMap[Constants.COLOR_BARRIER] =
                 bm.scale(ovalBallWidth, ovalBallHeight)
         }
+
+        BitmapFactory.decodeResource(resources, R.drawable.firework)?.let { bm ->
+            colorBallMap[Constants.COLOR_FIREWORK] =
+                bm.scale(ballWidth, ballHeight)
+            colorNextBallMap[Constants.COLOR_FIREWORK] =
+                bm.scale(nextBallWidth, nextBallHeight)
+            colorOvalBallMap[Constants.COLOR_FIREWORK] =
+                bm.scale(ovalBallWidth, ovalBallHeight)
+        }
     }
 
     private fun finishThisActivity() {

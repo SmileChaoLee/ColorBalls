@@ -29,6 +29,7 @@ object Constants {
     const val COLOR_YELLOW = 50
     const val COLOR_CYAN = 60
     const val COLOR_BARRIER = 100
+    const val COLOR_FIREWORK = 101
     const val NUM_BALLS_USED_EASY= 5
     // 6 colors for difficult level
     const val NUM_BALLS_USED_DIFF = 6
