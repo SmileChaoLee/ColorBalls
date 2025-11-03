@@ -3,6 +3,7 @@ package com.smile.smilelibraries.utilities
 import android.app.Activity
 import android.content.Intent
 import androidx.core.net.toUri
+import androidx.fragment.app.FragmentActivity
 import com.smile.smilelibraries.R
 
 object AppLinkUtil {
@@ -35,6 +36,10 @@ object AppLinkUtil {
     }
 
     fun startAppLinkOnStore(activity: Activity, link: String) {
+        activity.startActivity(Intent(Intent.ACTION_VIEW, link.toUri()))
+    }
+
+    fun startAppLinkOnStore(activity: FragmentActivity, link: String) {
         activity.startActivity(Intent(Intent.ACTION_VIEW, link.toUri()))
     }
 }

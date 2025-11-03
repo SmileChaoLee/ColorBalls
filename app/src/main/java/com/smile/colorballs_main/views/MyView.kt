@@ -77,6 +77,7 @@ import com.smile.colorballs_main.interfaces.BasePresentView
 import com.smile.colorballs_main.interfaces.GameOptions
 import com.smile.colorballs_main.presenters.BasePresenter
 import com.smile.colorballs_main.roomdatabase.ScoreDatabase
+import com.smile.colorballs_main.smileapps.SmileAppsActivity
 import com.smile.colorballs_main.tools.GameUtil
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.smilelibraries.utilities.UmpUtil
@@ -824,6 +825,15 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         }
     }
 
+    private fun showSmileAppsActivity() {
+        Intent(
+            this@MyView,
+            SmileAppsActivity::class.java
+        ).also {
+            startActivity(it)
+        }
+    }
+
     @Composable
     fun UndoButton(modifier: Modifier) {
         LogUtil.i(TAG, "UndoButton.mOrientation.intValue" +
@@ -949,6 +959,16 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
                         expanded = false
                         showColorWhenClick(isNewGameClicked)
                         baseViewModel.newGame()
+                    })
+
+                val isAppListClicked = remember { mutableStateOf(false) }
+                CbComposable.DropdownMenuItem(
+                    text = getString(R.string.smileApps),
+                    color = if (isAppListClicked.value) Color.Red else Color.Black,
+                    onClick = {
+                        expanded = false
+                        showColorWhenClick(isAppListClicked)
+                        showSmileAppsActivity()
                     })
 
                 val isPrivacyClicked = remember { mutableStateOf(false) }

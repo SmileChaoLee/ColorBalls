@@ -13,18 +13,13 @@
             android:value="ca-app-pub-8354869049759576~1441776815" />
 
         <activity
-            android:name="ballsremover.views.MainBallRmActivity"
+            android:name="ballsremover.views.BallsRemoverActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <activity
-            android:name="ballsremover.views.BallsRemoverActivity"
-            android:exported="false">
         </activity>
 
     </application>

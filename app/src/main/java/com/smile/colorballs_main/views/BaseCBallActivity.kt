@@ -481,8 +481,10 @@ abstract class BaseCBallActivity : ComponentActivity() {
             }
             BallsRemoverButton(modifier = Modifier.weight(1.0f),
                 buttonWidth, buttonHeight, textLineHeight)
+            /*
             SmileAppsButton(modifier = Modifier.weight(1.0f),
                 buttonWidth, buttonHeight, textLineHeight)
+            */
         }
     }
 

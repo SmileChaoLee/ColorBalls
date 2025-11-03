@@ -52,6 +52,7 @@ class SmileAppsActivity : ComponentActivity() {
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
+            val textLineHeight = (CbComposable.mFontSize.value + 5.0f).sp
             ColorBallsTheme {
                 Scaffold { innerPadding ->
                     Column(modifier = Modifier
@@ -96,6 +97,7 @@ class SmileAppsActivity : ComponentActivity() {
                                         )
                                     }
                                     Text(text = item.appUrl, color = Color.Black,
+                                        lineHeight = textLineHeight,
                                         fontWeight = FontWeight.Normal,
                                         fontSize = CbComposable.mFontSize
                                     )
