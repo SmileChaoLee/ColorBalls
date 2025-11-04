@@ -1,15 +1,12 @@
 package colorballs.views
 
 import android.content.Intent
+import ballsremover.views.BallsRemoverActivity
 import com.smile.colorballs_main.R
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.views.BaseCBallActivity
 
 class MainCBallActivity : BaseCBallActivity() {
-
-    override fun isBallsRemover(): Boolean {
-        return false
-    }
 
     override fun startColorBallActivity() {
         Intent(
@@ -30,6 +27,21 @@ class MainCBallActivity : BaseCBallActivity() {
             disableMainButtons()
             loadingMessage.value = getString(R.string.loadingStr)
             barrierCBLauncher.launch(it)
+        }
+    }
+
+    override fun isBallsRemover(): Boolean {
+        return false
+    }
+
+    override fun startBallsRemoverActivity() {
+        Intent(
+            this@MainCBallActivity,
+            BallsRemoverActivity::class.java
+        ).also {
+            disableMainButtons()
+            loadingMessage.value = getString(R.string.loadingStr)
+            ballsRemoverLauncher.launch(it)
         }
     }
 

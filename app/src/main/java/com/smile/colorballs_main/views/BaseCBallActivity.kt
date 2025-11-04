@@ -39,9 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import com.smile.colorballs_main.R
-import ballsremover.views.BallsRemoverActivity
 import com.google.android.ump.ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA
-import com.smile.colorballs_main.BuildConfig
 import com.smile.colorballs_main.smileapps.SmileAppsActivity
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.smilelibraries.utilities.UmpUtil
@@ -55,9 +53,10 @@ import kotlinx.coroutines.launch
 
 abstract class BaseCBallActivity : ComponentActivity() {
 
-    abstract fun isBallsRemover(): Boolean
     open fun startColorBallActivity() {}
     open fun startBarrierCBallActivity() {}
+    abstract fun isBallsRemover(): Boolean
+    abstract fun startBallsRemoverActivity()
 
     private var mTAG : String = "BaseCBallActivity"
     open fun setTag(tag: String) {
@@ -73,7 +72,7 @@ abstract class BaseCBallActivity : ComponentActivity() {
     // the following are for BarrierCBallActivity
     protected lateinit var barrierCBLauncher: ActivityResultLauncher<Intent>
     // the following are for BallsRemoverActivity
-    private lateinit var ballsRemoverLauncher: ActivityResultLauncher<Intent>
+    protected lateinit var ballsRemoverLauncher: ActivityResultLauncher<Intent>
     private lateinit var smileAppsLauncher: ActivityResultLauncher<Intent>
     //
     protected val loadingMessage = mutableStateOf("")
@@ -196,17 +195,6 @@ abstract class BaseCBallActivity : ComponentActivity() {
         isBarrierEnabled = false
         isBallsRemEnabled = false
         isSmileAppsEnabled = false
-    }
-
-    private fun startBallsRemoverActivity() {
-        Intent(
-            this@BaseCBallActivity,
-            BallsRemoverActivity::class.java
-        ).also {
-            disableMainButtons()
-            loadingMessage.value = getString(R.string.loadingStr)
-            ballsRemoverLauncher.launch(it)
-        }
     }
 
     private fun showSmileAppsActivity() {

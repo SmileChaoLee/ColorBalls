@@ -52,6 +52,12 @@ android {
             versionName "1.82"
             applicationId = "com.smile.ballsremover"
         }
+        create("fivecolorballs") {
+            dimension = "product"
+            versionCode 5000
+            versionName "5.000"
+            applicationId = "com.smile.fivecolorballs"
+        }
     }
 
     sourceSets {
@@ -76,6 +82,14 @@ android {
             res.srcDirs += ["src/ballsremover/res"]
             manifest {
                 srcFile "src/ballsremover/AndroidManifest.xml"
+            }
+        }
+
+        fivecolorballs {
+            java.srcDirs += ["src/fivecolorballs/java"]
+            res.srcDirs += ["src/fivecolorballs/res"]
+            manifest {
+                srcFile "src/fivecolorballs/AndroidManifest.xml"
             }
         }
     }
