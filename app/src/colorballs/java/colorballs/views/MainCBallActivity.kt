@@ -5,6 +5,7 @@ import ballsremover.views.BallsRemoverActivity
 import com.smile.colorballs_main.R
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.views.BaseCBallActivity
+import fivecolorballs.views.FiveCBallsActivity
 
 class MainCBallActivity : BaseCBallActivity() {
 
@@ -30,8 +31,8 @@ class MainCBallActivity : BaseCBallActivity() {
         }
     }
 
-    override fun isBallsRemover(): Boolean {
-        return false
+    override fun hasBallsRemover(): Boolean {
+        return true
     }
 
     override fun startBallsRemoverActivity() {
@@ -42,6 +43,21 @@ class MainCBallActivity : BaseCBallActivity() {
             disableMainButtons()
             loadingMessage.value = getString(R.string.loadingStr)
             ballsRemoverLauncher.launch(it)
+        }
+    }
+
+    override fun hasFiveBalls(): Boolean {
+        return true
+    }
+
+    override fun startFiveCBallsActivity() {
+        Intent(
+            this@MainCBallActivity,
+            FiveCBallsActivity::class.java
+        ).also {
+            disableMainButtons()
+            loadingMessage.value = getString(R.string.loadingStr)
+            fiveCBallsLauncher.launch(it)
         }
     }
 

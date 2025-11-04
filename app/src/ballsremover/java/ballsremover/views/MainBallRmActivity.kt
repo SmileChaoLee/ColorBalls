@@ -7,7 +7,7 @@ import com.smile.colorballs_main.views.BaseCBallActivity
 
 class MainBallRmActivity : BaseCBallActivity() {
 
-    override fun isBallsRemover(): Boolean {
+    override fun hasBallsRemover(): Boolean {
         return true
     }
 
@@ -20,6 +20,14 @@ class MainBallRmActivity : BaseCBallActivity() {
             loadingMessage.value = getString(R.string.loadingStr)
             ballsRemoverLauncher.launch(it)
         }
+    }
+
+    override fun hasFiveBalls(): Boolean {
+        return false
+    }
+
+    override fun startFiveCBallsActivity() {
+        // do nothing
     }
 
     private val mTAG : String = "MainBallRmActivity"

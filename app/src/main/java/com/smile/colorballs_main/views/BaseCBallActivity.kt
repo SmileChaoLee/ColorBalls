@@ -55,8 +55,10 @@ abstract class BaseCBallActivity : ComponentActivity() {
 
     open fun startColorBallActivity() {}
     open fun startBarrierCBallActivity() {}
-    abstract fun isBallsRemover(): Boolean
+    abstract fun hasBallsRemover(): Boolean
     abstract fun startBallsRemoverActivity()
+    abstract fun hasFiveBalls(): Boolean
+    abstract fun startFiveCBallsActivity()
 
     private var mTAG : String = "BaseCBallActivity"
     open fun setTag(tag: String) {
@@ -69,10 +71,9 @@ abstract class BaseCBallActivity : ComponentActivity() {
     private var screenSize = Point(0, 0)
     // the following are for ColorBallActivity
     protected lateinit var cBallLauncher: ActivityResultLauncher<Intent>
-    // the following are for BarrierCBallActivity
     protected lateinit var barrierCBLauncher: ActivityResultLauncher<Intent>
-    // the following are for BallsRemoverActivity
     protected lateinit var ballsRemoverLauncher: ActivityResultLauncher<Intent>
+    protected lateinit var fiveCBallsLauncher: ActivityResultLauncher<Intent>
     private lateinit var smileAppsLauncher: ActivityResultLauncher<Intent>
     //
     protected val loadingMessage = mutableStateOf("")
@@ -85,9 +86,11 @@ abstract class BaseCBallActivity : ComponentActivity() {
     private var isNoBarrierEnabled by mutableStateOf(true)
     private var isBarrierEnabled by mutableStateOf(true)
     private var isBallsRemEnabled by mutableStateOf(true)
+    private var isFiveCBallsEnabled by mutableStateOf(true)
     private var isSmileAppsEnabled by mutableStateOf(true)
 
-    @SuppressLint("ConfigurationScreenWidthHeight", "SourceLockedOrientationActivity")
+    @SuppressLint("ConfigurationScreenWidthHeight",
+        "SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         textFontSize = ScreenUtil.getPxTextFontSizeNeeded(this@BaseCBallActivity)
         toastTextSize = textFontSize * 0.7f
@@ -121,6 +124,14 @@ abstract class BaseCBallActivity : ComponentActivity() {
             enableMainButtons()
         }
 
+        fiveCBallsLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) {
+                result: ActivityResult ->
+            LogUtil.i(mTAG, "fiveCBallsLauncher.result received")
+            loadingMessage.value = ""
+            enableMainButtons()
+        }
+
         smileAppsLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
@@ -147,8 +158,9 @@ abstract class BaseCBallActivity : ComponentActivity() {
                 }
             }
             LaunchedEffect(Unit) {
-                // val deviceHashedId = "8F6C5B0830E624E8D8BFFB5853B4EDDD" // for debug test
-                val deviceHashedId = "" // for release
+                // setTestDeviceIds(Arrays.asList("8F6C5B0830E624E8D8BFFB5853B4EDDD"))
+                val deviceHashedId = "8F6C5B0830E624E8D8BFFB5853B4EDDD" // for debug test
+                // val deviceHashedId = "" // for release
                 UmpUtil.initConsentInformation(this@BaseCBallActivity,
                     DEBUG_GEOGRAPHY_EEA,deviceHashedId,
                     object : UmpUtil.UmpInterface {
@@ -187,6 +199,7 @@ abstract class BaseCBallActivity : ComponentActivity() {
         isNoBarrierEnabled = true
         isBarrierEnabled = true
         isBallsRemEnabled = true
+        isFiveCBallsEnabled = true
         isSmileAppsEnabled = true
     }
 
@@ -194,6 +207,7 @@ abstract class BaseCBallActivity : ComponentActivity() {
         isNoBarrierEnabled = false
         isBarrierEnabled = false
         isBallsRemEnabled = false
+        isFiveCBallsEnabled = false
         isSmileAppsEnabled = false
     }
 
@@ -342,7 +356,48 @@ abstract class BaseCBallActivity : ComponentActivity() {
                     disabledContentColor = buttonContentColor
                 )
             )
-            { Text(text = getString(R.string.removeBalls),
+            { Text(text = getString(R.string.balls_remover_name),
+                fontSize = CbComposable.mFontSize) }
+        }
+    }
+
+    @Composable
+    fun FiveCBallsButton(modifier: Modifier = Modifier,
+                           buttonWidth: Float,
+                           buttonHeight: Float,
+                           textLineHeight: TextUnit) {
+        LogUtil.d(mTAG, "FiveCBallsButton")
+        Column(modifier = modifier,
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Center) {
+            val isFcbClicked = remember { mutableStateOf(false) }
+            Button(
+                enabled = isBallsRemEnabled,
+                onClick = {
+                    CoroutineScope(Dispatchers.Default).launch {
+                        isFcbClicked.value = true
+                        delay(200)
+                        startFiveCBallsActivity()
+                        isFcbClicked.value = false
+                    }
+                },
+                modifier = Modifier//.weight(1.0f)
+                    .width(width = buttonWidth.dp)
+                    .height(height = buttonHeight.dp)
+                    .background(color = buttonBackground),
+                colors = ButtonColors(
+                    containerColor =
+                        if (!isFcbClicked.value) buttonContainerColor
+                        else Color.Cyan,
+                    disabledContainerColor = buttonContainerColor,
+                    contentColor =
+                        if (!isFcbClicked.value)
+                            buttonContentColor
+                        else Color.Red ,
+                    disabledContentColor = buttonContentColor
+                )
+            )
+            { Text(text = getString(R.string.five_cballs_name),
                 fontSize = CbComposable.mFontSize) }
         }
     }
@@ -388,56 +443,6 @@ abstract class BaseCBallActivity : ComponentActivity() {
         }
     }
 
-    /*
-    @Composable
-    fun CreateMainUI() {
-        LogUtil.d(mTAG, "CreateMainUI")
-        if (loadingMessage.value.isNotEmpty()) return
-        val maxWidth = ScreenUtil.pixelToDp(screenSize.x.toFloat())
-        val maxHeight = ScreenUtil.pixelToDp(screenSize.y.toFloat())
-        LogUtil.d(mTAG, "CreateMainUI.maxHeight = $maxHeight")
-        var verSpacerWeight = 1.0f
-        var horSpacerWeight = 1.0f
-        if (resources.configuration.orientation
-            == Configuration.ORIENTATION_LANDSCAPE) {
-            verSpacerWeight = 0.2f
-            horSpacerWeight = 2.5f
-        }
-        val buttonWidth = maxWidth * ((10.0f - horSpacerWeight * 2.0f) / 10.0f)
-        LogUtil.d(mTAG, "CreateMainUI.buttonWidth = $buttonWidth")
-        // 1 in 5
-        val buttonHeight = maxHeight * ((10.0f - verSpacerWeight * 2.0f) / 10.0f) / 5.0f
-        LogUtil.d(mTAG, "CreateMainUI.buttonHeight = $buttonHeight")
-        val textLineHeight = (CbComposable.toastFontSize.value + 5.0f).sp
-        Column(modifier = Modifier
-            .fillMaxSize()) {
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .weight(verSpacerWeight))
-            Row(modifier = Modifier.weight(10.0f - verSpacerWeight * 2.0f)) {
-                Spacer(modifier = Modifier
-                    .fillMaxHeight()
-                    .weight(horSpacerWeight))
-                Column(modifier = Modifier
-                    .weight(10.0f - horSpacerWeight * 2.0f)) {
-                    NoBarrierCBallButton(modifier = Modifier.weight(1.0f),
-                        buttonWidth, buttonHeight, textLineHeight)
-                    BarrierCBallButton(modifier = Modifier.weight(1.0f),
-                        buttonWidth, buttonHeight, textLineHeight)
-                    BallsRemoverButton(modifier = Modifier.weight(1.0f),
-                        buttonWidth, buttonHeight, textLineHeight)
-                }
-                Spacer(modifier = Modifier
-                    .fillMaxHeight()
-                    .weight(horSpacerWeight))
-            }
-            Spacer(modifier = Modifier
-                .fillMaxSize()
-                .weight(verSpacerWeight))
-        }
-    }
-    */
-
     @Composable
     fun CreateMainUI() {
         LogUtil.i(mTAG, "CreateMainUI")
@@ -461,14 +466,22 @@ abstract class BaseCBallActivity : ComponentActivity() {
         Column(modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
-            if (!isBallsRemover()) {
+            if (hasBallsRemover() && hasFiveBalls()) {
                 NoBarrierCBallButton(modifier = Modifier.weight(1.0f),
                     buttonWidth, buttonHeight, textLineHeight)
                 BarrierCBallButton(modifier = Modifier.weight(1.0f),
                     buttonWidth, buttonHeight, textLineHeight)
             }
-            BallsRemoverButton(modifier = Modifier.weight(1.0f),
-                buttonWidth, buttonHeight, textLineHeight)
+            if (hasBallsRemover()) {
+                BallsRemoverButton(
+                    modifier = Modifier.weight(1.0f),
+                    buttonWidth, buttonHeight, textLineHeight)
+            }
+            if (hasFiveBalls()) {
+                FiveCBallsButton(
+                    modifier = Modifier.weight(1.0f),
+                    buttonWidth, buttonHeight, textLineHeight)
+            }
             /*
             SmileAppsButton(modifier = Modifier.weight(1.0f),
                 buttonWidth, buttonHeight, textLineHeight)
