@@ -1,5 +1,7 @@
 package com.smile.colorballs_main.views
 
+import android.content.res.Configuration
+import android.os.Bundle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.smile.colorballs_main.tools.LogUtil
 
@@ -18,6 +19,23 @@ abstract class CbRmBaseView: BaseView() {
 
     companion object {
         private const val TAG = "CbRmBaseView"
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        LogUtil.i(TAG, "$TAG.onCreate")
+        // Must be before super.onCreate(savedInstanceState)
+        gameWidthRation = 1.0f
+        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            menuBarWeight = 1.0f
+            gameGridWeight = 7.0f
+        } else {
+            menuBarWeight = 1.0f
+            gameGridWeight = 9.0f
+        }
+        LogUtil.i(TAG, "$TAG.onCreate.menuBarWeight = $menuBarWeight")
+        LogUtil.i(TAG, "$TAG.onCreate.gameGridWeight = $gameGridWeight")
+
+        super.onCreate(savedInstanceState)
     }
 
     // implement abstract fun of BaseView

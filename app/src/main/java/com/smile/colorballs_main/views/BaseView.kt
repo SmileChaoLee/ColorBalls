@@ -1,5 +1,6 @@
 package com.smile.colorballs_main.views
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
@@ -22,8 +23,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.requiredWidth
@@ -50,6 +51,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
@@ -78,7 +80,6 @@ import com.smile.colorballs_main.roomdatabase.ScoreDatabase
 import com.smile.colorballs_main.smileapps.SmileAppsActivity
 import com.smile.colorballs_main.tools.GameUtil
 import com.smile.colorballs_main.tools.LogUtil
-import com.smile.smilelibraries.utilities.UmpUtil
 import com.smile.colorballs_main.viewmodel.BaseViewModel
 import com.smile.colorballs_main.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs_main.views.ui.theme.ColorPrimary
@@ -118,8 +119,6 @@ abstract class BaseView: ComponentActivity(),
     val colorPrimary = Color(0xFF3F51B5)
     val colorYellow3 = Yellow3
     val mOrientation = mutableIntStateOf(Configuration.ORIENTATION_PORTRAIT)
-    var screenX = 0f
-    var screenY = 0f
     var boxImage: Bitmap? = null
     var mImageSizeDp = 0f
     val colorBallMap: HashMap<Int, Bitmap> = HashMap()
@@ -141,14 +140,12 @@ abstract class BaseView: ComponentActivity(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         LogUtil.i(TAG, "$TAG.onCreate")
-        LogUtil.i(TAG, "onCreate.canRequestAds = ${UmpUtil.canRequestAds()}")
-        LogUtil.i(TAG, "onCreate.consentStatus = ${UmpUtil.getConsentStatus()}")
         textFontSize = ScreenUtil.getPxTextFontSizeNeeded(this@BaseView)
         toastTextSize = textFontSize * 0.7f
         CbComposable.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
         CbComposable.toastFontSize = ScreenUtil.pixelToDp(toastTextSize).sp
-        getScreenSize()
 
+        mOrientation.intValue = resources.configuration.orientation
         mBaseApp = application as? BaseApp
 
         super.onCreate(savedInstanceState)
@@ -164,20 +161,20 @@ abstract class BaseView: ComponentActivity(),
             }
         }
 
-        LogUtil.d(TAG, "onCreate.interstitialAd")
+        LogUtil.d(TAG, "$TAG.onCreate.interstitialAd")
         interstitialAd = ShowInterstitial(this, null,
             mBaseApp?.getInterstitial())
 
         getBasePresenter()?.let {
             basePresenter = it
         } ?: run {
-            LogUtil.d(TAG, "onCreate.basePresenter is null so exit activity.")
+            LogUtil.d(TAG, "$TAG.onCreate.basePresenter is null so exit activity.")
             return
         }
         getBaseViewModel()?.let {
             baseViewModel = it
         } ?: run {
-            LogUtil.d(TAG, "onCreate.baseViewModel is null so exit activity.")
+            LogUtil.d(TAG, "$TAG.onCreate.baseViewModel is null so exit activity.")
             return
         }
         // The following statements must be after having basePresenter and baseViewModel
@@ -193,7 +190,7 @@ abstract class BaseView: ComponentActivity(),
         settingLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            LogUtil.i(TAG, "settingLauncher.result received")
+            LogUtil.i(TAG, "$TAG.settingLauncher.result received")
             if (result.resultCode == RESULT_OK) {
                 val originalLevel = baseViewModel.isEasyLevel()
                 var newEasyLevel: Boolean
@@ -210,18 +207,18 @@ abstract class BaseView: ComponentActivity(),
                 }
             }
         }
+        LogUtil.i(TAG, "$TAG.onCreate.menuBarWeight = $menuBarWeight")
+        LogUtil.i(TAG, "$TAG.onCreate.gameGridWeight = $gameGridWeight")
         // enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            LogUtil.i(TAG, "onCreate.setContent")
+            LogUtil.i(TAG, "$TAG.onCreate.setContent")
             ColorBallsTheme {
                 Scaffold {innerPadding ->
-                    mOrientation.intValue = resources.configuration.orientation
                     Box(Modifier.padding(innerPadding)
                         .background(color = colorYellow3)) {
                         if (mOrientation.intValue ==
-                            Configuration.ORIENTATION_PORTRAIT
-                        ) {
+                            Configuration.ORIENTATION_PORTRAIT) {
                             Column {
                                 GameView(Modifier.weight(gameGridWeight))
                                 SHowPortraitAds(Modifier.fillMaxWidth()
@@ -244,7 +241,7 @@ abstract class BaseView: ComponentActivity(),
                 }
             }
             LaunchedEffect(Unit) {
-                LogUtil.i(TAG, "onCreate.setContent.LaunchedEffect")
+                LogUtil.i(TAG, "$TAG.onCreate.setContent.LaunchedEffect")
                 baseViewModel.initGame(savedInstanceState)
             }
         }
@@ -252,7 +249,7 @@ abstract class BaseView: ComponentActivity(),
         onBackPressedDispatcher.addCallback(object
             : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                LogUtil.d(TAG, "onBackPressedDispatcher.handleOnBackPressed")
+                LogUtil.d(TAG, "$TAG.onBackPressedDispatcher.handleOnBackPressed")
                 onBackWasPressed()
             }
         })
@@ -280,20 +277,11 @@ abstract class BaseView: ComponentActivity(),
         }
     }
 
-    private fun getScreenSize() {
-        val screen = ScreenUtil.getScreenSize(this)
-        LogUtil.i(TAG, "getScreenSize.screen.x = ${screen.x}")
-        LogUtil.i(TAG, "getScreenSize.screen.y = ${screen.y}")
-        screenX = screen.x.toFloat()
-        screenY = screen.y.toFloat()
-    }
-
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         LogUtil.i(TAG, "onConfigurationChanged.newConfig.orientation = " +
                 "${newConfig.orientation}")
         mOrientation.intValue = newConfig.orientation
-        getScreenSize()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -453,39 +441,48 @@ abstract class BaseView: ComponentActivity(),
     }
 
     // this fun will be override in com.smile.fivecolorballs
+    @SuppressLint("ConfigurationScreenWidthHeight")
     @Composable
     open fun GameView(modifier: Modifier) {
         LogUtil.i(TAG, "GameView.mOrientation.intValue = ${mOrientation.intValue}")
-        LogUtil.d(TAG, "GameView.screenX = $screenX, screenY = $screenY")
-        var maxWidth = screenX
-        // val barWeight = 10.0f - gameGridWeight
-        // menuBarWeight = 1.0f
-        var gameWeight = gameGridWeight
+        // val height = LocalWindowInfo.current.containerSize.height
+        // LogUtil.d(TAG, "GameView.height = $height")
+        val conf = LocalConfiguration.current
+        val screenHeightDp = conf.screenHeightDp
+        LogUtil.d(TAG, "GameView.screenHeightDp = $screenHeightDp")
+        val screenHeightPx = ScreenUtil.dpToPixel(screenHeightDp.toFloat())
+        LogUtil.d(TAG, "GameView.screenHeightPx = $screenHeightPx")
+        val screenWidthDp = conf.screenWidthDp
+        LogUtil.d(TAG, "GameView.screenWidthDp = $screenWidthDp")
+        val screenWidthPx = ScreenUtil.dpToPixel(screenWidthDp.toFloat())
+        LogUtil.d(TAG, "GameView.screenWidthPx = $screenWidthPx")
+
+        var maxWidth = screenWidthPx
         if (mOrientation.intValue == Configuration.ORIENTATION_LANDSCAPE) {
             LogUtil.d(TAG, "GameView.ORIENTATION_LANDSCAPE")
-            maxWidth = screenX/2.0f
-            // menuBarWeight = 1.0f
-            gameWeight = 9.0f
+            maxWidth = screenWidthPx/2.0f
         }
         maxWidth *= gameWidthRation
-        val gridHeight = ScreenUtil.pixelToDp(screenY) * gameWeight / 10.0f
+        // val gridHeight = screenY * gameGridWeight / 10.0f
+        val gridHeight = screenHeightPx * gameGridWeight / 10.0f
         LogUtil.d(TAG, "GameView.gridHeight = $gridHeight")
-        // val heightPerBall = gridHeight / Constants.ROW_COUNTS
         val heightPerBall = gridHeight / baseViewModel.rowCounts
         LogUtil.d(TAG, "GameView.heightPerBall = $heightPerBall")
-        // val widthPerBall = ScreenUtil.pixelToDp(maxWidth) / Constants.COLUMN_COUNTS
-        val widthPerBall = ScreenUtil.pixelToDp(maxWidth) / baseViewModel.colCounts
+        val widthPerBall = maxWidth / baseViewModel.colCounts
         LogUtil.d(TAG, "GameView.widthPerBall = $widthPerBall")
         // set size of color balls
-        mImageSizeDp = if (heightPerBall>widthPerBall) widthPerBall
-        else heightPerBall
-        mImageSizeDp = (mImageSizeDp*100f).toInt().toFloat() / 100f
+        val imageSize = (if (heightPerBall>widthPerBall) widthPerBall
+        else heightPerBall).toInt()
+        LogUtil.d(TAG, "GameView.imageSize = $imageSize")
+        bitmapDrawableResources(imageSize.toFloat())
+
+        mImageSizeDp = ScreenUtil.pixelToDp(imageSize.toFloat())
+        mImageSizeDp = mImageSizeDp.toInt().toFloat()
         LogUtil.d(TAG, "GameView.mImageSizeDp = $mImageSizeDp")
         val sizePx = ScreenUtil.dpToPixel(mImageSizeDp)
-        bitmapDrawableResources(sizePx)
+        LogUtil.d(TAG, "GameView.sizePx = $sizePx")
 
         val topPadding = 0f
-        // val backgroundColor = Color(getColor(R.color.yellow3))
         Column(modifier = modifier.fillMaxHeight()) {
             if (menuBarWeight > 0.0f) {
                 ToolBarMenu(
@@ -494,7 +491,7 @@ abstract class BaseView: ComponentActivity(),
                         .padding(top = topPadding.dp, start = 0.dp)
                 )
             }
-            Column(modifier = Modifier.weight(gameWeight)) {
+            Column(modifier = Modifier.weight(gameGridWeight)) {
                 GameViewGrid()
             }
         }
@@ -745,12 +742,12 @@ abstract class BaseView: ComponentActivity(),
     fun ShowLandscapeAds(modifier: Modifier) {
         LogUtil.i(TAG, "ShowLandscapeAds.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
+        /*
         val colHeight = with(LocalDensity.current) {
             screenY.toDp()
         }
-        Column(modifier = modifier
-            .height(height = colHeight)
-            .fillMaxWidth(),
+        */
+        Column(modifier = modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
             ShowNativeAd(modifier = Modifier.weight(8.0f))
@@ -979,7 +976,7 @@ abstract class BaseView: ComponentActivity(),
                             }) {
                             Image(
                                 modifier = Modifier
-                                    .size(mImageSizeDp.dp)
+                                    // .size(mImageSizeDp.dp)   // image already resized
                                     .padding(all = 0.dp),
                                 // painter = painterResource(id = R.drawable.box_image),
                                 // painter = rememberDrawablePainter(drawable = boxImage),

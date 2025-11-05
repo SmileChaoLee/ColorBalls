@@ -1,5 +1,6 @@
 package fivecolorballs.viewmodels
 
+import android.content.res.Configuration
 import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
@@ -12,6 +13,7 @@ import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.models.GameProp
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.viewmodel.BaseViewModel
+import fivecolorballs.constants.FiveBallsConstants
 import fivecolorballs.presenters.FiveBallsPresenter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -41,8 +43,8 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
     init {
         LogUtil.i(TAG, "FiveBallsViewModel.init")
         brGameProp = GameProp()
-        brGridData = GridData(fivePresenter.rowCounts,
-            fivePresenter.colCounts)
+        brGridData = GridData(FiveBallsConstants.ROW_COUNTS
+            , FiveBallsConstants.COLUMN_COUNTS)
         mGameProp = brGameProp
         mGridData = brGridData
         super.setProperties()

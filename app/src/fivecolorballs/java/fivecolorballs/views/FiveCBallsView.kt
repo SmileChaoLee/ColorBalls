@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -49,16 +48,22 @@ abstract class FiveCBallsView: BaseView(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         LogUtil.i(TAG, "$TAG.onCreate")
-
         // Must be before super.onCreate(savedInstanceState)
-        mPresenter = FiveBallsPresenter(this,
-            resources.configuration.orientation)
-        viewModel = FiveBallsViewModel(mPresenter)
-
-        gameWidthRation = if (mOrientation.intValue
-            == Configuration.ORIENTATION_PORTRAIT) 0.8f else 0.8f
         menuBarWeight = 0.0f
-        gameGridWeight = 8.0f
+        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            LogUtil.i(TAG, "$TAG.onCreate.PORTRAIT")
+            gameGridWeight = 8.0f
+            gameWidthRation = 0.8f
+        } else {
+            LogUtil.i(TAG, "$TAG.onCreate.LANDSCAPE")
+            gameGridWeight = 10.0f
+            gameWidthRation = 0.9f
+        }
+        LogUtil.i(TAG, "$TAG.onCreate.menuBarWeight = $menuBarWeight")
+        LogUtil.i(TAG, "$TAG.onCreate.gameGridWeight = $gameGridWeight")
+
+        mPresenter = FiveBallsPresenter(this)
+        viewModel = FiveBallsViewModel(mPresenter)
 
         super.onCreate(savedInstanceState)
     }
@@ -67,7 +72,7 @@ abstract class FiveCBallsView: BaseView(),
     fun ShowNext4Balls(modifier: Modifier = Modifier) {
         LogUtil.i(TAG, "ShowNext4Balls.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
-        val next = mutableStateListOf<ColorBallInfo>()
+        val next = ArrayList<ColorBallInfo>()
         next.add(ColorBallInfo(ballColor = Constants.COLOR_RED, whichBall = WhichBall.BALL,
             isResize = true))
         next.add(ColorBallInfo(ballColor = Constants.COLOR_BLUE, whichBall = WhichBall.BALL,
@@ -105,6 +110,7 @@ abstract class FiveCBallsView: BaseView(),
     // implement abstract fun of BaseView
     @Composable
     override fun ToolBarMenu(modifier: Modifier) {
+        LogUtil.i(TAG, "ToolBarMenu")
         // do nothing
     }
 
@@ -136,6 +142,7 @@ abstract class FiveCBallsView: BaseView(),
                             ShowNext4Balls(modifier = Modifier)
                         }
                         Column(modifier = Modifier.weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Bottom) {
                             ShowCurrentScore(modifier = Modifier.weight(1f),
                                 pFontSize = scoreFontSize)
@@ -144,11 +151,6 @@ abstract class FiveCBallsView: BaseView(),
                         }
                     }
                 }
-                Column(modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center) {
-                    ShowMessageOnScreen()
-                }
             }
         }
     }
@@ -156,25 +158,7 @@ abstract class FiveCBallsView: BaseView(),
     @Composable
     override fun CreateNewGameDialog() {
         LogUtil.i(TAG, "CreateNewGameDialog")
-        val dialogText = viewModel.getCreateNewGameText()
-        if (dialogText.isNotEmpty()) {
-            viewModel.setShowingCreateGameDialog(true)
-            val buttonListener = object: CbComposable.ButtonClickListener {
-                override fun buttonOkClick() {
-                    viewModel.setCreateNewGameText("")
-                    viewModel.setShowingCreateGameDialog(false)
-                    quitOrNewGame()
-                }
-                override fun buttonCancelClick() {
-                    viewModel.setCreateNewGameText("")
-                    viewModel.setShowingCreateGameDialog(false)
-                }
-            }
-            CbComposable.DialogWithText(
-                this@FiveCBallsView,
-                buttonListener, "", dialogText
-            )
-        }
+        // do nothing
     }
 
     override fun getBasePresenter(): FiveBallsPresenter {
@@ -187,7 +171,8 @@ abstract class FiveCBallsView: BaseView(),
 
     override fun ifInterstitialWhenSaveScore() {
         LogUtil.i(TAG, "ifShowInterstitialAd")
-        if (viewModel.timesPlayed >= FiveBallsConstants.SHOW_ADS_AFTER_TIMES) {
+        if (viewModel.timesPlayed >=
+            FiveBallsConstants.SHOW_ADS_AFTER_TIMES) {
             LogUtil.d(TAG, "ifShowInterstitialAd.showInterstitialAd")
             showInterstitialAd()
             viewModel.timesPlayed = 0
@@ -201,11 +186,10 @@ abstract class FiveCBallsView: BaseView(),
     override fun setHasNextForView(hasNext: Boolean) {
         viewModel.setHasNext(hasNext)
     }
-    // end of implementing abstract fun of BaseView
 
     override fun ifInterstitialWhenNewGame() {
         LogUtil.i(TAG, "ifInterstitialWhenNewGame")
         viewModel.initGame(bundle = null)
     }
-    // end of implementing abstract fun of MyView
+    // end of implementing abstract fun of BaseView
 }
