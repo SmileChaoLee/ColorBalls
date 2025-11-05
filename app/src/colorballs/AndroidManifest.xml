@@ -37,6 +37,11 @@
             android:exported="false">
         </activity>
 
+        <activity
+            android:name="fivecolorballs.views.FiveCBallsActivity"
+            android:exported="false">
+        </activity>
+
     </application>
 
 </manifest>

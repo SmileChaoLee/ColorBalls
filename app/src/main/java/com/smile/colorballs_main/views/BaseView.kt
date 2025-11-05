@@ -7,8 +7,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
@@ -24,7 +22,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -56,6 +53,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smile.colorballs_main.BuildConfig
@@ -86,7 +84,6 @@ import com.smile.colorballs_main.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs_main.views.ui.theme.ColorPrimary
 import com.smile.colorballs_main.views.ui.theme.Yellow3
 import com.smile.smilelibraries.GoogleNativeAd
-import com.smile.smilelibraries.interfaces.DismissFunction
 import com.smile.smilelibraries.models.ExitAppTimer
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil
 import kotlinx.coroutines.CoroutineScope
@@ -94,14 +91,20 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
+abstract class BaseView: ComponentActivity(),
+    BasePresentView, GameOptions {
 
     companion object {
-        private const val TAG = "MyView"
+        private const val TAG = "BaseView"
     }
 
     @Composable
+    abstract fun ToolBarMenu(modifier: Modifier)
+    @Composable
+    abstract fun GameViewGrid()
+    @Composable
     abstract fun CreateNewGameDialog()
+
     abstract fun getBasePresenter(): BasePresenter?
     abstract fun getBaseViewModel(): BaseViewModel?
     abstract fun setHasNextForView(hasNext: Boolean)
@@ -109,17 +112,20 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
     abstract fun ifInterstitialWhenNewGame()
     abstract fun ifCreatingNewGame(newEasyLevel: Boolean, originalLevel: Boolean)
 
-    protected val menuBarWeight = 1.0f
-    protected val gameGridWeight = 7.0f
-    protected val mOrientation = mutableIntStateOf(Configuration.ORIENTATION_PORTRAIT)
-    protected var screenX = 0f
-    protected var screenY = 0f
-    protected var boxImage: Bitmap? = null
-    protected var mImageSizeDp = 0f
-    protected val colorBallMap: HashMap<Int, Bitmap> = HashMap()
-    protected val colorOvalBallMap: HashMap<Int, Bitmap> = HashMap()
-    protected val colorNextBallMap: HashMap<Int, Bitmap> = HashMap()
-    protected var interstitialAd: ShowInterstitial? = null
+    var menuBarWeight = 1.0f
+    var gameGridWeight = 7.0f
+    var gameWidthRation = 1.0f
+    val colorPrimary = Color(0xFF3F51B5)
+    val colorYellow3 = Yellow3
+    val mOrientation = mutableIntStateOf(Configuration.ORIENTATION_PORTRAIT)
+    var screenX = 0f
+    var screenY = 0f
+    var boxImage: Bitmap? = null
+    var mImageSizeDp = 0f
+    val colorBallMap: HashMap<Int, Bitmap> = HashMap()
+    val colorOvalBallMap: HashMap<Int, Bitmap> = HashMap()
+    val colorNextBallMap: HashMap<Int, Bitmap> = HashMap()
+    var interstitialAd: ShowInterstitial? = null
 
     private var textFontSize = 0f
     private var toastTextSize = 0f
@@ -137,7 +143,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         LogUtil.i(TAG, "$TAG.onCreate")
         LogUtil.i(TAG, "onCreate.canRequestAds = ${UmpUtil.canRequestAds()}")
         LogUtil.i(TAG, "onCreate.consentStatus = ${UmpUtil.getConsentStatus()}")
-        textFontSize = ScreenUtil.getPxTextFontSizeNeeded(this@MyView)
+        textFontSize = ScreenUtil.getPxTextFontSizeNeeded(this@BaseView)
         toastTextSize = textFontSize * 0.7f
         CbComposable.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
         CbComposable.toastFontSize = ScreenUtil.pixelToDp(toastTextSize).sp
@@ -148,7 +154,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         super.onCreate(savedInstanceState)
 
         if (!BuildConfig.DEBUG) {
-            val deviceType = ScreenUtil.getDeviceType(this@MyView)
+            val deviceType = ScreenUtil.getDeviceType(this@BaseView)
             requestedOrientation = if (deviceType == ScreenUtil.DEVICE_TYPE_PHONE) {
                 // phone then change orientation to Portrait
                 ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -181,7 +187,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         top10Launcher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            LogUtil.i(TAG, "top10Launcher.result received")
+            LogUtil.i(TAG, "top10Launcher.result = $result")
         }
 
         settingLauncher = registerForActivityResult(
@@ -211,17 +217,14 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
             ColorBallsTheme {
                 Scaffold {innerPadding ->
                     mOrientation.intValue = resources.configuration.orientation
-                    val backgroundColor = Yellow3
                     Box(Modifier.padding(innerPadding)
-                        .background(color = backgroundColor)) {
+                        .background(color = colorYellow3)) {
                         if (mOrientation.intValue ==
                             Configuration.ORIENTATION_PORTRAIT
                         ) {
                             Column {
                                 GameView(Modifier.weight(gameGridWeight))
-                                SHowPortraitAds(
-                                    Modifier
-                                        .fillMaxWidth()
+                                SHowPortraitAds(Modifier.fillMaxWidth()
                                         .weight(10.0f - menuBarWeight - gameGridWeight)
                                 )
                             }
@@ -257,6 +260,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     // should be private after UI migration
     fun onBackWasPressed() {
+        LogUtil.d(TAG, "onBackWasPressed")
         // capture the event of back button when it is pressed
         // change back button behavior
         val exitAppTimer = ExitAppTimer.getInstance(1000) // singleton class
@@ -267,7 +271,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
             val toastFontSize = textFontSize * 0.7f
             LogUtil.d(TAG, "toastFontSize = $toastFontSize")
             ScreenUtil.showToast(
-                this@MyView,
+                this@BaseView,
                 getString(R.string.backKeyToExitApp),
                 toastFontSize,
                 ScreenUtil.FontSize_Pixel_Type,
@@ -327,8 +331,6 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     protected fun showInterstitialAd() {
         LogUtil.i(TAG, "showInterstitialAd = $interstitialAd")
-        LogUtil.i(TAG, "showInterstitialAd.canRequestAds = ${UmpUtil.canRequestAds()}")
-        LogUtil.i(TAG, "showInterstitialAd.consentStatus = ${UmpUtil.getConsentStatus()}")
         interstitialAd?.ShowAdThread()?.startShowAd(0) // AdMob first
     }
 
@@ -420,45 +422,39 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     private fun finishThisActivity() {
         LogUtil.i(TAG, "finishThisActivity = $interstitialAd")
-        LogUtil.i(TAG, "finishThisActivity.canRequestAds = ${UmpUtil.canRequestAds()}")
-        LogUtil.i(TAG, "finishThisActivity.consentStatus = ${UmpUtil.getConsentStatus()}")
-        interstitialAd?.ShowAdThread(object: DismissFunction {
-            override fun backgroundWork() {
-                // do nothing
-            }
-
-            override fun executeDismiss() {
-                finish()    // finish() after dismissing ad
-            }
-
-            override fun afterFinished(isAdShown: Boolean) {
-                if (!isAdShown) finish() // no ad, then finish
-            }
-        })?.startShowAd(0) ?: finish()
+        finish()
     }
 
     private fun exitApplication() {
+        LogUtil.i(TAG, "exitApplication")
+        /*
         val handlerClose = Handler(Looper.getMainLooper())
         val timeDelay = 1000
         // exit application
         handlerClose.postDelayed({ finishThisActivity() },
             timeDelay.toLong())
+        */
+        finishThisActivity()
     }
 
     fun quitOrNewGame() {
+        LogUtil.i(TAG, "quitOrNewGame")
         if (baseViewModel.mGameAction == Constants.IS_QUITING_GAME) {
             //  END PROGRAM
+            LogUtil.i(TAG, "quitOrNewGame.exitApplication")
             exitApplication()
         } else if (baseViewModel.mGameAction == Constants.IS_CREATING_GAME) {
             //  NEW GAME
+            LogUtil.i(TAG, "quitOrNewGame.ifInterstitialWhenNewGame")
             ifInterstitialWhenNewGame()
         }
         baseViewModel.setSaveScoreAlertDialogState(false)
         // baseViewModel.isProcessingJob = false
     }
 
+    // this fun will be override in com.smile.fivecolorballs
     @Composable
-    fun GameView(modifier: Modifier) {
+    open fun GameView(modifier: Modifier) {
         LogUtil.i(TAG, "GameView.mOrientation.intValue = ${mOrientation.intValue}")
         LogUtil.d(TAG, "GameView.screenX = $screenX, screenY = $screenY")
         var maxWidth = screenX
@@ -471,6 +467,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
             // menuBarWeight = 1.0f
             gameWeight = 9.0f
         }
+        maxWidth *= gameWidthRation
         val gridHeight = ScreenUtil.pixelToDp(screenY) * gameWeight / 10.0f
         LogUtil.d(TAG, "GameView.gridHeight = $gridHeight")
         // val heightPerBall = gridHeight / Constants.ROW_COUNTS
@@ -490,63 +487,36 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         val topPadding = 0f
         // val backgroundColor = Color(getColor(R.color.yellow3))
         Column(modifier = modifier.fillMaxHeight()) {
-            ToolBarMenu(modifier = Modifier
-                .weight(menuBarWeight)
-                .padding(top = topPadding.dp, start = 0.dp))
-            Column(modifier = Modifier.weight(gameWeight),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center) {
+            if (menuBarWeight > 0.0f) {
+                ToolBarMenu(
+                    modifier = Modifier
+                        .weight(menuBarWeight)
+                        .padding(top = topPadding.dp, start = 0.dp)
+                )
+            }
+            Column(modifier = Modifier.weight(gameWeight)) {
                 GameViewGrid()
             }
         }
     }
 
     @Composable
-    fun ToolBarMenu(modifier: Modifier) {
-        LogUtil.i(TAG, "ToolBarMenu.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
-        Row(modifier = modifier
-            // .background(color = Color(getColor(R.color.colorPrimary)))) {
-            // .background(android.graphics.Color.rgb(0x3F, 0x51, 0xB5))) {
-            .background(Color(0xFF3F51B5))) {
-            ShowCurrentScore(
-                Modifier
-                    .weight(2f)
-                    .padding(start = 10.dp)
-                    .align(Alignment.CenterVertically))
-            SHowHighestScore(
-                Modifier
-                    .weight(2f)
-                    .align(Alignment.CenterVertically))
-            UndoButton(modifier = Modifier
-                .weight(1f)
-                .align(Alignment.CenterVertically))
-            SettingButton(modifier = Modifier
-                .weight(1f)
-                .align(Alignment.CenterVertically))
-            ShowMenu(modifier = Modifier
-                .weight(1f)
-                .align(Alignment.CenterVertically))
-        }
-    }
-
-    @Composable
-    fun ShowCurrentScore(modifier: Modifier) {
+    fun ShowCurrentScore(modifier: Modifier, pFontSize: TextUnit) {
         LogUtil.i(TAG, "ShowCurrentScore.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         Text(text = baseViewModel.getCurrentScore().toString(),
             modifier = modifier,
-            color = Color.Red, fontSize = CbComposable.mFontSize
+            color = Color.Red, fontSize = pFontSize
         )
     }
 
     @Composable
-    fun SHowHighestScore(modifier: Modifier) {
+    fun SHowHighestScore(modifier: Modifier, pFontSize: TextUnit) {
         LogUtil.i(TAG, "SHowHighestScore.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         Text(text = baseViewModel.getHighestScore().toString(),
             modifier = modifier,
-            color = Color.White, fontSize = CbComposable.mFontSize
+            color = Color.White, fontSize = pFontSize
         )
     }
 
@@ -563,7 +533,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
                         } else {
                             getString(R.string.failedSaveGameStr)
                         }
-                    ScreenUtil.showToast(this@MyView, msg, textFontSize,
+                    ScreenUtil.showToast(this@BaseView, msg, textFontSize,
                         ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
                     baseViewModel.setSaveGameText("")
                     baseViewModel.setShowingSureSaveDialog(false)
@@ -575,7 +545,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
                 }
             }
             CbComposable.DialogWithText(
-                this@MyView,
+                this@BaseView,
                 buttonListener, "", dialogText
             )
         }
@@ -594,7 +564,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
                     } else {
                         getString(R.string.failedLoadGameStr)
                     }
-                    ScreenUtil.showToast(this@MyView, msg, textFontSize,
+                    ScreenUtil.showToast(this@BaseView, msg, textFontSize,
                         ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
                     baseViewModel.setLoadGameText("")
                     baseViewModel.setShowingSureLoadDialog(false)
@@ -606,7 +576,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
                 }
             }
             CbComposable.DialogWithText(
-                this@MyView,
+                this@BaseView,
                 buttonListener, "", dialogText
             )
         }
@@ -634,7 +604,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
             }
             val hitStr = getString(R.string.nameStr)
             CbComposable.DialogWithTextField(
-                this@MyView,
+                this@BaseView,
                 buttonListener, dialogTitle, hitStr
             )
         } else {
@@ -704,7 +674,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
         LaunchedEffect(Unit) {
             mBaseApp?.let {
                 object : GoogleNativeAd(
-                    this@MyView,it.getNativeID()) {
+                    this@BaseView,it.getNativeID()) {
                     override fun setNativeAd(ad: NativeAd?) {
                         LogUtil.d(TAG, "ShowNativeAd.GoogleNativeAd.setNativeAd")
                         nativeAd = ad
@@ -803,7 +773,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
     private fun showTop10Players(isLocal: Boolean) {
         LogUtil.i(TAG, "showTop10Players.isLocal = $isLocal")
         Intent(
-            this@MyView,
+            this@BaseView,
             Top10Activity::class.java
         ).let {
             Bundle().apply {
@@ -819,13 +789,12 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
     private fun onClickSettingButton() {
         if (baseViewModel.isProcessingJob()) return
         Intent(
-            this@MyView,
+            this@BaseView,
             CbSettingActivity::class.java
         ).let {
             Bundle().apply {
                 putString(Constants.GAME_ID, GameUtil.getGameId(baseViewModel.getWhichGame()))
                 putBoolean(Constants.HAS_SOUND, baseViewModel.hasSound())
-                LogUtil.d(TAG, "onClickSettingButton.baseViewModel.isEasyLevel() = ${baseViewModel.isEasyLevel()}")
                 putBoolean(Constants.EASY_LEVEL, baseViewModel.isEasyLevel())
                 putBoolean(Constants.HAS_NEXT, baseViewModel.hasNext())
                 it.putExtras(this)
@@ -836,7 +805,7 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
 
     private fun showSmileAppsActivity() {
         Intent(
-            this@MyView,
+            this@BaseView,
             SmileAppsActivity::class.java
         ).also {
             startActivity(it)
@@ -988,23 +957,9 @@ abstract class MyView: ComponentActivity(), BasePresentView, GameOptions {
                         expanded = false
                         showColorWhenClick(isPrivacyClicked)
                         PrivacyPolicyUtil.startPrivacyPolicyActivity(
-                            this@MyView, 10)
+                            this@BaseView, 10)
                     },
                     isDivider = false)
-            }
-        }
-    }
-
-    @Composable
-    fun GameViewGrid(modifier: Modifier = Modifier) {
-        LogUtil.i(TAG, "GameViewGrid.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
-        Column(modifier = modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center) {
-            Box(contentAlignment = Alignment.Center) {
-                ShowGameGrid()
-                ShowMessageOnScreen()
             }
         }
     }

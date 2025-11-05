@@ -70,8 +70,10 @@ android {
         }
 
         colorballs {
-            java.srcDirs += ["src/colorballs/java", "src/ballsremover/java"]
-            res.srcDirs += ["src/colorballs/res", "src/ballsremover/res"]
+            java.srcDirs += ["src/colorballs/java", "src/ballsremover/java",
+                             "src/fivecolorballs/java"]
+            res.srcDirs += ["src/colorballs/res", "src/ballsremover/res",
+                            "src/fivecolorballs/res"]
             manifest {
                 srcFile "src/colorballs/AndroidManifest.xml"
             }

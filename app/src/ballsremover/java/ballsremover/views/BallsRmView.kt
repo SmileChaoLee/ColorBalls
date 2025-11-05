@@ -9,9 +9,9 @@ import ballsremover.presenters.BallsRmPresenter
 import ballsremover.viewmodels.BallsRmViewModel
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.views.CbComposable
-import com.smile.colorballs_main.views.MyView
+import com.smile.colorballs_main.views.CbRmBaseView
 
-abstract class BallsRmView: MyView(), BallsRmPresentView {
+abstract class BallsRmView: CbRmBaseView(), BallsRmPresentView {
 
     protected lateinit var viewModel: BallsRmViewModel
     private lateinit var mPresenter: BallsRmPresenter

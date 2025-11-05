@@ -7,10 +7,9 @@ import colorballs.interfaces.CBallPresentView
 import colorballs.presenters.CBallPresenter
 import com.smile.colorballs_main.tools.LogUtil
 import colorballs.viewmodels.CBallViewModel
-import com.smile.colorballs_main.views.MyView
-import com.smile.smilelibraries.interfaces.DismissFunction
+import com.smile.colorballs_main.views.CbRmBaseView
 
-abstract class CBallView: MyView(), CBallPresentView {
+abstract class CBallView: CbRmBaseView(), CBallPresentView {
 
     companion object {
         private const val TAG = "CBallView"
@@ -31,6 +30,7 @@ abstract class CBallView: MyView(), CBallPresentView {
     @Composable
     override fun CreateNewGameDialog() {
         // do nothing
+        LogUtil.i(TAG, "CreateNewGameDialog")
     }
 
     override fun getGameOverStr() = getString(R.string.gameOverStr)
@@ -60,12 +60,16 @@ abstract class CBallView: MyView(), CBallPresentView {
 
     override fun ifInterstitialWhenNewGame() {
         LogUtil.i(TAG, "ifInterstitialWhenNewGame")
+        showInterstitialAd()
+        // do not use the following, it does not work sometimes
+        /*
         interstitialAd?.apply {
             ShowAdThread(object : DismissFunction {
                 override fun backgroundWork() {
                     LogUtil.d(TAG, "backgroundWork")
                 }
                 override fun executeDismiss() {
+                    // dismiss does not work sometimes
                     LogUtil.d(TAG, "executeDismiss")
                     viewModel.initGame(null)
                 }
@@ -75,6 +79,7 @@ abstract class CBallView: MyView(), CBallPresentView {
                 }
             }).startShowAd(0)
         }
+        */
     }
     // end of implementing abstract fun of MyView
 }

@@ -60,28 +60,17 @@ class CBallGridData(
         randThreeCells()
     }
 
-    fun randomGrid() {
-        LogUtil.i(TAG, "randomGrid")
-        // randomly generate some color balls and distribute in the grid
-        randThreeCells()
-    }
-
     fun initialize(whichGame: WhichGame) {
         super.initialize()
         mNextCellIndices.clear()
         mUndoNextCellIndices.clear()
         mPathPoint.clear()
-        when(whichGame) {
-            WhichGame.NO_BARRIER -> {   // no barriers
-                randThreeCells()
-            }
-            WhichGame.HAS_BARRIER -> {   // has barriers
-                randomBarriersAndCells()
-            }
-            WhichGame.RESOLVE_GRID -> {
-                randomGrid()
-            }
-            WhichGame.REMOVE_BALLS -> { /* do nothing*/ }
+        if (whichGame == WhichGame.NO_BARRIER) {
+            // no barriers
+            randThreeCells()
+        } else if (whichGame == WhichGame.HAS_BARRIER) {
+            // has barriers
+            randomBarriersAndCells()
         }
     }
 

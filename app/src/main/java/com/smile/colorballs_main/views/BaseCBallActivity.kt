@@ -159,8 +159,8 @@ abstract class BaseCBallActivity : ComponentActivity() {
             }
             LaunchedEffect(Unit) {
                 // setTestDeviceIds(Arrays.asList("8F6C5B0830E624E8D8BFFB5853B4EDDD"))
-                val deviceHashedId = "8F6C5B0830E624E8D8BFFB5853B4EDDD" // for debug test
-                // val deviceHashedId = "" // for release
+                // val deviceHashedId = "8F6C5B0830E624E8D8BFFB5853B4EDDD" // for debug test
+                val deviceHashedId = "" // for release
                 UmpUtil.initConsentInformation(this@BaseCBallActivity,
                     DEBUG_GEOGRAPHY_EEA,deviceHashedId,
                     object : UmpUtil.UmpInterface {

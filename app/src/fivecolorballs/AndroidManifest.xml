@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        tools:replace="android:icon"
+        android:name="fivecolorballs.FiveCBallsApp"
+        android:icon="@drawable/fivecolorballs_app_icon"
+        android:label="@string/five_cballs_name">
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-8354869049759576~8647116443" />
+
+        <activity
+            android:name="fivecolorballs.views.FiveCBallsActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>

@@ -1,4 +1,4 @@
-package ballsremover.views
+package fivecolorballs.views
 
 import android.os.Bundle
 import android.view.MotionEvent
@@ -7,10 +7,10 @@ import com.smile.colorballs_main.constants.WhichGame
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.smilelibraries.utilities.UmpUtil
 
-class BallsRemoverActivity : BallsRmView() {
+class FiveCBallsActivity : FiveCBallsView() {
 
     companion object {
-        private const val TAG = "BallsRemoActivity"
+        private const val TAG = "FiveCBallsActivity"
     }
 
     private var touchDisabled = true
@@ -22,7 +22,7 @@ class BallsRemoverActivity : BallsRmView() {
         touchDisabled = true
         // val deviceHashedId = "8F6C5B0830E624E8D8BFFB5853B4EDDD" // for debug test
         val deviceHashedId = "" // for release
-        UmpUtil.initConsentInformation(this@BallsRemoverActivity,
+        UmpUtil.initConsentInformation(this@FiveCBallsActivity,
             DEBUG_GEOGRAPHY_EEA, deviceHashedId,
             object : UmpUtil.UmpInterface {
                 override fun callback() {
@@ -44,6 +44,6 @@ class BallsRemoverActivity : BallsRmView() {
 
     override fun setWhichGame() {
         LogUtil.i(TAG, "setWhichGame")
-        viewModel.setWhichGame(WhichGame.REMOVE_BALLS)
+        viewModel.setWhichGame(WhichGame.FIVE_COLOR_BALLS)
     }
 }

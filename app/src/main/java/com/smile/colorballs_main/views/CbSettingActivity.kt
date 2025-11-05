@@ -77,7 +77,7 @@ class CbSettingActivity : ComponentActivity() {
 
         setContent {
             LogUtil.d(TAG, "onCreate.setContent.gameId = $gameId")
-            val hasNextStr = if (gameId == Constants.BALLS_REMOVER_GAME_ID) {
+            val hasNextStr = if (gameId == Constants.BALLS_REMOVER_ID) {
                 getString(R.string.fillColumnStr)
             } else {
                 getString(R.string.nextBallSettingStr)
