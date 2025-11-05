@@ -76,7 +76,7 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
                         viewModelScope.launch(Dispatchers.Default) {
                             // Refresh the game view
                             brGridData.refreshColorBalls(hasNext())
-                            delay(200)
+                            // delay(200)
                             displayGameGridView()
                             if (brGridData.isGameOver()) {
                                 LogUtil.d(TAG, "cellClickListener.sCallback.gameOver()")

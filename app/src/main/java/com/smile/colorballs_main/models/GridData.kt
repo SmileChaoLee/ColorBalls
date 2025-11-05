@@ -83,6 +83,22 @@ open class GridData(
         list.sortWith { p1: Point, p2: Point ->
             p1.x.compareTo(p2.x)
         }
+        for (p in list) {
+            for (i in p.x downTo 1) {
+                mCellValues[i][p.y] = mCellValues[i-1][p.y]
+            }
+            mCellValues[0][p.y] = 0
+        }
+        // Check if needs to shift columns
+        needShiftColumn(fillColumn)
+    }
+
+    fun refreshColorBalls_old(fillColumn: Boolean) {
+        LogUtil.i(TAG, "refreshColorBalls.mLightLine.size = ${mLightLine.size}")
+        val list = ArrayList<Point>(mLightLine)
+        list.sortWith { p1: Point, p2: Point ->
+            p1.x.compareTo(p2.x)
+        }
         val rowMap = HashMap<Int, HashSet<Int>>()
         var columnSet = HashSet<Int>()
         list.forEach { point ->
@@ -171,8 +187,8 @@ open class GridData(
     ) {
         val pTemp = Point(current)
         // pTemp[pTemp.x + dx] = pTemp.y + dy
-        pTemp.x = pTemp.x + dx
-        pTemp.y = pTemp.y + dy
+        pTemp.x += dx
+        pTemp.y += dy
         if (!traversed.contains(pTemp)) {
             // has not been checked
             if ((pTemp.x in 0..<rowCounts)
