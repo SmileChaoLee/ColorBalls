@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -72,18 +73,17 @@ abstract class FiveCBallsView: BaseView(),
     fun ShowNext4Balls(modifier: Modifier = Modifier) {
         LogUtil.i(TAG, "ShowNext4Balls.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
-        val next = ArrayList<ColorBallInfo>()
-        next.add(ColorBallInfo(ballColor = Constants.COLOR_RED, whichBall = WhichBall.BALL,
-            isResize = true))
-        next.add(ColorBallInfo(ballColor = Constants.COLOR_BLUE, whichBall = WhichBall.BALL,
-            isResize = true))
-        next.add(ColorBallInfo(ballColor = Constants.COLOR_MAGENTA, whichBall = WhichBall.BALL,
-            isResize = true))
-        next.add(ColorBallInfo(ballColor = Constants.COLOR_GREEN, whichBall = WhichBall.BALL,
-            isResize = true))
+        val next4 = viewModel.next4Balls
+        if (next4.isEmpty()) {
+            LogUtil.i(TAG, "ShowNext4Balls.viewModel.next4Balls is empty")
+            return
+        }
+        LogUtil.i(TAG, "ShowNext4Balls.viewModel.next4Balls.size = ${next4.size}")
         LazyColumn(modifier = modifier) {
-            items(items = next) {item ->
-                val bitmap = colorBallMap.getValue(item.ballColor)
+            items(items = viewModel.next4Balls) {item ->
+                val ballColor = item.ballColor
+                LogUtil.i(TAG, "ShowNext4Balls.item.ballColor = $ballColor")
+                val bitmap = colorBallMap[ballColor] ?: return@items
                 var modifier = Modifier
                     .background(color = Color.Transparent)
                 var scale: ContentScale = ContentScale.Inside

@@ -5,5 +5,4 @@ import fivecolorballs.interfaces.FiveBallsPresentView
 
 class FiveBallsPresenter(presentView: FiveBallsPresentView)
     : BasePresenter(presentView) {
-    val createNewGameStr = presentView.getCreateNewGameStr()
 }

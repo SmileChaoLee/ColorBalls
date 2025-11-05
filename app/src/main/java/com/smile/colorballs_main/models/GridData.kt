@@ -21,7 +21,11 @@ open class GridData(
         Array(rowCounts) { IntArray(colCounts) },
     open val mLightLine : HashSet<Point> = HashSet()): Parcelable {
 
-    fun initialize() {
+    companion object {
+        private const val TAG: String = "GridData"
+    }
+
+    open fun initialize() {
         for (i in 0 until rowCounts) {
             for (j in 0 until colCounts) {
                 mCellValues[i][j] = 0
@@ -253,9 +257,5 @@ open class GridData(
             }
         }
         return true
-    }
-
-    companion object {
-        private const val TAG: String = "GridData"
     }
 }

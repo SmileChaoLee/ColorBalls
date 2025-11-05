@@ -33,6 +33,10 @@ class CBallGridData(
     : GridData(rowCounts, colCounts, mNumOfColorsUsed
         ,mCellValues, mBackupCells, mLightLine) ,Parcelable {
 
+    companion object {
+        private const val TAG: String = "CBallGridData"
+    }
+
     fun randThreeCells(): Int {
         LogUtil.i(TAG, "randThreeCells")
         mNextCellIndices.clear()
@@ -189,8 +193,8 @@ class CBallGridData(
     ): Boolean {
         val pTemp = Point(parent.coordinate)
         // pTemp[pTemp.x + dx] = pTemp.y + dy
-        pTemp.x = pTemp.x + dx
-        pTemp.y = pTemp.y + dy
+        pTemp.x += dx
+        pTemp.y += dy
         if (!traversed.contains(pTemp)) {
             // has not been checked
             if ((pTemp.x in 0..<rowCounts) && (pTemp.y in 0..<colCounts)
@@ -610,9 +614,5 @@ class CBallGridData(
             mLightLine.clear()
             return false
         }
-    }
-
-    companion object {
-        private const val TAG: String = "GridData"
     }
 }

@@ -349,7 +349,6 @@ abstract class BaseViewModel(
             }
         } catch (ex: java.lang.Exception) {
             LogUtil.e(TAG, "displayGameGridView.Exception: ", ex)
-            ex.printStackTrace()
         }
     }
 

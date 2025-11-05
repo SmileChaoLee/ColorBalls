@@ -1,23 +1,18 @@
 package fivecolorballs.viewmodels
 
-import android.content.res.Configuration
 import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.viewModelScope
-import com.smile.colorballs_main.models.GridData
+import androidx.compose.runtime.mutableStateListOf
 import com.smile.colorballs_main.constants.Constants
+import com.smile.colorballs_main.models.ColorBallInfo
 import com.smile.colorballs_main.models.GameProp
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.viewmodel.BaseViewModel
-import fivecolorballs.constants.FiveBallsConstants
+import fivecolorballs.models.FiveCbGridData
 import fivecolorballs.presenters.FiveBallsPresenter
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.io.IOException
 import java.nio.ByteBuffer
 
@@ -28,72 +23,33 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         private const val TAG = "FiveBallsViewModel"
     }
 
-    private var brGameProp: GameProp
-    private var brGridData: GridData
+    private var fiveGameProp: GameProp
+    private var fiveGridData: FiveCbGridData
     private val showingScoreHandler = Handler(Looper.getMainLooper())
-    private var createNewGameStr = ""
     var timesPlayed = 0
 
-    private val createNewGameText = mutableStateOf("")
-    fun getCreateNewGameText() = createNewGameText.value
-    fun setCreateNewGameText(text: String) {
-        createNewGameText.value = text
-    }
+    private val _next4Balls = mutableStateListOf(ColorBallInfo())
+    val next4Balls: List<ColorBallInfo>
+        get() = _next4Balls
 
     init {
         LogUtil.i(TAG, "FiveBallsViewModel.init")
-        brGameProp = GameProp()
-        brGridData = GridData(FiveBallsConstants.ROW_COUNTS
-            , FiveBallsConstants.COLUMN_COUNTS)
-        mGameProp = brGameProp
-        mGridData = brGridData
+        fiveGameProp = GameProp()
+        fiveGridData = FiveCbGridData()
+        mGameProp = fiveGameProp
+        mGridData = fiveGridData
         super.setProperties()
-        createNewGameStr = fivePresenter.createNewGameStr
     }
 
     override fun cellClickListener(i: Int, j: Int) {
         LogUtil.i(TAG, "cellClickListener.($i, $j)")
-        if (brGridData.getCellValue(i, j) == 0) return  // no ball
-        if (brGameProp.isProcessingJob) return
-        if (brGridData.checkMoreThanTwo(i, j)) {
-            brGridData.backupCells()
-            brGameProp.undoScore = brGameProp.currentScore
-            brGameProp.undoEnable = true
-            brGameProp.isProcessingJob = true
-            val tempLine = HashSet(brGridData.getLightLine())
-            LogUtil.d(TAG, "cellClickListener.tempLine.size = ${tempLine.size}")
-            brGameProp.lastGotScore = calculateScore(tempLine)
-            brGameProp.currentScore += brGameProp.lastGotScore
-            setCurrentScore(brGameProp.currentScore)
-            val showScore = ShowScore(
-                brGridData,
-                brGridData.getLightLine(),
-                brGameProp.lastGotScore,
-                false /* no used*/,
-                object : ShowScoreCallback {
-                    override fun sCallback() {
-                        LogUtil.d(TAG, "cellClickListener.sCallback")
-                        viewModelScope.launch(Dispatchers.Default) {
-                            // Refresh the game view
-                            brGridData.refreshColorBalls(hasNext())
-                            // delay(200)
-                            displayGameGridView()
-                            if (brGridData.isGameOver()) {
-                                LogUtil.d(TAG, "cellClickListener.sCallback.gameOver()")
-                                gameOver()
-                            }
-                            brGameProp.isProcessingJob = false
-                        }
-                    }
-                })
-            showingScoreHandler.post(showScore)
-        }
+        // do nothing
     }
 
-    private fun setData(prop: GameProp, gData: GridData) {
+    private fun setData(prop: GameProp, gData: FiveCbGridData) {
         LogUtil.i(TAG, "setData")
-        brGameProp = prop
-        brGridData = gData
+        fiveGameProp = prop
+        fiveGridData = gData
         // update mGameProp and mGridData in BaseViewModel
         mGameProp = prop
         mGridData = gData
@@ -101,37 +57,33 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
 
     private fun initData() {
         LogUtil.i(TAG, "initData")
-        brGameProp.initializeKeepSetting(getWhichGame())
-        brGridData.initialize()
+        fiveGameProp.initializeKeepSetting(getWhichGame())
+        fiveGridData.initialize()
     }
 
     override fun initGame(bundle: Bundle?) {
         LogUtil.i(TAG, "initGame = $bundle")
-        brGameProp.isProcessingJob = true
+        fiveGameProp.isProcessingJob = true
         val isNewGame = restoreState(bundle)
-        setCurrentScore(brGameProp.currentScore)
+        setCurrentScore(fiveGameProp.currentScore)
         if (isNewGame) {
             // generate
             LogUtil.i(TAG, "initGame.isNewGame")
-            brGridData.generateColorBalls()
         }
         displayGameGridView()
-        getAndSetHighestScore() // a coroutine operation
-        if (!isNewGame) {
-            if (isShowingCreateGameDialog()) {
-                isCreatingNewGame()
-            } else {
-                lastPartOfInitialGame()
-            }
+        _next4Balls.clear()
+        for (ball in fiveGridData.rand4Cells()) {
+            _next4Balls.add(ball)
         }
-        brGameProp.isProcessingJob = false
+        getAndSetHighestScore() // a coroutine operation
+        fiveGameProp.isProcessingJob = false
     }
 
     private fun restoreState(state: Bundle?): Boolean {
         LogUtil.i(TAG,"restoreState.state")
         var isNewGame: Boolean
         var gameProp: GameProp? = null
-        var gridData: GridData? = null
+        var gridData: FiveCbGridData? = null
         state?.let {
             LogUtil.d(TAG,"restoreState.state not null then restore the state")
             gameProp =
@@ -142,7 +94,7 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
             gridData =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                     it.getParcelable(Constants.GRID_DATA_TAG,
-                        GridData::class.java)
+                        FiveCbGridData::class.java)
                 else it.getParcelable(Constants.GRID_DATA_TAG)
         }
         isNewGame = true
@@ -174,27 +126,21 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
     }
 
     override fun saveInstanceState(outState: Bundle) {
-        outState.putParcelable(Constants.GAME_PROP_TAG, brGameProp)
-        outState.putParcelable(Constants.GRID_DATA_TAG, brGridData)
+        outState.putParcelable(Constants.GAME_PROP_TAG, fiveGameProp)
+        outState.putParcelable(Constants.GRID_DATA_TAG, fiveGridData)
     }
 
     override fun undoTheLast() {
-        LogUtil.i(TAG, "undoTheLast.undoEnable = ${brGameProp.undoEnable}")
-        if (!brGameProp.undoEnable) {
+        LogUtil.i(TAG, "undoTheLast.undoEnable = ${fiveGameProp.undoEnable}")
+        if (!fiveGameProp.undoEnable) {
             return
         }
-        brGridData.undoTheLast()
+        fiveGridData.undoTheLast()
         // restore the screen
         displayGameGridView()
-        brGameProp.currentScore = brGameProp.undoScore
-        setCurrentScore(brGameProp.currentScore)
-        brGameProp.undoEnable = false
-    }
-
-    fun isCreatingNewGame() {
-        LogUtil.i(TAG, "isCreatingNewGame")
-        mGameAction = Constants.IS_CREATING_GAME
-        setCreateNewGameText(createNewGameStr)
+        fiveGameProp.currentScore = fiveGameProp.undoScore
+        setCurrentScore(fiveGameProp.currentScore)
+        fiveGameProp.undoEnable = false
     }
 
     override fun newGame() {
@@ -208,7 +154,7 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
 
     override fun startSavingGame(): Boolean {
         LogUtil.i(TAG, "startSavingGame")
-        brGameProp.isProcessingJob = true
+        fiveGameProp.isProcessingJob = true
         setScreenMessage(savingGameStr)
         var succeeded = true
         try {
@@ -220,23 +166,23 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
             // save values on game grid
             for (i in 0 until rowCounts) {
                 for (j in 0 until colCounts) {
-                    foStream.write(brGridData.getCellValue(i, j))
+                    foStream.write(fiveGridData.getCellValue(i, j))
                 }
             }
             // save backupCells
             for (i in 0 until rowCounts) {
                 for (j in 0 until colCounts) {
-                    foStream.write(brGridData.getBackupCells()[i][j])
+                    foStream.write(fiveGridData.getBackupCells()[i][j])
                 }
             }
             // save current score
-            val scoreByte = ByteBuffer.allocate(4).putInt(brGameProp.currentScore).array()
+            val scoreByte = ByteBuffer.allocate(4).putInt(fiveGameProp.currentScore).array()
             foStream.write(scoreByte)
             // save undo score
-            val undoScoreByte = ByteBuffer.allocate(4).putInt(brGameProp.undoScore).array()
+            val undoScoreByte = ByteBuffer.allocate(4).putInt(fiveGameProp.undoScore).array()
             foStream.write(undoScoreByte)
             // save undoEnable
-            if (brGameProp.undoEnable) foStream.write(1) else foStream.write(0)
+            if (fiveGameProp.undoEnable) foStream.write(1) else foStream.write(0)
             foStream.close()
             // end of writing
             LogUtil.d(TAG, "startSavingGame.Succeeded.")
@@ -246,14 +192,14 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         }
         setScreenMessage("")
         LogUtil.d(TAG, "startSavingGame.Finished")
-        brGameProp.isProcessingJob = false
+        fiveGameProp.isProcessingJob = false
 
         return succeeded
     }
 
     override fun startLoadingGame(): Boolean {
         LogUtil.i(TAG, "startLoadingGame")
-        brGameProp.isProcessingJob = true
+        fiveGameProp.isProcessingJob = true
         setScreenMessage(loadingGameStr)
         var succeeded = true
         val hasSound: Boolean
@@ -306,20 +252,20 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
             fiStream.close()
 
             // refresh Main UI with loaded data
-            brGridData.setCellValues(gameCells)
-            brGridData.setBackupCells(backupCells)
-            brGameProp.currentScore = cScore
-            brGameProp.undoScore = unScore
-            brGameProp.undoEnable = isUndoEnable
+            fiveGridData.setCellValues(gameCells)
+            fiveGridData.setBackupCells(backupCells)
+            fiveGameProp.currentScore = cScore
+            fiveGameProp.undoScore = unScore
+            fiveGameProp.undoEnable = isUndoEnable
             // start update UI
-            setCurrentScore(brGameProp.currentScore)
+            setCurrentScore(fiveGameProp.currentScore)
             displayGameGridView()
         } catch (ex: IOException) {
             ex.printStackTrace()
             succeeded = false
         }
         setScreenMessage("")
-        brGameProp.isProcessingJob = false
+        fiveGameProp.isProcessingJob = false
 
         return succeeded
     }
@@ -366,10 +312,10 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         private fun onProgressUpdate(status: Int) {
             when (status) {
                 0 -> for (item in pointSet) {
-                    drawBall(item.x, item.y, brGridData.getCellValue(item.x, item.y))
+                    drawBall(item.x, item.y, fiveGridData.getCellValue(item.x, item.y))
                 }
                 1 -> for (item in pointSet) {
-                    drawOval(item.x, item.y, brGridData.getCellValue(item.x, item.y))
+                    drawOval(item.x, item.y, fiveGridData.getCellValue(item.x, item.y))
                 }
                 2 -> for (item in pointSet) {
                     drawFirework(item.x, item.y)
@@ -378,7 +324,7 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
                     setScreenMessage(lastGotScore.toString())
                     for (item in pointSet) {
                         clearCell(item.x, item.y)
-                        drawBall(item.x, item.y, brGridData.getCellValue(item.x, item.y))
+                        drawBall(item.x, item.y, fiveGridData.getCellValue(item.x, item.y))
                     }
                 }
                 4 -> {
