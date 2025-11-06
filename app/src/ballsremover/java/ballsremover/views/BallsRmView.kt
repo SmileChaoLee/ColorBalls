@@ -53,11 +53,11 @@ abstract class BallsRmView: CbRmBaseView(), BallsRmPresentView {
         }
     }
 
-    override fun getBasePresenter(): BallsRmPresenter {
+    override fun getCurrentPresenter(): BallsRmPresenter {
         return mPresenter
     }
 
-    override fun getBaseViewModel(): BallsRmViewModel {
+    override fun getCurrentViewModel(): BallsRmViewModel {
         return viewModel
     }
 

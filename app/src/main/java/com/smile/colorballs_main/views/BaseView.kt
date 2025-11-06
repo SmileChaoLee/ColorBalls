@@ -75,6 +75,7 @@ import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.constants.WhichBall
 import com.smile.colorballs_main.interfaces.BasePresentView
 import com.smile.colorballs_main.interfaces.GameOptions
+import com.smile.colorballs_main.models.ColorBallInfo
 import com.smile.colorballs_main.presenters.BasePresenter
 import com.smile.colorballs_main.roomdatabase.ScoreDatabase
 import com.smile.colorballs_main.smileapps.SmileAppsActivity
@@ -106,8 +107,8 @@ abstract class BaseView: ComponentActivity(),
     @Composable
     abstract fun CreateNewGameDialog()
 
-    abstract fun getBasePresenter(): BasePresenter?
-    abstract fun getBaseViewModel(): BaseViewModel?
+    abstract fun getCurrentPresenter(): BasePresenter?
+    abstract fun getCurrentViewModel(): BaseViewModel?
     abstract fun setHasNextForView(hasNext: Boolean)
     abstract fun ifInterstitialWhenSaveScore()
     abstract fun ifInterstitialWhenNewGame()
@@ -130,7 +131,7 @@ abstract class BaseView: ComponentActivity(),
     private var toastTextSize = 0f
     private var mBaseApp: BaseApp? = null
     private lateinit var basePresenter: BasePresenter
-    private lateinit var baseViewModel: BaseViewModel
+    lateinit var baseViewModel: BaseViewModel
     private lateinit var mGameOptions: GameOptions
 
     // the following are for Top 10 Players
@@ -165,13 +166,13 @@ abstract class BaseView: ComponentActivity(),
         interstitialAd = ShowInterstitial(this, null,
             mBaseApp?.getInterstitial())
 
-        getBasePresenter()?.let {
+        getCurrentPresenter()?.let {
             basePresenter = it
         } ?: run {
             LogUtil.d(TAG, "$TAG.onCreate.basePresenter is null so exit activity.")
             return
         }
-        getBaseViewModel()?.let {
+        getCurrentViewModel()?.let {
             baseViewModel = it
         } ?: run {
             LogUtil.d(TAG, "$TAG.onCreate.baseViewModel is null so exit activity.")
@@ -997,13 +998,16 @@ abstract class BaseView: ComponentActivity(),
     fun ShowColorBall(i: Int, j: Int) {
         LogUtil.d(TAG, "ShowColorBall.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
-        val ballInfo = baseViewModel.gridDataArray[i][j].value
+        ShowBall(baseViewModel.gridDataArray[i][j].value)
+    }
+
+    @Composable
+    fun ShowBall(ballInfo: ColorBallInfo) {
+        LogUtil.d(TAG, "ShowBall.mOrientation.intValue" +
+                " = ${mOrientation.intValue}")
         val ballColor = ballInfo.ballColor
-        LogUtil.d(TAG, "ShowColorBall.ballColor = $ballColor")
         val isAnimation = ballInfo.isAnimation
-        LogUtil.d(TAG, "ShowColorBall.isAnimation = $isAnimation")
         val isReSize = ballInfo.isResize
-        LogUtil.d(TAG, "ShowColorBall.isReSize = $isReSize")
         if (ballColor == 0) return  // no showing ball
         val bitmap: Bitmap? = when(ballInfo.whichBall) {
             WhichBall.BALL-> { colorBallMap.getValue(ballColor) }

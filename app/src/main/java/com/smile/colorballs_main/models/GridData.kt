@@ -4,11 +4,10 @@ import android.graphics.Point
 import android.os.Parcelable
 import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.tools.LogUtil
+import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import java.util.Random
 import java.util.Stack
-
-private val mRandom: Random = Random(System.currentTimeMillis())
 
 @Parcelize
 open class GridData(
@@ -24,6 +23,9 @@ open class GridData(
     companion object {
         private const val TAG: String = "GridData"
     }
+
+    @IgnoredOnParcel
+    val mRandom: Random = Random(System.currentTimeMillis())
 
     open fun initialize() {
         for (i in 0 until rowCounts) {

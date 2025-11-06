@@ -29,7 +29,6 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
 
     private var brGameProp: GameProp
     private var brGridData: GridData
-    private val showingScoreHandler = Handler(Looper.getMainLooper())
     private var createNewGameStr = ""
     var timesPlayed = 0
 

@@ -2,7 +2,6 @@ package fivecolorballs.views
 
 import android.content.res.Configuration
 import android.os.Bundle
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,21 +11,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import com.smile.colorballs_main.R
-import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.constants.WhichBall
 import com.smile.colorballs_main.models.ColorBallInfo
 import com.smile.colorballs_main.tools.LogUtil
@@ -81,30 +72,13 @@ abstract class FiveCBallsView: BaseView(),
         LogUtil.i(TAG, "ShowNext4Balls.viewModel.next4Balls.size = ${next4.size}")
         LazyColumn(modifier = modifier) {
             items(items = viewModel.next4Balls) {item ->
-                val ballColor = item.ballColor
-                LogUtil.i(TAG, "ShowNext4Balls.item.ballColor = $ballColor")
-                val bitmap = colorBallMap[ballColor] ?: return@items
-                var modifier = Modifier
-                    .background(color = Color.Transparent)
-                var scale: ContentScale = ContentScale.Inside
-                if (item.isResize) {
-                    modifier = modifier
-                        .size(mImageSizeDp.dp)
-                        .padding(all = 0.dp)
-                    scale = ContentScale.Fit
-                }
-                Image(
-                    painter = BitmapPainter(bitmap.asImageBitmap()),
-                    contentDescription = "",
-                    contentScale = scale,
-                    modifier = modifier
-                )
+                ShowBall(ColorBallInfo(item, WhichBall.BALL))
             }
         }
     }
 
     // implementing FiveBallsPresentView
-    override fun getCreateNewGameStr() = getString(R.string.createNewGameStr)
+    // override fun getCreateNewGameStr() = getString(R.string.createNewGameStr)
     // end of implementing
 
     // implement abstract fun of BaseView
@@ -161,11 +135,11 @@ abstract class FiveCBallsView: BaseView(),
         // do nothing
     }
 
-    override fun getBasePresenter(): FiveBallsPresenter {
+    override fun getCurrentPresenter(): FiveBallsPresenter {
         return mPresenter
     }
 
-    override fun getBaseViewModel(): FiveBallsViewModel {
+    override fun getCurrentViewModel(): FiveBallsViewModel {
         return viewModel
     }
 

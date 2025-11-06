@@ -37,11 +37,11 @@ abstract class CBallView: CbRmBaseView(), CBallPresentView {
     // end of implementing
 
     // implement abstract fun of MyView
-    override fun getBasePresenter(): CBallPresenter {
+    override fun getCurrentPresenter(): CBallPresenter {
         return mPresenter
     }
 
-    override fun getBaseViewModel(): CBallViewModel {
+    override fun getCurrentViewModel(): CBallViewModel {
         return viewModel
     }
 

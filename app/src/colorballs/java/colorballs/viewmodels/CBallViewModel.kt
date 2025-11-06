@@ -31,7 +31,6 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
     private var cbGridData: CBallGridData
     private val bouncyBallHandler = Handler(Looper.getMainLooper())
     private val movingBallHandler = Handler(Looper.getMainLooper())
-    private val showingScoreHandler = Handler(Looper.getMainLooper())
     private var gameOverStr = ""
 
     init {

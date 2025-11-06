@@ -14,7 +14,6 @@ import java.util.Stack
 import kotlin.collections.HashMap
 import kotlin.math.min
 
-private val mRandomIndex: Random = Random(System.currentTimeMillis())
 private val mRandomBall: Random = Random(System.currentTimeMillis()+1000L)
 
 @Parcelize
@@ -52,8 +51,8 @@ class CBallGridData(
         var point: Point
         var loopNum = 0
         while (loopNum < CbConstants.NUM_BARRIERS) {
-            row = mRandomIndex.nextInt(rowCounts)
-            col = mRandomIndex.nextInt(colCounts)
+            row = mRandom.nextInt(rowCounts)
+            col = mRandom.nextInt(colCounts)
             point = Point(row, col)
             if (!set.contains(point)) {
                 set.add(Point(row, col))
@@ -157,8 +156,8 @@ class CBallGridData(
         var point: Point
         val loopNum = min(CbConstants.BALL_NUM_ONE_TIME.toDouble(), maxLoop.toDouble())
         while (k < loopNum && mNextCellIndices.size < vacantSize) {
-            row = mRandomIndex.nextInt(rowCounts)
-            col = mRandomIndex.nextInt(colCounts)
+            row = mRandom.nextInt(rowCounts)
+            col = mRandom.nextInt(colCounts)
             if (mCellValues[row][col] == 0) {
                 point = Point(row, col)
                 ballColor = Constants.BallColor[mRandomBall.nextInt(mNumOfColorsUsed)]

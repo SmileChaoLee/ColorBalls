@@ -45,7 +45,7 @@ abstract class BaseViewModel(
         fun sCallback()
     }
 
-    private val showingScoreHandler = Handler(Looper.getMainLooper())
+    val showingScoreHandler = Handler(Looper.getMainLooper())
     var loadingStr = ""
     var savingGameStr = ""
     var loadingGameStr = ""

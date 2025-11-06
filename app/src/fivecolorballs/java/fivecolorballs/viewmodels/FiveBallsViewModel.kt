@@ -7,10 +7,10 @@ import android.os.Handler
 import android.os.Looper
 import androidx.compose.runtime.mutableStateListOf
 import com.smile.colorballs_main.constants.Constants
-import com.smile.colorballs_main.models.ColorBallInfo
 import com.smile.colorballs_main.models.GameProp
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.viewmodel.BaseViewModel
+import fivecolorballs.constants.FiveBallsConstants
 import fivecolorballs.models.FiveCbGridData
 import fivecolorballs.presenters.FiveBallsPresenter
 import java.io.IOException
@@ -23,13 +23,14 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         private const val TAG = "FiveBallsViewModel"
     }
 
+    private val runningBallsHandler = Handler(Looper.getMainLooper())
     private var fiveGameProp: GameProp
     private var fiveGridData: FiveCbGridData
-    private val showingScoreHandler = Handler(Looper.getMainLooper())
     var timesPlayed = 0
+    var runningCol = FiveBallsConstants.COLUMN_COUNTS / 2
 
-    private val _next4Balls = mutableStateListOf(ColorBallInfo())
-    val next4Balls: List<ColorBallInfo>
+    private val _next4Balls = mutableStateListOf<Int>()
+    val next4Balls: List<Int>
         get() = _next4Balls
 
     init {
@@ -71,12 +72,54 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
             LogUtil.i(TAG, "initGame.isNewGame")
         }
         displayGameGridView()
-        _next4Balls.clear()
-        for (ball in fiveGridData.rand4Cells()) {
-            _next4Balls.add(ball)
-        }
         getAndSetHighestScore() // a coroutine operation
+        startRunBalls()
         fiveGameProp.isProcessingJob = false
+    }
+
+    fun startRunBalls() {
+        LogUtil.i(TAG,"startRunBalls")
+        val runningBalls = fiveGridData.runningBalls
+        if (runningBalls.isEmpty()) {
+            LogUtil.i(TAG,"startRunBalls.runningBalls.size = 0")
+            return
+        }
+        _next4Balls.clear()
+        _next4Balls.addAll(fiveGridData.next4Balls)
+        if (next4Balls.isEmpty()) {
+            LogUtil.i(TAG,"startRunBalls.next4Balls.size = 0")
+            return
+        }
+        var i = 0
+        val lastIndex = FiveBallsConstants.NUM_NEXT_BALLS - 1
+        val runBallsRunnable = object : Runnable {
+            override fun run() {
+                runningBallsHandler.removeCallbacksAndMessages(null)
+                for (k in 0 .. minOf(i, lastIndex)) {
+                    drawBall(i - k, runningCol, runningBalls[lastIndex - k])
+                }
+                // erase after index is lastIndex
+                if (i > lastIndex) {
+                    drawBall(i - (lastIndex+1), runningCol, 0)
+                }
+                i++
+                if (i < FiveBallsConstants.ROW_COUNTS) {
+                    runningBallsHandler.postDelayed(this, 1000)
+                } else {
+                    reStartRunBalls()
+                }
+            }
+        }
+        runningBallsHandler.post(runBallsRunnable)
+    }
+
+    private fun reStartRunBalls() {
+        LogUtil.i(TAG,"reStartRunBalls")
+        runningCol--
+        if (runningCol >= 0) {
+            fiveGridData.setNextRunning()
+            startRunBalls()
+        }
     }
 
     private fun restoreState(state: Bundle?): Boolean {

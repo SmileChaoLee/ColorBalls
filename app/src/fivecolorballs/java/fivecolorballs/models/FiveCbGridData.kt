@@ -3,15 +3,10 @@ package fivecolorballs.models
 import android.graphics.Point
 import android.os.Parcelable
 import com.smile.colorballs_main.constants.Constants
-import com.smile.colorballs_main.constants.WhichBall
-import com.smile.colorballs_main.models.ColorBallInfo
 import com.smile.colorballs_main.models.GridData
 import com.smile.colorballs_main.tools.LogUtil
 import fivecolorballs.constants.FiveBallsConstants
 import kotlinx.parcelize.Parcelize
-import java.util.Random
-
-private val mRandomBall: Random = Random(System.currentTimeMillis()+1000L)
 
 @Parcelize
 class FiveCbGridData(
@@ -21,8 +16,9 @@ class FiveCbGridData(
     override val mCellValues : Array<IntArray> =
         Array(rowCounts) { IntArray(colCounts) },
     override val mLightLine : HashSet<Point> = HashSet(),
-    private var mNext4Balls : ArrayList<ColorBallInfo> = ArrayList(),
-    val mPathPoint : ArrayList<Point> = ArrayList())
+    var runningBalls : ArrayList<Int> = ArrayList(),
+    var next4Balls : ArrayList<Int> = ArrayList(),
+    var pathPoint : ArrayList<Point> = ArrayList())
     : GridData(rowCounts, colCounts, mNumOfColorsUsed, mCellValues,
     Array(rowCounts) { IntArray(colCounts) },
     mLightLine) ,Parcelable {
@@ -31,45 +27,38 @@ class FiveCbGridData(
         private const val TAG: String = "FiveCbGridData"
     }
 
-    fun rand4Cells(): ArrayList<ColorBallInfo> {
+    init {
+        randNext4Balls()
+    }
+
+    fun randNext4Balls() {
         LogUtil.i(TAG, "rand4Cells")
-        mNext4Balls = ArrayList()
+        next4Balls = ArrayList()
         var bColor: Int
         (0 until FiveBallsConstants.NUM_NEXT_BALLS).forEach { i ->
-            bColor = Constants.BallColor[mRandomBall.nextInt(mNumOfColorsUsed)]
-            mNext4Balls.add(ColorBallInfo(ballColor = bColor, whichBall = WhichBall.BALL,
-                isResize = true))
+            bColor = Constants.BallColor[mRandom.nextInt(mNumOfColorsUsed)]
+            next4Balls.add(bColor)
         }
-        return mNext4Balls
     }
 
     override fun initialize() {
         super.initialize()
-        mNext4Balls.clear()
-        mPathPoint.clear()
+        setNextRunning()
+        pathPoint = ArrayList()
+    }
+
+    fun setNextRunning() {
+        runningBalls = ArrayList(next4Balls)
+        randNext4Balls()
     }
 
     fun copy(gData: FiveCbGridData): FiveCbGridData {
         LogUtil.i(TAG, "copy")
         val newGridData = FiveCbGridData()
         newGridData.copy(gData)
-        newGridData.mNext4Balls = ArrayList(gData.mNext4Balls)
-        newGridData.mPathPoint.clear()
-        newGridData.mPathPoint.addAll(gData.mPathPoint)
+        newGridData.next4Balls = ArrayList(gData.next4Balls)
+        newGridData.pathPoint = ArrayList(gData.pathPoint)
 
         return newGridData
-    }
-
-    fun getNext4Balls(): ArrayList<ColorBallInfo> {
-        return mNext4Balls
-    }
-
-    fun setNext4Balls(list: ArrayList<ColorBallInfo>) {
-        mNext4Balls = ArrayList(list)
-    }
-
-    fun setLightLine(lightLine: HashSet<Point>) {
-        mLightLine.clear()
-        mLightLine.addAll(lightLine)
     }
 }
