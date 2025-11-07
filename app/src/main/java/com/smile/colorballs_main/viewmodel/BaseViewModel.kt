@@ -410,7 +410,7 @@ abstract class BaseViewModel(
                 when (mCounter) {
                     twinkleCountDown + 1 -> {
                         onProgressUpdate(2) // show the flash
-                        showingScoreHandler.postDelayed(this, 600)
+                        showingScoreHandler.postDelayed(this, 300)
                     }
                     twinkleCountDown + 2 -> {
                         onProgressUpdate(3) // show score

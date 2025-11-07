@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import com.smile.colorballs_main.R
 import com.google.android.ump.ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA
+import com.smile.colorballs_main.BuildConfig
 import com.smile.colorballs_main.smileapps.SmileAppsActivity
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.smilelibraries.utilities.UmpUtil
@@ -103,7 +104,7 @@ abstract class BaseCBallActivity : ComponentActivity() {
         cBallLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            LogUtil.i(mTAG, "cBallLauncher.result received")
+            LogUtil.i(mTAG, "cBallLauncher.result = $result")
             loadingMessage.value = ""
             enableMainButtons()
         }
@@ -111,7 +112,7 @@ abstract class BaseCBallActivity : ComponentActivity() {
         barrierCBLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            LogUtil.i(mTAG, "barrierCBLauncher.result received")
+            LogUtil.i(mTAG, "barrierCBLauncher.result = $result")
             loadingMessage.value = ""
             enableMainButtons()
         }
@@ -119,7 +120,7 @@ abstract class BaseCBallActivity : ComponentActivity() {
         ballsRemoverLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            LogUtil.i(mTAG, "ballsRemoverLauncher.result received")
+            LogUtil.i(mTAG, "ballsRemoverLauncher.result = $result")
             loadingMessage.value = ""
             enableMainButtons()
         }
@@ -127,7 +128,7 @@ abstract class BaseCBallActivity : ComponentActivity() {
         fiveCBallsLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            LogUtil.i(mTAG, "fiveCBallsLauncher.result received")
+            LogUtil.i(mTAG, "fiveCBallsLauncher.result = $result")
             loadingMessage.value = ""
             enableMainButtons()
         }
@@ -135,7 +136,7 @@ abstract class BaseCBallActivity : ComponentActivity() {
         smileAppsLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            LogUtil.i(mTAG, "smileAppsLauncher.result received")
+            LogUtil.i(mTAG, "smileAppsLauncher.result = $result")
             loadingMessage.value = ""
             enableMainButtons()
         }
@@ -477,10 +478,13 @@ abstract class BaseCBallActivity : ComponentActivity() {
                     modifier = Modifier.weight(1.0f),
                     buttonWidth, buttonHeight, textLineHeight)
             }
-            if (hasFiveBalls()) {
-                FiveCBallsButton(
-                    modifier = Modifier.weight(1.0f),
-                    buttonWidth, buttonHeight, textLineHeight)
+            if (BuildConfig.DEBUG) {
+                if (hasFiveBalls()) {
+                    FiveCBallsButton(
+                        modifier = Modifier.weight(1.0f),
+                        buttonWidth, buttonHeight, textLineHeight
+                    )
+                }
             }
             /*
             SmileAppsButton(modifier = Modifier.weight(1.0f),
