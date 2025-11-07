@@ -3,6 +3,8 @@ package fivecolorballs.views
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
 import com.smile.colorballs_main.constants.WhichBall
 import com.smile.colorballs_main.models.ColorBallInfo
@@ -27,6 +31,7 @@ import fivecolorballs.constants.FiveBallsConstants
 import fivecolorballs.interfaces.FiveBallsPresentView
 import fivecolorballs.presenters.FiveBallsPresenter
 import fivecolorballs.viewmodels.FiveBallsViewModel
+import kotlin.math.abs
 
 abstract class FiveCBallsView: BaseView(),
     FiveBallsPresentView {
@@ -99,7 +104,7 @@ abstract class FiveCBallsView: BaseView(),
             verticalArrangement = Arrangement.Top) {
             Box(contentAlignment = Alignment.TopStart) {
                 Row {
-                    ShowGameGrid()
+                    StartShowGameGrid()
                     Column(modifier = Modifier.fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally) {
                         Column(modifier = Modifier.weight(2f),
@@ -126,6 +131,60 @@ abstract class FiveCBallsView: BaseView(),
                     }
                 }
             }
+        }
+    }
+
+    @Composable
+    fun StartShowGameGrid() {
+        // measured in pixel
+        val screenWidth = LocalWindowInfo.current.containerSize.width
+        LogUtil.i(TAG, "StartShowGameGrid.screenWidth = $screenWidth")
+        val pixelPerCol = (screenWidth*gameWidthRation) / FiveBallsConstants.COLUMN_COUNTS
+        LogUtil.i(TAG, "StartShowGameGrid.pixelPerCol = $pixelPerCol")
+        val diffStandard = 0.85
+        Column(modifier = Modifier
+            .pointerInput(Unit) {
+                // Use the Initial pass to receive the event before the child's Main pass
+                // awaitPointerEventScope {
+                awaitEachGesture {
+                    LogUtil.i(TAG, "StartShowGameGrid.awaitEachGesture")
+                    // Detects the ACTION_DOWN equivalent
+                    // awaitFirstDown(pass = PointerEventPass.Initial) // starting from parent
+                    // regardless if event is consumed by children
+                    val down = awaitFirstDown(requireUnconsumed = false)
+                    var downX = down.position.x
+                    LogUtil.i(TAG, "StartShowGameGrid.awaitFirstDown")
+                    do {
+                        // val event = awaitPointerEvent(PointerEventPass.Initial)  // starting from parent
+                        val event = awaitPointerEvent()
+                        // Log or handle the tap event in the parent
+                        // Do NOT consume the event here
+                        // if you want the child to receive it
+                        event.changes.apply {
+                            all { it.isConsumed }   // must be here
+                            forEach {
+                                if (it.pressed) {
+                                    val moveX = (it.position.x - downX)/pixelPerCol
+                                    LogUtil.d(TAG, "StartShowGameGrid.moveX = $moveX")
+                                    if (abs(moveX) >= diffStandard) {
+                                        downX = it.position.x
+                                        viewModel.eraseRunningBalls()
+                                        if (moveX > 0) {
+                                            viewModel.addRunningCol(1)
+                                        } else {
+                                            viewModel.addRunningCol(-1)
+                                        }
+                                    }
+                                } else {
+                                    LogUtil.d(TAG, "StartShowGameGrid.UP detected")
+                                }
+                            }
+                        }
+                    } while (event.changes.any { it.pressed }) // loop while pressed and moving
+                }
+            }
+        ) {
+            ShowGameGrid(isClickable = false)
         }
     }
 

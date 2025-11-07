@@ -13,10 +13,8 @@ import com.smile.colorballs_main.viewmodel.BaseViewModel
 import fivecolorballs.constants.FiveBallsConstants
 import fivecolorballs.models.FiveCbGridData
 import fivecolorballs.presenters.FiveBallsPresenter
-import java.io.IOException
-import java.nio.ByteBuffer
 
-class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
+class FiveBallsViewModel(fivePresenter: FiveBallsPresenter)
     : BaseViewModel(fivePresenter) {
 
     companion object {
@@ -27,11 +25,34 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
     private var fiveGameProp: GameProp
     private var fiveGridData: FiveCbGridData
     var timesPlayed = 0
+    private val runningBalls = ArrayList<Int>()
+    private var runningRow = 0
     var runningCol = FiveBallsConstants.COLUMN_COUNTS / 2
 
     private val _next4Balls = mutableStateListOf<Int>()
     val next4Balls: List<Int>
         get() = _next4Balls
+
+    private val runBallsRunnable = object : Runnable {
+        val lastIndex = FiveBallsConstants.NUM_NEXT_BALLS - 1
+        override fun run() {
+            runningBallsHandler.removeCallbacksAndMessages(null)
+            for (k in 0 .. minOf(runningRow, lastIndex)) {
+                drawBall(runningRow - k, runningCol,
+                    runningBalls[lastIndex - k])
+            }
+            // erase after index is lastIndex
+            if (runningRow > lastIndex) {
+                drawBall(runningRow - (lastIndex+1), runningCol, 0)
+            }
+            runningRow++
+            if (runningRow < FiveBallsConstants.ROW_COUNTS) {
+                runningBallsHandler.postDelayed(this, 1000)
+            } else {
+                reStartRunBalls()
+            }
+        }
+    }
 
     init {
         LogUtil.i(TAG, "FiveBallsViewModel.init")
@@ -73,13 +94,14 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         }
         displayGameGridView()
         getAndSetHighestScore() // a coroutine operation
-        startRunBalls()
+        startRunBalls(row = 0)
         fiveGameProp.isProcessingJob = false
     }
 
-    fun startRunBalls() {
+    fun startRunBalls(row: Int) {
         LogUtil.i(TAG,"startRunBalls")
-        val runningBalls = fiveGridData.runningBalls
+        runningBalls.clear()
+        runningBalls.addAll(fiveGridData.runningBalls)
         if (runningBalls.isEmpty()) {
             LogUtil.i(TAG,"startRunBalls.runningBalls.size = 0")
             return
@@ -90,26 +112,29 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
             LogUtil.i(TAG,"startRunBalls.next4Balls.size = 0")
             return
         }
-        var i = 0
+        runningRow = row
+        /*
         val lastIndex = FiveBallsConstants.NUM_NEXT_BALLS - 1
         val runBallsRunnable = object : Runnable {
             override fun run() {
                 runningBallsHandler.removeCallbacksAndMessages(null)
-                for (k in 0 .. minOf(i, lastIndex)) {
-                    drawBall(i - k, runningCol, runningBalls[lastIndex - k])
+                for (k in 0 .. minOf(runningRow, lastIndex)) {
+                    drawBall(runningRow - k, runningCol,
+                        runningBalls[lastIndex - k])
                 }
                 // erase after index is lastIndex
-                if (i > lastIndex) {
-                    drawBall(i - (lastIndex+1), runningCol, 0)
+                if (runningRow > lastIndex) {
+                    drawBall(runningRow - (lastIndex+1), runningCol, 0)
                 }
-                i++
-                if (i < FiveBallsConstants.ROW_COUNTS) {
+                runningRow++
+                if (runningRow < FiveBallsConstants.ROW_COUNTS) {
                     runningBallsHandler.postDelayed(this, 1000)
                 } else {
                     reStartRunBalls()
                 }
             }
         }
+        */
         runningBallsHandler.post(runBallsRunnable)
     }
 
@@ -118,8 +143,27 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         runningCol--
         if (runningCol >= 0) {
             fiveGridData.setNextRunning()
-            startRunBalls()
+            startRunBalls(row = 0)
         }
+    }
+
+    fun addRunningCol(addValue: Int) {
+        runningCol += addValue
+        if (runningCol < 0) runningCol = 0
+        if (runningCol > FiveBallsConstants.COLUMN_COUNTS - 1)
+            runningCol = FiveBallsConstants.COLUMN_COUNTS - 1
+    }
+
+    fun eraseRunningBalls() {
+        LogUtil.i(TAG,"eraseRunningBalls")
+        runningBallsHandler.removeCallbacksAndMessages(null)
+        runningRow = if (runningRow == 0) 0 else runningRow - 1
+        val lastIndex = FiveBallsConstants.NUM_NEXT_BALLS - 1
+        for (k in 0 .. minOf(runningRow, lastIndex)) {
+            drawBall(runningRow - k, runningCol, 0)
+        }
+        runningBallsHandler.post(runBallsRunnable)
+        // startRunBalls(row = runningRow)
     }
 
     private fun restoreState(state: Bundle?): Boolean {
@@ -175,15 +219,6 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
 
     override fun undoTheLast() {
         LogUtil.i(TAG, "undoTheLast.undoEnable = ${fiveGameProp.undoEnable}")
-        if (!fiveGameProp.undoEnable) {
-            return
-        }
-        fiveGridData.undoTheLast()
-        // restore the screen
-        displayGameGridView()
-        fiveGameProp.currentScore = fiveGameProp.undoScore
-        setCurrentScore(fiveGameProp.currentScore)
-        fiveGameProp.undoEnable = false
     }
 
     override fun newGame() {
@@ -197,120 +232,12 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
 
     override fun startSavingGame(): Boolean {
         LogUtil.i(TAG, "startSavingGame")
-        fiveGameProp.isProcessingJob = true
-        setScreenMessage(savingGameStr)
-        var succeeded = true
-        try {
-            val foStream = fivePresenter.fileOutputStream(Constants.SAVE_FIVE_COLORS)
-            // save settings
-            if (hasSound()) foStream.write(1) else foStream.write(0)
-            if (isEasyLevel()) foStream.write(1) else foStream.write(0)
-            if (hasNext()) foStream.write(1) else foStream.write(0)
-            // save values on game grid
-            for (i in 0 until rowCounts) {
-                for (j in 0 until colCounts) {
-                    foStream.write(fiveGridData.getCellValue(i, j))
-                }
-            }
-            // save backupCells
-            for (i in 0 until rowCounts) {
-                for (j in 0 until colCounts) {
-                    foStream.write(fiveGridData.getBackupCells()[i][j])
-                }
-            }
-            // save current score
-            val scoreByte = ByteBuffer.allocate(4).putInt(fiveGameProp.currentScore).array()
-            foStream.write(scoreByte)
-            // save undo score
-            val undoScoreByte = ByteBuffer.allocate(4).putInt(fiveGameProp.undoScore).array()
-            foStream.write(undoScoreByte)
-            // save undoEnable
-            if (fiveGameProp.undoEnable) foStream.write(1) else foStream.write(0)
-            foStream.close()
-            // end of writing
-            LogUtil.d(TAG, "startSavingGame.Succeeded.")
-        } catch (ex: IOException) {
-            succeeded = false
-            LogUtil.e(TAG, "startSavingGame.Failed.", ex)
-        }
-        setScreenMessage("")
-        LogUtil.d(TAG, "startSavingGame.Finished")
-        fiveGameProp.isProcessingJob = false
-
-        return succeeded
+        return true
     }
 
     override fun startLoadingGame(): Boolean {
         LogUtil.i(TAG, "startLoadingGame")
-        fiveGameProp.isProcessingJob = true
-        setScreenMessage(loadingGameStr)
-        var succeeded = true
-        val hasSound: Boolean
-        val isEasyLevel: Boolean
-        val hasNext: Boolean
-        val gameCells = Array(rowCounts) {
-            IntArray(colCounts) }
-        val cScore: Int
-        val isUndoEnable: Boolean
-        val backupCells = Array(rowCounts) {
-            IntArray(colCounts) }
-        val unScore: Int
-        try {
-            val fiStream = fivePresenter.fileInputStream(Constants.SAVE_BALLS_REMOVER)
-            LogUtil.d(TAG, "startLoadingGame.available() = " + fiStream.available())
-            LogUtil.d(TAG, "startLoadingGame.getChannel().size() = " + fiStream.channel.size())
-            // read game settings
-            var bValue = fiStream.read()
-            hasSound = bValue == 1
-            bValue = fiStream.read()
-            isEasyLevel = bValue == 1
-            bValue = fiStream.read()
-            hasNext = bValue == 1
-            setHasSound(hasSound)
-            setEasyLevel(isEasyLevel)
-            setHasNext(hasNext)
-            // load values on game grid
-            for (i in 0 until rowCounts) {
-                for (j in 0 until colCounts) {
-                    gameCells[i][j] = fiStream.read()
-                }
-            }
-            // reading backupCells
-            for (i in 0 until rowCounts) {
-                for (j in 0 until colCounts) {
-                    backupCells[i][j] = fiStream.read()
-                }
-            }
-            // reading current score
-            val scoreByte = ByteArray(4)
-            fiStream.read(scoreByte)
-            cScore = ByteBuffer.wrap(scoreByte).getInt()
-            // reading undo score
-            val undoScoreByte = ByteArray(4)
-            fiStream.read(undoScoreByte)
-            unScore = ByteBuffer.wrap(undoScoreByte).getInt()
-            // reading undoEnable
-            bValue = fiStream.read()
-            isUndoEnable = bValue == 1
-            fiStream.close()
-
-            // refresh Main UI with loaded data
-            fiveGridData.setCellValues(gameCells)
-            fiveGridData.setBackupCells(backupCells)
-            fiveGameProp.currentScore = cScore
-            fiveGameProp.undoScore = unScore
-            fiveGameProp.undoEnable = isUndoEnable
-            // start update UI
-            setCurrentScore(fiveGameProp.currentScore)
-            displayGameGridView()
-        } catch (ex: IOException) {
-            ex.printStackTrace()
-            succeeded = false
-        }
-        setScreenMessage("")
-        fiveGameProp.isProcessingJob = false
-
-        return succeeded
+        return true
     }
 
     override fun dealWithIsNextBalls(isNextBalls: Boolean) {
@@ -337,73 +264,5 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         val numBalls = linkedLine.size
         val totalScore = (minScoreEach + (numBalls - minBalls) * plusScore) * numBalls
         return totalScore
-    }
-
-    private inner class ShowScore_old(
-        linkedPoint: HashSet<Point>,
-        val lastGotScore: Int,
-        val callback: ShowScoreCallback
-    ): Runnable {
-        private var pointSet: HashSet<Point>
-        private var mCounter = 0
-        init {
-            LogUtil.i(TAG, "ShowScore")
-            pointSet = HashSet(linkedPoint)
-        }
-
-        @Synchronized
-        private fun onProgressUpdate(status: Int) {
-            when (status) {
-                0 -> for (item in pointSet) {
-                    drawBall(item.x, item.y, fiveGridData.getCellValue(item.x, item.y))
-                }
-                1 -> for (item in pointSet) {
-                    drawOval(item.x, item.y, fiveGridData.getCellValue(item.x, item.y))
-                }
-                2 -> for (item in pointSet) {
-                    drawFirework(item.x, item.y)
-                }
-                3 -> {
-                    setScreenMessage(lastGotScore.toString())
-                    for (item in pointSet) {
-                        clearCell(item.x, item.y)
-                        drawBall(item.x, item.y, fiveGridData.getCellValue(item.x, item.y))
-                    }
-                }
-                4 -> {
-                    LogUtil.d(TAG, "ShowScore.onProgressUpdate.dismissShowMessageOnScreen.")
-                    setScreenMessage("")
-                }
-                else -> {}
-            }
-        }
-
-        @Synchronized
-        override fun run() {
-            val twinkleCountDown = 5
-            mCounter++
-            LogUtil.d(TAG, "ShowScore.run().mCounter = $mCounter")
-            showingScoreHandler.removeCallbacksAndMessages(null)
-            if (mCounter <= twinkleCountDown) {
-                val md = mCounter % 2 // modulus
-                onProgressUpdate(md)
-                showingScoreHandler.postDelayed(this, 100)
-            } else {
-                when (mCounter) {
-                    twinkleCountDown + 1 -> {
-                        onProgressUpdate(2) // show the flash
-                        showingScoreHandler.postDelayed(this, 100)
-                    }
-                    twinkleCountDown + 2 -> {
-                        onProgressUpdate(3) // show score
-                        showingScoreHandler.postDelayed(this, 500)
-                    }
-                    else -> {
-                        onProgressUpdate(4) // dismiss showing message
-                        callback.sCallback()
-                    }
-                }
-            }
-        }
     }
 }

@@ -963,18 +963,25 @@ abstract class BaseView: ComponentActivity(),
     }
 
     @Composable
-    fun ShowGameGrid() {
+    fun ShowGameGrid(isClickable: Boolean = true) {
         LogUtil.i(TAG, "ShowGameGrid.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
-        LogUtil.d(TAG, "ShowGameGrid.mImageSizeDp = $mImageSizeDp")
         Column {
             for (i in 0 until baseViewModel.rowCounts) {
                 Row {
                     for (j in 0 until baseViewModel.colCounts) {
                         Box(Modifier
-                            .clickable {
+                            .clickable(enabled = isClickable) {
                                 baseViewModel.cellClickListener(i, j)
-                            }) {
+                            }
+                            /*
+                            // no need
+                            .draggable(
+                                orientation = Orientation.Horizontal,
+                                state = rememberDraggableState(onDelta = {}),
+                                enabled = false)
+                            */
+                        ) {
                             Image(
                                 modifier = Modifier
                                     // .size(mImageSizeDp.dp)   // image already resized
