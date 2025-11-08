@@ -16,6 +16,7 @@ import com.smile.colorballs_main.models.GameProp
 import com.smile.colorballs_main.tools.GameUtil
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.viewmodel.BaseViewModel
+import fivecolorballs.viewmodels.FiveBallsViewModel
 import java.io.IOException
 import java.nio.ByteBuffer
 import kotlin.collections.iterator
@@ -77,7 +78,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
                     } else {
                         //  make a sound
                         if (hasSound()) {
-                            soundPool.playSound()
+                            soundPool?.playSound()
                         }
                     }
                 }
@@ -153,6 +154,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
     }
 
     private fun restoreState(state: Bundle?): Boolean {
+        LogUtil.i(TAG,"restoreState.state = $state")
         var isNewGame: Boolean
         var gameProp: GameProp? = null
         var gridData: CBallGridData? = null
@@ -198,6 +200,8 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
     }
 
     override fun saveInstanceState(outState: Bundle) {
+        stopBouncyAnimation()
+        movingBallHandler.removeCallbacksAndMessages(null)
         outState.putParcelable(Constants.GAME_PROP_TAG, cbGameProp)
         outState.putParcelable(Constants.GRID_DATA_TAG, cbGridData)
     }
@@ -577,7 +581,8 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
     }
 
     private fun displayNextColorBalls() {
-        if (cbGridData.randThreeCells() == 0) {
+        cbGridData.randThreeCells()
+        if (cbGridData.isGameOver()) {
             // no vacant, so game over
             gameOver()
             return

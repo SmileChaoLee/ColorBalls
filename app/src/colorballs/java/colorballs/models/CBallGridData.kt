@@ -36,10 +36,14 @@ class CBallGridData(
         private const val TAG: String = "CBallGridData"
     }
 
-    fun randThreeCells(): Int {
+    fun randThreeCells() {
         LogUtil.i(TAG, "randThreeCells")
         mNextCellIndices.clear()
-        return generateNextCellIndices(0, null)
+        generateNextCellIndices(0, null)
+    }
+
+    override fun isGameOver(): Boolean {
+        return mNextCellIndices.isEmpty()
     }
 
     fun randomBarriersAndCells() {

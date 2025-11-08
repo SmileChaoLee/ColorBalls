@@ -1057,7 +1057,10 @@ abstract class BaseView: ComponentActivity(),
     override fun getSaveScoreStr() = getString(R.string.saveScoreStr)
 
     override fun soundPool(): SoundPoolUtil {
-        return SoundPoolUtil(this, R.raw.uhoh)
+        LogUtil.d(TAG, "soundPool")
+        val sPool = SoundPoolUtil(this, R.raw.uhoh)
+        LogUtil.d(TAG, "soundPool.sPool = $sPool")
+        return sPool
     }
 
     override fun getRoomDatabase(): ScoreDatabase {

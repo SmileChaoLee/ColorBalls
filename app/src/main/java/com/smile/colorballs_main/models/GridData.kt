@@ -250,7 +250,7 @@ open class GridData(
         return false
     }
 
-    fun isGameOver(): Boolean {
+    open fun isGameOver(): Boolean {
         for (i in 0 until rowCounts) {
             for (j in 0 until colCounts) {
                 if (mCellValues[i][j] != 0) {

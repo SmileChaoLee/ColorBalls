@@ -15,13 +15,14 @@ class FiveCbGridData(
     override var mNumOfColorsUsed : Int = Constants.NUM_BALLS_USED_EASY,
     override val mCellValues : Array<IntArray> =
         Array(rowCounts) { IntArray(colCounts) },
+    override val mBackupCells: Array<IntArray> =
+        Array(rowCounts) { IntArray(colCounts) },
     override val mLightLine : HashSet<Point> = HashSet(),
     var runningBalls : ArrayList<Int> = ArrayList(),
     var next4Balls : ArrayList<Int> = ArrayList(),
     var pathPoint : ArrayList<Point> = ArrayList())
     : GridData(rowCounts, colCounts, mNumOfColorsUsed, mCellValues,
-    Array(rowCounts) { IntArray(colCounts) },
-    mLightLine) ,Parcelable {
+    mBackupCells, mLightLine) ,Parcelable {
 
     companion object {
         private const val TAG: String = "FiveCbGridData"
@@ -32,7 +33,7 @@ class FiveCbGridData(
     }
 
     fun randNext4Balls() {
-        LogUtil.i(TAG, "rand4Cells")
+        LogUtil.i(TAG, "randNext4Balls")
         next4Balls = ArrayList()
         var bColor: Int
         (0 until FiveBallsConstants.NUM_NEXT_BALLS).forEach { i ->
@@ -56,6 +57,7 @@ class FiveCbGridData(
         LogUtil.i(TAG, "copy")
         val newGridData = FiveCbGridData()
         newGridData.copy(gData)
+        newGridData.runningBalls = ArrayList(gData.runningBalls)
         newGridData.next4Balls = ArrayList(gData.next4Balls)
         newGridData.pathPoint = ArrayList(gData.pathPoint)
 

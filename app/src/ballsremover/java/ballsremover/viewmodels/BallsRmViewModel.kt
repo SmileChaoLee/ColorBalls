@@ -3,8 +3,6 @@ package ballsremover.viewmodels
 import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import ballsremover.constants.BallsRmConstants
@@ -126,7 +124,7 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
     }
 
     private fun restoreState(state: Bundle?): Boolean {
-        LogUtil.i(TAG,"restoreState.state")
+        LogUtil.i(TAG,"restoreState.state = $state")
         var isNewGame: Boolean
         var gameProp: GameProp? = null
         var gridData: GridData? = null

@@ -65,6 +65,12 @@ abstract class FiveCBallsView: BaseView(),
         super.onCreate(savedInstanceState)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        LogUtil.i(TAG, "onDestroy")
+        viewModel.release()
+    }
+
     @Composable
     fun ShowNext4Balls(modifier: Modifier = Modifier) {
         LogUtil.i(TAG, "ShowNext4Balls.mOrientation.intValue" +
@@ -168,11 +174,10 @@ abstract class FiveCBallsView: BaseView(),
                                     LogUtil.d(TAG, "StartShowGameGrid.moveX = $moveX")
                                     if (abs(moveX) >= diffStandard) {
                                         downX = it.position.x
-                                        viewModel.eraseRunningBalls()
                                         if (moveX > 0) {
-                                            viewModel.addRunningCol(1)
+                                            viewModel.shiftRunningCol(1)
                                         } else {
-                                            viewModel.addRunningCol(-1)
+                                            viewModel.shiftRunningCol(-1)
                                         }
                                     }
                                 } else {

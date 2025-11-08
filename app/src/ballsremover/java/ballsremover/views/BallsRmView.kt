@@ -15,6 +15,7 @@ abstract class BallsRmView: CbRmBaseView(), BallsRmPresentView {
 
     protected lateinit var viewModel: BallsRmViewModel
     private lateinit var mPresenter: BallsRmPresenter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         LogUtil.i(TAG, "$TAG.onCreate.savedInstanceState = $savedInstanceState")
         // Must be before super.onCreate(savedInstanceState)

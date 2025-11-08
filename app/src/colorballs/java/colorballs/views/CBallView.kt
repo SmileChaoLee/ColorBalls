@@ -14,6 +14,7 @@ abstract class CBallView: CbRmBaseView(), CBallPresentView {
     companion object {
         private const val TAG = "CBallView"
     }
+
     protected lateinit var viewModel: CBallViewModel
     private lateinit var mPresenter: CBallPresenter
 
@@ -24,6 +25,12 @@ abstract class CBallView: CbRmBaseView(), CBallPresentView {
         viewModel = CBallViewModel(mPresenter)
 
         super.onCreate(savedInstanceState)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        LogUtil.i(TAG, "onDestroy")
+        viewModel.release()
     }
 
     // implementing PresentViewCompose

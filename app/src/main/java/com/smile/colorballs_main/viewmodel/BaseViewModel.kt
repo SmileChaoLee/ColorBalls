@@ -52,7 +52,7 @@ abstract class BaseViewModel(
     private var sureToSaveGameStr = ""
     private var sureToLoadGameStr = ""
     var saveScoreStr = ""
-    lateinit var soundPool: SoundPoolUtil
+    var soundPool: SoundPoolUtil? = null
 
     protected var mGameProp = GameProp()
     protected var mGridData = GridData()
@@ -114,6 +114,7 @@ abstract class BaseViewModel(
     }
 
     fun setProperties() {
+        LogUtil.d(TAG, "setProperties")
         rowCounts = mGridData.rowCounts
         colCounts = mGridData.colCounts
         loadingStr = basePresenter.loadingStr
@@ -308,13 +309,13 @@ abstract class BaseViewModel(
 
     open fun release() {
         showingScoreHandler.removeCallbacksAndMessages(null)
-        soundPool.release()
+        soundPool?.release()
     }
 
     fun gameOver() {
         LogUtil.i(TAG, "gameOver")
         if (hasSound()) {
-            soundPool.playSound()
+            soundPool?.playSound()
         }
         newGame()
     }
