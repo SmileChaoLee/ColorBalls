@@ -109,8 +109,9 @@ abstract class FiveCBallsView: BaseView(),
         val pixelPerCol = (screenWidth*gameWidthRation) / FiveBallsConstants.COLUMN_COUNTS
         LogUtil.i(TAG, "GameViewGrid.pixelPerCol = $pixelPerCol")
         val diffStandard = 0.85
+        val backColor = Color(0xFF00BCD4)
         Column(modifier = Modifier.fillMaxSize()
-            .background(Color.DarkGray)
+            .background(backColor)
             .pointerInput(Unit) {
                 // Use the Initial pass to receive the event before the child's Main pass
                 // awaitPointerEventScope {
