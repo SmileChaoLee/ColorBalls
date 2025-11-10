@@ -251,8 +251,9 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
             // save settings
             LogUtil.d(TAG, "startSavingGame.hasSound = " + hasSound())
             if (hasSound()) foStream.write(1) else foStream.write(0)
-            LogUtil.d(TAG, "startSavingGame.isEasyLevel = " + isEasyLevel())
-            if (isEasyLevel()) foStream.write(1) else foStream.write(0)
+            LogUtil.d(TAG, "startSavingGame.isEasyLevel = " + gameLevel())
+            if (gameLevel() == Constants.GAME_LEVEL_1) foStream.write(1)
+            else foStream.write(0)
             LogUtil.d(TAG, "startSavingGame.hasNext = " + hasNext())
             if (hasNext()) foStream.write(1) else foStream.write(0)
             // save next balls
@@ -264,7 +265,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
                 foStream.write(value)
             }
             var sz = cbGridData.getNextCellIndices().size
-            for (i in sz until Constants.NUM_BALLS_USED_DIFF) {
+            (sz until Constants.NUM_BALLS_USED_DIFF).forEach { _ ->
                 LogUtil.d(TAG, "startSavingGame.nextCellIndices.getValue() = " + 0)
                 foStream.write(0)
             }
@@ -310,7 +311,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
                 foStream.write(value)
             }
             sz = cbGridData.getUndoNextCellIndices().size
-            for (i in sz until Constants.NUM_BALLS_USED_DIFF) {
+            (sz until Constants.NUM_BALLS_USED_DIFF).forEach { _ ->
                 LogUtil.d(TAG, "startSavingGame.undoNextCellIndices.getValue() = " + 0)
                 foStream.write(0)
             }
@@ -347,7 +348,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
 
         var succeeded = true
         val hasSound: Boolean
-        val isEasyLevel: Boolean
+        val gameLevel: Int
         val hasNext: Boolean
         var ballNumOneTime: Int
         val nextBalls = IntArray(Constants.NUM_BALLS_USED_DIFF)
@@ -378,8 +379,8 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
             LogUtil.d(TAG, "startLoadingGame.hasSound = $hasSound")
             // game level
             bValue = fiStream.read()
-            isEasyLevel = bValue == 1
-            LogUtil.d(TAG, "startLoadingGame.isEasyLevel = $isEasyLevel")
+            gameLevel = bValue
+            LogUtil.d(TAG, "startLoadingGame.isEasyLevel = $gameLevel")
             // next balls
             bValue = fiStream.read()
             hasNext = bValue == 1
@@ -392,7 +393,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
             }
             val nextCellIndicesSize = fiStream.read()
             LogUtil.d(TAG, "startLoadingGame.getNextCellIndices.size() = $nextCellIndicesSize")
-            for (i in 0 until nextCellIndicesSize) {
+            (0 until nextCellIndicesSize).forEach { _ ->
                 val x = fiStream.read()
                 val y = fiStream.read()
                 LogUtil.d(TAG, "startLoadingGame.nextCellIndices.getKey().x = $x")
@@ -403,7 +404,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
             LogUtil.d(
                 TAG,"startLoadingGame.getUndoNextCellIndices.size() = " +
                     "$undoNextCellIndicesSize")
-            for (i in 0 until undoNextCellIndicesSize) {
+            (0 until undoNextCellIndicesSize).forEach { _ ->
                 val x = fiStream.read()
                 val y = fiStream.read()
                 LogUtil.d(TAG, "startLoadingGame.undoNextCellIndices.getKey().x = $x")
@@ -452,7 +453,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
             fiStream.close()
             // refresh Main UI with loaded data
             setHasSound(hasSound)
-            setEasyLevel(isEasyLevel)
+            setGameLevel(gameLevel)
             setHasNext(hasNext, false)
             var kk = 0
             for (entry in cbGridData.getNextCellIndices().entries) {
@@ -534,7 +535,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
                 totalScore += score
             }
         }
-        if (!isEasyLevel()) {
+        if (gameLevel() != Constants.GAME_LEVEL_1) {
             // difficult level
             totalScore *= 2 // double of easy level
         }

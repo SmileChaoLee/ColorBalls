@@ -179,16 +179,16 @@ abstract class BaseViewModel(
         mGameProp.hasSound = hasSound
     }
 
-    fun isEasyLevel(): Boolean {
-        LogUtil.d(TAG, "isEasyLevel.easyLevel = ${mGameProp.isEasyLevel}")
-        return mGameProp.isEasyLevel
+    fun gameLevel(): Int {
+        LogUtil.d(TAG, "gameLevel = ${mGameProp.gameLevel}")
+        return mGameProp.gameLevel
     }
-    fun setEasyLevel(easyLevel: Boolean) {
-        mGameProp.isEasyLevel = easyLevel
-        val num = if (easyLevel) Constants.NUM_BALLS_USED_EASY
+    fun setGameLevel(gameLevel: Int) {
+        mGameProp.gameLevel = gameLevel
+        val num = if (gameLevel == Constants.GAME_LEVEL_1) Constants.NUM_BALLS_USED_EASY
         else Constants.NUM_BALLS_USED_DIFF
         mGridData.setNumOfColorsUsed(num)
-        LogUtil.d(TAG, "setEasyLevel.easyLevel = ${mGameProp.isEasyLevel}")
+        LogUtil.d(TAG, "setGameLevel.gameLevel = ${mGameProp.gameLevel}")
     }
 
     fun hasNext(): Boolean {

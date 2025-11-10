@@ -27,9 +27,9 @@ class SettingViewModel : ViewModel() {
         }
     }
 
-    fun setEasyLevel(easyLevel: Boolean) {
+    fun setGameLevel(gLevel: Int) {
         _settings.value?.let {
-            it.easyLevel = easyLevel
+            it.gameLevel = gLevel
             // Have to trigger notifyPropertyChanged of Settings model
             // _settings.postValue(it)
             _settings.value = it

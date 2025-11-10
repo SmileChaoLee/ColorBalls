@@ -2,7 +2,6 @@ package colorballs.views
 
 import android.os.Bundle
 import androidx.compose.runtime.Composable
-import ballsremover.views.BallsRmView
 import com.smile.colorballs_main.R
 import colorballs.interfaces.CBallPresentView
 import colorballs.presenters.CBallPresenter
@@ -58,7 +57,7 @@ abstract class CBallView: CbRmBaseView(), CBallPresentView {
         // do nothing
     }
 
-    override fun ifCreatingNewGame(newEasyLevel: Boolean, originalLevel: Boolean) {
+    override fun ifCreatingNewGame(newGameLevel: Int, originalLevel: Int) {
         // do nothing
     }
 

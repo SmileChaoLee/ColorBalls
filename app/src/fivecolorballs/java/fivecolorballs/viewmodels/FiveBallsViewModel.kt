@@ -34,6 +34,7 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
     private var droppingSpeed = FiveBallsConstants.NORMAL_DROPPING_SPEED
     private var isToEnd = false
     var runningCol = FiveBallsConstants.COLUMN_COUNTS / 2
+    private var isGameJustStarted = true
     private var isFinishRunning = false
     private var isGameOver = false
     private var gameStartTime = System.currentTimeMillis()
@@ -112,6 +113,7 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         setDroppingSpeed(FiveBallsConstants.NORMAL_DROPPING_SPEED)
         fiveGameProp.isProcessingJob = false
         gameStartTime = System.currentTimeMillis()
+        isGameJustStarted = true
         startRunBalls()
     }
 
@@ -154,6 +156,7 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         val passTime = (System.currentTimeMillis() - gameStartTime) / 60000L
         setDroppingSpeed(FiveBallsConstants.NORMAL_DROPPING_SPEED - passTime)
         LogUtil.i(TAG,"startRunBalls.droppingSpeed = $droppingSpeed")
+        isGameJustStarted = false
         runningBallsHandler.post(runBallsRunnable)
     }
 
@@ -283,6 +286,17 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         runningBalls[rbLastIndex] = first
         val curRow = if (nextRunningRow == 0) 0 else nextRunningRow - 1
         showRunningBalls(curRow = curRow )
+    }
+
+    fun startRunningHandler() {
+        LogUtil.i(TAG,"startRunningHandler")
+        if (isGameJustStarted) return
+        runningBallsHandler.post(runBallsRunnable)
+    }
+
+    fun stopRunningHandler() {
+        LogUtil.i(TAG,"stopRunningHandler")
+        runningBallsHandler.removeCallbacksAndMessages(null)
     }
 
     private fun restoreState(state: Bundle?): Boolean {

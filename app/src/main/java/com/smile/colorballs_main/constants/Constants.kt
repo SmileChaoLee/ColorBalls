@@ -16,7 +16,6 @@ object Constants {
     const val SAVE_BALLS_REMOVER = "SaveBallsRemover"
     const val SAVE_FIVE_COLORS = "SavedFiveColorBalls"
     const val HAS_SOUND = "HasSound"
-    const val EASY_LEVEL = "IsEasyLevel"
     const val HAS_NEXT = "HasNextBall"
     const val TOP10_PLAYERS = "Top10Players"
     const val IS_LOCAL_TOP10 = "IsLocalTop10"
@@ -44,4 +43,11 @@ object Constants {
 
     const val GLOBAL_TOP10_ACTION_NAME = "com.smile.Service.GlobalTop10"
     const val LOCAL_TOP10_ACTION_NAME = "com.smile.Service.LocalTop10"
+
+    const val GAME_LEVEL = "GameLevel"
+    const val GAME_LEVEL_1 = 1
+    const val GAME_LEVEL_2 = 2
+    const val GAME_LEVEL_3 = 3
+    const val GAME_LEVEL_4 = 4
+    const val GAME_LEVEL_5 = 5
 }

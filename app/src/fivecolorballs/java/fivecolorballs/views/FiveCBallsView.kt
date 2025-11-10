@@ -42,6 +42,7 @@ abstract class FiveCBallsView: BaseView(),
 
     protected lateinit var viewModel: FiveBallsViewModel
     private lateinit var mPresenter: FiveBallsPresenter
+    private var settingOrMenuClicked = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         LogUtil.i(TAG, "$TAG.onCreate")
@@ -63,6 +64,17 @@ abstract class FiveCBallsView: BaseView(),
         viewModel = FiveBallsViewModel(mPresenter)
 
         super.onCreate(savedInstanceState)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        LogUtil.i(TAG, "onResume")
+        stopActionOnClick()
+    }
+    override fun onPause() {
+        super.onPause()
+        LogUtil.i(TAG, "onPause")
+        actionOnClick()
     }
 
     override fun onDestroy() {
@@ -157,8 +169,9 @@ abstract class FiveCBallsView: BaseView(),
                     } while (event.changes.any { it.pressed }) // loop while pressed and moving
                     if (upY >= pixelPerCol * 1.5f) {
                         viewModel.toDropToEnd()
-                    } else if (!isMoved) { // if (abs(upY) <= 50f && abs(tapX) <= 50f) {
+                    } else if (!isMoved && (abs(upY) <= 50f && abs(tapX) <= 50f)) {
                         // tap
+                        if (settingOrMenuClicked) return@awaitEachGesture
                         viewModel.rotateRunningBalls()
                     }
                 }
@@ -216,8 +229,13 @@ abstract class FiveCBallsView: BaseView(),
         // do nothing
     }
 
-    override fun ifCreatingNewGame(newEasyLevel: Boolean, originalLevel: Boolean) {
-        // do nothing
+    override fun ifCreatingNewGame(newGameLevel: Int, originalLevel: Int) {
+        LogUtil.i(TAG, "ifCreatingNewGame")
+        if (newGameLevel != originalLevel) {
+            // create new game
+            LogUtil.i(TAG, "ifCreatingNewGame.create a new game")
+            viewModel.newGame()
+        }
     }
 
     override fun setHasNextForView(hasNext: Boolean) {
@@ -227,6 +245,20 @@ abstract class FiveCBallsView: BaseView(),
     override fun ifInterstitialWhenNewGame() {
         LogUtil.i(TAG, "ifInterstitialWhenNewGame")
         viewModel.initGame(bundle = null)
+    }
+
+    override fun isFiveBalls() = true
+
+    override fun actionOnClick() {
+        LogUtil.i(TAG, "actionOnClick")
+        settingOrMenuClicked = true
+        viewModel.stopRunningHandler()
+    }
+
+    override fun stopActionOnClick() {
+        LogUtil.i(TAG, "stopActionOnClick")
+        settingOrMenuClicked = false
+        viewModel.startRunningHandler()
     }
     // end of implementing abstract fun of BaseView
 }

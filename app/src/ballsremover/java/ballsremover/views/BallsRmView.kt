@@ -77,8 +77,8 @@ abstract class BallsRmView: CbRmBaseView(), BallsRmPresentView {
         viewModel.initGame(bundle = null)
     }
 
-    override fun ifCreatingNewGame(newEasyLevel: Boolean, originalLevel: Boolean) {
-        if (newEasyLevel != originalLevel) {
+    override fun ifCreatingNewGame(newGameLevel: Int, originalLevel: Int) {
+        if (newGameLevel != originalLevel) {
             // game levels are different, create a new game?
             viewModel.isCreatingNewGame()
         }

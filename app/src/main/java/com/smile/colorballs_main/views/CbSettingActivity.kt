@@ -33,12 +33,12 @@ class CbSettingActivity : ComponentActivity() {
         var gameId = Constants.GAME_NO_BARRIER_ID
         if (savedInstanceState == null) {
             // new creation of this activity
-            LogUtil.d(TAG, "onCreate.savedInstanceState is null")
             val setting = Settings()
+            LogUtil.d(TAG, "onCreate.savedInstanceState is null")
             intent.extras?.let {
                 gameId = it.getString(Constants.GAME_ID, gameId)
                 setting.hasSound = it.getBoolean(Constants.HAS_SOUND, true)
-                setting.easyLevel = it.getBoolean(Constants.EASY_LEVEL, true)
+                setting.gameLevel = it.getInt(Constants.GAME_LEVEL, 1)
                 setting.hasNext = it.getBoolean(Constants.HAS_NEXT, true)
             }
             settingViewModel.setSettings(setting)
@@ -56,9 +56,9 @@ class CbSettingActivity : ComponentActivity() {
                 LogUtil.d(TAG, "textClick.hasSoundClick.hasSound = $hasSound")
                 settingViewModel.setHasSound(hasSound)
             }
-            override fun easyLevelClick(easyLevel: Boolean) {
-                LogUtil.d(TAG, "textClick.easyLevelClick.easyLevel = $easyLevel")
-                settingViewModel.setEasyLevel(easyLevel)
+            override fun gameLevelClick(gameLevel: Int) {
+                LogUtil.d(TAG, "textClick.easyLevelClick.easyLevel = $gameLevel")
+                settingViewModel.setGameLevel(gameLevel)
             }
             override fun hasNextClick(hasNext: Boolean) {
                 LogUtil.d(TAG, "textClick.hasNextClick.hasNext = $hasNext")
@@ -77,14 +77,33 @@ class CbSettingActivity : ComponentActivity() {
 
         setContent {
             LogUtil.d(TAG, "onCreate.setContent.gameId = $gameId")
-            val hasNextStr = if (gameId == Constants.BALLS_REMOVER_ID) {
-                getString(R.string.fillColumnStr)
-            } else {
-                getString(R.string.nextBallSettingStr)
+            var hasNextStr: String
+            var gameLevelStr: String
+            when (gameId) {
+                Constants.FIVE_COLOR_BALLS_ID -> {
+                    hasNextStr = getString(R.string.emptyString)
+                    gameLevelStr = when (settingViewModel.settings.value?.gameLevel) {
+                        Constants.GAME_LEVEL_1 -> getString(R.string.level1Str)
+                        Constants.GAME_LEVEL_2 -> getString(R.string.level2Str)
+                        Constants.GAME_LEVEL_3 -> getString(R.string.level3Str)
+                        Constants.GAME_LEVEL_4 -> getString(R.string.level4Str)
+                        Constants.GAME_LEVEL_5 -> getString(R.string.level5Str)
+                        else -> {""}
+                    }
+                }
+                Constants.BALLS_REMOVER_ID -> {
+                    hasNextStr = getString(R.string.fillColumnStr)
+                    gameLevelStr = getString(R.string.easyStr)
+                }
+                else -> {
+                    hasNextStr = getString(R.string.nextBallSettingStr)
+                    gameLevelStr = getString(R.string.easyStr)
+                }
             }
+
             ColorBallsTheme {
                 settingViewModel.settings.value?.let {
-                    CbComposable.SettingCompose(
+                    CbComposable.SettingCompose(gameId = gameId,
                         buttonClick, textClick,
                         backgroundColor = Color(0xbb0000ff), it,
                         getString(R.string.settingStr),
@@ -97,7 +116,7 @@ class CbSettingActivity : ComponentActivity() {
                         getString(R.string.noStr),
                         getString(R.string.no1),
                         getString(R.string.no2),
-                        getString(R.string.easyStr),
+                        gameLevelStr,
                         getString(R.string.difficultStr),
                         getString(R.string.okStr),
                         getString(R.string.cancelStr)
@@ -149,7 +168,7 @@ class CbSettingActivity : ComponentActivity() {
             Bundle().let { bundle ->
                 settingViewModel.settings.value?.also {
                     bundle.putBoolean(Constants.HAS_SOUND, it.hasSound)
-                    bundle.putBoolean(Constants.EASY_LEVEL, it.easyLevel)
+                    bundle.putInt(Constants.GAME_LEVEL, it.gameLevel)
                     bundle.putBoolean(Constants.HAS_NEXT, it.hasNext)
                     intent.putExtras(bundle)
                 }

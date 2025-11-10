@@ -112,7 +112,10 @@ abstract class BaseView: ComponentActivity(),
     abstract fun setHasNextForView(hasNext: Boolean)
     abstract fun ifInterstitialWhenSaveScore()
     abstract fun ifInterstitialWhenNewGame()
-    abstract fun ifCreatingNewGame(newEasyLevel: Boolean, originalLevel: Boolean)
+    abstract fun ifCreatingNewGame(newGameLevel: Int, originalLevel: Int)
+    open fun isFiveBalls() = false
+    open fun actionOnClick() {}
+    open fun stopActionOnClick() {}
 
     var menuBarWeight = 1.0f
     var gameGridWeight = 7.0f
@@ -193,18 +196,18 @@ abstract class BaseView: ComponentActivity(),
                 result: ActivityResult ->
             LogUtil.i(TAG, "$TAG.settingLauncher.result received")
             if (result.resultCode == RESULT_OK) {
-                val originalLevel = baseViewModel.isEasyLevel()
-                var newEasyLevel: Boolean
+                val originalLevel = baseViewModel.gameLevel()
+                var newGameLevel: Int
                 val data = result.data ?: return@registerForActivityResult
                 data.extras?.let { extras ->
                     baseViewModel.setHasSound(extras.getBoolean(Constants.HAS_SOUND,
                         true))
-                    newEasyLevel = extras.getBoolean(Constants.EASY_LEVEL,
+                    newGameLevel = extras.getInt(Constants.GAME_LEVEL,
                         originalLevel)
-                    baseViewModel.setEasyLevel(newEasyLevel)
+                    baseViewModel.setGameLevel(newGameLevel)
                     val hasNext = extras.getBoolean(Constants.HAS_NEXT,true)
                     setHasNextForView(hasNext)
-                    ifCreatingNewGame(newEasyLevel, originalLevel)
+                    ifCreatingNewGame(newGameLevel, originalLevel)
                 }
             }
         }
@@ -786,14 +789,16 @@ abstract class BaseView: ComponentActivity(),
 
     private fun onClickSettingButton() {
         if (baseViewModel.isProcessingJob()) return
+        actionOnClick()
         Intent(
             this@BaseView,
             CbSettingActivity::class.java
         ).let {
             Bundle().apply {
-                putString(Constants.GAME_ID, GameUtil.getGameId(baseViewModel.getWhichGame()))
+                putString(Constants.GAME_ID,
+                    GameUtil.getGameId(baseViewModel.getWhichGame()))
                 putBoolean(Constants.HAS_SOUND, baseViewModel.hasSound())
-                putBoolean(Constants.EASY_LEVEL, baseViewModel.isEasyLevel())
+                putInt(Constants.GAME_LEVEL, baseViewModel.gameLevel())
                 putBoolean(Constants.HAS_NEXT, baseViewModel.hasNext())
                 it.putExtras(this)
                 settingLauncher.launch(it)
@@ -867,6 +872,7 @@ abstract class BaseView: ComponentActivity(),
             IconButton (onClick = {
                 if (!baseViewModel.isProcessingJob()) {
                     expanded = !expanded
+                    if (expanded) actionOnClick() else stopActionOnClick()
                 }
             }, modifier = modifier) {
                 Icon(
@@ -877,7 +883,10 @@ abstract class BaseView: ComponentActivity(),
             }
             DropdownMenu(
                 expanded = expanded,
-                onDismissRequest = { expanded = false },
+                onDismissRequest = {
+                    expanded = false
+                    stopActionOnClick()
+                                   },
                 modifier = Modifier
                     .requiredHeightIn(max = (mImageSizeDp * 12f).dp)
                     .requiredWidth(dropdownWidth.dp)
@@ -907,35 +916,37 @@ abstract class BaseView: ComponentActivity(),
                         showTop10Players(isLocal = true)
                     })
 
-                val isSaveGameClicked = remember { mutableStateOf(false) }
-                CbComposable.DropdownMenuItem(
-                    text = getString(R.string.saveGameStr),
-                    color = if (isSaveGameClicked.value) Color.Red else Color.Black,
-                    onClick = {
-                        expanded = false
-                        showColorWhenClick(isSaveGameClicked)
-                        baseViewModel.saveGame()
-                    })
+                if (!isFiveBalls()) {
+                    val isSaveGameClicked = remember { mutableStateOf(false) }
+                    CbComposable.DropdownMenuItem(
+                        text = getString(R.string.saveGameStr),
+                        color = if (isSaveGameClicked.value) Color.Red else Color.Black,
+                        onClick = {
+                            expanded = false
+                            showColorWhenClick(isSaveGameClicked)
+                            baseViewModel.saveGame()
+                        })
 
-                val isLoadGameClicked = remember { mutableStateOf(false) }
-                CbComposable.DropdownMenuItem(
-                    text = getString(R.string.loadGameStr),
-                    color = if (isLoadGameClicked.value) Color.Red else Color.Black,
-                    onClick = {
-                        expanded = false
-                        showColorWhenClick(isLoadGameClicked)
-                        baseViewModel.loadGame()
-                    })
+                    val isLoadGameClicked = remember { mutableStateOf(false) }
+                    CbComposable.DropdownMenuItem(
+                        text = getString(R.string.loadGameStr),
+                        color = if (isLoadGameClicked.value) Color.Red else Color.Black,
+                        onClick = {
+                            expanded = false
+                            showColorWhenClick(isLoadGameClicked)
+                            baseViewModel.loadGame()
+                        })
 
-                val isNewGameClicked = remember { mutableStateOf(false) }
-                CbComposable.DropdownMenuItem(
-                    text = getString(R.string.newGame),
-                    color = if (isNewGameClicked.value) Color.Red else Color.Black,
-                    onClick = {
-                        expanded = false
-                        showColorWhenClick(isNewGameClicked)
-                        baseViewModel.newGame()
-                    })
+                    val isNewGameClicked = remember { mutableStateOf(false) }
+                    CbComposable.DropdownMenuItem(
+                        text = getString(R.string.newGame),
+                        color = if (isNewGameClicked.value) Color.Red else Color.Black,
+                        onClick = {
+                            expanded = false
+                            showColorWhenClick(isNewGameClicked)
+                            baseViewModel.newGame()
+                        })
+                }
 
                 val isAppListClicked = remember { mutableStateOf(false) }
                 CbComposable.DropdownMenuItem(

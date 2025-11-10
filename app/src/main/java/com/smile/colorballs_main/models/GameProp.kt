@@ -1,6 +1,7 @@
 package com.smile.colorballs_main.models
 
 import android.os.Parcelable
+import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.constants.WhichGame
 import kotlinx.parcelize.Parcelize
 
@@ -11,7 +12,7 @@ class GameProp(
     var currentScore : Int = 0,
     var undoScore : Int = 0,
     var lastGotScore : Int = 0,
-    var isEasyLevel : Boolean = true,
+    var gameLevel : Int = Constants.GAME_LEVEL_1,
     var hasSound : Boolean = true,
     var hasNext : Boolean = true,
     var isProcessingJob : Boolean = false,

@@ -213,7 +213,8 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
             val foStream = bRmPresenter.fileOutputStream(Constants.SAVE_BALLS_REMOVER)
             // save settings
             if (hasSound()) foStream.write(1) else foStream.write(0)
-            if (isEasyLevel()) foStream.write(1) else foStream.write(0)
+            if (gameLevel() == Constants.GAME_LEVEL_1) foStream.write(1)
+            else foStream.write(0)
             if (hasNext()) foStream.write(1) else foStream.write(0)
             // save values on game grid
             for (i in 0 until rowCounts) {
@@ -255,7 +256,7 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
         setScreenMessage(loadingGameStr)
         var succeeded = true
         val hasSound: Boolean
-        val isEasyLevel: Boolean
+        val gameLevel: Int
         val hasNext: Boolean
         val gameCells = Array(rowCounts) {
             IntArray(colCounts) }
@@ -272,11 +273,11 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
             var bValue = fiStream.read()
             hasSound = bValue == 1
             bValue = fiStream.read()
-            isEasyLevel = bValue == 1
+            gameLevel = bValue
             bValue = fiStream.read()
             hasNext = bValue == 1
             setHasSound(hasSound)
-            setEasyLevel(isEasyLevel)
+            setGameLevel(gameLevel)
             setHasNext(hasNext)
             // load values on game grid
             for (i in 0 until rowCounts) {
@@ -341,8 +342,8 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
         // 10 points for each ball if it is 4 balls
         // 12 points for each ball if it is 5 balls
         val minBalls = 2
-        val minScoreEach = if (isEasyLevel()) 5 else 6
-        val plusScore = if (isEasyLevel()) 1 else 2
+        val minScoreEach = if (gameLevel() == Constants.GAME_LEVEL_1) 5 else 6
+        val plusScore = if (gameLevel() == Constants.GAME_LEVEL_1) 1 else 2
         val numBalls = linkedLine.size
         val totalScore = (minScoreEach + (numBalls - minBalls) * plusScore) * numBalls
         return totalScore

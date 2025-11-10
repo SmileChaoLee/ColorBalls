@@ -2,12 +2,17 @@
 <resources>
     <string name="color_balls_name">色球</string>
     <string name="balls_remover_name">色球移除</string>
-    <string name="five_cballs_name">五色球</string>
+    <string name="five_cballs_name">下墜色球</string>
     <string name="no1">1</string>
     <string name="easyStr">容易</string>
     <string name="no2">2</string>
     <string name="difficultStr">困難</string>
     <string name="playerLevelStr">難易程度</string>
+    <string name="level1Str">程度 1</string>
+    <string name="level2Str">程度 2</string>
+    <string name="level3Str">程度 3</string>
+    <string name="level4Str">程度 4</string>
+    <string name="level5Str">程度 5</string>
     <string name="nextBallSettingStr">下一批色球</string>
     <string name="quitGame">結束遊戲</string>
     <string name="newGame">新遊戲</string>
@@ -17,6 +22,7 @@
     <string name="title_activity_global">全球前10排名</string>
     <string name="globalTop10Score">全球前10排名</string>
     <string name="action_settings">設定</string>
+    <string name="emptyString">""</string>
     <string name="okStr">確定</string>
     <string name="yesStr">是</string>
     <string name="noStr">否</string>
