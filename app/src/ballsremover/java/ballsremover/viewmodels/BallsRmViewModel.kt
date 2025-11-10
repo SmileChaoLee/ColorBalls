@@ -13,7 +13,6 @@ import com.smile.colorballs_main.models.GameProp
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.viewmodel.BaseViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -51,39 +50,42 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
         LogUtil.i(TAG, "cellClickListener.($i, $j)")
         if (brGridData.getCellValue(i, j) == 0) return  // no ball
         if (brGameProp.isProcessingJob) return
-        if (brGridData.checkMoreThanTwo(i, j)) {
-            brGridData.backupCells()
-            brGameProp.undoScore = brGameProp.currentScore
-            brGameProp.undoEnable = true
-            brGameProp.isProcessingJob = true
-            val tempLine = HashSet(brGridData.getLightLine())
-            LogUtil.d(TAG, "cellClickListener.tempLine.size = ${tempLine.size}")
-            brGameProp.lastGotScore = calculateScore(tempLine)
-            brGameProp.currentScore += brGameProp.lastGotScore
-            setCurrentScore(brGameProp.currentScore)
-            val showScore = ShowScore(
-                brGridData,
-                brGridData.getLightLine(),
-                brGameProp.lastGotScore,
-                false /* no used*/,
-                object : ShowScoreCallback {
-                    override fun sCallback() {
-                        LogUtil.d(TAG, "cellClickListener.sCallback")
-                        viewModelScope.launch(Dispatchers.Default) {
-                            // Refresh the game view
-                            brGridData.refreshColorBalls(hasNext())
-                            delay(200)
-                            displayGameGridView()
-                            if (brGridData.isGameOver()) {
-                                LogUtil.d(TAG, "cellClickListener.sCallback.gameOver()")
-                                gameOver()
-                            }
-                            brGameProp.isProcessingJob = false
-                        }
-                    }
-                })
-            showingScoreHandler.post(showScore)
+        brGameProp.isProcessingJob = true
+        val hasTwo = brGridData.moreThan2NABOR(i, j)
+        if (!hasTwo) {
+            brGameProp.isProcessingJob = false
+            return
         }
+        brGridData.backupCells()
+        brGameProp.undoScore = brGameProp.currentScore
+        brGameProp.undoEnable = true
+        val tempLine = HashSet(brGridData.getLightLine())
+        LogUtil.d(TAG, "cellClickListener.tempLine.size = ${tempLine.size}")
+        brGameProp.lastGotScore = calculateScore(tempLine)
+        brGameProp.currentScore += brGameProp.lastGotScore
+        setCurrentScore(brGameProp.currentScore)
+        val showScore = ShowScore(
+            brGridData,
+            tempLine,
+            brGameProp.lastGotScore,
+            false /* no used*/,
+            object : ShowScoreCallback {
+                override fun sCallback() {
+                    LogUtil.d(TAG, "cellClickListener.sCallback")
+                    viewModelScope.launch(Dispatchers.Default) {
+                        // Refresh the game view
+                        brGridData.refreshColorBalls(hasNext())
+                        // delay(200)
+                        displayGameGridView()
+                        if (brGridData.isGameOver()) {
+                            LogUtil.d(TAG, "cellClickListener.sCallback.gameOver()")
+                            gameOver()
+                        }
+                        brGameProp.isProcessingJob = false
+                    }
+                }
+            })
+        showingScoreHandler.post(showScore)
     }
 
     private fun setData(prop: GameProp, gData: GridData) {

@@ -2,6 +2,7 @@ package colorballs.views
 
 import android.os.Bundle
 import androidx.compose.runtime.Composable
+import ballsremover.views.BallsRmView
 import com.smile.colorballs_main.R
 import colorballs.interfaces.CBallPresentView
 import colorballs.presenters.CBallPresenter
@@ -53,6 +54,7 @@ abstract class CBallView: CbRmBaseView(), CBallPresentView {
     }
 
     override fun ifInterstitialWhenSaveScore() {
+        LogUtil.i(TAG, "ifShowInterstitialAd")
         // do nothing
     }
 

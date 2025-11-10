@@ -83,9 +83,9 @@ open class GridData(
         mNumOfColorsUsed = numOfColorsUsed
     }
 
-    fun refreshColorBalls(fillColumn: Boolean) {
-        LogUtil.i(TAG, "refreshColorBalls.mLightLine.size = ${mLightLine.size}")
-        val list = ArrayList<Point>(mLightLine)
+    fun crashColorBalls(sourceSet: HashSet<Point>) {
+        LogUtil.i(TAG, "crashColorBalls.sourceSet.size = ${sourceSet.size}")
+        val list = ArrayList<Point>(sourceSet)
         list.sortWith { p1: Point, p2: Point ->
             p1.x.compareTo(p2.x)
         }
@@ -95,11 +95,16 @@ open class GridData(
             }
             mCellValues[0][p.y] = 0
         }
+    }
+
+    fun refreshColorBalls(fillColumn: Boolean) {
+        LogUtil.i(TAG, "refreshColorBalls.mLightLine.size = ${mLightLine.size}")
+        crashColorBalls(mLightLine)
         // Check if needs to shift columns
         needShiftColumn(fillColumn)
     }
 
-    fun refreshColorBalls_old(fillColumn: Boolean) {
+    fun refreshColorBallsOld(fillColumn: Boolean) {
         LogUtil.i(TAG, "refreshColorBalls.mLightLine.size = ${mLightLine.size}")
         val list = ArrayList<Point>(mLightLine)
         list.sortWith { p1: Point, p2: Point ->
@@ -239,25 +244,264 @@ open class GridData(
         }
     }
 
-    fun checkMoreThanTwo(x: Int, y: Int): Boolean {
-        LogUtil.i(TAG, "checkMoreThanTwo.x = $x, y = $y")
-        val ballNumCompleted = 2
+    fun moreThanNumNABOR(x: Int, y: Int, connectNum: Int): Boolean {
+        LogUtil.i(TAG, "moreThanNumNABOR.x = $x, y = $y, connectNum = $connectNum")
         allConnectBalls(Point(x , y))
-        if (mLightLine.size >= ballNumCompleted) {
+        if (mLightLine.size >= connectNum) {
             return true
         }
         mLightLine.clear()
         return false
     }
 
+    fun moreThan2NABOR(x: Int, y: Int): Boolean {
+        return moreThanNumNABOR(x, y, 2)
+    }
+
     open fun isGameOver(): Boolean {
         for (i in 0 until rowCounts) {
             for (j in 0 until colCounts) {
                 if (mCellValues[i][j] != 0) {
-                    if (checkMoreThanTwo(i, j)) return false
+                    if (moreThan2NABOR(i, j)) return false
                 }
             }
         }
         return true
+    }
+
+    fun moreThanNumVerHorDia(x: Int, y: Int, checkNum: Int): Boolean {
+        mLightLine.clear()
+        mLightLine.add(Point(x, y))
+        var i: Int
+        var j: Int
+        var firstResult = 0
+        var secondResult = 0
+        var thirdResult = 0
+        var forthResult = 0
+
+        val tempList: MutableList<Point> = ArrayList()
+        val cellColor = mCellValues[x][y]
+        // LogUtil.d(TAG, "check_moreThanFive() --> cellColor = " + cellColor);
+
+        //first
+        var firstI = 0
+        var endI = rowCounts - 1
+        var numB = 0
+
+        i = x - 1
+        while (i >= firstI) {
+            if (mCellValues[i][y] == cellColor) {
+                numB++
+                tempList.add(Point(i, y))
+            } else {
+                i = firstI
+            }
+            i--
+        }
+
+        if (numB >= (checkNum - 1)) {
+            // end
+            for (temp in tempList) {
+                if (!mLightLine.contains(temp)) {
+                    mLightLine.add(Point(temp))
+                }
+            }
+            tempList.clear()
+            firstResult = 1
+        }
+
+        i = x + 1
+        while (i <= endI) {
+            if (mCellValues[i][y] == cellColor) {
+                numB++
+                tempList.add(Point(i, y))
+            } else {
+                i = endI
+            }
+            i++
+        }
+
+        if (numB >= (checkNum - 1)) {
+            // end
+            for (temp in tempList) {
+                if (!mLightLine.contains(temp)) {
+                    mLightLine.add(Point(temp))
+                }
+            }
+            firstResult = 1
+        }
+        tempList.clear()
+
+        //second
+        firstI = 0
+        endI = rowCounts - 1
+
+        var firstJ = colCounts - 1
+        var endJ = 0
+
+        numB = 0
+        i = x - 1
+        j = y + 1
+        while ((i >= firstI) && (j <= firstJ)) {
+            if (mCellValues[i][j] == cellColor) {
+                numB++
+                tempList.add(Point(i, j))
+            } else {
+                i = firstI
+                j = firstJ
+            }
+            i--
+            j++
+        }
+
+        if (numB >= (checkNum - 1)) {
+            // end
+            for (temp in tempList) {
+                if (!mLightLine.contains(temp)) {
+                    mLightLine.add(Point(temp))
+                }
+            }
+            tempList.clear()
+            secondResult = 1
+        }
+
+        i = x + 1
+        j = y - 1
+        while ((i <= endI) && (j >= endJ)) {
+            if (mCellValues[i][j] == cellColor) {
+                numB++
+                tempList.add(Point(i, j))
+            } else {
+                i = endI
+                j = endJ
+            }
+            i++
+            j--
+        }
+
+        if (numB >= (checkNum - 1)) {
+            // end
+            for (temp in tempList) {
+                if (!mLightLine.contains(temp)) {
+                    mLightLine.add(Point(temp))
+                }
+            }
+            secondResult = 1
+        }
+        tempList.clear()
+
+        //third
+        firstJ = colCounts - 1
+        endJ = 0
+
+        numB = 0
+        j = y + 1
+        while (j <= firstJ) {
+            if (mCellValues[x][j] == cellColor) {
+                numB++
+                tempList.add(Point(x, j))
+            } else {
+                j = firstJ
+            }
+            j++
+        }
+
+        if (numB >= (checkNum - 1)) {
+            // end
+            for (temp in tempList) {
+                if (!mLightLine.contains(temp)) {
+                    mLightLine.add(Point(temp))
+                }
+            }
+            tempList.clear()
+            thirdResult = 1
+        }
+
+        j = y - 1
+        while (j >= endJ) {
+            if (mCellValues[x][j] == cellColor) {
+                numB++
+                tempList.add(Point(x, j))
+            } else {
+                j = endJ
+            }
+            j--
+        }
+
+        if (numB >= (checkNum - 1)) {
+            // end
+            for (temp in tempList) {
+                if (!mLightLine.contains(temp)) {
+                    mLightLine.add(Point(temp))
+                }
+            }
+            thirdResult = 1
+        }
+        tempList.clear()
+
+        //forth
+        firstI = rowCounts - 1
+        endI = 0
+
+        firstJ = colCounts - 1
+        endJ = 0
+
+        numB = 0
+        i = x + 1
+        j = y + 1
+        while ((i <= firstI) && (j <= firstJ)) {
+            if (mCellValues[i][j] == cellColor) {
+                numB++
+                tempList.add(Point(i, j))
+            } else {
+                i = firstI
+                j = firstJ
+            }
+            i++
+            j++
+        }
+
+        if (numB >= (checkNum - 1)) {
+            // end
+            for (temp in tempList) {
+                if (!mLightLine.contains(temp)) {
+                    mLightLine.add(Point(temp))
+                }
+            }
+            tempList.clear()
+            forthResult = 1
+        }
+
+        i = x - 1
+        j = y - 1
+        while ((i >= endI) && (j >= endJ)) {
+            if (mCellValues[i][j] == cellColor) {
+                numB++
+                tempList.add(Point(i, j))
+            } else {
+                i = endI
+                j = endJ
+            }
+            i--
+            j--
+        }
+
+        if (numB >= (checkNum - 1)) {
+            // end
+            for (temp in tempList) {
+                if (!mLightLine.contains(temp)) {
+                    mLightLine.add(Point(temp))
+                }
+            }
+            forthResult = 1
+        }
+        tempList.clear()
+
+        if ((firstResult == 1) || (secondResult == 1) || (thirdResult == 1) || (forthResult == 1)) {
+            return true
+        } else {
+            mLightLine.clear()
+            return false
+        }
     }
 }

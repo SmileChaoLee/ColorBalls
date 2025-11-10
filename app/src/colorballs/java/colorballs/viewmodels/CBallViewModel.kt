@@ -16,7 +16,6 @@ import com.smile.colorballs_main.models.GameProp
 import com.smile.colorballs_main.tools.GameUtil
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.viewmodel.BaseViewModel
-import fivecolorballs.viewmodels.FiveBallsViewModel
 import java.io.IOException
 import java.nio.ByteBuffer
 import kotlin.collections.iterator
@@ -120,6 +119,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
             LogUtil.i(TAG, "initGame.isNewGame")
             displayGameGridView()
             displayGridDataNextCells()
+            cbGameProp.isProcessingJob = false
         } else {
             displayGameView()
             // display the original state before changing configuration
@@ -141,16 +141,18 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
                     object : ShowScoreCallback {
                         override fun sCallback() {
                             lastPartOfInitialGame()
+                            cbGameProp.isProcessingJob = false
                         }
                     })
                 LogUtil.d(TAG, "initGame.showingScoreHandler.post().")
                 showingScoreHandler.post(showScore)
             } else {
                 lastPartOfInitialGame()
+                cbGameProp.isProcessingJob = false
             }
         }
         getAndSetHighestScore() // a coroutine operation
-        cbGameProp.isProcessingJob = false
+        // cbGameProp.isProcessingJob = false
     }
 
     private fun restoreState(state: Bundle?): Boolean {
@@ -603,7 +605,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
             LogUtil.d(TAG, "displayGridDataNextCells.($n1, $n2), color = $value")
             cbGridData.setCellValue(n1, n2, value)
             drawBall(n1, n2, cbGridData.getCellValue(n1, n2))
-            if (cbGridData.checkMoreThanFive(n1, n2)) {
+            if (cbGridData.moreThan5VerHorDia(n1, n2)) {
                 hasMoreFive = true
                 for (point in cbGridData.getLightLine()) {
                     if (!linkedPoint.contains(point)) {
@@ -680,7 +682,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
                     drawBall(targetI, targetJ, color)
                     //  check if there are more than five balls
                     //  with same color connected together
-                    if (cbGridData.checkMoreThanFive(targetI, targetJ)) {
+                    if (cbGridData.moreThan5VerHorDia(targetI, targetJ)) {
                         cbGameProp.lastGotScore = calculateScore(cbGridData.getLightLine())
                         cbGameProp.undoScore = cbGameProp.currentScore
                         cbGameProp.currentScore += cbGameProp.lastGotScore

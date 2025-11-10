@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.compose.runtime.mutableStateListOf
+import androidx.lifecycle.viewModelScope
 import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.models.GameProp
 import com.smile.colorballs_main.tools.LogUtil
@@ -13,6 +14,8 @@ import com.smile.colorballs_main.viewmodel.BaseViewModel
 import fivecolorballs.constants.FiveBallsConstants
 import fivecolorballs.models.FiveCbGridData
 import fivecolorballs.presenters.FiveBallsPresenter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
     : BaseViewModel(fivePresenter) {
@@ -24,13 +27,16 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
     private val runningBallsHandler = Handler(Looper.getMainLooper())
     private var fiveGameProp: GameProp
     private var fiveGridData: FiveCbGridData
-    var timesPlayed = 0
     private val rbLastIndex = FiveBallsConstants.NUM_NEXT_BALLS - 1
     private val runningBalls = ArrayList<Int>()
     private var nextRunningRow = 0
+    // one second
+    private var droppingSpeed = FiveBallsConstants.NORMAL_DROPPING_SPEED
+    private var isToEnd = false
     var runningCol = FiveBallsConstants.COLUMN_COUNTS / 2
     private var isFinishRunning = false
     private var isGameOver = false
+    private var gameStartTime = System.currentTimeMillis()
 
     private val _next4Balls = mutableStateListOf<Int>()
     val next4Balls: List<Int>
@@ -40,7 +46,12 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
     // if it is handled by runningBallsHandler
     private val runBallsRunnable = object : Runnable {
         override fun run() {
+            LogUtil.d(TAG, "runBallsRunnable.run()")
             runningBallsHandler.removeCallbacksAndMessages(null)
+            if (fiveGameProp.isProcessingJob) {
+                runningBallsHandler.postDelayed(this, droppingSpeed)
+                return
+            }
             showRunningBalls(curRow = nextRunningRow)
             // erase after index is rbLastIndex
             if (nextRunningRow > rbLastIndex) {
@@ -48,14 +59,9 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
             }
             nextRunningRow++
             reachBottomOrBlock()
-            LogUtil.d(TAG, "runBallsRunnable.isGameOver = $isGameOver")
             LogUtil.d(TAG, "runBallsRunnable.isFinishRunning = $isFinishRunning")
-            if (!isGameOver) {
-                if (isFinishRunning) {
-                    startRunBalls()
-                } else {
-                    runningBallsHandler.postDelayed(this, 1000)
-                }
+            if (!isFinishRunning) {
+                runningBallsHandler.postDelayed(this, droppingSpeed)
             }
         }
     }
@@ -100,10 +106,30 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         }
         displayGameGridView()
         getAndSetHighestScore() // a coroutine operation
+        isToEnd = false
         isFinishRunning = false
         isGameOver = false
-        startRunBalls()
+        setDroppingSpeed(FiveBallsConstants.NORMAL_DROPPING_SPEED)
         fiveGameProp.isProcessingJob = false
+        gameStartTime = System.currentTimeMillis()
+        startRunBalls()
+    }
+
+    fun setDroppingSpeed(seconds: Long) {
+        runningBallsHandler.removeCallbacksAndMessages(null)
+        droppingSpeed = if (seconds < FiveBallsConstants.MIN_DROPPING_SPEED)
+            FiveBallsConstants.MIN_DROPPING_SPEED
+        else seconds
+        runningBallsHandler.post(runBallsRunnable)
+    }
+
+    fun toDropToEnd() {
+        if (fiveGameProp.isProcessingJob) return
+        if (isToEnd) return
+        isToEnd = true
+        runningBallsHandler.removeCallbacksAndMessages(null)
+        droppingSpeed = FiveBallsConstants.END_DROPPING_SPEED
+        runningBallsHandler.post(runBallsRunnable)
     }
 
     fun startRunBalls(row: Int = 0) {
@@ -120,9 +146,14 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
             LogUtil.i(TAG,"startRunBalls.next4Balls.size = 0")
             return
         }
+        isToEnd = false
         isFinishRunning = false
         nextRunningRow = row
         runningCol = FiveBallsConstants.COLUMN_COUNTS / 2
+        // one minute speed up 1 ms
+        val passTime = (System.currentTimeMillis() - gameStartTime) / 60000L
+        setDroppingSpeed(FiveBallsConstants.NORMAL_DROPPING_SPEED - passTime)
+        LogUtil.i(TAG,"startRunBalls.droppingSpeed = $droppingSpeed")
         runningBallsHandler.post(runBallsRunnable)
     }
 
@@ -153,22 +184,68 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         }
         LogUtil.d(TAG,"reachBottomOrBlock.isFinishRunning = $isFinishRunning")
         if (isFinishRunning) {
-            // update fiveGridData.mCellValues[][]
+            runningBallsHandler.removeCallbacksAndMessages(null)
+            val threeSet = HashSet<Point>()
             val curRow = if (nextRunningRow == 0) 0 else nextRunningRow - 1
-            for (k in 0..minOf(curRow, rbLastIndex)) {
+            val minIndex = minOf(curRow, rbLastIndex)
+            for (k in 0..minOf(curRow, minIndex)) {
+                // update fiveGridData.mCellValues[][]
                 fiveGridData.mCellValues[curRow - k][runningCol] = runningBalls[rbLastIndex - k]
+                threeSet.add(Point(curRow-k,runningCol))
             }
-            if (nextRunningRow < FiveBallsConstants.NUM_NEXT_BALLS) {
-                // Game over
-                isGameOver = true
-                gameOver()
+            if (!fiveGridData.moreThan3NABOR(threeSet)) {
+                fiveGridData.setNextRunning()
+                if (nextRunningRow < FiveBallsConstants.NUM_NEXT_BALLS) {
+                    // Game over
+                    isGameOver = true
+                    gameOver()
+                } else {
+                    startRunBalls()
+                }
+                return
             }
-            fiveGridData.setNextRunning()
+            startCrashBalls()
         }
+    }
+
+    private fun startCrashBalls() {
+        LogUtil.d(TAG, "startCrashBalls")
+        fiveGameProp.isProcessingJob = true
+        val tempLine = HashSet(fiveGridData.addUpLightLine)
+        LogUtil.d(TAG, "startCrashBalls.tempLine.size = ${tempLine.size}")
+        fiveGameProp.lastGotScore = calculateScore(tempLine)
+        fiveGameProp.currentScore += fiveGameProp.lastGotScore
+        setCurrentScore(fiveGameProp.currentScore)
+        val showScore = ShowScore(
+            fiveGridData,
+            tempLine,
+            fiveGameProp.lastGotScore,
+            false /* no used*/,
+            object : ShowScoreCallback {
+                override fun sCallback() {
+                    LogUtil.d(TAG, "startCrashBalls.sCallback")
+                    viewModelScope.launch(Dispatchers.Default) {
+                        // Refresh the game view
+                        val canCrashAgain = fiveGridData.crashColorBalls()
+                        LogUtil.d(TAG, "startCrashBalls.sCallback.canCrashAgain = $canCrashAgain")
+                        displayGameGridView()
+                        if (canCrashAgain) {
+                            startCrashBalls()    // recursion
+                        } else {
+                            // check if game over
+                            fiveGridData.setNextRunning()
+                            fiveGameProp.isProcessingJob = false
+                            startRunBalls()
+                        }
+                    }
+                }
+            })
+        showingScoreHandler.post(showScore)
     }
 
     fun shiftRunningCol(addValue: Int) {
         LogUtil.d(TAG,"shiftRunningCol")
+        if (fiveGameProp.isProcessingJob) return
         if (isFinishRunning) return
         if (runningCol + addValue < 0) return
         if (runningCol + addValue >= FiveBallsConstants.COLUMN_COUNTS) return
@@ -189,9 +266,23 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
             // change column
             runningCol += addValue
             showRunningBalls(curRow = curRow)
+            // check if it meet the bottom or having a ball under
+            reachBottomOrBlock()
         }
         // runningBallsHandler.post(runBallsRunnable)
         // startRunBalls(row = runningRow)
+    }
+
+    fun rotateRunningBalls() {
+        LogUtil.i(TAG,"rotateRunningBalls")
+        if (fiveGameProp.isProcessingJob) return
+        val first = runningBalls[0]
+        for (i in 0 until rbLastIndex) {
+            runningBalls[i] = runningBalls[i+1]
+        }
+        runningBalls[rbLastIndex] = first
+        val curRow = if (nextRunningRow == 0) 0 else nextRunningRow - 1
+        showRunningBalls(curRow = curRow )
     }
 
     private fun restoreState(state: Bundle?): Boolean {
@@ -200,7 +291,7 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         var gameProp: GameProp? = null
         var gridData: FiveCbGridData? = null
         state?.let {
-            LogUtil.d(TAG,"restoreState.state not null then restore the state")
+            LogUtil.d(TAG,"restoreState.state not null")
             gameProp =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                     it.getParcelable(Constants.GAME_PROP_TAG,
@@ -243,8 +334,6 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         // creating a new game
         LogUtil.i(TAG, "newGame")
         runningBallsHandler.removeCallbacksAndMessages(null)
-        timesPlayed++
-        LogUtil.d(TAG, "newGame.timesPlayed = $timesPlayed")
         mGameAction = Constants.IS_CREATING_GAME
         setSaveScoreTitle(saveScoreStr)
     }
@@ -260,6 +349,7 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
     }
 
     override fun dealWithIsNextBalls(isNextBalls: Boolean) {
+        LogUtil.i(TAG, "dealWithIsNextBalls")
         // do nothing
     }
 
@@ -268,20 +358,7 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
             return 0
         }
         // easy level
-        // 5 points for each ball if only 2 balls
-        // 6 points for each ball if it is 3 balls
-        // 7 points for each ball if it is 4 balls
-        // 8 points for each ball if it is 5 balls
-        // difficult level
-        // 6 points for each ball if only 2 balls
-        // 8 points for each ball if it is 3 balls
-        // 10 points for each ball if it is 4 balls
-        // 12 points for each ball if it is 5 balls
-        val minBalls = 2
-        val minScoreEach = if (isEasyLevel()) 5 else 6
-        val plusScore = if (isEasyLevel()) 1 else 2
-        val numBalls = linkedLine.size
-        val totalScore = (minScoreEach + (numBalls - minBalls) * plusScore) * numBalls
-        return totalScore
+        // one point for each ball
+        return linkedLine.size
     }
 }

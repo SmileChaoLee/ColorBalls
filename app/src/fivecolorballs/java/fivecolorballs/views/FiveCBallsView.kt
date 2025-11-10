@@ -104,13 +104,69 @@ abstract class FiveCBallsView: BaseView(),
         LogUtil.i(TAG, "GameViewGrid.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
         val scoreFontSize = CbComposable.mFontSize * 1.0f
+        val screenWidth = LocalWindowInfo.current.containerSize.width
+        LogUtil.i(TAG, "GameViewGrid.screenWidth = $screenWidth")
+        val pixelPerCol = (screenWidth*gameWidthRation) / FiveBallsConstants.COLUMN_COUNTS
+        LogUtil.i(TAG, "GameViewGrid.pixelPerCol = $pixelPerCol")
+        val diffStandard = 0.85
         Column(modifier = Modifier.fillMaxSize()
-            .background(Color.DarkGray),
+            .background(Color.DarkGray)
+            .pointerInput(Unit) {
+                // Use the Initial pass to receive the event before the child's Main pass
+                // awaitPointerEventScope {
+                awaitEachGesture {
+                    LogUtil.i(TAG, "GameViewGrid.awaitEachGesture")
+                    // Detects the ACTION_DOWN equivalent
+                    // awaitFirstDown(pass = PointerEventPass.Initial) // starting from parent
+                    // regardless if event is consumed by children
+                    val down = awaitFirstDown(requireUnconsumed = false)
+                    var downX = down.position.x
+                    var isMoved = false
+                    var upY = 0f
+                    var tapX = 0f
+                    LogUtil.i(TAG, "GameViewGrid.awaitFirstDown")
+                    do {
+                        // val event = awaitPointerEvent(PointerEventPass.Initial)  // starting from parent
+                        val event = awaitPointerEvent()
+                        // Log or handle the tap event in the parent
+                        // Do NOT consume the event here
+                        // if you want the child to receive it
+                        event.changes.apply {
+                            all { it.isConsumed }   // must be here
+                            forEach {
+                                if (it.pressed) {
+                                    val moveX = (it.position.x - downX)/pixelPerCol
+                                    LogUtil.d(TAG, "GameViewGrid.moveX = $moveX")
+                                    if (abs(moveX) >= diffStandard) {
+                                        downX = it.position.x
+                                        if (moveX > 0) {
+                                            viewModel.shiftRunningCol(1)
+                                        } else {
+                                            viewModel.shiftRunningCol(-1)
+                                        }
+                                        isMoved = true
+                                    }
+                                } else {
+                                    LogUtil.d(TAG, "GameViewGrid.UP detected")
+                                    upY = it.position.y - down.position.y
+                                    tapX = it.position.x - down.position.x
+                                }
+                            }
+                        }
+                    } while (event.changes.any { it.pressed }) // loop while pressed and moving
+                    if (upY >= pixelPerCol * 1.5f) {
+                        viewModel.toDropToEnd()
+                    } else if (!isMoved) { // if (abs(upY) <= 50f && abs(tapX) <= 50f) {
+                        // tap
+                        viewModel.rotateRunningBalls()
+                    }
+                }
+            },
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top) {
             Box(contentAlignment = Alignment.TopStart) {
                 Row {
-                    StartShowGameGrid()
+                    ShowGameGrid(isClickable = false)
                     Column(modifier = Modifier.fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally) {
                         Column(modifier = Modifier.weight(2f),
@@ -141,59 +197,6 @@ abstract class FiveCBallsView: BaseView(),
     }
 
     @Composable
-    fun StartShowGameGrid() {
-        // measured in pixel
-        val screenWidth = LocalWindowInfo.current.containerSize.width
-        LogUtil.i(TAG, "StartShowGameGrid.screenWidth = $screenWidth")
-        val pixelPerCol = (screenWidth*gameWidthRation) / FiveBallsConstants.COLUMN_COUNTS
-        LogUtil.i(TAG, "StartShowGameGrid.pixelPerCol = $pixelPerCol")
-        val diffStandard = 0.85
-        Column(modifier = Modifier
-            .pointerInput(Unit) {
-                // Use the Initial pass to receive the event before the child's Main pass
-                // awaitPointerEventScope {
-                awaitEachGesture {
-                    LogUtil.i(TAG, "StartShowGameGrid.awaitEachGesture")
-                    // Detects the ACTION_DOWN equivalent
-                    // awaitFirstDown(pass = PointerEventPass.Initial) // starting from parent
-                    // regardless if event is consumed by children
-                    val down = awaitFirstDown(requireUnconsumed = false)
-                    var downX = down.position.x
-                    LogUtil.i(TAG, "StartShowGameGrid.awaitFirstDown")
-                    do {
-                        // val event = awaitPointerEvent(PointerEventPass.Initial)  // starting from parent
-                        val event = awaitPointerEvent()
-                        // Log or handle the tap event in the parent
-                        // Do NOT consume the event here
-                        // if you want the child to receive it
-                        event.changes.apply {
-                            all { it.isConsumed }   // must be here
-                            forEach {
-                                if (it.pressed) {
-                                    val moveX = (it.position.x - downX)/pixelPerCol
-                                    LogUtil.d(TAG, "StartShowGameGrid.moveX = $moveX")
-                                    if (abs(moveX) >= diffStandard) {
-                                        downX = it.position.x
-                                        if (moveX > 0) {
-                                            viewModel.shiftRunningCol(1)
-                                        } else {
-                                            viewModel.shiftRunningCol(-1)
-                                        }
-                                    }
-                                } else {
-                                    LogUtil.d(TAG, "StartShowGameGrid.UP detected")
-                                }
-                            }
-                        }
-                    } while (event.changes.any { it.pressed }) // loop while pressed and moving
-                }
-            }
-        ) {
-            ShowGameGrid(isClickable = false)
-        }
-    }
-
-    @Composable
     override fun CreateNewGameDialog() {
         LogUtil.i(TAG, "CreateNewGameDialog")
         // do nothing
@@ -209,12 +212,7 @@ abstract class FiveCBallsView: BaseView(),
 
     override fun ifInterstitialWhenSaveScore() {
         LogUtil.i(TAG, "ifShowInterstitialAd")
-        if (viewModel.timesPlayed >=
-            FiveBallsConstants.SHOW_ADS_AFTER_TIMES) {
-            LogUtil.d(TAG, "ifShowInterstitialAd.showInterstitialAd")
-            showInterstitialAd()
-            viewModel.timesPlayed = 0
-        }
+        // do nothing
     }
 
     override fun ifCreatingNewGame(newEasyLevel: Boolean, originalLevel: Boolean) {
