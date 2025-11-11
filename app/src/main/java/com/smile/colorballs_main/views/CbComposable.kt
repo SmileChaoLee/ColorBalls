@@ -54,7 +54,6 @@ import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdView
 import com.smile.colorballs_main.BuildConfig
 import com.smile.colorballs_main.R
-import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.models.Settings
 import com.smile.colorballs_main.models.TopPlayer
 import com.smile.colorballs_main.tools.LogUtil
@@ -226,7 +225,6 @@ object CbComposable {
 
     @Composable
     fun SettingCompose(
-        gameId: String,
         buttonListener: ButtonClickListener,
         textListener: SettingClickListener,
         backgroundColor: Color,
@@ -234,7 +232,8 @@ object CbComposable {
         soundStr: String, playerLevelStr: String, hasNextStr: String,
         onStr: String, offStr: String,
         yesStr: String, noStr: String,
-        no1Str: String, no2Str: String, levelStr: String, diffStr: String,
+        levelList: List<Int>,
+        levelStr: List<String>,
         okStr: String, cancelStr: String
     ) {
         val textColor = Color(0xffffa500)
@@ -353,45 +352,21 @@ object CbComposable {
                                 .weight(1f)
                                 .padding(all = 0.dp)
                                 .clickable {
-                                    gameLevel = if (gameId == Constants.FIVE_COLOR_BALLS_ID) {
-                                        Constants.GAME_LEVEL_1
-                                        // not used for now
-                                        /*
-                                        when(gameLevel) {
-                                            Constants.GAME_LEVEL_1 -> Constants.GAME_LEVEL_2
-                                            Constants.GAME_LEVEL_2 -> Constants.GAME_LEVEL_3
-                                            Constants.GAME_LEVEL_3 -> Constants.GAME_LEVEL_4
-                                            Constants.GAME_LEVEL_4 -> Constants.GAME_LEVEL_5
-                                            Constants.GAME_LEVEL_5 -> Constants.GAME_LEVEL_1
-                                            else -> { 0 }
+                                    // gameLevel from 1 (Constants.GAME_LEVEL_1)
+                                    if (levelList.isNotEmpty()) {
+                                        gameLevel = if (gameLevel >= levelList.size) {
+                                            levelList[0]
+                                        } else {
+                                            levelList[gameLevel]
                                         }
-                                        */
-                                    } else {
-                                        if (gameLevel == Constants.GAME_LEVEL_1)
-                                            Constants.GAME_LEVEL_2 else Constants.GAME_LEVEL_1
+                                        textListener.gameLevelClick(gameLevel)
                                     }
-                                    textListener.gameLevelClick(gameLevel)
                                 },
-                            text = if (gameLevel == Constants.GAME_LEVEL_1) no1Str else no2Str,
+                            text = if (levelList.isNotEmpty()) levelList[gameLevel-1].toString() else "",
                             Color.White
                         )
                         MenuItemText(
-                            text = if (gameId == Constants.FIVE_COLOR_BALLS_ID) {
-                                levelStr
-                                // not used for now
-                                /*
-                                when(gameLevel) {
-                                    Constants.GAME_LEVEL_1 -> {"1"}
-                                    Constants.GAME_LEVEL_2 -> {"2"}
-                                    Constants.GAME_LEVEL_3 -> {"3"}
-                                    Constants.GAME_LEVEL_4 -> {"4"}
-                                    Constants.GAME_LEVEL_5 -> {"5"}
-                                    else -> { "" }
-                                }
-                                */
-                            } else { if (gameLevel == Constants.GAME_LEVEL_1) levelStr
-                                else diffStr
-                            },
+                            text = if (levelList.isNotEmpty()) levelStr[gameLevel-1] else "",
                             color = textColor,
                             modifier = Modifier
                                 .weight(1f)

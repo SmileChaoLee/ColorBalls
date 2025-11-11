@@ -78,33 +78,39 @@ class CbSettingActivity : ComponentActivity() {
         setContent {
             LogUtil.d(TAG, "onCreate.setContent.gameId = $gameId")
             var hasNextStr: String
-            var gameLevelStr: String
-            when (gameId) {
-                Constants.FIVE_COLOR_BALLS_ID -> {
+            val gameLevel = ArrayList<Int>()
+            val gameLevelStr = ArrayList<String>()
+            if (gameId == Constants.FIVE_COLOR_BALLS_ID) {
                     hasNextStr = getString(R.string.emptyString)
-                    gameLevelStr = when (settingViewModel.settings.value?.gameLevel) {
-                        Constants.GAME_LEVEL_1 -> getString(R.string.level1Str)
-                        Constants.GAME_LEVEL_2 -> getString(R.string.level2Str)
-                        Constants.GAME_LEVEL_3 -> getString(R.string.level3Str)
-                        Constants.GAME_LEVEL_4 -> getString(R.string.level4Str)
-                        Constants.GAME_LEVEL_5 -> getString(R.string.level5Str)
-                        else -> {""}
-                    }
-                }
-                Constants.BALLS_REMOVER_ID -> {
+                    // Only one level for now
+                    gameLevel.add(Constants.GAME_LEVEL_1)
+                    gameLevelStr.add(getString(R.string.level1Str))
+                    /*
+                    gameLevel.add(Constants.GAME_LEVEL_2)
+                    gameLevel.add(Constants.GAME_LEVEL_3)
+                    gameLevel.add(Constants.GAME_LEVEL_4)
+                    gameLevel.add(Constants.GAME_LEVEL_5)
+                    gameLevelStr.add(getString(R.string.level2Str))
+                    gameLevelStr.add(getString(R.string.level3Str))
+                    gameLevelStr.add(getString(R.string.level4Str))
+                    gameLevelStr.add(getString(R.string.level5Str))
+                    */
+            } else {
+                if (gameId == Constants.BALLS_REMOVER_ID) {
                     hasNextStr = getString(R.string.fillColumnStr)
-                    gameLevelStr = getString(R.string.easyStr)
-                }
-                else -> {
+                } else {
                     hasNextStr = getString(R.string.nextBallSettingStr)
-                    gameLevelStr = getString(R.string.easyStr)
                 }
+                gameLevel.add(Constants.GAME_LEVEL_1)
+                gameLevel.add(Constants.GAME_LEVEL_2)
+                gameLevelStr.add(getString(R.string.easyStr))
+                gameLevelStr.add(getString(R.string.difficultStr))
             }
 
             ColorBallsTheme {
                 settingViewModel.settings.value?.let {
-                    CbComposable.SettingCompose(gameId = gameId,
-                        buttonClick, textClick,
+                    CbComposable.SettingCompose(buttonClick,
+                        textClick,
                         backgroundColor = Color(0xbb0000ff), it,
                         getString(R.string.settingStr),
                         getString(R.string.soundStr),
@@ -114,10 +120,8 @@ class CbSettingActivity : ComponentActivity() {
                         getString(R.string.offStr),
                         getString(R.string.yesStr),
                         getString(R.string.noStr),
-                        getString(R.string.no1),
-                        getString(R.string.no2),
+                        gameLevel,
                         gameLevelStr,
-                        getString(R.string.difficultStr),
                         getString(R.string.okStr),
                         getString(R.string.cancelStr)
                     )

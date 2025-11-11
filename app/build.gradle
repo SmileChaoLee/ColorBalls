@@ -41,15 +41,15 @@ android {
     productFlavors {
         create("colorballs") {
             dimension = "product"
-            versionCode 8200
-            versionName "8.200"
+            versionCode 8230
+            versionName "8.230"
             applicationId = "com.smile.colorballs"
             isDefault = true
         }
         create("ballsremover") {
             dimension = "product"
-            versionCode 182
-            versionName "1.82"
+            versionCode 185
+            versionName "1.85"
             applicationId = "com.smile.ballsremover"
         }
         create("fivecolorballs") {
@@ -106,7 +106,8 @@ android {
         release {
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
+                    'proguard-rules.pro'
             // signingConfig signingConfigs.config
         }
         debug {
@@ -178,15 +179,16 @@ dependencies {
     implementation(libs.inmobi.ads.kotlin.sdk)
     // AdMob's InMobi adapter
     implementation(libs.google.ads.mediation.inmobi)
+
     // ironSource's SDK
-    implementation(libs.ironsource.mediation.sdk)
+    // implementation(libs.ironsource.mediation.sdk)
     // implementation("com.unity3d.ads-mediation:mediation-sdk:9.0.0")
     // AdMob's ironSource adapter
-    implementation(libs.google.ads.mediation.ironsource)
+    // implementation(libs.google.ads.mediation.ironsource)
     // applovin's SDK
-    implementation libs.applovin.sdk
+    // implementation libs.applovin.sdk
     // AppLovin AdMob adapter
-    implementation libs.google.ads.mediation.applovin
+    // implementation libs.google.ads.mediation.applovin
 
     implementation libs.infer.annotation
     implementation libs.firebase.core

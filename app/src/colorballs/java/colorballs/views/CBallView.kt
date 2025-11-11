@@ -68,7 +68,8 @@ abstract class CBallView: CbRmBaseView(), CBallPresentView {
 
     override fun ifInterstitialWhenNewGame() {
         LogUtil.i(TAG, "ifInterstitialWhenNewGame")
-        showInterstitialAd()
+        // showInterstitialAd()
+        viewModel.initGame(bundle = null)
         // do not use the following, it does not work sometimes
         /*
         interstitialAd?.apply {

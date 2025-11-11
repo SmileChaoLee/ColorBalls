@@ -66,14 +66,13 @@ abstract class BallsRmView: CbRmBaseView(), BallsRmPresentView {
         LogUtil.i(TAG, "ifShowInterstitialAd")
         if (viewModel.timesPlayed >= BallsRmConstants.SHOW_ADS_AFTER_TIMES) {
             LogUtil.d(TAG, "ifShowInterstitialAd.showInterstitialAd")
-            showInterstitialAd()
+            // showInterstitialAd()
             viewModel.timesPlayed = 0
         }
     }
 
     override fun ifInterstitialWhenNewGame() {
         LogUtil.i(TAG, "ifInterstitialWhenNewGame")
-        // viewModel.initGame(null) // will make the setting back to normal
         viewModel.initGame(bundle = null)
     }
 
