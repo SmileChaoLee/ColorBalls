@@ -179,14 +179,18 @@ abstract class BaseViewModel(
         mGameProp.hasSound = hasSound
     }
 
-    fun gameLevel(): Int {
-        LogUtil.d(TAG, "gameLevel = ${mGameProp.gameLevel}")
+    fun getGameLevel(): Int {
+        LogUtil.d(TAG, "getGameLevel.gameLevel = ${mGameProp.gameLevel}")
         return mGameProp.gameLevel
     }
-    fun setGameLevel(gameLevel: Int) {
+    fun setGameLevel(gameLevel: Int, changeBallNum: Boolean = true) {
         mGameProp.gameLevel = gameLevel
-        val num = if (gameLevel == Constants.GAME_LEVEL_1) Constants.NUM_BALLS_USED_EASY
-        else Constants.NUM_BALLS_USED_DIFF
+        var num = mGridData.mNumOfColorsUsed
+        if (changeBallNum) {
+            num = if (gameLevel == Constants.GAME_LEVEL_1)
+                Constants.NUM_BALLS_USED_EASY
+            else Constants.NUM_BALLS_USED_DIFF
+        }
         mGridData.setNumOfColorsUsed(num)
         LogUtil.d(TAG, "setGameLevel.gameLevel = ${mGameProp.gameLevel}")
     }

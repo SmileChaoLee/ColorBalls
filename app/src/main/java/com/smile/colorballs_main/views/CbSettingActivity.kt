@@ -81,20 +81,20 @@ class CbSettingActivity : ComponentActivity() {
             val gameLevel = ArrayList<Int>()
             val gameLevelStr = ArrayList<String>()
             if (gameId == Constants.FIVE_COLOR_BALLS_ID) {
-                    hasNextStr = getString(R.string.emptyString)
-                    // Only one level for now
-                    gameLevel.add(Constants.GAME_LEVEL_1)
-                    gameLevelStr.add(getString(R.string.level1Str))
-                    /*
-                    gameLevel.add(Constants.GAME_LEVEL_2)
-                    gameLevel.add(Constants.GAME_LEVEL_3)
-                    gameLevel.add(Constants.GAME_LEVEL_4)
-                    gameLevel.add(Constants.GAME_LEVEL_5)
-                    gameLevelStr.add(getString(R.string.level2Str))
-                    gameLevelStr.add(getString(R.string.level3Str))
-                    gameLevelStr.add(getString(R.string.level4Str))
-                    gameLevelStr.add(getString(R.string.level5Str))
-                    */
+                hasNextStr = getString(R.string.emptyString)
+                // Only 2 level for now
+                gameLevel.add(Constants.GAME_LEVEL_1)
+                gameLevel.add(Constants.GAME_LEVEL_2)
+                gameLevelStr.add(getString(R.string.level1Str))
+                gameLevelStr.add(getString(R.string.level2Str))
+                /*
+                gameLevel.add(Constants.GAME_LEVEL_3)
+                gameLevel.add(Constants.GAME_LEVEL_4)
+                gameLevel.add(Constants.GAME_LEVEL_5)
+                gameLevelStr.add(getString(R.string.level3Str))
+                gameLevelStr.add(getString(R.string.level4Str))
+                gameLevelStr.add(getString(R.string.level5Str))
+                */
             } else {
                 if (gameId == Constants.BALLS_REMOVER_ID) {
                     hasNextStr = getString(R.string.fillColumnStr)

@@ -213,7 +213,7 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
             val foStream = bRmPresenter.fileOutputStream(Constants.SAVE_BALLS_REMOVER)
             // save settings
             if (hasSound()) foStream.write(1) else foStream.write(0)
-            if (gameLevel() == Constants.GAME_LEVEL_1) foStream.write(1)
+            if (getGameLevel() == Constants.GAME_LEVEL_1) foStream.write(1)
             else foStream.write(0)
             if (hasNext()) foStream.write(1) else foStream.write(0)
             // save values on game grid
@@ -342,8 +342,8 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
         // 10 points for each ball if it is 4 balls
         // 12 points for each ball if it is 5 balls
         val minBalls = 2
-        val minScoreEach = if (gameLevel() == Constants.GAME_LEVEL_1) 5 else 6
-        val plusScore = if (gameLevel() == Constants.GAME_LEVEL_1) 1 else 2
+        val minScoreEach = if (getGameLevel() == Constants.GAME_LEVEL_1) 5 else 6
+        val plusScore = if (getGameLevel() == Constants.GAME_LEVEL_1) 1 else 2
         val numBalls = linkedLine.size
         val totalScore = (minScoreEach + (numBalls - minBalls) * plusScore) * numBalls
         return totalScore

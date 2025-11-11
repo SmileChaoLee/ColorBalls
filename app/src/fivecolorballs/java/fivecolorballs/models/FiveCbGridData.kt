@@ -70,7 +70,32 @@ class FiveCbGridData(
         return result
     }
 
-    fun crashColorBalls(): Boolean {
+    fun moreThan3VerHorDia(set: HashSet<Point>): Boolean {
+        LogUtil.i(TAG, "moreThan3VerHorDia")
+        var result = false
+        addUpLightLine.clear()
+        for (p in set) {
+            if (moreThanNumVerHorDia(p.x, p.y, 3)) {
+                addUpLightLine.addAll(mLightLine)
+                result = true
+            }
+        }
+        return result
+    }
+
+    fun crashColorBallsNABOR(): Boolean {
+        LogUtil.i(TAG, "crashColorBallsNABOR")
+        val tempSet = crashColorBalls()
+        return moreThan3NABOR(tempSet)
+    }
+
+    fun crashColorBallsVerHorDia(): Boolean {
+        LogUtil.i(TAG, "crashColorBallsVerHorDia")
+        val tempSet = crashColorBalls()
+        return moreThan3VerHorDia(tempSet)
+    }
+
+    private fun crashColorBalls(): HashSet<Point> {
         LogUtil.i(TAG, "crashColorBalls")
         crashColorBalls(addUpLightLine)
 
@@ -87,8 +112,7 @@ class FiveCbGridData(
             }
         }
         LogUtil.i(TAG, "crashColorBalls.tempSet.size = ${tempSet.size}")
-        if (tempSet.isEmpty()) return false
-        return moreThan3NABOR(tempSet)
+        return tempSet
     }
 
     fun copy(gData: FiveCbGridData): FiveCbGridData {

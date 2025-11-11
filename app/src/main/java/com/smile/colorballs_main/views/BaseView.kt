@@ -116,6 +116,7 @@ abstract class BaseView: ComponentActivity(),
     open fun isFiveBalls() = false
     open fun actionOnClick() {}
     open fun stopActionOnClick() {}
+    open fun setGameLevel(gameLevel: Int) = baseViewModel.setGameLevel(gameLevel)
 
     var menuBarWeight = 1.0f
     var gameGridWeight = 7.0f
@@ -196,7 +197,7 @@ abstract class BaseView: ComponentActivity(),
                 result: ActivityResult ->
             LogUtil.i(TAG, "$TAG.settingLauncher.result received")
             if (result.resultCode == RESULT_OK) {
-                val originalLevel = baseViewModel.gameLevel()
+                val originalLevel = baseViewModel.getGameLevel()
                 var newGameLevel: Int
                 val data = result.data ?: return@registerForActivityResult
                 data.extras?.let { extras ->
@@ -204,7 +205,8 @@ abstract class BaseView: ComponentActivity(),
                         true))
                     newGameLevel = extras.getInt(Constants.GAME_LEVEL,
                         originalLevel)
-                    baseViewModel.setGameLevel(newGameLevel)
+                    setGameLevel(newGameLevel)
+                    // baseViewModel.setGameLevel(newGameLevel)
                     val hasNext = extras.getBoolean(Constants.HAS_NEXT,true)
                     setHasNextForView(hasNext)
                     ifCreatingNewGame(newGameLevel, originalLevel)
@@ -798,7 +800,7 @@ abstract class BaseView: ComponentActivity(),
                 putString(Constants.GAME_ID,
                     GameUtil.getGameId(baseViewModel.getWhichGame()))
                 putBoolean(Constants.HAS_SOUND, baseViewModel.hasSound())
-                putInt(Constants.GAME_LEVEL, baseViewModel.gameLevel())
+                putInt(Constants.GAME_LEVEL, baseViewModel.getGameLevel())
                 putBoolean(Constants.HAS_NEXT, baseViewModel.hasNext())
                 it.putExtras(this)
                 settingLauncher.launch(it)

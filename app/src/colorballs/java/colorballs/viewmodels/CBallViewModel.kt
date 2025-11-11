@@ -251,8 +251,8 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
             // save settings
             LogUtil.d(TAG, "startSavingGame.hasSound = " + hasSound())
             if (hasSound()) foStream.write(1) else foStream.write(0)
-            LogUtil.d(TAG, "startSavingGame.isEasyLevel = " + gameLevel())
-            if (gameLevel() == Constants.GAME_LEVEL_1) foStream.write(1)
+            LogUtil.d(TAG, "startSavingGame.isEasyLevel = " + getGameLevel())
+            if (getGameLevel() == Constants.GAME_LEVEL_1) foStream.write(1)
             else foStream.write(0)
             LogUtil.d(TAG, "startSavingGame.hasNext = " + hasNext())
             if (hasNext()) foStream.write(1) else foStream.write(0)
@@ -535,7 +535,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
                 totalScore += score
             }
         }
-        if (gameLevel() != Constants.GAME_LEVEL_1) {
+        if (getGameLevel() != Constants.GAME_LEVEL_1) {
             // difficult level
             totalScore *= 2 // double of easy level
         }

@@ -2,6 +2,7 @@ package fivecolorballs.views
 
 import android.content.res.Configuration
 import android.os.Bundle
+import com.smile.colorballs_main.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -13,15 +14,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.constants.WhichBall
 import com.smile.colorballs_main.models.ColorBallInfo
 import com.smile.colorballs_main.tools.LogUtil
@@ -196,6 +201,8 @@ abstract class FiveCBallsView: BaseView(),
                                 .height(height = 20.dp))
                             ShowNext4Balls(modifier = Modifier)
                         }
+                        ShowGameLevel(modifier = Modifier.weight(1f),
+                            scoreFontSize)
                         Column(modifier = Modifier.weight(1f),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Bottom) {
@@ -207,6 +214,24 @@ abstract class FiveCBallsView: BaseView(),
                     }
                 }
             }
+        }
+    }
+
+    @Composable
+    fun ShowGameLevel(modifier: Modifier, scoreFontSize: TextUnit) {
+        LogUtil.i(TAG, "ShowGameLevel.mOrientation.intValue" +
+                " = ${mOrientation.intValue}")
+        val levelStr = when(viewModel.fiveGameLevel) {
+            Constants.GAME_LEVEL_1 -> getString(R.string.level1Str)
+            Constants.GAME_LEVEL_2 -> getString(R.string.level2Str)
+            Constants.GAME_LEVEL_3 -> getString(R.string.level3Str)
+            Constants.GAME_LEVEL_4 -> getString(R.string.level4Str)
+            Constants.GAME_LEVEL_5 -> getString(R.string.level5Str)
+            else -> {""}
+        }
+        Column(modifier = modifier.padding(all = 0.dp)) {
+            Text(text = levelStr,
+                color = Color.Black, fontSize = scoreFontSize)
         }
     }
 
@@ -234,6 +259,8 @@ abstract class FiveCBallsView: BaseView(),
         if (newGameLevel != originalLevel) {
             // create new game
             LogUtil.i(TAG, "ifCreatingNewGame.create a new game")
+            viewModel.fiveGameLevel = newGameLevel
+            actionOnClick()
             viewModel.newGame()
         }
     }
@@ -259,6 +286,10 @@ abstract class FiveCBallsView: BaseView(),
         LogUtil.i(TAG, "stopActionOnClick")
         settingOrMenuClicked = false
         viewModel.startRunningHandler()
+    }
+
+    override fun setGameLevel(gameLevel: Int) {
+        viewModel.setGameLevel(gameLevel, false)
     }
     // end of implementing abstract fun of BaseView
 }

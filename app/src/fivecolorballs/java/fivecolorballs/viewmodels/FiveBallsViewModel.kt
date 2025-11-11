@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.viewModelScope
 import com.smile.colorballs_main.constants.Constants
@@ -38,6 +39,13 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
     private var isFinishRunning = false
     private var isGameOver = false
     private var gameStartTime = System.currentTimeMillis()
+
+    private val _fiveGameLevel = mutableIntStateOf(Constants.GAME_LEVEL_1)
+    var fiveGameLevel: Int
+        get() = _fiveGameLevel.intValue
+        set(value) {
+            _fiveGameLevel.intValue = value
+        }
 
     private val _next4Balls = mutableStateListOf<Int>()
     val next4Balls: List<Int>
@@ -196,7 +204,15 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
                 fiveGridData.mCellValues[curRow - k][runningCol] = runningBalls[rbLastIndex - k]
                 threeSet.add(Point(curRow-k,runningCol))
             }
-            if (!fiveGridData.moreThan3NABOR(threeSet)) {
+            val moreThan3 = when(fiveGameLevel) {
+                Constants.GAME_LEVEL_1 -> fiveGridData.moreThan3NABOR(threeSet)
+                Constants.GAME_LEVEL_2 -> fiveGridData.moreThan3VerHorDia(threeSet)
+                Constants.GAME_LEVEL_3 -> fiveGridData.moreThan3VerHorDia(threeSet)
+                Constants.GAME_LEVEL_4 -> fiveGridData.moreThan3VerHorDia(threeSet)
+                Constants.GAME_LEVEL_5 -> fiveGridData.moreThan3NABOR(threeSet)
+                else -> fiveGridData.moreThan3NABOR(threeSet)
+            }
+            if (!moreThan3) {
                 fiveGridData.setNextRunning()
                 if (nextRunningRow < FiveBallsConstants.NUM_NEXT_BALLS) {
                     // Game over
@@ -229,7 +245,14 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
                     LogUtil.d(TAG, "startCrashBalls.sCallback")
                     viewModelScope.launch(Dispatchers.Default) {
                         // Refresh the game view
-                        val canCrashAgain = fiveGridData.crashColorBalls()
+                        val canCrashAgain = when(fiveGameLevel) {
+                            Constants.GAME_LEVEL_1 -> fiveGridData.crashColorBallsNABOR()
+                            Constants.GAME_LEVEL_2 -> fiveGridData.crashColorBallsVerHorDia()
+                            Constants.GAME_LEVEL_3 -> fiveGridData.crashColorBallsVerHorDia()
+                            Constants.GAME_LEVEL_4 -> fiveGridData.crashColorBallsVerHorDia()
+                            Constants.GAME_LEVEL_5 -> fiveGridData.crashColorBallsVerHorDia()
+                            else -> fiveGridData.crashColorBallsNABOR()
+                        }
                         LogUtil.d(TAG, "startCrashBalls.sCallback.canCrashAgain = $canCrashAgain")
                         displayGameGridView()
                         if (canCrashAgain) {
@@ -290,7 +313,10 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
 
     fun startRunningHandler() {
         LogUtil.i(TAG,"startRunningHandler")
-        if (isGameJustStarted) return
+        if (isGameJustStarted) {
+            LogUtil.i(TAG,"startRunningHandler.no start, return")
+            return
+        }
         runningBallsHandler.post(runBallsRunnable)
     }
 
@@ -350,6 +376,7 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         runningBallsHandler.removeCallbacksAndMessages(null)
         mGameAction = Constants.IS_CREATING_GAME
         setSaveScoreTitle(saveScoreStr)
+        isGameJustStarted = true
     }
 
     override fun startSavingGame(): Boolean {
@@ -371,8 +398,30 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         if (linkedLine == null) {
             return 0
         }
-        // easy level
+        var score = 0
+        // level 1
         // one point for each ball
-        return linkedLine.size
+        when (fiveGameProp.gameLevel) {
+            Constants.GAME_LEVEL_1 -> {
+                // level 1
+                // one point for each ball
+                score = linkedLine.size
+            }
+            Constants.GAME_LEVEL_2 -> {
+                // level 2
+                // 1.5 point for each ball and then cut the decimal part
+                score = (linkedLine.size * 1.5f).toInt()
+            }
+            Constants.GAME_LEVEL_3 -> {
+                // other levels
+            }
+            Constants.GAME_LEVEL_4 -> {
+                // other levels
+            }
+            Constants.GAME_LEVEL_5 -> {
+                // other levels
+            }
+        }
+        return score
     }
 }
