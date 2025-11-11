@@ -221,7 +221,7 @@ abstract class FiveCBallsView: BaseView(),
     fun ShowGameLevel(modifier: Modifier, scoreFontSize: TextUnit) {
         LogUtil.i(TAG, "ShowGameLevel.mOrientation.intValue" +
                 " = ${mOrientation.intValue}")
-        val levelStr = when(viewModel.fiveGameLevel) {
+        val levelStr = when(viewModel.mGameLevel) {
             Constants.GAME_LEVEL_1 -> getString(R.string.level1Str)
             Constants.GAME_LEVEL_2 -> getString(R.string.level2Str)
             Constants.GAME_LEVEL_3 -> getString(R.string.level3Str)
@@ -259,7 +259,6 @@ abstract class FiveCBallsView: BaseView(),
         if (newGameLevel != originalLevel) {
             // create new game
             LogUtil.i(TAG, "ifCreatingNewGame.create a new game")
-            viewModel.fiveGameLevel = newGameLevel
             actionOnClick()
             viewModel.newGame()
         }
@@ -288,8 +287,8 @@ abstract class FiveCBallsView: BaseView(),
         viewModel.startRunningHandler()
     }
 
-    override fun setGameLevel(gameLevel: Int) {
-        viewModel.setGameLevel(gameLevel, false)
+    override fun setTheGameLevel(gameLevel: Int) {
+        viewModel.setFiveGameLevel(gameLevel)
     }
     // end of implementing abstract fun of BaseView
 }

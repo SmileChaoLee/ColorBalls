@@ -83,6 +83,24 @@ class FiveCbGridData(
         return result
     }
 
+    fun moreThanNum(gameLevel: Int, theSet: HashSet<Point>) = when(gameLevel) {
+        Constants.GAME_LEVEL_1 -> moreThan3NABOR(theSet)
+        Constants.GAME_LEVEL_2 -> moreThan3VerHorDia(theSet)
+        Constants.GAME_LEVEL_3 -> moreThan3VerHorDia(theSet)
+        Constants.GAME_LEVEL_4 -> moreThan3VerHorDia(theSet)
+        Constants.GAME_LEVEL_5 -> moreThan3NABOR(theSet)
+        else -> moreThan3NABOR(theSet)
+    }
+
+    fun canCrashAgain(gameLevel: Int) = when(gameLevel) {
+        Constants.GAME_LEVEL_1 -> crashColorBallsNABOR()
+        Constants.GAME_LEVEL_2 -> crashColorBallsVerHorDia()
+        Constants.GAME_LEVEL_3 -> crashColorBallsVerHorDia()
+        Constants.GAME_LEVEL_4 -> crashColorBallsVerHorDia()
+        Constants.GAME_LEVEL_5 -> crashColorBallsVerHorDia()
+        else -> crashColorBallsNABOR()
+    }
+
     fun crashColorBallsNABOR(): Boolean {
         LogUtil.i(TAG, "crashColorBallsNABOR")
         val tempSet = crashColorBalls()

@@ -116,7 +116,7 @@ abstract class BaseView: ComponentActivity(),
     open fun isFiveBalls() = false
     open fun actionOnClick() {}
     open fun stopActionOnClick() {}
-    open fun setGameLevel(gameLevel: Int) = baseViewModel.setGameLevel(gameLevel)
+    open fun setTheGameLevel(gameLevel: Int) = baseViewModel.setGameLevel(gameLevel)
 
     var menuBarWeight = 1.0f
     var gameGridWeight = 7.0f
@@ -205,7 +205,7 @@ abstract class BaseView: ComponentActivity(),
                         true))
                     newGameLevel = extras.getInt(Constants.GAME_LEVEL,
                         originalLevel)
-                    setGameLevel(newGameLevel)
+                    setTheGameLevel(newGameLevel)
                     // baseViewModel.setGameLevel(newGameLevel)
                     val hasNext = extras.getBoolean(Constants.HAS_NEXT,true)
                     setHasNextForView(hasNext)

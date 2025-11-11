@@ -40,12 +40,9 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
     private var isGameOver = false
     private var gameStartTime = System.currentTimeMillis()
 
-    private val _fiveGameLevel = mutableIntStateOf(Constants.GAME_LEVEL_1)
-    var fiveGameLevel: Int
-        get() = _fiveGameLevel.intValue
-        set(value) {
-            _fiveGameLevel.intValue = value
-        }
+    private val _mGameLevel = mutableIntStateOf(Constants.GAME_LEVEL_1)
+    val mGameLevel: Int
+        get() = _mGameLevel.intValue
 
     private val _next4Balls = mutableStateListOf<Int>()
     val next4Balls: List<Int>
@@ -84,6 +81,12 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         super.setProperties()
     }
 
+    fun setFiveGameLevel(gameLevel: Int) {
+        LogUtil.i(TAG, "setFiveGameLevel")
+        super.setGameLevel(gameLevel, false)
+        _mGameLevel.intValue = fiveGameProp.gameLevel
+    }
+
     override fun cellClickListener(i: Int, j: Int) {
         LogUtil.i(TAG, "cellClickListener.($i, $j)")
         // do nothing
@@ -105,14 +108,12 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
     }
 
     override fun initGame(bundle: Bundle?) {
-        LogUtil.i(TAG, "initGame() = $bundle")
+        LogUtil.i(TAG, "initGame = $bundle")
         fiveGameProp.isProcessingJob = true
         val isNewGame = restoreState(bundle)
+        LogUtil.i(TAG, "initGame.isNewGame = $isNewGame")
+        _mGameLevel.intValue = fiveGameProp.gameLevel
         setCurrentScore(fiveGameProp.currentScore)
-        if (isNewGame) {
-            // generate
-            LogUtil.i(TAG, "initGame.isNewGame")
-        }
         displayGameGridView()
         getAndSetHighestScore() // a coroutine operation
         isToEnd = false
@@ -204,15 +205,8 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
                 fiveGridData.mCellValues[curRow - k][runningCol] = runningBalls[rbLastIndex - k]
                 threeSet.add(Point(curRow-k,runningCol))
             }
-            val moreThan3 = when(fiveGameLevel) {
-                Constants.GAME_LEVEL_1 -> fiveGridData.moreThan3NABOR(threeSet)
-                Constants.GAME_LEVEL_2 -> fiveGridData.moreThan3VerHorDia(threeSet)
-                Constants.GAME_LEVEL_3 -> fiveGridData.moreThan3VerHorDia(threeSet)
-                Constants.GAME_LEVEL_4 -> fiveGridData.moreThan3VerHorDia(threeSet)
-                Constants.GAME_LEVEL_5 -> fiveGridData.moreThan3NABOR(threeSet)
-                else -> fiveGridData.moreThan3NABOR(threeSet)
-            }
-            if (!moreThan3) {
+            val moreThanNum = fiveGridData.moreThanNum(mGameLevel, threeSet)
+            if (!moreThanNum) {
                 fiveGridData.setNextRunning()
                 if (nextRunningRow < FiveBallsConstants.NUM_NEXT_BALLS) {
                     // Game over
@@ -245,14 +239,7 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
                     LogUtil.d(TAG, "startCrashBalls.sCallback")
                     viewModelScope.launch(Dispatchers.Default) {
                         // Refresh the game view
-                        val canCrashAgain = when(fiveGameLevel) {
-                            Constants.GAME_LEVEL_1 -> fiveGridData.crashColorBallsNABOR()
-                            Constants.GAME_LEVEL_2 -> fiveGridData.crashColorBallsVerHorDia()
-                            Constants.GAME_LEVEL_3 -> fiveGridData.crashColorBallsVerHorDia()
-                            Constants.GAME_LEVEL_4 -> fiveGridData.crashColorBallsVerHorDia()
-                            Constants.GAME_LEVEL_5 -> fiveGridData.crashColorBallsVerHorDia()
-                            else -> fiveGridData.crashColorBallsNABOR()
-                        }
+                        val canCrashAgain = fiveGridData.canCrashAgain(mGameLevel)
                         LogUtil.d(TAG, "startCrashBalls.sCallback.canCrashAgain = $canCrashAgain")
                         displayGameGridView()
                         if (canCrashAgain) {
