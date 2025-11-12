@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Point
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.widget.Toast
@@ -22,12 +23,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -213,8 +216,10 @@ abstract class BaseView: ComponentActivity(),
                 }
             }
         }
+        val adWeight = 10.0f - menuBarWeight - gameGridWeight
         LogUtil.i(TAG, "$TAG.onCreate.menuBarWeight = $menuBarWeight")
         LogUtil.i(TAG, "$TAG.onCreate.gameGridWeight = $gameGridWeight")
+        LogUtil.i(TAG, "$TAG.onCreate.adWeight = $adWeight")
         // enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
@@ -225,11 +230,10 @@ abstract class BaseView: ComponentActivity(),
                         .background(color = colorYellow3)) {
                         if (mOrientation.intValue ==
                             Configuration.ORIENTATION_PORTRAIT) {
-                            Column {
+                            Column(modifier = Modifier.fillMaxSize()) {
                                 GameView(Modifier.weight(gameGridWeight))
                                 SHowPortraitAds(Modifier.fillMaxWidth()
-                                        .weight(10.0f - menuBarWeight - gameGridWeight)
-                                )
+                                        .weight(adWeight))
                             }
                         } else {
                             Row {
@@ -446,49 +450,65 @@ abstract class BaseView: ComponentActivity(),
         // baseViewModel.isProcessingJob = false
     }
 
+    @Composable
+    fun getContentHeight(): Point {
+        val density = LocalDensity.current
+        // Get the height of the top status bar
+        val statusBarHeight = WindowInsets.safeDrawing.getTop(density)
+        LogUtil.d(TAG, "getContentHeight.statusBarHeight = $statusBarHeight")
+        // Get the height of the bottom navigation bar
+        val navigationBarHeight = WindowInsets.safeDrawing.getBottom(density)
+        LogUtil.d(TAG, "getContentHeight.navigationBarHeight = $navigationBarHeight")
+        // Get the total screen height
+        val screenWidth = with(density) {
+            LocalConfiguration.current.screenWidthDp
+        }
+        var screenHeight = with(density) {
+            LocalConfiguration.current.screenHeightDp
+        }
+        // Calculate the available content height
+        // WindowCompat.setDecorFitsSystemWindows(window, false)
+        // and     Scaffold {innerPadding ->
+        // removes the navigationBarHeight
+        screenHeight -= statusBarHeight // - navigationBarHeight
+        return Point(screenWidth, screenHeight)
+    }
+
     // this fun will be override in com.smile.fivecolorballs
     @SuppressLint("ConfigurationScreenWidthHeight")
     @Composable
     open fun GameView(modifier: Modifier) {
         LogUtil.i(TAG, "GameView.mOrientation.intValue = ${mOrientation.intValue}")
-        // val height = LocalWindowInfo.current.containerSize.height
-        // LogUtil.d(TAG, "GameView.height = $height")
-        val conf = LocalConfiguration.current
-        val screenHeightDp = conf.screenHeightDp
-        LogUtil.d(TAG, "GameView.screenHeightDp = $screenHeightDp")
-        val screenHeightPx = ScreenUtil.dpToPixel(screenHeightDp.toFloat())
-        LogUtil.d(TAG, "GameView.screenHeightPx = $screenHeightPx")
-        val screenWidthDp = conf.screenWidthDp
-        LogUtil.d(TAG, "GameView.screenWidthDp = $screenWidthDp")
-        val screenWidthPx = ScreenUtil.dpToPixel(screenWidthDp.toFloat())
-        LogUtil.d(TAG, "GameView.screenWidthPx = $screenWidthPx")
+        val screen = getContentHeight()
+        LogUtil.d(TAG, "GameView.screen.x = ${screen.x}")
+        LogUtil.d(TAG, "GameView.screen.y = ${screen.y}")
 
-        var maxWidth = screenWidthPx
+        var maxWidth = screen.x
         if (mOrientation.intValue == Configuration.ORIENTATION_LANDSCAPE) {
             LogUtil.d(TAG, "GameView.ORIENTATION_LANDSCAPE")
-            maxWidth = screenWidthPx/2.0f
+            maxWidth = screen.x/2
         }
-        maxWidth *= gameWidthRation
-        // val gridHeight = screenY * gameGridWeight / 10.0f
-        val gridHeight = screenHeightPx * gameGridWeight / 10.0f
+        maxWidth = (maxWidth.toFloat() * gameWidthRation).toInt()
+        val gridHeight = screen.y * gameGridWeight / 10.0f
         LogUtil.d(TAG, "GameView.gridHeight = $gridHeight")
         val heightPerBall = gridHeight / baseViewModel.rowCounts
         LogUtil.d(TAG, "GameView.heightPerBall = $heightPerBall")
         val widthPerBall = maxWidth / baseViewModel.colCounts
         LogUtil.d(TAG, "GameView.widthPerBall = $widthPerBall")
-        // set size of color balls
-        val imageSize = (if (heightPerBall>widthPerBall) widthPerBall
-        else heightPerBall).toInt()
-        LogUtil.d(TAG, "GameView.imageSize = $imageSize")
-        bitmapDrawableResources(imageSize.toFloat())
 
-        mImageSizeDp = ScreenUtil.pixelToDp(imageSize.toFloat())
-        mImageSizeDp = mImageSizeDp.toInt().toFloat()
+        // set size of color balls
+        val imageSizeDp = (if (heightPerBall>widthPerBall) widthPerBall
+        else heightPerBall).toInt()
+        LogUtil.d(TAG, "GameView.imageSizeDp = $imageSizeDp")
+        val imageSizePx: Float = with(LocalDensity.current) {
+            imageSizeDp.dp.toPx()
+        }
+        bitmapDrawableResources(imageSizePx)
+        mImageSizeDp = imageSizeDp.toFloat()
         LogUtil.d(TAG, "GameView.mImageSizeDp = $mImageSizeDp")
-        val sizePx = ScreenUtil.dpToPixel(mImageSizeDp)
-        LogUtil.d(TAG, "GameView.sizePx = $sizePx")
 
         val topPadding = 0f
+        val gHeightWeight = if (menuBarWeight>0) gameGridWeight else 1.0f
         Column(modifier = modifier.fillMaxHeight()) {
             if (menuBarWeight > 0.0f) {
                 ToolBarMenu(
@@ -497,7 +517,7 @@ abstract class BaseView: ComponentActivity(),
                         .padding(top = topPadding.dp, start = 0.dp)
                 )
             }
-            Column(modifier = Modifier.weight(gameGridWeight)) {
+            Column(modifier = Modifier.weight(gHeightWeight)) {
                 GameViewGrid()
             }
         }

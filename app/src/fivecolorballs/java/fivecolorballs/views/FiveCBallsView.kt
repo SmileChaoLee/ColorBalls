@@ -32,7 +32,6 @@ import com.smile.colorballs_main.models.ColorBallInfo
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.views.BaseView
 import com.smile.colorballs_main.views.CbComposable
-import fivecolorballs.constants.FiveBallsConstants
 import fivecolorballs.interfaces.FiveBallsPresentView
 import fivecolorballs.presenters.FiveBallsPresenter
 import fivecolorballs.viewmodels.FiveBallsViewModel
@@ -123,7 +122,7 @@ abstract class FiveCBallsView: BaseView(),
         val scoreFontSize = CbComposable.mFontSize * 1.0f
         val screenWidth = LocalWindowInfo.current.containerSize.width
         LogUtil.i(TAG, "GameViewGrid.screenWidth = $screenWidth")
-        val pixelPerCol = (screenWidth*gameWidthRation) / FiveBallsConstants.COLUMN_COUNTS
+        val pixelPerCol = (screenWidth*gameWidthRation) / viewModel.colCounts
         LogUtil.i(TAG, "GameViewGrid.pixelPerCol = $pixelPerCol")
         val diffStandard = 0.85
         val backColor = Color(0xFF00BCD4)
