@@ -12,4 +12,5 @@
     <string name="karaoke_tv_app_name">Smile TV Karaoke</string>
     <string name="color_balls_name">5 color balls</string>
     <string name="balls_remover_name">BallsRemover</string>
+    <string name="bouncy_ball_name">BouncyBall</string>
 </resources>
