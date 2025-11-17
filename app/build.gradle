@@ -52,11 +52,11 @@ android {
             versionName "1.85"
             applicationId = "com.smile.ballsremover"
         }
-        create("fivecolorballs") {
+        create("dropcolorballs") {
             dimension = "product"
-            versionCode 5000
-            versionName "5.000"
-            applicationId = "com.smile.fivecolorballs"
+            versionCode 100
+            versionName "1.00"
+            applicationId = "com.smile.dropcolorballs"
         }
     }
 
@@ -71,9 +71,9 @@ android {
 
         colorballs {
             java.srcDirs += ["src/colorballs/java", "src/ballsremover/java",
-                             "src/fivecolorballs/java"]
+                             "src/dropcolorballs/java"]
             res.srcDirs += ["src/colorballs/res", "src/ballsremover/res",
-                            "src/fivecolorballs/res"]
+                            "src/dropcolorballs/res"]
             manifest {
                 srcFile "src/colorballs/AndroidManifest.xml"
             }
@@ -87,11 +87,11 @@ android {
             }
         }
 
-        fivecolorballs {
-            java.srcDirs += ["src/fivecolorballs/java"]
-            res.srcDirs += ["src/fivecolorballs/res"]
+        dropcolorballs {
+            java.srcDirs += ["src/dropcolorballs/java"]
+            res.srcDirs += ["src/dropcolorballs/res"]
             manifest {
-                srcFile "src/fivecolorballs/AndroidManifest.xml"
+                srcFile "src/dropcolorballs/AndroidManifest.xml"
             }
         }
     }

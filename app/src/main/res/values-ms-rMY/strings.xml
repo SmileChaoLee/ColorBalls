@@ -2,7 +2,7 @@
 <resources>
     <string name="color_balls_name">color balls</string>
     <string name="balls_remover_name">BallsRemover</string>
-    <string name="five_cballs_name">Dropping Balls</string>
+    <string name="drop_cballs_name">Dropping Balls</string>
     <string name="no1">1</string>
     <string name="easyStr">Easy</string>
     <string name="no2">2</string>

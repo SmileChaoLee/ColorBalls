@@ -38,7 +38,7 @@
         </activity>
 
         <activity
-            android:name="fivecolorballs.views.FiveCBallsActivity"
+            android:name="dropcolorballs.views.DropCBallsActivity"
             android:exported="false">
         </activity>
 

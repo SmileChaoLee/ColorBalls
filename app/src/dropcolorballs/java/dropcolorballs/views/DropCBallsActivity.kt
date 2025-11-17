@@ -1,4 +1,4 @@
-package fivecolorballs.views
+package dropcolorballs.views
 
 import android.os.Bundle
 import android.view.MotionEvent
@@ -7,10 +7,10 @@ import com.smile.colorballs_main.constants.WhichGame
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.smilelibraries.utilities.UmpUtil
 
-class FiveCBallsActivity : FiveCBallsView() {
+class DropCBallsActivity : DropCBallsView() {
 
     companion object {
-        private const val TAG = "FiveCBallsActivity"
+        private const val TAG = "DropCBallsActivity"
     }
 
     private var touchDisabled = true
@@ -22,7 +22,7 @@ class FiveCBallsActivity : FiveCBallsView() {
         touchDisabled = true
         // val deviceHashedId = "8F6C5B0830E624E8D8BFFB5853B4EDDD" // for debug test
         val deviceHashedId = "" // for release
-        UmpUtil.initConsentInformation(this@FiveCBallsActivity,
+        UmpUtil.initConsentInformation(this@DropCBallsActivity,
             DEBUG_GEOGRAPHY_EEA, deviceHashedId,
             object : UmpUtil.UmpInterface {
                 override fun callback() {

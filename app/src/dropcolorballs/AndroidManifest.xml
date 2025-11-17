@@ -4,16 +4,16 @@
 
     <application
         tools:replace="android:icon"
-        android:name="fivecolorballs.FiveCBallsApp"
+        android:name="dropcolorballs.DropCBallsApp"
         android:icon="@drawable/dropcolorballs_app_icon"
-        android:label="@string/five_cballs_name">
+        android:label="@string/drop_cballs_name">
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-8354869049759576~8647116443" />
+            android:value="ca-app-pub-8354869049759576~8453149207" />
 
         <activity
-            android:name="fivecolorballs.views.FiveCBallsActivity"
+            android:name="dropcolorballs.views.DropCBallsActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

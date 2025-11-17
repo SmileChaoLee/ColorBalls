@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
+// import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -227,6 +228,7 @@ abstract class BaseView: ComponentActivity(),
             ColorBallsTheme {
                 Scaffold {innerPadding ->
                     Box(Modifier.padding(innerPadding)
+                        .fillMaxSize()
                         .background(color = colorYellow3)) {
                         if (mOrientation.intValue ==
                             Configuration.ORIENTATION_PORTRAIT) {
@@ -450,6 +452,7 @@ abstract class BaseView: ComponentActivity(),
         // baseViewModel.isProcessingJob = false
     }
 
+    @SuppressLint("ConfigurationScreenWidthHeight")
     @Composable
     fun getContentHeight(): Point {
         val density = LocalDensity.current
@@ -460,12 +463,8 @@ abstract class BaseView: ComponentActivity(),
         val navigationBarHeight = WindowInsets.safeDrawing.getBottom(density)
         LogUtil.d(TAG, "getContentHeight.navigationBarHeight = $navigationBarHeight")
         // Get the total screen height
-        val screenWidth = with(density) {
-            LocalConfiguration.current.screenWidthDp
-        }
-        var screenHeight = with(density) {
-            LocalConfiguration.current.screenHeightDp
-        }
+        val screenWidth = LocalConfiguration.current.screenWidthDp
+        var screenHeight = LocalConfiguration.current.screenHeightDp
         // Calculate the available content height
         // WindowCompat.setDecorFitsSystemWindows(window, false)
         // and     Scaffold {innerPadding ->
@@ -474,7 +473,7 @@ abstract class BaseView: ComponentActivity(),
         return Point(screenWidth, screenHeight)
     }
 
-    // this fun will be override in com.smile.fivecolorballs
+    // this fun will be override in com.smile.dropcolorballs
     @SuppressLint("ConfigurationScreenWidthHeight")
     @Composable
     open fun GameView(modifier: Modifier) {

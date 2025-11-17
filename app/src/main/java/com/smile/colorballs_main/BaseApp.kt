@@ -15,7 +15,7 @@ abstract class BaseApp : MultiDexApplication() {
     abstract fun getBannerID(): String
     abstract fun getBannerID2(): String
     abstract fun getNativeID(): String
-    abstract fun getInterstitial(): AdMobInterstitial
+    abstract fun getInterstitial(): AdMobInterstitial?
 
     // var facebookAds: FacebookInterstitial? = null
     override fun onCreate() {

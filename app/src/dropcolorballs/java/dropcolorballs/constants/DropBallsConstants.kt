@@ -1,6 +1,6 @@
-package fivecolorballs.constants
+package dropcolorballs.constants
 
-object FiveBallsConstants {
+object DropBallsConstants {
     const val ROW_COUNTS = 18
     const val COLUMN_COUNTS = 8
     const val NUM_NEXT_BALLS = 3

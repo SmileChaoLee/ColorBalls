@@ -1,4 +1,4 @@
-package fivecolorballs.views
+package dropcolorballs.views
 
 import android.content.res.Configuration
 import android.os.Bundle
@@ -32,20 +32,20 @@ import com.smile.colorballs_main.models.ColorBallInfo
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.views.BaseView
 import com.smile.colorballs_main.views.CbComposable
-import fivecolorballs.interfaces.FiveBallsPresentView
-import fivecolorballs.presenters.FiveBallsPresenter
-import fivecolorballs.viewmodels.FiveBallsViewModel
+import dropcolorballs.interfaces.DropBallsPresentView
+import dropcolorballs.presenters.DropBallsPresenter
+import dropcolorballs.viewmodels.DropBallsViewModel
 import kotlin.math.abs
 
-abstract class FiveCBallsView: BaseView(),
-    FiveBallsPresentView {
+abstract class DropCBallsView: BaseView(),
+    DropBallsPresentView {
 
     companion object {
-        private const val TAG = "FiveCBallsView"
+        private const val TAG = "DropCBallsView"
     }
 
-    protected lateinit var viewModel: FiveBallsViewModel
-    private lateinit var mPresenter: FiveBallsPresenter
+    protected lateinit var viewModel: DropBallsViewModel
+    private lateinit var mPresenter: DropBallsPresenter
     private var settingOrMenuClicked = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,8 +64,8 @@ abstract class FiveCBallsView: BaseView(),
         LogUtil.i(TAG, "$TAG.onCreate.menuBarWeight = $menuBarWeight")
         LogUtil.i(TAG, "$TAG.onCreate.gameGridWeight = $gameGridWeight")
 
-        mPresenter = FiveBallsPresenter(this)
-        viewModel = FiveBallsViewModel(mPresenter)
+        mPresenter = DropBallsPresenter(this)
+        viewModel = DropBallsViewModel(mPresenter)
 
         super.onCreate(savedInstanceState)
     }
@@ -240,11 +240,11 @@ abstract class FiveCBallsView: BaseView(),
         // do nothing
     }
 
-    override fun getCurrentPresenter(): FiveBallsPresenter {
+    override fun getCurrentPresenter(): DropBallsPresenter {
         return mPresenter
     }
 
-    override fun getCurrentViewModel(): FiveBallsViewModel {
+    override fun getCurrentViewModel(): DropBallsViewModel {
         return viewModel
     }
 

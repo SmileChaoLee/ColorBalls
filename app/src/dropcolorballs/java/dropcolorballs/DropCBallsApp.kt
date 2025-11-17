@@ -1,14 +1,14 @@
-package fivecolorballs
+package dropcolorballs
 
 import com.smile.colorballs_main.BaseApp
 import com.smile.smilelibraries.google_ads_util.AdMobInterstitial
 
-class FiveCBallsApp : BaseApp() {
+class DropCBallsApp : BaseApp() {
 
     companion object {
-        const val ADMOB_BANNER_ID = "ca-app-pub-8354869049759576/7162646323"
-        const val ADMOB_BANNER_ID2 = "ca-app-pub-8354869049759576/5784271650"
-        const val ADMOB_NATIVE_ID = "ca-app-pub-8354869049759576/8621863614"
+        const val ADMOB_BANNER_ID = "ca-app-pub-8354869049759576/1330279606"
+        const val ADMOB_BANNER_ID2 = "ca-app-pub-8354869049759576/6948495847"
+        const val ADMOB_NATIVE_ID = "ca-app-pub-8354869049759576/7704116261"
     }
 
     override fun onCreate() {
@@ -28,7 +28,7 @@ class FiveCBallsApp : BaseApp() {
     }
 
     override fun getInterstitial(): AdMobInterstitial {
-        val admobInterstitialID = "ca-app-pub-8354869049759576/2174745857"
+        val admobInterstitialID = "ca-app-pub-8354869049759576/4465092297"
         return AdMobInterstitial(applicationContext, admobInterstitialID)
     }
 }

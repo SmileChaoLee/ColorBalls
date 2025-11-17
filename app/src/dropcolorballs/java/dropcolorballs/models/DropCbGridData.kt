@@ -1,19 +1,19 @@
-package fivecolorballs.models
+package dropcolorballs.models
 
 import android.graphics.Point
 import android.os.Parcelable
 import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.models.GridData
 import com.smile.colorballs_main.tools.LogUtil
-import fivecolorballs.constants.FiveBallsConstants
+import dropcolorballs.constants.DropBallsConstants
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-class FiveCbGridData(
-    override val rowCounts: Int = FiveBallsConstants.ROW_COUNTS,
-    override val colCounts: Int = FiveBallsConstants.COLUMN_COUNTS,
-    override var mNumOfColorsUsed : Int = Constants.NUM_BALLS_USED_EASY,
+class DropCbGridData(
+    override val rowCounts: Int = DropBallsConstants.ROW_COUNTS,
+    override val colCounts: Int = DropBallsConstants.COLUMN_COUNTS,
+    override var mNumOfColorsUsed : Int = Constants.NUM_BALLS_USED_DIFF,
     override val mCellValues : Array<IntArray> =
         Array(rowCounts) { IntArray(colCounts) },
     override val mBackupCells: Array<IntArray> =
@@ -26,7 +26,7 @@ class FiveCbGridData(
     mBackupCells, mLightLine) ,Parcelable {
 
     companion object {
-        private const val TAG: String = "FiveCbGridData"
+        private const val TAG: String = "DropCbGridData"
     }
 
     @IgnoredOnParcel
@@ -40,7 +40,7 @@ class FiveCbGridData(
         LogUtil.i(TAG, "randNext4Balls")
         next4Balls = ArrayList()
         var bColor: Int
-        (0 until FiveBallsConstants.NUM_NEXT_BALLS).forEach { _ ->
+        (0 until DropBallsConstants.NUM_NEXT_BALLS).forEach { _ ->
             bColor = Constants.BallColor[mRandom.nextInt(mNumOfColorsUsed)]
             next4Balls.add(bColor)
         }
@@ -133,9 +133,9 @@ class FiveCbGridData(
         return tempSet
     }
 
-    fun copy(gData: FiveCbGridData): FiveCbGridData {
+    fun copy(gData: DropCbGridData): DropCbGridData {
         LogUtil.i(TAG, "copy")
-        val newGridData = FiveCbGridData()
+        val newGridData = DropCbGridData()
         newGridData.copy(gData)
         newGridData.runningBalls = ArrayList(gData.runningBalls)
         newGridData.next4Balls = ArrayList(gData.next4Balls)

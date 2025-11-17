@@ -48,7 +48,7 @@ import com.smile.smilelibraries.utilities.UmpUtil
 import com.smile.colorballs_main.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs_main.views.ui.theme.Yellow3
 import com.smile.smilelibraries.utilities.ScreenUtil
-import fivecolorballs.views.FiveCBallsActivity
+import dropcolorballs.views.DropCBallsActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -67,7 +67,7 @@ class MainCBallActivity : ComponentActivity() {
     private lateinit var cBallLauncher: ActivityResultLauncher<Intent>
     private lateinit var barrierCBLauncher: ActivityResultLauncher<Intent>
     private lateinit var ballsRemoverLauncher: ActivityResultLauncher<Intent>
-    private lateinit var fiveCBallsLauncher: ActivityResultLauncher<Intent>
+    private lateinit var dropCBallsLauncher: ActivityResultLauncher<Intent>
     private lateinit var smileAppsLauncher: ActivityResultLauncher<Intent>
     //
     private val loadingMessage = mutableStateOf("")
@@ -80,7 +80,7 @@ class MainCBallActivity : ComponentActivity() {
     private var isNoBarrierEnabled by mutableStateOf(true)
     private var isBarrierEnabled by mutableStateOf(true)
     private var isBallsRemEnabled by mutableStateOf(true)
-    private var isFiveCBallsEnabled by mutableStateOf(true)
+    private var isDropCBallsEnabled by mutableStateOf(true)
     private var isSmileAppsEnabled by mutableStateOf(true)
 
     @SuppressLint("ConfigurationScreenWidthHeight",
@@ -118,10 +118,10 @@ class MainCBallActivity : ComponentActivity() {
             enableMainButtons()
         }
 
-        fiveCBallsLauncher = registerForActivityResult(
+        dropCBallsLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            LogUtil.i(TAG, "fiveCBallsLauncher.result = $result")
+            LogUtil.i(TAG, "dropCBallsLauncher.result = $result")
             loadingMessage.value = ""
             enableMainButtons()
         }
@@ -193,7 +193,7 @@ class MainCBallActivity : ComponentActivity() {
         isNoBarrierEnabled = true
         isBarrierEnabled = true
         isBallsRemEnabled = true
-        isFiveCBallsEnabled = true
+        isDropCBallsEnabled = true
         isSmileAppsEnabled = true
     }
 
@@ -201,11 +201,11 @@ class MainCBallActivity : ComponentActivity() {
         isNoBarrierEnabled = false
         isBarrierEnabled = false
         isBallsRemEnabled = false
-        isFiveCBallsEnabled = false
+        isDropCBallsEnabled = false
         isSmileAppsEnabled = false
     }
 
-    fun startColorBallActivity() {
+    private fun startColorBallActivity() {
         Intent(
             this@MainCBallActivity,
             ColorBallActivity::class.java
@@ -216,7 +216,7 @@ class MainCBallActivity : ComponentActivity() {
         }
     }
 
-    fun startBarrierCBallActivity() {
+    private fun startBarrierCBallActivity() {
         Intent(
             this@MainCBallActivity,
             BarrierCBallActivity::class.java
@@ -227,7 +227,7 @@ class MainCBallActivity : ComponentActivity() {
         }
     }
 
-    fun startBallsRemoverActivity() {
+    private fun startBallsRemoverActivity() {
         Intent(
             this@MainCBallActivity,
             BallsRemoverActivity::class.java
@@ -238,25 +238,14 @@ class MainCBallActivity : ComponentActivity() {
         }
     }
 
-    fun startFiveCBallsActivity() {
+    private fun startDropCBallsActivity() {
         Intent(
             this@MainCBallActivity,
-            FiveCBallsActivity::class.java
+            DropCBallsActivity::class.java
         ).also {
             disableMainButtons()
             loadingMessage.value = getString(R.string.loadingStr)
-            fiveCBallsLauncher.launch(it)
-        }
-    }
-
-    private fun showSmileAppsActivity() {
-        Intent(
-            this@MainCBallActivity,
-            SmileAppsActivity::class.java
-        ).also {
-            disableMainButtons()
-            loadingMessage.value = getString(R.string.loadingStr)
-            smileAppsLauncher.launch(it)
+            dropCBallsLauncher.launch(it)
         }
     }
 
@@ -400,11 +389,11 @@ class MainCBallActivity : ComponentActivity() {
     }
 
     @Composable
-    fun FiveCBallsButton(modifier: Modifier = Modifier,
+    fun DropCBallsButton(modifier: Modifier = Modifier,
                            buttonWidth: Float,
                            buttonHeight: Float,
                            textLineHeight: TextUnit) {
-        LogUtil.d(TAG, "FiveCBallsButton")
+        LogUtil.d(TAG, "DropCBallsButton")
         Column(modifier = modifier,
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center) {
@@ -415,7 +404,7 @@ class MainCBallActivity : ComponentActivity() {
                     CoroutineScope(Dispatchers.Default).launch {
                         isFcbClicked.value = true
                         delay(200)
-                        startFiveCBallsActivity()
+                        startDropCBallsActivity()
                         isFcbClicked.value = false
                     }
                 },
@@ -435,48 +424,7 @@ class MainCBallActivity : ComponentActivity() {
                     disabledContentColor = buttonContentColor
                 )
             )
-            { Text(text = getString(R.string.five_cballs_name),
-                fontSize = CbComposable.mFontSize) }
-        }
-    }
-
-    @Composable
-    fun SmileAppsButton(modifier: Modifier = Modifier,
-                           buttonWidth: Float,
-                           buttonHeight: Float,
-                           textLineHeight: TextUnit) {
-        LogUtil.d(TAG, "SmileAppsButton")
-        Column(modifier = modifier,
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Center) {
-            val isClicked = remember { mutableStateOf(false) }
-            Button(
-                enabled = isSmileAppsEnabled,
-                onClick = {
-                    CoroutineScope(Dispatchers.Default).launch {
-                        isClicked.value = true
-                        delay(200)
-                        showSmileAppsActivity()
-                        isClicked.value = false
-                    }
-                },
-                modifier = Modifier//.weight(1.0f)
-                    .width(width = buttonWidth.dp)
-                    .height(height = buttonHeight.dp)
-                    .background(color = buttonBackground),
-                colors = ButtonColors(
-                    containerColor =
-                        if (!isClicked.value) buttonContainerColor
-                        else Color.Cyan,
-                    disabledContainerColor = buttonContainerColor,
-                    contentColor =
-                        if (!isClicked.value)
-                            buttonContentColor
-                        else Color.Red ,
-                    disabledContentColor = buttonContentColor
-                )
-            )
-            { Text(text = getString(R.string.smileApps),
+            { Text(text = getString(R.string.drop_cballs_name),
                 fontSize = CbComposable.mFontSize) }
         }
     }
@@ -511,7 +459,7 @@ class MainCBallActivity : ComponentActivity() {
             BallsRemoverButton(
                 modifier = Modifier.weight(1.0f),
                 buttonWidth, buttonHeight, textLineHeight)
-            FiveCBallsButton(
+            DropCBallsButton(
                 modifier = Modifier.weight(1.0f),
                 buttonWidth, buttonHeight, textLineHeight)
             /*

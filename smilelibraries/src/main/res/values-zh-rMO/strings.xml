@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SmileLibraries</string>
     <string name="noString">否</string>
     <string name="okString">確定</string>
     <string name="privacyPolicyString">隐私政策</string>
@@ -12,6 +11,7 @@
     <string name="video_app_name">微笑視頻播放器</string>
     <string name="karaoke_tv_app_name">微笑電視卡拉OK</string>
     <string name="color_balls_name">色球</string>
+    <string name="drop_cballs_name">下墜色球</string>
     <string name="balls_remover_name">色球移除</string>
     <string name="bouncy_ball_name">彈跳球</string>
 </resources>

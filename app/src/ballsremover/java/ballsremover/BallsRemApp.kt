@@ -21,9 +21,11 @@ class BallsRemApp : BaseApp() {
         return ADMOB_NATIVE_ID
     }
 
-    override fun getInterstitial(): AdMobInterstitial {
+    override fun getInterstitial(): AdMobInterstitial? {
         val admobInterstitialID = "ca-app-pub-8354869049759576/6690798717"
-        return AdMobInterstitial(applicationContext, admobInterstitialID)
+        // not interstitial ad for now
+        // return AdMobInterstitial(applicationContext, admobInterstitialID)
+        return null
     }
 
     companion object {

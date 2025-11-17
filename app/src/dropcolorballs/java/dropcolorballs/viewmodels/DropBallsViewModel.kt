@@ -1,4 +1,4 @@
-package fivecolorballs.viewmodels
+package dropcolorballs.viewmodels
 
 import android.graphics.Point
 import android.os.Build
@@ -12,29 +12,29 @@ import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.models.GameProp
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.viewmodel.BaseViewModel
-import fivecolorballs.constants.FiveBallsConstants
-import fivecolorballs.models.FiveCbGridData
-import fivecolorballs.presenters.FiveBallsPresenter
+import dropcolorballs.constants.DropBallsConstants
+import dropcolorballs.models.DropCbGridData
+import dropcolorballs.presenters.DropBallsPresenter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
+class DropBallsViewModel(private val fivePresenter: DropBallsPresenter)
     : BaseViewModel(fivePresenter) {
 
     companion object {
-        private const val TAG = "FiveBallsViewModel"
+        private const val TAG = "DropBallsViewModel"
     }
 
     private val runningBallsHandler = Handler(Looper.getMainLooper())
     private var fiveGameProp: GameProp
-    private var fiveGridData: FiveCbGridData
-    private val rbLastIndex = FiveBallsConstants.NUM_NEXT_BALLS - 1
+    private var fiveGridData: DropCbGridData
+    private val rbLastIndex = DropBallsConstants.NUM_NEXT_BALLS - 1
     private val runningBalls = ArrayList<Int>()
     private var nextRunningRow = 0
     // one second
-    private var droppingSpeed = FiveBallsConstants.NORMAL_DROPPING_SPEED
+    private var droppingSpeed = DropBallsConstants.NORMAL_DROPPING_SPEED
     private var isToEnd = false
-    var runningCol = FiveBallsConstants.COLUMN_COUNTS / 2
+    var runningCol = DropBallsConstants.COLUMN_COUNTS / 2
     private var isGameJustStarted = true
     private var isFinishRunning = false
     private var isGameOver = false
@@ -75,7 +75,7 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
     init {
         LogUtil.i(TAG, "FiveBallsViewModel.init")
         fiveGameProp = GameProp()
-        fiveGridData = FiveCbGridData()
+        fiveGridData = DropCbGridData()
         mGameProp = fiveGameProp
         mGridData = fiveGridData
         super.setProperties()
@@ -92,7 +92,7 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         // do nothing
     }
 
-    private fun setData(prop: GameProp, gData: FiveCbGridData) {
+    private fun setData(prop: GameProp, gData: DropCbGridData) {
         LogUtil.i(TAG, "setData")
         fiveGameProp = prop
         fiveGridData = gData
@@ -119,7 +119,7 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         isToEnd = false
         isFinishRunning = false
         isGameOver = false
-        setDroppingSpeed(FiveBallsConstants.NORMAL_DROPPING_SPEED)
+        setDroppingSpeed(DropBallsConstants.NORMAL_DROPPING_SPEED)
         fiveGameProp.isProcessingJob = false
         gameStartTime = System.currentTimeMillis()
         isGameJustStarted = true
@@ -128,8 +128,8 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
 
     fun setDroppingSpeed(seconds: Long) {
         runningBallsHandler.removeCallbacksAndMessages(null)
-        droppingSpeed = if (seconds < FiveBallsConstants.MIN_DROPPING_SPEED)
-            FiveBallsConstants.MIN_DROPPING_SPEED
+        droppingSpeed = if (seconds < DropBallsConstants.MIN_DROPPING_SPEED)
+            DropBallsConstants.MIN_DROPPING_SPEED
         else seconds
         runningBallsHandler.post(runBallsRunnable)
     }
@@ -139,7 +139,7 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         if (isToEnd) return
         isToEnd = true
         runningBallsHandler.removeCallbacksAndMessages(null)
-        droppingSpeed = FiveBallsConstants.END_DROPPING_SPEED
+        droppingSpeed = DropBallsConstants.END_DROPPING_SPEED
         runningBallsHandler.post(runBallsRunnable)
     }
 
@@ -160,11 +160,11 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         isToEnd = false
         isFinishRunning = false
         nextRunningRow = row
-        runningCol = FiveBallsConstants.COLUMN_COUNTS / 2
+        runningCol = DropBallsConstants.COLUMN_COUNTS / 2
         // one minute speed up 1 ms
         val passTime = (System.currentTimeMillis() - gameStartTime) /
-                FiveBallsConstants.INCREASE_SPEED_PERIOD
-        setDroppingSpeed(FiveBallsConstants.NORMAL_DROPPING_SPEED - passTime)
+                DropBallsConstants.INCREASE_SPEED_PERIOD
+        setDroppingSpeed(DropBallsConstants.NORMAL_DROPPING_SPEED - passTime)
         LogUtil.i(TAG,"startRunBalls.droppingSpeed = $droppingSpeed")
         isGameJustStarted = false
         runningBallsHandler.post(runBallsRunnable)
@@ -188,7 +188,7 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
 
     private fun reachBottomOrBlock() {
         LogUtil.d(TAG,"reachBottomOrBlock.nextRunningRow = $nextRunningRow")
-        if (nextRunningRow < FiveBallsConstants.ROW_COUNTS) {
+        if (nextRunningRow < DropBallsConstants.ROW_COUNTS) {
             val ballColor = fiveGridData.mCellValues[nextRunningRow][runningCol]
             LogUtil.d(TAG,"reachBottomOrBlock.ballColor = $ballColor")
             if (ballColor != 0) isFinishRunning = true
@@ -209,7 +209,7 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
             val moreThanNum = fiveGridData.moreThanNum(mGameLevel, threeSet)
             if (!moreThanNum) {
                 fiveGridData.setNextRunning()
-                if (nextRunningRow < FiveBallsConstants.NUM_NEXT_BALLS) {
+                if (nextRunningRow < DropBallsConstants.NUM_NEXT_BALLS) {
                     // Game over
                     isGameOver = true
                     gameOver()
@@ -262,7 +262,7 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         if (fiveGameProp.isProcessingJob) return
         if (isFinishRunning) return
         if (runningCol + addValue < 0) return
-        if (runningCol + addValue >= FiveBallsConstants.COLUMN_COUNTS) return
+        if (runningCol + addValue >= DropBallsConstants.COLUMN_COUNTS) return
 
         // no need because this method is running in the same thread as
         // runBallsRunnable is running
@@ -317,7 +317,7 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         LogUtil.i(TAG,"restoreState.state = $state")
         var isNewGame = true
         var gameProp: GameProp? = null
-        var gridData: FiveCbGridData? = null
+        var gridData: DropCbGridData? = null
         state?.let {
             LogUtil.d(TAG,"restoreState.state not null")
             gameProp =
@@ -328,7 +328,7 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
             gridData =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                     it.getParcelable(Constants.GRID_DATA_TAG,
-                        FiveCbGridData::class.java)
+                        DropCbGridData::class.java)
                 else it.getParcelable(Constants.GRID_DATA_TAG)
             isNewGame = false
         }
