@@ -41,8 +41,8 @@ android {
     productFlavors {
         create("colorballs") {
             dimension = "product"
-            versionCode 8250
-            versionName "8.250"
+            versionCode 8251
+            versionName "8.251"
             applicationId = "com.smile.colorballs"
             isDefault = true
         }

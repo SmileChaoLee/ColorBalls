@@ -162,7 +162,8 @@ class FiveBallsViewModel(private val fivePresenter: FiveBallsPresenter)
         nextRunningRow = row
         runningCol = FiveBallsConstants.COLUMN_COUNTS / 2
         // one minute speed up 1 ms
-        val passTime = (System.currentTimeMillis() - gameStartTime) / 5000L
+        val passTime = (System.currentTimeMillis() - gameStartTime) /
+                FiveBallsConstants.INCREASE_SPEED_PERIOD
         setDroppingSpeed(FiveBallsConstants.NORMAL_DROPPING_SPEED - passTime)
         LogUtil.i(TAG,"startRunBalls.droppingSpeed = $droppingSpeed")
         isGameJustStarted = false
