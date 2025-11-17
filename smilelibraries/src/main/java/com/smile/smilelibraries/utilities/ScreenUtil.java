@@ -135,8 +135,8 @@ public final class ScreenUtil {
         return defaultTextFontSize;
     }
 
-    public static float suitableFontSize(Activity activity, float defaultFontSize, int fontSize_Type) {
-        return suitableFontSize(activity, defaultFontSize, fontSize_Type, 0);
+    public static float getDefaultTextSizeFromTheme(Context context) {
+        return getDefaultTextSizeFromTheme(context, FontSize_Pixel_Type);
     }
 
     public static float suitableFontSize(Activity activity, float defaultFontSize, int fontSize_Type, float baseScreenWidth) {
@@ -158,8 +158,12 @@ public final class ScreenUtil {
         return fontSize;
     }
 
-    public static float suitableFontScale(Activity activity, int fontSize_Type) {
-        return suitableFontScale(activity, fontSize_Type, 0);
+    public static float suitableFontSize(Activity activity, float defaultFontSize, int fontSize_Type) {
+        return suitableFontSize(activity, defaultFontSize, fontSize_Type, 0);
+    }
+
+    public static float suitableFontSize(Activity activity, float defaultFontSize) {
+        return suitableFontSize(activity, defaultFontSize, FontSize_Pixel_Type);
     }
 
     public static float suitableFontScale(Activity activity, int fontSize_Type, float baseScreenWidth) {
@@ -194,6 +198,10 @@ public final class ScreenUtil {
         }
 
         return fontScale;
+    }
+
+    public static float suitableFontScale(Activity activity, int fontSize_Type) {
+        return suitableFontScale(activity, fontSize_Type, 0);
     }
 
     public static float screenWidthInches(Activity activity) {
@@ -274,7 +282,9 @@ public final class ScreenUtil {
         resizeMenuTextIconSize0(wrapper, menu, defaultMenuTextSize, fontScale);
     }
 
-    public static void buildActionViewClassMenu(final Activity activity, final Context wrapper, final Menu menu, final float fontScale, final int fontSize_Type) {
+    public static void buildActionViewClassMenu(final Activity activity, final Context wrapper,
+                                                final Menu menu, final float fontScale,
+                                                final int fontSize_Type) {
 
         if (menu == null) {
             return;
@@ -315,14 +325,12 @@ public final class ScreenUtil {
         }
     }
 
-    public static void buildMenuInPopupMenuByView(final Activity activity, final Context wrapper, Menu menu, View view, final float fontScale) {
-
+    public static void buildMenuInPopupMenuByView(final Activity activity, final Context wrapper,
+                                                  Menu menu, View view, final float fontScale) {
         if (menu == null) {
             return;
         }
-
         PopupMenu popupMenu = new PopupMenu(wrapper, view);
-
         final int menuSize = menu.size();
         for (int j = 0; j<menuSize; j++) {
             MenuItem menuItem = menu.getItem(j);
@@ -335,10 +343,12 @@ public final class ScreenUtil {
             // resize text font size of popup menu items
             MenuItem popupItem = popupMenu.getMenu().getItem(j);
             SpannableString spanString;
-            if (popupItem.getTitle() != null) spanString = new SpannableString(popupItem.getTitle().toString());
+            if (popupItem.getTitle() != null) spanString =
+                    new SpannableString(popupItem.getTitle().toString());
             else spanString = new SpannableString("");
             int sLen = spanString.length();
-            spanString.setSpan(new RelativeSizeSpan(fontScale), 0, sLen, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spanString.setSpan(new RelativeSizeSpan(fontScale), 0, sLen,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             popupItem.setTitle(spanString);
         }
 
@@ -362,6 +372,10 @@ public final class ScreenUtil {
                 textView.setTextSize(textFontSize);
                 break;
         }
+    }
+
+    public static void resizeTextSize(TextView textView, float textFontSize) {
+        resizeTextSize(textView, textFontSize, FontSize_Pixel_Type);
     }
 
     public static float getPxTextFontSizeNeeded(Activity activity) {
@@ -398,7 +412,8 @@ public final class ScreenUtil {
         return deviceType;
     }
 
-    public static void showToast(Activity activity, String content, float textFontSize, int fontSize_Type, int showPeriod) {
+    public static void showToast(Activity activity, String content, float textFontSize,
+                                 int fontSize_Type, int showPeriod) {
         Toast toast = Toast.makeText(activity, content, showPeriod);
         // getView() is deprecated in API level 30
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
@@ -435,7 +450,8 @@ public final class ScreenUtil {
     }
 
     // private methods
-    private static void resizeMenuTextIconSize0(Context context, Menu menu, float defaultMenuTextSize, float fontScale) {
+    private static void resizeMenuTextIconSize0(Context context, Menu menu,
+                                                float defaultMenuTextSize, float fontScale) {
         if (menu == null) {
             return;
         }
@@ -449,13 +465,15 @@ public final class ScreenUtil {
             if (mItem.getTitle() != null) spanString = new SpannableString(mItem.getTitle().toString());
             else spanString = new SpannableString("");
             sLen = spanString.length();
-            spanString.setSpan(new RelativeSizeSpan(fontScale), 0, sLen, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spanString.setSpan(new RelativeSizeSpan(fontScale), 0, sLen,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             mItem.setTitle(spanString);
             Drawable icon = mItem.getIcon();
             if (icon != null) {
                 int iconSize = (int)(defaultMenuTextSize * fontScale);
                 Bitmap tempBitmap = ((BitmapDrawable) icon).getBitmap();
-                Drawable iconDrawable = new BitmapDrawable(context.getResources(), Bitmap.createScaledBitmap(tempBitmap, iconSize, iconSize, true));
+                Drawable iconDrawable = new BitmapDrawable(context.getResources(),
+                        Bitmap.createScaledBitmap(tempBitmap, iconSize, iconSize, true));
                 mItem.setIcon(iconDrawable);
             }
             // submenus
