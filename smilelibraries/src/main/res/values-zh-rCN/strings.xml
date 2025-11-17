@@ -14,4 +14,5 @@
     <string name="drop_cballs_name">下墜色球</string>
     <string name="balls_remover_name">色球移除</string>
     <string name="bouncy_ball_name">彈跳球</string>
+    <string name="five_color_balls_name">五色球</string>
 </resources>

@@ -20,6 +20,7 @@ object AppLinkUtil {
     const val DROP_COLOR_BALLS_LINK = "https://play.google.com/store/apps/details?id=com.smile.dropcolorballs"
     const val BALLS_REMOVER_LINK = "https://play.google.com/store/apps/details?id=com.smile.ballsremover"
     const val BOUNCY_BALL_LINK = "https://play.google.com/store/apps/details?id=com.smile.bouncyball"
+    const val FIVE_COLOR_BALLS_LINK = "https://play.google.com/store/apps/details?id=com.smile.fivecolorballs"
 
     fun getAppList(activity: Activity): List<AndroidApp> {
         val appList = ArrayList<AndroidApp>()
@@ -37,6 +38,8 @@ object AppLinkUtil {
             R.drawable.balls_remover_app_icon, BALLS_REMOVER_LINK))
         appList.add(AndroidApp(activity.getString(R.string.bouncy_ball_name),
             R.drawable.bouncy_ball_app_icon, BOUNCY_BALL_LINK))
+        appList.add(AndroidApp(activity.getString(R.string.five_color_balls_name),
+            R.drawable.five_color_balls_app, FIVE_COLOR_BALLS_LINK))
 
         return appList
     }
