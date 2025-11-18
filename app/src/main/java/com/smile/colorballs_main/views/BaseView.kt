@@ -8,6 +8,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Point
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
 import android.view.MotionEvent
 import android.widget.Toast
@@ -518,7 +519,12 @@ abstract class BaseView: ComponentActivity(),
         val density = ScreenUtil.getDensity()
         LogUtil.d(TAG, "getContentHeight.density = $density")
 
-        val screen = ScreenUtil.getScreenSize(this@BaseView)
+        val screen = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            // >= API 35
+            ScreenUtil.getScreenSizeWithNavigationBar(this@BaseView)
+        } else {
+            ScreenUtil.getScreenSize(this@BaseView)
+        }
 
         LogUtil.d(TAG, "getContentHeight.screen.x = ${screen.x}")
         val screenWidth = ScreenUtil.pixelToDp(screen.x.toFloat()).toInt()
