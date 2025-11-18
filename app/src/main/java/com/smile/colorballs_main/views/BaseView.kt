@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Point
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.view.MotionEvent
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
@@ -75,6 +76,7 @@ import androidx.core.graphics.scale
 import androidx.core.view.WindowCompat
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.google.android.gms.ads.nativead.NativeAd
+import com.google.android.ump.ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA
 import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.constants.WhichBall
 import com.smile.colorballs_main.interfaces.BasePresentView
@@ -92,6 +94,7 @@ import com.smile.colorballs_main.views.ui.theme.Yellow3
 import com.smile.smilelibraries.GoogleNativeAd
 import com.smile.smilelibraries.models.ExitAppTimer
 import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil
+import com.smile.smilelibraries.utilities.UmpUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -124,6 +127,7 @@ abstract class BaseView: ComponentActivity(),
 
     var menuBarWeight = 1.0f
     var gameGridWeight = 7.0f
+    var adWeight = 10.0f - menuBarWeight - gameGridWeight
     var gameWidthRation = 1.0f
     val colorPrimary = Color(0xFF3F51B5)
     val colorYellow3 = Yellow3
@@ -135,6 +139,7 @@ abstract class BaseView: ComponentActivity(),
     val colorNextBallMap: HashMap<Int, Bitmap> = HashMap()
     var interstitialAd: ShowInterstitial? = null
 
+    private var screenSize = Point()
     private var textFontSize = 0f
     private var toastTextSize = 0f
     private var mBaseApp: BaseApp? = null
@@ -147,8 +152,13 @@ abstract class BaseView: ComponentActivity(),
     private lateinit var settingLauncher: ActivityResultLauncher<Intent>
     private lateinit var top10Launcher: ActivityResultLauncher<Intent>
 
+    private var touchDisabled = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        LogUtil.i(TAG, "$TAG.onCreate")
+        // disabling the touch events
+        touchDisabled = true
+        LogUtil.i(TAG, "$TAG.onCreate.touchDisabled")
+
         textFontSize = ScreenUtil.getPxTextFontSizeNeeded(this@BaseView)
         toastTextSize = textFontSize * 0.7f
         CbComposable.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
@@ -217,54 +227,77 @@ abstract class BaseView: ComponentActivity(),
                 }
             }
         }
-        val adWeight = 10.0f - menuBarWeight - gameGridWeight
+        adWeight = 10.0f - menuBarWeight - gameGridWeight
         LogUtil.i(TAG, "$TAG.onCreate.menuBarWeight = $menuBarWeight")
         LogUtil.i(TAG, "$TAG.onCreate.gameGridWeight = $gameGridWeight")
         LogUtil.i(TAG, "$TAG.onCreate.adWeight = $adWeight")
+
         // enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            LogUtil.i(TAG, "$TAG.onCreate.setContent")
-            ColorBallsTheme {
-                Scaffold {innerPadding ->
-                    Box(Modifier.padding(innerPadding)
-                        .fillMaxSize()
-                        .background(color = colorYellow3)) {
-                        if (mOrientation.intValue ==
-                            Configuration.ORIENTATION_PORTRAIT) {
-                            Column(modifier = Modifier.fillMaxSize()) {
-                                GameView(Modifier.weight(gameGridWeight))
-                                SHowPortraitAds(Modifier.fillMaxWidth()
-                                        .weight(adWeight))
-                            }
-                        } else {
-                            Row {
-                                GameView(modifier = Modifier.weight(1f))
-                                ShowLandscapeAds(modifier = Modifier.weight(1f))
-                            }
+            CreateMainUI()
+        }
+        // val deviceHashedId = "8F6C5B0830E624E8D8BFFB5853B4EDDD" // for debug test
+        val deviceHashedId = "" // for release
+        UmpUtil.initConsentInformation(
+            this@BaseView,
+            DEBUG_GEOGRAPHY_EEA, deviceHashedId,
+            object : UmpUtil.UmpInterface {
+                override fun callback() {
+                    LogUtil.d(TAG, "dataConsentRequest.finished")
+                    // enabling receiving touch events
+                    touchDisabled = false
+                    baseViewModel.initGame(savedInstanceState)
+                }
+            })
+    }
+
+    @Composable
+    fun CreateMainUI() {
+        ColorBallsTheme {
+            Scaffold {innerPadding ->
+                Box(Modifier.fillMaxSize()
+                    .padding(innerPadding)
+                    .background(color = colorYellow3)) {
+                    if (mOrientation.intValue ==
+                        Configuration.ORIENTATION_PORTRAIT) {
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            GameView(Modifier.weight(gameGridWeight))
+                            SHowPortraitAds(Modifier.fillMaxWidth()
+                                .weight(adWeight))
                         }
-                        Box {
-                            CreateNewGameDialog()
-                            SaveGameDialog()
-                            LoadGameDialog()
-                            SaveScoreDialog()
+                    } else {
+                        Row {
+                            GameView(modifier = Modifier.weight(1f))
+                            ShowLandscapeAds(modifier = Modifier.weight(1f))
                         }
                     }
+                    Box {
+                        CreateNewGameDialog()
+                        SaveGameDialog()
+                        LoadGameDialog()
+                        SaveScoreDialog()
+                    }
                 }
-            }
-            LaunchedEffect(Unit) {
-                LogUtil.i(TAG, "$TAG.onCreate.setContent.LaunchedEffect")
-                baseViewModel.initGame(savedInstanceState)
             }
         }
 
         onBackPressedDispatcher.addCallback(object
             : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                LogUtil.d(TAG, "$TAG.onBackPressedDispatcher.handleOnBackPressed")
+                LogUtil.d(TAG, "MainViewUI.onBackPressedDispatcher.handleOnBackPressed")
                 onBackWasPressed()
             }
         })
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        if (touchDisabled) {
+            // Consume the touch event, effectively disabling touch
+            return true
+        }
+        // Allow touch events to proceed
+        return super.dispatchTouchEvent(ev)
     }
 
     // should be private after UI migration
@@ -335,7 +368,7 @@ abstract class BaseView: ComponentActivity(),
     }
 
     protected fun bitmapDrawableResources(sizePx: Float) {
-        LogUtil.i(TAG, "bitmapDrawableResources.imageSizePx = $sizePx")
+        LogUtil.i(TAG, "bitmapDrawableResources.sizePx = $sizePx")
         val ballWidth = sizePx.toInt()
         val ballHeight = sizePx.toInt()
         val nextBallWidth = (sizePx * 0.5f).toInt()
@@ -454,8 +487,9 @@ abstract class BaseView: ComponentActivity(),
 
     @SuppressLint("ConfigurationScreenWidthHeight")
     @Composable
-    fun getContentHeight(): Point {
+    fun getContentHeightOld(): Point {
         val density = LocalDensity.current
+        LogUtil.d(TAG, "getContentHeight.density = ${density.density}")
         // Get the height of the top status bar
         val statusBarHeight = WindowInsets.safeDrawing.getTop(density)
         LogUtil.d(TAG, "getContentHeight.statusBarHeight = $statusBarHeight")
@@ -464,12 +498,44 @@ abstract class BaseView: ComponentActivity(),
         LogUtil.d(TAG, "getContentHeight.navigationBarHeight = $navigationBarHeight")
         // Get the total screen height
         val screenWidth = LocalConfiguration.current.screenWidthDp
+        LogUtil.d(TAG, "getContentHeight.screenWidth = $screenWidth")
         var screenHeight = LocalConfiguration.current.screenHeightDp
         // Calculate the available content height
         // WindowCompat.setDecorFitsSystemWindows(window, false)
         // and     Scaffold {innerPadding ->
         // removes the navigationBarHeight
         screenHeight -= statusBarHeight // - navigationBarHeight
+        LogUtil.d(TAG, "getContentHeight.screenHeight = $screenHeight")
+        return Point(screenWidth, screenHeight)
+    }
+
+    fun getContentHeight(): Point {
+        val statusBarHeight = ScreenUtil.getStatusBarHeight(this@BaseView)
+        LogUtil.d(TAG, "getContentHeight.statusBarHeight = $statusBarHeight")
+        val navigationBarHeight = ScreenUtil.getNavigationBarHeight(this@BaseView)
+        LogUtil.d(TAG, "getContentHeight.navigationBarHeight = $navigationBarHeight")
+
+        val density = ScreenUtil.getDensity()
+        LogUtil.d(TAG, "getContentHeight.density = $density")
+
+        val screen = ScreenUtil.getScreenSize(this@BaseView)
+
+        LogUtil.d(TAG, "getContentHeight.screen.x = ${screen.x}")
+        val screenWidth = ScreenUtil.pixelToDp(screen.x.toFloat()).toInt()
+        LogUtil.d(TAG, "getContentHeight.screenWidth = $screenWidth")
+
+        LogUtil.d(TAG, "getContentHeight.screen.y = ${screen.y}")
+        // screen.y += navigationBarHeight // add navigationBarHeight back to height
+        var screenHeight = ScreenUtil.pixelToDp(screen.y.toFloat()).toInt()
+        LogUtil.d(TAG, "getContentHeight.screenHeight = $screenHeight")
+        // screenHeight -= navigationBarHeight
+        // Calculate the available content height
+        // WindowCompat.setDecorFitsSystemWindows(window, false)
+        // and     Scaffold {innerPadding ->
+        // removes the navigationBarHeight
+        screenHeight -= statusBarHeight // - navigationBarHeight
+        LogUtil.d(TAG, "getContentHeight.screenHeight = $screenHeight")
+
         return Point(screenWidth, screenHeight)
     }
 
@@ -478,17 +544,19 @@ abstract class BaseView: ComponentActivity(),
     @Composable
     open fun GameView(modifier: Modifier) {
         LogUtil.i(TAG, "GameView.mOrientation.intValue = ${mOrientation.intValue}")
-        val screen = getContentHeight()
-        LogUtil.d(TAG, "GameView.screen.x = ${screen.x}")
-        LogUtil.d(TAG, "GameView.screen.y = ${screen.y}")
 
-        var maxWidth = screen.x
+        screenSize = getContentHeight()
+        LogUtil.d(TAG, "GameView.screenSize.x = ${screenSize.x}")
+        LogUtil.d(TAG, "GameView.screenSize.y = ${screenSize.y}")
+
+        var maxWidth = screenSize.x.toFloat()
         if (mOrientation.intValue == Configuration.ORIENTATION_LANDSCAPE) {
             LogUtil.d(TAG, "GameView.ORIENTATION_LANDSCAPE")
-            maxWidth = screen.x/2
+            maxWidth /= 2.0f
         }
-        maxWidth = (maxWidth.toFloat() * gameWidthRation).toInt()
-        val gridHeight = screen.y * gameGridWeight / 10.0f
+        maxWidth = (maxWidth * gameWidthRation)
+        val gridHeight = screenSize.y * gameGridWeight / 10.0f
+        // val gridHeight = 741f * gameGridWeight / 10.0f
         LogUtil.d(TAG, "GameView.gridHeight = $gridHeight")
         val heightPerBall = gridHeight / baseViewModel.rowCounts
         LogUtil.d(TAG, "GameView.heightPerBall = $heightPerBall")
@@ -496,15 +564,14 @@ abstract class BaseView: ComponentActivity(),
         LogUtil.d(TAG, "GameView.widthPerBall = $widthPerBall")
 
         // set size of color balls
-        val imageSizeDp = (if (heightPerBall>widthPerBall) widthPerBall
-        else heightPerBall).toInt()
-        LogUtil.d(TAG, "GameView.imageSizeDp = $imageSizeDp")
-        val imageSizePx: Float = with(LocalDensity.current) {
-            imageSizeDp.dp.toPx()
-        }
-        bitmapDrawableResources(imageSizePx)
-        mImageSizeDp = imageSizeDp.toFloat()
+        mImageSizeDp = if (heightPerBall>widthPerBall) widthPerBall
+        else heightPerBall
+        mImageSizeDp = (mImageSizeDp*100f).toInt().toFloat() / 100f
         LogUtil.d(TAG, "GameView.mImageSizeDp = $mImageSizeDp")
+        val sizePx: Float = with(LocalDensity.current) {
+            mImageSizeDp.dp.toPx()
+        }
+        bitmapDrawableResources(sizePx)
 
         val topPadding = 0f
         val gHeightWeight = if (menuBarWeight>0) gameGridWeight else 1.0f
@@ -996,8 +1063,10 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun ShowGameGrid(isClickable: Boolean = true) {
-        LogUtil.i(TAG, "ShowGameGrid.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
+        val orientation = mOrientation.intValue
+        LogUtil.d(TAG, "ShowGameGrid.orientation = $orientation")
+        LogUtil.d(TAG, "ShowGameGrid.boxImage.width = ${boxImage?.width}")
+        LogUtil.d(TAG, "ShowGameGrid.boxImage.height = ${boxImage?.height}")
         Column {
             for (i in 0 until baseViewModel.rowCounts) {
                 Row {
@@ -1016,7 +1085,9 @@ abstract class BaseView: ComponentActivity(),
                         ) {
                             Image(
                                 modifier = Modifier
-                                    // .size(mImageSizeDp.dp)   // image already resized
+                                    // .size(mImageSizeDp.dp) has to be here,
+                                    // otherwise screen will be blinking
+                                    .size(mImageSizeDp.dp)
                                     .padding(all = 0.dp),
                                 // painter = painterResource(id = R.drawable.box_image),
                                 // painter = rememberDrawablePainter(drawable = boxImage),
@@ -1035,15 +1106,15 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun ShowColorBall(i: Int, j: Int) {
-        LogUtil.d(TAG, "ShowColorBall.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
+        val orientation = mOrientation.intValue
+        LogUtil.d(TAG, "ShowColorBall.orientation = $orientation")
         ShowBall(baseViewModel.gridDataArray[i][j].value)
     }
 
     @Composable
     fun ShowBall(ballInfo: ColorBallInfo) {
-        LogUtil.d(TAG, "ShowBall.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
+        val orientation = mOrientation.intValue
+        LogUtil.d(TAG, "ShowBall.orientation = $orientation")
         val ballColor = ballInfo.ballColor
         val isAnimation = ballInfo.isAnimation
         val isReSize = ballInfo.isResize
@@ -1055,19 +1126,23 @@ abstract class BaseView: ComponentActivity(),
             WhichBall.NEXT_BALL-> { colorNextBallMap.getValue(ballColor) }
             WhichBall.NO_BALL -> { null }
         }
-        Column(modifier = Modifier.size(mImageSizeDp.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center) {
+        if (bitmap == null) return
+        LogUtil.d(TAG, "ShowBall.boxImage.width = ${boxImage?.width}")
+        LogUtil.d(TAG, "ShowBall.boxImage.height = ${boxImage?.height}")
+        Column(// modifier = Modifier.size(mImageSizeDp.dp),
+            // horizontalAlignment = Alignment.CenterHorizontally,
+            // verticalArrangement = Arrangement.Center)
+        ) {
             var modifier = Modifier.background(color = Color.Transparent)
             var scale: ContentScale = ContentScale.Inside
             if (isReSize) {
                 modifier = modifier
                     .size(mImageSizeDp.dp)
                     .padding(all = 0.dp)
-                scale = ContentScale.Fit
+                scale = ContentScale.FillBounds
             }
             Image(
-                painter = BitmapPainter(bitmap!!.asImageBitmap()),
+                painter = BitmapPainter(bitmap.asImageBitmap()),
                 contentDescription = "",
                 contentScale = scale,
                 modifier = modifier

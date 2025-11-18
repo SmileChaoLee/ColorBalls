@@ -80,9 +80,9 @@ public final class ScreenUtil {
             size.x = right - left;
             size.y = bottom - top;
             if (size.x > size.y) {
-                size.x = size.x - getNavigationBarHeight(activity);
+                size.x -= getNavigationBarHeight(activity);
             } else {
-                size.y = size.y - getNavigationBarHeight(activity);
+                size.y -= getNavigationBarHeight(activity);
             }
         } else {
             // int size.x = activity.getResources().getSystem().getDisplayMetrics().widthPixels;
@@ -95,6 +95,21 @@ public final class ScreenUtil {
         Log.d(TAG,"size.y = " + size.y);
 
         return size;
+    }
+
+    public static Point getScreenSizeWithNavigationBar(Activity activity) {
+        Point size = getScreenSize(activity);
+        if (size.x > size.y) {
+            size.x += getNavigationBarHeight(activity);
+        } else {
+            size.y += getNavigationBarHeight(activity);
+        }
+        return size;
+    }
+
+    public static float getDensity() {
+        DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
+        return displayMetrics.density;
     }
 
     public static float dpToPixel(float dp) {
