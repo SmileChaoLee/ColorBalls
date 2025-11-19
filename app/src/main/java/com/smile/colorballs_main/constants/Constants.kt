@@ -24,9 +24,9 @@ object Constants {
     const val COLOR_RED = 10
     const val COLOR_GREEN = 20
     const val COLOR_BLUE = 30
-    const val COLOR_MAGENTA = 40
-    const val COLOR_YELLOW = 50
-    const val COLOR_CYAN = 60
+    const val COLOR_YELLOW = 40
+    const val COLOR_CYAN = 50
+    const val COLOR_MAGENTA = 60
     const val COLOR_BARRIER = 100
     const val COLOR_FIREWORK = 101
     const val NUM_BALLS_USED_EASY= 5
@@ -34,7 +34,7 @@ object Constants {
     const val NUM_BALLS_USED_DIFF = 6
     @JvmField
     val BallColor =
-        intArrayOf(COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_MAGENTA, COLOR_YELLOW, COLOR_CYAN)
+        intArrayOf(COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_YELLOW, COLOR_CYAN, COLOR_MAGENTA)
     const val GAME_PROP_TAG = "GameProp"
     const val GRID_DATA_TAG = "GridData"
 

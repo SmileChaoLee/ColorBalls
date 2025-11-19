@@ -1071,8 +1071,6 @@ abstract class BaseView: ComponentActivity(),
     fun ShowGameGrid(isClickable: Boolean = true) {
         val orientation = mOrientation.intValue
         LogUtil.d(TAG, "ShowGameGrid.orientation = $orientation")
-        LogUtil.d(TAG, "ShowGameGrid.boxImage.width = ${boxImage?.width}")
-        LogUtil.d(TAG, "ShowGameGrid.boxImage.height = ${boxImage?.height}")
         Column {
             for (i in 0 until baseViewModel.rowCounts) {
                 Row {
@@ -1133,12 +1131,9 @@ abstract class BaseView: ComponentActivity(),
             WhichBall.NO_BALL -> { null }
         }
         if (bitmap == null) return
-        LogUtil.d(TAG, "ShowBall.boxImage.width = ${boxImage?.width}")
-        LogUtil.d(TAG, "ShowBall.boxImage.height = ${boxImage?.height}")
-        Column(// modifier = Modifier.size(mImageSizeDp.dp),
-            // horizontalAlignment = Alignment.CenterHorizontally,
-            // verticalArrangement = Arrangement.Center)
-        ) {
+        Column(modifier = Modifier.size(mImageSizeDp.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center) {
             var modifier = Modifier.background(color = Color.Transparent)
             var scale: ContentScale = ContentScale.Inside
             if (isReSize) {
