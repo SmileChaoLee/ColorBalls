@@ -41,8 +41,8 @@ android {
     productFlavors {
         create("colorballs") {
             dimension = "product"
-            versionCode 8255
-            versionName "8.255"
+            versionCode 8260
+            versionName "8.260"
             applicationId = "com.smile.colorballs"
             isDefault = true
         }
@@ -70,10 +70,8 @@ android {
         }
 
         colorballs {
-            java.srcDirs += ["src/colorballs/java", "src/ballsremover/java",
-                             "src/dropcolorballs/java"]
-            res.srcDirs += ["src/colorballs/res", "src/ballsremover/res",
-                            "src/dropcolorballs/res"]
+            java.srcDirs += ["src/colorballs/java"]
+            res.srcDirs += ["src/colorballs/res"]
             manifest {
                 srcFile "src/colorballs/AndroidManifest.xml"
             }

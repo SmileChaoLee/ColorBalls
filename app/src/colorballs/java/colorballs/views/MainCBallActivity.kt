@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
-import ballsremover.views.BallsRemoverActivity
 import com.smile.colorballs_main.R
 import com.google.android.ump.ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA
 import com.smile.colorballs_main.tools.LogUtil
@@ -46,8 +45,8 @@ import com.smile.colorballs_main.views.CbComposable
 import com.smile.smilelibraries.utilities.UmpUtil
 import com.smile.colorballs_main.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs_main.views.ui.theme.Yellow3
+import com.smile.smilelibraries.utilities.AppLinkUtil
 import com.smile.smilelibraries.utilities.ScreenUtil
-import dropcolorballs.views.DropCBallsActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -232,25 +231,13 @@ class MainCBallActivity : ComponentActivity() {
     }
 
     private fun startBallsRemoverActivity() {
-        Intent(
-            this@MainCBallActivity,
-            BallsRemoverActivity::class.java
-        ).also {
-            disableMainButtons()
-            loadingMessage.value = getString(R.string.loadingStr)
-            ballsRemoverLauncher.launch(it)
-        }
+        AppLinkUtil.startAppLinkOnStore(this@MainCBallActivity,
+            AppLinkUtil.BALLS_REMOVER_LINK)
     }
 
     private fun startDropCBallsActivity() {
-        Intent(
-            this@MainCBallActivity,
-            DropCBallsActivity::class.java
-        ).also {
-            disableMainButtons()
-            loadingMessage.value = getString(R.string.loadingStr)
-            dropCBallsLauncher.launch(it)
-        }
+        AppLinkUtil.startAppLinkOnStore(this@MainCBallActivity,
+            AppLinkUtil.DROP_COLOR_BALLS_LINK)
     }
 
     @Composable
