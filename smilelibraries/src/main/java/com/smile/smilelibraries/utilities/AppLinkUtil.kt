@@ -16,6 +16,7 @@ object AppLinkUtil {
     const val KARAOKE_LINK = "https://play.google.com/store/apps/details?id=com.smile.karaokeplayer"
     const val VIDEO_LINK = "https://play.google.com/store/apps/details?id=com.smile.videoplayer"
     const val KARAOKE_TV_LINK = "https://play.google.com/store/apps/details?id=com.smile.karaoketvplayer"
+    const val YOUTUBE_LINK = "https://play.google.com/store/apps/details?id=com.smile.youtubeplayer"
     const val COLOR_BALLS_LINK = "https://play.google.com/store/apps/details?id=com.smile.colorballs"
     const val DROP_COLOR_BALLS_LINK = "https://play.google.com/store/apps/details?id=com.smile.dropcolorballs"
     const val BALLS_REMOVER_LINK = "https://play.google.com/store/apps/details?id=com.smile.ballsremover"
@@ -30,6 +31,8 @@ object AppLinkUtil {
             R.drawable.video_app_icon, VIDEO_LINK))
         appList.add(AndroidApp(activity.getString(R.string.karaoke_tv_app_name),
             R.drawable.karaoke_tv_app_icon, KARAOKE_TV_LINK))
+        appList.add(AndroidApp(activity.getString(R.string.youtube_app_name),
+            R.drawable.youtube_app_icon, YOUTUBE_LINK))
         appList.add(AndroidApp(activity.getString(R.string.color_balls_name),
             R.drawable.color_balls_app_icon, COLOR_BALLS_LINK))
         appList.add(AndroidApp(activity.getString(R.string.drop_cballs_name),
