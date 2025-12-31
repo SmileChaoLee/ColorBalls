@@ -155,6 +155,7 @@ abstract class BaseView: ComponentActivity(),
 
     private var touchDisabled = true
 
+    @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         // disabling the touch events
         touchDisabled = true
@@ -171,6 +172,7 @@ abstract class BaseView: ComponentActivity(),
         super.onCreate(savedInstanceState)
 
         if (!BuildConfig.DEBUG) {
+            /*
             val deviceType = ScreenUtil.getDeviceType(this@BaseView)
             requestedOrientation = if (deviceType == ScreenUtil.DEVICE_TYPE_PHONE) {
                 // phone then change orientation to Portrait
@@ -179,6 +181,8 @@ abstract class BaseView: ComponentActivity(),
                 // Table then change orientation to Landscape
                 ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             }
+            */
+            this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
 
         LogUtil.d(TAG, "$TAG.onCreate.interstitialAd")
