@@ -16,12 +16,12 @@ object AppLinkUtil {
     const val KARAOKE_LINK = "https://play.google.com/store/apps/details?id=com.smile.karaokeplayer"
     const val VIDEO_LINK = "https://play.google.com/store/apps/details?id=com.smile.videoplayer"
     const val KARAOKE_TV_LINK = "https://play.google.com/store/apps/details?id=com.smile.karaoketvplayer"
-    const val YOUTUBE_LINK = "https://play.google.com/store/apps/details?id=com.smile.youtubeplayer"
+    const val U2B_PLAYER_LINK = "https://play.google.com/store/apps/details?id=com.smile.u2bplayer"
+    const val U2B_KARAOKE_LINK = "https://play.google.com/store/apps/details?id=com.smile.u2bkaraoke"
     const val COLOR_BALLS_LINK = "https://play.google.com/store/apps/details?id=com.smile.colorballs"
     const val DROP_COLOR_BALLS_LINK = "https://play.google.com/store/apps/details?id=com.smile.dropcolorballs"
     const val BALLS_REMOVER_LINK = "https://play.google.com/store/apps/details?id=com.smile.ballsremover"
     const val BOUNCY_BALL_LINK = "https://play.google.com/store/apps/details?id=com.smile.bouncyball"
-    const val FIVE_COLOR_BALLS_LINK = "https://play.google.com/store/apps/details?id=com.smile.fivecolorballs"
 
     fun getAppList(activity: Activity): List<AndroidApp> {
         val appList = ArrayList<AndroidApp>()
@@ -31,8 +31,10 @@ object AppLinkUtil {
             R.drawable.video_app_icon, VIDEO_LINK))
         appList.add(AndroidApp(activity.getString(R.string.karaoke_tv_app_name),
             R.drawable.karaoke_tv_app_icon, KARAOKE_TV_LINK))
-        appList.add(AndroidApp(activity.getString(R.string.youtube_app_name),
-            R.drawable.youtube_app_icon, YOUTUBE_LINK))
+        appList.add(AndroidApp(activity.getString(R.string.u2bplayer_app_name),
+            R.drawable.u2bplayer_app_icon, U2B_PLAYER_LINK))
+        appList.add(AndroidApp(activity.getString(R.string.u2bkaraoke_app_name),
+            R.drawable.u2bkaraoke_app_icon, U2B_KARAOKE_LINK))
         appList.add(AndroidApp(activity.getString(R.string.color_balls_name),
             R.drawable.color_balls_app_icon, COLOR_BALLS_LINK))
         appList.add(AndroidApp(activity.getString(R.string.drop_cballs_name),
@@ -41,8 +43,6 @@ object AppLinkUtil {
             R.drawable.balls_remover_app_icon, BALLS_REMOVER_LINK))
         appList.add(AndroidApp(activity.getString(R.string.bouncy_ball_name),
             R.drawable.bouncy_ball_app_icon, BOUNCY_BALL_LINK))
-        appList.add(AndroidApp(activity.getString(R.string.five_color_balls_name),
-            R.drawable.five_color_balls_app, FIVE_COLOR_BALLS_LINK))
 
         return appList
     }

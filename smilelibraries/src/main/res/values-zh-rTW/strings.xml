@@ -10,10 +10,10 @@
     <string name="karaoke_app_name">微笑卡拉OK</string>
     <string name="video_app_name">微笑視頻播放器</string>
     <string name="karaoke_tv_app_name">微笑電視卡拉OK</string>
-    <string name="youtube_app_name">優2B播放程式</string>
+    <string name="u2bplayer_app_name">優2B播放程式</string>
+    <string name="u2bkaraoke_app_name">優2B咔拉OK</string>
     <string name="color_balls_name">色球</string>
     <string name="drop_cballs_name">下墜色球</string>
     <string name="balls_remover_name">色球移除</string>
     <string name="bouncy_ball_name">彈跳球</string>
-    <string name="five_color_balls_name">五色球</string>
 </resources>

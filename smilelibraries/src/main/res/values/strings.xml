@@ -10,10 +10,10 @@
     <string name="karaoke_app_name">Smile Karaoke</string>
     <string name="video_app_name">Smile VideoPlayer</string>
     <string name="karaoke_tv_app_name">Smile TV Karaoke</string>
-    <string name="youtube_app_name">U2B Player</string>
+    <string name="u2bplayer_app_name">U2B VPlayer</string>
+    <string name="u2bkaraoke_app_name">U2B Karaoke</string>
     <string name="color_balls_name">Color balls</string>
     <string name="drop_cballs_name">Dropping Balls</string>
     <string name="balls_remover_name">BallsRemover</string>
     <string name="bouncy_ball_name">BouncyBall</string>
-    <string name="five_color_balls_name">5 Color Balls</string>
 </resources>
