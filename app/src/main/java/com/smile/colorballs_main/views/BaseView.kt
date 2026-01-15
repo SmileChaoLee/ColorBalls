@@ -776,7 +776,7 @@ abstract class BaseView: ComponentActivity(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top) {
             mBaseApp?.let {
-                CbComposable.ShowAdmobBanner(modifier = Modifier.weight(1.0f),
+                CbComposable.ShowAdmobBanner(modifier = Modifier.padding(top = 20.dp),
                     it.getBannerID(), adWidth)
                 // no more 2 banner ads on portrait
                 /*
@@ -875,7 +875,6 @@ abstract class BaseView: ComponentActivity(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
             ShowNativeAd(modifier = Modifier.weight(8.0f))
-            // no more banner ads on landscape
             mBaseApp?.let {
                 CbComposable.ShowAdmobBanner(
                     modifier = Modifier.weight(2.0f),
