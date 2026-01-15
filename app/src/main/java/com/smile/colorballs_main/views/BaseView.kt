@@ -8,7 +8,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Point
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.os.Bundle
 import android.view.MotionEvent
 import android.widget.Toast
@@ -26,14 +25,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.requiredWidth
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -41,7 +38,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -237,7 +233,7 @@ abstract class BaseView: ComponentActivity(),
         LogUtil.i(TAG, "$TAG.onCreate.gameGridWeight = $gameGridWeight")
         LogUtil.i(TAG, "$TAG.onCreate.adWeight = $adWeight")
 
-        // enableEdgeToEdge()
+        // enable edge to edge
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             CreateMainUI()
@@ -260,14 +256,14 @@ abstract class BaseView: ComponentActivity(),
     @Composable
     fun CreateMainUI() {
         ColorBallsTheme {
-            Scaffold {innerPadding ->
+            // Scaffold {innerPadding ->
                 Box(Modifier.fillMaxSize()
-                    .padding(innerPadding)
+                    // .padding(innerPadding)
                     .background(color = colorYellow3)) {
                     if (mOrientation.intValue ==
                         Configuration.ORIENTATION_PORTRAIT) {
                         Column(modifier = Modifier.fillMaxSize()) {
-                            GameView(Modifier.weight(gameGridWeight))
+                            GameView(Modifier.weight(menuBarWeight + gameGridWeight))
                             SHowPortraitAds(Modifier.fillMaxWidth()
                                 .weight(adWeight))
                         }
@@ -284,7 +280,7 @@ abstract class BaseView: ComponentActivity(),
                         SaveScoreDialog()
                     }
                 }
-            }
+            // }
         }
 
         onBackPressedDispatcher.addCallback(object
@@ -490,61 +486,77 @@ abstract class BaseView: ComponentActivity(),
         // baseViewModel.isProcessingJob = false
     }
 
+    /**
+     * This function works under enableEdgeToEdge() or
+     * WindowCompat.setDecorFitsSystemWindows(window, false)
+     * and no Scaffold {innerPadding ->}
+     */
     @SuppressLint("ConfigurationScreenWidthHeight")
     @Composable
-    fun getContentHeightOld(): Point {
+    fun getContentHeight(): Point {
+        val logStr = "getContentHeight"
         val density = LocalDensity.current
-        LogUtil.d(TAG, "getContentHeight.density = ${density.density}")
-        // Get the height of the top status bar
-        val statusBarHeight = WindowInsets.safeDrawing.getTop(density)
-        LogUtil.d(TAG, "getContentHeight.statusBarHeight = $statusBarHeight")
+        LogUtil.d(TAG, "$logStr.density = ${density.density}")
+        val statusBarHeight = ScreenUtil.getStatusBarHeight(this@BaseView)
+        LogUtil.d(TAG, "$logStr.statusBarHeight = $statusBarHeight")
+        val navigationBarHeight = ScreenUtil.getNavigationBarHeight(this@BaseView)
+        LogUtil.d(TAG, "$logStr.navigationBarHeight = $navigationBarHeight")
+        /* do not use WindowInsets.safeDrawing because it triggers recomposition
+        // Get the height of the top status bar,
+        // val statusBarHeight = WindowInsets.safeDrawing.getTop(density)  // triggers recomposition
+        // LogUtil.d(TAG, "$logStr.statusBarHeight = $statusBarHeight")
         // Get the height of the bottom navigation bar
-        val navigationBarHeight = WindowInsets.safeDrawing.getBottom(density)
-        LogUtil.d(TAG, "getContentHeight.navigationBarHeight = $navigationBarHeight")
+        // val navigationBarHeight = WindowInsets.safeDrawing.getBottom(density)   // triggers recomposition
+        // LogUtil.d(TAG, "$logStr.navigationBarHeight = $navigationBarHeight")
         // Get the total screen height
+        */
         val screenWidth = LocalConfiguration.current.screenWidthDp
-        LogUtil.d(TAG, "getContentHeight.screenWidth = $screenWidth")
+        LogUtil.d(TAG, "$logStr.screenWidth = $screenWidth")
         var screenHeight = LocalConfiguration.current.screenHeightDp
+        LogUtil.d(TAG, "$logStr.screenHeight = $screenHeight")
         // Calculate the available content height
         // WindowCompat.setDecorFitsSystemWindows(window, false)
         // and     Scaffold {innerPadding ->
         // removes the navigationBarHeight
-        screenHeight -= statusBarHeight // - navigationBarHeight
-        LogUtil.d(TAG, "getContentHeight.screenHeight = $screenHeight")
+        // screenHeight = screenHeight - statusBarHeight - navigationBarHeight
+        // screenHeight = screenHeight - navigationBarHeight
+        LogUtil.d(TAG, "$logStr.screenHeight = $screenHeight")
         return Point(screenWidth, screenHeight)
     }
 
-    fun getContentHeight(): Point {
-        val statusBarHeight = ScreenUtil.getStatusBarHeight(this@BaseView)
-        LogUtil.d(TAG, "getContentHeight.statusBarHeight = $statusBarHeight")
-        val navigationBarHeight = ScreenUtil.getNavigationBarHeight(this@BaseView)
-        LogUtil.d(TAG, "getContentHeight.navigationBarHeight = $navigationBarHeight")
-
+    fun getContentHeightNew(): Point {
+        val logStr = "getContentHeight"
         val density = ScreenUtil.getDensity()
-        LogUtil.d(TAG, "getContentHeight.density = $density")
+        LogUtil.d(TAG, "$logStr.density = $density")
 
+        val statusBarHeight = ScreenUtil.getStatusBarHeight(this@BaseView)
+        LogUtil.d(TAG, "$logStr.statusBarHeight = $statusBarHeight")
+        val navigationBarHeight = ScreenUtil.getNavigationBarHeight(this@BaseView)
+        LogUtil.d(TAG, "$logStr.navigationBarHeight = $navigationBarHeight")
+
+        /*
         val screen = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             // >= API 35
             ScreenUtil.getScreenSizeWithNavigationBar(this@BaseView)
         } else {
             ScreenUtil.getScreenSize(this@BaseView)
         }
+        */
 
-        LogUtil.d(TAG, "getContentHeight.screen.x = ${screen.x}")
+        val screen = ScreenUtil.getScreenSizeWithNavigationBar(this@BaseView)
+        LogUtil.d(TAG, "$logStr.screen.x = ${screen.x}")
+        LogUtil.d(TAG, "$logStr.screen.y = ${screen.y}")
         val screenWidth = ScreenUtil.pixelToDp(screen.x.toFloat()).toInt()
-        LogUtil.d(TAG, "getContentHeight.screenWidth = $screenWidth")
-
-        LogUtil.d(TAG, "getContentHeight.screen.y = ${screen.y}")
-        // screen.y += navigationBarHeight // add navigationBarHeight back to height
+        LogUtil.d(TAG, "$logStr.screenWidth = $screenWidth")
         var screenHeight = ScreenUtil.pixelToDp(screen.y.toFloat()).toInt()
-        LogUtil.d(TAG, "getContentHeight.screenHeight = $screenHeight")
+        LogUtil.d(TAG, "$logStr.screenHeight = $screenHeight")
         // screenHeight -= navigationBarHeight
         // Calculate the available content height
         // WindowCompat.setDecorFitsSystemWindows(window, false)
         // and     Scaffold {innerPadding ->
         // removes the navigationBarHeight
-        screenHeight -= statusBarHeight // - navigationBarHeight
-        LogUtil.d(TAG, "getContentHeight.screenHeight = $screenHeight")
+        // screenHeight -= statusBarHeight // - navigationBarHeight
+        LogUtil.d(TAG, "$logStr.screenHeight = $screenHeight")
 
         return Point(screenWidth, screenHeight)
     }
@@ -556,6 +568,7 @@ abstract class BaseView: ComponentActivity(),
         LogUtil.i(TAG, "GameView.mOrientation.intValue = ${mOrientation.intValue}")
 
         screenSize = getContentHeight()
+        // screenSize = getContentHeight()
         LogUtil.d(TAG, "GameView.screenSize.x = ${screenSize.x}")
         LogUtil.d(TAG, "GameView.screenSize.y = ${screenSize.y}")
 
@@ -566,7 +579,6 @@ abstract class BaseView: ComponentActivity(),
         }
         maxWidth = (maxWidth * gameWidthRation)
         val gridHeight = screenSize.y * gameGridWeight / 10.0f
-        // val gridHeight = 741f * gameGridWeight / 10.0f
         LogUtil.d(TAG, "GameView.gridHeight = $gridHeight")
         val heightPerBall = gridHeight / baseViewModel.rowCounts
         LogUtil.d(TAG, "GameView.heightPerBall = $heightPerBall")
@@ -584,12 +596,20 @@ abstract class BaseView: ComponentActivity(),
         bitmapDrawableResources(sizePx)
 
         val topPadding = 0f
-        val gHeightWeight = if (menuBarWeight>0) gameGridWeight else 1.0f
+        var bHeightWeight: Float
+        var gHeightWeight: Float
+        if (menuBarWeight>0) {
+            bHeightWeight = menuBarWeight / (menuBarWeight + gameGridWeight) * 10.0f
+            gHeightWeight = gameGridWeight / (menuBarWeight + gameGridWeight) * 10.0f
+        } else {
+            bHeightWeight = 0.0f
+            gHeightWeight = 1.0f
+        }
         Column(modifier = modifier.fillMaxHeight()) {
-            if (menuBarWeight > 0.0f) {
+            if (bHeightWeight > 0.0f) {
                 ToolBarMenu(
                     modifier = Modifier
-                        .weight(menuBarWeight)
+                        .weight(bHeightWeight)
                         .padding(top = topPadding.dp, start = 0.dp)
                 )
             }
@@ -749,18 +769,20 @@ abstract class BaseView: ComponentActivity(),
                 " = ${mOrientation.intValue}")
 
         val adWidth = with(LocalDensity.current) {
-            LocalWindowInfo.current.containerSize.width
-                .toDp().value.toInt()
+            (LocalWindowInfo.current.containerSize.width
+                .toDp().value*0.98f).toInt()
         }
-
         Column(modifier = modifier.fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top) {
             mBaseApp?.let {
-                CbComposable.ShowAdmobNormalBanner(modifier = Modifier.weight(1.0f),
-                    it.getBannerID())
-                CbComposable.ShowAdmobAdaptiveBanner(modifier = Modifier.weight(1.0f),
+                CbComposable.ShowAdmobBanner(modifier = Modifier.weight(1.0f),
+                    it.getBannerID(), adWidth)
+                // no more 2 banner ads on portrait
+                /*
+                CbComposable.ShowAdmobBanner(modifier = Modifier.weight(1.0f),
                     it.getBannerID2(), adWidth)
+                */
             }
         }
     }
@@ -853,10 +875,11 @@ abstract class BaseView: ComponentActivity(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
             ShowNativeAd(modifier = Modifier.weight(8.0f))
+            // no more banner ads on landscape
             mBaseApp?.let {
-                CbComposable.ShowAdmobAdaptiveBanner(
+                CbComposable.ShowAdmobBanner(
                     modifier = Modifier.weight(2.0f),
-                    it.getBannerID2(), 0)
+                    it.getBannerID())
             }
         }
     }

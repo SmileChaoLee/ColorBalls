@@ -612,19 +612,6 @@ object CbComposable {
     }
 
     @Composable
-    fun ShowAdmobNormalBanner(modifier: Modifier = Modifier, bannerID: String) {
-        LogUtil.d(TAG, "ShowAdmobNormalBanner.bannerID = $bannerID")
-        ShowAdmobBanner(modifier = modifier, bannerID = bannerID)
-    }
-
-    @Composable
-    fun ShowAdmobAdaptiveBanner(modifier: Modifier = Modifier,
-                                bannerID2: String, width: Int) {
-        LogUtil.d(TAG, "ShowAdmobAdaptiveBanner.bannerID2 = $bannerID2")
-        ShowAdmobBanner(modifier = modifier, bannerID = bannerID2, width = width)
-    }
-
-    @Composable
     fun MyNativeAdView(
         modifier: Modifier = Modifier,
         ad: NativeAd,
