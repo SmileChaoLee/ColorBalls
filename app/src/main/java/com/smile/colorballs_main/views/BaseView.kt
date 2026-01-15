@@ -525,7 +525,7 @@ abstract class BaseView: ComponentActivity(),
     }
 
     fun getContentHeightNew(): Point {
-        val logStr = "getContentHeight"
+        val logStr = "getContentHeightNew"
         val density = ScreenUtil.getDensity()
         LogUtil.d(TAG, "$logStr.density = $density")
 
@@ -543,7 +543,7 @@ abstract class BaseView: ComponentActivity(),
         }
         */
 
-        val screen = ScreenUtil.getScreenSizeWithNavigationBar(this@BaseView)
+        val screen = ScreenUtil.getScreenSize(this@BaseView)
         LogUtil.d(TAG, "$logStr.screen.x = ${screen.x}")
         LogUtil.d(TAG, "$logStr.screen.y = ${screen.y}")
         val screenWidth = ScreenUtil.pixelToDp(screen.x.toFloat()).toInt()
@@ -568,7 +568,7 @@ abstract class BaseView: ComponentActivity(),
         LogUtil.i(TAG, "GameView.mOrientation.intValue = ${mOrientation.intValue}")
 
         screenSize = getContentHeight()
-        // screenSize = getContentHeight()
+        // screenSize = getContentHeightNew()
         LogUtil.d(TAG, "GameView.screenSize.x = ${screenSize.x}")
         LogUtil.d(TAG, "GameView.screenSize.y = ${screenSize.y}")
 

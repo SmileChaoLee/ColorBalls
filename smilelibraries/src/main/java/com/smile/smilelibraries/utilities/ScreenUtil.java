@@ -6,9 +6,11 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.Insets;
 import android.graphics.Point;
 import androidx.appcompat.widget.PopupMenu;
 
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -22,6 +24,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowInsets;
+import android.view.WindowMetrics;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,6 +58,7 @@ public final class ScreenUtil {
         if (resourceId > 0) {
             height = activity.getResources().getDimensionPixelSize(resourceId);
         }
+        Log.d(TAG, "getNavigationBarHeight.height = " + height);
         return height;
     }
 
@@ -71,6 +76,7 @@ public final class ScreenUtil {
         // exclude the height of Navigation Bar
         Point size = new Point();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            /*
             int top = activity.getWindowManager().getCurrentWindowMetrics().getBounds().top;
             int left = activity.getWindowManager().getCurrentWindowMetrics().getBounds().left;
             int bottom = activity.getWindowManager().getCurrentWindowMetrics().getBounds().bottom;
@@ -84,11 +90,26 @@ public final class ScreenUtil {
             } else {
                 size.y -= getNavigationBarHeight(activity);
             }
+            */
+            WindowMetrics windowMetrics = activity.getWindowManager().getCurrentWindowMetrics();
+            // Specifically request Status Bars AND Navigation Bars,
+            // WindowInsets windowInsets = windowMetrics.getWindowInsets();
+            Insets insets = windowMetrics.getWindowInsets().getInsetsIgnoringVisibility(
+                    WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars()
+            );
+
+            // Insets insets = windowMetrics.getWindowInsets().getInsets(WindowInsets.Type.systemBars());
+            // The bounds of the window minus the system bar insets
+            size.x = windowMetrics.getBounds().width() - insets.left - insets.right;
+            size.y = windowMetrics.getBounds().height() - insets.top - insets.bottom;
         } else {
+            /*
             // int size.x = activity.getResources().getSystem().getDisplayMetrics().widthPixels;
             size.x = Resources.getSystem().getDisplayMetrics().widthPixels;
             // size.y = activity.getResources().getSystem().getDisplayMetrics().heightPixels;
             size.y = Resources.getSystem().getDisplayMetrics().heightPixels;
+            */
+            activity.getWindowManager().getDefaultDisplay().getSize(size);
         }
 
         Log.d(TAG,"size.x = " + size.x);
