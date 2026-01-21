@@ -63,7 +63,6 @@ import androidx.compose.ui.unit.sp
 import com.smile.colorballs_main.BuildConfig
 import com.smile.colorballs_main.R
 import com.smile.colorballs_main.BaseApp
-import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
 import com.smile.smilelibraries.utilities.ScreenUtil
 import com.smile.smilelibraries.utilities.SoundPoolUtil
 import java.io.File
@@ -134,7 +133,7 @@ abstract class BaseView: ComponentActivity(),
     val colorBallMap: HashMap<Int, Bitmap> = HashMap()
     val colorOvalBallMap: HashMap<Int, Bitmap> = HashMap()
     val colorNextBallMap: HashMap<Int, Bitmap> = HashMap()
-    var interstitialAd: ShowInterstitial? = null
+    // var interstitialAd: ShowInterstitial? = null
 
     private var screenSize = Point()
     private var textFontSize = 0f
@@ -181,9 +180,11 @@ abstract class BaseView: ComponentActivity(),
             this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
 
+        /*
         LogUtil.d(TAG, "$TAG.onCreate.interstitialAd")
         interstitialAd = ShowInterstitial(this, null,
             mBaseApp?.getInterstitial())
+        */
 
         getCurrentPresenter()?.let {
             basePresenter = it
@@ -316,9 +317,7 @@ abstract class BaseView: ComponentActivity(),
             ScreenUtil.showToast(
                 this@BaseView,
                 getString(R.string.backKeyToExitApp),
-                toastFontSize,
-                ScreenUtil.FontSize_Pixel_Type,
-                Toast.LENGTH_SHORT
+                toastFontSize,Toast.LENGTH_SHORT
             )
         }
     }
@@ -360,13 +359,15 @@ abstract class BaseView: ComponentActivity(),
         super.onDestroy()
         LogUtil.i(TAG, "onDestroy")
         baseViewModel.release()
-        interstitialAd?.releaseInterstitial()
+        // interstitialAd?.releaseInterstitial()
     }
 
+    /*
     protected fun showInterstitialAd() {
         LogUtil.i(TAG, "showInterstitialAd = $interstitialAd")
         interstitialAd?.ShowAdThread()?.startShowAd(0) // AdMob first
     }
+    */
 
     protected fun bitmapDrawableResources(sizePx: Float) {
         LogUtil.i(TAG, "bitmapDrawableResources.sizePx = $sizePx")
@@ -455,7 +456,7 @@ abstract class BaseView: ComponentActivity(),
     }
 
     private fun finishThisActivity() {
-        LogUtil.i(TAG, "finishThisActivity = $interstitialAd")
+        LogUtil.i(TAG, "finishThisActivity")
         finish()
     }
 
@@ -653,7 +654,7 @@ abstract class BaseView: ComponentActivity(),
                             getString(R.string.failedSaveGameStr)
                         }
                     ScreenUtil.showToast(this@BaseView, msg, textFontSize,
-                        ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
+                        Toast.LENGTH_LONG)
                     baseViewModel.setSaveGameText("")
                     baseViewModel.setShowingSureSaveDialog(false)
                     // showInterstitialAd()
@@ -684,7 +685,7 @@ abstract class BaseView: ComponentActivity(),
                         getString(R.string.failedLoadGameStr)
                     }
                     ScreenUtil.showToast(this@BaseView, msg, textFontSize,
-                        ScreenUtil.FontSize_Pixel_Type, Toast.LENGTH_LONG)
+                        Toast.LENGTH_LONG)
                     baseViewModel.setLoadGameText("")
                     baseViewModel.setShowingSureLoadDialog(false)
                     // showInterstitialAd()
@@ -776,13 +777,10 @@ abstract class BaseView: ComponentActivity(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top) {
             mBaseApp?.let {
-                CbComposable.ShowAdmobBanner(modifier = Modifier.padding(top = 20.dp),
+                CbComposable.ShowAdmobBanner(modifier = Modifier.padding(top = 0.dp),
                     it.getBannerID(), adWidth)
-                // no more 2 banner ads on portrait
-                /*
-                CbComposable.ShowAdmobBanner(modifier = Modifier.weight(1.0f),
+                CbComposable.ShowAdmobBanner(modifier = Modifier.padding(top = 0.dp),
                     it.getBannerID2(), adWidth)
-                */
             }
         }
     }

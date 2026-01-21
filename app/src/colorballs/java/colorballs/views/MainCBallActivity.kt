@@ -40,11 +40,13 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import com.smile.colorballs_main.R
 import com.google.android.ump.ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA
+import com.smile.colorballs_main.BaseApp
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.views.CbComposable
 import com.smile.smilelibraries.utilities.UmpUtil
 import com.smile.colorballs_main.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs_main.views.ui.theme.Yellow3
+import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
 import com.smile.smilelibraries.utilities.AppLinkUtil
 import com.smile.smilelibraries.utilities.ScreenUtil
 import kotlinx.coroutines.CoroutineScope
@@ -80,6 +82,7 @@ class MainCBallActivity : ComponentActivity() {
     private var isBallsRemEnabled by mutableStateOf(true)
     private var isDropCBallsEnabled by mutableStateOf(true)
     private var isSmileAppsEnabled by mutableStateOf(true)
+    private var interstitialAd: ShowInterstitial? = null
 
     @SuppressLint("ConfigurationScreenWidthHeight",
         "SourceLockedOrientationActivity")
@@ -90,6 +93,11 @@ class MainCBallActivity : ComponentActivity() {
         CbComposable.toastFontSize = ScreenUtil.pixelToDp(toastTextSize).sp
         screenSize = ScreenUtil.getScreenSize(this@MainCBallActivity)
 
+        LogUtil.d(TAG, "$.onCreate.interstitialAd")
+        val mBaseApp = application as? BaseApp
+        interstitialAd = ShowInterstitial(this, null,
+            mBaseApp?.getInterstitial())
+
         super.onCreate(savedInstanceState)
 
         cBallLauncher = registerForActivityResult(
@@ -97,6 +105,7 @@ class MainCBallActivity : ComponentActivity() {
                 result: ActivityResult ->
             LogUtil.i(TAG, "cBallLauncher.result = $result")
             loadingMessage.value = ""
+            showInterstitialAd()
             enableMainButtons()
         }
 
@@ -105,6 +114,7 @@ class MainCBallActivity : ComponentActivity() {
                 result: ActivityResult ->
             LogUtil.i(TAG, "barrierCBLauncher.result = $result")
             loadingMessage.value = ""
+            showInterstitialAd()
             enableMainButtons()
         }
 
@@ -190,6 +200,11 @@ class MainCBallActivity : ComponentActivity() {
         isBallsRemEnabled = false
         isDropCBallsEnabled = false
         isSmileAppsEnabled = false
+    }
+
+    private fun showInterstitialAd() {
+        LogUtil.i(TAG, "showInterstitialAd = $interstitialAd")
+        interstitialAd?.ShowAdThread()?.startShowAd(0) // AdMob first
     }
 
     private fun dataConsentRequest() {
@@ -473,5 +488,6 @@ class MainCBallActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         LogUtil.i(TAG, "onDestroy")
+        interstitialAd?.releaseInterstitial()
     }
 }
