@@ -58,6 +58,12 @@ android {
             versionName "1.04"
             applicationId = "com.smile.dropcolorballs"
         }
+        create("fivecolorballs") {
+            dimension = "product"
+            versionCode 4000
+            versionName "4.000"
+            applicationId = "com.smile.fivecolorballs"
+        }
     }
 
     sourceSets {
@@ -90,6 +96,14 @@ android {
             res.srcDirs += ["src/dropcolorballs/res"]
             manifest {
                 srcFile "src/dropcolorballs/AndroidManifest.xml"
+            }
+        }
+
+        fivecolorballs {
+            java.srcDirs += ["src/fivecolorballs/java"]
+            res.srcDirs += ["src/fivecolorballs/res"]
+            manifest {
+                srcFile "src/fivecolorballs/AndroidManifest.xml"
             }
         }
     }

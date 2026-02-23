@@ -501,6 +501,14 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
         if (linkedLine == null) {
             return 0
         }
+
+        // 5 balls --> 5
+        // 6 balls --> 5 + (6-5)*2
+        // 7 balls --> 5 + (6-5)*2 + (7-5)*2
+        // 8 balls --> 5 + (6-5)*2 + (7-5)*2 + (8-5)*2
+        // n balls --> 5 + (6-5)*2 + (7-5)*2 + ... + (n-5)*2
+
+        /*
         val numBalls = intArrayOf(0, 0, 0, 0, 0, 0)
         for (point in linkedLine) {
             when (cbGridData.getCellValue(point.x, point.y)) {
@@ -513,11 +521,6 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
                 else -> {}
             }
         }
-        // 5 balls --> 5
-        // 6 balls --> 5 + (6-5)*2
-        // 7 balls --> 5 + (6-5)*2 + (7-5)*2
-        // 8 balls --> 5 + (6-5)*2 + (7-5)*2 + (8-5)*2
-        // n balls --> 5 + (6-5)*2 + (7-5)*2 + ... + (n-5)*2
         val minScore = 5
         var totalScore = 0
         for (numBall in numBalls) {
@@ -539,8 +542,27 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
             // difficult level
             totalScore *= 2 // double of easy level
         }
-
         return totalScore
+        */
+
+        int numBalls = linkedLine.size
+        int minBalls = 5;
+        int score = 5;
+        int extraBalls = numBalls - minBalls;
+        if (extraBalls > 0) {
+            // greater than 5 balls
+            int rate  = 2;
+            for (int i=1 ; i<=extraBalls ; i++) {
+                // rate = 2;   // added on 2018-10-02
+                score += i * rate ;
+            }
+        }
+        if (getGameLevel() != Constants.GAME_LEVEL_1) {
+            // difficult level
+            score *= 2 // double of easy level
+        }
+
+        return score;
     }
 
     private fun drawBouncyBall(i: Int, j: Int) {

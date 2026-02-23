@@ -4,16 +4,16 @@
 
     <application
         tools:replace="android:icon"
-        android:name="fivecolorballs.FiveCBallsApp"
-        android:icon="@drawable/dropcolorballs_app_icon"
-        android:label="@string/five_cballs_name">
+        android:name="com.smile.fivecolorballs.FiveCBallsApp"
+        android:icon="@drawable/fivecolorballs_app_icon"
+        android:label="@string/fivecolorballs_app_name">
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-8354869049759576~8647116443" />
 
         <activity
-            android:name="fivecolorballs.views.FiveCBallsActivity"
+            android:name="com.smile.fivecolorballs.MyActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,6 +22,22 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name="com.smile.fivecolorballs.SettingActivity"
+            android:label="@string/settingStr"
+            android:theme="@style/AppThemeTransparent" >
+        </activity>
+
+        <service
+            android:name="com.smile.colorballs_main.services.LocalTop10Service"
+            android:enabled="true"
+            android:exported="false">
+        </service>
+        <service
+            android:name="com.smile.colorballs_main.services.GlobalTop10Service"
+            android:enabled="true"
+            android:exported="false">
+        </service>
     </application>
 
 </manifest>
