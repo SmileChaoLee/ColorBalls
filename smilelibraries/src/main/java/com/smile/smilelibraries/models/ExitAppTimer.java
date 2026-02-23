@@ -16,12 +16,9 @@ public class ExitAppTimer { // Singleton class
         this.timePeriod = timePeriod;
         numOfBackPressTouched = 0;
         timerHandler = new Handler(Looper.getMainLooper());
-        timerRunnable = new Runnable() {
-            @Override
-            public void run() {
-                numOfBackPressTouched = 0;
-                timerHandler.removeCallbacksAndMessages(null);
-            }
+        timerRunnable = () -> {
+            numOfBackPressTouched = 0;
+            timerHandler.removeCallbacksAndMessages(null);
         };
     }
 
@@ -39,6 +36,6 @@ public class ExitAppTimer { // Singleton class
     }
 
     public boolean canExit() {
-        return (numOfBackPressTouched > 0) ? true : false;
+        return numOfBackPressTouched > 0;
     }
 }

@@ -4,7 +4,7 @@
 
     <application
         tools:replace="android:icon"
-        android:name="colorballs.ColorBallsApp"
+        android:name="com.smile.colorballs.ColorBallsApp"
         android:icon="@drawable/color_balls_app_icon"
         android:label="@string/color_balls_name">
 
@@ -13,7 +13,7 @@
             android:value="ca-app-pub-8354869049759576~1891379677" />
 
         <activity
-            android:name="colorballs.views.MainCBallActivity"
+            android:name="com.smile.colorballs.views.MainCBallActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,12 +23,12 @@
         </activity>
 
         <activity
-            android:name="colorballs.views.ColorBallActivity"
+            android:name="com.smile.colorballs.views.ColorBallActivity"
             android:exported="false">
         </activity>
 
         <activity
-            android:name="colorballs.views.BarrierCBallActivity"
+            android:name="com.smile.colorballs.views.BarrierCBallActivity"
             android:exported="false">
         </activity>
 

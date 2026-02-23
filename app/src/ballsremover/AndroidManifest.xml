@@ -4,7 +4,7 @@
 
     <application
         tools:replace="android:icon"
-        android:name="ballsremover.BallsRemApp"
+        android:name="com.smile.ballsremover.BallsRemApp"
         android:icon="@drawable/balls_remover_app_icon"
         android:label="@string/balls_remover_name">
 
@@ -13,7 +13,7 @@
             android:value="ca-app-pub-8354869049759576~1441776815" />
 
         <activity
-            android:name="ballsremover.views.BallsRemoverActivity"
+            android:name="com.smile.ballsremover.views.BallsRemoverActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

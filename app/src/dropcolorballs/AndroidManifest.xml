@@ -4,7 +4,7 @@
 
     <application
         tools:replace="android:icon"
-        android:name="dropcolorballs.DropCBallsApp"
+        android:name="com.smile.dropcolorballs.DropCBallsApp"
         android:icon="@drawable/dropcolorballs_app_icon"
         android:label="@string/drop_cballs_name">
 
@@ -13,7 +13,7 @@
             android:value="ca-app-pub-8354869049759576~8453149207" />
 
         <activity
-            android:name="dropcolorballs.views.DropCBallsActivity"
+            android:name="com.smile.dropcolorballs.views.DropCBallsActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

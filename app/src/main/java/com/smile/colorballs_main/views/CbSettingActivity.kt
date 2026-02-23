@@ -80,7 +80,7 @@ class CbSettingActivity : ComponentActivity() {
             var hasNextStr: String
             val gameLevel = ArrayList<Int>()
             val gameLevelStr = ArrayList<String>()
-            if (gameId == Constants.FIVE_COLOR_BALLS_ID) {
+            if (gameId == Constants.DROP_COLOR_BALLS_ID) {
                 hasNextStr = getString(R.string.emptyString)
                 // Only 2 level for now
                 gameLevel.add(Constants.GAME_LEVEL_1)

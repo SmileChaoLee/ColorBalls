@@ -116,7 +116,7 @@ abstract class BaseView: ComponentActivity(),
     abstract fun ifInterstitialWhenSaveScore()
     abstract fun ifInterstitialWhenNewGame()
     abstract fun ifCreatingNewGame(newGameLevel: Int, originalLevel: Int)
-    open fun isFiveBalls() = false
+    open fun isDropBalls() = false
     open fun actionOnClick() {}
     open fun stopActionOnClick() {}
     open fun setTheGameLevel(gameLevel: Int) = baseViewModel.setGameLevel(gameLevel)
@@ -202,12 +202,6 @@ abstract class BaseView: ComponentActivity(),
         mGameOptions = this as GameOptions
         mGameOptions.setWhichGame()
 
-        top10Launcher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()) {
-                result: ActivityResult ->
-            LogUtil.i(TAG, "top10Launcher.result = $result")
-        }
-
         settingLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
@@ -229,6 +223,13 @@ abstract class BaseView: ComponentActivity(),
                 }
             }
         }
+
+        top10Launcher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) {
+                result: ActivityResult ->
+            LogUtil.i(TAG, "top10Launcher.result = $result")
+        }
+
         adWeight = 10.0f - menuBarWeight - gameGridWeight
         LogUtil.i(TAG, "$TAG.onCreate.menuBarWeight = $menuBarWeight")
         LogUtil.i(TAG, "$TAG.onCreate.gameGridWeight = $gameGridWeight")
@@ -1034,7 +1035,7 @@ abstract class BaseView: ComponentActivity(),
                         showTop10Players(isLocal = true)
                     })
 
-                if (!isFiveBalls()) {
+                if (!isDropBalls()) {
                     val isSaveGameClicked = remember { mutableStateOf(false) }
                     CbComposable.DropdownMenuItem(
                         text = getString(R.string.saveGameStr),

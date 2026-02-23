@@ -7,7 +7,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import com.smile.colorballs_main.constants.Constants
-import colorballs.views.ColorBallActivity
+import com.smile.colorballs.views.ColorBallActivity
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Assert

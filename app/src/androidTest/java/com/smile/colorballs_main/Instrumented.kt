@@ -14,7 +14,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withHint
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import colorballs.views.ColorBallActivity
+import com.smile.colorballs.views.ColorBallActivity
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Assert
