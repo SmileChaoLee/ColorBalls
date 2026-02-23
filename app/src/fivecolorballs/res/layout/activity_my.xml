@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffe8e56a"
+    android:fitsSystemWindows="true">
+
+    <include layout="@layout/toolbar_layout" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout_myActivity"
+        android:baselineAligned="false"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:weightSum="100">
+
+        <LinearLayout
+            android:id="@+id/gameViewLinearLayout"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="90"
+            android:weightSum="1">
+
+            <LinearLayout
+                android:id="@+id/gameViewLayout"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+                <include layout="@layout/layout_for_game_view" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- the banner ads showing area -->
+        <LinearLayout
+            android:id="@+id/linearlayout_for_ads_in_myActivity"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:layout_weight="10" >
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
