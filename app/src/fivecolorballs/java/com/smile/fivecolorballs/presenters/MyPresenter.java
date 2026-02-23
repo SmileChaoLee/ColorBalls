@@ -73,6 +73,10 @@ public class MyPresenter {
         void showGameOverDialog();
     }
 
+    interface ShowScoreCallback {
+        void sCallback();
+    }
+
     public MyPresenter(MyPresentView presentView) {
         mPresentView = presentView;
         mSoundPool = mPresentView.soundPool();
@@ -81,6 +85,21 @@ public class MyPresenter {
     // new added methods
     public boolean isProcessingJob() {
         return mGameProp.isProcessingJob();
+    }
+
+    public boolean isHasNext() {
+        return mGameProp.isHasNext();
+    }
+
+    public void setHasNext(boolean hasNext) {
+        mGameProp.setHasNext(hasNext);
+    }
+
+    public void setHasNext(boolean hasNext, boolean isNextBalls) {
+        setHasNext(hasNext);
+        if (isNextBalls) {
+            displayNextBallsView();
+        }
     }
 
     public void doDrawBallsAndCheckListener(View v) {
@@ -263,7 +282,7 @@ public class MyPresenter {
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("PlayerName", playerName);
                     jsonObject.put("Score", score);
-                    jsonObject.put("GameId", FiveBallsConstants.FIVE_COLOR_BALLS_ID);
+                    jsonObject.put("GameId", Constants.FIVE_COLOR_BALLS_ID);
                     PlayerRecordRest.addOneRecord(jsonObject);
                 } catch (Exception ex) {
                     LogUtil.e(TAG, "saveScore.Exception: ", ex);
@@ -354,6 +373,12 @@ public class MyPresenter {
                     // no undo
                     foStream.write(0);
                 }
+                // if showing next balls
+                if (mGameProp.isHasNext()) {
+                    foStream.write(1);
+                } else {
+                    foStream.write(0);
+                }
                 // end of writing
                 foStream.close();
                 succeeded = true;
@@ -378,6 +403,7 @@ public class MyPresenter {
 
         boolean soundYn = mGameProp.isHasSound();
         boolean easyYn = mGameProp.isEasyLevel();
+        boolean nextYn = mGameProp.isHasNext();
         int ballNumOneTime;
         int[] nextBalls = new int[Constants.NUM_BALLS_USED_DIFF];
         int[][] gameCells = new int[mRowCounts][mColCounts];
@@ -435,7 +461,6 @@ public class MyPresenter {
                     // has undo data
                     Log.i(TAG, "startLoadingGame.Game has undo data");
                     undoYn = true;
-                    // undoNumOneTime = fiStream.read();
                     fiStream.read();
                     for (int i = 0; i < Constants.NUM_BALLS_USED_DIFF; i++) {
                         undoNextBalls[i] = fiStream.read();
@@ -455,6 +480,16 @@ public class MyPresenter {
                     Log.i(TAG, "startLoadingGame.Game does not has undo data");
                     undoYn = false;
                 }
+                bValue = fiStream.read();
+                if (bValue == 1) {
+                    // showing next balls
+                    Log.i(TAG, "startLoadingGame.Game has next balls");
+                    nextYn = true;
+                } else {
+                    // no showing next balls
+                    Log.i(TAG, "startLoadingGame.Game has no next balls");
+                    nextYn = false;
+                }
                 fiStream.close();
                 succeeded = true;
             }
@@ -468,6 +503,7 @@ public class MyPresenter {
             // refresh Main UI with loaded data
             setHasSound(soundYn);
             setIsEasyLevel(easyYn);
+            setHasNext(nextYn, false);
             mGridData.setNextBalls(nextBalls);
             mGridData.setCellValues(gameCells);
             mGameProp.setCurrentScore(cScore);
@@ -496,7 +532,74 @@ public class MyPresenter {
         mPresentView.showGameOverDialog();
     }
 
-    private int calculateScore(int numBalls) {
+    private int calculateScore(HashSet<Point> linkedLine) {
+        if (linkedLine == null) {
+            return 0;
+        }
+        // 5 balls --> 5
+        // 6 balls --> 5 + (6-5)*2
+        // 7 balls --> 5 + (6-5)*2 + (7-5)*2
+        // 8 balls --> 5 + (6-5)*2 + (7-5)*2 + (8-5)*2
+        // n balls --> 5 + (6-5)*2 + (7-5)*2 + ... + (n-5)*2
+        int[] numBalls = new int[] {0, 0, 0, 0, 0, 0};
+        for (Point point : linkedLine) {
+            switch (mGridData.getCellValue(point.x, point.y)) {
+                case Constants.COLOR_RED: {
+                    numBalls[0]++;
+                    break;
+                }
+                case Constants.COLOR_GREEN: {
+                    numBalls[1]++;
+                    break;
+                }
+                case Constants.COLOR_BLUE: {
+                    numBalls[2]++;
+                    break;
+                }
+                case Constants.COLOR_MAGENTA: {
+                    numBalls[3]++;
+                    break;
+                }
+                case Constants.COLOR_YELLOW: {
+                    numBalls[4]++;
+                    break;
+                }
+                case Constants.COLOR_CYAN: {
+                    numBalls[5]++;
+                    break;
+                }
+            }
+        }
+
+        return getTotalScore(numBalls);
+    }
+
+    private int getTotalScore(int[] numBalls) {
+        int minScore = 5;
+        int totalScore = 0;
+        for (int numBall : numBalls) {
+            if (numBall >= 5) {
+                int score = minScore;
+                int extraBalls = numBall - minScore;
+                if (extraBalls > 0) {
+                    // greater than 5 balls
+                    int rate = 2;
+                    for (int i=1; i<=extraBalls; i++) {
+                        // rate = 2;   // added on 2018-10-02
+                        score += i * rate;
+                    }
+                }
+                totalScore += score;
+            }
+        }
+        if (!mGameProp.isEasyLevel()) {
+            // difficult level
+            totalScore *= 2; // double of easy level
+        }
+        return totalScore;
+    }
+
+    private int calculateScore_old(int numBalls) {
         // 5 balls --> 5
         // 6 balls --> 5 + (6-5)*2
         // 7 balls --> 5 + (6-5)*2 + (7-5)*2
@@ -533,11 +636,15 @@ public class MyPresenter {
     private void displayNextBallsView() {
         // display the view of next balls
         ImageView imageView;
-        // int numOneTime = gridData.ballNumOneTime;
         int numOneTime = FiveBallsConstants.BALL_NUM_ONE_TIME;
         for (int i = 0; i < numOneTime; i++) {
             imageView = mPresentView.getImageViewById(nextBallsViewIdStart + i);
-            drawBall(imageView, mGridData.getNextBalls()[i]);
+            if (mGameProp.isHasNext()) {
+                drawBall(imageView, mGridData.getNextBalls()[i]);
+            } else {
+                // do not show next balls
+                imageView.setImageBitmap(null);
+            }
         }
     }
 
@@ -580,13 +687,17 @@ public class MyPresenter {
 
         if (hasMoreFive) {
             mGridData.setLight_line(linkedPoint);    // added on 2020-07-13
-            mGameProp.setLastGotScore(calculateScore(mGridData.getLight_line().size()));
+            // mGameProp.setLastGotScore(calculateScore(mGridData.getLight_line().size()));
+            mGameProp.setLastGotScore(calculateScore(mGridData.getLight_line()));
             mGameProp.setUndoScore(mGameProp.getCurrentScore());
             mGameProp.setCurrentScore(mGameProp.getCurrentScore() + mGameProp.getLastGotScore());
             mPresentView.updateCurrentScoreOnUi(mGameProp.getCurrentScore());
-            ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(mGameProp.getLastGotScore(), mGridData.getLight_line(), true);
-            mShowingScoreHandler.post(showScoreRunnable);
-            Log.d(TAG,"displayGridDataNextCells() --> showingScoreHandler.post(showScoreRunnable).");
+            ShowScore showScore = new ShowScore(mGameProp.getLastGotScore(),
+                    mGridData.getLight_line(), true,
+                    () -> mGameProp.setProcessingJob(false));
+            mGameProp.setProcessingJob(true);
+            mShowingScoreHandler.post(showScore);
+            Log.d(TAG,"displayGridDataNextCells.showingScoreHandler.post(showScoreRunnable).");
         } else {
             // check if game over
             boolean gameOverYn = mGridData.getGameOver();
@@ -633,9 +744,8 @@ public class MyPresenter {
         final int beginJ = mGridData.getPathPoint().get(sizeOfPathPoint-1).y;
         final int color = mGridData.getCellValue(beginI, beginJ);
 
-        mGameProp.getThreadCompleted()[0] = false;
         mGameProp.setBallMoving(true);
-
+        mGameProp.setProcessingJob(true);
         clearCell(beginI, beginJ);
 
         final List<Point> tempList = new ArrayList<>(mGridData.getPathPoint());
@@ -664,28 +774,32 @@ public class MyPresenter {
                     drawBall(v, color);
                     //  check if there are more than five balls with same color connected together
                     if (mGridData.check_moreThanFive(ii, jj)) {
-                        mGameProp.setLastGotScore(calculateScore(mGridData.getLight_line().size()));
+                        // mGameProp.setLastGotScore(calculateScore(mGridData.getLight_line().size()));
+                        mGameProp.setLastGotScore(calculateScore(mGridData.getLight_line()));
                         mGameProp.setUndoScore(mGameProp.getCurrentScore());
                         mGameProp.setCurrentScore(mGameProp.getCurrentScore() + mGameProp.getLastGotScore());
                         mPresentView.updateCurrentScoreOnUi(mGameProp.getCurrentScore());
-                        ShowScoreRunnable showScoreRunnable = new ShowScoreRunnable(mGameProp.getLastGotScore(),
-                                mGridData.getLight_line(), false);
-                        mShowingScoreHandler.post(showScoreRunnable);
+                        ShowScore showScore = new ShowScore(mGameProp.getLastGotScore(),
+                                mGridData.getLight_line(), false, () -> {
+                                    LogUtil.d(TAG, "drawBallAlongPath.ShowScoreCallback.sCallback");
+                                    mGameProp.setBallMoving(false);
+                                    mGameProp.setProcessingJob(false);
+                                    LogUtil.d(TAG,"drawBallAlongPath.run().finished.");
+                                });
+                        mShowingScoreHandler.post(showScore);
                         Log.d(TAG,"drawBallAlongPath.showingScoreHandler.post(showScoreRunnable).");
                     } else {
+                        LogUtil.d(TAG,"drawBallAlongPath.displayGridDataNextCells().");
                         displayGridDataNextCells();   // has a problem
-                        Log.d(TAG,"drawBallAlongPath.displayGridDataNextCells().");
+                        mGameProp.setBallMoving(false);
+                        mGameProp.setProcessingJob(false);
+                        LogUtil.d(TAG,"drawBallAlongPath.run().finished.");
                     }
-
-                    mGameProp.getThreadCompleted()[0] = true;
-                    mGameProp.setBallMoving(false);
-
-                    Log.d(TAG,"drawBallAlongPath() --> run() finished.");
                 }
             }
         };
         mMovingBallHandler.post(runnablePath);
-        Log.d(TAG,"drawBallAlongPath() --> ballMovingHandler.post()");
+        LogUtil.d(TAG,"drawBallAlongPath.ballMovingHandler.post()");
     }
 
     private void drawBouncyBall(final ImageView v, final int color) {
@@ -715,16 +829,19 @@ public class MyPresenter {
         SystemClock.sleep(20);
     }
 
-    private class ShowScoreRunnable implements Runnable {
+    private class ShowScore implements Runnable {
         private final int color;
         private final int lastGotScore;
         private HashSet<Point> hasPoint = null;
         private final boolean isNextBalls;
+        private final ShowScoreCallback callback;
         private int counter = 0;
 
-        public ShowScoreRunnable(int lastGotScore, HashSet<Point> linkedPoint, boolean isNextBalls) {
+        public ShowScore(int lastGotScore, HashSet<Point> linkedPoint,
+                         boolean isNextBalls, ShowScoreCallback callback) {
             this.lastGotScore = lastGotScore;
             this.isNextBalls = isNextBalls;
+            this.callback = callback;
             int colorTmp = 0;
             if (linkedPoint != null) {
                 hasPoint = new HashSet<>(linkedPoint);
@@ -734,7 +851,6 @@ public class MyPresenter {
             color = colorTmp;
 
             mGameProp.setShowNextBallsAfterBlinking(this.isNextBalls);
-            mGameProp.getThreadCompleted()[1] = false;
             mGameProp.setShowingScoreMessage(true);
         }
 
@@ -769,8 +885,6 @@ public class MyPresenter {
                         LogUtil.d(TAG, "ShowScoreRunnable.onProgressUpdate.displayNextColorBalls");
                         displayNextColorBalls();
                     }
-                    //
-                    mGameProp.getThreadCompleted()[1] = true;  // user can start input command
                     LogUtil.d(TAG, "ShowScoreRunnable.onProgressUpdate.setShowingScoreMessage");
                     mGameProp.setShowingScoreMessage(false);
                     break;
@@ -799,6 +913,7 @@ public class MyPresenter {
                         mShowingScoreHandler.postDelayed(this, 500);
                     } else {
                         onProgressUpdate(4);    // dismiss showing message
+                        callback.sCallback();
                     }
                 }
             }

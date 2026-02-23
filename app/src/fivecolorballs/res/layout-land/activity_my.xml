@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/yellow2">
+    android:background="@android:color/black"
+    android:fitsSystemWindows="true">
 
     <include layout="@layout/toolbar_layout" />
 
@@ -13,22 +15,26 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/yellow2"
         android:weightSum="100">
 
         <LinearLayout
             android:id="@+id/gameViewLinearLayout"
+            android:baselineAligned="false"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="100"
-            android:weightSum="2">
+            android:weightSum="2"
+            tools:ignore="UselessParent">
 
             <LinearLayout
                 android:id="@+id/gameViewLayout"
                 android:orientation="vertical"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1" >
+                android:layout_weight="1"
+                tools:ignore="NestedWeights">
                 <include layout="@layout/layout_for_game_view" />
             </LinearLayout>
 

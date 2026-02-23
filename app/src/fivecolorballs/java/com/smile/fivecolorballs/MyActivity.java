@@ -45,10 +45,15 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
 import com.smile.colorballs_main.R;
 import com.smile.colorballs_main.constants.Constants;
 import com.smile.colorballs_main.tools.LogUtil;
+import com.smile.colorballs_main.views.CbSettingActivity;
 import com.smile.colorballs_main.views.Top10Activity;
 import com.smile.fivecolorballs.constants.FiveBallsConstants;
 import com.smile.fivecolorballs.presenters.MyPresenter;
@@ -142,10 +147,10 @@ public class MyActivity extends AppCompatActivity implements MyPresenter.MyPrese
                     if (data == null) return;
                     Bundle extras = data.getExtras();
                     if (extras == null) return;
-                    boolean hasSound = extras.getBoolean("HasSound");
+                    boolean hasSound = extras.getBoolean(Constants.HAS_SOUND, true);
                     mPresenter.setHasSound(hasSound);
-                    // boolean isEasyLevel = extras.getBoolean("IsEasyLevel");
-                    // mPresenter.setIsEasyLevel(isEasyLevel);
+                    boolean hasNext = extras.getBoolean(Constants.HAS_NEXT,true);
+                    mPresenter.setHasNext(hasNext, true);
                 }
         );
 
@@ -222,10 +227,12 @@ public class MyActivity extends AppCompatActivity implements MyPresenter.MyPrese
                 return true;
             }
             if (id == R.id.setting) {
-                Intent setIntent = new Intent(this, SettingActivity.class);
+                Intent setIntent = new Intent(this, CbSettingActivity.class);
                 Bundle extras = new Bundle();
-                extras.putBoolean("HasSound", mPresenter.getHasSound());
-                // extras.putBoolean("IsEasyLevel", mPresenter.getIsEasyLevel());
+                extras.putString(Constants.GAME_ID, Constants.FIVE_COLOR_BALLS_ID);
+                extras.putBoolean(Constants.HAS_SOUND, mPresenter.getHasSound());
+                extras.putInt(Constants.GAME_LEVEL, Constants.GAME_LEVEL_1);
+                extras.putBoolean(Constants.HAS_NEXT, mPresenter.isHasNext());
                 setIntent.putExtras(extras);
                 settingLauncher.launch(setIntent);
                 return true;
@@ -514,7 +521,7 @@ public class MyActivity extends AppCompatActivity implements MyPresenter.MyPrese
     private void showTop10Players(boolean isLocal) {
         Intent topIntent = new Intent(this, Top10Activity.class);
         Bundle extras = new Bundle();
-        extras.putString(Constants.GAME_ID, FiveBallsConstants.FIVE_COLOR_BALLS_ID);
+        extras.putString(Constants.GAME_ID, Constants.FIVE_COLOR_BALLS_ID);
         extras.putString(Constants.DATABASE_NAME, FiveBallsConstants.FIVE_COLOR_BALLS_DATABASE);
         extras.putBoolean(Constants.IS_LOCAL_TOP10, isLocal);
         topIntent.putExtras(extras);
@@ -522,6 +529,18 @@ public class MyActivity extends AppCompatActivity implements MyPresenter.MyPrese
     }
 
     private void setBannerAndNativeAdUI() {
+        /*
+        // For testing ads and must be commented out before release
+        // 1. Define your test device ID
+        List<String> testDeviceIds = List.of("0FFD34B018082E4BCF218FE6299B48A2");
+        // 2. Build the configuration
+        RequestConfiguration adsConfiguration = new RequestConfiguration.Builder()
+                .setTestDeviceIds(testDeviceIds)
+                .build();
+        // 3. Set the configuration globally
+        MobileAds.setRequestConfiguration(adsConfiguration);
+        */
+
         LinearLayout bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
         //
         int bannerWidth = (int)mainGameViewWidth;

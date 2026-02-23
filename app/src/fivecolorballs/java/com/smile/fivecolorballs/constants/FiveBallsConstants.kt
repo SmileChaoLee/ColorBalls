@@ -8,7 +8,6 @@ import com.smile.colorballs_main.constants.Constants.COLOR_RED
 import com.smile.colorballs_main.constants.Constants.COLOR_YELLOW
 
 object FiveBallsConstants {
-    const val FIVE_COLOR_BALLS_ID = "8"
     const val FIVE_COLOR_BALLS_DATABASE = "colorBallDatabase.db"
     const val BALL_NUM_ONE_TIME : Int = 3
     @JvmField

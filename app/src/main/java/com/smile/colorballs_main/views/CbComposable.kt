@@ -329,49 +329,51 @@ object CbComposable {
                                 .padding(all = 0.dp)
                         )
                     }
-                    Row(
-                        Modifier.weight(rowWeight),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        // val no1Str = activity.getString(R.string.no1)
-                        // val no2Str = activity.getString(R.string.no2)
-                        // val easyStr = activity.getString(R.string.easyStr)
-                        // val diffStr = activity.getString(R.string.difficultStr)
-                        var gameLevel by remember { mutableStateOf(setting.gameLevel) }
-                        MenuItemText(
-                            // text = activity.getString(R.string.playerLevelStr),
-                            text = playerLevelStr,
-                            color = textColor,
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(all = 0.dp)
-                        )
-                        MenuItemText(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(all = 0.dp)
-                                .clickable {
-                                    // gameLevel from 1 (Constants.GAME_LEVEL_1)
-                                    if (levelList.isNotEmpty()) {
-                                        gameLevel = if (gameLevel >= levelList.size) {
-                                            levelList[0]
-                                        } else {
-                                            levelList[gameLevel]
+                    if (playerLevelStr.isNotEmpty()) {
+                        Row(
+                            Modifier.weight(rowWeight),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            // val no1Str = activity.getString(R.string.no1)
+                            // val no2Str = activity.getString(R.string.no2)
+                            // val easyStr = activity.getString(R.string.easyStr)
+                            // val diffStr = activity.getString(R.string.difficultStr)
+                            var gameLevel by remember { mutableStateOf(setting.gameLevel) }
+                            MenuItemText(
+                                // text = activity.getString(R.string.playerLevelStr),
+                                text = playerLevelStr,
+                                color = textColor,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(all = 0.dp)
+                            )
+                            MenuItemText(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(all = 0.dp)
+                                    .clickable {
+                                        // gameLevel from 1 (Constants.GAME_LEVEL_1)
+                                        if (levelList.isNotEmpty()) {
+                                            gameLevel = if (gameLevel >= levelList.size) {
+                                                levelList[0]
+                                            } else {
+                                                levelList[gameLevel]
+                                            }
+                                            textListener.gameLevelClick(gameLevel)
                                         }
-                                        textListener.gameLevelClick(gameLevel)
-                                    }
-                                },
-                            text = if (levelList.isNotEmpty()) levelList[gameLevel-1].toString() else "",
-                            Color.White
-                        )
-                        MenuItemText(
-                            text = if (levelList.isNotEmpty()) levelStr[gameLevel-1] else "",
-                            color = textColor,
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(all = 0.dp)
-                        )
+                                    },
+                                text = if (levelList.isNotEmpty()) levelList[gameLevel - 1].toString() else "",
+                                Color.White
+                            )
+                            MenuItemText(
+                                text = if (levelList.isNotEmpty()) levelStr[gameLevel - 1] else "",
+                                color = textColor,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(all = 0.dp)
+                            )
+                        }
                     }
                     if (hasNextStr.isNotEmpty()) {
                         Row(

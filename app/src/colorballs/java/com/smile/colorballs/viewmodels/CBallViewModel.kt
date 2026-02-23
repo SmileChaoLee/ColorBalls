@@ -501,14 +501,11 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
         if (linkedLine == null) {
             return 0
         }
-
         // 5 balls --> 5
         // 6 balls --> 5 + (6-5)*2
         // 7 balls --> 5 + (6-5)*2 + (7-5)*2
         // 8 balls --> 5 + (6-5)*2 + (7-5)*2 + (8-5)*2
         // n balls --> 5 + (6-5)*2 + (7-5)*2 + ... + (n-5)*2
-
-        /*
         val numBalls = intArrayOf(0, 0, 0, 0, 0, 0)
         for (point in linkedLine) {
             when (cbGridData.getCellValue(point.x, point.y)) {
@@ -543,25 +540,6 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
             totalScore *= 2 // double of easy level
         }
         return totalScore
-        */
-
-        val numBalls = linkedLine.size
-        val minBalls = 5
-        var score = 5
-        val extraBalls = numBalls - minBalls
-        if (extraBalls > 0) {
-            // greater than 5 balls
-            val rate  = 2
-            for (i in 1..extraBalls) {
-                score += i * rate ;
-            }
-        }
-        if (getGameLevel() != Constants.GAME_LEVEL_1) {
-            // difficult level
-            score *= 2 // double of easy level
-        }
-
-        return score;
     }
 
     private fun drawBouncyBall(i: Int, j: Int) {
@@ -649,10 +627,12 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
                 cbGameProp.lastGotScore,
                 true, object : ShowScoreCallback {
                     override fun sCallback() {
-                        LogUtil.d(TAG, "ShowScoreCallback.sCallback.Do nothing.")
+                        LogUtil.d(TAG, "ShowScoreCallback.sCallback")
+                        cbGameProp.setProcessingJob(false)
                     }
                 })
             LogUtil.d(TAG, "displayGridDataNextCells.post(showScore)")
+            cbGameProp.setProcessingJob(true)
             showingScoreHandler.post(showScore)
         } else {
             displayNextColorBalls()
@@ -719,6 +699,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
                                     LogUtil.d(TAG, "drawBallAlongPath.ShowScoreCallback.sCallback")
                                     cbGameProp.isBallMoving = false
                                     cbGameProp.isProcessingJob = false
+                                    LogUtil.d(TAG, "drawBallAlongPath.run() finished.")
                                 }
                             })
                         LogUtil.d(TAG, "drawBallAlongPath.showingScoreHandler.post")
@@ -727,92 +708,14 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
                         cbGridData.regenerateNextCellIndices(Point(targetI, targetJ))
                         LogUtil.d(TAG, "drawBallAlongPath.run().displayGridDataNextCells")
                         displayGridDataNextCells() // has a problem
-                        LogUtil.d(TAG, "drawBallAlongPath.run() finished.")
                         cbGameProp.isBallMoving = false
                         cbGameProp.isProcessingJob = false
+                        LogUtil.d(TAG, "drawBallAlongPath.run() finished.")
                     }
                 }
             }
         }
         LogUtil.i(TAG, "drawBallAlongPath.movingBallHandler.post")
         movingBallHandler.post(runnablePath)
-    }
-
-    private inner class ShowScore_old(
-        linkedPoint: HashSet<Point>,
-        val lastGotScore: Int, val isNextBalls: Boolean,
-        val callback: ShowScoreCallback
-    ): Runnable {
-        private var pointSet: HashSet<Point>
-        private var mCounter = 0
-        init {
-            LogUtil.i(TAG, "ShowScore")
-            pointSet = HashSet(linkedPoint)
-            cbGameProp.isShowNextBallsAfterBlinking = isNextBalls
-            setShowingScoreDialog(true)
-        }
-
-        @Synchronized
-        private fun onProgressUpdate(status: Int) {
-            when (status) {
-                0 -> for (item in pointSet) {
-                    drawBall(item.x, item.y, cbGridData.getCellValue(item.x, item.y))
-                }
-                1 -> for (item in pointSet) {
-                    drawOval(item.x, item.y, cbGridData.getCellValue(item.x, item.y))
-                }
-                2 -> for (item in pointSet) {
-                    drawFirework(item.x, item.y)
-                }
-                3 -> {
-                    setScreenMessage(lastGotScore.toString())
-                    for (item in pointSet) {
-                        clearCell(item.x, item.y)
-                        drawBall(item.x, item.y, cbGridData.getCellValue(item.x, item.y))
-                    }
-                    if (isNextBalls) {
-                        LogUtil.d(TAG, "ShowScore.onProgressUpdate.displayNextColorBalls")
-                        displayNextColorBalls()
-                    } else {
-                        LogUtil.d(TAG, "ShowScore.onProgressUpdate.displayNextBallsView")
-                        displayNextBallsView()
-                    }
-                }
-                4 -> {
-                    LogUtil.d(TAG, "ShowScore.onProgressUpdate.dismissShowMessageOnScreen.")
-                    setScreenMessage("")
-                    setShowingScoreDialog(false)
-                }
-                else -> {}
-            }
-        }
-
-        @Synchronized
-        override fun run() {
-            val twinkleCountDown = 5
-            mCounter++
-            LogUtil.d(TAG, "ShowScore.run().mCounter = $mCounter")
-            showingScoreHandler.removeCallbacksAndMessages(null)
-            if (mCounter <= twinkleCountDown) {
-                val md = mCounter % 2 // modulus
-                onProgressUpdate(md)
-                showingScoreHandler.postDelayed(this, 100)
-            } else {
-                when (mCounter) {
-                    twinkleCountDown + 1 -> {
-                        onProgressUpdate(2) // show the flash
-                        showingScoreHandler.postDelayed(this, 600)
-                    }
-                    twinkleCountDown + 2 -> {
-                        onProgressUpdate(3) // show score
-                        showingScoreHandler.postDelayed(this, 500)
-                    }
-                    else -> {
-                        onProgressUpdate(4) // dismiss showing message
-                        callback.sCallback()
-                    }
-                }
-            }
-        }
     }
 }

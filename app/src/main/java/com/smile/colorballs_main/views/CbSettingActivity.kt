@@ -77,6 +77,7 @@ class CbSettingActivity : ComponentActivity() {
 
         setContent {
             LogUtil.d(TAG, "onCreate.setContent.gameId = $gameId")
+            var playerLevelStr = getString(R.string.playerLevelStr)
             var hasNextStr: String
             val gameLevel = ArrayList<Int>()
             val gameLevelStr = ArrayList<String>()
@@ -95,16 +96,22 @@ class CbSettingActivity : ComponentActivity() {
                 gameLevelStr.add(getString(R.string.level4Str))
                 gameLevelStr.add(getString(R.string.level5Str))
                 */
+            } else if (gameId == Constants.BALLS_REMOVER_ID) {
+                hasNextStr = getString(R.string.fillColumnStr)
             } else {
-                if (gameId == Constants.BALLS_REMOVER_ID) {
-                    hasNextStr = getString(R.string.fillColumnStr)
-                } else {
-                    hasNextStr = getString(R.string.nextBallSettingStr)
-                }
+                // gameId =
+                // Constants.GAME_NO_BARRIER_ID or
+                // Constants.GAME_HAS_BARRIER_ID or
+                // Constants.FIVE_COLOR_BALLS_ID
+                hasNextStr = getString(R.string.nextBallSettingStr)
                 gameLevel.add(Constants.GAME_LEVEL_1)
                 gameLevel.add(Constants.GAME_LEVEL_2)
                 gameLevelStr.add(getString(R.string.easyStr))
                 gameLevelStr.add(getString(R.string.difficultStr))
+                if (gameId == Constants.FIVE_COLOR_BALLS_ID) {
+                    // No game level for fivecolorballs
+                    playerLevelStr = getString(R.string.emptyString)
+                }
             }
 
             ColorBallsTheme {
@@ -114,7 +121,7 @@ class CbSettingActivity : ComponentActivity() {
                         backgroundColor = Color(0xbb0000ff), it,
                         getString(R.string.settingStr),
                         getString(R.string.soundStr),
-                        getString(R.string.playerLevelStr),
+                        playerLevelStr,
                         hasNextStr,
                         getString(R.string.onStr),
                         getString(R.string.offStr),

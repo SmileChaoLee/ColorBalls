@@ -5,6 +5,7 @@ object Constants {
     const val BALLS_REMOVER_ID = "5"
     const val GAME_HAS_BARRIER_ID = "6"
     const val DROP_COLOR_BALLS_ID = "7"
+    const val FIVE_COLOR_BALLS_ID = "8"
     const val GAME_ID = "GameId"
     const val NO_BARRIER_DATABASE_NAME = "colorBallDatabase.db"
     const val HAS_BARRIER_DATABASE_NAME = "colorBallDatabase1.db"

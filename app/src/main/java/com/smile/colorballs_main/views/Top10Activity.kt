@@ -4,8 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import com.smile.colorballs_main.R
 import com.smile.colorballs_main.constants.Constants
@@ -85,19 +92,24 @@ class Top10Activity : ComponentActivity() {
                         top10Players.value = top10
                     }
                 }
-                LogUtil.d(TAG, "onCreate.setContent.Composables.Top10Compose")
-                CbComposable.Top10Composable(
-                    title = top10TitleName,
-                    topPlayers = top10Players.value, buttonListener =
-                    object : CbComposable.ButtonClickListener {
-                        override fun buttonOkClick() {
-                            LogUtil.d(TAG, "Composables.OkButtonListener.buttonOkClick")
-                            setResult(RESULT_OK)
-                            finish()
-                        }
-                    },
-                    getString(R.string.okStr)
-                )
+                Scaffold {innerPadding ->
+                    Column(modifier = Modifier.padding(innerPadding)
+                        .background(Color.Black)) {
+                        LogUtil.d(TAG, "onCreate.setContent.Composables.Top10Compose")
+                        CbComposable.Top10Composable(
+                            title = top10TitleName,
+                            topPlayers = top10Players.value, buttonListener =
+                                object : CbComposable.ButtonClickListener {
+                                    override fun buttonOkClick() {
+                                        LogUtil.d(TAG, "Composables.OkButtonListener.buttonOkClick")
+                                        setResult(RESULT_OK)
+                                        finish()
+                                    }
+                                },
+                            getString(R.string.okStr)
+                        )
+                    }
+                }
             }
         }
 
