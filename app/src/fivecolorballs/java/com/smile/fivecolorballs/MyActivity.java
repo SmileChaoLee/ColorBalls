@@ -530,28 +530,20 @@ public class MyActivity extends AppCompatActivity implements MyPresenter.MyPrese
 
     private void setBannerAndNativeAdUI() {
         /*
-        // For testing ads and must be commented out before release
-        // 1. Define your test device ID
-        List<String> testDeviceIds = List.of("0FFD34B018082E4BCF218FE6299B48A2");
-        // 2. Build the configuration
-        RequestConfiguration adsConfiguration = new RequestConfiguration.Builder()
-                .setTestDeviceIds(testDeviceIds)
-                .build();
-        // 3. Set the configuration globally
-        MobileAds.setRequestConfiguration(adsConfiguration);
-        */
-
-        LinearLayout bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
-        //
         int bannerWidth = (int)mainGameViewWidth;
         Configuration configuration = getResources().getConfiguration();
         if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             bannerWidth = (int)(screenWidth - mainGameViewWidth);
         }
+        */
+
+        LinearLayout bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
+        // the real ADMOB_BANNER_ID
         // myBannerAdView = new SetBannerAdView(this, null, bannerLinearLayout
-        //         , FiveCBallsApp.ADMOB_BANNER_ID, "", bannerWidth);
+        //         , FiveCBallsApp.ADMOB_BANNER_ID, "");
+        // use test Banner ID, Google’s universal test IDs
         myBannerAdView = new SetBannerAdView(this, null, bannerLinearLayout
-                , FiveCBallsApp.ADMOB_BANNER_ID, "");
+                , "ca-app-pub-3940256099942544/6300978111", "");
         myBannerAdView.showBannerAdView(0); // AdMob first
 
         // show AdMob native ad if the device is tablet
