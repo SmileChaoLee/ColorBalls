@@ -6,8 +6,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.core.os.BundleCompat
-import com.smile.colorballs_main.constants.CbConstants
-import com.smile.colorballs_main.models.CBallGridData
+import com.smile.colorballs.constants.CbConstants
+import com.smile.colorballs.models.CBallGridData
 import com.smile.colorballs.presenters.CBallPresenter
 import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.constants.WhichBall
@@ -545,15 +545,14 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
         return totalScore
         */
 
-        int numBalls = linkedLine.size
-        int minBalls = 5;
-        int score = 5;
-        int extraBalls = numBalls - minBalls;
+        val numBalls = linkedLine.size
+        val minBalls = 5
+        var score = 5
+        val extraBalls = numBalls - minBalls
         if (extraBalls > 0) {
             // greater than 5 balls
-            int rate  = 2;
-            for (int i=1 ; i<=extraBalls ; i++) {
-                // rate = 2;   // added on 2018-10-02
+            val rate  = 2
+            for (i in 1..extraBalls) {
                 score += i * rate ;
             }
         }

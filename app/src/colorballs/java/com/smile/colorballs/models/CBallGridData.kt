@@ -1,10 +1,12 @@
-package com.smile.colorballs_main.models
+package com.smile.colorballs.models
 
 import android.graphics.Point
 import android.os.Parcelable
-import com.smile.colorballs_main.constants.CbConstants
+import com.smile.colorballs.constants.CbConstants
 import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.constants.WhichGame
+import com.smile.colorballs_main.models.Cell
+import com.smile.colorballs_main.models.GridData
 import com.smile.colorballs_main.tools.LogUtil
 import kotlinx.parcelize.Parcelize
 import java.util.Random

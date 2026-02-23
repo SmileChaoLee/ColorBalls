@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.Point
 import com.smile.colorballs_main.constants.Constants
-import com.smile.colorballs_main.models.CBallGridData
+import com.smile.colorballs.models.CBallGridData
 import com.smile.colorballs_main.models.GameProp
 import org.junit.After
 import org.junit.runner.RunWith

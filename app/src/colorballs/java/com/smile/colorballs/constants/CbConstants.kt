@@ -1,4 +1,4 @@
-package com.smile.colorballs_main.constants
+package com.smile.colorballs.constants
 
 object CbConstants {
     const val ROW_COUNTS = 9
