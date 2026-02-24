@@ -209,8 +209,8 @@ class MainCBallActivity : ComponentActivity() {
 
     private fun dataConsentRequest() {
         LogUtil.d(TAG, "dataConsentRequest")
-        // setTestDeviceIds(Arrays.asList("8F6C5B0830E624E8D8BFFB5853B4EDDD"))
-        // val deviceHashedId = "8F6C5B0830E624E8D8BFFB5853B4EDDD" // for debug test
+        // setTestDeviceIds(Arrays.asList("0FFD34B018082E4BCF218FE6299B48A2"))
+        // val deviceHashedId = "0FFD34B018082E4BCF218FE6299B48A2" // for debug test
         val deviceHashedId = "" // for release
         UmpUtil.initConsentInformation(this@MainCBallActivity,
             DEBUG_GEOGRAPHY_EEA,deviceHashedId,

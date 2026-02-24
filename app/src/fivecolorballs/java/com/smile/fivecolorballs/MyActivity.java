@@ -1,5 +1,7 @@
 package com.smile.fivecolorballs;
 
+import static com.google.android.ump.ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -28,6 +30,7 @@ import android.os.Looper;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -45,11 +48,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.RequestConfiguration;
 import com.smile.colorballs_main.R;
 import com.smile.colorballs_main.constants.Constants;
 import com.smile.colorballs_main.tools.LogUtil;
@@ -66,6 +66,7 @@ import com.smile.smilelibraries.show_banner_ads.SetBannerAdView;
 import com.smile.smilelibraries.utilities.FontAndBitmapUtil;
 import com.smile.smilelibraries.utilities.ScreenUtil;
 import com.smile.smilelibraries.utilities.SoundPoolUtil;
+import com.smile.smilelibraries.utilities.UmpUtil;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -81,7 +82,6 @@ public class MyActivity extends AppCompatActivity implements MyPresenter.MyPrese
     private float fontScale;
     private float screenWidth;
     private float screenHeight;
-    private float mainGameViewWidth;
     private SetBannerAdView myBannerAdView;
     private GoogleAdMobNativeTemplate nativeTemplate;
     private final static String GameOverDialogTag = "GameOverDialogFragmentTag";
@@ -96,11 +96,13 @@ public class MyActivity extends AppCompatActivity implements MyPresenter.MyPrese
     private AlertDialogFragment gameOverDialog;
     private ActivityResultLauncher<Intent> settingLauncher;
     private ActivityResultLauncher<Intent> top10Launcher;
+    private boolean touchDisabled = true;
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        LogUtil.d(TAG, "onCreate() is called");
+        touchDisabled = true;
+        LogUtil.d(TAG, "onCreate.touchDisabled = " + touchDisabled);
         Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.redball);
         colorBallMap.put(Constants.COLOR_RED, bm);
         bm = BitmapFactory.decodeResource(getResources(), R.drawable.redball_o);
@@ -171,7 +173,31 @@ public class MyActivity extends AppCompatActivity implements MyPresenter.MyPrese
             }
         });
 
+        // String deviceHashedId = "0FFD34B018082E4BCF218FE6299B48A2"; // for debug test
+        String deviceHashedId = ""; // for release
+        UmpUtil.INSTANCE.initConsentInformation(
+                this,
+                DEBUG_GEOGRAPHY_EEA,
+                deviceHashedId,
+                () -> {
+                    LogUtil.d(TAG, "dataConsentRequest.finished");
+                    // enabling receiving touch events
+                    touchDisabled = false;
+                }
+        );
+
+
         LogUtil.d(TAG, "onCreate() is finished.");
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (touchDisabled) {
+            // Consume the touch event, effectively disabling touch
+            return true;
+        }
+        // Allow touch events to proceed
+        return super.dispatchTouchEvent(ev);
     }
 
     @Override
@@ -363,7 +389,7 @@ public class MyActivity extends AppCompatActivity implements MyPresenter.MyPrese
         LinearLayout mainGameViewUiLayout = findViewById(R.id.gameViewLayout);
         LinearLayout.LayoutParams mainGameViewtUiLayoutParams = (LinearLayout.LayoutParams) mainGameViewUiLayout.getLayoutParams();
         float mainGameViewUi_weight = mainGameViewtUiLayoutParams.weight;
-        mainGameViewWidth = screenWidth * (mainGameViewUi_weight / gameViewWeightSum);
+        float mainGameViewWidth = screenWidth * (mainGameViewUi_weight / gameViewWeightSum);
         LogUtil.d(TAG, "createGameView.mainGameViewWidth = " + mainGameViewWidth);
 
         // layout_for_game_view.xml
@@ -529,14 +555,6 @@ public class MyActivity extends AppCompatActivity implements MyPresenter.MyPrese
     }
 
     private void setBannerAndNativeAdUI() {
-        /*
-        int bannerWidth = (int)mainGameViewWidth;
-        Configuration configuration = getResources().getConfiguration();
-        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            bannerWidth = (int)(screenWidth - mainGameViewWidth);
-        }
-        */
-
         LinearLayout bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
         String bannerId = FiveCBallsApp.ADMOB_BANNER_ID;     // real Banner ID
         // use test Banner ID, Google’s universal test IDs

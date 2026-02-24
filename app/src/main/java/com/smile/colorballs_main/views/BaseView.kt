@@ -240,7 +240,7 @@ abstract class BaseView: ComponentActivity(),
         setContent {
             CreateMainUI()
         }
-        // val deviceHashedId = "8F6C5B0830E624E8D8BFFB5853B4EDDD" // for debug test
+        // val deviceHashedId = "0FFD34B018082E4BCF218FE6299B48A2" // for debug test
         val deviceHashedId = "" // for release
         UmpUtil.initConsentInformation(
             this@BaseView,

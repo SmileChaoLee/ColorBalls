@@ -628,11 +628,11 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
                 true, object : ShowScoreCallback {
                     override fun sCallback() {
                         LogUtil.d(TAG, "ShowScoreCallback.sCallback")
-                        cbGameProp.setProcessingJob(false)
+                        cbGameProp.isProcessingJob = false
                     }
                 })
             LogUtil.d(TAG, "displayGridDataNextCells.post(showScore)")
-            cbGameProp.setProcessingJob(true)
+            cbGameProp.isProcessingJob = true
             showingScoreHandler.post(showScore)
         } else {
             displayNextColorBalls()
