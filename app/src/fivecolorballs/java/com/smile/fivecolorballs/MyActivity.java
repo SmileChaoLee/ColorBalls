@@ -538,19 +538,22 @@ public class MyActivity extends AppCompatActivity implements MyPresenter.MyPrese
         */
 
         LinearLayout bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
-        // the real ADMOB_BANNER_ID
-        // myBannerAdView = new SetBannerAdView(this, null, bannerLinearLayout
-        //         , FiveCBallsApp.ADMOB_BANNER_ID, "");
+        String bannerId = FiveCBallsApp.ADMOB_BANNER_ID;     // real Banner ID
         // use test Banner ID, Google’s universal test IDs
-        myBannerAdView = new SetBannerAdView(this, null, bannerLinearLayout
-                , "ca-app-pub-3940256099942544/6300978111", "");
+        // bannerId = "ca-app-pub-3940256099942544/6300978111";   // test Banner ID
+        myBannerAdView = new SetBannerAdView(this, null,
+                bannerLinearLayout, bannerId, "");
         myBannerAdView.showBannerAdView(0); // AdMob first
 
         // show AdMob native ad if the device is tablet
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             String nativeAdvancedId0 = FiveCBallsApp.ADMOB_NATIVE_ID;     // real native ad unit id
+            // nativeAdvancedId0 = "ca-app-pub-3940256099942544/2247696110";   // test native ad unit id
             FrameLayout nativeAdsFrameLayout = findViewById(R.id.nativeAdsFrameLayout);
-            com.google.android.ads.nativetemplates.TemplateView nativeAdTemplateView = findViewById(R.id.nativeAdTemplateView);
+            nativeAdsFrameLayout.setVisibility(View.VISIBLE);
+            com.google.android.ads.nativetemplates.TemplateView nativeAdTemplateView
+                    = findViewById(R.id.nativeAdTemplateView);
+            nativeAdTemplateView.setVisibility(View.VISIBLE);
             nativeTemplate = new GoogleAdMobNativeTemplate(this, nativeAdsFrameLayout
                     , nativeAdvancedId0, nativeAdTemplateView);
             nativeTemplate.showNativeAd();

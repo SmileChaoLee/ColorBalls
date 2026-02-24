@@ -22,12 +22,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name="com.smile.fivecolorballs.SettingActivity"
-            android:label="@string/settingStr"
-            android:theme="@style/AppThemeTransparent" >
-        </activity>
-
         <service
             android:name="com.smile.colorballs_main.services.LocalTop10Service"
             android:enabled="true"

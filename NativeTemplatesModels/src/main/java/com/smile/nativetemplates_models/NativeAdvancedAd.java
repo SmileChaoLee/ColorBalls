@@ -19,7 +19,7 @@ import com.google.android.gms.ads.nativead.NativeAd;
 import com.google.android.gms.ads.nativead.NativeAdView;
 
 public class NativeAdvancedAd {
-    private static final String TAG = new String("NativeAdvancedAd");
+    private static final String TAG = "NativeAdvancedAd";
 
     private final Context mContext;
     private final ViewGroup mParentView;
@@ -37,21 +37,18 @@ public class NativeAdvancedAd {
         mNativeAd = null;
         mNumberOfLoad = 0;
         AdLoader.Builder builder = new AdLoader.Builder(mContext, nativeAdID);
-        builder.forNativeAd(new NativeAd.OnNativeAdLoadedListener() {
-            // OnNativeAdLoadedListener() implementation.
-            @Override
-            public void onNativeAdLoaded(NativeAd nativeAd) {
-                // You must call destroy on old ads when you are done with them,
-                // otherwise you will have a memory leak.
-                if (mNativeAd != null) {
-                    mNativeAd.destroy();
-                }
-                mNativeAd = nativeAd;
-                isNativeAdLoaded = true;
-                mNumberOfLoad = 0;
-                displayNativeAd(mParentView, mNativeAdViewLayoutId);
-                Log.d(TAG, "onNativeAdLoaded() --> Succeeded to load NativeAd.");
+        // OnNativeAdLoadedListener() implementation.
+        builder.forNativeAd(nativeAd -> {
+            // You must call destroy on old ads when you are done with them,
+            // otherwise you will have a memory leak.
+            if (mNativeAd != null) {
+                mNativeAd.destroy();
             }
+            mNativeAd = nativeAd;
+            isNativeAdLoaded = true;
+            mNumberOfLoad = 0;
+            displayNativeAd(mParentView, mNativeAdViewLayoutId);
+            Log.d(TAG, "onNativeAdLoaded.Succeeded to load NativeAd.");
         });
 
         VideoOptions videoOptions = new VideoOptions.Builder()
@@ -65,12 +62,12 @@ public class NativeAdvancedAd {
         mNativeAdLoader = builder.withAdListener(new AdListener() {
             @Override
             public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                Log.d(TAG, "Failed to load NativeAd.");
-                Log.d(TAG, "mNumberOfLoad = " + mNumberOfLoad);
+                Log.d(TAG, "onAdFailedToLoad");
+                Log.d(TAG, "onAdFailedToLoad.mNumberOfLoad = " + mNumberOfLoad);
                 isNativeAdLoaded = false;
                 if (mNumberOfLoad<maxNumberOfLoad) {
                     loadOneAd();
-                    Log.d(TAG, "Load again --> mNumberOfLoad = " + mNumberOfLoad);
+                    Log.d(TAG, "onAdFailedToLoad.mNumberOfLoad = " + mNumberOfLoad);
                 } else {
                     mNumberOfLoad = 0;   // set back to zero
                     Log.d(TAG, "Failed to load NativeAd more than 5.\nSo stopped loading this time. ");
