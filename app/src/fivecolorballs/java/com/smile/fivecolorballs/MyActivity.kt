@@ -1,843 +1,782 @@
-package com.smile.fivecolorballs;
+package com.smile.fivecolorballs
 
-import static com.google.android.ump.ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA;
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.graphics.Typeface
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.Gravity
+import android.view.Menu
+import android.view.MenuItem
+import android.view.MotionEvent
+import android.view.View
+import android.view.Window
+import android.view.WindowManager
+import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.GridLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.ContextThemeWrapper
+import androidx.appcompat.widget.Toolbar
+import com.google.android.ads.nativetemplates.TemplateView
+import com.google.android.ump.ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA
+import com.smile.colorballs_main.R
+import com.smile.colorballs_main.constants.Constants
+import com.smile.colorballs_main.tools.LogUtil
+import com.smile.colorballs_main.views.CbSettingActivity
+import com.smile.colorballs_main.views.Top10Activity
+import com.smile.fivecolorballs.constants.FiveBallsConstants
+import com.smile.fivecolorballs.presenters.MyPresenter
+import com.smile.fivecolorballs.presenters.MyPresenter.MyPresentView
+import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate
+import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment
+import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment.DialogButtonListener
+import com.smile.smilelibraries.models.ExitAppTimer
+import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil
+import com.smile.smilelibraries.scoresqlite.ScoreSQLite
+import com.smile.smilelibraries.show_banner_ads.SetBannerAdView
+import com.smile.smilelibraries.utilities.FontAndBitmapUtil
+import com.smile.smilelibraries.utilities.ScreenUtil
+import com.smile.smilelibraries.utilities.SoundPoolUtil
+import com.smile.smilelibraries.utilities.UmpUtil
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.util.Locale
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.Point;
-import android.graphics.Typeface;
-import android.os.Handler;
+class MyActivity : AppCompatActivity(), MyPresentView {
 
-import androidx.activity.OnBackPressedCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.view.ContextThemeWrapper;
-import androidx.appcompat.app.AppCompatActivity;
-import android.os.Bundle;
-import androidx.appcompat.widget.Toolbar;
+    companion object {
+        // private properties
+        private const val TAG = "MyActivity"
+        private const val GAME_OVER_DIALOG_TAG = "GameOverDialogTag"
+    }
 
-import android.os.Looper;
-import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.GridLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.util.HashMap;
-import java.util.Locale;
-
-import com.smile.colorballs_main.R;
-import com.smile.colorballs_main.constants.Constants;
-import com.smile.colorballs_main.tools.LogUtil;
-import com.smile.colorballs_main.views.CbSettingActivity;
-import com.smile.colorballs_main.views.Top10Activity;
-import com.smile.fivecolorballs.constants.FiveBallsConstants;
-import com.smile.fivecolorballs.presenters.MyPresenter;
-import com.smile.nativetemplates_models.GoogleAdMobNativeTemplate;
-import com.smile.smilelibraries.alertdialogfragment.AlertDialogFragment;
-import com.smile.smilelibraries.models.ExitAppTimer;
-import com.smile.smilelibraries.privacy_policy.PrivacyPolicyUtil;
-import com.smile.smilelibraries.scoresqlite.ScoreSQLite;
-import com.smile.smilelibraries.show_banner_ads.SetBannerAdView;
-import com.smile.smilelibraries.utilities.FontAndBitmapUtil;
-import com.smile.smilelibraries.utilities.ScreenUtil;
-import com.smile.smilelibraries.utilities.SoundPoolUtil;
-import com.smile.smilelibraries.utilities.UmpUtil;
-
-import org.jetbrains.annotations.NotNull;
-
-public class MyActivity extends AppCompatActivity implements MyPresenter.MyPresentView {
-
-    // private properties
-    private static final String TAG = "MyActivity";
-    private MyPresenter mPresenter;
-    public HashMap<Integer, Bitmap> colorBallMap = new HashMap<>();
-    public HashMap<Integer, Bitmap> colorOvalBallMap = new HashMap<>();
-    private Toolbar supportToolbar;
-    private float textFontSize;
-    private float fontScale;
-    private float screenWidth;
-    private float screenHeight;
-    private SetBannerAdView myBannerAdView;
-    private GoogleAdMobNativeTemplate nativeTemplate;
-    private final static String GameOverDialogTag = "GameOverDialogFragmentTag";
-    private ImageView scoreImageView = null;
-    private TextView toolbarTitleTextView;
-    private TextView currentScoreView;
-    private int rowCounts = 9;
-    private int colCounts = 9;
-    private AlertDialog saveScoreAlertDialog;
-    private AlertDialogFragment sureSaveDialog;
-    private AlertDialogFragment sureLoadDialog;
-    private AlertDialogFragment gameOverDialog;
-    private ActivityResultLauncher<Intent> settingLauncher;
-    private ActivityResultLauncher<Intent> top10Launcher;
-    private boolean touchDisabled = true;
+    private lateinit var mPresenter: MyPresenter
+    private var mColorBallMap: HashMap<Int, Bitmap> = HashMap()
+    private var mColorOvalBallMap: HashMap<Int, Bitmap> = HashMap()
+    private lateinit var supportToolbar: Toolbar
+    private var textFontSize = 0f
+    private var fontScale = 0f
+    private var screenWidth = 0f
+    private var screenHeight = 0f
+    private var myBannerAdView: SetBannerAdView? = null
+    private var nativeTemplate: GoogleAdMobNativeTemplate? = null
+    private var scoreImageView: ImageView? = null
+    private var toolbarTitleTextView: TextView? = null
+    private var currentScoreView: TextView? = null
+    private var mRowCounts = 9
+    private var mColCounts = 9
+    private var saveScoreAlertDialog: AlertDialog? = null
+    private var sureSaveDialog: AlertDialogFragment? = null
+    private var sureLoadDialog: AlertDialogFragment? = null
+    private var gameOverDialog: AlertDialogFragment? = null
+    private lateinit var settingLauncher: ActivityResultLauncher<Intent>
+    private lateinit var top10Launcher: ActivityResultLauncher<Intent>
+    private var touchDisabled = true
 
     @SuppressLint("SourceLockedOrientationActivity")
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        touchDisabled = true;
-        LogUtil.d(TAG, "onCreate.touchDisabled = " + touchDisabled);
-        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.redball);
-        colorBallMap.put(Constants.COLOR_RED, bm);
-        bm = BitmapFactory.decodeResource(getResources(), R.drawable.redball_o);
-        colorOvalBallMap.put(Constants.COLOR_RED, bm);
-        bm = BitmapFactory.decodeResource(getResources(), R.drawable.greenball);
-        colorBallMap.put(Constants.COLOR_GREEN, bm);
-        bm = BitmapFactory.decodeResource(getResources(), R.drawable.greenball_o);
-        colorOvalBallMap.put(Constants.COLOR_GREEN, bm);
-        bm = BitmapFactory.decodeResource(getResources(), R.drawable.blueball);
-        colorBallMap.put(Constants.COLOR_BLUE, bm);
-        bm = BitmapFactory.decodeResource(getResources(), R.drawable.blueball_o);
-        colorOvalBallMap.put(Constants.COLOR_BLUE, bm);
-        bm = BitmapFactory.decodeResource(getResources(), R.drawable.magentaball);
-        colorBallMap.put(Constants.COLOR_MAGENTA, bm);
-        bm = BitmapFactory.decodeResource(getResources(), R.drawable.magentaball_o);
-        colorOvalBallMap.put(Constants.COLOR_MAGENTA, bm);
-        bm = BitmapFactory.decodeResource(getResources(), R.drawable.yellowball);
-        colorBallMap.put(Constants.COLOR_YELLOW, bm);
-        bm = BitmapFactory.decodeResource(getResources(), R.drawable.yellowball_o);
-        colorOvalBallMap.put(Constants.COLOR_YELLOW, bm);
-        bm = BitmapFactory.decodeResource(getResources(), R.drawable.cyanball);
-        colorBallMap.put(Constants.COLOR_CYAN, bm);
-        bm = BitmapFactory.decodeResource(getResources(), R.drawable.cyanball_o);
-        colorOvalBallMap.put(Constants.COLOR_CYAN, bm);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        touchDisabled = true
+        var bm = BitmapFactory.decodeResource(resources, R.drawable.redball)
+        mColorBallMap.put(Constants.COLOR_RED, bm)
+        bm = BitmapFactory.decodeResource(resources, R.drawable.redball_o)
+        mColorOvalBallMap.put(Constants.COLOR_RED, bm)
+        bm = BitmapFactory.decodeResource(resources, R.drawable.greenball)
+        mColorBallMap.put(Constants.COLOR_GREEN, bm)
+        bm = BitmapFactory.decodeResource(resources, R.drawable.greenball_o)
+        mColorOvalBallMap.put(Constants.COLOR_GREEN, bm)
+        bm = BitmapFactory.decodeResource(resources, R.drawable.blueball)
+        mColorBallMap.put(Constants.COLOR_BLUE, bm)
+        bm = BitmapFactory.decodeResource(resources, R.drawable.blueball_o)
+        mColorOvalBallMap.put(Constants.COLOR_BLUE, bm)
+        bm = BitmapFactory.decodeResource(resources, R.drawable.magentaball)
+        mColorBallMap.put(Constants.COLOR_MAGENTA, bm)
+        bm = BitmapFactory.decodeResource(resources, R.drawable.magentaball_o)
+        mColorOvalBallMap.put(Constants.COLOR_MAGENTA, bm)
+        bm = BitmapFactory.decodeResource(resources, R.drawable.yellowball)
+        mColorBallMap.put(Constants.COLOR_YELLOW, bm)
+        bm = BitmapFactory.decodeResource(resources, R.drawable.yellowball_o)
+        mColorOvalBallMap.put(Constants.COLOR_YELLOW, bm)
+        bm = BitmapFactory.decodeResource(resources, R.drawable.cyanball)
+        mColorBallMap.put(Constants.COLOR_CYAN, bm)
+        bm = BitmapFactory.decodeResource(resources, R.drawable.cyanball_o)
+        mColorOvalBallMap.put(Constants.COLOR_CYAN, bm)
 
-        mPresenter = new MyPresenter( this);
+        mPresenter = MyPresenter(this)
 
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState)
 
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
 
-        setContentView(R.layout.activity_my);
+        setContentView(R.layout.activity_my)
 
-        createActivityUI();
-        createGameView(savedInstanceState);
-        setBannerAndNativeAdUI();
+        createActivityUI()
+        createGameView(savedInstanceState)
+        setBannerAndNativeAdUI()
 
         settingLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    LogUtil.i(TAG, TAG + "onCreate.settingLauncher.result received");
-                    if (result.getResultCode() != Activity.RESULT_OK) return;
-                    Intent data = result.getData();
-                    if (data == null) return;
-                    Bundle extras = data.getExtras();
-                    if (extras == null) return;
-                    boolean hasSound = extras.getBoolean(Constants.HAS_SOUND, true);
-                    mPresenter.setHasSound(hasSound);
-                    boolean hasNext = extras.getBoolean(Constants.HAS_NEXT,true);
-                    mPresenter.setHasNext(hasNext, true);
-                }
-        );
-
+            ActivityResultContracts.StartActivityForResult()) {
+            result: ActivityResult ->
+            LogUtil.i(TAG, TAG + "onCreate.settingLauncher.result")
+            if (result.resultCode != RESULT_OK) return@registerForActivityResult
+            val data = result.data
+            if (data == null) return@registerForActivityResult
+            val extras = data.extras
+            if (extras == null) return@registerForActivityResult
+            val hasSound = extras.getBoolean(Constants.HAS_SOUND, true)
+            mPresenter.setHasSound(hasSound)
+            val hasNext = extras.getBoolean(Constants.HAS_NEXT, true)
+            mPresenter.setHasNext(hasNext, true)
+        }
         top10Launcher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    // Handle the result here
-                    LogUtil.i(TAG, "top10Launcher.result = " + result.toString());
-                }
-        );
+            ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            // Handle the result here
+            LogUtil.i(TAG, "top10Launcher.result = $result")
+        }
 
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                LogUtil.d(TAG, "onBackPressedDispatcher.handleOnBackPressed");
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                LogUtil.d(TAG, "onBackPressedDispatcher.handleOnBackPressed")
                 // Handle the fragment's back press (null check for playerFragment)
-                onBackKeyPressed();
+                onBackKeyPressed()
             }
-        });
+        })
 
         // String deviceHashedId = "0FFD34B018082E4BCF218FE6299B48A2"; // for debug test
-        String deviceHashedId = ""; // for release
-        UmpUtil.INSTANCE.initConsentInformation(
-                this,
-                DEBUG_GEOGRAPHY_EEA,
-                deviceHashedId,
-                () -> {
-                    LogUtil.d(TAG, "dataConsentRequest.finished");
+        val deviceHashedId = "" // for release
+        UmpUtil.initConsentInformation(
+            this@MyActivity,
+            DEBUG_GEOGRAPHY_EEA, deviceHashedId,
+            object : UmpUtil.UmpInterface {
+                override fun callback() {
+                    LogUtil.d(TAG, "dataConsentRequest.finished")
                     // enabling receiving touch events
-                    touchDisabled = false;
+                    touchDisabled = false
                 }
-        );
+            })
 
-
-        LogUtil.d(TAG, "onCreate() is finished.");
+        LogUtil.d(TAG, "onCreate() is finished.")
     }
 
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         if (touchDisabled) {
             // Consume the touch event, effectively disabling touch
-            return true;
+            return true
         }
         // Allow touch events to proceed
-        return super.dispatchTouchEvent(ev);
+        return super.dispatchTouchEvent(ev)
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.my, menu);
-        if (supportToolbar != null) {
-            final int popupThemeId = supportToolbar.getPopupTheme();
-            // final Context wrapper = new ContextThemeWrapper(this, R.style.menu_text_style);
-            final Context wrapper = new ContextThemeWrapper(this, popupThemeId);
-            ScreenUtil.resizeMenuTextIconSize(wrapper, menu, fontScale);
-        }
-        return true;
+        menuInflater.inflate(R.menu.my, menu)
+        val popupThemeId = supportToolbar.popupTheme
+        // final Context wrapper = new ContextThemeWrapper(this, R.style.menu_text_style);
+        val wrapper: Context = ContextThemeWrapper(this, popupThemeId)
+        ScreenUtil.resizeMenuTextIconSize(wrapper, menu, fontScale)
+        return true
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-
-        boolean isProcessingJob = mPresenter.isProcessingJob();
-
-        int id = item.getItemId();
+        if (mPresenter.isProcessingJob) return super.onOptionsItemSelected(item)
+        val id = item.itemId
         if (id == R.id.quitGame) {
-            mPresenter.quitGame(); //  exit game
-            return true;
+            mPresenter.quitGame() //  exit game
+            return true
         }
         if (id == R.id.newGame) {
-            mPresenter.newGame();
-            return true;
+            mPresenter.newGame()
+            return true
         }
-
-        if (!isProcessingJob) {
-            if (id == R.id.undoGame) {
-                mPresenter.undoTheLast();
-                return super.onOptionsItemSelected(item);
-            }
-            if (id == R.id.top10) {
-                showTop10Players(true);
-                return super.onOptionsItemSelected(item);
-            }
-            if (id == R.id.globalTop10) {
-                showTop10Players(false);
-                return super.onOptionsItemSelected(item);
-            }
-            if (id == R.id.saveGame) {
-                mPresenter.saveGame();
-                return super.onOptionsItemSelected(item);
-            }
-            if (id == R.id.loadGame) {
-                mPresenter.loadGame();
-                return true;
-            }
-            if (id == R.id.setting) {
-                Intent setIntent = new Intent(this, CbSettingActivity.class);
-                Bundle extras = new Bundle();
-                extras.putString(Constants.GAME_ID, Constants.FIVE_COLOR_BALLS_ID);
-                extras.putBoolean(Constants.HAS_SOUND, mPresenter.getHasSound());
-                extras.putInt(Constants.GAME_LEVEL, Constants.GAME_LEVEL_1);
-                extras.putBoolean(Constants.HAS_NEXT, mPresenter.isHasNext());
-                setIntent.putExtras(extras);
-                settingLauncher.launch(setIntent);
-                return true;
-            }
-            if (id == R.id.privacyPolicy) {
-                int requestCode = 10;
-                PrivacyPolicyUtil.startPrivacyPolicyActivity(this, requestCode);
-            }
+        if (id == R.id.undoGame) {
+            mPresenter.undoTheLast()
+            return super.onOptionsItemSelected(item)
         }
-
-        return super.onOptionsItemSelected(item);
+        if (id == R.id.top10) {
+            showTop10Players(true)
+            return super.onOptionsItemSelected(item)
+        }
+        if (id == R.id.globalTop10) {
+            showTop10Players(false)
+            return super.onOptionsItemSelected(item)
+        }
+        if (id == R.id.saveGame) {
+            mPresenter.saveGame()
+            return super.onOptionsItemSelected(item)
+        }
+        if (id == R.id.loadGame) {
+            mPresenter.loadGame()
+            return true
+        }
+        if (id == R.id.setting) {
+            val setIntent = Intent(this, CbSettingActivity::class.java)
+            val extras = Bundle()
+            extras.putString(Constants.GAME_ID, Constants.FIVE_COLOR_BALLS_ID)
+            extras.putBoolean(Constants.HAS_SOUND, mPresenter.hasSound())
+            extras.putInt(Constants.GAME_LEVEL, Constants.GAME_LEVEL_1)
+            extras.putBoolean(Constants.HAS_NEXT, mPresenter.hasNext())
+            setIntent.putExtras(extras)
+            settingLauncher.launch(setIntent)
+            return true
+        }
+        if (id == R.id.privacyPolicy) {
+            val requestCode = 10
+            PrivacyPolicyUtil.startPrivacyPolicyActivity(this, requestCode)
+        }
+        return super.onOptionsItemSelected(item)
     }
 
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        LogUtil.d(TAG, "onSaveInstanceState() is called");
-        if (saveScoreAlertDialog != null) {
-            saveScoreAlertDialog.dismiss();
-        }
-        mPresenter.onSaveInstanceState(outState);
-        super.onSaveInstanceState(outState);
+    override fun onSaveInstanceState(outState: Bundle) {
+        LogUtil.d(TAG, "onSaveInstanceState() is called")
+        saveScoreAlertDialog?.dismiss()
+        mPresenter.onSaveInstanceState(outState)
+        super.onSaveInstanceState(outState)
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        LogUtil.d(TAG, "onResume() is called");
+    override fun onResume() {
+        super.onResume()
+        LogUtil.d(TAG, "onResume() is called")
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        LogUtil.d(TAG, "onPause() is called");
+    override fun onPause() {
+        super.onPause()
+        LogUtil.d(TAG, "onPause() is called")
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        LogUtil.d(TAG, "onStop() is called");
+    override fun onStop() {
+        super.onStop()
+        LogUtil.d(TAG, "onStop() is called")
     }
 
-    @Override
-    public void onDestroy() {
-        LogUtil.d(TAG, "onDestroy() is called");
-
-        if (mPresenter != null) {
-            mPresenter.release();
-        }
-
-        if (myBannerAdView != null) {
-            myBannerAdView.destroy();
-            myBannerAdView = null;
-        }
-        if (nativeTemplate != null) {
-            nativeTemplate.release();
-        }
-
-        if (sureSaveDialog != null) {
-            sureSaveDialog.dismissAllowingStateLoss();
-        }
-
-        if (sureLoadDialog != null) {
-            sureLoadDialog.dismissAllowingStateLoss();
-        }
-
-        if (gameOverDialog != null) {
-            gameOverDialog.dismissAllowingStateLoss();
-        }
-
-        super.onDestroy();
+    public override fun onDestroy() {
+        LogUtil.d(TAG, "onDestroy() is called")
+        mPresenter.release()
+        myBannerAdView?.destroy()
+        nativeTemplate?.release()
+        sureSaveDialog?.dismissAllowingStateLoss()
+        sureLoadDialog?.dismissAllowingStateLoss()
+        gameOverDialog?.dismissAllowingStateLoss()
+        super.onDestroy()
     }
 
-    private void onBackKeyPressed() {
-        LogUtil.d(TAG, "onBackKeyPressed");
+    private fun onBackKeyPressed() {
+        LogUtil.d(TAG, "onBackKeyPressed")
         // singleton
-        ExitAppTimer exitAppTimer = ExitAppTimer.getInstance(1000);
+        val exitAppTimer = ExitAppTimer.getInstance(1000)
         if (exitAppTimer.canExit()) {
-            mPresenter.quitGame();
+            mPresenter.quitGame()
         } else {
-            exitAppTimer.start();
-            ScreenUtil.showToast(this, getString(R.string.backKeyToExitApp),
-                    textFontSize * 0.7f, Toast.LENGTH_SHORT);
+            exitAppTimer.start()
+            ScreenUtil.showToast(
+                this, getString(R.string.backKeyToExitApp),
+                textFontSize * 0.7f, Toast.LENGTH_SHORT
+            )
         }
     }
 
-    private void createActivityUI() {
-        findOutTextFontSize();
-        findOutScreenSize();
-        setUpSupportActionBar();
+    private fun createActivityUI() {
+        findOutTextFontSize()
+        findOutScreenSize()
+        setUpSupportActionBar()
     }
 
-    private void findOutTextFontSize() {
-        textFontSize = ScreenUtil.getPxTextFontSizeNeeded(this);
-        fontScale = ScreenUtil.getPxFontScale(this);
+    private fun findOutTextFontSize() {
+        textFontSize = ScreenUtil.getPxTextFontSizeNeeded(this)
+        fontScale = ScreenUtil.getPxFontScale(this)
     }
 
-    private void findOutScreenSize() {
-        Point size = ScreenUtil.getScreenSize(this);
-        screenWidth = size.x;
-        screenHeight = size.y;
-        float statusBarHeight = ScreenUtil.getStatusBarHeight(this);
-        float actionBarHeight = ScreenUtil.getActionBarHeight(this);
+    private fun findOutScreenSize() {
+        val size = ScreenUtil.getScreenSize(this)
+        screenWidth = size.x.toFloat()
+        screenHeight = size.y.toFloat()
+        val statusBarHeight = ScreenUtil.getStatusBarHeight(this).toFloat()
+        val actionBarHeight = ScreenUtil.getActionBarHeight(this).toFloat()
         // keep navigation bar
-        screenHeight = screenHeight - statusBarHeight - actionBarHeight;
+        screenHeight = screenHeight - statusBarHeight - actionBarHeight
     }
 
-    private void setUpSupportActionBar() {
-        supportToolbar = findViewById(R.id.colorballs_toolbar);
-        setSupportActionBar(supportToolbar);
-        androidx.appcompat.app.ActionBar supportActionBar = getSupportActionBar();
-        if (supportActionBar != null) {
-            supportActionBar.setDisplayShowTitleEnabled(false);
-        }
+    private fun setUpSupportActionBar() {
+        supportToolbar = findViewById(R.id.colorballs_toolbar)
+        setSupportActionBar(supportToolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
     }
 
-    private void createGameView(Bundle savedInstanceState) {
+    private fun createGameView(savedInstanceState: Bundle?) {
         // find Out Width and Height of GameView
-        LinearLayout linearLayout_myActivity = findViewById(R.id.linearLayout_myActivity);
-        float main_WeightSum = linearLayout_myActivity.getWeightSum();
+        val linearLayoutMyActivity = findViewById<LinearLayout>(R.id.linearLayout_myActivity)
+        val mainWeightSum = linearLayoutMyActivity.weightSum
 
-        LinearLayout gameViewLinearLayout = findViewById(R.id.gameViewLinearLayout);
-        LinearLayout.LayoutParams gameViewLp = (LinearLayout.LayoutParams) gameViewLinearLayout.getLayoutParams();
-        float gameView_Weight = gameViewLp.weight;
-        float mainGameViewHeight = screenHeight * gameView_Weight / main_WeightSum;
-        LogUtil.d(TAG, "createGameView.mainGameViewHeight = " + mainGameViewHeight);
+        val gameViewLinearLayout = findViewById<LinearLayout>(R.id.gameViewLinearLayout)
+        val gameViewLp = gameViewLinearLayout.layoutParams as LinearLayout.LayoutParams
+        val gameViewWeight = gameViewLp.weight
+        val mainGameViewHeight = screenHeight * gameViewWeight / mainWeightSum
+        LogUtil.d(TAG, "createGameView.mainGameViewHeight = $mainGameViewHeight")
 
-        float gameViewWeightSum = gameViewLinearLayout.getWeightSum();
-        LinearLayout mainGameViewUiLayout = findViewById(R.id.gameViewLayout);
-        LinearLayout.LayoutParams mainGameViewtUiLayoutParams = (LinearLayout.LayoutParams) mainGameViewUiLayout.getLayoutParams();
-        float mainGameViewUi_weight = mainGameViewtUiLayoutParams.weight;
-        float mainGameViewWidth = screenWidth * (mainGameViewUi_weight / gameViewWeightSum);
-        LogUtil.d(TAG, "createGameView.mainGameViewWidth = " + mainGameViewWidth);
+        val gameViewWeightSum = gameViewLinearLayout.weightSum
+        val mainGameViewUiLayout = findViewById<LinearLayout>(R.id.gameViewLayout)
+        val mainGameViewUiLayoutParams =
+            mainGameViewUiLayout.layoutParams as LinearLayout.LayoutParams
+        val mainGameViewUiWeight = mainGameViewUiLayoutParams.weight
+        val mainGameViewWidth = screenWidth * (mainGameViewUiWeight / gameViewWeightSum)
+        LogUtil.d(TAG, "createGameView.mainGameViewWidth = $mainGameViewWidth")
 
         // layout_for_game_view.xml
-        float height_weightSum_GameViewUi = 100;    // default
+        var heightWeightSumGameViewUi = 100f // default
         try {
-            LinearLayout gameViewUiLayout = findViewById(R.id.linearlayout_for_game_view_ui);
-            float temp = gameViewUiLayout.getWeightSum();
-            if (temp != 0) {
-                height_weightSum_GameViewUi = temp;
+            val gameViewUiLayout = findViewById<LinearLayout>(R.id.linearlayout_for_game_view_ui)
+            val temp = gameViewUiLayout.weightSum
+            if (temp != 0f) {
+                heightWeightSumGameViewUi = temp
             }
-        } catch (Exception ex) {
-            LogUtil.e(TAG, "createGameView.Exception: ", ex);
+        } catch (ex: Exception) {
+            LogUtil.e(TAG, "createGameView.Exception: ", ex)
         }
 
-        LinearLayout scoreNextBallsLayout = findViewById(R.id.score_next_balls_layout);
-        float width_weightSum_scoreNextBallsLayout = scoreNextBallsLayout.getWeightSum();
-        LinearLayout.LayoutParams scoreNextBallsLayoutParams = (LinearLayout.LayoutParams) scoreNextBallsLayout.getLayoutParams();
-        float height_weight_scoreNextBallsLayout = scoreNextBallsLayoutParams.weight;
+        val scoreNextBallsLayout = findViewById<LinearLayout>(R.id.score_next_balls_layout)
+        val widthWeightSumScoreNextBallsLayout = scoreNextBallsLayout.weightSum
+        val scoreNextBallsLayoutParams =
+            scoreNextBallsLayout.layoutParams as LinearLayout.LayoutParams
+        val heightWeightScoreNextBallsLayout = scoreNextBallsLayoutParams.weight
 
         // display the highest score and current score
-        toolbarTitleTextView = findViewById(R.id.toolbarTitleTextView);
-        ScreenUtil.resizeTextSize(toolbarTitleTextView, textFontSize);
+        toolbarTitleTextView = findViewById(R.id.toolbarTitleTextView)
+        ScreenUtil.resizeTextSize(toolbarTitleTextView, textFontSize)
 
-        currentScoreView = findViewById(R.id.currentScoreTextView);
-        ScreenUtil.resizeTextSize(currentScoreView, textFontSize);
+        currentScoreView = findViewById(R.id.currentScoreTextView)
+        ScreenUtil.resizeTextSize(currentScoreView, textFontSize)
 
         // display the view of next balls
-        GridLayout nextBallsLayout = findViewById(R.id.nextBallsLayout);
-        int nextBallsRow = nextBallsLayout.getRowCount();
-        int nextBallsColumn = nextBallsLayout.getColumnCount();
-        LinearLayout.LayoutParams nextBallsLayoutParams = (LinearLayout.LayoutParams) nextBallsLayout.getLayoutParams();
-        float width_weight_nextBalls = nextBallsLayoutParams.weight;
+        val nextBallsLayout = findViewById<GridLayout>(R.id.nextBallsLayout)
+        val nextBallsRow = nextBallsLayout.rowCount
+        val nextBallsColumn = nextBallsLayout.columnCount
+        val nextBallsLayoutParams = nextBallsLayout.layoutParams as LinearLayout.LayoutParams
+        val widthWeightNextBalls = nextBallsLayoutParams.weight
 
-        int nextBallsViewWidth = (int) (mainGameViewWidth * width_weight_nextBalls / width_weightSum_scoreNextBallsLayout);   // 3/5 of screen width
+        val nextBallsViewWidth =
+            (mainGameViewWidth * widthWeightNextBalls / widthWeightSumScoreNextBallsLayout).toInt() // 3/5 of screen width
 
-        LinearLayout.LayoutParams oneNextBallLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        oneNextBallLp.width = nextBallsViewWidth / nextBallsColumn;
+        val oneNextBallLp = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        oneNextBallLp.width = nextBallsViewWidth / nextBallsColumn
         // the layout_weight for height is 1
-        oneNextBallLp.height = (int) (mainGameViewHeight * height_weight_scoreNextBallsLayout / height_weightSum_GameViewUi);
-        oneNextBallLp.gravity = Gravity.CENTER;
+        oneNextBallLp.height =
+            (mainGameViewHeight * heightWeightScoreNextBallsLayout / heightWeightSumGameViewUi).toInt()
+        oneNextBallLp.gravity = Gravity.CENTER
 
-        ImageView imageView;
-        for (int i = 0; i < nextBallsRow; i++) {
-            for (int j = 0; j < nextBallsColumn; j++) {
-                imageView = new ImageView(this);
-                imageView.setId(MyPresenter.nextBallsViewIdStart + (nextBallsColumn * i + j));
-                imageView.setClickable(false);
-                imageView.setAdjustViewBounds(true);
-                imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-                imageView.setBackgroundResource(R.drawable.next_ball_background_image);
-                nextBallsLayout.addView(imageView, oneNextBallLp);
+        var imageView: ImageView?
+        for (i in 0..<nextBallsRow) {
+            for (j in 0..<nextBallsColumn) {
+                imageView = ImageView(this)
+                imageView.setId(MyPresenter.NB_IMAGEVIEW_START_ID + (nextBallsColumn * i + j))
+                imageView.isClickable = false
+                imageView.setAdjustViewBounds(true)
+                imageView.setScaleType(ImageView.ScaleType.FIT_XY)
+                imageView.setBackgroundResource(R.drawable.next_ball_background_image)
+                nextBallsLayout.addView(imageView, oneNextBallLp)
             }
         }
 
-        FrameLayout gridPartFrameLayout = findViewById(R.id.gridPartFrameLayout);
-        LinearLayout.LayoutParams frameLp = (LinearLayout.LayoutParams) gridPartFrameLayout.getLayoutParams();
-        float height_weight_gridCellsLayout = frameLp.weight;
+        val gridPartFrameLayout = findViewById<FrameLayout>(R.id.gridPartFrameLayout)
+        val frameLp = gridPartFrameLayout.layoutParams as LinearLayout.LayoutParams
+        val heightWeightGridCellsLayout = frameLp.weight
 
         // for 9 x 9 grid: main part of this game
-        GridLayout gridCellsLayout = findViewById(R.id.gridCellsLayout);
-        rowCounts = gridCellsLayout.getRowCount();
-        colCounts = gridCellsLayout.getColumnCount();
-        int cellWidth = (int) (mainGameViewWidth / colCounts);
-        int eight10thOfHeight = (int) (mainGameViewHeight / height_weightSum_GameViewUi * height_weight_gridCellsLayout);
+        val gridCellsLayout = findViewById<GridLayout>(R.id.gridCellsLayout)
+        mRowCounts = gridCellsLayout.rowCount
+        mColCounts = gridCellsLayout.columnCount
+        var cellWidth = (mainGameViewWidth / mColCounts).toInt()
+        val eight10thOfHeight =
+            (mainGameViewHeight / heightWeightSumGameViewUi * heightWeightGridCellsLayout).toInt()
         if (mainGameViewWidth > eight10thOfHeight) {
             // if screen width greater than 8-10th of screen height
-            cellWidth = eight10thOfHeight / rowCounts;
+            cellWidth = eight10thOfHeight / mRowCounts
         }
-        int cellH = cellWidth;
+        val cellH = cellWidth
 
         // added on 2018-10-02 to test and it works
         // setting the width and the height of GridLayout by using the FrameLayout that is on top of it
-        frameLp.width = cellWidth * colCounts;
-        frameLp.topMargin = 20;
-        frameLp.gravity = Gravity.CENTER;
-
-        LinearLayout.LayoutParams oneBallLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        oneBallLp.width = cellWidth;
-        oneBallLp.height = cellH;
-        oneBallLp.gravity = Gravity.CENTER;
+        frameLp.width = cellWidth * mColCounts
+        frameLp.topMargin = 20
+        frameLp.gravity = Gravity.CENTER
+        val oneBallLp = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        oneBallLp.width = cellWidth
+        oneBallLp.height = cellH
+        oneBallLp.gravity = Gravity.CENTER
 
         // set listener for each ImageView
         // ImageView imageView;
-        int imId;
-        for (int i = 0; i < rowCounts; i++) {
-            for (int j = 0; j < colCounts; j++) {
+        var imId: Int
+        for (i in 0..<mRowCounts) {
+            for (j in 0..<mColCounts) {
                 // imId = i * colCounts + j;
-                imId = i * rowCounts + j;
-                imageView = new ImageView(this);
-                imageView.setId(imId);
-                imageView.setAdjustViewBounds(true);
-                imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-                imageView.setBackgroundResource(R.drawable.box_image);
-                imageView.setClickable(true);
-                imageView.setOnClickListener(v -> {
-                    if (!mPresenter.isProcessingJob()) {
-                        mPresenter.doDrawBallsAndCheckListener(v);
+                imId = i * mRowCounts + j
+                imageView = ImageView(this)
+                imageView.setId(imId)
+                imageView.setAdjustViewBounds(true)
+                imageView.setScaleType(ImageView.ScaleType.FIT_XY)
+                imageView.setBackgroundResource(R.drawable.box_image)
+                imageView.isClickable = true
+                imageView.setOnClickListener { v: View ->
+                    if (!mPresenter.isProcessingJob) {
+                        mPresenter.doDrawBallsAndCheckListener(v)
                     }
-                });
-                gridCellsLayout.addView(imageView, imId, oneBallLp);
+                }
+                gridCellsLayout.addView(imageView, imId, oneBallLp)
             }
         }
-
-        // For testing to display score using ImageView
-        scoreImageView = findViewById(R.id.scoreImageView);
-        scoreImageView.setVisibility(View.GONE);
-        //
-        createColorBallsGame(savedInstanceState);
+        scoreImageView = findViewById(R.id.scoreImageView)
+        scoreImageView?.setVisibility(View.GONE)
+        createColorBallsGame(savedInstanceState)
     }
 
-    private void createColorBallsGame(Bundle savedInstanceState) {
-        saveScoreAlertDialog = null;
-        boolean isNewGame = mPresenter.initializeColorBallsGame(rowCounts, colCounts, savedInstanceState);
-        LogUtil.d(TAG, "createColorBallsGame.isNewGame = " + isNewGame);
+    private fun createColorBallsGame(savedInstanceState: Bundle?) {
+        saveScoreAlertDialog = null
+        val isNewGame =
+            mPresenter.initializeColorBallsGame(mRowCounts, mColCounts, savedInstanceState)
+        LogUtil.d(TAG, "createColorBallsGame.isNewGame = $isNewGame")
     }
 
-    private void setDialogStyle(DialogInterface dialog) {
-        AlertDialog dlg = (AlertDialog)dialog;
-        Window win = dlg.getWindow();
-        if (win == null) return ;
+    private fun setDialogStyle(dialog: DialogInterface?) {
+        val dlg = dialog as AlertDialog
+        val win = dlg.window
+        if (win == null) return
 
-        win.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-        win.setDimAmount(0.0f); // no dim for background screen
-        win.setLayout(WindowManager.LayoutParams.WRAP_CONTENT,WindowManager.LayoutParams.WRAP_CONTENT);
-        win.setBackgroundDrawableResource(R.drawable.dialog_board_image);
+        win.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+        win.setDimAmount(0.0f) // no dim for background screen
+        win.setLayout(
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
+        win.setBackgroundDrawableResource(R.drawable.dialog_board_image)
 
-        Button nBtn = dlg.getButton(DialogInterface.BUTTON_NEGATIVE);
-        ScreenUtil.resizeTextSize(nBtn, textFontSize);
-        nBtn.setTypeface(Typeface.DEFAULT_BOLD);
-        nBtn.setTextColor(Color.RED);
+        val nBtn = dlg.getButton(DialogInterface.BUTTON_NEGATIVE)
+        ScreenUtil.resizeTextSize(nBtn, textFontSize)
+        nBtn.setTypeface(Typeface.DEFAULT_BOLD)
+        nBtn.setTextColor(Color.RED)
 
-        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams)nBtn.getLayoutParams();
-        layoutParams.weight = 10;
-        nBtn.setLayoutParams(layoutParams);
+        val layoutParams = nBtn.layoutParams as LinearLayout.LayoutParams
+        layoutParams.weight = 10f
+        nBtn.setLayoutParams(layoutParams)
 
-        Button pBtn = dlg.getButton(DialogInterface.BUTTON_POSITIVE);
-        ScreenUtil.resizeTextSize(pBtn, textFontSize);
-        pBtn.setTypeface(Typeface.DEFAULT_BOLD);
-        pBtn.setTextColor(Color.rgb(0x00,0x64,0x00));
-        pBtn.setLayoutParams(layoutParams);
+        val pBtn = dlg.getButton(DialogInterface.BUTTON_POSITIVE)
+        ScreenUtil.resizeTextSize(pBtn, textFontSize)
+        pBtn.setTypeface(Typeface.DEFAULT_BOLD)
+        pBtn.setTextColor(Color.rgb(0x00, 0x64, 0x00))
+        pBtn.setLayoutParams(layoutParams)
     }
 
-    private void quitOrNewGame(final int entryPoint) {
-        if (entryPoint==0) {
+    private fun quitOrNewGame(entryPoint: Int) {
+        if (entryPoint == 0) {
             //  END PROGRAM
-            exitApplication();
-        } else if (entryPoint==1) {
+            exitApplication()
+        } else if (entryPoint == 1) {
             //  NEW GAME
-            createColorBallsGame(null);
+            createColorBallsGame(null)
         }
     }
 
-    private void showTop10Players(boolean isLocal) {
-        Intent topIntent = new Intent(this, Top10Activity.class);
-        Bundle extras = new Bundle();
-        extras.putString(Constants.GAME_ID, Constants.FIVE_COLOR_BALLS_ID);
-        extras.putString(Constants.DATABASE_NAME, FiveBallsConstants.FIVE_COLOR_BALLS_DATABASE);
-        extras.putBoolean(Constants.IS_LOCAL_TOP10, isLocal);
-        topIntent.putExtras(extras);
-        top10Launcher.launch(topIntent);
+    private fun showTop10Players(isLocal: Boolean) {
+        val topIntent = Intent(this, Top10Activity::class.java)
+        val extras = Bundle()
+        extras.putString(Constants.GAME_ID, Constants.FIVE_COLOR_BALLS_ID)
+        extras.putString(Constants.DATABASE_NAME, FiveBallsConstants.FIVE_COLOR_BALLS_DATABASE)
+        extras.putBoolean(Constants.IS_LOCAL_TOP10, isLocal)
+        topIntent.putExtras(extras)
+        top10Launcher.launch(topIntent)
     }
 
-    private void setBannerAndNativeAdUI() {
-        LinearLayout bannerLinearLayout = findViewById(R.id.linearlayout_for_ads_in_myActivity);
-        String bannerId = FiveCBallsApp.ADMOB_BANNER_ID;     // real Banner ID
+    private fun setBannerAndNativeAdUI() {
+        val bannerLinearLayout =
+            findViewById<LinearLayout?>(R.id.linearlayout_for_ads_in_myActivity)
+        val bannerId = FiveCBallsApp.ADMOB_BANNER_ID // real Banner ID
         // use test Banner ID, Google’s universal test IDs
         // bannerId = "ca-app-pub-3940256099942544/6300978111";   // test Banner ID
-        myBannerAdView = new SetBannerAdView(this, null,
-                bannerLinearLayout, bannerId, "");
-        myBannerAdView.showBannerAdView(0); // AdMob first
+        myBannerAdView = SetBannerAdView(
+            this, null,
+            bannerLinearLayout, bannerId, ""
+        )
+        myBannerAdView?.showBannerAdView(0) // AdMob first
 
         // show AdMob native ad if the device is tablet
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            String nativeAdvancedId0 = FiveCBallsApp.ADMOB_NATIVE_ID;     // real native ad unit id
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            val nativeAdvancedId0 = FiveCBallsApp.ADMOB_NATIVE_ID // real native ad unit id
             // nativeAdvancedId0 = "ca-app-pub-3940256099942544/2247696110";   // test native ad unit id
-            FrameLayout nativeAdsFrameLayout = findViewById(R.id.nativeAdsFrameLayout);
-            nativeAdsFrameLayout.setVisibility(View.VISIBLE);
-            com.google.android.ads.nativetemplates.TemplateView nativeAdTemplateView
-                    = findViewById(R.id.nativeAdTemplateView);
-            nativeAdTemplateView.setVisibility(View.VISIBLE);
-            nativeTemplate = new GoogleAdMobNativeTemplate(this, nativeAdsFrameLayout
-                    , nativeAdvancedId0, nativeAdTemplateView);
-            nativeTemplate.showNativeAd();
+            val nativeAdsFrameLayout = findViewById<FrameLayout>(R.id.nativeAdsFrameLayout)
+            nativeAdsFrameLayout.visibility = View.VISIBLE
+            val nativeAdTemplateView = findViewById<TemplateView>(R.id.nativeAdTemplateView)
+            nativeAdTemplateView.visibility = View.VISIBLE
+            nativeTemplate = GoogleAdMobNativeTemplate(
+                this, nativeAdsFrameLayout,
+                nativeAdvancedId0, nativeAdTemplateView
+            )
+            nativeTemplate?.showNativeAd()
         }
     }
 
-    private void exitApplication() {
-        final Handler handlerClose = new Handler(Looper.getMainLooper());
-        final int timeDelay = 200;
+    private fun exitApplication() {
+        val handlerClose = Handler(Looper.getMainLooper())
+        val timeDelay = 200
         // exit application
-        handlerClose.postDelayed(this::finish,timeDelay);
+        handlerClose.postDelayed({ this.finish() }, timeDelay.toLong())
     }
 
     // implementing MyActivity.PresentView
-    @Override
-    public @NotNull String getLoadingStr() {
-        return getString(R.string.loadingString);
+    override fun getLoadingStr(): String {
+        return getString(R.string.loadingString)
     }
 
-    @Override
-    public @NotNull String geSavingGameStr() {
-        return getString(R.string.savingGameString);
+    override fun geSavingGameStr(): String {
+        return getString(R.string.savingGameString)
     }
 
-    @Override
-    public @NotNull String getLoadingGameStr() {
-        return getString(R.string.loadingGameString);
+    override fun getLoadingGameStr(): String {
+        return getString(R.string.loadingGameString)
     }
 
-    @Override
-    public @NotNull String getSureToSaveGameStr() {
-        return getString(R.string.sureToSaveGameStr);
+    override fun getSureToSaveGameStr(): String {
+        return getString(R.string.sureToSaveGameStr)
     }
 
-    @Override
-    public @NotNull String getSureToLoadGameStr() {
-        return getString(R.string.sureToLoadGameStr);
+    override fun getSureToLoadGameStr(): String {
+        return getString(R.string.sureToLoadGameStr)
     }
 
-    @Override
-    public @NotNull String getSaveScoreStr() {
-        return getString(R.string.saveScoreStr);
+    override fun getSaveScoreStr(): String {
+        return getString(R.string.saveScoreStr)
     }
 
-    @Override
-    public @NotNull SoundPoolUtil soundPool() {
-        LogUtil.d(TAG, "soundPool");
-        SoundPoolUtil sPool = new SoundPoolUtil(this, R.raw.uhoh);
-        LogUtil.d(TAG, "soundPool.sPool = " + sPool);
-        return sPool;
+    override fun soundPool(): SoundPoolUtil {
+        LogUtil.d(TAG, "soundPool")
+        val sPool = SoundPoolUtil(this, R.raw.uhoh)
+        LogUtil.d(TAG, "soundPool.sPool = $sPool")
+        return sPool
     }
 
-    @Override
-    public @NotNull ScoreSQLite getScoreDatabase() {
-        return new ScoreSQLite(this, FiveBallsConstants.FIVE_COLOR_BALLS_DATABASE);
+    override fun getScoreDatabase(): ScoreSQLite {
+        return ScoreSQLite(this, FiveBallsConstants.FIVE_COLOR_BALLS_DATABASE)
     }
 
-    @Override
-    public FileInputStream fileInputStream(@NotNull String fileName) {
-        FileInputStream fis = null;
+    override fun fileInputStream(fileName: String): FileInputStream? {
+        var fis: FileInputStream? = null
         try {
-            fis = new FileInputStream(new File(getFilesDir(), fileName));
-        } catch (FileNotFoundException ex) {
-            LogUtil.e(TAG, "FileInputStream.FileNotFoundException: ", ex);
+            fis = FileInputStream(File(filesDir, fileName))
+        } catch (ex: FileNotFoundException) {
+            LogUtil.e(TAG, "FileInputStream.FileNotFoundException: ", ex)
         }
-        return fis;
+        return fis
     }
 
-    @Override
-    public FileOutputStream fileOutputStream(@NotNull String fileName) {
-        FileOutputStream fos = null;
+    override fun fileOutputStream(fileName: String): FileOutputStream? {
+        var fos: FileOutputStream? = null
         try {
-            fos = new FileOutputStream(new File(getFilesDir(), fileName));
-        } catch (FileNotFoundException ex) {
-            LogUtil.e(TAG, "fileOutputStream.FileNotFoundException: ", ex);
+            fos = FileOutputStream(File(filesDir, fileName))
+        } catch (ex: FileNotFoundException) {
+            LogUtil.e(TAG, "fileOutputStream.FileNotFoundException: ", ex)
         }
-        return fos;
+        return fos
     }
 
-    @Override
-    public HashMap<Integer, Bitmap> getColorBallMap() {
-        return colorBallMap;
+    override fun getColorBallMap(): HashMap<Int, Bitmap> {
+        return mColorBallMap
     }
 
-    @Override
-    public HashMap<Integer, Bitmap> getColorOvalBallMap() {
-        return colorOvalBallMap;
+    override fun getColorOvalBallMap(): HashMap<Int, Bitmap> {
+        return mColorOvalBallMap
     }
 
-    @Override
-    public ImageView getImageViewById(int id) {
-        return findViewById(id);
+    override fun getImageViewById(id: Int): ImageView {
+        return findViewById(id)
     }
 
-    @Override
-    public void updateHighestScoreOnUi(int highestScore) {
-        toolbarTitleTextView.setText(String.format(Locale.getDefault(), "%8d", highestScore));
+    override fun updateHighestScoreOnUi(highestScore: Int) {
+        toolbarTitleTextView?.text = String.format(Locale.ENGLISH, "%8d", highestScore)
     }
 
-    @Override
-    public void updateCurrentScoreOnUi(int score) {
-        currentScoreView.setText(String.format(Locale.getDefault(), "%8d", score));
+    override fun updateCurrentScoreOnUi(score: Int) {
+        currentScoreView?.text = String.format(Locale.ENGLISH, "%8d", score)
     }
 
-    @Override
-    public void showMessageOnScreen(String messageString) {
-        Bitmap dialog_board_image = BitmapFactory.decodeResource(getResources(),
-                R.drawable.dialog_board_image);
-        Bitmap showBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(dialog_board_image,
-                messageString, Color.RED);
-        scoreImageView.setVisibility(View.VISIBLE);
-        scoreImageView.setImageBitmap(showBitmap);
+    override fun showMessageOnScreen(message: String) {
+        val dialogBoardImage = BitmapFactory.decodeResource(
+            resources,R.drawable.dialog_board_image)
+        val showBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(
+            dialogBoardImage, message, Color.RED)
+        scoreImageView?.setVisibility(View.VISIBLE)
+        scoreImageView?.setImageBitmap(showBitmap)
     }
 
-    @Override
-    public void dismissShowMessageOnScreen() {
-        scoreImageView.setImageBitmap(null);
-        scoreImageView.setVisibility(View.GONE);
+    override fun dismissShowMessageOnScreen() {
+        scoreImageView?.setImageBitmap(null)
+        scoreImageView?.setVisibility(View.GONE)
     }
 
-    @Override
-    public void showSaveGameDialog() {
-        sureSaveDialog = AlertDialogFragment.newInstance(new AlertDialogFragment.DialogButtonListener() {
-            @Override
-            public void noButtonOnClick(AlertDialogFragment dialogFragment) {
+    override fun showSaveGameDialog() {
+        sureSaveDialog = AlertDialogFragment.newInstance(object : DialogButtonListener {
+            override fun noButtonOnClick(dialogFragment: AlertDialogFragment) {
                 // cancel the action of saving game
-                dialogFragment.dismissAllowingStateLoss();
-                mPresenter.setShowingSureSaveDialog(false);
+                dialogFragment.dismissAllowingStateLoss()
+                mPresenter.setShowingSureSaveDialog(false)
             }
 
-            @Override
-            public void okButtonOnClick(AlertDialogFragment dialogFragment) {
+            override fun okButtonOnClick(dialogFragment: AlertDialogFragment) {
                 // start saving game to internal storage
-                dialogFragment.dismissAllowingStateLoss();
-                mPresenter.setShowingSureSaveDialog(false);
-                boolean succeeded = mPresenter.startSavingGame();
-                String msg;
-                if (succeeded) {
-                    msg = getString(R.string.succeededSaveGameString);
+                dialogFragment.dismissAllowingStateLoss()
+                mPresenter.setShowingSureSaveDialog(false)
+                val succeeded = mPresenter.startSavingGame()
+                val msg = if (succeeded) {
+                    getString(R.string.succeededSaveGameString)
                 } else {
-                    msg = getString(R.string.failedSaveGameString);
+                    getString(R.string.failedSaveGameString)
                 }
-                LogUtil.d(TAG, "showSaveGameDialog.okButtonOnClick.msg = " + msg);
-                ScreenUtil.showToast(MyActivity.this, msg, textFontSize, Toast.LENGTH_LONG);
+                LogUtil.d(TAG, "showSaveGameDialog.okButtonOnClick.msg = $msg")
+                ScreenUtil.showToast(this@MyActivity, msg, textFontSize, Toast.LENGTH_LONG)
             }
-        });
-        Bundle args = new Bundle();
-        args.putString("TextContent", getString(R.string.sureToSaveGameString));
-        args.putInt("FontSize_Scale_Type", ScreenUtil.FontSize_Pixel_Type);
-        args.putFloat("TextFontSize", textFontSize);
-        args.putInt("Color", Color.BLUE);
-        args.putInt("Width", 0);    // wrap_content
-        args.putInt("Height", 0);   // wrap_content
-        args.putInt("NumButtons", 2);
-        args.putBoolean("IsAnimation", false);
+        })
+        val args = Bundle()
+        args.putString("TextContent", getString(R.string.sureToSaveGameString))
+        args.putInt("FontSize_Scale_Type", ScreenUtil.FontSize_Pixel_Type)
+        args.putFloat("TextFontSize", textFontSize)
+        args.putInt("Color", Color.BLUE)
+        args.putInt("Width", 0) // wrap_content
+        args.putInt("Height", 0) // wrap_content
+        args.putInt("NumButtons", 2)
+        args.putBoolean("IsAnimation", false)
 
-        mPresenter.setShowingSureSaveDialog(true);
-        sureSaveDialog.setArguments(args);
-        sureSaveDialog.show(getSupportFragmentManager(), "SureSaveDialogTag");
+        mPresenter.setShowingSureSaveDialog(true)
+        sureSaveDialog?.arguments = args
+        sureSaveDialog?.show(supportFragmentManager, "SureSaveDialogTag")
     }
 
-    @Override
-    public void showLoadGameDialog() {
-        sureLoadDialog = AlertDialogFragment.newInstance(new AlertDialogFragment.DialogButtonListener() {
-            @Override
-            public void noButtonOnClick(AlertDialogFragment dialogFragment) {
+    override fun showLoadGameDialog() {
+        sureLoadDialog = AlertDialogFragment.newInstance(object : DialogButtonListener {
+            override fun noButtonOnClick(dialogFragment: AlertDialogFragment) {
                 // cancel the action of loading game
-                dialogFragment.dismissAllowingStateLoss();
-                mPresenter.setShowingSureLoadDialog(false);
+                dialogFragment.dismissAllowingStateLoss()
+                mPresenter.setShowingSureLoadDialog(false)
             }
 
-            @Override
-            public void okButtonOnClick(AlertDialogFragment dialogFragment) {
+            override fun okButtonOnClick(dialogFragment: AlertDialogFragment) {
                 // start loading game to internal storage
-                dialogFragment.dismissAllowingStateLoss();
-                mPresenter.setShowingSureLoadDialog(false);
-                boolean succeeded = mPresenter.startLoadingGame();
-                String msg;
-                if (succeeded) {
-                    msg = getString(R.string.succeededLoadGameString);
+                dialogFragment.dismissAllowingStateLoss()
+                mPresenter.setShowingSureLoadDialog(false)
+                val succeeded = mPresenter.startLoadingGame()
+                val msg = if (succeeded) {
+                    getString(R.string.succeededLoadGameString)
                 } else {
-                    msg = getString(R.string.failedLoadGameString);
+                    getString(R.string.failedLoadGameString)
                 }
-                ScreenUtil.showToast(MyActivity.this, msg, textFontSize, Toast.LENGTH_LONG);
+                ScreenUtil.showToast(this@MyActivity, msg, textFontSize, Toast.LENGTH_LONG)
             }
-        });
-        Bundle args = new Bundle();
-        args.putString("TextContent", getString(R.string.sureToLoadGameString));
-        args.putInt("FontSize_Scale_Type", ScreenUtil.FontSize_Pixel_Type);
-        args.putFloat("TextFontSize", textFontSize);
-        args.putInt("Color", Color.BLUE);
-        args.putInt("Width", 0);    // wrap_content
-        args.putInt("Height", 0);   // wrap_content
-        args.putInt("NumButtons", 2);
-        args.putBoolean("IsAnimation", false);
+        })
+        val args = Bundle()
+        args.putString("TextContent", getString(R.string.sureToLoadGameString))
+        args.putInt("FontSize_Scale_Type", ScreenUtil.FontSize_Pixel_Type)
+        args.putFloat("TextFontSize", textFontSize)
+        args.putInt("Color", Color.BLUE)
+        args.putInt("Width", 0) // wrap_content
+        args.putInt("Height", 0) // wrap_content
+        args.putInt("NumButtons", 2)
+        args.putBoolean("IsAnimation", false)
 
-        mPresenter.setShowingSureLoadDialog(true);
-        sureLoadDialog.setArguments(args);
-        sureLoadDialog.show(getSupportFragmentManager(), "SureLoadDialogTag");
+        mPresenter.setShowingSureLoadDialog(true)
+        sureLoadDialog?.arguments = args
+        sureLoadDialog?.show(supportFragmentManager, "SureLoadDialogTag")
     }
 
-    @Override
-    public void showGameOverDialog() {
-        gameOverDialog = AlertDialogFragment.newInstance(new AlertDialogFragment.DialogButtonListener() {
-            @Override
-            public void noButtonOnClick(AlertDialogFragment dialogFragment) {
+    override fun showGameOverDialog() {
+        gameOverDialog = AlertDialogFragment.newInstance(object : DialogButtonListener {
+            override fun noButtonOnClick(dialogFragment: AlertDialogFragment) {
                 // dialogFragment.dismiss();
-                dialogFragment.dismissAllowingStateLoss();
-                mPresenter.quitGame();   //   Ending the game
+                dialogFragment.dismissAllowingStateLoss()
+                mPresenter.quitGame() //   Ending the game
             }
-
-            @Override
-            public void okButtonOnClick(AlertDialogFragment dialogFragment) {
+            override fun okButtonOnClick(dialogFragment: AlertDialogFragment) {
                 // dialogFragment.dismiss();
-                dialogFragment.dismissAllowingStateLoss();
-                mPresenter.newGame();
+                dialogFragment.dismissAllowingStateLoss()
+                mPresenter.newGame()
             }
-        });
-        Bundle args = new Bundle();
-        args.putString("TextContent", getString(R.string.gameOverStr));
-        args.putInt("FontSize_Scale_Type", ScreenUtil.FontSize_Pixel_Type);
-        args.putFloat("TextFontSize", textFontSize);
-        args.putInt("Color", Color.BLUE);
-        args.putInt("Width", 0);    // wrap_content
-        args.putInt("Height", 0);   // wrap_content
-        args.putInt("NumButtons", 2);
-        args.putBoolean("IsAnimation", false);
+        })
+        val args = Bundle()
+        args.putString("TextContent", getString(R.string.gameOverStr))
+        args.putInt("FontSize_Scale_Type", ScreenUtil.FontSize_Pixel_Type)
+        args.putFloat("TextFontSize", textFontSize)
+        args.putInt("Color", Color.BLUE)
+        args.putInt("Width", 0) // wrap_content
+        args.putInt("Height", 0) // wrap_content
+        args.putInt("NumButtons", 2)
+        args.putBoolean("IsAnimation", false)
 
-        gameOverDialog.setArguments(args);
-        gameOverDialog.show(getSupportFragmentManager(), GameOverDialogTag);
+        gameOverDialog?.arguments = args
+        gameOverDialog?.show(supportFragmentManager, GAME_OVER_DIALOG_TAG)
 
-        LogUtil.d(TAG, "gameOverDialog.show() has been called.");
+        LogUtil.d(TAG, "gameOverDialog.show() has been called.")
     }
 
-    @Override
-    public void showSaveScoreAlertDialog(final int entryPoint) {
-        mPresenter.setSaveScoreAlertDialogState(entryPoint, true);
-        final EditText et = new EditText(this);
-        et.setTextColor(Color.BLUE);
-        et.setHint(getString(R.string.nameStr));
-        ScreenUtil.resizeTextSize(et, textFontSize);
-        et.setGravity(Gravity.CENTER);
-        saveScoreAlertDialog = new AlertDialog.Builder(this).create();
-        saveScoreAlertDialog.setTitle(null);
-        saveScoreAlertDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        saveScoreAlertDialog.setCancelable(false);
-        saveScoreAlertDialog.setView(et);
-        saveScoreAlertDialog.setButton(DialogInterface.BUTTON_NEGATIVE,
-                getString(R.string.cancelStr), (dialog, which) -> {
-            dialog.dismiss();
-            quitOrNewGame(entryPoint);
-            mPresenter.setSaveScoreAlertDialogState(entryPoint, false);
-            saveScoreAlertDialog = null;
-        });
-        saveScoreAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE,
-                getString(R.string.submitStr), (dialog, which) -> {
-            mPresenter.saveScore(et.getText().toString());
-            dialog.dismiss();
-            quitOrNewGame(entryPoint);
-            mPresenter.setSaveScoreAlertDialogState(entryPoint, false);
-            saveScoreAlertDialog = null;
-        });
+    override fun showSaveScoreAlertDialog(entryPoint: Int) {
+        mPresenter.setSaveScoreAlertDialogState(entryPoint, true)
+        val et = EditText(this)
+        et.setTextColor(Color.BLUE)
+        et.setHint(getString(R.string.nameStr))
+        ScreenUtil.resizeTextSize(et, textFontSize)
+        et.setGravity(Gravity.CENTER)
+        saveScoreAlertDialog = AlertDialog.Builder(this).create()
+        saveScoreAlertDialog?.setTitle(null)
+        saveScoreAlertDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        saveScoreAlertDialog?.setCancelable(false)
+        saveScoreAlertDialog?.setView(et)
+        saveScoreAlertDialog?.setButton(
+            DialogInterface.BUTTON_NEGATIVE,
+            getString(R.string.cancelStr)
+        ) { dialog: DialogInterface?, which: Int ->
+            dialog!!.dismiss()
+            quitOrNewGame(entryPoint)
+            mPresenter.setSaveScoreAlertDialogState(entryPoint, false)
+            saveScoreAlertDialog = null
+        }
+        saveScoreAlertDialog?.setButton(
+            DialogInterface.BUTTON_POSITIVE,
+            getString(R.string.submitStr)
+        ) { dialog: DialogInterface?, which: Int ->
+            mPresenter.saveScore(et.getText().toString())
+            dialog!!.dismiss()
+            quitOrNewGame(entryPoint)
+            mPresenter.setSaveScoreAlertDialogState(entryPoint, false)
+            saveScoreAlertDialog = null
+        }
 
-        saveScoreAlertDialog.setOnShowListener(this::setDialogStyle);
+        saveScoreAlertDialog?.setOnShowListener { dialog: DialogInterface? ->
+            this.setDialogStyle(
+                dialog
+            )
+        }
 
-        saveScoreAlertDialog.show();
-    }
-    // end of implementing
+        saveScoreAlertDialog?.show()
+    } // end of implementing
 }

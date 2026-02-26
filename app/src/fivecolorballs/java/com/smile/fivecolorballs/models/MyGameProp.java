@@ -26,8 +26,6 @@ public class MyGameProp implements Parcelable {
     private boolean isEasyLevel;
     private boolean hasSound;
     private boolean hasNext;
-    private MyGridData gridData;
-
     public boolean isShowingLoadingMessage() {
         return isShowingLoadingMessage;
     }
@@ -188,7 +186,7 @@ public class MyGameProp implements Parcelable {
         isEasyLevel = easyLevel;
     }
 
-    public boolean isHasSound() {
+    public boolean getHasSound() {
         return hasSound;
     }
 
@@ -196,20 +194,12 @@ public class MyGameProp implements Parcelable {
         this.hasSound = hasSound;
     }
 
-    public boolean isHasNext() {
+    public boolean getHasNext() {
         return hasNext;
     }
 
     public void setHasNext(boolean hasNext) {
         this.hasNext = hasNext;
-    }
-
-    public MyGridData getGridData() {
-        return gridData;
-    }
-
-    public void setGridData(MyGridData gridData) {
-        this.gridData = gridData;
     }
 
     @Override
@@ -241,10 +231,9 @@ public class MyGameProp implements Parcelable {
         dest.writeByte(this.isEasyLevel ? (byte) 1 : (byte) 0);
         dest.writeByte(this.hasSound ? (byte) 1 : (byte) 0);
         dest.writeByte(this.hasNext ? (byte) 1 : (byte) 0);
-        dest.writeParcelable(this.gridData, flags);
     }
 
-    public MyGameProp(MyGridData gridData) {
+    public MyGameProp() {
         isShowingLoadingMessage = false;
         isShowingScoreMessage = false;
         isShowNextBallsAfterBlinking = false;
@@ -267,7 +256,6 @@ public class MyGameProp implements Parcelable {
         isEasyLevel = true; // start with easy level
         hasSound = true;    // has sound effect
         hasNext = true;    // has next balls showing
-        setGridData(gridData);
     }
 
     protected MyGameProp(Parcel in) {
@@ -293,7 +281,6 @@ public class MyGameProp implements Parcelable {
         this.isEasyLevel = in.readByte() != 0;
         this.hasSound = in.readByte() != 0;
         this.hasNext = in.readByte() != 0;
-        this.gridData = in.readParcelable(MyGridData.class.getClassLoader());
     }
 
     public static final Creator<MyGameProp> CREATOR = new Creator<>() {
