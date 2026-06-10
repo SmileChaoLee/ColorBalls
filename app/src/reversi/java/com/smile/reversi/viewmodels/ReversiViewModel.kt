@@ -1,16 +1,14 @@
-package com.smile.reversi
+package com.smile.reversi.viewmodels
 
 import android.os.Bundle
-import android.graphics.Point
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.viewModelScope
-import com.smile.colorballs_main.models.GameProp
-import com.smile.colorballs_main.viewmodel.BaseViewModel
 import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.constants.WhichGame
+import com.smile.colorballs_main.models.GameProp
 import com.smile.colorballs_main.tools.LogUtil
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.smile.colorballs_main.viewmodel.BaseViewModel
+import com.smile.reversi.models.ReversiGridData
+import com.smile.reversi.presenters.ReversiPresenter
 
 class ReversiViewModel(private val rPresenter: ReversiPresenter)
     : BaseViewModel(rPresenter) {
@@ -21,7 +19,14 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
 
     private var rGameProp: GameProp = GameProp()
     private var rGridData: ReversiGridData = ReversiGridData()
+    private var createNewGameStr = ""
     private val currentPlayer = mutableStateOf(Constants.COLOR_RED)
+
+    private val createNewGameText = mutableStateOf("")
+    fun getCreateNewGameText() = createNewGameText.value
+    fun setCreateNewGameText(text: String) {
+        createNewGameText.value = text
+    }
 
     init {
         LogUtil.i(TAG, "ReversiViewModel.init")
@@ -71,8 +76,14 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
     override fun startLoadingGame(): Boolean { return false }
 
     override fun saveInstanceState(outState: Bundle) {
-        outState.putParcelable(com.smile.colorballs_main.constants.Constants.GAME_PROP_TAG, rGameProp)
-        outState.putParcelable(com.smile.colorballs_main.constants.Constants.GRID_DATA_TAG, rGridData)
+        outState.putParcelable(Constants.GAME_PROP_TAG, rGameProp)
+        outState.putParcelable(Constants.GRID_DATA_TAG, rGridData)
+    }
+
+    fun isCreatingNewGame() {
+        LogUtil.i(TAG, "isCreatingNewGame")
+        mGameAction = Constants.IS_CREATING_GAME
+        setCreateNewGameText(createNewGameStr)
     }
 
     override fun newGame() {

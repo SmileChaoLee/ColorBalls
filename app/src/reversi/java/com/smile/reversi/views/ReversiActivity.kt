@@ -1,12 +1,15 @@
-package com.smile.reversi
+package com.smile.reversi.views
 
 import android.os.Bundle
 import androidx.compose.runtime.Composable
 import com.smile.colorballs_main.R
+import com.smile.colorballs_main.constants.WhichGame
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.views.CbComposable
 import com.smile.colorballs_main.views.CbRmBaseView
-import com.smile.colorballs_main.constants.WhichGame
+import com.smile.reversi.interfaces.ReversiPresentView
+import com.smile.reversi.presenters.ReversiPresenter
+import com.smile.reversi.viewmodels.ReversiViewModel
 
 class ReversiActivity: CbRmBaseView(), ReversiPresentView {
 

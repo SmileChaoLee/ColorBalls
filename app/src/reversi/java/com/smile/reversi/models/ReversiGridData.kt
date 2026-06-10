@@ -1,9 +1,9 @@
-package com.smile.reversi
+package com.smile.reversi.models
 
 import android.graphics.Point
 import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.models.GridData
-import com.smile.colorballs_main.tools.LogUtil
+import com.smile.reversi.constants.ReversiConstants
 import kotlinx.parcelize.Parcelize
 
 @Parcelize

@@ -1,4 +1,4 @@
-package com.smile.reversi
+package com.smile.reversi.constants
 
 object ReversiConstants {
     const val ROW_COUNTS = 8

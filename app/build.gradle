@@ -22,11 +22,11 @@ android {
         }
     }
 
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 23
-        targetSdk = 36
+        targetSdk = 37
         multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -64,6 +64,12 @@ android {
             versionName "4.000"
             applicationId = "com.smile.fivecolorballs"
         }
+        create("reversi") {
+            dimension = "product"
+            versionCode 1000
+            versionName "1.000"
+            applicationId = "com.smile.reversi"
+        }
     }
 
     sourceSets {
@@ -74,7 +80,6 @@ android {
                 srcFile "src/main/AndroidManifest.xml"
             }
         }
-
         colorballs {
             java.srcDirs += ["src/colorballs/java"]
             res.srcDirs += ["src/colorballs/res"]
@@ -82,7 +87,6 @@ android {
                 srcFile "src/colorballs/AndroidManifest.xml"
             }
         }
-
         ballsremover {
             java.srcDirs += ["src/ballsremover/java"]
             res.srcDirs += ["src/ballsremover/res"]
@@ -90,7 +94,6 @@ android {
                 srcFile "src/ballsremover/AndroidManifest.xml"
             }
         }
-
         dropcolorballs {
             java.srcDirs += ["src/dropcolorballs/java"]
             res.srcDirs += ["src/dropcolorballs/res"]
@@ -98,12 +101,18 @@ android {
                 srcFile "src/dropcolorballs/AndroidManifest.xml"
             }
         }
-
         fivecolorballs {
             java.srcDirs += ["src/fivecolorballs/java"]
             res.srcDirs += ["src/fivecolorballs/res"]
             manifest {
                 srcFile "src/fivecolorballs/AndroidManifest.xml"
+            }
+        }
+        reversi {
+            java.srcDirs += ["src/reversi/java"]
+            res.srcDirs += ["src/reversi/res"]
+            manifest {
+                srcFile "src/reversi/AndroidManifest.xml"
             }
         }
     }
