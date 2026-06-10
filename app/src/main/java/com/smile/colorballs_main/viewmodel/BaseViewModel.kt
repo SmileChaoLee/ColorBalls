@@ -56,7 +56,7 @@ abstract class BaseViewModel(
 
     protected var mGameProp = GameProp()
     protected var mGridData = GridData()
-    var mGameAction = Constants.IS_QUITING_GAME
+    var mGameAction = Constants.IS_APP_JUST_STARTED
     var rowCounts: Int = 0
         private set(value) {
             if (value != field) field = value
@@ -296,7 +296,7 @@ abstract class BaseViewModel(
 
     fun quitGame() {
         // quiting the game
-        LogUtil.i(TAG, "quitGame")
+        LogUtil.d(TAG, "quitGame.saveScoreStr = $saveScoreStr")
         mGameAction = Constants.IS_QUITING_GAME
         setSaveScoreTitle(saveScoreStr)
     }

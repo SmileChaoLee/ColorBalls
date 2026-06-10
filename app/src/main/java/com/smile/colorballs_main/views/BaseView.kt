@@ -704,8 +704,8 @@ abstract class BaseView: ComponentActivity(),
     }
 
     @Composable
-    fun SaveScoreDialog() {
-        LogUtil.i(TAG, "SaveScoreDialog")
+    open fun SaveScoreDialog() {
+        LogUtil.d(TAG, "SaveScoreDialog")
         val dialogTitle = baseViewModel.getSaveScoreTitle()
         if (dialogTitle.isNotEmpty()) {
             baseViewModel.setSaveScoreAlertDialogState(true)

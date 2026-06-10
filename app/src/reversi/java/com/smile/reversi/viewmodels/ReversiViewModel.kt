@@ -41,7 +41,6 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
         LogUtil.i(TAG, "initGame")
         rGameProp.initializeKeepSetting(WhichGame.REMOVE_BALLS)
         rGridData.initialize()
-        setCurrentScore(rGridData.countColor(Constants.COLOR_RED))
         displayGameGridView()
     }
 
@@ -69,11 +68,94 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
                 currentPlayer.value = color
             }
         }
-        setCurrentScore(rGridData.countColor(Constants.COLOR_RED))
+
     }
 
-    override fun startSavingGame(): Boolean { return false }
-    override fun startLoadingGame(): Boolean { return false }
+    override fun startSavingGame(): Boolean {
+        LogUtil.i(TAG, "startSavingGame")
+        rGameProp.isProcessingJob = true
+        setScreenMessage(savingGameStr)
+        var succeeded = true
+        try {
+            val foStream = rPresenter.fileOutputStream(Constants.SAVE_BALLS_REMOVER)
+            // save settings
+            if (hasSound()) foStream.write(1) else foStream.write(0)
+            if (getGameLevel() == Constants.GAME_LEVEL_1) foStream.write(1) else foStream.write(0)
+            if (hasNext()) foStream.write(1) else foStream.write(0)
+            // save current player
+            foStream.write(currentPlayer.value)
+            // save values on game grid
+            for (i in 0 until rowCounts) {
+                for (j in 0 until colCounts) {
+                    foStream.write(rGridData.getCellValue(i, j))
+                }
+            }
+            // save backupCells
+            val backup = rGridData.getBackupCells()
+            for (i in 0 until rowCounts) {
+                for (j in 0 until colCounts) {
+                    foStream.write(backup[i][j])
+                }
+            }
+            foStream.close()
+            LogUtil.d(TAG, "startSavingGame.Succeeded.")
+        } catch (ex: java.io.IOException) {
+            succeeded = false
+            LogUtil.e(TAG, "startSavingGame.Failed.", ex)
+        }
+        setScreenMessage("")
+        rGameProp.isProcessingJob = false
+        return succeeded
+    }
+
+    override fun startLoadingGame(): Boolean {
+        LogUtil.i(TAG, "startLoadingGame")
+        rGameProp.isProcessingJob = true
+        setScreenMessage(loadingGameStr)
+        var succeeded = true
+        try {
+            val fiStream = rPresenter.fileInputStream(Constants.SAVE_BALLS_REMOVER)
+            // read game settings
+            var bValue = fiStream.read()
+            val hasSound = bValue == 1
+            bValue = fiStream.read()
+            val gameLevel = bValue
+            bValue = fiStream.read()
+            val hasNext = bValue == 1
+            setHasSound(hasSound)
+            setGameLevel(gameLevel)
+            setHasNext(hasNext)
+            // read current player
+            val cp = fiStream.read()
+            currentPlayer.value = cp
+            // load values on game grid
+            val gameCells = Array(rowCounts) { IntArray(colCounts) }
+            for (i in 0 until rowCounts) {
+                for (j in 0 until colCounts) {
+                    gameCells[i][j] = fiStream.read()
+                }
+            }
+            // reading backupCells
+            val backupCells = Array(rowCounts) { IntArray(colCounts) }
+            for (i in 0 until rowCounts) {
+                for (j in 0 until colCounts) {
+                    backupCells[i][j] = fiStream.read()
+                }
+            }
+            fiStream.close()
+
+            // refresh UI with loaded data
+            rGridData.setCellValues(gameCells)
+            rGridData.setBackupCells(backupCells)
+                displayGameGridView()
+        } catch (ex: java.io.IOException) {
+            ex.printStackTrace()
+            succeeded = false
+        }
+        setScreenMessage("")
+        rGameProp.isProcessingJob = false
+        return succeeded
+    }
 
     override fun saveInstanceState(outState: Bundle) {
         outState.putParcelable(Constants.GAME_PROP_TAG, rGameProp)
