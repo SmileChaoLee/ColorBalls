@@ -1,6 +1,7 @@
 package com.smile.reversi.viewmodels
 
 import android.os.Bundle
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.constants.WhichGame
@@ -20,7 +21,7 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
     private var rGameProp: GameProp = GameProp()
     private var rGridData: ReversiGridData = ReversiGridData()
     private var createNewGameStr = ""
-    private val currentPlayer = mutableStateOf(Constants.COLOR_RED)
+    private val currentPlayer = mutableIntStateOf(Constants.COLOR_RED)
 
     private val createNewGameText = mutableStateOf("")
     fun getCreateNewGameText() = createNewGameText.value
@@ -35,19 +36,21 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
         super.setProperties()
     }
 
-    fun getCurrentPlayer() = currentPlayer.value
+    fun getCurrentPlayer() = currentPlayer.intValue
 
     override fun initGame(bundle: Bundle?) {
         LogUtil.i(TAG, "initGame")
         rGameProp.initializeKeepSetting(WhichGame.REMOVE_BALLS)
         rGridData.initialize()
+        // Red always starts
+        currentPlayer.intValue = Constants.COLOR_RED
         displayGameGridView()
     }
 
     override fun cellClickListener(i: Int, j: Int) {
         LogUtil.i(TAG, "cellClickListener.($i,$j)")
         if (rGridData.getCellValue(i, j) != 0) return
-        val color = currentPlayer.value
+        val color = currentPlayer.intValue
         val flips = rGridData.flipsForMove(i, j, color)
         if (flips.isEmpty()) return
         rGridData.backupCells()
@@ -56,7 +59,7 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
 
         // switch player
         val nextColor = if (color == Constants.COLOR_RED) Constants.COLOR_BLUE else Constants.COLOR_RED
-        currentPlayer.value = nextColor
+        currentPlayer.intValue = nextColor
         val opponentMoves = rGridData.getValidMoves(currentPlayer.value)
         if (opponentMoves.isEmpty()) {
             val myMoves = rGridData.getValidMoves(color)
@@ -65,7 +68,7 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
                 gameOver()
             } else {
                 // skip opponent
-                currentPlayer.value = color
+                currentPlayer.intValue = color
             }
         }
 
@@ -83,7 +86,7 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
             if (getGameLevel() == Constants.GAME_LEVEL_1) foStream.write(1) else foStream.write(0)
             if (hasNext()) foStream.write(1) else foStream.write(0)
             // save current player
-            foStream.write(currentPlayer.value)
+            foStream.write(currentPlayer.intValue)
             // save values on game grid
             for (i in 0 until rowCounts) {
                 for (j in 0 until colCounts) {
@@ -127,7 +130,7 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
             setHasNext(hasNext)
             // read current player
             val cp = fiStream.read()
-            currentPlayer.value = cp
+            currentPlayer.intValue = cp
             // load values on game grid
             val gameCells = Array(rowCounts) { IntArray(colCounts) }
             for (i in 0 until rowCounts) {
@@ -170,6 +173,8 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
 
     override fun newGame() {
         rGridData.initialize()
+        // Reset to starting player (red)
+        currentPlayer.intValue = Constants.COLOR_RED
         displayGameGridView()
     }
 
