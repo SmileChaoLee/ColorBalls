@@ -60,8 +60,9 @@ class BallsRemoverActivity: CbRmBaseView(), BallsRmPresentView {
                 }
             }
             CbComposable.DialogWithText(
-                this@BallsRemoverActivity,
-                buttonListener, "", dialogText
+                buttonListener, "", dialogText,
+                getString(R.string.okStr),
+                getString(R.string.noStr)
             )
         }
     }

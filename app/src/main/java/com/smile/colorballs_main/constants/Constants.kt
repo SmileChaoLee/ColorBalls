@@ -16,6 +16,7 @@ object Constants {
     const val SAVE_HAS_BARRIER = "SavedGame1"
     const val SAVE_BALLS_REMOVER = "SaveBallsRemover"
     const val SAVE_DROP_BALLS = "SavedDropColorBalls"
+    const val SAVE_REVERSI = "SavedReversi"
     const val HAS_SOUND = "HasSound"
     const val HAS_NEXT = "HasNextBall"
     const val TOP10_PLAYERS = "Top10Players"
@@ -41,6 +42,7 @@ object Constants {
 
     const val IS_CREATING_GAME = 1
     const val IS_QUITING_GAME = 0
+    const val IS_APP_JUST_STARTED = -1
 
     const val GLOBAL_TOP10_ACTION_NAME = "com.smile.Service.GlobalTop10"
     const val LOCAL_TOP10_ACTION_NAME = "com.smile.Service.LocalTop10"

@@ -120,6 +120,7 @@ abstract class BaseView: ComponentActivity(),
     open fun actionOnClick() {}
     open fun stopActionOnClick() {}
     open fun setTheGameLevel(gameLevel: Int) = baseViewModel.setGameLevel(gameLevel)
+    open fun hasTop10Menu() = true
 
     var menuBarWeight = 1.0f
     var gameGridWeight = 7.0f
@@ -461,7 +462,7 @@ abstract class BaseView: ComponentActivity(),
         finish()
     }
 
-    private fun exitApplication() {
+    fun exitApplication() {
         LogUtil.i(TAG, "exitApplication")
         /*
         val handlerClose = Handler(Looper.getMainLooper())
@@ -474,14 +475,14 @@ abstract class BaseView: ComponentActivity(),
     }
 
     fun quitOrNewGame() {
-        LogUtil.i(TAG, "quitOrNewGame")
+        LogUtil.d(TAG, "quitOrNewGame")
         if (baseViewModel.mGameAction == Constants.IS_QUITING_GAME) {
             //  END PROGRAM
-            LogUtil.i(TAG, "quitOrNewGame.exitApplication")
+            LogUtil.d(TAG, "quitOrNewGame.exitApplication")
             exitApplication()
         } else if (baseViewModel.mGameAction == Constants.IS_CREATING_GAME) {
             //  NEW GAME
-            LogUtil.i(TAG, "quitOrNewGame.ifInterstitialWhenNewGame")
+            LogUtil.d(TAG, "quitOrNewGame.ifInterstitialWhenNewGame")
             ifInterstitialWhenNewGame()
         }
         baseViewModel.setSaveScoreAlertDialogState(false)
@@ -666,8 +667,9 @@ abstract class BaseView: ComponentActivity(),
                 }
             }
             CbComposable.DialogWithText(
-                this@BaseView,
-                buttonListener, "", dialogText
+                buttonListener, "", dialogText,
+                getString(R.string.okStr),
+                getString(R.string.noStr)
             )
         }
     }
@@ -697,8 +699,9 @@ abstract class BaseView: ComponentActivity(),
                 }
             }
             CbComposable.DialogWithText(
-                this@BaseView,
-                buttonListener, "", dialogText
+                buttonListener, "", dialogText,
+                getString(R.string.okStr),
+                getString(R.string.noStr)
             )
         }
     }
@@ -1015,25 +1018,27 @@ abstract class BaseView: ComponentActivity(),
                     )
                     .padding(all = 0.dp),
             ) {
-                val isGlobalTop10Clicked = remember { mutableStateOf(false) }
-                CbComposable.DropdownMenuItem(
-                    text = getString(R.string.globalTop10Str),
-                    color = if (isGlobalTop10Clicked.value) Color.Red else Color.Black,
-                    onClick = {
-                        expanded = false
-                        showColorWhenClick(isGlobalTop10Clicked)
-                        showTop10Players(isLocal = false)
-                    })
+                if (hasTop10Menu()) {
+                    val isGlobalTop10Clicked = remember { mutableStateOf(false) }
+                    CbComposable.DropdownMenuItem(
+                        text = getString(R.string.globalTop10Str),
+                        color = if (isGlobalTop10Clicked.value) Color.Red else Color.Black,
+                        onClick = {
+                            expanded = false
+                            showColorWhenClick(isGlobalTop10Clicked)
+                            showTop10Players(isLocal = false)
+                        })
 
-                val isLocalTop10Clicked = remember { mutableStateOf(false) }
-                CbComposable.DropdownMenuItem(
-                    text = getString(R.string.localTop10Score),
-                    color = if (isLocalTop10Clicked.value) Color.Red else Color.Black,
-                    onClick = {
-                        expanded = false
-                        showColorWhenClick(isLocalTop10Clicked)
-                        showTop10Players(isLocal = true)
-                    })
+                    val isLocalTop10Clicked = remember { mutableStateOf(false) }
+                    CbComposable.DropdownMenuItem(
+                        text = getString(R.string.localTop10Score),
+                        color = if (isLocalTop10Clicked.value) Color.Red else Color.Black,
+                        onClick = {
+                            expanded = false
+                            showColorWhenClick(isLocalTop10Clicked)
+                            showTop10Players(isLocal = true)
+                        })
+                }
 
                 if (!isDropBalls()) {
                     val isSaveGameClicked = remember { mutableStateOf(false) }

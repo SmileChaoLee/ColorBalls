@@ -467,12 +467,14 @@ object CbComposable {
     }
 
     @Composable
-    fun DialogWithText(activity: Activity,
-                       buttonListener: ButtonClickListener,
-                       dialogTitle: String, dialogText: String) {
+    fun DialogWithText(
+        buttonListener: ButtonClickListener,
+        dialogTitle: String, dialogText: String,
+        okStr: String, noStr: String
+    ) {
         LogUtil.d(TAG, "DialogWithText")
-        val okStr = activity.getString(R.string.okStr)
-        val noStr = activity.getString(R.string.noStr)
+        // val okStr = activity.getString(R.string.okStr)
+        // val noStr = activity.getString(R.string.noStr)
         val lightRed = Color(0xffff4444)
         AlertDialog(
             icon = null, title = {
@@ -494,30 +496,34 @@ object CbComposable {
             textContentColor = Color.Blue,
             onDismissRequest = { /* isOpen = false */ },
             confirmButton = {
-                Button(
-                    onClick = {
-                        // isOpen = false
-                        buttonListener.buttonOkClick()
-                    }, colors = ButtonColors(
-                        containerColor = ColorPrimary,
-                        disabledContainerColor = ColorPrimary,
-                        contentColor = Color.Yellow,
-                        disabledContentColor = Color.Yellow
-                    )
-                ) { Text(text = okStr, fontSize = mFontSize) }
+                if (okStr.isNotEmpty()) {
+                    Button(
+                        onClick = {
+                            // isOpen = false
+                            buttonListener.buttonOkClick()
+                        }, colors = ButtonColors(
+                            containerColor = ColorPrimary,
+                            disabledContainerColor = ColorPrimary,
+                            contentColor = Color.Yellow,
+                            disabledContentColor = Color.Yellow
+                        )
+                    ) { Text(text = okStr, fontSize = mFontSize) }
+                }
             },
             dismissButton = {
-                Button(
-                    onClick = {
-                        // isOpen = false
-                        buttonListener.buttonCancelClick()
-                    }, colors = ButtonColors(
-                        containerColor = ColorPrimary,
-                        disabledContainerColor = ColorPrimary,
-                        contentColor = lightRed,
-                        disabledContentColor = lightRed
-                    )
-                ) { Text(text = noStr, fontSize = mFontSize) }
+                if (noStr.isNotEmpty()) {
+                    Button(
+                        onClick = {
+                            // isOpen = false
+                            buttonListener.buttonCancelClick()
+                        }, colors = ButtonColors(
+                            containerColor = ColorPrimary,
+                            disabledContainerColor = ColorPrimary,
+                            contentColor = lightRed,
+                            disabledContentColor = lightRed
+                        )
+                    ) { Text(text = noStr, fontSize = mFontSize) }
+                }
             }
         )
     }
@@ -602,6 +608,7 @@ object CbComposable {
     fun ShowAdmobBanner(modifier: Modifier = Modifier,
                         bannerID: String, width: Int = 0) {
         LogUtil.d(TAG, "ShowAdmobBanner.bannerID = $bannerID")
+        if (bannerID.isEmpty()) return
         AndroidView(
             modifier = modifier,
             factory = { context ->

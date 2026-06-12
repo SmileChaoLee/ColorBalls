@@ -4,28 +4,31 @@ import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.smile.colorballs_main.R
 import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.constants.WhichGame
 import com.smile.colorballs_main.tools.LogUtil
-import com.smile.colorballs_main.views.BaseView
 import com.smile.colorballs_main.views.CbComposable
 import com.smile.colorballs_main.views.CbRmBaseView
 import com.smile.reversi.interfaces.ReversiPresentView
 import com.smile.reversi.presenters.ReversiPresenter
 import com.smile.reversi.viewmodels.ReversiViewModel
-import com.smile.smilelibraries.models.ExitAppTimer
 
 class ReversiActivity: CbRmBaseView(), ReversiPresentView {
 
@@ -35,6 +38,8 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
 
     private lateinit var viewModel: ReversiViewModel
     private lateinit var mPresenter: ReversiPresenter
+
+    override fun hasTop10Menu() = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         LogUtil.i(TAG, "$TAG.onCreate.savedInstanceState = $savedInstanceState")
@@ -54,6 +59,8 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
 
     @Composable
     override fun CreateNewGameDialog() {
+        LogUtil.d(TAG, "CreateNewGameDialog")
+        /*
         val dialogText = viewModel.getCreateNewGameText()
         if (dialogText.isNotEmpty()) {
             viewModel.setShowingCreateGameDialog(true)
@@ -69,10 +76,12 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
                 }
             }
             CbComposable.DialogWithText(
-                this@ReversiActivity,
-                buttonListener, "", dialogText
+                buttonListener, "", dialogText,
+                getString(R.string.okStr),
+                getString(R.string.noStr)
             )
         }
+        */
     }
 
     override fun getCurrentPresenter(): ReversiPresenter {
@@ -87,10 +96,64 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
     override fun SaveScoreDialog() {
         val dialogTitle = baseViewModel.getSaveScoreTitle()
         LogUtil.d(TAG, "SaveScoreDialog.dialogTitle = $dialogTitle")
-        // if (viewModel.mGameAction == Constants.IS_APP_JUST_STARTED) return
         if (dialogTitle.isEmpty()) return
-        quitOrNewGame()
+        if (baseViewModel.mGameAction == Constants.IS_QUITING_GAME) {
+            exitApplication()
+            return
+        }
+        val buttonListener = object : CbComposable.ButtonClickListener {
+            override fun buttonOkClick() {
+                baseViewModel.setSaveScoreTitle("")
+                viewModel.newGame()
+            }
+            override fun buttonCancelClick() {
+                baseViewModel.setSaveScoreTitle("")
+                viewModel.newGame()
+            }
+        }
+        CbComposable.DialogWithText(
+            buttonListener, "", dialogTitle,
+            getString(R.string.okStr), ""
+        )
     }
+
+    /*
+    @Composable
+    override fun SaveScoreDialog() {
+        val dialogTitle = baseViewModel.getSaveScoreTitle()
+        LogUtil.d(TAG, "SaveScoreDialog.dialogTitle = $dialogTitle")
+        if (dialogTitle.isEmpty()) return
+        // quitOrNewGame()
+        // Render a centered, in-layout dialog over the game grid (one OK button)
+        Dialog(onDismissRequest = {
+            baseViewModel.setSaveScoreTitle("")
+        },
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+            content = {
+                Column(
+                    modifier = Modifier
+                        .background(color = androidx.compose.ui.graphics.Color(0xffffa500))
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    androidx.compose.material3.Text(
+                        text = dialogTitle,
+                        fontSize = CbComposable.mFontSize,
+                        color = androidx.compose.ui.graphics.Color.White
+                    )
+                    androidx.compose.foundation.layout.Spacer(modifier = Modifier.size(12.dp))
+                    androidx.compose.material3.Button(onClick = {
+                        baseViewModel.setSaveScoreTitle("")
+                        viewModel.newGame()
+                    }) {
+                        androidx.compose.material3.Text(text = getString(R.string.okStr),
+                            fontSize = CbComposable.mFontSize)
+                    }
+                }
+            })
+    }
+     */
 
     override fun ifInterstitialWhenSaveScore() {
         // otherwise do nothing
@@ -133,10 +196,7 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
                 // intentionally empty to match layout
             }
 
-            // Right: Undo, Setting, Menu with equal weights
-            UndoButton(modifier = Modifier
-                .weight(1f)
-                .align(Alignment.CenterVertically))
+            // Right: Setting, Menu with equal weights
             SettingButton(modifier = Modifier
                 .weight(1f)
                 .align(Alignment.CenterVertically))

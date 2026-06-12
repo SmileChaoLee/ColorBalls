@@ -5,8 +5,8 @@
     <application
         tools:replace="android:icon"
         android:name="com.smile.reversi.ReversiApp"
-        android:icon="@drawable/balls_remover_app_icon"
-        android:label="@string/balls_remover_name">
+        android:icon="@drawable/reversi_app_icon"
+        android:label="@string/reversi_name">
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
