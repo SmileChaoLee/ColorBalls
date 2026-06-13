@@ -4,22 +4,14 @@ import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.smile.colorballs_main.R
 import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.constants.WhichGame
@@ -54,7 +46,7 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
     // implement GameOptions
     override fun setWhichGame() {
         LogUtil.i(TAG, "setWhichGame")
-        viewModel.setWhichGame(WhichGame.REMOVE_BALLS)
+        viewModel.setWhichGame(WhichGame.REVERSI)
     }
 
     @Composable

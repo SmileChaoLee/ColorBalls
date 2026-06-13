@@ -148,7 +148,10 @@ abstract class BaseViewModel(
             val score = db.getHighestScore()
             LogUtil.d(TAG, "getAndSetHighestScore.score = $score")
             db.close()
-            setHighestScore(score)
+            // setHighestScore(score)
+            kotlinx.coroutines.withContext(Dispatchers.Main) {
+                setHighestScore(score)
+            }
         }
     }
 

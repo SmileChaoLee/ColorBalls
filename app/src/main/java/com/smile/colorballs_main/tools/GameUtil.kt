@@ -10,6 +10,7 @@ object GameUtil {
         WhichGame.HAS_BARRIER -> Constants.GAME_HAS_BARRIER_ID
         WhichGame.REMOVE_BALLS -> Constants.BALLS_REMOVER_ID
         WhichGame.DROP_BALLS -> Constants.DROP_COLOR_BALLS_ID
+        WhichGame.REVERSI -> Constants.REVERSI_ID
     }
 
     fun getDatabaseName(whichGame: WhichGame) = when(whichGame) {
@@ -17,6 +18,7 @@ object GameUtil {
         WhichGame.HAS_BARRIER -> Constants.HAS_BARRIER_DATABASE_NAME
         WhichGame.REMOVE_BALLS -> Constants.BALLS_REMOVER_DATABASE_NAME
         WhichGame.DROP_BALLS -> Constants.DROP_COLOR_BALLS_DATABASE
+        WhichGame.REVERSI -> Constants.REVERSI_DATABASE
     }
 
     fun getSaveFileName(whichGame: WhichGame) = when(whichGame) {
@@ -24,5 +26,6 @@ object GameUtil {
         WhichGame.HAS_BARRIER -> Constants.SAVE_HAS_BARRIER
         WhichGame.REMOVE_BALLS -> Constants.SAVE_BALLS_REMOVER
         WhichGame.DROP_BALLS -> Constants.SAVE_DROP_BALLS
+        WhichGame.REVERSI -> Constants.SAVE_REVERSI
     }
 }

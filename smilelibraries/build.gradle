@@ -10,17 +10,17 @@ plugins {
 }
 
 android {
-    compileSdk = 36
+    compileSdk = 37
     defaultConfig {
         minSdk 23
-        targetSdk 36
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
+                    'proguard-rules.pro'
         }
     }
 
@@ -51,6 +51,12 @@ android {
     // Add this block
     room {
         schemaDirectory "$projectDir/schemas"
+    }
+    lint {
+        targetSdk = 37
+    }
+    testOptions {
+        targetSdk = 37
     }
 }
 

@@ -3,6 +3,7 @@ package com.smile.reversi.viewmodels
 import android.os.Bundle
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.viewModelScope
 import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.constants.WhichGame
 import com.smile.colorballs_main.models.GameProp
@@ -10,8 +11,8 @@ import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.viewmodel.BaseViewModel
 import com.smile.reversi.models.ReversiGridData
 import com.smile.reversi.presenters.ReversiPresenter
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
@@ -47,7 +48,7 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
 
     override fun initGame(bundle: Bundle?) {
         LogUtil.d(TAG, "initGame")
-        rGameProp.initializeKeepSetting(WhichGame.REMOVE_BALLS)
+        rGameProp.initializeKeepSetting(WhichGame.REVERSI)
         rGridData.initialize()
         // Red always starts
         currentPlayer.intValue = Constants.COLOR_RED
@@ -96,10 +97,7 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
             }
         } else if (currentPlayer.intValue == COMPUTER_PLAYER) {
             // Computer's turn - schedule automated move
-            CoroutineScope(Dispatchers.Main).launch {
-                kotlinx.coroutines.delay(COMPUTER_MOVE_DELAY)
-                makeComputerMove()
-            }
+            scheduleComputerMove()
         }
     }
 
@@ -179,7 +177,7 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
             // refresh UI with loaded data
             rGridData.setCellValues(gameCells)
             rGridData.setBackupCells(backupCells)
-                displayGameGridView()
+            displayGameGridView()
         } catch (ex: java.io.IOException) {
             ex.printStackTrace()
             succeeded = false
@@ -231,6 +229,13 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
         setSaveScoreTitle(message)
     }
 
+    private fun scheduleComputerMove() {
+        viewModelScope.launch(Dispatchers.Main) {
+            delay(COMPUTER_MOVE_DELAY)
+            makeComputerMove()
+        }
+    }
+
     private fun makeComputerMove() {
         val validMoves = rGridData.getValidMoves(COMPUTER_PLAYER)
         if (validMoves.isEmpty()) {
@@ -265,10 +270,7 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
             } else {
                 // skip human player
                 currentPlayer.intValue = COMPUTER_PLAYER
-                CoroutineScope(Dispatchers.Main).launch {
-                    kotlinx.coroutines.delay(COMPUTER_MOVE_DELAY)
-                    makeComputerMove()
-                }
+                scheduleComputerMove()
             }
         }
     }

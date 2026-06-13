@@ -339,7 +339,7 @@ object CbComposable {
                             // val no2Str = activity.getString(R.string.no2)
                             // val easyStr = activity.getString(R.string.easyStr)
                             // val diffStr = activity.getString(R.string.difficultStr)
-                            var gameLevel by remember { mutableStateOf(setting.gameLevel) }
+                            var gameLevel by remember { mutableIntStateOf(setting.gameLevel) }
                             MenuItemText(
                                 // text = activity.getString(R.string.playerLevelStr),
                                 text = playerLevelStr,

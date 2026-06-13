@@ -1,6 +1,6 @@
 [versions]
 accompanistDrawablepainter = "0.37.3"
-agp = "8.13.2"
+agp = "9.1.1"
 appcompat = "1.7.1"
 billingKtx = "8.2.1"
 composeBomVersion = "2025.12.00"

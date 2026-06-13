@@ -99,7 +99,7 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
 
     private fun initData() {
         LogUtil.i(TAG, "initData")
-        brGameProp.initializeKeepSetting(getWhichGame())
+        brGameProp.initializeKeepSetting(WhichGame.REMOVE_BALLS)
         brGridData.initialize()
     }
 
