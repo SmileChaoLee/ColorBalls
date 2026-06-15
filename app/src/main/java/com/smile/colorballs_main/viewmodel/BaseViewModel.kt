@@ -141,6 +141,10 @@ abstract class BaseViewModel(
 
     fun isProcessingJob() = mGameProp.isProcessingJob
 
+    fun setProcessingJob(isProcessingJob: Boolean) {
+        mGameProp.isProcessingJob = isProcessingJob
+    }
+
     fun getAndSetHighestScore() {
         LogUtil.i(TAG, "getAndSetHighestScore")
         viewModelScope.launch(Dispatchers.IO) {
@@ -286,7 +290,6 @@ abstract class BaseViewModel(
     }
 
     fun setSaveScoreAlertDialogState(state: Boolean) {
-        // mGameProp.isProcessingJob = state
         if (mGameAction == Constants.IS_CREATING_GAME) {
             // new game
             setShowingNewGameDialog(state)
@@ -294,10 +297,10 @@ abstract class BaseViewModel(
             // quit game
             setShowingQuitGameDialog(state)
         }
-        mGameProp.isProcessingJob = false
+        setProcessingJob(false)
     }
 
-    fun quitGame() {
+    open fun quitGame() {
         // quiting the game
         LogUtil.d(TAG, "quitGame.saveScoreStr = $saveScoreStr")
         mGameAction = Constants.IS_QUITING_GAME

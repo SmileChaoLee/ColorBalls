@@ -11,30 +11,32 @@ class ReversiGridData : GridData(ReversiConstants.ROW_COUNTS, ReversiConstants.C
 
     companion object {
         private const val TAG = "ReversiGridData"
+        const val COMPUTER_PLAYER = Constants.COLOR_BLUE
+        const val HUMAN_PLAYER = Constants.COLOR_RED
     }
 
     override fun initialize() {
         super.initialize()
         // starting position: (3,3)=blue(white), (3,4)=red(black), (4,3)=red, (4,4)=blue
-        val r = Constants.COLOR_RED
-        val b = Constants.COLOR_BLUE
+        val r = HUMAN_PLAYER
+        val b = COMPUTER_PLAYER
         mCellValues[3][3] = b
         mCellValues[3][4] = r
         mCellValues[4][3] = r
         mCellValues[4][4] = b
     }
 
-    private fun opponent(color: Int) = if (color == Constants.COLOR_RED) Constants.COLOR_BLUE else Constants.COLOR_RED
+    private fun opponent(player: Int) = if (player == HUMAN_PLAYER) COMPUTER_PLAYER else HUMAN_PLAYER
 
     // returns list of points to flip for move at (x,y) for color; empty if invalid
-    fun flipsForMove(x: Int, y: Int, color: Int): List<Point> {
+    fun flipsForMove(x: Int, y: Int, player: Int): List<Point> {
         val flips = ArrayList<Point>()
         if (mCellValues[x][y] != 0) return flips
         val dirs = arrayOf(
             intArrayOf(1, 0), intArrayOf(-1, 0), intArrayOf(0, 1), intArrayOf(0, -1),
             intArrayOf(1, 1), intArrayOf(1, -1), intArrayOf(-1, 1), intArrayOf(-1, -1)
         )
-        val opp = opponent(color)
+        val opp = opponent(player)
         for (d in dirs) {
             var i = x + d[0]
             var j = y + d[1]
@@ -44,7 +46,7 @@ class ReversiGridData : GridData(ReversiConstants.ROW_COUNTS, ReversiConstants.C
                 val v = mCellValues[i][j]
                 if (v == opp) {
                     temp.add(Point(i, j))
-                } else if (v == color) {
+                } else if (v == player) {
                     if (temp.isNotEmpty()) found = true
                     break
                 } else {
@@ -58,11 +60,11 @@ class ReversiGridData : GridData(ReversiConstants.ROW_COUNTS, ReversiConstants.C
         return flips
     }
 
-    fun getValidMoves(color: Int): List<Point> {
+    fun getValidMoves(player: Int): List<Point> {
         val list = ArrayList<Point>()
         for (i in 0 until rowCounts) for (j in 0 until colCounts) {
             if (mCellValues[i][j] == 0) {
-                if (flipsForMove(i, j, color).isNotEmpty()) list.add(Point(i, j))
+                if (flipsForMove(i, j, player).isNotEmpty()) list.add(Point(i, j))
             }
         }
         return list
@@ -76,15 +78,15 @@ class ReversiGridData : GridData(ReversiConstants.ROW_COUNTS, ReversiConstants.C
         return true
     }
 
-    fun countColor(color: Int): Int {
+    fun countPlayer(player: Int): Int {
         var c = 0
-        for (i in 0 until rowCounts) for (j in 0 until colCounts) if (mCellValues[i][j] == color) c++
+        for (i in 0 until rowCounts) for (j in 0 until colCounts) if (mCellValues[i][j] == player) c++
         return c
     }
 
     override fun isGameOver(): Boolean {
-        val redMoves = getValidMoves(Constants.COLOR_RED)
-        val blueMoves = getValidMoves(Constants.COLOR_BLUE)
-        return redMoves.isEmpty() && blueMoves.isEmpty()
+        val humanMoves = getValidMoves(HUMAN_PLAYER)
+        val computerMoves = getValidMoves(COMPUTER_PLAYER)
+        return humanMoves.isEmpty() && computerMoves.isEmpty()
     }
 }

@@ -21,8 +21,8 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
 
     companion object {
         private const val TAG = "ReversiViewModel"
-        private const val COMPUTER_PLAYER = Constants.COLOR_BLUE
-        private const val HUMAN_PLAYER = Constants.COLOR_RED
+        private const val COMPUTER_PLAYER = ReversiGridData.COMPUTER_PLAYER
+        private const val HUMAN_PLAYER = ReversiGridData.HUMAN_PLAYER
         private const val COMPUTER_MOVE_DELAY = 500L // milliseconds
         private const val CURRENT_PLAYER_TAG = "CurrentPlayer"
         private const val SAVE_SCORE_STR_TAG = "SaveScoreStr"
@@ -51,7 +51,7 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
 
     override fun initGame(bundle: Bundle?) {
         LogUtil.d(TAG, "initGame bundle=$bundle")
-        rGameProp.isProcessingJob = true
+        setProcessingJob(true)
         val isNewGame = restoreState(bundle)
         displayGameGridView()
         if (!isNewGame) {
@@ -61,7 +61,7 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
                 lastPartOfInitialGame()
             }
         }
-        rGameProp.isProcessingJob = false
+        setProcessingJob(false)
     }
 
     private fun restoreState(state: Bundle?): Boolean {
@@ -115,54 +115,43 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
     }
 
     override fun cellClickListener(i: Int, j: Int) {
+        // this function is only for HUMAN_PLAYER
         LogUtil.d(TAG, "cellClickListener.($i,$j)")
-        // If game is already over, show dialog (once) and ignore further clicks
+        if (isProcessingJob()) return
+        // If cell already occupied
+        if (rGridData.getCellValue(i, j) != 0) {
+            return
+        }
+        val player = if (currentPlayer.intValue == HUMAN_PLAYER) {
+            "HumanHUMAN_PLAYER"
+        } else {
+            "COMPUTER_PLAYER"
+        }
+        LogUtil.d(TAG, "cellClickListener.player = $player")
+        val curPlayer = currentPlayer.intValue  // it must be HUMAN_PLAYER
+        val flips = rGridData.flipsForMove(i, j, curPlayer)
+        // If the move is invalid (no flips), play uhoh for human and ignore
+        if (flips.isEmpty()) {
+            if (hasSound()) {
+                soundPool?.playSound()
+            }
+            return
+        }
+        // rGridData.backupCells()  // No need to backup for undo, since undo is not supported in this game
+        rGridData.placePiece(i, j, curPlayer)
+        displayGameGridView()
+        setProcessingJob(false)
         if (rGridData.isGameOver()) {
             gameOver()
             return
         }
-        // If cell already occupied, play uhoh for human and ignore
-        if (rGridData.getCellValue(i, j) != 0) {
-            if (currentPlayer.intValue == HUMAN_PLAYER && hasSound()) {
-                soundPool?.playSound()
-            }
-            return
-        }
-        val color = currentPlayer.intValue
-        val flips = rGridData.flipsForMove(i, j, color)
-        // If the move is invalid (no flips), play uhoh for human and ignore
-        if (flips.isEmpty()) {
-            if (currentPlayer.intValue == HUMAN_PLAYER && hasSound()) {
-                soundPool?.playSound()
-            }
-            return
-        }
-        rGridData.backupCells()
-        rGridData.placePiece(i, j, color)
-        displayGameGridView()
-
-        // switch player
-        val nextColor = if (color == Constants.COLOR_RED) Constants.COLOR_BLUE else Constants.COLOR_RED
-        currentPlayer.intValue = nextColor
-        val opponentMoves = rGridData.getValidMoves(currentPlayer.intValue)
-        if (opponentMoves.isEmpty()) {
-            val myMoves = rGridData.getValidMoves(color)
-            if (myMoves.isEmpty()) {
-                // game over
-                gameOver()
-            } else {
-                // skip opponent
-                currentPlayer.intValue = color
-            }
-        } else if (currentPlayer.intValue == COMPUTER_PLAYER) {
-            // Computer's turn - schedule automated move
-            scheduleComputerMove()
-        }
+        // Computer's turn - schedule automated move
+        scheduleComputerMove()
     }
 
     override fun startSavingGame(): Boolean {
         LogUtil.d(TAG, "startSavingGame")
-        rGameProp.isProcessingJob = true
+        setProcessingJob(true)
         setScreenMessage(savingGameStr)
         var succeeded = true
         try {
@@ -193,13 +182,13 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
             LogUtil.e(TAG, "startSavingGame.Failed.", ex)
         }
         setScreenMessage("")
-        rGameProp.isProcessingJob = false
+        setProcessingJob(false)
         return succeeded
     }
 
     override fun startLoadingGame(): Boolean {
         LogUtil.d(TAG, "startLoadingGame")
-        rGameProp.isProcessingJob = true
+        setProcessingJob(true)
         setScreenMessage(loadingGameStr)
         var succeeded = true
         try {
@@ -242,7 +231,7 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
             succeeded = false
         }
         setScreenMessage("")
-        rGameProp.isProcessingJob = false
+        setProcessingJob(false)
         return succeeded
     }
 
@@ -263,19 +252,9 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
         setCreateNewGameText(createNewGameStr)
     }
 
-    /*
-    override fun newGame() {
-        rGridData.initialize()
-        // Reset to starting player (red)
-        currentPlayer.intValue = Constants.COLOR_RED
-        displayGameGridView()
-    }
-    */
-
-    override fun newGame() {
-        LogUtil.d(TAG, "newGame.called by gameOver()")
-        val redCount = rGridData.countColor(Constants.COLOR_RED)
-        val blueCount = rGridData.countColor(Constants.COLOR_BLUE)
+    private fun whoWinsMessage() {
+        val redCount = rGridData.countPlayer(HUMAN_PLAYER)
+        val blueCount = rGridData.countPlayer(COMPUTER_PLAYER)
         val message = when {
             redCount > blueCount -> {
                 val diff = redCount - blueCount
@@ -288,6 +267,16 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
             else -> "It's a tie: Red: $redCount, Blue: $blueCount"
         }
         saveScoreStr = message
+    }
+
+    override fun quitGame() {
+        whoWinsMessage()
+        super.quitGame()
+    }
+
+    override fun newGame() {
+        LogUtil.d(TAG, "newGame.called by gameOver()")
+        whoWinsMessage()
         mGameAction = Constants.IS_CREATING_GAME
         setSaveScoreTitle(saveScoreStr)
     }
@@ -298,48 +287,45 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
     }
 
     private fun scheduleComputerMove() {
+        LogUtil.d(TAG, "scheduleComputerMove")
+        setProcessingJob(true)
+        currentPlayer.intValue = COMPUTER_PLAYER
         viewModelScope.launch(Dispatchers.Main) {
             delay(COMPUTER_MOVE_DELAY)
             makeComputerMove()
+            setProcessingJob(false)
         }
     }
 
     private fun makeComputerMove() {
+        val logStr = "makeComputerMove"
+        LogUtil.d(TAG, logStr)
         val validMoves = rGridData.getValidMoves(COMPUTER_PLAYER)
         if (validMoves.isEmpty()) {
-            LogUtil.d(TAG, "Computer has no valid moves")
-            val humanMoves = rGridData.getValidMoves(HUMAN_PLAYER)
-            if (humanMoves.isEmpty()) {
-                // game over
-                gameOver()
-            } else {
-                // skip computer player
-                currentPlayer.intValue = HUMAN_PLAYER
-                LogUtil.d(TAG, "Computer skipped, human's turn")
-            }
+            LogUtil.d(TAG, "$logStr.skip COMPUTER_PLAYER")
+            // skip COMPUTER_PLAYER, show a message on screen
+            currentPlayer.intValue = HUMAN_PLAYER
             return
         }
-
         // Choose best move: prioritize corners, then edges, then maximize flips
         val bestMove = chooseBestMove(validMoves)
         rGridData.backupCells()
         rGridData.placePiece(bestMove.x, bestMove.y, COMPUTER_PLAYER)
         displayGameGridView()
-        LogUtil.d(TAG, "Computer moved to (${bestMove.x}, ${bestMove.y})")
-
+        LogUtil.d(TAG, "$logStr.Computer moved to (${bestMove.x}, ${bestMove.y})")
+        if (rGridData.isGameOver()) {
+            // game over
+            LogUtil.d(TAG, "$logStr.Game is over")
+            gameOver()
+            return
+        }
         // switch back to human player
         currentPlayer.intValue = HUMAN_PLAYER
         val humanMoves = rGridData.getValidMoves(HUMAN_PLAYER)
         if (humanMoves.isEmpty()) {
-            val computerMoves = rGridData.getValidMoves(COMPUTER_PLAYER)
-            if (computerMoves.isEmpty()) {
-                // game over
-                gameOver()
-            } else {
-                // skip human player
-                currentPlayer.intValue = COMPUTER_PLAYER
-                scheduleComputerMove()
-            }
+            // skip HUMAN_PLAYER, show a message on screen
+            LogUtil.d(TAG, "$logStr.skip HUMAN_PLAYER")
+            scheduleComputerMove()
         }
     }
 
