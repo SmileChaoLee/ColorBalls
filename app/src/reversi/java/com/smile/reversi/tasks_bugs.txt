@@ -1,0 +1,2 @@
+# Checking if it is game over might have bugs
+# Show a message dialog when there is no steps to move for each player for one second

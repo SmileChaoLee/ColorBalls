@@ -121,6 +121,14 @@ abstract class BaseView: ComponentActivity(),
     open fun stopActionOnClick() {}
     open fun setTheGameLevel(gameLevel: Int) = baseViewModel.setGameLevel(gameLevel)
     open fun hasTop10Menu() = true
+    open fun getFieldStrings(): Array<String> {
+        val strings = arrayOf(
+            getString(R.string.nameStr),    // hintStr
+            getString(R.string.okStr),      // okStr
+            getString(R.string.noStr)       // noStr
+        )
+        return strings
+    }
 
     var menuBarWeight = 1.0f
     var gameGridWeight = 7.0f
@@ -475,14 +483,15 @@ abstract class BaseView: ComponentActivity(),
     }
 
     fun quitOrNewGame() {
-        LogUtil.d(TAG, "quitOrNewGame")
+        val logStr = "quitOrNewGame"
+        LogUtil.d(TAG, logStr)
         if (baseViewModel.mGameAction == Constants.IS_QUITING_GAME) {
             //  END PROGRAM
-            LogUtil.d(TAG, "quitOrNewGame.exitApplication")
+            LogUtil.d(TAG, "$logStr.exitApplication")
             exitApplication()
         } else if (baseViewModel.mGameAction == Constants.IS_CREATING_GAME) {
             //  NEW GAME
-            LogUtil.d(TAG, "quitOrNewGame.ifInterstitialWhenNewGame")
+            LogUtil.d(TAG, "$logStr.ifInterstitialWhenNewGame")
             ifInterstitialWhenNewGame()
         }
         baseViewModel.setSaveScoreAlertDialogState(false)
@@ -708,32 +717,33 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     open fun SaveScoreDialog() {
-        LogUtil.d(TAG, "SaveScoreDialog")
         val dialogTitle = baseViewModel.getSaveScoreTitle()
-        if (dialogTitle.isNotEmpty()) {
-            baseViewModel.setSaveScoreAlertDialogState(true)
-            val buttonListener = object: CbComposable.ButtonClickListenerString {
-                override fun buttonOkClick(value: String?) {
-                    LogUtil.d(TAG, "SaveScoreDialog.buttonOkClick.value = $value")
-                    baseViewModel.saveScore(value ?: "No Name")
-                    baseViewModel.setSaveScoreTitle("")
-                    quitOrNewGame()
-                }
-                override fun buttonCancelClick(value: String?) {
-                    LogUtil.d(TAG, "SaveScoreDialog.buttonCancelClick.value = $value")
-                    // set SaveScoreDialog() invisible
-                    baseViewModel.setSaveScoreTitle("")
-                    quitOrNewGame()
-                }
-            }
-            val hitStr = getString(R.string.nameStr)
-            CbComposable.DialogWithTextField(
-                this@BaseView,
-                buttonListener, dialogTitle, hitStr
-            )
-        } else {
+        val logStr = "SaveScoreDialog"
+        LogUtil.d(TAG, "$logStr.dialogTitle = $dialogTitle")
+        if (dialogTitle.isEmpty()) {
             ifInterstitialWhenSaveScore()
+            return
         }
+        baseViewModel.setSaveScoreAlertDialogState(true)
+        val buttonListener = object: CbComposable.ButtonClickListenerString {
+            override fun buttonOkClick(value: String?) {
+                LogUtil.d(TAG, "$logStr.buttonOkClick.value = $value")
+                baseViewModel.saveScore(value ?: "No Name")
+                baseViewModel.setSaveScoreTitle("")
+                quitOrNewGame()
+            }
+            override fun buttonCancelClick(value: String?) {
+                LogUtil.d(TAG, "$logStr.buttonCancelClick.value = $value")
+                // set SaveScoreDialog() invisible
+                baseViewModel.setSaveScoreTitle("")
+                quitOrNewGame()
+            }
+        }
+        val texts = getFieldStrings()
+        CbComposable.DialogWithTextField(
+            buttonListener, dialogTitle, texts[0],
+            texts[1], texts[2]
+        )
     }
 
     @Composable
@@ -784,7 +794,7 @@ abstract class BaseView: ComponentActivity(),
                 CbComposable.ShowAdmobBanner(modifier = Modifier.padding(top = 0.dp),
                     it.getBannerID(), adWidth)
                 CbComposable.ShowAdmobBanner(modifier = Modifier.padding(top = 0.dp),
-                    it.getBannerID2(), adWidth)
+                    it.getBannerID2())
             }
         }
     }

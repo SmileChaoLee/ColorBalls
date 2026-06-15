@@ -49,6 +49,7 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
         viewModel.setWhichGame(WhichGame.REVERSI)
     }
 
+    // implement parent class, BaseView.kt
     @Composable
     override fun CreateNewGameDialog() {
         LogUtil.d(TAG, "CreateNewGameDialog")
@@ -76,6 +77,14 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
         */
     }
 
+    override fun getFieldStrings(): Array<String> {
+        return arrayOf(
+            "",
+            getString(R.string.okStr),      // okStr
+            ""
+        )
+    }
+
     override fun getCurrentPresenter(): ReversiPresenter {
         return mPresenter
     }
@@ -84,74 +93,12 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
         return viewModel
     }
 
-    @Composable
-    override fun SaveScoreDialog() {
-        val dialogTitle = baseViewModel.getSaveScoreTitle()
-        LogUtil.d(TAG, "SaveScoreDialog.dialogTitle = $dialogTitle")
-        if (dialogTitle.isEmpty()) return
-        if (baseViewModel.mGameAction == Constants.IS_QUITING_GAME) {
-            exitApplication()
-            return
-        }
-        val buttonListener = object : CbComposable.ButtonClickListener {
-            override fun buttonOkClick() {
-                baseViewModel.setSaveScoreTitle("")
-                viewModel.newGame()
-            }
-            override fun buttonCancelClick() {
-                baseViewModel.setSaveScoreTitle("")
-                viewModel.newGame()
-            }
-        }
-        CbComposable.DialogWithText(
-            buttonListener, "", dialogTitle,
-            getString(R.string.okStr), ""
-        )
-    }
-
-    /*
-    @Composable
-    override fun SaveScoreDialog() {
-        val dialogTitle = baseViewModel.getSaveScoreTitle()
-        LogUtil.d(TAG, "SaveScoreDialog.dialogTitle = $dialogTitle")
-        if (dialogTitle.isEmpty()) return
-        // quitOrNewGame()
-        // Render a centered, in-layout dialog over the game grid (one OK button)
-        Dialog(onDismissRequest = {
-            baseViewModel.setSaveScoreTitle("")
-        },
-            properties = DialogProperties(usePlatformDefaultWidth = false),
-            content = {
-                Column(
-                    modifier = Modifier
-                        .background(color = androidx.compose.ui.graphics.Color(0xffffa500))
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    androidx.compose.material3.Text(
-                        text = dialogTitle,
-                        fontSize = CbComposable.mFontSize,
-                        color = androidx.compose.ui.graphics.Color.White
-                    )
-                    androidx.compose.foundation.layout.Spacer(modifier = Modifier.size(12.dp))
-                    androidx.compose.material3.Button(onClick = {
-                        baseViewModel.setSaveScoreTitle("")
-                        viewModel.newGame()
-                    }) {
-                        androidx.compose.material3.Text(text = getString(R.string.okStr),
-                            fontSize = CbComposable.mFontSize)
-                    }
-                }
-            })
-    }
-     */
-
     override fun ifInterstitialWhenSaveScore() {
         // otherwise do nothing
     }
 
     override fun ifInterstitialWhenNewGame() {
+        LogUtil.i(TAG, "ifInterstitialWhenNewGame")
         viewModel.initGame(bundle = null)
     }
 
@@ -197,4 +144,5 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
                 .align(Alignment.CenterVertically))
         }
     }
+    // end of implementing parent class, BaseView.kt
 }

@@ -206,7 +206,7 @@ abstract class BaseViewModel(
         mGameProp.hasNext = hasNext
     }
 
-    fun saveScore(playerName: String) {
+    open fun saveScore(playerName: String) {
         LogUtil.i(TAG, "saveScore")
         // use thread to add a record to remote database
         val restThread: Thread = object : Thread() {
@@ -320,7 +320,7 @@ abstract class BaseViewModel(
     }
 
     fun gameOver() {
-        LogUtil.i(TAG, "gameOver")
+        LogUtil.d(TAG, "gameOver")
         if (hasSound()) {
             soundPool?.playSound()
         }

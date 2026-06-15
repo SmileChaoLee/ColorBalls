@@ -1,11 +1,11 @@
 package com.smile.reversi.viewmodels
 
+import android.os.Build
 import android.os.Bundle
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.smile.colorballs_main.constants.Constants
-import com.smile.colorballs_main.constants.WhichGame
 import com.smile.colorballs_main.models.GameProp
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.viewmodel.BaseViewModel
@@ -24,6 +24,8 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
         private const val COMPUTER_PLAYER = Constants.COLOR_BLUE
         private const val HUMAN_PLAYER = Constants.COLOR_RED
         private const val COMPUTER_MOVE_DELAY = 500L // milliseconds
+        private const val CURRENT_PLAYER_TAG = "CurrentPlayer"
+        private const val SAVE_SCORE_STR_TAG = "SaveScoreStr"
     }
 
     private var rGameProp: GameProp = GameProp()
@@ -42,24 +44,81 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
         mGameProp = rGameProp
         mGridData = rGridData
         super.setProperties()
+        createNewGameStr = rPresenter.createNewGameStr
     }
 
     fun getCurrentPlayer() = currentPlayer.intValue
 
     override fun initGame(bundle: Bundle?) {
-        LogUtil.d(TAG, "initGame")
-        rGameProp.initializeKeepSetting(WhichGame.REVERSI)
-        rGridData.initialize()
-        // Red always starts
-        currentPlayer.intValue = Constants.COLOR_RED
+        LogUtil.d(TAG, "initGame bundle=$bundle")
+        rGameProp.isProcessingJob = true
+        val isNewGame = restoreState(bundle)
         displayGameGridView()
+        if (!isNewGame) {
+            if (isShowingCreateGameDialog()) {
+                isCreatingNewGame()
+            } else {
+                lastPartOfInitialGame()
+            }
+        }
+        rGameProp.isProcessingJob = false
+    }
+
+    private fun restoreState(state: Bundle?): Boolean {
+        LogUtil.d(TAG, "restoreState.state = $state")
+        var isNewGame: Boolean
+        var gameProp: GameProp? = null
+        var gridData: ReversiGridData? = null
+        state?.let {
+            gameProp = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                it.getParcelable(Constants.GAME_PROP_TAG, GameProp::class.java)
+            else it.getParcelable(Constants.GAME_PROP_TAG)
+
+            gridData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                it.getParcelable(Constants.GRID_DATA_TAG, ReversiGridData::class.java)
+            else it.getParcelable(Constants.GRID_DATA_TAG) as? ReversiGridData
+
+            currentPlayer.intValue = it.getInt(CURRENT_PLAYER_TAG, Constants.COLOR_RED)
+            saveScoreStr = it.getString(SAVE_SCORE_STR_TAG, saveScoreStr)
+
+        }
+
+        isNewGame = true
+        if (gameProp != null && gridData != null) {
+            isNewGame = false
+        }
+
+        LogUtil.d(TAG, "restoreState.isNewGame = $isNewGame")
+        if (isNewGame) {
+            initData()
+        } else {
+            setData(gameProp!!, gridData!!)
+        }
+
+        return isNewGame
+    }
+
+    private fun setData(prop: GameProp, gData: ReversiGridData) {
+        LogUtil.d(TAG, "setData")
+        rGameProp = prop
+        rGridData = gData
+        // update mGameProp and mGridData in BaseViewModel
+        mGameProp = prop
+        mGridData = gData
+    }
+
+    private fun initData() {
+        LogUtil.d(TAG, "initData")
+        rGameProp.initializeKeepSetting(getWhichGame())
+        rGridData.initialize()
+        currentPlayer.intValue = Constants.COLOR_RED
     }
 
     override fun cellClickListener(i: Int, j: Int) {
         LogUtil.d(TAG, "cellClickListener.($i,$j)")
         // If game is already over, show dialog (once) and ignore further clicks
         if (rGridData.isGameOver()) {
-            handleGameOver()
+            gameOver()
             return
         }
         // If cell already occupied, play uhoh for human and ignore
@@ -90,7 +149,7 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
             val myMoves = rGridData.getValidMoves(color)
             if (myMoves.isEmpty()) {
                 // game over
-                handleGameOver()
+                gameOver()
             } else {
                 // skip opponent
                 currentPlayer.intValue = color
@@ -190,6 +249,12 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
     override fun saveInstanceState(outState: Bundle) {
         outState.putParcelable(Constants.GAME_PROP_TAG, rGameProp)
         outState.putParcelable(Constants.GRID_DATA_TAG, rGridData)
+        outState.putInt(CURRENT_PLAYER_TAG, currentPlayer.intValue)
+        outState.putString(SAVE_SCORE_STR_TAG, saveScoreStr)
+    }
+
+    override fun saveScore(playerName: String) {
+        // No saving score in this game
     }
 
     fun isCreatingNewGame() {
@@ -198,21 +263,17 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
         setCreateNewGameText(createNewGameStr)
     }
 
+    /*
     override fun newGame() {
         rGridData.initialize()
         // Reset to starting player (red)
         currentPlayer.intValue = Constants.COLOR_RED
         displayGameGridView()
     }
+    */
 
-    override fun undoTheLast() {
-        // This game does not support undoing moves.
-        // because it is a two-player game.
-    }
-
-    private fun handleGameOver() {
-        // Compute scores and build message
-        LogUtil.d(TAG, "handleGameOver")
+    override fun newGame() {
+        LogUtil.d(TAG, "newGame.called by gameOver()")
         val redCount = rGridData.countColor(Constants.COLOR_RED)
         val blueCount = rGridData.countColor(Constants.COLOR_BLUE)
         val message = when {
@@ -226,7 +287,14 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
             }
             else -> "It's a tie: Red: $redCount, Blue: $blueCount"
         }
-        setSaveScoreTitle(message)
+        saveScoreStr = message
+        mGameAction = Constants.IS_CREATING_GAME
+        setSaveScoreTitle(saveScoreStr)
+    }
+
+    override fun undoTheLast() {
+        // This game does not support undoing moves.
+        // because it is a two-player game.
     }
 
     private fun scheduleComputerMove() {
@@ -243,7 +311,7 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
             val humanMoves = rGridData.getValidMoves(HUMAN_PLAYER)
             if (humanMoves.isEmpty()) {
                 // game over
-                handleGameOver()
+                gameOver()
             } else {
                 // skip computer player
                 currentPlayer.intValue = HUMAN_PLAYER
@@ -266,7 +334,7 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
             val computerMoves = rGridData.getValidMoves(COMPUTER_PLAYER)
             if (computerMoves.isEmpty()) {
                 // game over
-                handleGameOver()
+                gameOver()
             } else {
                 // skip human player
                 currentPlayer.intValue = COMPUTER_PLAYER
