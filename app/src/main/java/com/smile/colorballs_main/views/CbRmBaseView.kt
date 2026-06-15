@@ -41,8 +41,8 @@ abstract class CbRmBaseView: BaseView() {
     // implement abstract fun of BaseView
     @Composable
     override fun ToolBarMenu(modifier: Modifier) {
-        LogUtil.i(TAG, "ToolBarMenu.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
+        LogUtil.i(TAG, "ToolBarMenu.getOrientation()" +
+                " = ${getOrientation()}")
         Row(modifier = modifier
             // .background(color = Color(getColor(R.color.colorPrimary)))) {
             // .background(android.graphics.Color.rgb(0x3F, 0x51, 0xB5))) {
@@ -68,8 +68,8 @@ abstract class CbRmBaseView: BaseView() {
 
     @Composable
     override fun GameViewGrid() {
-        LogUtil.i(TAG, "GameViewGrid.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
+        LogUtil.i(TAG, "GameViewGrid.getOrientation()" +
+                " = ${getOrientation()}")
         Column(modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {

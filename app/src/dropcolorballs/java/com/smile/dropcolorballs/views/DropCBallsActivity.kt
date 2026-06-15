@@ -90,8 +90,8 @@ class DropCBallsActivity: BaseView(),
 
     @Composable
     fun ShowNext4Balls(modifier: Modifier = Modifier) {
-        LogUtil.i(TAG, "ShowNext4Balls.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
+        LogUtil.i(TAG, "ShowNext4Balls.getOrientation()" +
+                " = ${getOrientation()}")
         val next4 = viewModel.next4Balls
         if (next4.isEmpty()) {
             LogUtil.i(TAG, "ShowNext4Balls.viewModel.next4Balls is empty")
@@ -125,8 +125,8 @@ class DropCBallsActivity: BaseView(),
 
     @Composable
     override fun GameViewGrid() {
-        LogUtil.i(TAG, "GameViewGrid.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
+        LogUtil.i(TAG, "GameViewGrid.getOrientation()" +
+                " = ${getOrientation()}")
         val scoreFontSize = CbComposable.mFontSize * 1.0f
         val screenWidth = LocalWindowInfo.current.containerSize.width
         LogUtil.i(TAG, "GameViewGrid.screenWidth = $screenWidth")
@@ -226,8 +226,8 @@ class DropCBallsActivity: BaseView(),
 
     @Composable
     fun ShowGameLevel(modifier: Modifier, scoreFontSize: TextUnit) {
-        LogUtil.i(TAG, "ShowGameLevel.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
+        LogUtil.i(TAG, "ShowGameLevel.getOrientation()" +
+                " = ${getOrientation()}")
         val levelStr = when(viewModel.mGameLevel) {
             Constants.GAME_LEVEL_1 -> getString(R.string.level1Str)
             Constants.GAME_LEVEL_2 -> getString(R.string.level2Str)

@@ -136,7 +136,14 @@ abstract class BaseView: ComponentActivity(),
     var gameWidthRation = 1.0f
     val colorPrimary = Color(0xFF3F51B5)
     val colorYellow3 = Yellow3
-    val mOrientation = mutableIntStateOf(Configuration.ORIENTATION_PORTRAIT)
+    private val mOrientation =
+        mutableIntStateOf(Configuration.ORIENTATION_PORTRAIT)
+    fun getOrientation(): Int {
+        return mOrientation.intValue
+    }
+    private fun setOrientation(orientation: Int) {
+        mOrientation.intValue = orientation
+    }
     var boxImage: Bitmap? = null
     var mImageSizeDp = 0f
     val colorBallMap: HashMap<Int, Bitmap> = HashMap()
@@ -169,8 +176,7 @@ abstract class BaseView: ComponentActivity(),
         toastTextSize = textFontSize * 0.7f
         CbComposable.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
         CbComposable.toastFontSize = ScreenUtil.pixelToDp(toastTextSize).sp
-
-        mOrientation.intValue = resources.configuration.orientation
+        setOrientation(resources.configuration.orientation)
         mBaseApp = application as? BaseApp
 
         super.onCreate(savedInstanceState)
@@ -271,7 +277,7 @@ abstract class BaseView: ComponentActivity(),
                 Box(Modifier.fillMaxSize()
                     // .padding(innerPadding)
                     .background(color = colorYellow3)) {
-                    if (mOrientation.intValue ==
+                    if (getOrientation() ==
                         Configuration.ORIENTATION_PORTRAIT) {
                         Column(modifier = Modifier.fillMaxSize()) {
                             GameView(Modifier.weight(menuBarWeight + gameGridWeight))
@@ -336,7 +342,7 @@ abstract class BaseView: ComponentActivity(),
         super.onConfigurationChanged(newConfig)
         LogUtil.i(TAG, "onConfigurationChanged.newConfig.orientation = " +
                 "${newConfig.orientation}")
-        mOrientation.intValue = newConfig.orientation
+        setOrientation(newConfig.orientation)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -577,7 +583,7 @@ abstract class BaseView: ComponentActivity(),
     @SuppressLint("ConfigurationScreenWidthHeight")
     @Composable
     open fun GameView(modifier: Modifier) {
-        LogUtil.i(TAG, "GameView.mOrientation.intValue = ${mOrientation.intValue}")
+        LogUtil.i(TAG, "GameView.getOrientation() = ${getOrientation()}")
 
         screenSize = getContentHeight()
         // screenSize = getContentHeightNew()
@@ -585,7 +591,7 @@ abstract class BaseView: ComponentActivity(),
         LogUtil.d(TAG, "GameView.screenSize.y = ${screenSize.y}")
 
         var maxWidth = screenSize.x.toFloat()
-        if (mOrientation.intValue == Configuration.ORIENTATION_LANDSCAPE) {
+        if (getOrientation() == Configuration.ORIENTATION_LANDSCAPE) {
             LogUtil.d(TAG, "GameView.ORIENTATION_LANDSCAPE")
             maxWidth /= 2.0f
         }
@@ -633,8 +639,8 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun ShowCurrentScore(modifier: Modifier, pFontSize: TextUnit) {
-        LogUtil.i(TAG, "ShowCurrentScore.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
+        LogUtil.i(TAG, "ShowCurrentScore.getOrientation()" +
+                " = ${getOrientation()}")
         Text(text = baseViewModel.getCurrentScore().toString(),
             modifier = modifier,
             color = Color.Red, fontSize = pFontSize
@@ -643,8 +649,8 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun SHowHighestScore(modifier: Modifier, pFontSize: TextUnit) {
-        LogUtil.i(TAG, "SHowHighestScore.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
+        LogUtil.i(TAG, "SHowHighestScore.getOrientation()" +
+                " = ${getOrientation()}")
         Text(text = baseViewModel.getHighestScore().toString(),
             modifier = modifier,
             color = Color.White, fontSize = pFontSize
@@ -748,10 +754,11 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun ShowMessageOnScreen() {
-        LogUtil.i(TAG, "ShowMessageOnScreen.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
+        val logStr = "ShowMessageOnScreen"
+        LogUtil.d(TAG, "$logStr.getOrientation()" +
+                " = ${getOrientation()}")
         val message = baseViewModel.getScreenMessage()
-        LogUtil.i(TAG, "ShowMessageOnScreen.message = $message")
+        LogUtil.i(TAG, "$logStr.message = $message")
         if (message.isEmpty()) return
         baseViewModel.setShowingMessageDialog(true)
         val gameViewLength = mImageSizeDp * baseViewModel.colCounts.toFloat()
@@ -780,8 +787,8 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun SHowPortraitAds(modifier: Modifier) {
-        LogUtil.i(TAG, "SHowPortraitAds.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
+        LogUtil.i(TAG, "SHowPortraitAds.getOrientation()" +
+                " = ${getOrientation()}")
 
         val adWidth = with(LocalDensity.current) {
             (LocalWindowInfo.current.containerSize.width
@@ -801,8 +808,8 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun ShowNativeAd(modifier: Modifier = Modifier) {
-        LogUtil.i(TAG, "ShowNativeAd.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
+        LogUtil.i(TAG, "ShowNativeAd.getOrientation()" +
+                " = ${getOrientation()}")
         var nativeAd by remember { mutableStateOf<NativeAd?>(null) }
         LaunchedEffect(Unit) {
             mBaseApp?.let {
@@ -876,8 +883,8 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun ShowLandscapeAds(modifier: Modifier) {
-        LogUtil.i(TAG, "ShowLandscapeAds.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
+        LogUtil.i(TAG, "ShowLandscapeAds.getOrientation()" +
+                " = ${getOrientation()}")
         /*
         val colHeight = with(LocalDensity.current) {
             screenY.toDp()
@@ -949,8 +956,8 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun UndoButton(modifier: Modifier) {
-        LogUtil.i(TAG, "UndoButton.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
+        LogUtil.i(TAG, "UndoButton.getOrientation()" +
+                " = ${getOrientation()}")
         val isClicked = remember { mutableStateOf(false) }
         IconButton (onClick = {
             showColorWhenClick(isClicked)
@@ -972,8 +979,8 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun SettingButton(modifier: Modifier) {
-        LogUtil.i(TAG, "SettingButton.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
+        LogUtil.i(TAG, "SettingButton.getOrientation()" +
+                " = ${getOrientation()}")
         val isClicked = remember { mutableStateOf(false) }
         IconButton (onClick = {
             showColorWhenClick(isClicked)
@@ -990,10 +997,10 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun ShowMenu(modifier: Modifier) {
-        LogUtil.i(TAG, "ShowMenu.mOrientation.intValue" +
-                " = ${mOrientation.intValue}")
+        LogUtil.i(TAG, "ShowMenu.getOrientation()" +
+                " = ${getOrientation()}")
         val dropdownWidth =
-            if (mOrientation.intValue == Configuration.ORIENTATION_PORTRAIT) {
+            if (getOrientation() == Configuration.ORIENTATION_PORTRAIT) {
                 mImageSizeDp * 6.0f
             } else {
                 mImageSizeDp * 8.0f
@@ -1109,7 +1116,7 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun ShowGameGrid(isClickable: Boolean = true) {
-        val orientation = mOrientation.intValue
+        val orientation = getOrientation()
         LogUtil.d(TAG, "ShowGameGrid.orientation = $orientation")
         Column {
             for (i in 0 until baseViewModel.rowCounts) {
@@ -1150,14 +1157,14 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun ShowColorBall(i: Int, j: Int) {
-        val orientation = mOrientation.intValue
+        val orientation = getOrientation()
         LogUtil.d(TAG, "ShowColorBall.orientation = $orientation")
         ShowBall(baseViewModel.gridDataArray[i][j].value)
     }
 
     @Composable
     fun ShowBall(ballInfo: ColorBallInfo) {
-        val orientation = mOrientation.intValue
+        val orientation = getOrientation()
         LogUtil.d(TAG, "ShowBall.orientation = $orientation")
         val ballColor = ballInfo.ballColor
         val isAnimation = ballInfo.isAnimation
