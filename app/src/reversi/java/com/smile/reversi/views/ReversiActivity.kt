@@ -53,28 +53,6 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
     @Composable
     override fun CreateNewGameDialog() {
         LogUtil.d(TAG, "CreateNewGameDialog")
-        /*
-        val dialogText = viewModel.getCreateNewGameText()
-        if (dialogText.isNotEmpty()) {
-            viewModel.setShowingCreateGameDialog(true)
-            val buttonListener = object: CbComposable.ButtonClickListener {
-                override fun buttonOkClick() {
-                    viewModel.setCreateNewGameText("")
-                    viewModel.setShowingCreateGameDialog(false)
-                    quitOrNewGame()
-                }
-                override fun buttonCancelClick() {
-                    viewModel.setCreateNewGameText("")
-                    viewModel.setShowingCreateGameDialog(false)
-                }
-            }
-            CbComposable.DialogWithText(
-                buttonListener, "", dialogText,
-                getString(R.string.okStr),
-                getString(R.string.noStr)
-            )
-        }
-        */
     }
 
     override fun getFieldStrings(): Array<String> {
