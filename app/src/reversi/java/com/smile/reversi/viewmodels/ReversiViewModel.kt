@@ -24,6 +24,7 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
         private const val COMPUTER_PLAYER = ReversiGridData.COMPUTER_PLAYER
         private const val HUMAN_PLAYER = ReversiGridData.HUMAN_PLAYER
         private const val COMPUTER_MOVE_DELAY = 500L // milliseconds
+        private const val DELAY_FOR_SHOW_PASS = 1500L // milliseconds
         private const val CURRENT_PLAYER_TAG = "CurrentPlayer"
         private const val SAVE_SCORE_STR_TAG = "SaveScoreStr"
     }
@@ -34,10 +35,6 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
     private val currentPlayer = mutableIntStateOf(Constants.COLOR_RED)
 
     private val createNewGameText = mutableStateOf("")
-    fun getCreateNewGameText() = createNewGameText.value
-    fun setCreateNewGameText(text: String) {
-        createNewGameText.value = text
-    }
 
     init {
         LogUtil.d(TAG, "ReversiViewModel.init")
@@ -55,11 +52,7 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
         val isNewGame = restoreState(bundle)
         displayGameGridView()
         if (!isNewGame) {
-            if (isShowingCreateGameDialog()) {
-                isCreatingNewGame()
-            } else {
-                lastPartOfInitialGame()
-            }
+            lastPartOfInitialGame()
         }
         setProcessingJob(false)
     }
@@ -246,12 +239,6 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
         // No saving score in this game
     }
 
-    fun isCreatingNewGame() {
-        LogUtil.d(TAG, "isCreatingNewGame")
-        mGameAction = Constants.IS_CREATING_GAME
-        setCreateNewGameText(createNewGameStr)
-    }
-
     private fun whoWinsMessage() {
         val redCount = rGridData.countPlayer(HUMAN_PLAYER)
         val blueCount = rGridData.countPlayer(COMPUTER_PLAYER)
@@ -304,7 +291,12 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
         if (validMoves.isEmpty()) {
             LogUtil.d(TAG, "$logStr.skip COMPUTER_PLAYER")
             // skip COMPUTER_PLAYER, show a message on screen
-            currentPlayer.intValue = HUMAN_PLAYER
+            viewModelScope.launch(Dispatchers.Main) {
+                setScreenMessage("COMPUTER_PLAYER has no valid moves, pass")
+                currentPlayer.intValue = HUMAN_PLAYER
+                delay(DELAY_FOR_SHOW_PASS)
+                setScreenMessage("")
+            }
             return
         }
         // Choose best move: prioritize corners, then edges, then maximize flips
@@ -325,7 +317,12 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
         if (humanMoves.isEmpty()) {
             // skip HUMAN_PLAYER, show a message on screen
             LogUtil.d(TAG, "$logStr.skip HUMAN_PLAYER")
-            scheduleComputerMove()
+            viewModelScope.launch(Dispatchers.Main) {
+                setScreenMessage("HUMAN_PLAYER has no valid moves, pass")
+                delay(DELAY_FOR_SHOW_PASS)
+                setScreenMessage("")
+                scheduleComputerMove()
+            }
         }
     }
 

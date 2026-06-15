@@ -81,9 +81,7 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
     }
 
     override fun ifCreatingNewGame(newGameLevel: Int, originalLevel: Int) {
-        if (newGameLevel != originalLevel) {
-            viewModel.isCreatingNewGame()
-        }
+        // not supported
     }
 
     override fun setHasNextForView(hasNext: Boolean) {
