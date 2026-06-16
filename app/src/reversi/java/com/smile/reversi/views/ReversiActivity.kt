@@ -83,14 +83,20 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
     }
 
     override fun setHasNextForView(hasNext: Boolean) {
-        viewModel.setHasNext(hasNext)
+        viewModel.setHasNext(hasNext, true)
     }
 
     @Composable
     override fun ToolBarMenu(modifier: Modifier) {
         // Match BallsRemover toolbar layout: left area (2f), center area (2f), then three buttons (1f each)
         Row(modifier = modifier.background(colorPrimary)) {
-            // Left: current player indicator
+            // Left placeholder
+            Box(modifier = Modifier
+                .weight(1f)
+                .align(Alignment.CenterVertically)) {
+                // intentionally empty to match layout
+            }
+            // current player indicator
             Box(modifier = Modifier
                 .weight(2f)
                 .padding(start = 10.dp)
@@ -98,17 +104,9 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
                 val bmp = colorBallMap[viewModel.getCurrentPlayer()]
                 bmp?.let {
                     Image(bitmap = it.asImageBitmap(), contentDescription = "",
-                        modifier = Modifier.size(36.dp).align(Alignment.CenterStart))
+                        modifier = Modifier.size((mImageSizeDp * 0.7f).dp).align(Alignment.CenterStart))
                 }
             }
-
-            // Middle placeholder (keeps spacing consistent with BallsRemover)
-            Box(modifier = Modifier
-                .weight(2f)
-                .align(Alignment.CenterVertically)) {
-                // intentionally empty to match layout
-            }
-
             // Right: Setting, Menu with equal weights
             SettingButton(modifier = Modifier
                 .weight(1f)

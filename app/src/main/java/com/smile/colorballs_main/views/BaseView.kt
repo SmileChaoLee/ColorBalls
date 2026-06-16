@@ -70,6 +70,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import androidx.core.graphics.scale
 import androidx.core.view.WindowCompat
+import androidx.room.util.TableInfo
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.ump.ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA
@@ -1201,13 +1202,22 @@ abstract class BaseView: ComponentActivity(),
         val ballColor = ballInfo.ballColor
         val isAnimation = ballInfo.isAnimation
         val isReSize = ballInfo.isResize
-        if (ballColor == 0) return  // no showing ball
+        if (ballColor == 0 && ballInfo.whichBall != WhichBall.PLUS) return  // no showing ball
+        if (ballInfo.whichBall == WhichBall.PLUS) {
+            Column(modifier = Modifier.size(mImageSizeDp.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center) {
+                Text(text = "+", color = Color.Black, fontSize = (mImageSizeDp * 0.5f).sp)
+            }
+            return
+        }
         val bitmap: Bitmap? = when(ballInfo.whichBall) {
             WhichBall.BALL-> { colorBallMap.getValue(ballColor) }
             WhichBall.OVAL_BALL-> { colorOvalBallMap.getValue(ballColor) }
             // BallsRemover does not implement  Next Ball, so it should be OK
             WhichBall.NEXT_BALL-> { colorNextBallMap.getValue(ballColor) }
             WhichBall.NO_BALL -> { null }
+            else -> { null }
         }
         if (bitmap == null) return
         Column(modifier = Modifier.size(mImageSizeDp.dp),

@@ -6,6 +6,8 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.smile.colorballs_main.constants.Constants
+import com.smile.colorballs_main.constants.WhichBall
+import com.smile.colorballs_main.models.ColorBallInfo
 import com.smile.colorballs_main.models.GameProp
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.viewmodel.BaseViewModel
@@ -104,6 +106,20 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
         rGameProp.initializeKeepSetting(getWhichGame())
         rGridData.initialize()
         currentPlayer.intValue = Constants.COLOR_RED
+    }
+
+    private fun displayEligibleMoves() {
+        val ball = if (hasNext()) WhichBall.PLUS else WhichBall.NO_BALL
+        // Show eligible moves for the human player
+        val validMoves = rGridData.getValidMoves(HUMAN_PLAYER)
+        for (move in validMoves) {
+            gridDataArray[move.x][move.y].value = ColorBallInfo(0, ball)
+        }
+    }
+
+    override fun displayGameGridView() {
+        super.displayGameGridView()
+        displayEligibleMoves()
     }
 
     override fun cellClickListener(i: Int, j: Int) {
@@ -234,6 +250,13 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
         outState.putString(SAVE_SCORE_STR_TAG, saveScoreStr)
     }
 
+    fun setHasNext(hasNext: Boolean, isNextBalls: Boolean) {
+        setHasNext(hasNext)
+        if (isNextBalls) {
+            displayEligibleMoves()
+        }
+    }
+
     override fun saveScore(playerName: String) {
         // No saving score in this game
     }
@@ -302,8 +325,8 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
         val bestMove = chooseBestMove(validMoves)
         rGridData.backupCells()
         rGridData.placePiece(bestMove.x, bestMove.y, COMPUTER_PLAYER)
-        displayGameGridView()
         LogUtil.d(TAG, "$logStr.Computer moved to (${bestMove.x}, ${bestMove.y})")
+        displayGameGridView()
         if (rGridData.isGameOver()) {
             // game over
             LogUtil.d(TAG, "$logStr.Game is over")

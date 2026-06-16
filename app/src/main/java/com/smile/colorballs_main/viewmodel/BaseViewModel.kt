@@ -356,7 +356,7 @@ abstract class BaseViewModel(
         mGridData.setCellValue(i, j, 0)
     }
 
-    fun displayGameGridView() {
+    open fun displayGameGridView() {
         LogUtil.i(TAG, "displayGameGridView")
         try {
             for (i in 0 until rowCounts) {
