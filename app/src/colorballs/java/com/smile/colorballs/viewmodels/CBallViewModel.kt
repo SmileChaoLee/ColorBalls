@@ -38,8 +38,8 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
         cbGameProp = GameProp()
         cbGridData = CBallGridData(CbConstants.ROW_COUNTS,
             CbConstants.COLUMN_COUNTS)
-        mGameProp = cbGameProp
-        mGridData = cbGridData
+        setGameProp(cbGameProp)
+        setGridData(cbGridData)
         super.setProperties()
         gameOverStr = cbPresenter.gameOverStr
     }
@@ -48,7 +48,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
         LogUtil.i(TAG, "cellClickListener.($i, $j)")
         LogUtil.d(TAG, "cellClickListener.isBallBouncing = " +
                 "${cbGameProp.isBallBouncing}")
-        if (cbGameProp.isProcessingJob) return
+        if (isProcessingJob()) return
         val ballColor = cbGridData.getCellValue(i, j)
         if (ballColor == Constants.COLOR_BARRIER) return
         if (!cbGameProp.isBallBouncing) {
@@ -99,8 +99,8 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
         cbGameProp = prop
         cbGridData = gData
         // update mGameProp and mGridData in BaseViewModel
-        mGameProp = prop
-        mGridData = gData
+        setGameProp(prop)
+        setGridData(gData)
     }
 
     private fun initData() {
@@ -111,7 +111,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
 
     override fun initGame(bundle: Bundle?) {
         LogUtil.i(TAG, "initGame = $bundle")
-        cbGameProp.isProcessingJob = true
+        setProcessingJob(true)
         val isNewGame = restoreState(bundle)
         setCurrentScore(cbGameProp.currentScore)
         // displayGameView()
@@ -119,7 +119,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
             LogUtil.i(TAG, "initGame.isNewGame")
             displayGameGridView()
             displayGridDataNextCells()
-            cbGameProp.isProcessingJob = false
+            setProcessingJob(false)
         } else {
             displayGameView()
             // display the original state before changing configuration
@@ -141,18 +141,18 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
                     object : ShowScoreCallback {
                         override fun sCallback() {
                             lastPartOfInitialGame()
-                            cbGameProp.isProcessingJob = false
+                            setProcessingJob(false)
                         }
                     })
                 LogUtil.d(TAG, "initGame.showingScoreHandler.post().")
                 showingScoreHandler.post(showScore)
             } else {
                 lastPartOfInitialGame()
-                cbGameProp.isProcessingJob = false
+                setProcessingJob(false)
             }
         }
         getAndSetHighestScore() // a coroutine operation
-        // cbGameProp.isProcessingJob = false
+        // setProcessingJob(false)
     }
 
     private fun restoreState(state: Bundle?): Boolean {
@@ -217,8 +217,8 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
 
     override fun undoTheLast() {
         if (!cbGameProp.undoEnable) return
-        if (cbGameProp.isProcessingJob) return
-        cbGameProp.isProcessingJob = true // started undoing
+        if (isProcessingJob()) return
+        setProcessingJob(true)
         cbGridData.undoTheLast()
         stopBouncyAnimation()
         cbGameProp.isBallBouncing = false
@@ -229,7 +229,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
         cbGameProp.currentScore = cbGameProp.undoScore
         setCurrentScore(cbGameProp.currentScore)
         cbGameProp.undoEnable = false
-        cbGameProp.isProcessingJob = false // finished
+        setProcessingJob(false)
     }
 
     override fun newGame() {
@@ -241,7 +241,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
 
     override fun startSavingGame(): Boolean {
         LogUtil.i(TAG, "startSavingGame")
-        cbGameProp.isProcessingJob = true
+        setProcessingJob(true)
         setScreenMessage(savingGameStr)
 
         var succeeded = true
@@ -336,14 +336,14 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
         }
         setScreenMessage("")
         LogUtil.d(TAG, "startSavingGame.Finished")
-        cbGameProp.isProcessingJob = false
+        setProcessingJob(false)
 
         return succeeded
     }
 
     override fun startLoadingGame(): Boolean {
         LogUtil.i(TAG, "startLoadingGame")
-        cbGameProp.isProcessingJob = true
+        setProcessingJob(true)
         setScreenMessage(loadingGameStr)
 
         var succeeded = true
@@ -477,7 +477,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
             succeeded = false
         }
         setScreenMessage("")
-        cbGameProp.isProcessingJob = false
+        setProcessingJob(false)
 
         return succeeded
     }
@@ -628,11 +628,11 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
                 true, object : ShowScoreCallback {
                     override fun sCallback() {
                         LogUtil.d(TAG, "ShowScoreCallback.sCallback")
-                        cbGameProp.isProcessingJob = false
+                        setProcessingJob(false)
                     }
                 })
             LogUtil.d(TAG, "displayGridDataNextCells.post(showScore)")
-            cbGameProp.isProcessingJob = true
+            setProcessingJob(true)
             showingScoreHandler.post(showScore)
         } else {
             displayNextColorBalls()
@@ -654,7 +654,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
             return
         }
         cbGameProp.isBallMoving = true
-        cbGameProp.isProcessingJob = true
+        setProcessingJob(true)
 
         val beginI = cbGridData.mPathPoint[sizeOfPath - 1].x
         val beginJ = cbGridData.mPathPoint[sizeOfPath - 1].y
@@ -698,7 +698,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
                                 override fun sCallback() {
                                     LogUtil.d(TAG, "drawBallAlongPath.ShowScoreCallback.sCallback")
                                     cbGameProp.isBallMoving = false
-                                    cbGameProp.isProcessingJob = false
+                                    setProcessingJob(false)
                                     LogUtil.d(TAG, "drawBallAlongPath.run() finished.")
                                 }
                             })
@@ -709,7 +709,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
                         LogUtil.d(TAG, "drawBallAlongPath.run().displayGridDataNextCells")
                         displayGridDataNextCells() // has a problem
                         cbGameProp.isBallMoving = false
-                        cbGameProp.isProcessingJob = false
+                        setProcessingJob(false)
                         LogUtil.d(TAG, "drawBallAlongPath.run() finished.")
                     }
                 }

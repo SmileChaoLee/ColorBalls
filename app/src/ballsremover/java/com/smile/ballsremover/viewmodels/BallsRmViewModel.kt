@@ -40,8 +40,8 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
         brGameProp = GameProp()
         brGridData = GridData(BallsRmConstants.ROW_COUNTS,
             BallsRmConstants.COLUMN_COUNTS)
-        mGameProp = brGameProp
-        mGridData = brGridData
+        setGameProp(brGameProp)
+        setGridData(brGridData)
         super.setProperties()
         createNewGameStr = bRmPresenter.createNewGameStr
     }
@@ -49,11 +49,11 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
     override fun cellClickListener(i: Int, j: Int) {
         LogUtil.i(TAG, "cellClickListener.($i, $j)")
         if (brGridData.getCellValue(i, j) == 0) return  // no ball
-        if (brGameProp.isProcessingJob) return
-        brGameProp.isProcessingJob = true
+        if (isProcessingJob()) return
+        setProcessingJob(true)
         val hasTwo = brGridData.moreThan2NABOR(i, j)
         if (!hasTwo) {
-            brGameProp.isProcessingJob = false
+            setProcessingJob(false)
             return
         }
         brGridData.backupCells()
@@ -81,7 +81,7 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
                             LogUtil.d(TAG, "cellClickListener.sCallback.gameOver()")
                             gameOver()
                         }
-                        brGameProp.isProcessingJob = false
+                        setProcessingJob(false)
                     }
                 }
             })
@@ -93,8 +93,8 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
         brGameProp = prop
         brGridData = gData
         // update mGameProp and mGridData in BaseViewModel
-        mGameProp = prop
-        mGridData = gData
+        setGameProp(prop)
+        setGridData(gData)
     }
 
     private fun initData() {
@@ -105,7 +105,7 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
 
     override fun initGame(bundle: Bundle?) {
         LogUtil.i(TAG, "initGame = $bundle")
-        brGameProp.isProcessingJob = true
+        setProcessingJob(true)
         val isNewGame = restoreState(bundle)
         setCurrentScore(brGameProp.currentScore)
         if (isNewGame) {
@@ -122,7 +122,7 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
                 lastPartOfInitialGame()
             }
         }
-        brGameProp.isProcessingJob = false
+        setProcessingJob(false)
     }
 
     private fun restoreState(state: Bundle?): Boolean {
@@ -206,7 +206,7 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
 
     override fun startSavingGame(): Boolean {
         LogUtil.i(TAG, "startSavingGame")
-        brGameProp.isProcessingJob = true
+        setProcessingJob(true)
         setScreenMessage(savingGameStr)
         var succeeded = true
         try {
@@ -245,14 +245,14 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
         }
         setScreenMessage("")
         LogUtil.d(TAG, "startSavingGame.Finished")
-        brGameProp.isProcessingJob = false
+        setProcessingJob(false)
 
         return succeeded
     }
 
     override fun startLoadingGame(): Boolean {
         LogUtil.i(TAG, "startLoadingGame")
-        brGameProp.isProcessingJob = true
+        setProcessingJob(true)
         setScreenMessage(loadingGameStr)
         var succeeded = true
         val hasSound: Boolean
@@ -318,7 +318,7 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
             succeeded = false
         }
         setScreenMessage("")
-        brGameProp.isProcessingJob = false
+        setProcessingJob(false)
 
         return succeeded
     }

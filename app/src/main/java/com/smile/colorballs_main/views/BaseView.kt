@@ -501,7 +501,6 @@ abstract class BaseView: ComponentActivity(),
             ifInterstitialWhenNewGame()
         }
         baseViewModel.setSaveScoreAlertDialogState(false)
-        // baseViewModel.isProcessingJob = false
     }
 
     /**

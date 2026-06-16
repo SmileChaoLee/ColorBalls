@@ -54,7 +54,7 @@ class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
         override fun run() {
             LogUtil.d(TAG, "runBallsRunnable.run()")
             runningBallsHandler.removeCallbacksAndMessages(null)
-            if (dropGameProp.isProcessingJob) {
+            if (isProcessingJob()) {
                 runningBallsHandler.postDelayed(this, droppingSpeed)
                 return
             }
@@ -76,8 +76,8 @@ class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
         LogUtil.i(TAG, "DropBallsViewModel.init")
         dropGameProp = GameProp()
         dropGridData = DropCbGridData()
-        mGameProp = dropGameProp
-        mGridData = dropGridData
+        setGameProp(dropGameProp)
+        setGridData(dropGridData)
         super.setProperties()
     }
 
@@ -97,8 +97,8 @@ class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
         dropGameProp = prop
         dropGridData = gData
         // update mGameProp and mGridData in BaseViewModel
-        mGameProp = prop
-        mGridData = gData
+        setGameProp(prop)
+        setGridData(gData)
     }
 
     private fun initData() {
@@ -109,7 +109,7 @@ class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
 
     override fun initGame(bundle: Bundle?) {
         LogUtil.i(TAG, "initGame = $bundle")
-        dropGameProp.isProcessingJob = true
+        setProcessingJob(true)
         val isNewGame = restoreState(bundle)
         LogUtil.i(TAG, "initGame.isNewGame = $isNewGame")
         _mGameLevel.intValue = dropGameProp.gameLevel
@@ -120,7 +120,7 @@ class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
         isFinishRunning = false
         isGameOver = false
         setDroppingSpeed(DropBallsConstants.NORMAL_DROPPING_SPEED)
-        dropGameProp.isProcessingJob = false
+        setProcessingJob(false)
         gameStartTime = System.currentTimeMillis()
         isGameJustStarted = true
         startRunBalls()
@@ -135,7 +135,7 @@ class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
     }
 
     fun toDropToEnd() {
-        if (dropGameProp.isProcessingJob) return
+        if (isProcessingJob()) return
         if (isToEnd) return
         isToEnd = true
         runningBallsHandler.removeCallbacksAndMessages(null)
@@ -224,7 +224,7 @@ class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
 
     private fun startCrashBalls() {
         LogUtil.d(TAG, "startCrashBalls")
-        dropGameProp.isProcessingJob = true
+        setProcessingJob(true)
         val tempLine = HashSet(dropGridData.addUpLightLine)
         LogUtil.d(TAG, "startCrashBalls.tempLine.size = ${tempLine.size}")
         dropGameProp.lastGotScore = calculateScore(tempLine)
@@ -248,7 +248,7 @@ class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
                         } else {
                             // check if game over
                             dropGridData.setNextRunning()
-                            dropGameProp.isProcessingJob = false
+                            setProcessingJob(false)
                             startRunBalls()
                         }
                     }
@@ -259,7 +259,7 @@ class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
 
     fun shiftRunningCol(addValue: Int) {
         LogUtil.d(TAG,"shiftRunningCol")
-        if (dropGameProp.isProcessingJob) return
+        if (isProcessingJob()) return
         if (isFinishRunning) return
         if (runningCol + addValue < 0) return
         if (runningCol + addValue >= DropBallsConstants.COLUMN_COUNTS) return
@@ -289,7 +289,7 @@ class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
 
     fun rotateRunningBalls() {
         LogUtil.i(TAG,"rotateRunningBalls")
-        if (dropGameProp.isProcessingJob) return
+        if (isProcessingJob()) return
         val first = runningBalls[0]
         for (i in 0 until rbLastIndex) {
             runningBalls[i] = runningBalls[i+1]

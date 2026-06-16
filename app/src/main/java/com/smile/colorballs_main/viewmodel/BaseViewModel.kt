@@ -54,8 +54,15 @@ abstract class BaseViewModel(
     var saveScoreStr = ""
     var soundPool: SoundPoolUtil? = null
 
-    protected var mGameProp = GameProp()
-    protected var mGridData = GridData()
+    private var mGameProp = GameProp()
+    fun setGameProp(gameProp: GameProp) {
+        mGameProp = gameProp
+    }
+    private var mGridData = GridData()
+    fun setGridData(gridData: GridData) {
+        mGridData = gridData
+    }
+
     var mGameAction = Constants.IS_APP_JUST_STARTED
     var rowCounts: Int = 0
         private set(value) {

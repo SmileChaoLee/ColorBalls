@@ -35,11 +35,10 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
     private val currentPlayer = mutableIntStateOf(Constants.COLOR_RED)
 
     private val createNewGameText = mutableStateOf("")
-
     init {
         LogUtil.d(TAG, "ReversiViewModel.init")
-        mGameProp = rGameProp
-        mGridData = rGridData
+        setGameProp(rGameProp)
+        setGridData(rGridData)
         super.setProperties()
         createNewGameStr = rPresenter.createNewGameStr
     }
@@ -96,8 +95,8 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
         rGameProp = prop
         rGridData = gData
         // update mGameProp and mGridData in BaseViewModel
-        mGameProp = prop
-        mGridData = gData
+        setGameProp(prop)
+        setGridData(gData)
     }
 
     private fun initData() {
