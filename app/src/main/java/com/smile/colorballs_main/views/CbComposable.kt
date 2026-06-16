@@ -468,13 +468,12 @@ object CbComposable {
 
     @Composable
     fun DialogWithText(
-        buttonListener: ButtonClickListener,
+        buttonListener: ButtonClickListener?,
         dialogTitle: String, dialogText: String,
-        okStr: String, noStr: String
+        okStr: String, noStr: String,
+        fontSize: TextUnit = mFontSize
     ) {
         LogUtil.d(TAG, "DialogWithText")
-        // val okStr = activity.getString(R.string.okStr)
-        // val noStr = activity.getString(R.string.noStr)
         val lightRed = Color(0xffff4444)
         AlertDialog(
             icon = null, title = {
@@ -487,8 +486,8 @@ object CbComposable {
             text = {
                 if (dialogText.isNotEmpty())
                     Text(
-                        text = dialogText,
-                        fontWeight = FontWeight.Medium, fontSize = mFontSize
+                        text = dialogText, lineHeight = fontSize,
+                        fontWeight = FontWeight.Medium, fontSize = fontSize
                     )
             },
             containerColor = Color(0xffffa500),
@@ -497,32 +496,36 @@ object CbComposable {
             onDismissRequest = { /* isOpen = false */ },
             confirmButton = {
                 if (okStr.isNotEmpty()) {
-                    Button(
-                        onClick = {
-                            // isOpen = false
-                            buttonListener.buttonOkClick()
-                        }, colors = ButtonColors(
-                            containerColor = ColorPrimary,
-                            disabledContainerColor = ColorPrimary,
-                            contentColor = Color.Yellow,
-                            disabledContentColor = Color.Yellow
-                        )
-                    ) { Text(text = okStr, fontSize = mFontSize) }
+                    buttonListener?.let {
+                        Button(
+                            onClick = {
+                                // isOpen = false
+                                it.buttonOkClick()
+                            }, colors = ButtonColors(
+                                containerColor = ColorPrimary,
+                                disabledContainerColor = ColorPrimary,
+                                contentColor = Color.Yellow,
+                                disabledContentColor = Color.Yellow
+                            )
+                        ) { Text(text = okStr, fontSize = mFontSize) }
+                    }
                 }
             },
             dismissButton = {
                 if (noStr.isNotEmpty()) {
-                    Button(
-                        onClick = {
-                            // isOpen = false
-                            buttonListener.buttonCancelClick()
-                        }, colors = ButtonColors(
-                            containerColor = ColorPrimary,
-                            disabledContainerColor = ColorPrimary,
-                            contentColor = lightRed,
-                            disabledContentColor = lightRed
-                        )
-                    ) { Text(text = noStr, fontSize = mFontSize) }
+                    buttonListener?.let {
+                        Button(
+                            onClick = {
+                                // isOpen = false
+                                it.buttonCancelClick()
+                            }, colors = ButtonColors(
+                                containerColor = ColorPrimary,
+                                disabledContainerColor = ColorPrimary,
+                                contentColor = lightRed,
+                                disabledContentColor = lightRed
+                            )
+                        ) { Text(text = noStr, fontSize = mFontSize) }
+                    }
                 }
             }
         )
@@ -550,12 +553,12 @@ object CbComposable {
 
     @Composable
     fun DialogWithTextField(
-        buttonListener: ButtonClickListenerString,
+        buttonListener: ButtonClickListenerString?,
         dialogTitle: String, hintText: String,
         okStr: String, noStr: String) {
         LogUtil.d(TAG, "DialogWithTextField")
         val lightRed = Color(0xffff4444)
-        var returnValue = ""
+        val returnValue = ""
         LogUtil.d(TAG, "DialogWithTextField.AlertDialog")
         AlertDialog(
             onDismissRequest = { /* isOpen = false */ },
@@ -578,32 +581,36 @@ object CbComposable {
             textContentColor = Color.Blue,
             confirmButton = {
                 if (okStr.isNotEmpty()) {
-                    Button(
-                        onClick = {
-                            // isOpen = false
-                            buttonListener.buttonOkClick(returnValue)
-                        }, colors = ButtonColors(
-                            containerColor = ColorPrimary,
-                            disabledContainerColor = ColorPrimary,
-                            contentColor = Color.Yellow,
-                            disabledContentColor = Color.Yellow
-                        )
-                    ) { Text(text = okStr, fontSize = mFontSize) }
+                    buttonListener?.let {
+                        Button(
+                            onClick = {
+                                // isOpen = false
+                                it.buttonOkClick(returnValue)
+                            }, colors = ButtonColors(
+                                containerColor = ColorPrimary,
+                                disabledContainerColor = ColorPrimary,
+                                contentColor = Color.Yellow,
+                                disabledContentColor = Color.Yellow
+                            )
+                        ) { Text(text = okStr, fontSize = mFontSize) }
+                    }
                 }
             },
             dismissButton = {
                 if (noStr.isNotEmpty()) {
-                    Button(
-                        onClick = {
-                            // isOpen = false
-                            buttonListener.buttonCancelClick(returnValue)
-                        }, colors = ButtonColors(
-                            containerColor = ColorPrimary,
-                            disabledContainerColor = ColorPrimary,
-                            contentColor = lightRed,
-                            disabledContentColor = lightRed
-                        )
-                    ) { Text(text = noStr, fontSize = mFontSize) }
+                    buttonListener?.let {
+                        Button(
+                            onClick = {
+                                // isOpen = false
+                                it.buttonCancelClick(returnValue)
+                            }, colors = ButtonColors(
+                                containerColor = ColorPrimary,
+                                disabledContainerColor = ColorPrimary,
+                                contentColor = lightRed,
+                                disabledContentColor = lightRed
+                            )
+                        ) { Text(text = noStr, fontSize = mFontSize) }
+                    }
                 }
             }
         )

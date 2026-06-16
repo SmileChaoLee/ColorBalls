@@ -753,12 +753,12 @@ abstract class BaseView: ComponentActivity(),
     }
 
     @Composable
-    fun ShowMessageOnScreen() {
+    fun ShowMessageOnScreenOLd() {
         val logStr = "ShowMessageOnScreen"
         LogUtil.d(TAG, "$logStr.getOrientation()" +
                 " = ${getOrientation()}")
         val message = baseViewModel.getScreenMessage()
-        LogUtil.i(TAG, "$logStr.message = $message")
+        LogUtil.d(TAG, "$logStr.message = $message")
         if (message.isEmpty()) return
         baseViewModel.setShowingMessageDialog(true)
         val gameViewLength = mImageSizeDp * baseViewModel.colCounts.toFloat()
@@ -783,6 +783,39 @@ abstract class BaseView: ComponentActivity(),
             }
         }
         baseViewModel.setShowingMessageDialog(false)
+    }
+
+    @Composable
+    fun ShowMessageOnScreen() {
+        val logStr = "ShowMessageOnScreen"
+        LogUtil.d(TAG, "$logStr.getOrientation()" +
+                " = ${getOrientation()}")
+        val message = baseViewModel.getScreenMessage()
+        LogUtil.d(TAG, "$logStr.message = $message")
+        if (message.isEmpty()) return
+        CbComposable.DialogWithText(null, "",
+            message, "", "",
+            toastTextSize.sp)
+        /*
+        val containerColor = Color(0xffffa500)
+        Dialog(
+            onDismissRequest = {
+                baseViewModel.setScreenMessage("")
+            },
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+            content = {
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = containerColor)) {
+                    Text(
+                        modifier = Modifier.align(alignment = Alignment.Center),
+                        text = message,
+                        color = Color.Red, fontSize = CbComposable.mFontSize
+                    )
+                }
+            }
+        )
+        */
     }
 
     @Composable

@@ -24,7 +24,7 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
         private const val COMPUTER_PLAYER = ReversiGridData.COMPUTER_PLAYER
         private const val HUMAN_PLAYER = ReversiGridData.HUMAN_PLAYER
         private const val COMPUTER_MOVE_DELAY = 500L // milliseconds
-        private const val DELAY_FOR_SHOW_PASS = 1500L // milliseconds
+        private const val DELAY_FOR_SHOW_PASS = 3000L // milliseconds
         private const val CURRENT_PLAYER_TAG = "CurrentPlayer"
         private const val SAVE_SCORE_STR_TAG = "SaveScoreStr"
     }
@@ -292,7 +292,7 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
             LogUtil.d(TAG, "$logStr.skip COMPUTER_PLAYER")
             // skip COMPUTER_PLAYER, show a message on screen
             viewModelScope.launch(Dispatchers.Main) {
-                setScreenMessage("COMPUTER_PLAYER has no valid moves, pass")
+                setScreenMessage("Blue passed")
                 currentPlayer.intValue = HUMAN_PLAYER
                 delay(DELAY_FOR_SHOW_PASS)
                 setScreenMessage("")
@@ -318,7 +318,7 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
             // skip HUMAN_PLAYER, show a message on screen
             LogUtil.d(TAG, "$logStr.skip HUMAN_PLAYER")
             viewModelScope.launch(Dispatchers.Main) {
-                setScreenMessage("HUMAN_PLAYER has no valid moves, pass")
+                setScreenMessage("Red pass")
                 delay(DELAY_FOR_SHOW_PASS)
                 setScreenMessage("")
                 scheduleComputerMove()
