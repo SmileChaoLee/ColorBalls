@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="reversi_name">Reversi</string>
+    <string name="blue">Blue</string>
+    <string name="red">Red</string>
+    <string name="blueWinBy">Blue wins by</string>
+    <string name="redWinBy">Red wins by</string>
+    <string name="cells">cells</string>
+    <string name="tie">It is a tie</string>
+    <string name="bluePass">Blue Pass</string>
+    <string name="redPass">Red Pass</string>
 </resources>

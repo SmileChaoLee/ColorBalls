@@ -5,5 +5,15 @@ import com.smile.reversi.interfaces.ReversiPresentView
 
 class ReversiPresenter(private val presentView: ReversiPresentView)
     : BasePresenter(presentView) {
-    val createNewGameStr = presentView.getCreateNewGameStr()
+    val bluePassStr = presentView.getBluePassStr()
+    val redPassStr = presentView.getRedPassStr()
+    fun whoWinsMessage(
+        redCount: Int,
+        blueCount: Int
+    ): String {
+          return presentView.getWhoWinsMessage(
+              redCount = redCount,
+              blueCount = blueCount,
+          )
+    }
 }

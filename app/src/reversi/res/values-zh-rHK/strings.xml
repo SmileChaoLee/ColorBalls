@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="reversi_name">翻棋</string>
+    <string name="blue">藍</string>
+    <string name="red">紅</string>
+    <string name="blueWinBy">藍贏</string>
+    <string name="redWinBy">紅贏</string>
+    <string name="cells">格</string>
+    <string name="tie">平手</string>
+    <string name="bluePass">藍隊跳過</string>
+    <string name="redPass">紅隊跳過</string>
 </resources>

@@ -2,4 +2,4 @@
 # Change ShowMessageOnScreen() to a dialog --> finisshed
 # Show a message dialog when there is no steps
 # to move for each player for one second --> finished
-# Change if (gameProp.isProcessingJob) to isProcessingJob() for every viewmodel
+# Change if (gameProp.isProcessingJob) to isProcessingJob() for every viewmodel --> Finished

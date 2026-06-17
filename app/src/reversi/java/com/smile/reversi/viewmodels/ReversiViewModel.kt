@@ -3,7 +3,6 @@ package com.smile.reversi.viewmodels
 import android.os.Build
 import android.os.Bundle
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.constants.WhichBall
@@ -16,6 +15,7 @@ import com.smile.reversi.presenters.ReversiPresenter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 import kotlin.random.Random
 
 class ReversiViewModel(private val rPresenter: ReversiPresenter)
@@ -33,16 +33,13 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
 
     private var rGameProp: GameProp = GameProp()
     private var rGridData: ReversiGridData = ReversiGridData()
-    private var createNewGameStr = ""
     private val currentPlayer = mutableIntStateOf(Constants.COLOR_RED)
 
-    private val createNewGameText = mutableStateOf("")
     init {
         LogUtil.d(TAG, "ReversiViewModel.init")
         setGameProp(rGameProp)
         setGridData(rGridData)
         super.setProperties()
-        createNewGameStr = rPresenter.createNewGameStr
     }
 
     fun getCurrentPlayer() = currentPlayer.intValue
@@ -264,18 +261,19 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
     private fun whoWinsMessage() {
         val redCount = rGridData.countPlayer(HUMAN_PLAYER)
         val blueCount = rGridData.countPlayer(COMPUTER_PLAYER)
+        /*
+        val diff = abs(redCount - blueCount)
         val message = when {
             redCount > blueCount -> {
-                val diff = redCount - blueCount
                 "Red wins by $diff cells (Red: $redCount, Blue: $blueCount)"
             }
             blueCount > redCount -> {
-                val diff = blueCount - redCount
                 "Blue wins by $diff cells (Blue: $blueCount, Red: $redCount)"
             }
             else -> "It's a tie: Red: $redCount, Blue: $blueCount"
         }
-        saveScoreStr = message
+        */
+        saveScoreStr = rPresenter.whoWinsMessage(redCount, blueCount)
     }
 
     override fun quitGame() {
@@ -314,7 +312,7 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
             LogUtil.d(TAG, "$logStr.skip COMPUTER_PLAYER")
             // skip COMPUTER_PLAYER, show a message on screen
             viewModelScope.launch(Dispatchers.Main) {
-                setScreenMessage("Blue passed")
+                setScreenMessage(rPresenter.bluePassStr)
                 currentPlayer.intValue = HUMAN_PLAYER
                 delay(DELAY_FOR_SHOW_PASS)
                 setScreenMessage("")
@@ -340,7 +338,7 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
             // skip HUMAN_PLAYER, show a message on screen
             LogUtil.d(TAG, "$logStr.skip HUMAN_PLAYER")
             viewModelScope.launch(Dispatchers.Main) {
-                setScreenMessage("Red pass")
+                setScreenMessage(rPresenter.redPassStr)
                 delay(DELAY_FOR_SHOW_PASS)
                 setScreenMessage("")
                 scheduleComputerMove()

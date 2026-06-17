@@ -1,6 +1,5 @@
 package com.smile.colorballs_main.views
 
-import android.app.Activity
 import android.content.res.Configuration
 import android.view.View
 import androidx.compose.foundation.Image
@@ -53,7 +52,6 @@ import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdView
 import com.smile.colorballs_main.BuildConfig
-import com.smile.colorballs_main.R
 import com.smile.colorballs_main.models.Settings
 import com.smile.colorballs_main.models.TopPlayer
 import com.smile.colorballs_main.tools.LogUtil
@@ -486,7 +484,7 @@ object CbComposable {
             text = {
                 if (dialogText.isNotEmpty())
                     Text(
-                        text = dialogText, lineHeight = fontSize,
+                        text = dialogText, lineHeight = (fontSize.value + 10).sp,
                         fontWeight = FontWeight.Medium, fontSize = fontSize
                     )
             },
@@ -566,7 +564,7 @@ object CbComposable {
             title = {
                 if (dialogTitle.isNotEmpty()) {
                     Text(
-                        text = dialogTitle,
+                        text = dialogTitle, lineHeight = (mFontSize.value + 10).sp,
                         fontWeight = FontWeight.Medium, fontSize = mFontSize
                     )
                 }

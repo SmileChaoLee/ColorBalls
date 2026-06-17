@@ -19,6 +19,7 @@ import com.smile.colorballs_main.views.CbRmBaseView
 import com.smile.reversi.interfaces.ReversiPresentView
 import com.smile.reversi.presenters.ReversiPresenter
 import com.smile.reversi.viewmodels.ReversiViewModel
+import kotlin.math.abs
 
 class ReversiActivity: CbRmBaseView(), ReversiPresentView {
 
@@ -39,7 +40,33 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
     }
 
     // implement ReversiPresentView
-    override fun getCreateNewGameStr() = getString(R.string.createNewGameStr)
+    override fun getBluePassStr() = getString(R.string.bluePass)
+    override fun getRedPassStr() = getString(R.string.redPass)
+    override fun getWhoWinsMessage(
+        redCount: Int,
+        blueCount: Int
+    ): String {
+        val diff = abs(redCount - blueCount)
+        val cellStr = getString(R.string.cells)
+        val red = getString(R.string.red)
+        val blue = getString(R.string.blue)
+        val message = when {
+            redCount > blueCount -> {
+                val winStr = getString(R.string.redWinBy)
+                "$winStr $diff $cellStr ($red: $redCount, $blue: $blueCount)"
+            }
+            blueCount > redCount -> {
+                val winStr = getString(R.string.blueWinBy)
+                "$winStr $diff $cellStr ($red: $redCount, $blue: $blueCount)"
+            }
+            else -> {
+                val tie = getString(R.string.tie)
+                "$tie: $red: $redCount, $blue: $blueCount"
+            }
+        }
+        return message
+    }
+    //
 
     // implement GameOptions
     override fun setWhichGame() {
