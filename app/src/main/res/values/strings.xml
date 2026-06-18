@@ -7,13 +7,13 @@
     <string name="easyStr">Easy</string>
     <string name="no2">2</string>
     <string name="difficultStr">Difficult</string>
-    <string name="playerLevelStr">Level</string>
+    <string name="gameLevelTitle">Level</string>
     <string name="level1Str">Level 1</string>
     <string name="level2Str">Level 2</string>
     <string name="level3Str">Level 3</string>
     <string name="level4Str">Level 4</string>
     <string name="level5Str">Level 5</string>
-    <string name="nextBallSettingStr">Next Balls</string>
+    <string name="nextBallTitle">Next Balls</string>
     <string name="quitGame">Quit Game</string>
     <string name="newGame">New Game</string>
     <string name="optionButton">OPTION</string>
@@ -36,7 +36,7 @@
     <string name="globalTop10Str">Global Top 10</string>
     <string name="fileMenuStr">File</string>
     <string name="settingStr">Settings</string>
-    <string name="soundStr">Sound</string>
+    <string name="soundTitle">Sound</string>
     <string name="hasSoundStr">Yes</string>
     <string name="noSoundStr">No</string>
     <string name="onStr">On</string>
@@ -60,13 +60,13 @@
     <string name="showStr">Show</string>
     <string name="noShowStr">No</string>
     <string name="saveScoreStr">Save current Score</string>
-    <string name="companyDescriptionStr">Design customized software, Apps, Smart phone Apps and Web Apps.</string>
+    <string name="companyDescriptionStr">Design customized software, Apps, Smartphone Apps and Web Apps.</string>
     <string name="companyNameStr">Smile Information Inc.</string>
     <string name="companyContactEmailStr">leechao1959@gmail.com</string>
     <string name="noBarrierColorBall">No Barriers</string>
     <string name="barrierColorBall">Has Barriers</string>
 
     <!--    For BallsRemover   -->
-    <string name="fillColumnStr">Fill Column</string>
+    <string name="fillColumnTitle">Fill Column</string>
     <string name="createNewGameStr">Create a New Game?</string>
 </resources>

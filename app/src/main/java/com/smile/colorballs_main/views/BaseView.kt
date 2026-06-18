@@ -70,7 +70,6 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import androidx.core.graphics.scale
 import androidx.core.view.WindowCompat
-import androidx.room.util.TableInfo
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.ump.ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA
@@ -117,6 +116,7 @@ abstract class BaseView: ComponentActivity(),
     abstract fun ifInterstitialWhenSaveScore()
     abstract fun ifInterstitialWhenNewGame()
     abstract fun ifCreatingNewGame(newGameLevel: Int, originalLevel: Int)
+    abstract fun putOtherToBundle(extra: Bundle)
     open fun isDropBalls() = false
     open fun actionOnClick() {}
     open fun stopActionOnClick() {}
@@ -972,6 +972,7 @@ abstract class BaseView: ComponentActivity(),
                 putBoolean(Constants.HAS_SOUND, baseViewModel.hasSound())
                 putInt(Constants.GAME_LEVEL, baseViewModel.getGameLevel())
                 putBoolean(Constants.HAS_NEXT, baseViewModel.hasNext())
+                putOtherToBundle(this)
                 it.putExtras(this)
                 settingLauncher.launch(it)
             }

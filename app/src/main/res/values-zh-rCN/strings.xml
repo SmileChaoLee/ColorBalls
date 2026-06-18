@@ -7,13 +7,13 @@
     <string name="easyStr">容易</string>
     <string name="no2">2</string>
     <string name="difficultStr">困难</string>
-    <string name="playerLevelStr">难易程度</string>
+    <string name="gameLevelTitle">难易程度</string>
     <string name="level1Str">程度 1</string>
     <string name="level2Str">程度 2</string>
     <string name="level3Str">程度 3</string>
     <string name="level4Str">程度 4</string>
     <string name="level5Str">程度 5</string>
-    <string name="nextBallSettingStr">下一批色球</string>
+    <string name="nextBallTitle">下一批色球</string>
     <string name="quitGame">结束游戏</string>
     <string name="newGame">新游戏</string>
     <string name="optionButton">选项</string>
@@ -36,7 +36,7 @@
     <string name="globalTop10Str">全球前10排名</string>
     <string name="fileMenuStr">档案</string>
     <string name="settingStr">设定</string>
-    <string name="soundStr">声音</string>
+    <string name="soundTitle">声音</string>
     <string name="hasSoundStr">有声</string>
     <string name="noSoundStr">无声</string>
     <string name="onStr">开</string>
@@ -67,6 +67,6 @@
     <string name="barrierColorBall">有障礙分佈</string>
 
     <!--    For BallsRemover   -->
-    <string name="fillColumnStr">填滿空白欄</string>
+    <string name="fillColumnTitle">填滿空白欄</string>
     <string name="createNewGameStr">建立新遊戲?</string>
 </resources>

@@ -237,6 +237,12 @@ class MyActivity : AppCompatActivity(), MyPresentView {
             extras.putBoolean(Constants.HAS_SOUND, mPresenter.hasSound())
             extras.putInt(Constants.GAME_LEVEL, Constants.GAME_LEVEL_1)
             extras.putBoolean(Constants.HAS_NEXT, mPresenter.hasNext())
+            extras.putString(CbSettingActivity.HAS_SOUND_TITLE,
+                getString(R.string.soundTitle))
+            extras.putString(CbSettingActivity.GAME_LEVEL_TITLE,
+                getString(R.string.gameLevelTitle))
+            extras.putString(CbSettingActivity.NEXT_BALL_TITLE,
+                getString(R.string.nextBallTitle))
             setIntent.putExtras(extras)
             settingLauncher.launch(setIntent)
             return true

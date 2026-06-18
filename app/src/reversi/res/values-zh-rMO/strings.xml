@@ -9,4 +9,5 @@
     <string name="tie">平手</string>
     <string name="bluePass">藍隊跳過</string>
     <string name="redPass">紅隊跳過</string>
+    <string name="nextMoveTitle">下一步</string>
 </resources>

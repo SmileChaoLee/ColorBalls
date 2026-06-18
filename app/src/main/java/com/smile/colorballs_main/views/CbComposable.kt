@@ -227,7 +227,7 @@ object CbComposable {
         textListener: SettingClickListener,
         backgroundColor: Color,
         setting: Settings, title: String,
-        soundStr: String, playerLevelStr: String, hasNextStr: String,
+        soundTitle: String, gameLevelTitle: String, hasNextTitle: String,
         onStr: String, offStr: String,
         yesStr: String, noStr: String,
         levelList: List<Int>,
@@ -252,9 +252,6 @@ object CbComposable {
             buttonWeight = spaceWeight * 2.0f
         }
 
-        // val onStr = activity.getString(R.string.onStr)
-        // val offStr = activity.getString(R.string.offStr)
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -265,8 +262,6 @@ object CbComposable {
                     .fillMaxWidth()
                     .weight(spaceWeight)
             )
-            // val yesStr = activity.getString(R.string.yesStr)
-            // val noStr = activity.getString(R.string.noStr)
             Row(modifier = Modifier.weight(setRowWeight)) {    // setting row
                 Spacer(
                     modifier = Modifier
@@ -302,7 +297,7 @@ object CbComposable {
                         var hasSound by remember { mutableStateOf(setting.hasSound) }
                         MenuItemText(
                             // text = activity.getString(R.string.soundStr),
-                            text = soundStr,
+                            text = soundTitle,
                             color = textColor,
                             modifier = Modifier
                                 .weight(1f)
@@ -327,7 +322,7 @@ object CbComposable {
                                 .padding(all = 0.dp)
                         )
                     }
-                    if (playerLevelStr.isNotEmpty()) {
+                    if (gameLevelTitle.isNotEmpty()) {
                         Row(
                             Modifier.weight(rowWeight),
                             verticalAlignment = Alignment.CenterVertically,
@@ -340,7 +335,7 @@ object CbComposable {
                             var gameLevel by remember { mutableIntStateOf(setting.gameLevel) }
                             MenuItemText(
                                 // text = activity.getString(R.string.playerLevelStr),
-                                text = playerLevelStr,
+                                text = gameLevelTitle,
                                 color = textColor,
                                 modifier = Modifier
                                     .weight(1f)
@@ -373,7 +368,7 @@ object CbComposable {
                             )
                         }
                     }
-                    if (hasNextStr.isNotEmpty()) {
+                    if (hasNextTitle.isNotEmpty()) {
                         Row(
                             Modifier.weight(rowWeight),
                             verticalAlignment = Alignment.CenterVertically,
@@ -381,7 +376,7 @@ object CbComposable {
                         ) {
                             var hasNext by remember { mutableStateOf(setting.hasNext) }
                             MenuItemText(
-                                text = hasNextStr,
+                                text = hasNextTitle,
                                 color = textColor,
                                 modifier = Modifier
                                     .weight(1f)

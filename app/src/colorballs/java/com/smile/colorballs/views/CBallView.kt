@@ -8,6 +8,7 @@ import com.smile.colorballs.presenters.CBallPresenter
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs.viewmodels.CBallViewModel
 import com.smile.colorballs_main.views.CbRmBaseView
+import com.smile.colorballs_main.views.CbSettingActivity
 
 abstract class CBallView: CbRmBaseView(), CBallPresentView {
 
@@ -43,7 +44,7 @@ abstract class CBallView: CbRmBaseView(), CBallPresentView {
     override fun getGameOverStr() = getString(R.string.gameOverStr)
     // end of implementing
 
-    // implement abstract fun of MyView
+    // implement abstract fun of BaseView
     override fun getCurrentPresenter(): CBallPresenter {
         return mPresenter
     }
@@ -64,7 +65,16 @@ abstract class CBallView: CbRmBaseView(), CBallPresentView {
     override fun setHasNextForView(hasNext: Boolean) {
         viewModel.setHasNext(hasNext, true)
     }
-    // end of implementing abstract fun of MyView
+
+    override fun putOtherToBundle(extras: Bundle) {
+        extras.putString(CbSettingActivity.HAS_SOUND_TITLE,
+            getString(R.string.soundTitle))
+        extras.putString(CbSettingActivity.GAME_LEVEL_TITLE,
+            getString(R.string.gameLevelTitle))
+        extras.putString(CbSettingActivity.NEXT_BALL_TITLE,
+            getString(R.string.nextBallTitle))
+    }
+    // end of implementing abstract fun of BaseView
 
     override fun ifInterstitialWhenNewGame() {
         LogUtil.i(TAG, "ifInterstitialWhenNewGame")

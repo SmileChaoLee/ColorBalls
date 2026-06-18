@@ -11,6 +11,7 @@ import com.smile.colorballs_main.constants.WhichGame
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.views.CbComposable
 import com.smile.colorballs_main.views.CbRmBaseView
+import com.smile.colorballs_main.views.CbSettingActivity
 
 class BallsRemoverActivity: CbRmBaseView(), BallsRmPresentView {
 
@@ -41,7 +42,7 @@ class BallsRemoverActivity: CbRmBaseView(), BallsRmPresentView {
     }
     // end of implementing interface, GameOptions
 
-    // implement abstract fun of MyView
+    // implement abstract fun of BaseView
     @Composable
     override fun CreateNewGameDialog() {
         LogUtil.i(TAG, "CreateNewGameDialog")
@@ -99,5 +100,13 @@ class BallsRemoverActivity: CbRmBaseView(), BallsRmPresentView {
     override fun setHasNextForView(hasNext: Boolean) {
         viewModel.setHasNext(hasNext)
     }
-    // end of implementing abstract fun of MyView
+
+    override fun putOtherToBundle(extra: Bundle) {
+        extra.putString(CbSettingActivity.HAS_SOUND_TITLE,
+            getString(R.string.soundTitle))
+        extra.putString(CbSettingActivity.GAME_LEVEL_TITLE, "")
+        extra.putString(CbSettingActivity.NEXT_BALL_TITLE,
+            getString(R.string.fillColumnTitle))
+    }
+    // end of implementing abstract fun of BaseView
 }

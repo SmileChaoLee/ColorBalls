@@ -18,6 +18,13 @@ import com.smile.smilelibraries.utilities.ScreenUtil
 
 class CbSettingActivity : ComponentActivity() {
 
+    companion object {
+        private const val TAG = "CbSettingActivity"
+        const val HAS_SOUND_TITLE = "soundTitle"
+        const val GAME_LEVEL_TITLE = "gameLevelTitle"
+        const val NEXT_BALL_TITLE = "hasNextTitle"
+    }
+
     private val settingViewModel : SettingViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,26 +37,31 @@ class CbSettingActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
 
-        var gameId = Constants.GAME_NO_BARRIER_ID
         if (savedInstanceState == null) {
             // new creation of this activity
             val setting = Settings()
             LogUtil.d(TAG, "onCreate.savedInstanceState is null")
             intent.extras?.let {
-                gameId = it.getString(Constants.GAME_ID, gameId)
+                settingViewModel.gameId = it.getString(Constants.GAME_ID, "")
                 setting.hasSound = it.getBoolean(Constants.HAS_SOUND, true)
                 setting.gameLevel = it.getInt(Constants.GAME_LEVEL, 1)
                 setting.hasNext = it.getBoolean(Constants.HAS_NEXT, true)
+                settingViewModel.hasSoundTitle = it.getString(HAS_SOUND_TITLE, "")
+                settingViewModel.gameLevelTitle = it.getString(GAME_LEVEL_TITLE, "")
+                settingViewModel.hasNextTitle = it.getString(NEXT_BALL_TITLE, "")
             }
             settingViewModel.setSettings(setting)
         } else {
             // re-creation of this activity
-            gameId = settingViewModel.gameId
             LogUtil.d(TAG, "onCreate.savedInstanceState not null")
             if (settingViewModel.settings.value == null) {
                 settingViewModel.setSettings(Settings())
             }
         }
+        val gameId = settingViewModel.gameId
+        val hasSoundTitle = settingViewModel.hasSoundTitle
+        val gameLevelTitle = settingViewModel.gameLevelTitle
+        val hasNextTitle = settingViewModel.hasNextTitle
 
         val textClick = object : CbComposable.SettingClickListener {
             override fun hasSoundClick(hasSound: Boolean) {
@@ -77,52 +89,21 @@ class CbSettingActivity : ComponentActivity() {
 
         setContent {
             LogUtil.d(TAG, "onCreate.setContent.gameId = $gameId")
-            var playerLevelStr = getString(R.string.playerLevelStr)
-            var hasNextStr: String
             val gameLevel = ArrayList<Int>()
             val gameLevelStr = ArrayList<String>()
-            if (gameId == Constants.DROP_COLOR_BALLS_ID) {
-                hasNextStr = getString(R.string.emptyString)
-                // Only 2 level for now
-                gameLevel.add(Constants.GAME_LEVEL_1)
-                gameLevel.add(Constants.GAME_LEVEL_2)
-                gameLevelStr.add(getString(R.string.level1Str))
-                gameLevelStr.add(getString(R.string.level2Str))
-                /*
-                gameLevel.add(Constants.GAME_LEVEL_3)
-                gameLevel.add(Constants.GAME_LEVEL_4)
-                gameLevel.add(Constants.GAME_LEVEL_5)
-                gameLevelStr.add(getString(R.string.level3Str))
-                gameLevelStr.add(getString(R.string.level4Str))
-                gameLevelStr.add(getString(R.string.level5Str))
-                */
-            } else if (gameId == Constants.BALLS_REMOVER_ID) {
-                hasNextStr = getString(R.string.fillColumnStr)
-            } else {
-                // gameId =
-                // Constants.GAME_NO_BARRIER_ID or
-                // Constants.GAME_HAS_BARRIER_ID or
-                // Constants.FIVE_COLOR_BALLS_ID
-                hasNextStr = getString(R.string.nextBallSettingStr)
-                gameLevel.add(Constants.GAME_LEVEL_1)
-                gameLevel.add(Constants.GAME_LEVEL_2)
-                gameLevelStr.add(getString(R.string.easyStr))
-                gameLevelStr.add(getString(R.string.difficultStr))
-                if (gameId == Constants.FIVE_COLOR_BALLS_ID) {
-                    // No game level for fivecolorballs
-                    playerLevelStr = getString(R.string.emptyString)
-                }
-            }
-
+            gameLevel.add(Constants.GAME_LEVEL_1)
+            gameLevel.add(Constants.GAME_LEVEL_2)
+            gameLevelStr.add(getString(R.string.level1Str))
+            gameLevelStr.add(getString(R.string.level2Str))
             ColorBallsTheme {
                 settingViewModel.settings.value?.let {
                     CbComposable.SettingCompose(buttonClick,
                         textClick,
                         backgroundColor = Color(0xbb0000ff), it,
                         getString(R.string.settingStr),
-                        getString(R.string.soundStr),
-                        playerLevelStr,
-                        hasNextStr,
+                        hasSoundTitle,
+                        gameLevelTitle,
+                        hasNextTitle,
                         getString(R.string.onStr),
                         getString(R.string.offStr),
                         getString(R.string.yesStr),
@@ -188,9 +169,5 @@ class CbSettingActivity : ComponentActivity() {
                 intent) // can bundle some data to previous activity
         }
         finish()
-    }
-
-    companion object {
-        private const val TAG = "CbSettingActivity"
     }
 }

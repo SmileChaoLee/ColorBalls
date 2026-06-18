@@ -9,4 +9,5 @@
     <string name="tie">It is a tie</string>
     <string name="bluePass">Blue Pass</string>
     <string name="redPass">Red Pass</string>
+    <string name="nextMoveTitle">Nexts</string>
 </resources>

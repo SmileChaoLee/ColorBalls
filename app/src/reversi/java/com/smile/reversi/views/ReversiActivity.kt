@@ -16,6 +16,7 @@ import com.smile.colorballs_main.R
 import com.smile.colorballs_main.constants.WhichGame
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.views.CbRmBaseView
+import com.smile.colorballs_main.views.CbSettingActivity
 import com.smile.reversi.interfaces.ReversiPresentView
 import com.smile.reversi.presenters.ReversiPresenter
 import com.smile.reversi.viewmodels.ReversiViewModel
@@ -142,6 +143,14 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
                 .weight(1f)
                 .align(Alignment.CenterVertically))
         }
+    }
+
+    override fun putOtherToBundle(extra: Bundle) {
+        extra.putString(CbSettingActivity.HAS_SOUND_TITLE,
+            getString(R.string.soundTitle))
+        extra.putString(CbSettingActivity.GAME_LEVEL_TITLE, "")
+        extra.putString(CbSettingActivity.NEXT_BALL_TITLE,
+            getString(R.string.nextMoveTitle))
     }
     // end of implementing parent class, BaseView.kt
 }

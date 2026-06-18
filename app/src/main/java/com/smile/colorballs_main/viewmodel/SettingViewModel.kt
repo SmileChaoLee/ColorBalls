@@ -9,6 +9,9 @@ import com.smile.colorballs_main.models.Settings
 class SettingViewModel : ViewModel() {
 
     var gameId = Constants.GAME_NO_BARRIER_ID
+    var hasSoundTitle = ""
+    var gameLevelTitle = ""
+    var hasNextTitle = ""
 
     private val _settings = MutableLiveData<Settings>()
     val settings : LiveData<Settings>
