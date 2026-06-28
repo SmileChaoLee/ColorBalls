@@ -14,24 +14,39 @@ object Client {
     // private const val BASE_URL = "http://137.184.120.171/"
     private val retrofitMap: HashMap<String, Retrofit> = HashMap()
 
-    fun getInstance(webUrl: String): Retrofit {
+    fun getInstance(
+        webUrl: String,
+        connectTimeout: Long = 5,
+        readTimeout: Long = 30,
+        writeTimeout: Long = 15): Retrofit
+    {
         val retrofit: Retrofit
         if (retrofitMap.contains(webUrl)) {
             retrofit = retrofitMap.getValue(webUrl)
         } else {
-            retrofit = getRetrofit(webUrl)
+            retrofit = getRetrofit(
+                webUrl,
+                connectTimeout,
+                readTimeout,
+                writeTimeout
+            )
             retrofitMap[webUrl] = retrofit
         }
         Log.d(TAG, "retrofit = $retrofit")
         return retrofit
     }
 
-    private fun getRetrofit(webUrl: String): Retrofit {
+    private fun getRetrofit(
+        webUrl: String,
+        connectTimeout: Long = 5,
+        readTimeout: Long = 30,
+        writeTimeout: Long = 15): Retrofit
+    {
         Log.d(TAG, "getInstance.url = $webUrl")
         val client = OkHttpClient.Builder()
-            .connectTimeout(1, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(15, TimeUnit.SECONDS).build()
+            .connectTimeout(connectTimeout, TimeUnit.SECONDS)
+            .readTimeout(readTimeout, TimeUnit.SECONDS)
+            .writeTimeout(writeTimeout, TimeUnit.SECONDS).build()
         val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss").create()
         val retrofit = Retrofit.Builder()
             .baseUrl(webUrl)
