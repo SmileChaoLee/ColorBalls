@@ -101,11 +101,11 @@ class BallsRemoverActivity: CbRmBaseView(), BallsRmPresentView {
         viewModel.setHasNext(hasNext)
     }
 
-    override fun putOtherToBundle(extra: Bundle) {
-        extra.putString(CbSettingActivity.HAS_SOUND_TITLE,
+    override fun putOtherToBundle(extras: Bundle) {
+        extras.putString(CbSettingActivity.HAS_SOUND_TITLE,
             getString(R.string.soundTitle))
-        extra.putString(CbSettingActivity.GAME_LEVEL_TITLE, "")
-        extra.putString(CbSettingActivity.NEXT_BALL_TITLE,
+        extras.putString(CbSettingActivity.GAME_LEVEL_TITLE, "")
+        extras.putString(CbSettingActivity.NEXT_BALL_TITLE,
             getString(R.string.fillColumnTitle))
     }
     // end of implementing abstract fun of BaseView

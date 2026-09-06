@@ -33,6 +33,7 @@ import com.smile.colorballs_main.models.ColorBallInfo
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.views.BaseView
 import com.smile.colorballs_main.views.CbComposable
+import com.smile.colorballs_main.views.CbSettingActivity
 import com.smile.dropcolorballs.interfaces.DropBallsPresentView
 import com.smile.dropcolorballs.presenters.DropBallsPresenter
 import com.smile.dropcolorballs.viewmodels.DropBallsViewModel
@@ -269,6 +270,14 @@ class DropCBallsActivity: BaseView(),
             actionOnClick()
             viewModel.newGame()
         }
+    }
+
+    override fun putOtherToBundle(extras: Bundle) {
+        extras.putString(CbSettingActivity.HAS_SOUND_TITLE,
+            getString(R.string.soundTitle))
+        extras.putString(CbSettingActivity.GAME_LEVEL_TITLE,
+            getString(R.string.gameLevelTitle))
+        extras.putString(CbSettingActivity.NEXT_BALL_TITLE, "")
     }
 
     override fun setHasNextForView(hasNext: Boolean) {

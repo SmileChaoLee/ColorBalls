@@ -8,6 +8,7 @@ import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.constants.WhichBall
 import com.smile.colorballs_main.models.ColorBallInfo
 import com.smile.colorballs_main.models.GameProp
+import com.smile.colorballs_main.tools.GameUtil
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.viewmodel.BaseViewModel
 import com.smile.reversi.models.ReversiGridData
@@ -15,7 +16,6 @@ import com.smile.reversi.presenters.ReversiPresenter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.math.abs
 import kotlin.random.Random
 
 class ReversiViewModel(private val rPresenter: ReversiPresenter)
@@ -163,7 +163,9 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
             val foStream = rPresenter.fileOutputStream(Constants.SAVE_REVERSI)
             // save settings
             if (hasSound()) foStream.write(1) else foStream.write(0)
-            if (getGameLevel() == Constants.GAME_LEVEL_1) foStream.write(1) else foStream.write(0)
+            val gameLevel = getGameLevel()
+            LogUtil.d(TAG, "startSavingGame.gameLevel = $gameLevel")
+            GameUtil.saveGameLevel(foStream, getGameLevel())
             if (hasNext()) foStream.write(1) else foStream.write(0)
             // save current player
             foStream.write(currentPlayer.intValue)
@@ -203,10 +205,11 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
             val hasSound = bValue == 1
             bValue = fiStream.read()
             val gameLevel = bValue
+            LogUtil.d(TAG, "startLoadingGame.gameLevel = $gameLevel")
             bValue = fiStream.read()
             val hasNext = bValue == 1
             setHasSound(hasSound)
-            setGameLevel(gameLevel)
+            setGameLevel(GameUtil.translateGameLevel(gameLevel))
             setHasNext(hasNext)
             // read current player
             val cp = fiStream.read()
@@ -320,33 +323,134 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
             return
         }
         // Choose best move: prioritize corners, then edges, then maximize flips
-        val bestMove = chooseBestMove(validMoves)
+        val bestMove = if(getGameLevel() == Constants.GAME_LEVEL_1)
+            chooseBestMoveBase(validMoves) else chooseBestMove(validMoves)
         rGridData.backupCells()
-        rGridData.placePiece(bestMove.x, bestMove.y, COMPUTER_PLAYER)
-        LogUtil.d(TAG, "$logStr.Computer moved to (${bestMove.x}, ${bestMove.y})")
-        displayGameGridView()
-        if (rGridData.isGameOver()) {
-            // game over
-            LogUtil.d(TAG, "$logStr.Game is over")
-            gameOver()
-            return
-        }
-        // switch back to human player
-        currentPlayer.intValue = HUMAN_PLAYER
-        val humanMoves = rGridData.getValidMoves(HUMAN_PLAYER)
-        if (humanMoves.isEmpty()) {
-            // skip HUMAN_PLAYER, show a message on screen
-            LogUtil.d(TAG, "$logStr.skip HUMAN_PLAYER")
-            viewModelScope.launch(Dispatchers.Main) {
-                setScreenMessage(rPresenter.redPassStr)
-                delay(DELAY_FOR_SHOW_PASS)
-                setScreenMessage("")
-                scheduleComputerMove()
+        setProcessingJob(true)
+        // Animating teh move here
+        viewModelScope.launch(Dispatchers.Main) {
+            var isOval = false
+            for (i in 0 until 10) {
+                if (isOval) {
+                    drawOval(bestMove.x, bestMove.y, COMPUTER_PLAYER)
+                } else {
+                    drawBall(bestMove.x, bestMove.y, COMPUTER_PLAYER)
+                }
+                isOval = !isOval
+                delay(200L)
+            }
+            rGridData.placePiece(bestMove.x, bestMove.y, COMPUTER_PLAYER)
+            LogUtil.d(TAG, "$logStr.Computer moved to (${bestMove.x}, ${bestMove.y})")
+            displayGameGridView()
+            if (rGridData.isGameOver()) {
+                // game over
+                LogUtil.d(TAG, "$logStr.Game is over")
+                setProcessingJob(false)
+                gameOver()
+                return@launch
+            }
+            // switch back to human player
+            currentPlayer.intValue = HUMAN_PLAYER
+            val humanMoves = rGridData.getValidMoves(HUMAN_PLAYER)
+            if (humanMoves.isEmpty()) {
+                // skip HUMAN_PLAYER, show a message on screen
+                LogUtil.d(TAG, "$logStr.skip HUMAN_PLAYER")
+                viewModelScope.launch(Dispatchers.Main) {
+                    setScreenMessage(rPresenter.redPassStr)
+                    delay(DELAY_FOR_SHOW_PASS)
+                    setScreenMessage("")
+                    scheduleComputerMove()
+                }
+            } else {
+                setProcessingJob(false)
             }
         }
     }
 
     private fun chooseBestMove(validMoves: List<android.graphics.Point>): android.graphics.Point {
+        var bestMove = validMoves[0]
+        var bestScore = Float.NEGATIVE_INFINITY
+
+        for (move in validMoves) {
+            val score = evaluateMoveWithMinimax(move, COMPUTER_PLAYER, HUMAN_PLAYER, depth = 2)
+            if (score > bestScore) {
+                bestScore = score
+                bestMove = move
+            }
+        }
+
+        return bestMove
+    }
+
+    private fun evaluateMoveWithMinimax(
+        move: android.graphics.Point,
+        player: Int,
+        opponent: Int,
+        depth: Int
+    ): Float {
+        // Backup board state
+        val backup = Array(rowCounts) { IntArray(colCounts) }
+        for (i in 0 until rowCounts) {
+            for (j in 0 until colCounts) {
+                backup[i][j] = rGridData.getCellValue(i, j)
+            }
+        }
+
+        // Place the move
+        val flips = rGridData.flipsForMove(move.x, move.y, player)
+        if (flips.isEmpty()) {
+            return Float.NEGATIVE_INFINITY
+        }
+
+        rGridData.placePiece(move.x, move.y, player)
+
+        // Calculate position score based on move location
+        val positionScore = getPositionValue(move.x, move.y)
+
+        // Calculate material score (flips count heavily)
+        val materialScore = flips.size * 10f
+
+        // Check opponent's mobility
+        val opponentMoves = rGridData.getValidMoves(opponent)
+        val mobilityScore = if (opponentMoves.isEmpty()) 100f else -opponentMoves.size.toFloat()
+
+        var totalScore = positionScore + materialScore + mobilityScore
+
+        // Lookahead 2 levels deep if depth > 0
+        if (depth > 0 && opponentMoves.isNotEmpty()) {
+            val opponentBestResponse = opponentMoves.maxOfOrNull { opponentMove ->
+                val opponentFlips = rGridData.flipsForMove(opponentMove.x, opponentMove.y, opponent)
+                if (opponentFlips.isEmpty()) 0f else opponentFlips.size.toFloat()
+            } ?: 0f
+            totalScore -= opponentBestResponse * 8f // Penalize giving opponent strong options
+        }
+
+        // Restore board
+        for (i in 0 until rowCounts) {
+            for (j in 0 until colCounts) {
+                rGridData.setCellValue(i, j, backup[i][j])
+            }
+        }
+
+        return totalScore
+    }
+
+    private fun getPositionValue(x: Int, y: Int): Float {
+        // Positional weights on the board - same as classic Reversi strategy
+        val weights = arrayOf(
+            floatArrayOf(400f, -50f, 10f, 5f, 5f, 10f, -50f, 400f),
+            floatArrayOf(-50f, -150f, -10f, -5f, -5f, -10f, -150f, -50f),
+            floatArrayOf(10f, -10f, 5f, 1f, 1f, 5f, -10f, 10f),
+            floatArrayOf(5f, -5f, 1f, 0f, 0f, 1f, -5f, 5f),
+            floatArrayOf(5f, -5f, 1f, 0f, 0f, 1f, -5f, 5f),
+            floatArrayOf(10f, -10f, 5f, 1f, 1f, 5f, -10f, 10f),
+            floatArrayOf(-50f, -150f, -10f, -5f, -5f, -10f, -150f, -50f),
+            floatArrayOf(400f, -50f, 10f, 5f, 5f, 10f, -50f, 400f)
+        )
+        return weights[x][y]
+    }
+
+    private fun chooseBestMoveBase(validMoves: List<android.graphics.Point>): android.graphics.Point {
         val corners = listOf(
             android.graphics.Point(0, 0),
             android.graphics.Point(0, 7),

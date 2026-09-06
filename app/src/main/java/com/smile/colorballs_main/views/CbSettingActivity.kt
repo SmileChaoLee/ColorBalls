@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.sp
 import com.smile.colorballs_main.R
 import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.models.Settings
+import com.smile.colorballs_main.tools.GameUtil
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs_main.viewmodel.SettingViewModel
@@ -70,7 +71,7 @@ class CbSettingActivity : ComponentActivity() {
             }
             override fun gameLevelClick(gameLevel: Int) {
                 LogUtil.d(TAG, "textClick.easyLevelClick.easyLevel = $gameLevel")
-                settingViewModel.setGameLevel(gameLevel)
+                settingViewModel.setGameLevel(GameUtil.translateGameLevel(gameLevel))
             }
             override fun hasNextClick(hasNext: Boolean) {
                 LogUtil.d(TAG, "textClick.hasNextClick.hasNext = $hasNext")

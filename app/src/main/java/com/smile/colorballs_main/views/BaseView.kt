@@ -116,11 +116,11 @@ abstract class BaseView: ComponentActivity(),
     abstract fun ifInterstitialWhenSaveScore()
     abstract fun ifInterstitialWhenNewGame()
     abstract fun ifCreatingNewGame(newGameLevel: Int, originalLevel: Int)
-    abstract fun putOtherToBundle(extra: Bundle)
+    abstract fun putOtherToBundle(extras: Bundle)
     open fun isDropBalls() = false
     open fun actionOnClick() {}
     open fun stopActionOnClick() {}
-    open fun setTheGameLevel(gameLevel: Int) = baseViewModel.setGameLevel(gameLevel)
+    open fun setTheGameLevel(gameLevel: Int) = baseViewModel.setGameLevel(GameUtil.translateGameLevel(gameLevel))
     open fun hasTop10Menu() = true
     open fun getFieldStrings(): Array<String> {
         val strings = arrayOf(
@@ -224,6 +224,7 @@ abstract class BaseView: ComponentActivity(),
             LogUtil.i(TAG, "$TAG.settingLauncher.result received")
             if (result.resultCode == RESULT_OK) {
                 val originalLevel = baseViewModel.getGameLevel()
+                LogUtil.d(TAG, "settingLauncher.originalLevel = $originalLevel")
                 var newGameLevel: Int
                 val data = result.data ?: return@registerForActivityResult
                 data.extras?.let { extras ->
@@ -530,7 +531,7 @@ abstract class BaseView: ComponentActivity(),
         */
         val screenWidth = LocalConfiguration.current.screenWidthDp
         LogUtil.d(TAG, "$logStr.screenWidth = $screenWidth")
-        var screenHeight = LocalConfiguration.current.screenHeightDp
+        val screenHeight = LocalConfiguration.current.screenHeightDp
         LogUtil.d(TAG, "$logStr.screenHeight = $screenHeight")
         // Calculate the available content height
         // WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -566,7 +567,7 @@ abstract class BaseView: ComponentActivity(),
         LogUtil.d(TAG, "$logStr.screen.y = ${screen.y}")
         val screenWidth = ScreenUtil.pixelToDp(screen.x.toFloat()).toInt()
         LogUtil.d(TAG, "$logStr.screenWidth = $screenWidth")
-        var screenHeight = ScreenUtil.pixelToDp(screen.y.toFloat()).toInt()
+        val screenHeight = ScreenUtil.pixelToDp(screen.y.toFloat()).toInt()
         LogUtil.d(TAG, "$logStr.screenHeight = $screenHeight")
         // screenHeight -= navigationBarHeight
         // Calculate the available content height
@@ -834,7 +835,7 @@ abstract class BaseView: ComponentActivity(),
                 CbComposable.ShowAdmobBanner(modifier = Modifier.padding(top = 0.dp),
                     it.getBannerID(), adWidth)
                 CbComposable.ShowAdmobBanner(modifier = Modifier.padding(top = 0.dp),
-                    it.getBannerID2())
+                    it.getBannerID2(), adWidth)
             }
         }
     }
@@ -970,7 +971,9 @@ abstract class BaseView: ComponentActivity(),
                 putString(Constants.GAME_ID,
                     GameUtil.getGameId(baseViewModel.getWhichGame()))
                 putBoolean(Constants.HAS_SOUND, baseViewModel.hasSound())
-                putInt(Constants.GAME_LEVEL, baseViewModel.getGameLevel())
+                val originalLevel = baseViewModel.getGameLevel()
+                LogUtil.d(TAG, "onClickSettingButton.originalLevel = $originalLevel")
+                putInt(Constants.GAME_LEVEL, originalLevel)
                 putBoolean(Constants.HAS_NEXT, baseViewModel.hasNext())
                 putOtherToBundle(this)
                 it.putExtras(this)
@@ -1201,7 +1204,6 @@ abstract class BaseView: ComponentActivity(),
         val orientation = getOrientation()
         LogUtil.d(TAG, "ShowBall.orientation = $orientation")
         val ballColor = ballInfo.ballColor
-        val isAnimation = ballInfo.isAnimation
         val isReSize = ballInfo.isResize
         if (ballColor == 0 && ballInfo.whichBall != WhichBall.PLUS) return  // no showing ball
         if (ballInfo.whichBall == WhichBall.PLUS) {

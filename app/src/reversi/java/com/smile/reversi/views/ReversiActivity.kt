@@ -145,11 +145,12 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
         }
     }
 
-    override fun putOtherToBundle(extra: Bundle) {
-        extra.putString(CbSettingActivity.HAS_SOUND_TITLE,
+    override fun putOtherToBundle(extras: Bundle) {
+        extras.putString(CbSettingActivity.HAS_SOUND_TITLE,
             getString(R.string.soundTitle))
-        extra.putString(CbSettingActivity.GAME_LEVEL_TITLE, "")
-        extra.putString(CbSettingActivity.NEXT_BALL_TITLE,
+        extras.putString(CbSettingActivity.GAME_LEVEL_TITLE,
+            getString(R.string.gameLevelTitle))
+        extras.putString(CbSettingActivity.NEXT_BALL_TITLE,
             getString(R.string.nextMoveTitle))
     }
     // end of implementing parent class, BaseView.kt

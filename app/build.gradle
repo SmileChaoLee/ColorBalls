@@ -39,35 +39,35 @@ android {
 
     flavorDimensions += ["product"]
     productFlavors {
-        create("colorballs") {
+        register("colorballs") {
             dimension = "product"
-            versionCode 8272
-            versionName "8.272"
+            versionCode 8273
+            versionName "8.273"
             applicationId = "com.smile.colorballs"
             isDefault = true
         }
-        create("ballsremover") {
+        register("ballsremover") {
             dimension = "product"
-            versionCode 189
-            versionName "1.89"
+            versionCode 190
+            versionName "1.90"
             applicationId = "com.smile.ballsremover"
         }
-        create("dropcolorballs") {
+        register("dropcolorballs") {
             dimension = "product"
-            versionCode 104
-            versionName "1.04"
+            versionCode 105
+            versionName "1.05"
             applicationId = "com.smile.dropcolorballs"
         }
-        create("fivecolorballs") {
+        register("fivecolorballs") {
             dimension = "product"
             versionCode 4000
             versionName "4.000"
             applicationId = "com.smile.fivecolorballs"
         }
-        create("reversi") {
+        register("reversi") {
             dimension = "product"
-            versionCode 100
-            versionName "1.00"
+            versionCode 101
+            versionName "1.01"
             applicationId = "com.smile.reversi"
         }
     }

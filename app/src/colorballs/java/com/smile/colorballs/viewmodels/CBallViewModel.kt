@@ -251,13 +251,13 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
             // save settings
             LogUtil.d(TAG, "startSavingGame.hasSound = " + hasSound())
             if (hasSound()) foStream.write(1) else foStream.write(0)
-            LogUtil.d(TAG, "startSavingGame.isEasyLevel = " + getGameLevel())
-            if (getGameLevel() == Constants.GAME_LEVEL_1) foStream.write(1)
-            else foStream.write(0)
+            val gameLevel = getGameLevel()
+            LogUtil.d(TAG, "startSavingGame.gameLevel = $gameLevel")
+            GameUtil.saveGameLevel(foStream, getGameLevel())
             LogUtil.d(TAG, "startSavingGame.hasNext = " + hasNext())
             if (hasNext()) foStream.write(1) else foStream.write(0)
             // save next balls
-            // foStream.write(gridData.ballNumOneTime);
+            // foStream.write(gridData.ballNumOneTime)
             LogUtil.d(TAG, "startSavingGame.ballNumOneTime = " + CbConstants.BALL_NUM_ONE_TIME)
             foStream.write(CbConstants.BALL_NUM_ONE_TIME)
             for ((_, value) in cbGridData.getNextCellIndices()) {
@@ -380,7 +380,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
             // game level
             bValue = fiStream.read()
             gameLevel = bValue
-            LogUtil.d(TAG, "startLoadingGame.isEasyLevel = $gameLevel")
+            LogUtil.d(TAG, "startLoadingGame.gameLevel = $gameLevel")
             // next balls
             bValue = fiStream.read()
             hasNext = bValue == 1
@@ -453,7 +453,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
             fiStream.close()
             // refresh Main UI with loaded data
             setHasSound(hasSound)
-            setGameLevel(gameLevel)
+            setGameLevel(GameUtil.translateGameLevel(gameLevel))
             setHasNext(hasNext, false)
             var kk = 0
             for (entry in cbGridData.getNextCellIndices().entries) {

@@ -2,6 +2,7 @@ package com.smile.colorballs_main.tools
 
 import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.constants.WhichGame
+import java.io.FileOutputStream
 
 object GameUtil {
 
@@ -27,5 +28,27 @@ object GameUtil {
         WhichGame.REMOVE_BALLS -> Constants.SAVE_BALLS_REMOVER
         WhichGame.DROP_BALLS -> Constants.SAVE_DROP_BALLS
         WhichGame.REVERSI -> Constants.SAVE_REVERSI
+    }
+
+    fun saveGameLevel(foStream: FileOutputStream, level: Int) {
+        when (level) {
+            Constants.GAME_LEVEL_1 -> foStream.write(1)
+            Constants.GAME_LEVEL_2 -> foStream.write(2)
+            Constants.GAME_LEVEL_3 -> foStream.write(3)
+            Constants.GAME_LEVEL_4 -> foStream.write(4)
+            Constants.GAME_LEVEL_5 -> foStream.write(5)
+            else -> foStream.write(2)
+        }
+    }
+
+    fun translateGameLevel(level: Int): Int {
+        return when (level) {
+            1 ->Constants.GAME_LEVEL_1
+            2 ->Constants.GAME_LEVEL_2
+            3 ->Constants.GAME_LEVEL_3
+            4 ->Constants.GAME_LEVEL_4
+            5 ->Constants.GAME_LEVEL_5
+            else -> Constants.GAME_LEVEL_2
+        }
     }
 }

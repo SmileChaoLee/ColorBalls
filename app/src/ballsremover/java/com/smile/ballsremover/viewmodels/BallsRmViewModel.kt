@@ -10,6 +10,7 @@ import com.smile.colorballs_main.models.GridData
 import com.smile.ballsremover.presenters.BallsRmPresenter
 import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.models.GameProp
+import com.smile.colorballs_main.tools.GameUtil
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.viewmodel.BaseViewModel
 import kotlinx.coroutines.Dispatchers
@@ -213,8 +214,9 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
             val foStream = bRmPresenter.fileOutputStream(Constants.SAVE_BALLS_REMOVER)
             // save settings
             if (hasSound()) foStream.write(1) else foStream.write(0)
-            if (getGameLevel() == Constants.GAME_LEVEL_1) foStream.write(1)
-            else foStream.write(0)
+            val gameLevel = getGameLevel()
+            LogUtil.d(TAG, "startSavingGame.gameLevel = $gameLevel")
+            GameUtil.saveGameLevel(foStream, getGameLevel())
             if (hasNext()) foStream.write(1) else foStream.write(0)
             // save values on game grid
             for (i in 0 until rowCounts) {
@@ -277,7 +279,7 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
             bValue = fiStream.read()
             hasNext = bValue == 1
             setHasSound(hasSound)
-            setGameLevel(gameLevel)
+            setGameLevel(GameUtil.translateGameLevel(gameLevel))
             setHasNext(hasNext)
             // load values on game grid
             for (i in 0 until rowCounts) {
