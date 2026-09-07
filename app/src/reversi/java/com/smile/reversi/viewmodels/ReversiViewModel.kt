@@ -2,6 +2,7 @@ package com.smile.reversi.viewmodels
 
 import android.os.Build
 import android.os.Bundle
+import android.graphics.Point
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.viewModelScope
 import com.smile.colorballs_main.constants.Constants
@@ -119,6 +120,37 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
         displayEligibleMoves()
     }
 
+    private suspend fun placePiece(x: Int, y: Int, color: Int) {
+        val flips = rGridData.flipsForMove(x, y, color)
+        if (flips.isEmpty()) return
+        var isOval = false
+        (0 until 5).forEach { i ->
+            if (isOval) {
+                drawOval(x, y, color)
+            } else {
+                drawBall(x, y, color)
+            }
+            isOval = !isOval
+            delay(200L)
+        }
+        isOval = false
+        (0 until 5).forEach { i ->
+            for (p in flips) {
+                val cellValue = rGridData.getCellValue(p.x, p.y)
+                if (isOval) {
+                    drawOval(p.x, p.y, cellValue)
+                } else {
+                    drawBall(p.x, p.y, cellValue)
+                }
+            }
+            isOval = !isOval
+            delay(200L)
+        }
+        rGridData.setCellValue(x, y, color)
+        for (p in flips) rGridData.setCellValue(p.x, p.y, color)
+        // rGridData.placePiece(x, y, color)
+    }
+
     override fun cellClickListener(i: Int, j: Int) {
         // this function is only for HUMAN_PLAYER
         LogUtil.d(TAG, "cellClickListener.($i,$j)")
@@ -127,31 +159,37 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
         if (rGridData.getCellValue(i, j) != 0) {
             return
         }
+        setProcessingJob(true)
         val player = if (currentPlayer.intValue == HUMAN_PLAYER) {
-            "HumanHUMAN_PLAYER"
+            "HUMAN_PLAYER"
         } else {
             "COMPUTER_PLAYER"
         }
         LogUtil.d(TAG, "cellClickListener.player = $player")
         val curPlayer = currentPlayer.intValue  // it must be HUMAN_PLAYER
-        val flips = rGridData.flipsForMove(i, j, curPlayer)
-        // If the move is invalid (no flips), play uhoh for human and ignore
-        if (flips.isEmpty()) {
+        val humanMoves = rGridData.getValidMoves(HUMAN_PLAYER)
+        // If the move is invalid, play uhoh for human and ignore
+        if (!humanMoves.contains(Point(i, j))) {
             if (hasSound()) {
+                LogUtil.d(TAG, "cellClickListener.soundPool?.playSound()")
                 soundPool?.playSound()
             }
+            setProcessingJob(false)
             return
         }
         // rGridData.backupCells()  // No need to backup for undo, since undo is not supported in this game
-        rGridData.placePiece(i, j, curPlayer)
-        displayGameGridView()
-        setProcessingJob(false)
-        if (rGridData.isGameOver()) {
-            gameOver()
-            return
+        // rGridData.placePiece(i, j, curPlayer)
+        viewModelScope.launch(Dispatchers.Main) {
+            placePiece(i, j, curPlayer)
+            displayGameGridView()
+            setProcessingJob(false)
+            if (rGridData.isGameOver()) {
+                gameOver()
+                return@launch
+            }
+            // Computer's turn - schedule automated move
+            scheduleComputerMove()
         }
-        // Computer's turn - schedule automated move
-        scheduleComputerMove()
     }
 
     override fun startSavingGame(): Boolean {
@@ -264,18 +302,6 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
     private fun whoWinsMessage() {
         val redCount = rGridData.countPlayer(HUMAN_PLAYER)
         val blueCount = rGridData.countPlayer(COMPUTER_PLAYER)
-        /*
-        val diff = abs(redCount - blueCount)
-        val message = when {
-            redCount > blueCount -> {
-                "Red wins by $diff cells (Red: $redCount, Blue: $blueCount)"
-            }
-            blueCount > redCount -> {
-                "Blue wins by $diff cells (Blue: $blueCount, Red: $redCount)"
-            }
-            else -> "It's a tie: Red: $redCount, Blue: $blueCount"
-        }
-        */
         saveScoreStr = rPresenter.whoWinsMessage(redCount, blueCount)
     }
 
@@ -329,17 +355,8 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
         setProcessingJob(true)
         // Animating teh move here
         viewModelScope.launch(Dispatchers.Main) {
-            var isOval = false
-            for (i in 0 until 10) {
-                if (isOval) {
-                    drawOval(bestMove.x, bestMove.y, COMPUTER_PLAYER)
-                } else {
-                    drawBall(bestMove.x, bestMove.y, COMPUTER_PLAYER)
-                }
-                isOval = !isOval
-                delay(200L)
-            }
-            rGridData.placePiece(bestMove.x, bestMove.y, COMPUTER_PLAYER)
+            placePiece(bestMove.x, bestMove.y, COMPUTER_PLAYER)
+            // rGridData.placePiece(bestMove.x, bestMove.y, COMPUTER_PLAYER)
             LogUtil.d(TAG, "$logStr.Computer moved to (${bestMove.x}, ${bestMove.y})")
             displayGameGridView()
             if (rGridData.isGameOver()) {
