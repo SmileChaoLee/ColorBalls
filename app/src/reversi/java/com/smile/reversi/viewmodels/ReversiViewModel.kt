@@ -123,29 +123,28 @@ class ReversiViewModel(private val rPresenter: ReversiPresenter)
     private suspend fun placePiece(x: Int, y: Int, color: Int) {
         val flips = rGridData.flipsForMove(x, y, color)
         if (flips.isEmpty()) return
-        var isOval = false
-        (0 until 5).forEach { i ->
-            if (isOval) {
-                drawOval(x, y, color)
-            } else {
-                drawBall(x, y, color)
-            }
-            isOval = !isOval
+        
+        // Flip animation for placing the piece
+        (0 until 3).forEach { i ->
+            drawBall(x, y, color)
+            delay(200L)
+            drawOval(x, y, color)
             delay(200L)
         }
-        isOval = false
-        (0 until 5).forEach { i ->
+        
+        // Flip animation for flipped pieces
+        (0 until 3).forEach { i ->
+            for (p in flips) {
+                drawBall(p.x, p.y, color)
+            }
+            delay(200L)
             for (p in flips) {
                 val cellValue = rGridData.getCellValue(p.x, p.y)
-                if (isOval) {
-                    drawOval(p.x, p.y, cellValue)
-                } else {
-                    drawBall(p.x, p.y, cellValue)
-                }
+                drawOval(p.x, p.y, cellValue)
             }
-            isOval = !isOval
             delay(200L)
         }
+        
         rGridData.setCellValue(x, y, color)
         for (p in flips) rGridData.setCellValue(p.x, p.y, color)
         // rGridData.placePiece(x, y, color)
