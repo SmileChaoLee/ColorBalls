@@ -826,7 +826,7 @@ abstract class BaseView: ComponentActivity(),
 
         val adWidth = with(LocalDensity.current) {
             (LocalWindowInfo.current.containerSize.width
-                .toDp().value*0.98f).toInt()
+                .toDp().value*0.90f).toInt()
         }
         Column(modifier = modifier.fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
