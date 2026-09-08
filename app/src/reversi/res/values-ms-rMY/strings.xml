@@ -10,4 +10,6 @@
     <string name="bluePass">Blue Pass</string>
     <string name="redPass">Red Pass</string>
     <string name="nextMoveTitle">Nexts</string>
+    <string name="playWithAi">Play vs AI</string>
+    <string name="twoPlayers">Two Players</string>
 </resources>

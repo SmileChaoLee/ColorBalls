@@ -1,4 +1,4 @@
-package com.smile.colorballs.views
+package com.smile.reversi.views
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -33,7 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,29 +45,26 @@ import com.smile.colorballs_main.views.CbComposable
 import com.smile.smilelibraries.utilities.UmpUtil
 import com.smile.colorballs_main.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs_main.views.ui.theme.Yellow3
+import com.smile.reversi.constants.ReversiConstants
 import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
-import com.smile.smilelibraries.utilities.AppLinkUtil
 import com.smile.smilelibraries.utilities.ScreenUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class MainCBallActivity : ComponentActivity() {
+class MainRevActivity : ComponentActivity() {
 
     companion object {
-        private const val TAG = "MainCBallActivity"
+        private const val TAG = "MainRevActivity"
     }
 
     private var textFontSize = 0f
     private var toastTextSize = 0f
     private var screenSize = Point(0, 0)
     // the following are for ColorBallActivity
-    private lateinit var cBallLauncher: ActivityResultLauncher<Intent>
-    private lateinit var barrierCBLauncher: ActivityResultLauncher<Intent>
-    private lateinit var ballsRemoverLauncher: ActivityResultLauncher<Intent>
-    private lateinit var dropCBallsLauncher: ActivityResultLauncher<Intent>
-    private lateinit var smileAppsLauncher: ActivityResultLauncher<Intent>
+    private lateinit var playWithAiLauncher: ActivityResultLauncher<Intent>
+    private lateinit var twoPlayersLauncher: ActivityResultLauncher<Intent>
     //
     private val loadingMessage = mutableStateOf("")
     private val backgroundColor = Yellow3
@@ -77,21 +73,18 @@ class MainCBallActivity : ComponentActivity() {
     private val buttonContainerColor = Color.Blue
     private var isBackPressedEnabled = true
 
-    private var isNoBarrierEnabled by mutableStateOf(true)
-    private var isBarrierEnabled by mutableStateOf(true)
-    private var isBallsRemEnabled by mutableStateOf(true)
-    private var isDropCBallsEnabled by mutableStateOf(true)
-    private var isSmileAppsEnabled by mutableStateOf(true)
+    private var isPlayWithAiEnabled by mutableStateOf(true)
+    private var isTwoPlayersEnabled by mutableStateOf(true)
     private var interstitialAd: ShowInterstitial? = null
 
     @SuppressLint("ConfigurationScreenWidthHeight",
         "SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
-        textFontSize = ScreenUtil.getPxTextFontSizeNeeded(this@MainCBallActivity)
+        textFontSize = ScreenUtil.getPxTextFontSizeNeeded(this@MainRevActivity)
         toastTextSize = textFontSize * 0.7f
         CbComposable.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
         CbComposable.toastFontSize = ScreenUtil.pixelToDp(toastTextSize).sp
-        screenSize = ScreenUtil.getScreenSize(this@MainCBallActivity)
+        screenSize = ScreenUtil.getScreenSize(this@MainRevActivity)
 
         LogUtil.d(TAG, "onCreate.interstitialAd")
         val mBaseApp = application as? BaseApp
@@ -100,45 +93,21 @@ class MainCBallActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
 
-        cBallLauncher = registerForActivityResult(
+        playWithAiLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            LogUtil.i(TAG, "cBallLauncher.result = $result")
+            LogUtil.i(TAG, "playWithAiLauncher.result = $result")
             loadingMessage.value = ""
             showInterstitialAd()
             enableMainButtons()
         }
 
-        barrierCBLauncher = registerForActivityResult(
+        twoPlayersLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            LogUtil.i(TAG, "barrierCBLauncher.result = $result")
+            LogUtil.i(TAG, "twoPlayersLauncher.result = $result")
             loadingMessage.value = ""
             showInterstitialAd()
-            enableMainButtons()
-        }
-
-        ballsRemoverLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()) {
-                result: ActivityResult ->
-            LogUtil.i(TAG, "ballsRemoverLauncher.result = $result")
-            loadingMessage.value = ""
-            enableMainButtons()
-        }
-
-        dropCBallsLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()) {
-                result: ActivityResult ->
-            LogUtil.i(TAG, "dropCBallsLauncher.result = $result")
-            loadingMessage.value = ""
-            enableMainButtons()
-        }
-
-        smileAppsLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()) {
-                result: ActivityResult ->
-            LogUtil.i(TAG, "smileAppsLauncher.result = $result")
-            loadingMessage.value = ""
             enableMainButtons()
         }
 
@@ -191,19 +160,13 @@ class MainCBallActivity : ComponentActivity() {
     }
 
     private fun enableMainButtons() {
-        isNoBarrierEnabled = true
-        isBarrierEnabled = true
-        isBallsRemEnabled = true
-        isDropCBallsEnabled = true
-        isSmileAppsEnabled = true
+        isPlayWithAiEnabled = true
+        isTwoPlayersEnabled = true
     }
 
     private fun disableMainButtons() {
-        isNoBarrierEnabled = false
-        isBarrierEnabled = false
-        isBallsRemEnabled = false
-        isDropCBallsEnabled = false
-        isSmileAppsEnabled = false
+        isPlayWithAiEnabled = false
+        isTwoPlayersEnabled = false
     }
 
     private fun showInterstitialAd() {
@@ -216,7 +179,7 @@ class MainCBallActivity : ComponentActivity() {
         // setTestDeviceIds(Arrays.asList("0FFD34B018082E4BCF218FE6299B48A2"))
         // val deviceHashedId = "0FFD34B018082E4BCF218FE6299B48A2" // for debug test
         val deviceHashedId = "" // for release
-        UmpUtil.initConsentInformation(this@MainCBallActivity,
+        UmpUtil.initConsentInformation(this@MainRevActivity,
             DEBUG_GEOGRAPHY_EEA,deviceHashedId,
             object : UmpUtil.UmpInterface {
                 override fun callback() {
@@ -227,55 +190,47 @@ class MainCBallActivity : ComponentActivity() {
             })
     }
 
-    private fun startColorBallActivity() {
+    private fun startPlayWithAiActivity() {
         Intent(
-            this@MainCBallActivity,
-            ColorBallActivity::class.java
+            this@MainRevActivity,
+            ReversiActivity::class.java
         ).also {
             disableMainButtons()
             loadingMessage.value = getString(R.string.loadingStr)
-            cBallLauncher.launch(it)
+            it.putExtra(ReversiConstants.PLAY_MODE, ReversiConstants.PLAY_WIth_AI)
+            playWithAiLauncher.launch(it)
         }
     }
 
-    private fun startBarrierCBallActivity() {
+    private fun startTwoPlayersActivity() {
         Intent(
-            this@MainCBallActivity,
-            BarrierCBallActivity::class.java
+            this@MainRevActivity,
+            ReversiActivity::class.java
         ).also {
             disableMainButtons()
             loadingMessage.value = getString(R.string.loadingStr)
-            barrierCBLauncher.launch(it)
+            it.putExtra(ReversiConstants.PLAY_MODE, ReversiConstants.TWO_PLAYERS)
+            twoPlayersLauncher.launch(it)
         }
-    }
-
-    private fun startBallsRemoverActivity() {
-        AppLinkUtil.startAppLinkOnStore(this@MainCBallActivity,
-            AppLinkUtil.BALLS_REMOVER_LINK)
-    }
-
-    private fun startDropCBallsActivity() {
-        AppLinkUtil.startAppLinkOnStore(this@MainCBallActivity,
-            AppLinkUtil.DROP_COLOR_BALLS_LINK)
     }
 
     @Composable
-    fun NoBarrierCBallButton(modifier: Modifier = Modifier,
-                             buttonWidth: Float,
-                             buttonHeight: Float,
-                             textLineHeight: TextUnit) {
-        LogUtil.d(TAG, "NoBarrierCBallButton")
+    fun PlayWithAiButton(modifier: Modifier = Modifier,
+                         buttonWidth: Float,
+                         buttonHeight: Float,
+                         textLineHeight: TextUnit) {
+        LogUtil.d(TAG, "PlayWithAiButton")
         Column(modifier = modifier,
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center) {
             val noBarrierClicked = remember { mutableStateOf(false) }
             Button(
-                enabled = isNoBarrierEnabled,
+                enabled = isPlayWithAiEnabled,
                 onClick = {
                     CoroutineScope(Dispatchers.Default).launch {
                         noBarrierClicked.value = true
                         delay(200)
-                        startColorBallActivity()
+                        startPlayWithAiActivity()
                         noBarrierClicked.value = false
                     }
                 },
@@ -295,28 +250,33 @@ class MainCBallActivity : ComponentActivity() {
                     disabledContentColor = buttonContentColor
                 )
             )
-            { Text(text = getString(R.string.noBarrierColorBall),
-                fontSize = CbComposable.mFontSize) }
+            {
+                Text(
+                    text = getString(R.string.playWithAi),
+                    lineHeight = textLineHeight,
+                    fontSize = CbComposable.mFontSize
+                )
+            }
         }
     }
 
     @Composable
-    fun BarrierCBallButton(modifier: Modifier = Modifier,
-                           buttonWidth: Float,
-                           buttonHeight: Float,
-                           textLineHeight: TextUnit) {
-        LogUtil.d(TAG, "BarrierCBallButton")
+    fun TwoPlayersButton(modifier: Modifier = Modifier,
+                         buttonWidth: Float,
+                         buttonHeight: Float,
+                         textLineHeight: TextUnit) {
+        LogUtil.d(TAG, "TwoPlayersButton")
         Column(modifier = modifier,
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center) {
             val barrierClicked = remember { mutableStateOf(false) }
             Button(
-                enabled = isBarrierEnabled,
+                enabled = isTwoPlayersEnabled,
                 onClick = {
                     CoroutineScope(Dispatchers.Default).launch {
                         barrierClicked.value = true
                         delay(200)
-                        startBarrierCBallActivity()
+                        startTwoPlayersActivity()
                         barrierClicked.value = false
                     }
                 },
@@ -336,90 +296,13 @@ class MainCBallActivity : ComponentActivity() {
                     disabledContentColor = buttonContentColor
                 )
             )
-            { Text(text = getString(R.string.barrierColorBall),
-                fontSize = CbComposable.mFontSize) }
-        }
-    }
-
-    @Composable
-    fun BallsRemoverButton(modifier: Modifier = Modifier,
-                             buttonWidth: Float,
-                             buttonHeight: Float,
-                             textLineHeight: TextUnit) {
-        LogUtil.d(TAG, "BallsRemoverButton")
-        Column(modifier = modifier,
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Center) {
-            val bRemoverClicked = remember { mutableStateOf(false) }
-            Button(
-                enabled = isBallsRemEnabled,
-                onClick = {
-                    CoroutineScope(Dispatchers.Default).launch {
-                        bRemoverClicked.value = true
-                        delay(200)
-                        startBallsRemoverActivity()
-                        bRemoverClicked.value = false
-                    }
-                },
-                modifier = Modifier//.weight(1.0f)
-                    .width(width = buttonWidth.dp)
-                    .height(height = buttonHeight.dp)
-                    .background(color = buttonBackground),
-                colors = ButtonColors(
-                    containerColor =
-                        if (!bRemoverClicked.value) buttonContainerColor
-                        else Color.Cyan,
-                    disabledContainerColor = buttonContainerColor,
-                    contentColor =
-                        if (!bRemoverClicked.value)
-                            buttonContentColor
-                        else Color.Red ,
-                    disabledContentColor = buttonContentColor
+            {
+                Text(
+                    text = getString(R.string.twoPlayers),
+                    lineHeight = textLineHeight,
+                    fontSize = CbComposable.mFontSize
                 )
-            )
-            { Text(text = getString(R.string.balls_remover_name),
-                fontSize = CbComposable.mFontSize) }
-        }
-    }
-
-    @Composable
-    fun DropCBallsButton(modifier: Modifier = Modifier,
-                           buttonWidth: Float,
-                           buttonHeight: Float,
-                           textLineHeight: TextUnit) {
-        LogUtil.d(TAG, "DropCBallsButton")
-        Column(modifier = modifier,
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Center) {
-            val isFcbClicked = remember { mutableStateOf(false) }
-            Button(
-                enabled = isBallsRemEnabled,
-                onClick = {
-                    CoroutineScope(Dispatchers.Default).launch {
-                        isFcbClicked.value = true
-                        delay(200)
-                        startDropCBallsActivity()
-                        isFcbClicked.value = false
-                    }
-                },
-                modifier = Modifier//.weight(1.0f)
-                    .width(width = buttonWidth.dp)
-                    .height(height = buttonHeight.dp)
-                    .background(color = buttonBackground),
-                colors = ButtonColors(
-                    containerColor =
-                        if (!isFcbClicked.value) buttonContainerColor
-                        else Color.Cyan,
-                    disabledContainerColor = buttonContainerColor,
-                    contentColor =
-                        if (!isFcbClicked.value)
-                            buttonContentColor
-                        else Color.Red ,
-                    disabledContentColor = buttonContentColor
-                )
-            )
-            { Text(text = getString(R.string.drop_cballs_name),
-                fontSize = CbComposable.mFontSize) }
+            }
         }
     }
 
@@ -446,20 +329,10 @@ class MainCBallActivity : ComponentActivity() {
         Column(modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
-            NoBarrierCBallButton(modifier = Modifier.weight(1.0f),
+            PlayWithAiButton(modifier = Modifier.weight(1.0f),
                 buttonWidth, buttonHeight, textLineHeight)
-            BarrierCBallButton(modifier = Modifier.weight(1.0f),
+            TwoPlayersButton(modifier = Modifier.weight(1.0f),
                 buttonWidth, buttonHeight, textLineHeight)
-            BallsRemoverButton(
-                modifier = Modifier.weight(1.0f),
-                buttonWidth, buttonHeight, textLineHeight)
-            DropCBallsButton(
-                modifier = Modifier.weight(1.0f),
-                buttonWidth, buttonHeight, textLineHeight)
-            /*
-            SmileAppsButton(modifier = Modifier.weight(1.0f),
-                buttonWidth, buttonHeight, textLineHeight)
-            */
         }
     }
 

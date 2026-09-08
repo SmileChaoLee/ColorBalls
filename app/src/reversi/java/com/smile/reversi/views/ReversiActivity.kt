@@ -17,6 +17,7 @@ import com.smile.colorballs_main.constants.WhichGame
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.views.CbRmBaseView
 import com.smile.colorballs_main.views.CbSettingActivity
+import com.smile.reversi.constants.ReversiConstants
 import com.smile.reversi.interfaces.ReversiPresentView
 import com.smile.reversi.presenters.ReversiPresenter
 import com.smile.reversi.viewmodels.ReversiViewModel
@@ -28,6 +29,7 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
         private const val TAG = "ReversiActivity"
     }
 
+    private var playMode: String = ReversiConstants.PLAY_WIth_AI
     private lateinit var viewModel: ReversiViewModel
     private lateinit var mPresenter: ReversiPresenter
 
@@ -35,9 +37,27 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         LogUtil.i(TAG, "$TAG.onCreate.savedInstanceState = $savedInstanceState")
+        if (savedInstanceState == null) {
+            intent?.let {
+                val extras = it.extras
+                extras?.let { bundle ->
+                    playMode = bundle.getString(ReversiConstants.PLAY_MODE,
+                        ReversiConstants.PLAY_WIth_AI)
+                }
+            }
+        } else {
+            playMode = savedInstanceState.getString(ReversiConstants.PLAY_MODE,
+                ReversiConstants.PLAY_WIth_AI)
+        }
+        LogUtil.d(TAG, "onCreate.playMode = $playMode")
         mPresenter = ReversiPresenter(this)
-        viewModel = ReversiViewModel(mPresenter)
+        viewModel = ReversiViewModel(mPresenter, playMode)
         super.onCreate(savedInstanceState)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString(ReversiConstants.PLAY_MODE, playMode)
+        super.onSaveInstanceState(outState)
     }
 
     // implement ReversiPresentView

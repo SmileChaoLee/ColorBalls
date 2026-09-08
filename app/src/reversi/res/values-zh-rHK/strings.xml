@@ -10,4 +10,6 @@
     <string name="bluePass">藍隊跳過</string>
     <string name="redPass">紅隊跳過</string>
     <string name="nextMoveTitle">下一步</string>
+    <string name="playWithAi">與人工智慧對奕</string>
+    <string name="twoPlayers">兩個玩家對奕</string>
 </resources>

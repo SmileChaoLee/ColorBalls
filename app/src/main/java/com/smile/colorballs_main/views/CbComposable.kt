@@ -25,6 +25,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -675,5 +676,25 @@ object CbComposable {
                 FacebookBanner(faceAdView)
             }
         )
+    }
+
+    @Composable
+    fun DisplayLoading(
+        loadingMessage: MutableState<String>,
+        backgroundColor: Color,
+        textContent: String
+    ) {
+        if (loadingMessage.value.isEmpty()) {
+            return
+        }
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .background(backgroundColor),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center) {
+            Text(text = textContent,
+                color = Color.Blue, fontWeight = FontWeight.Bold,
+                fontSize = CbComposable.mFontSize.times(2.0f))
+        }
     }
 }

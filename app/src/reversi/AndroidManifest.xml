@@ -13,13 +13,16 @@
             android:value="ca-app-pub-8354869049759576~5375933414" />
 
         <activity
-            android:name="com.smile.reversi.views.ReversiActivity"
+            android:name="com.smile.reversi.views.MainRevActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="com.smile.reversi.views.ReversiActivity"
+            android:exported="true">
         </activity>
 
     </application>

@@ -19,8 +19,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
-class ReversiViewModel(private val rPresenter: ReversiPresenter)
-    : BaseViewModel(rPresenter) {
+class ReversiViewModel(
+    private val rPresenter: ReversiPresenter,
+    private val playMode: String
+) : BaseViewModel(rPresenter) {
 
     companion object {
         private const val TAG = "ReversiViewModel"
