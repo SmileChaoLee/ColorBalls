@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.requiredWidth
@@ -1223,7 +1224,9 @@ abstract class BaseView: ComponentActivity(),
             else -> { null }
         }
         if (bitmap == null) return
-        Column(modifier = Modifier.size(mImageSizeDp.dp),
+        Column(modifier = Modifier
+            .size(mImageSizeDp.dp)
+            .offset(x = ballInfo.offsetX.dp, y = ballInfo.offsetY.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
             var modifier = Modifier.background(color = Color.Transparent)

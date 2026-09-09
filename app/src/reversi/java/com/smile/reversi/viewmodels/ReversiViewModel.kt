@@ -12,6 +12,7 @@ import com.smile.colorballs_main.models.GameProp
 import com.smile.colorballs_main.tools.GameUtil
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.viewmodel.BaseViewModel
+import com.smile.reversi.constants.ReversiConstants
 import com.smile.reversi.models.ReversiGridData
 import com.smile.reversi.presenters.ReversiPresenter
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +22,7 @@ import kotlin.random.Random
 
 class ReversiViewModel(
     private val rPresenter: ReversiPresenter,
-    private val playMode: String
+    private var playMode: Int
 ) : BaseViewModel(rPresenter) {
 
     companion object {
@@ -52,6 +53,7 @@ class ReversiViewModel(
         setProcessingJob(true)
         val isNewGame = restoreState(bundle)
         displayGameGridView()
+        displayEligibleMoves(currentPlayer.intValue)
         if (!isNewGame) {
             lastPartOfInitialGame()
         }
@@ -108,45 +110,44 @@ class ReversiViewModel(
         currentPlayer.intValue = Constants.COLOR_RED
     }
 
-    private fun displayEligibleMoves() {
+    private fun nextPlayer(): Int {
+        return if (currentPlayer.intValue == HUMAN_PLAYER) COMPUTER_PLAYER else HUMAN_PLAYER
+    }
+
+    private fun displayEligibleMoves(player: Int) {
+        if (!hasNext()) return
         val ball = if (hasNext()) WhichBall.PLUS else WhichBall.NO_BALL
-        // Show eligible moves for the human player
-        val validMoves = rGridData.getValidMoves(HUMAN_PLAYER)
+        val validMoves = rGridData.getValidMoves(player)
         for (move in validMoves) {
             gridDataArray[move.x][move.y].value = ColorBallInfo(0, ball)
         }
     }
 
-    override fun displayGameGridView() {
-        super.displayGameGridView()
-        displayEligibleMoves()
-    }
-
     private suspend fun placePiece(x: Int, y: Int, color: Int) {
         val flips = rGridData.flipsForMove(x, y, color)
         if (flips.isEmpty()) return
-        // Flip animation for placing the piece
-        (0 until 3).forEach { i ->
-            drawBall(x, y, color)
-            delay(200L)
-            drawOval(x, y, color)
-            delay(200L)
+        // Animation for placing the piece: move from south-east to center
+        val steps = 20
+        val initialOffset = 20f
+        for (step in steps downTo 0) {
+            val offset = (step.toFloat() / steps) * initialOffset
+            gridDataArray[x][y].value = ColorBallInfo(color, WhichBall.BALL, offsetX = offset, offsetY = offset)
+            delay(30L)
         }
         rGridData.setCellValue(x, y, color)
         // Flip animation for flipped pieces
         (0 until 3).forEach { i ->
             for (p in flips) {
-                drawBall(p.x, p.y, color)
-            }
-            delay(200L)
-            for (p in flips) {
                 val cellValue = rGridData.getCellValue(p.x, p.y)
                 drawOval(p.x, p.y, cellValue)
             }
             delay(200L)
+            for (p in flips) {
+                drawBall(p.x, p.y, color)
+            }
+            delay(200L)
         }
         for (p in flips) rGridData.setCellValue(p.x, p.y, color)
-        // rGridData.placePiece(x, y, color)
     }
 
     override fun cellClickListener(i: Int, j: Int) {
@@ -164,9 +165,9 @@ class ReversiViewModel(
             "COMPUTER_PLAYER"
         }
         LogUtil.d(TAG, "cellClickListener.player = $player")
-        val curPlayer = currentPlayer.intValue  // it must be HUMAN_PLAYER
-        val humanMoves = rGridData.getValidMoves(HUMAN_PLAYER)
-        // If the move is invalid, play uhoh for human and ignore
+        val curPlayer = currentPlayer.intValue
+        val humanMoves = rGridData.getValidMoves(curPlayer)
+        // If the move is invalid, play uhoh and ignore
         if (!humanMoves.contains(Point(i, j))) {
             if (hasSound()) {
                 LogUtil.d(TAG, "cellClickListener.soundPool?.playSound()")
@@ -176,17 +177,21 @@ class ReversiViewModel(
             return
         }
         // rGridData.backupCells()  // No need to backup for undo, since undo is not supported in this game
-        // rGridData.placePiece(i, j, curPlayer)
         viewModelScope.launch(Dispatchers.Main) {
             placePiece(i, j, curPlayer)
             displayGameGridView()
+            displayEligibleMoves(nextPlayer())
             setProcessingJob(false)
             if (rGridData.isGameOver()) {
                 gameOver()
                 return@launch
             }
-            // Computer's turn - schedule automated move
-            scheduleComputerMove()
+            if (playMode == ReversiConstants.TWO_PLAYERS) {
+                currentPlayer.intValue = if (curPlayer == HUMAN_PLAYER) COMPUTER_PLAYER else HUMAN_PLAYER
+            } else {
+                // Computer's turn - schedule automated move
+                scheduleComputerMove()
+            }
         }
     }
 
@@ -218,6 +223,7 @@ class ReversiViewModel(
                     foStream.write(backup[i][j])
                 }
             }
+            foStream.write(playMode)
             foStream.close()
             LogUtil.d(TAG, "startSavingGame.Succeeded.")
         } catch (ex: java.io.IOException) {
@@ -264,12 +270,16 @@ class ReversiViewModel(
                     backupCells[i][j] = fiStream.read()
                 }
             }
+            playMode = fiStream.read()
+            // when return -1, then it means the file already reach the end before read()
+            if (playMode == -1) playMode = ReversiConstants.PLAY_WIth_AI
             fiStream.close()
 
             // refresh UI with loaded data
             rGridData.setCellValues(gameCells)
             rGridData.setBackupCells(backupCells)
             displayGameGridView()
+            displayEligibleMoves(currentPlayer.intValue)
         } catch (ex: java.io.IOException) {
             ex.printStackTrace()
             succeeded = false
@@ -289,7 +299,7 @@ class ReversiViewModel(
     fun setHasNext(hasNext: Boolean, isNextBalls: Boolean) {
         setHasNext(hasNext)
         if (isNextBalls) {
-            displayEligibleMoves()
+            displayEligibleMoves(currentPlayer.intValue)
         }
     }
 
@@ -354,9 +364,9 @@ class ReversiViewModel(
         // Animating teh move here
         viewModelScope.launch(Dispatchers.Main) {
             placePiece(bestMove.x, bestMove.y, COMPUTER_PLAYER)
-            // rGridData.placePiece(bestMove.x, bestMove.y, COMPUTER_PLAYER)
             LogUtil.d(TAG, "$logStr.Computer moved to (${bestMove.x}, ${bestMove.y})")
             displayGameGridView()
+            displayEligibleMoves(nextPlayer())
             if (rGridData.isGameOver()) {
                 // game over
                 LogUtil.d(TAG, "$logStr.Game is over")

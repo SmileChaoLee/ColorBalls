@@ -29,7 +29,7 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
         private const val TAG = "ReversiActivity"
     }
 
-    private var playMode: String = ReversiConstants.PLAY_WIth_AI
+    private var playMode: Int = ReversiConstants.PLAY_WIth_AI
     private lateinit var viewModel: ReversiViewModel
     private lateinit var mPresenter: ReversiPresenter
 
@@ -41,12 +41,12 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
             intent?.let {
                 val extras = it.extras
                 extras?.let { bundle ->
-                    playMode = bundle.getString(ReversiConstants.PLAY_MODE,
+                    playMode = bundle.getInt(ReversiConstants.PLAY_MODE,
                         ReversiConstants.PLAY_WIth_AI)
                 }
             }
         } else {
-            playMode = savedInstanceState.getString(ReversiConstants.PLAY_MODE,
+            playMode = savedInstanceState.getInt(ReversiConstants.PLAY_MODE,
                 ReversiConstants.PLAY_WIth_AI)
         }
         LogUtil.d(TAG, "onCreate.playMode = $playMode")
@@ -56,7 +56,7 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(ReversiConstants.PLAY_MODE, playMode)
+        outState.putInt(ReversiConstants.PLAY_MODE, playMode)
         super.onSaveInstanceState(outState)
     }
 
