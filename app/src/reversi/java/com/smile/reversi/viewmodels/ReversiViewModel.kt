@@ -127,12 +127,27 @@ class ReversiViewModel(
         val flips = rGridData.flipsForMove(x, y, color)
         if (flips.isEmpty()) return
         // Animation for placing the piece: move from south-east to center
+        /*
         val steps = 20
         val initialOffset = 20f
         for (step in steps downTo 0) {
             val offset = (step.toFloat() / steps) * initialOffset
             gridDataArray[x][y].value = ColorBallInfo(color, WhichBall.BALL, offsetX = offset, offsetY = offset)
             delay(30L)
+        }
+        */
+        // Animation for placing the piece: move from current player indicator (top-left) to center
+        val ballSize = rPresenter.ballImageSizeDp()
+        LogUtil.d(TAG, "placePiece.ballSize = $ballSize")
+        val steps = 15
+        val startX = (1.1f - y) * ballSize + 10f
+        val startY = -(1.1f + x) * ballSize
+        for (step in steps downTo 0) {
+            val ratio = step.toFloat() / steps
+            val offX = ratio * startX
+            val offY = ratio * startY
+            gridDataArray[x][y].value = ColorBallInfo(color, WhichBall.BALL, offsetX = offX, offsetY = offY)
+            delay(25L)
         }
         rGridData.setCellValue(x, y, color)
         // Flip animation for flipped pieces

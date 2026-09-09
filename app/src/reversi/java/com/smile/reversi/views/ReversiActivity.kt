@@ -63,6 +63,9 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
     // implement ReversiPresentView
     override fun getBluePassStr() = getString(R.string.bluePass)
     override fun getRedPassStr() = getString(R.string.redPass)
+    override fun getImageSizeDp(): Float {
+        return mImageSizeDp
+    }
     override fun getWhoWinsMessage(
         redCount: Int,
         blueCount: Int

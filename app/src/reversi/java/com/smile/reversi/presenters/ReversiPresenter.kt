@@ -7,6 +7,9 @@ class ReversiPresenter(private val presentView: ReversiPresentView)
     : BasePresenter(presentView) {
     val bluePassStr = presentView.getBluePassStr()
     val redPassStr = presentView.getRedPassStr()
+    fun ballImageSizeDp(): Float {
+        return presentView.getImageSizeDp()
+    }
     fun whoWinsMessage(
         redCount: Int,
         blueCount: Int
