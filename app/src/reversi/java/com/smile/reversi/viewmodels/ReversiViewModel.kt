@@ -18,6 +18,7 @@ import com.smile.reversi.presenters.ReversiPresenter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.random.Random
 
 class ReversiViewModel(
@@ -115,7 +116,6 @@ class ReversiViewModel(
     }
 
     private fun displayEligibleMoves(player: Int) {
-        if (!hasNext()) return
         val ball = if (hasNext()) WhichBall.PLUS else WhichBall.NO_BALL
         val validMoves = rGridData.getValidMoves(player)
         for (move in validMoves) {
@@ -191,7 +191,7 @@ class ReversiViewModel(
             }
             return
         }
-        // rGridData.backupCells()  // No need to backup for undo, since undo is not supported in this game
+        rGridData.backupCells()
         viewModelScope.launch(Dispatchers.Main) {
             placePiece(i, j, curPlayer)
             displayGameGridView()
@@ -388,38 +388,42 @@ class ReversiViewModel(
                 return@launch
             }
             // Choose best move: prioritize corners, then edges, then maximize flips
-            val bestMove = if(getGameLevel() == Constants.GAME_LEVEL_1)
-                chooseBestMoveBase(validMoves) else chooseBestMove(validMoves)
-            rGridData.backupCells()
-            // Animating teh move here
-            placePiece(bestMove.x, bestMove.y, COMPUTER_PLAYER)
-            LogUtil.d(TAG, "$logStr.Computer moved to (${bestMove.x}, ${bestMove.y})")
-            displayGameGridView()
-            displayEligibleMoves(nextPlayer())
-            if (rGridData.isGameOver()) {
-                // game over
-                LogUtil.d(TAG, "$logStr.Game is over")
-                setProcessingJob(false)
-                gameOver()
-                return@launch
+            withContext(Dispatchers.Default) {
+                val bestMove = if (getGameLevel() == Constants.GAME_LEVEL_1)
+                    chooseBestMoveBase(validMoves) else chooseBestMove(validMoves)
+                rGridData.backupCells()
+                withContext(Dispatchers.Main) {
+                    // Animating teh move here
+                    placePiece(bestMove.x, bestMove.y, COMPUTER_PLAYER)
+                    LogUtil.d(TAG, "$logStr.Computer moved to (${bestMove.x}, ${bestMove.y})")
+                    displayGameGridView()
+                    displayEligibleMoves(nextPlayer())
+                    if (rGridData.isGameOver()) {
+                        // game over
+                        LogUtil.d(TAG, "$logStr.Game is over")
+                        setProcessingJob(false)
+                        gameOver()
+                        return@withContext
+                    }
+                    // switch back to human player
+                    currentPlayer.intValue = HUMAN_PLAYER
+                    val humanMoves = rGridData.getValidMoves(currentPlayer.intValue)
+                    if (humanMoves.isEmpty()) {
+                        // skip HUMAN_PLAYER, show a message on screen
+                        LogUtil.d(TAG, "$logStr.skip HUMAN_PLAYER")
+                        setScreenMessage(rPresenter.redPassStr)
+                        delay(DELAY_FOR_SHOW_PASS)
+                        setScreenMessage("")
+                        displayEligibleMoves(nextPlayer())
+                        scheduleComputerMove()
+                    }
+                    setProcessingJob(false)
+                }
             }
-            // switch back to human player
-            currentPlayer.intValue = HUMAN_PLAYER
-            val humanMoves = rGridData.getValidMoves(currentPlayer.intValue)
-            if (humanMoves.isEmpty()) {
-                // skip HUMAN_PLAYER, show a message on screen
-                LogUtil.d(TAG, "$logStr.skip HUMAN_PLAYER")
-                setScreenMessage(rPresenter.redPassStr)
-                delay(DELAY_FOR_SHOW_PASS)
-                setScreenMessage("")
-                displayEligibleMoves(nextPlayer())
-                scheduleComputerMove()
-            }
-            setProcessingJob(false)
         }
     }
 
-    private fun chooseBestMove(validMoves: List<android.graphics.Point>): android.graphics.Point {
+    private fun chooseBestMove(validMoves: List<Point>): Point {
         var bestMove = validMoves[0]
         var bestScore = Float.NEGATIVE_INFINITY
 
@@ -487,15 +491,15 @@ class ReversiViewModel(
         return weights[x][y]
     }
 
-    private fun chooseBestMoveBase(validMoves: List<android.graphics.Point>): android.graphics.Point {
+    private fun chooseBestMoveBase(validMoves: List<Point>): Point {
         val corners = listOf(
-            android.graphics.Point(0, 0),
-            android.graphics.Point(0, 7),
-            android.graphics.Point(7, 0),
-            android.graphics.Point(7, 7)
+            Point(0, 0),
+            Point(0, 7),
+            Point(7, 0),
+            Point(7, 7)
         )
-        val edges = mutableListOf<android.graphics.Point>()
-        val center = mutableListOf<android.graphics.Point>()
+        val edges = mutableListOf<Point>()
+        val center = mutableListOf<Point>()
 
         for (move in validMoves) {
             when {
