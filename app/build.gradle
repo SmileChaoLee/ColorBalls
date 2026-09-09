@@ -66,8 +66,8 @@ android {
         }
         register("reversi") {
             dimension = "product"
-            versionCode 102
-            versionName "1.02"
+            versionCode 103
+            versionName "1.03"
             applicationId = "com.smile.reversi"
         }
     }
