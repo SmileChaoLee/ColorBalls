@@ -184,11 +184,11 @@ class ReversiViewModel(
         val humanMoves = rGridData.getValidMoves(curPlayer)
         // If the move is invalid, play uhoh and ignore
         if (!humanMoves.contains(Point(i, j))) {
+            setProcessingJob(false)
             if (hasSound()) {
                 LogUtil.d(TAG, "cellClickListener.soundPool?.playSound()")
                 soundPool?.playSound()
             }
-            setProcessingJob(false)
             return
         }
         // rGridData.backupCells()  // No need to backup for undo, since undo is not supported in this game
@@ -196,13 +196,27 @@ class ReversiViewModel(
             placePiece(i, j, curPlayer)
             displayGameGridView()
             displayEligibleMoves(nextPlayer())
-            setProcessingJob(false)
             if (rGridData.isGameOver()) {
+                setProcessingJob(false)
                 gameOver()
                 return@launch
             }
             if (playMode == ReversiConstants.TWO_PLAYERS) {
-                currentPlayer.intValue = if (curPlayer == HUMAN_PLAYER) COMPUTER_PLAYER else HUMAN_PLAYER
+                currentPlayer.intValue = nextPlayer()
+                val validMoves = rGridData.getValidMoves(currentPlayer.intValue)
+                if (validMoves.isEmpty()) {
+                    // skip to the other player, show a message on screen
+                    if (currentPlayer.intValue == HUMAN_PLAYER) {
+                        setScreenMessage(rPresenter.redPassStr)
+                    } else {
+                        setScreenMessage(rPresenter.bluePassStr)
+                    }
+                    delay(DELAY_FOR_SHOW_PASS)
+                    setScreenMessage("")
+                    currentPlayer.intValue = nextPlayer()
+                    displayEligibleMoves(currentPlayer.intValue)
+                }
+                setProcessingJob(false)
             } else {
                 // Computer's turn - schedule automated move
                 scheduleComputerMove()
@@ -348,36 +362,36 @@ class ReversiViewModel(
     private fun scheduleComputerMove() {
         LogUtil.d(TAG, "scheduleComputerMove")
         setProcessingJob(true)
-        currentPlayer.intValue = COMPUTER_PLAYER
+        // currentPlayer.intValue = COMPUTER_PLAYER
         viewModelScope.launch(Dispatchers.Main) {
             delay(COMPUTER_MOVE_DELAY)
             makeComputerMove()
-            setProcessingJob(false)
         }
     }
 
     private fun makeComputerMove() {
         val logStr = "makeComputerMove"
+        setProcessingJob(true)
         LogUtil.d(TAG, logStr)
-        val validMoves = rGridData.getValidMoves(COMPUTER_PLAYER)
-        if (validMoves.isEmpty()) {
-            LogUtil.d(TAG, "$logStr.skip COMPUTER_PLAYER")
-            // skip COMPUTER_PLAYER, show a message on screen
-            viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch(Dispatchers.Main) {
+            currentPlayer.intValue = COMPUTER_PLAYER
+            val validMoves = rGridData.getValidMoves(currentPlayer.intValue)
+            if (validMoves.isEmpty()) {
+                LogUtil.d(TAG, "$logStr.skip COMPUTER_PLAYER")
+                // skip COMPUTER_PLAYER, show a message on screen
                 setScreenMessage(rPresenter.bluePassStr)
-                currentPlayer.intValue = HUMAN_PLAYER
                 delay(DELAY_FOR_SHOW_PASS)
                 setScreenMessage("")
+                currentPlayer.intValue = HUMAN_PLAYER
+                displayEligibleMoves(currentPlayer.intValue)
+                setProcessingJob(false)
+                return@launch
             }
-            return
-        }
-        // Choose best move: prioritize corners, then edges, then maximize flips
-        val bestMove = if(getGameLevel() == Constants.GAME_LEVEL_1)
-            chooseBestMoveBase(validMoves) else chooseBestMove(validMoves)
-        rGridData.backupCells()
-        setProcessingJob(true)
-        // Animating teh move here
-        viewModelScope.launch(Dispatchers.Main) {
+            // Choose best move: prioritize corners, then edges, then maximize flips
+            val bestMove = if(getGameLevel() == Constants.GAME_LEVEL_1)
+                chooseBestMoveBase(validMoves) else chooseBestMove(validMoves)
+            rGridData.backupCells()
+            // Animating teh move here
             placePiece(bestMove.x, bestMove.y, COMPUTER_PLAYER)
             LogUtil.d(TAG, "$logStr.Computer moved to (${bestMove.x}, ${bestMove.y})")
             displayGameGridView()
@@ -391,19 +405,17 @@ class ReversiViewModel(
             }
             // switch back to human player
             currentPlayer.intValue = HUMAN_PLAYER
-            val humanMoves = rGridData.getValidMoves(HUMAN_PLAYER)
+            val humanMoves = rGridData.getValidMoves(currentPlayer.intValue)
             if (humanMoves.isEmpty()) {
                 // skip HUMAN_PLAYER, show a message on screen
                 LogUtil.d(TAG, "$logStr.skip HUMAN_PLAYER")
-                viewModelScope.launch(Dispatchers.Main) {
-                    setScreenMessage(rPresenter.redPassStr)
-                    delay(DELAY_FOR_SHOW_PASS)
-                    setScreenMessage("")
-                    scheduleComputerMove()
-                }
-            } else {
-                setProcessingJob(false)
+                setScreenMessage(rPresenter.redPassStr)
+                delay(DELAY_FOR_SHOW_PASS)
+                setScreenMessage("")
+                displayEligibleMoves(nextPlayer())
+                scheduleComputerMove()
             }
+            setProcessingJob(false)
         }
     }
 
@@ -412,7 +424,7 @@ class ReversiViewModel(
         var bestScore = Float.NEGATIVE_INFINITY
 
         for (move in validMoves) {
-            val score = evaluateMoveWithMinimax(move, COMPUTER_PLAYER, HUMAN_PLAYER, depth = 2)
+            val score = evaluateMoveWithMinimax(move, COMPUTER_PLAYER, HUMAN_PLAYER, depth = 4)
             if (score > bestScore) {
                 bestScore = score
                 bestMove = move
@@ -422,56 +434,41 @@ class ReversiViewModel(
         return bestMove
     }
 
-    private fun evaluateMoveWithMinimax(
-        move: android.graphics.Point,
-        player: Int,
-        opponent: Int,
-        depth: Int
-    ): Float {
+    private fun evaluateMoveWithMinimax(move: Point, player: Int, opponent: Int, depth: Int ): Float {
+        
+        val logStr = "evaluateMoveWithMinimax"
+        LogUtil.d(TAG, "$logStr.depth = $depth")
         // Backup board state
         val backup = Array(rowCounts) { IntArray(colCounts) }
-        for (i in 0 until rowCounts) {
-            for (j in 0 until colCounts) {
+        for (i in 0 until rowCounts)
+            for (j in 0 until colCounts)
                 backup[i][j] = rGridData.getCellValue(i, j)
-            }
-        }
-
-        // Place the move
+        // Invalid move
         val flips = rGridData.flipsForMove(move.x, move.y, player)
-        if (flips.isEmpty()) {
-            return Float.NEGATIVE_INFINITY
-        }
-
+        if (flips.isEmpty()) return Float.NEGATIVE_INFINITY
+        // Make move
         rGridData.placePiece(move.x, move.y, player)
-
-        // Calculate position score based on move location
+        // Static evaluation
         val positionScore = getPositionValue(move.x, move.y)
-
-        // Calculate material score (flips count heavily)
         val materialScore = flips.size * 10f
-
-        // Check opponent's mobility
         val opponentMoves = rGridData.getValidMoves(opponent)
         val mobilityScore = if (opponentMoves.isEmpty()) 100f else -opponentMoves.size.toFloat()
-
         var totalScore = positionScore + materialScore + mobilityScore
-
-        // Lookahead 2 levels deep if depth > 0
+        // Recursive lookahead using depth
         if (depth > 0 && opponentMoves.isNotEmpty()) {
-            val opponentBestResponse = opponentMoves.maxOfOrNull { opponentMove ->
-                val opponentFlips = rGridData.flipsForMove(opponentMove.x, opponentMove.y, opponent)
-                if (opponentFlips.isEmpty()) 0f else opponentFlips.size.toFloat()
-            } ?: 0f
-            totalScore -= opponentBestResponse * 8f // Penalize giving opponent strong options
-        }
-
-        // Restore board
-        for (i in 0 until rowCounts) {
-            for (j in 0 until colCounts) {
-                rGridData.setCellValue(i, j, backup[i][j])
+            var opponentBest = Float.NEGATIVE_INFINITY
+            for (opMove in opponentMoves) {
+                // evaluate from opponent's perspective; larger is better for opponent
+                val oppScore = evaluateMoveWithMinimax(opMove, opponent, player, depth - 1)
+                if (oppScore > opponentBest) opponentBest = oppScore
             }
+            // opponentBest is good for opponent, so it hurts current player
+            totalScore -= opponentBest
         }
-
+        // Restore board
+        for (i in 0 until rowCounts)
+            for (j in 0 until colCounts)
+                rGridData.setCellValue(i, j, backup[i][j])
         return totalScore
     }
 
