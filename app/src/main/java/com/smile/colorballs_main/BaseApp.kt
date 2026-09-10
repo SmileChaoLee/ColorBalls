@@ -20,7 +20,7 @@ abstract class BaseApp : MultiDexApplication() {
     // var facebookAds: FacebookInterstitial? = null
     override fun onCreate() {
         super.onCreate()
-        LogUtil.i(TAG, "onCreate")
+        LogUtil.d(TAG, "onCreate")
         /*
         // no needed when using AdMob mediation
         if (!AudienceNetworkAds.isInitialized(this)) {
@@ -55,6 +55,6 @@ abstract class BaseApp : MultiDexApplication() {
 
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
-        LogUtil.i(TAG, "onTrimMemory.level = $level")
+        LogUtil.d(TAG, "onTrimMemory.level = $level")
     }
 }

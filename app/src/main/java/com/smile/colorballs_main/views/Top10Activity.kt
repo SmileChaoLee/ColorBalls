@@ -32,7 +32,7 @@ class Top10Activity : ComponentActivity() {
     private var top10TitleName: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        LogUtil.i(TAG, "onCreate")
+        LogUtil.d(TAG, "onCreate")
 
         val textFontSize = ScreenUtil.getPxTextFontSizeNeeded(this@Top10Activity)
         val toastTextSize = textFontSize * 0.7f
@@ -124,32 +124,32 @@ class Top10Activity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        LogUtil.i(TAG, "onStart()")
+        LogUtil.d(TAG, "onStart()")
     }
 
     override fun onResume() {
         super.onResume()
-        LogUtil.i(TAG, "onResume()")
+        LogUtil.d(TAG, "onResume()")
     }
 
     override fun onPause() {
         super.onPause()
-        LogUtil.i(TAG, "onPause()")
+        LogUtil.d(TAG, "onPause()")
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        LogUtil.i(TAG, "onSaveInstanceState()")
+        LogUtil.d(TAG, "onSaveInstanceState()")
         super.onSaveInstanceState(outState)
     }
 
     override fun onStop() {
         super.onStop()
-        LogUtil.i(TAG, "onStop()")
+        LogUtil.d(TAG, "onStop()")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        LogUtil.i(TAG, "onDestroy()")
+        LogUtil.d(TAG, "onDestroy()")
     }
 
     companion object {

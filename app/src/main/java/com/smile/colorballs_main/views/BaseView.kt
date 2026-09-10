@@ -172,7 +172,7 @@ abstract class BaseView: ComponentActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         // disabling the touch events
         touchDisabled = true
-        LogUtil.i(TAG, "$TAG.onCreate.touchDisabled")
+        LogUtil.d(TAG, "$TAG.onCreate.touchDisabled")
 
         textFontSize = ScreenUtil.getPxTextFontSizeNeeded(this@BaseView)
         toastTextSize = textFontSize * 0.7f
@@ -222,7 +222,7 @@ abstract class BaseView: ComponentActivity(),
         settingLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            LogUtil.i(TAG, "$TAG.settingLauncher.result received")
+            LogUtil.d(TAG, "$TAG.settingLauncher.result received")
             if (result.resultCode == RESULT_OK) {
                 val originalLevel = baseViewModel.getGameLevel()
                 LogUtil.d(TAG, "settingLauncher.originalLevel = $originalLevel")
@@ -245,13 +245,13 @@ abstract class BaseView: ComponentActivity(),
         top10Launcher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            LogUtil.i(TAG, "top10Launcher.result = $result")
+            LogUtil.d(TAG, "top10Launcher.result = $result")
         }
 
         adWeight = 10.0f - menuBarWeight - gameGridWeight
-        LogUtil.i(TAG, "$TAG.onCreate.menuBarWeight = $menuBarWeight")
-        LogUtil.i(TAG, "$TAG.onCreate.gameGridWeight = $gameGridWeight")
-        LogUtil.i(TAG, "$TAG.onCreate.adWeight = $adWeight")
+        LogUtil.d(TAG, "$TAG.onCreate.menuBarWeight = $menuBarWeight")
+        LogUtil.d(TAG, "$TAG.onCreate.gameGridWeight = $gameGridWeight")
+        LogUtil.d(TAG, "$TAG.onCreate.adWeight = $adWeight")
 
         // enable edge to edge
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -343,53 +343,53 @@ abstract class BaseView: ComponentActivity(),
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        LogUtil.i(TAG, "onConfigurationChanged.newConfig.orientation = " +
+        LogUtil.d(TAG, "onConfigurationChanged.newConfig.orientation = " +
                 "${newConfig.orientation}")
         setOrientation(newConfig.orientation)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        LogUtil.i(TAG, "onSaveInstanceState")
+        LogUtil.d(TAG, "onSaveInstanceState")
         baseViewModel.onSaveInstanceState(outState)
         super.onSaveInstanceState(outState)
     }
 
     override fun onStart() {
         super.onStart()
-        LogUtil.i(TAG, "onStart")
+        LogUtil.d(TAG, "onStart")
     }
 
     override fun onResume() {
         super.onResume()
-        LogUtil.i(TAG, "onResume")
+        LogUtil.d(TAG, "onResume")
     }
 
     override fun onPause() {
         super.onPause()
-        LogUtil.i(TAG, "onPause")
+        LogUtil.d(TAG, "onPause")
     }
 
     override fun onStop() {
         super.onStop()
-        LogUtil.i(TAG, "onStop")
+        LogUtil.d(TAG, "onStop")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        LogUtil.i(TAG, "onDestroy")
+        LogUtil.d(TAG, "onDestroy")
         baseViewModel.release()
         // interstitialAd?.releaseInterstitial()
     }
 
     /*
     protected fun showInterstitialAd() {
-        LogUtil.i(TAG, "showInterstitialAd = $interstitialAd")
+        LogUtil.d(TAG, "showInterstitialAd = $interstitialAd")
         interstitialAd?.ShowAdThread()?.startShowAd(0) // AdMob first
     }
     */
 
     protected fun bitmapDrawableResources(sizePx: Float) {
-        LogUtil.i(TAG, "bitmapDrawableResources.sizePx = $sizePx")
+        LogUtil.d(TAG, "bitmapDrawableResources.sizePx = $sizePx")
         val ballWidth = sizePx.toInt()
         val ballHeight = sizePx.toInt()
         val nextBallWidth = (sizePx * 0.5f).toInt()
@@ -475,12 +475,12 @@ abstract class BaseView: ComponentActivity(),
     }
 
     private fun finishThisActivity() {
-        LogUtil.i(TAG, "finishThisActivity")
+        LogUtil.d(TAG, "finishThisActivity")
         finish()
     }
 
     fun exitApplication() {
-        LogUtil.i(TAG, "exitApplication")
+        LogUtil.d(TAG, "exitApplication")
         /*
         val handlerClose = Handler(Looper.getMainLooper())
         val timeDelay = 1000
@@ -585,7 +585,7 @@ abstract class BaseView: ComponentActivity(),
     @SuppressLint("ConfigurationScreenWidthHeight")
     @Composable
     open fun GameView(modifier: Modifier) {
-        LogUtil.i(TAG, "GameView.getOrientation() = ${getOrientation()}")
+        LogUtil.d(TAG, "GameView.getOrientation() = ${getOrientation()}")
 
         screenSize = getContentHeight()
         // screenSize = getContentHeightNew()
@@ -641,7 +641,7 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun ShowCurrentScore(modifier: Modifier, pFontSize: TextUnit) {
-        LogUtil.i(TAG, "ShowCurrentScore.getOrientation()" +
+        LogUtil.d(TAG, "ShowCurrentScore.getOrientation()" +
                 " = ${getOrientation()}")
         Text(text = baseViewModel.getCurrentScore().toString(),
             modifier = modifier,
@@ -651,7 +651,7 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun SHowHighestScore(modifier: Modifier, pFontSize: TextUnit) {
-        LogUtil.i(TAG, "SHowHighestScore.getOrientation()" +
+        LogUtil.d(TAG, "SHowHighestScore.getOrientation()" +
                 " = ${getOrientation()}")
         Text(text = baseViewModel.getHighestScore().toString(),
             modifier = modifier,
@@ -661,7 +661,7 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun SaveGameDialog() {
-        LogUtil.i(TAG, "SaveGameDialog")
+        LogUtil.d(TAG, "SaveGameDialog")
         val dialogText = baseViewModel.getSaveGameText()
         if (dialogText.isNotEmpty()) {
             baseViewModel.setShowingSureSaveDialog(true)
@@ -693,7 +693,7 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun LoadGameDialog() {
-        LogUtil.i(TAG, "LoadGameDialog")
+        LogUtil.d(TAG, "LoadGameDialog")
         val dialogText = baseViewModel.getLoadGameText()
         if (dialogText.isNotEmpty()) {
             baseViewModel.setShowingSureLoadDialog(true)
@@ -822,7 +822,7 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun SHowPortraitAds(modifier: Modifier) {
-        LogUtil.i(TAG, "SHowPortraitAds.getOrientation()" +
+        LogUtil.d(TAG, "SHowPortraitAds.getOrientation()" +
                 " = ${getOrientation()}")
 
         val adWidth = with(LocalDensity.current) {
@@ -843,7 +843,7 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun ShowNativeAd(modifier: Modifier = Modifier) {
-        LogUtil.i(TAG, "ShowNativeAd.getOrientation()" +
+        LogUtil.d(TAG, "ShowNativeAd.getOrientation()" +
                 " = ${getOrientation()}")
         var nativeAd by remember { mutableStateOf<NativeAd?>(null) }
         LaunchedEffect(Unit) {
@@ -918,7 +918,7 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun ShowLandscapeAds(modifier: Modifier) {
-        LogUtil.i(TAG, "ShowLandscapeAds.getOrientation()" +
+        LogUtil.d(TAG, "ShowLandscapeAds.getOrientation()" +
                 " = ${getOrientation()}")
         /*
         val colHeight = with(LocalDensity.current) {
@@ -946,7 +946,7 @@ abstract class BaseView: ComponentActivity(),
     }
 
     private fun showTop10Players(isLocal: Boolean) {
-        LogUtil.i(TAG, "showTop10Players.isLocal = $isLocal")
+        LogUtil.d(TAG, "showTop10Players.isLocal = $isLocal")
         Intent(
             this@BaseView,
             Top10Activity::class.java
@@ -994,7 +994,7 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun UndoButton(modifier: Modifier) {
-        LogUtil.i(TAG, "UndoButton.getOrientation()" +
+        LogUtil.d(TAG, "UndoButton.getOrientation()" +
                 " = ${getOrientation()}")
         val isClicked = remember { mutableStateOf(false) }
         IconButton (onClick = {
@@ -1017,7 +1017,7 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun SettingButton(modifier: Modifier) {
-        LogUtil.i(TAG, "SettingButton.getOrientation()" +
+        LogUtil.d(TAG, "SettingButton.getOrientation()" +
                 " = ${getOrientation()}")
         val isClicked = remember { mutableStateOf(false) }
         IconButton (onClick = {
@@ -1035,7 +1035,7 @@ abstract class BaseView: ComponentActivity(),
 
     @Composable
     fun ShowMenu(modifier: Modifier) {
-        LogUtil.i(TAG, "ShowMenu.getOrientation()" +
+        LogUtil.d(TAG, "ShowMenu.getOrientation()" +
                 " = ${getOrientation()}")
         val dropdownWidth =
             if (getOrientation() == Configuration.ORIENTATION_PORTRAIT) {

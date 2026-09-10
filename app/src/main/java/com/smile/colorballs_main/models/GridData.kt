@@ -38,7 +38,7 @@ open class GridData(
     }
 
     private fun generateColumnBalls(column: Int) {
-        LogUtil.i(TAG, "generateColumnBalls.column = $column")
+        LogUtil.d(TAG, "generateColumnBalls.column = $column")
         for (i in 0 until rowCounts) {
             val nn = mRandom.nextInt(mNumOfColorsUsed)
             mCellValues[i][column] = Constants.BallColor[nn]
@@ -52,7 +52,7 @@ open class GridData(
     }
 
     private fun needShiftColumn(fillColumn: Boolean) {
-        LogUtil.i(TAG, "needShiftColumn.fillColumn = $fillColumn")
+        LogUtil.d(TAG, "needShiftColumn.fillColumn = $fillColumn")
         var columnLeft = colCounts
         var j = colCounts - 1
         while (j >= 0 && columnLeft > 0) {
@@ -84,7 +84,7 @@ open class GridData(
     }
 
     fun crashColorBalls(sourceSet: HashSet<Point>) {
-        LogUtil.i(TAG, "crashColorBalls.sourceSet.size = ${sourceSet.size}")
+        LogUtil.d(TAG, "crashColorBalls.sourceSet.size = ${sourceSet.size}")
         val list = ArrayList<Point>(sourceSet)
         list.sortWith { p1: Point, p2: Point ->
             p1.x.compareTo(p2.x)
@@ -98,14 +98,14 @@ open class GridData(
     }
 
     fun refreshColorBalls(fillColumn: Boolean) {
-        LogUtil.i(TAG, "refreshColorBalls.mLightLine.size = ${mLightLine.size}")
+        LogUtil.d(TAG, "refreshColorBalls.mLightLine.size = ${mLightLine.size}")
         crashColorBalls(mLightLine)
         // Check if needs to shift columns
         needShiftColumn(fillColumn)
     }
 
     fun refreshColorBallsOld(fillColumn: Boolean) {
-        LogUtil.i(TAG, "refreshColorBalls.mLightLine.size = ${mLightLine.size}")
+        LogUtil.d(TAG, "refreshColorBalls.mLightLine.size = ${mLightLine.size}")
         val list = ArrayList<Point>(mLightLine)
         list.sortWith { p1: Point, p2: Point ->
             p1.x.compareTo(p2.x)
@@ -159,7 +159,7 @@ open class GridData(
     }
 
     open fun undoTheLast() {
-        LogUtil.i(TAG, "undoTheLast")
+        LogUtil.d(TAG, "undoTheLast")
         // restore CellValues;
         for (i in 0 until rowCounts) {
             System.arraycopy(mBackupCells[i], 0, mCellValues[i],
@@ -236,7 +236,7 @@ open class GridData(
     }
 
     fun backupCells() {
-        LogUtil.i(TAG, "backupCells")
+        LogUtil.d(TAG, "backupCells")
         // backup CellValues;
         for (i in 0 until rowCounts) {
             System.arraycopy(mCellValues[i], 0, mBackupCells[i],
@@ -245,7 +245,7 @@ open class GridData(
     }
 
     fun moreThanNumNABOR(x: Int, y: Int, connectNum: Int): Boolean {
-        LogUtil.i(TAG, "moreThanNumNABOR.x = $x, y = $y, connectNum = $connectNum")
+        LogUtil.d(TAG, "moreThanNumNABOR.x = $x, y = $y, connectNum = $connectNum")
         allConnectBalls(Point(x , y))
         if (mLightLine.size >= connectNum) {
             return true

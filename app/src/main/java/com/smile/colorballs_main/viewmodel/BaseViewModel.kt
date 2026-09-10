@@ -112,7 +112,7 @@ abstract class BaseViewModel(
     lateinit var gridDataArray: Array<Array<MutableState<ColorBallInfo>>>
 
     init {
-        LogUtil.i(TAG, "BaseViewModel.init")
+        LogUtil.d(TAG, "BaseViewModel.init")
     }
 
     fun setPresenter(presenter: BasePresenter) {
@@ -153,7 +153,7 @@ abstract class BaseViewModel(
     }
 
     fun getAndSetHighestScore() {
-        LogUtil.i(TAG, "getAndSetHighestScore")
+        LogUtil.d(TAG, "getAndSetHighestScore")
         viewModelScope.launch(Dispatchers.IO) {
             val db = basePresenter.scoreDatabase()
             val score = db.getHighestScore()
@@ -167,7 +167,7 @@ abstract class BaseViewModel(
     }
 
     private fun addScoreInLocalTop10(playerName : String, score : Int) {
-        LogUtil.i(TAG, "addScoreInLocalTop10")
+        LogUtil.d(TAG, "addScoreInLocalTop10")
         viewModelScope.launch(Dispatchers.IO) {
             val db = basePresenter.scoreDatabase()
             if (db.isInTop10(score)) {
@@ -218,7 +218,7 @@ abstract class BaseViewModel(
     }
 
     open fun saveScore(playerName: String) {
-        LogUtil.i(TAG, "saveScore")
+        LogUtil.d(TAG, "saveScore")
         // use thread to add a record to remote database
         val restThread: Thread = object : Thread() {
             override fun run() {
@@ -279,19 +279,19 @@ abstract class BaseViewModel(
 
     fun lastPartOfInitialGame() {
         if (isShowingNewGameDialog()) {
-            LogUtil.i(TAG, "lastPartOfInitialGame.newGame()")
+            LogUtil.d(TAG, "lastPartOfInitialGame.newGame()")
             newGame()
         }
         if (isShowingQuitGameDialog()) {
-            LogUtil.i(TAG, "lastPartOfInitialGame.show quitGame()")
+            LogUtil.d(TAG, "lastPartOfInitialGame.show quitGame()")
             quitGame()
         }
         if (isShowingSureSaveDialog()) {
-            LogUtil.i(TAG, "lastPartOfInitialGame.saveGame()")
+            LogUtil.d(TAG, "lastPartOfInitialGame.saveGame()")
             saveGame()
         }
         if (isShowingSureLoadDialog()) {
-            LogUtil.i(TAG, "lastPartOfInitialGame.loadGame()")
+            LogUtil.d(TAG, "lastPartOfInitialGame.loadGame()")
             loadGame()
         }
     }
@@ -315,12 +315,12 @@ abstract class BaseViewModel(
     }
 
     fun saveGame() {
-        LogUtil.i(TAG, "saveGame")
+        LogUtil.d(TAG, "saveGame")
         setSaveGameText(sureToSaveGameStr)
     }
 
     fun loadGame() {
-        LogUtil.i(TAG, "loadGame")
+        LogUtil.d(TAG, "loadGame")
         setLoadGameText(sureToLoadGameStr)
     }
 
@@ -357,7 +357,7 @@ abstract class BaseViewModel(
     }
 
     open fun displayGameGridView() {
-        LogUtil.i(TAG, "displayGameGridView")
+        LogUtil.d(TAG, "displayGameGridView")
         try {
             for (i in 0 until rowCounts) {
                 for (j in 0 until colCounts) {
@@ -379,7 +379,7 @@ abstract class BaseViewModel(
         private var pointSet: HashSet<Point>
         private var mCounter = 0
         init {
-            LogUtil.i(TAG, "ShowScore")
+            LogUtil.d(TAG, "ShowScore")
             pointSet = HashSet(linkedPoint)
             mGameProp.isShowNextBallsAfterBlinking = isNextBalls
             setShowingScoreDialog(true)

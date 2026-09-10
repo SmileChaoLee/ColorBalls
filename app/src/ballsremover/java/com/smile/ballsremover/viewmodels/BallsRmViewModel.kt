@@ -37,7 +37,7 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
     }
 
     init {
-        LogUtil.i(TAG, "BallsRmViewModel.init")
+        LogUtil.d(TAG, "BallsRmViewModel.init")
         brGameProp = GameProp()
         brGridData = GridData(BallsRmConstants.ROW_COUNTS,
             BallsRmConstants.COLUMN_COUNTS)
@@ -48,7 +48,7 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
     }
 
     override fun cellClickListener(i: Int, j: Int) {
-        LogUtil.i(TAG, "cellClickListener.($i, $j)")
+        LogUtil.d(TAG, "cellClickListener.($i, $j)")
         if (brGridData.getCellValue(i, j) == 0) return  // no ball
         if (isProcessingJob()) return
         setProcessingJob(true)
@@ -90,7 +90,7 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
     }
 
     private fun setData(prop: GameProp, gData: GridData) {
-        LogUtil.i(TAG, "setData")
+        LogUtil.d(TAG, "setData")
         brGameProp = prop
         brGridData = gData
         // update mGameProp and mGridData in BaseViewModel
@@ -99,19 +99,19 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
     }
 
     private fun initData() {
-        LogUtil.i(TAG, "initData")
+        LogUtil.d(TAG, "initData")
         brGameProp.initializeKeepSetting(getWhichGame())
         brGridData.initialize()
     }
 
     override fun initGame(bundle: Bundle?) {
-        LogUtil.i(TAG, "initGame = $bundle")
+        LogUtil.d(TAG, "initGame = $bundle")
         setProcessingJob(true)
         val isNewGame = restoreState(bundle)
         setCurrentScore(brGameProp.currentScore)
         if (isNewGame) {
             // generate
-            LogUtil.i(TAG, "initGame.isNewGame")
+            LogUtil.d(TAG, "initGame.isNewGame")
             brGridData.generateColorBalls()
         }
         displayGameGridView()
@@ -127,7 +127,7 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
     }
 
     private fun restoreState(state: Bundle?): Boolean {
-        LogUtil.i(TAG,"restoreState.state = $state")
+        LogUtil.d(TAG,"restoreState.state = $state")
         var isNewGame: Boolean
         var gameProp: GameProp? = null
         var gridData: GridData? = null
@@ -158,11 +158,11 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
                     }
                 }
                 if (isNewGame) {
-                    LogUtil.i(TAG, "restoreState.CellValues are all 0")
+                    LogUtil.d(TAG, "restoreState.CellValues are all 0")
                 }
             }
         }
-        LogUtil.i(TAG, "restoreState.isNewGame = $isNewGame")
+        LogUtil.d(TAG, "restoreState.isNewGame = $isNewGame")
         if (isNewGame) {
             initData()
         } else {
@@ -178,7 +178,7 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
     }
 
     override fun undoTheLast() {
-        LogUtil.i(TAG, "undoTheLast.undoEnable = ${brGameProp.undoEnable}")
+        LogUtil.d(TAG, "undoTheLast.undoEnable = ${brGameProp.undoEnable}")
         if (!brGameProp.undoEnable) {
             return
         }
@@ -191,14 +191,14 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
     }
 
     fun isCreatingNewGame() {
-        LogUtil.i(TAG, "isCreatingNewGame")
+        LogUtil.d(TAG, "isCreatingNewGame")
         mGameAction = Constants.IS_CREATING_GAME
         setCreateNewGameText(createNewGameStr)
     }
 
     override fun newGame() {
         // creating a new game
-        LogUtil.i(TAG, "newGame")
+        LogUtil.d(TAG, "newGame")
         timesPlayed++
         LogUtil.d(TAG, "newGame.timesPlayed = $timesPlayed")
         mGameAction = Constants.IS_CREATING_GAME
@@ -206,7 +206,7 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
     }
 
     override fun startSavingGame(): Boolean {
-        LogUtil.i(TAG, "startSavingGame")
+        LogUtil.d(TAG, "startSavingGame")
         setProcessingJob(true)
         setScreenMessage(savingGameStr)
         var succeeded = true
@@ -253,7 +253,7 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
     }
 
     override fun startLoadingGame(): Boolean {
-        LogUtil.i(TAG, "startLoadingGame")
+        LogUtil.d(TAG, "startLoadingGame")
         setProcessingJob(true)
         setScreenMessage(loadingGameStr)
         var succeeded = true
@@ -359,7 +359,7 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
         private var pointSet: HashSet<Point>
         private var mCounter = 0
         init {
-            LogUtil.i(TAG, "ShowScore")
+            LogUtil.d(TAG, "ShowScore")
             pointSet = HashSet(linkedPoint)
         }
 

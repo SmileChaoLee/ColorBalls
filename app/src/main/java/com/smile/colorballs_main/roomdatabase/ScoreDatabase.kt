@@ -23,7 +23,7 @@ abstract class ScoreDatabase : RoomDatabase() {
             }
         }
         fun getDatabase(context: Context, databaseName: String): ScoreDatabase {
-            LogUtil.i(TAG, "getDatabase")
+            LogUtil.d(TAG, "getDatabase")
             return synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
@@ -40,7 +40,7 @@ abstract class ScoreDatabase : RoomDatabase() {
     }
 
     suspend fun addScore(score: Score): Long {
-        LogUtil.i(TAG, "addScore.score = $score")
+        LogUtil.d(TAG, "addScore.score = $score")
         val tempScore = Score(  // use the default value, null for id
             playerName = score.playerName,
             playerScore = score.playerScore
@@ -63,7 +63,7 @@ abstract class ScoreDatabase : RoomDatabase() {
     }
 
     suspend fun isInTop10(score: Int): Boolean {
-        LogUtil.i(TAG, "isInTop10.score = $score")
+        LogUtil.d(TAG, "isInTop10.score = $score")
         try {
             val top10Scores = scoreDao().readTop10ScoreList()
             return if (top10Scores.size < 10) {
@@ -78,7 +78,7 @@ abstract class ScoreDatabase : RoomDatabase() {
     }
 
     suspend fun getLocalTop10(): ArrayList<Player> {
-        LogUtil.i(TAG, "getLocalTop10")
+        LogUtil.d(TAG, "getLocalTop10")
         val players = ArrayList<Player>()
         try {
             val top10Scores = scoreDao().readTop10ScoreList()
@@ -98,7 +98,7 @@ abstract class ScoreDatabase : RoomDatabase() {
     }
 
     suspend fun deleteAllAfterTop10() {
-        LogUtil.i(TAG, "deleteAllAfterTop10")
+        LogUtil.d(TAG, "deleteAllAfterTop10")
         try {
             scoreDao().deleteAllAfterTop10()
         } catch (ex: Exception) {

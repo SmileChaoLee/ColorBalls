@@ -96,7 +96,7 @@ class MainRevActivity : ComponentActivity() {
         playWithAiLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            LogUtil.i(TAG, "playWithAiLauncher.result = $result")
+            LogUtil.d(TAG, "playWithAiLauncher.result = $result")
             loadingMessage.value = ""
             showInterstitialAd()
             enableMainButtons()
@@ -105,7 +105,7 @@ class MainRevActivity : ComponentActivity() {
         twoPlayersLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            LogUtil.i(TAG, "twoPlayersLauncher.result = $result")
+            LogUtil.d(TAG, "twoPlayersLauncher.result = $result")
             loadingMessage.value = ""
             showInterstitialAd()
             enableMainButtons()
@@ -155,7 +155,7 @@ class MainRevActivity : ComponentActivity() {
     }
 
     private fun exitApp() {
-        LogUtil.i(TAG, "exitApp.isBackPressedEnabled = $isBackPressedEnabled")
+        LogUtil.d(TAG, "exitApp.isBackPressedEnabled = $isBackPressedEnabled")
         if (isBackPressedEnabled) finish()
     }
 
@@ -170,7 +170,7 @@ class MainRevActivity : ComponentActivity() {
     }
 
     private fun showInterstitialAd() {
-        LogUtil.i(TAG, "showInterstitialAd = $interstitialAd")
+        LogUtil.d(TAG, "showInterstitialAd = $interstitialAd")
         interstitialAd?.ShowAdThread()?.startShowAd(0) // AdMob first
     }
 
@@ -308,7 +308,7 @@ class MainRevActivity : ComponentActivity() {
 
     @Composable
     fun CreateMainUI() {
-        LogUtil.i(TAG, "CreateMainUI")
+        LogUtil.d(TAG, "CreateMainUI")
         if (loadingMessage.value.isNotEmpty()) return
         val maxWidth = ScreenUtil.pixelToDp(screenSize.x.toFloat())
         val maxHeight = ScreenUtil.pixelToDp(screenSize.y.toFloat())
@@ -321,10 +321,10 @@ class MainRevActivity : ComponentActivity() {
             horSpacerWeight = 2.5f
         }
         val buttonWidth = maxWidth * ((10.0f - horSpacerWeight * 2.0f) / 10.0f)
-        LogUtil.i(TAG, "CreateMainUI.buttonWidth = $buttonWidth")
+        LogUtil.d(TAG, "CreateMainUI.buttonWidth = $buttonWidth")
         // 1 in 5
         val buttonHeight = maxHeight * ((10.0f - verSpacerWeight * 2.0f) / 10.0f) / 5.0f
-        LogUtil.i(TAG, "CreateMainUI.buttonHeight = $buttonHeight")
+        LogUtil.d(TAG, "CreateMainUI.buttonHeight = $buttonHeight")
         val textLineHeight = (CbComposable.toastFontSize.value + 5.0f).sp
         Column(modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -338,17 +338,17 @@ class MainRevActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        LogUtil.i(TAG, "onResume")
+        LogUtil.d(TAG, "onResume")
     }
 
     override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
         super.onSaveInstanceState(outState, outPersistentState)
-        LogUtil.i(TAG, "onSaveInstanceState()")
+        LogUtil.d(TAG, "onSaveInstanceState()")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        LogUtil.i(TAG, "onDestroy")
+        LogUtil.d(TAG, "onDestroy")
         interstitialAd?.releaseInterstitial()
     }
 }

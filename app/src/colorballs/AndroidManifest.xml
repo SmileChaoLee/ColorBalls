@@ -17,28 +17,31 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name="com.smile.colorballs.views.ColorBallActivity"
             android:exported="false">
         </activity>
-
         <activity
             android:name="com.smile.colorballs.views.BarrierCBallActivity"
             android:exported="false">
         </activity>
-
         <activity
-            android:name="ballsremover.views.BallsRemoverActivity"
+            android:name="com.smile.ballsremover.views.BallsRemoverActivity"
             android:exported="false">
         </activity>
-
         <activity
-            android:name="dropcolorballs.views.DropCBallsActivity"
+            android:name="com.smile.dropcolorballs.views.DropCBallsActivity"
+            android:exported="false">
+        </activity>
+        <activity
+            android:name="com.smile.reversi.views.MainRevActivity"
+            android:exported="false">
+        </activity>
+        <activity
+            android:name="com.smile.reversi.views.ReversiActivity"
             android:exported="false">
         </activity>
 

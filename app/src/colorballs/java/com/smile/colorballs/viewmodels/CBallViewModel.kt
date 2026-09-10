@@ -34,7 +34,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
     private var gameOverStr = ""
 
     init {
-        LogUtil.i(TAG, "CBallViewModel.init")
+        LogUtil.d(TAG, "CBallViewModel.init")
         cbGameProp = GameProp()
         cbGridData = CBallGridData(CbConstants.ROW_COUNTS,
             CbConstants.COLUMN_COUNTS)
@@ -45,7 +45,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
     }
 
     override fun cellClickListener(i: Int, j: Int) {
-        LogUtil.i(TAG, "cellClickListener.($i, $j)")
+        LogUtil.d(TAG, "cellClickListener.($i, $j)")
         LogUtil.d(TAG, "cellClickListener.isBallBouncing = " +
                 "${cbGameProp.isBallBouncing}")
         if (isProcessingJob()) return
@@ -95,7 +95,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
     }
 
     private fun setData(prop: GameProp, gData: CBallGridData) {
-        LogUtil.i(TAG, "setData")
+        LogUtil.d(TAG, "setData")
         cbGameProp = prop
         cbGridData = gData
         // update mGameProp and mGridData in BaseViewModel
@@ -104,19 +104,19 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
     }
 
     private fun initData() {
-        LogUtil.i(TAG, "initData")
+        LogUtil.d(TAG, "initData")
         cbGameProp.initializeKeepSetting(getWhichGame())
         cbGridData.initialize(getWhichGame())
     }
 
     override fun initGame(bundle: Bundle?) {
-        LogUtil.i(TAG, "initGame = $bundle")
+        LogUtil.d(TAG, "initGame = $bundle")
         setProcessingJob(true)
         val isNewGame = restoreState(bundle)
         setCurrentScore(cbGameProp.currentScore)
         // displayGameView()
         if (isNewGame) {    // new game
-            LogUtil.i(TAG, "initGame.isNewGame")
+            LogUtil.d(TAG, "initGame.isNewGame")
             displayGameGridView()
             displayGridDataNextCells()
             setProcessingJob(false)
@@ -156,7 +156,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
     }
 
     private fun restoreState(state: Bundle?): Boolean {
-        LogUtil.i(TAG,"restoreState.state = $state")
+        LogUtil.d(TAG,"restoreState.state = $state")
         var isNewGame: Boolean
         var gameProp: GameProp? = null
         var gridData: CBallGridData? = null
@@ -191,7 +191,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
                 }
             }
         }
-        LogUtil.i(TAG, "restoreState.isNewGame = $isNewGame")
+        LogUtil.d(TAG, "restoreState.isNewGame = $isNewGame")
         if (isNewGame) {
             initData()
         } else {
@@ -240,7 +240,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
     }
 
     override fun startSavingGame(): Boolean {
-        LogUtil.i(TAG, "startSavingGame")
+        LogUtil.d(TAG, "startSavingGame")
         setProcessingJob(true)
         setScreenMessage(savingGameStr)
 
@@ -342,7 +342,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
     }
 
     override fun startLoadingGame(): Boolean {
-        LogUtil.i(TAG, "startLoadingGame")
+        LogUtil.d(TAG, "startLoadingGame")
         setProcessingJob(true)
         setScreenMessage(loadingGameStr)
 
@@ -386,7 +386,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
             hasNext = bValue == 1
             LogUtil.d(TAG, "startLoadingGame.hasNextBall = $hasNext")
             ballNumOneTime = fiStream.read()
-            LogUtil.i(TAG, "startLoadingGame.ballNumOneTime = $ballNumOneTime")
+            LogUtil.d(TAG, "startLoadingGame.ballNumOneTime = $ballNumOneTime")
             for (i in 0 until Constants.NUM_BALLS_USED_DIFF) {
                 nextBalls[i] = fiStream.read()
                 LogUtil.d(TAG, "startLoadingGame.nextCellIndices.cell.getColor() = " + nextBalls[i])
@@ -562,7 +562,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
     }
 
     private fun drawNextBall(i: Int, j: Int, color: Int) {
-        LogUtil.i(TAG, "drawNextBall.($i, $j), color = $color")
+        LogUtil.d(TAG, "drawNextBall.($i, $j), color = $color")
         val trueColor = if (hasNext()) color else 0
         LogUtil.d(TAG, "drawNextBall.($i, $j), trueColor = $trueColor")
         gridDataArray[i][j].value = ColorBallInfo(trueColor, WhichBall.NEXT_BALL)
@@ -570,7 +570,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
 
     private fun displayNextBallsView() {
         // display the view of next balls
-        LogUtil.i(TAG, "displayNextBallsView")
+        LogUtil.d(TAG, "displayNextBallsView")
         try {
             for ((key, value) in cbGridData.getNextCellIndices()) {
                 LogUtil.d(TAG, "displayNextBallsView.color = $value")
@@ -594,7 +594,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
     }
 
     private fun displayGridDataNextCells() {
-        LogUtil.i(TAG, "displayGridDataNextCells")
+        LogUtil.d(TAG, "displayGridDataNextCells")
         var n1: Int
         var n2: Int
         var hasMoreFive = false
@@ -641,7 +641,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
 
     private fun displayGameView() {
         // display the 9 x 9 game view
-        LogUtil.i(TAG, "displayGameView")
+        LogUtil.d(TAG, "displayGameView")
         displayGameGridView()
         // display the view of next balls
         displayNextBallsView()
@@ -715,7 +715,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
                 }
             }
         }
-        LogUtil.i(TAG, "drawBallAlongPath.movingBallHandler.post")
+        LogUtil.d(TAG, "drawBallAlongPath.movingBallHandler.post")
         movingBallHandler.post(runnablePath)
     }
 }

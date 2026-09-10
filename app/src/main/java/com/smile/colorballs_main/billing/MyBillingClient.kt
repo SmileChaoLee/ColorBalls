@@ -66,7 +66,7 @@ class MyBillingClient(context: Context) {
         // 1. Verify the purchase on your backend server.
         // 2. Grant entitlement to the user.
         // 3. Acknowledge or consume the purchase.
-        LogUtil.i(TAG, "Purchase successful: ${purchase.orderId}")
+        LogUtil.d(TAG, "Purchase successful: ${purchase.orderId}")
 
         if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
             if (!purchase.isAcknowledged) {
@@ -113,7 +113,7 @@ class MyBillingClient(context: Context) {
     fun endConnection() {
         if (billingClient.isReady) {
             billingClient.endConnection()
-            LogUtil.i(TAG, "BillingClient connection ended.")
+            LogUtil.d(TAG, "BillingClient connection ended.")
         }
     }
 

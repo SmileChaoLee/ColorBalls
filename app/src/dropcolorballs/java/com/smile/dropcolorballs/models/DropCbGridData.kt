@@ -37,7 +37,7 @@ class DropCbGridData(
     }
 
     fun randNext4Balls() {
-        LogUtil.i(TAG, "randNext4Balls")
+        LogUtil.d(TAG, "randNext4Balls")
         next4Balls = ArrayList()
         var bColor: Int
         (0 until DropBallsConstants.NUM_NEXT_BALLS).forEach { _ ->
@@ -58,7 +58,7 @@ class DropCbGridData(
     }
 
     fun moreThan3NABOR(set: HashSet<Point>): Boolean {
-        LogUtil.i(TAG, "moreThan3NABOR")
+        LogUtil.d(TAG, "moreThan3NABOR")
         var result = false
         addUpLightLine.clear()
         for (p in set) {
@@ -71,7 +71,7 @@ class DropCbGridData(
     }
 
     fun moreThan3VerHorDia(set: HashSet<Point>): Boolean {
-        LogUtil.i(TAG, "moreThan3VerHorDia")
+        LogUtil.d(TAG, "moreThan3VerHorDia")
         var result = false
         addUpLightLine.clear()
         for (p in set) {
@@ -102,19 +102,19 @@ class DropCbGridData(
     }
 
     fun crashColorBallsNABOR(): Boolean {
-        LogUtil.i(TAG, "crashColorBallsNABOR")
+        LogUtil.d(TAG, "crashColorBallsNABOR")
         val tempSet = crashColorBalls()
         return moreThan3NABOR(tempSet)
     }
 
     fun crashColorBallsVerHorDia(): Boolean {
-        LogUtil.i(TAG, "crashColorBallsVerHorDia")
+        LogUtil.d(TAG, "crashColorBallsVerHorDia")
         val tempSet = crashColorBalls()
         return moreThan3VerHorDia(tempSet)
     }
 
     private fun crashColorBalls(): HashSet<Point> {
-        LogUtil.i(TAG, "crashColorBalls")
+        LogUtil.d(TAG, "crashColorBalls")
         crashColorBalls(addUpLightLine)
 
         val colSet = HashSet<Int>()
@@ -129,12 +129,12 @@ class DropCbGridData(
                 }
             }
         }
-        LogUtil.i(TAG, "crashColorBalls.tempSet.size = ${tempSet.size}")
+        LogUtil.d(TAG, "crashColorBalls.tempSet.size = ${tempSet.size}")
         return tempSet
     }
 
     fun copy(gData: DropCbGridData): DropCbGridData {
-        LogUtil.i(TAG, "copy")
+        LogUtil.d(TAG, "copy")
         val newGridData = DropCbGridData()
         newGridData.copy(gData)
         newGridData.runningBalls = ArrayList(gData.runningBalls)

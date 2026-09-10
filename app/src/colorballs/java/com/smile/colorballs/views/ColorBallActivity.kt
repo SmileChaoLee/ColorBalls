@@ -10,7 +10,7 @@ class ColorBallActivity : CBallView() {
     }
 
     override fun setWhichGame() {
-        LogUtil.i(TAG, "setWhichGame")
+        LogUtil.d(TAG, "setWhichGame")
         viewModel.setWhichGame(WhichGame.NO_BARRIER)
     }
 }

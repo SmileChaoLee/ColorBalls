@@ -36,7 +36,7 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
     override fun hasTop10Menu() = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        LogUtil.i(TAG, "$TAG.onCreate.savedInstanceState = $savedInstanceState")
+        LogUtil.d(TAG, "$TAG.onCreate.savedInstanceState = $savedInstanceState")
         if (savedInstanceState == null) {
             intent?.let {
                 val extras = it.extras
@@ -94,7 +94,7 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
 
     // implement GameOptions
     override fun setWhichGame() {
-        LogUtil.i(TAG, "setWhichGame")
+        LogUtil.d(TAG, "setWhichGame")
         viewModel.setWhichGame(WhichGame.REVERSI)
     }
 
@@ -125,7 +125,7 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
     }
 
     override fun ifInterstitialWhenNewGame() {
-        LogUtil.i(TAG, "ifInterstitialWhenNewGame")
+        LogUtil.d(TAG, "ifInterstitialWhenNewGame")
         viewModel.initGame(bundle = null)
     }
 

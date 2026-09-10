@@ -136,7 +136,7 @@ class MyActivity : AppCompatActivity(), MyPresentView {
         settingLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
             result: ActivityResult ->
-            LogUtil.i(TAG, TAG + "onCreate.settingLauncher.result")
+            LogUtil.d(TAG, TAG + "onCreate.settingLauncher.result")
             if (result.resultCode != RESULT_OK) return@registerForActivityResult
             val data = result.data
             if (data == null) return@registerForActivityResult
@@ -150,7 +150,7 @@ class MyActivity : AppCompatActivity(), MyPresentView {
         top10Launcher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             // Handle the result here
-            LogUtil.i(TAG, "top10Launcher.result = $result")
+            LogUtil.d(TAG, "top10Launcher.result = $result")
         }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {

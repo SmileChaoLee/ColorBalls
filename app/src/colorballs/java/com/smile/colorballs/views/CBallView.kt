@@ -20,7 +20,7 @@ abstract class CBallView: CbRmBaseView(), CBallPresentView {
     private lateinit var mPresenter: CBallPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        LogUtil.i(TAG, "$TAG.onCreate")
+        LogUtil.d(TAG, "$TAG.onCreate")
         // Must be before super.onCreate(savedInstanceState)
         mPresenter = CBallPresenter(this)
         viewModel = CBallViewModel(mPresenter)
@@ -30,7 +30,7 @@ abstract class CBallView: CbRmBaseView(), CBallPresentView {
 
     override fun onDestroy() {
         super.onDestroy()
-        LogUtil.i(TAG, "onDestroy")
+        LogUtil.d(TAG, "onDestroy")
         viewModel.release()
     }
 
@@ -38,7 +38,7 @@ abstract class CBallView: CbRmBaseView(), CBallPresentView {
     @Composable
     override fun CreateNewGameDialog() {
         // do nothing
-        LogUtil.i(TAG, "CreateNewGameDialog")
+        LogUtil.d(TAG, "CreateNewGameDialog")
     }
 
     override fun getGameOverStr() = getString(R.string.gameOverStr)
@@ -54,7 +54,7 @@ abstract class CBallView: CbRmBaseView(), CBallPresentView {
     }
 
     override fun ifInterstitialWhenSaveScore() {
-        LogUtil.i(TAG, "ifShowInterstitialAd")
+        LogUtil.d(TAG, "ifShowInterstitialAd")
         // do nothing
     }
 
@@ -77,7 +77,7 @@ abstract class CBallView: CbRmBaseView(), CBallPresentView {
     // end of implementing abstract fun of BaseView
 
     override fun ifInterstitialWhenNewGame() {
-        LogUtil.i(TAG, "ifInterstitialWhenNewGame")
+        LogUtil.d(TAG, "ifInterstitialWhenNewGame")
         // showInterstitialAd()
         viewModel.initGame(bundle = null)
         // do not use the following, it does not work sometimes

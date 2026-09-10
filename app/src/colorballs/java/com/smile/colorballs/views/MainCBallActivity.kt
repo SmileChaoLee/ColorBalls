@@ -16,6 +16,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -33,21 +34,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import com.smile.colorballs_main.R
 import com.google.android.ump.ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA
+import com.smile.ballsremover.views.BallsRemoverActivity
 import com.smile.colorballs_main.BaseApp
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.views.CbComposable
 import com.smile.smilelibraries.utilities.UmpUtil
 import com.smile.colorballs_main.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs_main.views.ui.theme.Yellow3
+import com.smile.dropcolorballs.views.DropCBallsActivity
+import com.smile.reversi.views.MainRevActivity
 import com.smile.smilelibraries.show_interstitial_ads.ShowInterstitial
-import com.smile.smilelibraries.utilities.AppLinkUtil
 import com.smile.smilelibraries.utilities.ScreenUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -68,7 +70,7 @@ class MainCBallActivity : ComponentActivity() {
     private lateinit var barrierCBLauncher: ActivityResultLauncher<Intent>
     private lateinit var ballsRemoverLauncher: ActivityResultLauncher<Intent>
     private lateinit var dropCBallsLauncher: ActivityResultLauncher<Intent>
-    private lateinit var smileAppsLauncher: ActivityResultLauncher<Intent>
+    private lateinit var reversiLauncher: ActivityResultLauncher<Intent>
     //
     private val loadingMessage = mutableStateOf("")
     private val backgroundColor = Yellow3
@@ -81,7 +83,7 @@ class MainCBallActivity : ComponentActivity() {
     private var isBarrierEnabled by mutableStateOf(true)
     private var isBallsRemEnabled by mutableStateOf(true)
     private var isDropCBallsEnabled by mutableStateOf(true)
-    private var isSmileAppsEnabled by mutableStateOf(true)
+    private var isReversiEnabled by mutableStateOf(true)
     private var interstitialAd: ShowInterstitial? = null
 
     @SuppressLint("ConfigurationScreenWidthHeight",
@@ -103,41 +105,37 @@ class MainCBallActivity : ComponentActivity() {
         cBallLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            LogUtil.i(TAG, "cBallLauncher.result = $result")
+            LogUtil.d(TAG, "cBallLauncher.result = $result")
             loadingMessage.value = ""
             showInterstitialAd()
             enableMainButtons()
         }
-
         barrierCBLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            LogUtil.i(TAG, "barrierCBLauncher.result = $result")
+            LogUtil.d(TAG, "barrierCBLauncher.result = $result")
             loadingMessage.value = ""
             showInterstitialAd()
             enableMainButtons()
         }
-
         ballsRemoverLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            LogUtil.i(TAG, "ballsRemoverLauncher.result = $result")
+            LogUtil.d(TAG, "ballsRemoverLauncher.result = $result")
             loadingMessage.value = ""
             enableMainButtons()
         }
-
         dropCBallsLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            LogUtil.i(TAG, "dropCBallsLauncher.result = $result")
+            LogUtil.d(TAG, "dropCBallsLauncher.result = $result")
             loadingMessage.value = ""
             enableMainButtons()
         }
-
-        smileAppsLauncher = registerForActivityResult(
+        reversiLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
-            LogUtil.i(TAG, "smileAppsLauncher.result = $result")
+            LogUtil.d(TAG, "reversiLauncher.result = $result")
             loadingMessage.value = ""
             enableMainButtons()
         }
@@ -186,7 +184,7 @@ class MainCBallActivity : ComponentActivity() {
     }
 
     private fun exitApp() {
-        LogUtil.i(TAG, "exitApp.isBackPressedEnabled = $isBackPressedEnabled")
+        LogUtil.d(TAG, "exitApp.isBackPressedEnabled = $isBackPressedEnabled")
         if (isBackPressedEnabled) finish()
     }
 
@@ -195,7 +193,7 @@ class MainCBallActivity : ComponentActivity() {
         isBarrierEnabled = true
         isBallsRemEnabled = true
         isDropCBallsEnabled = true
-        isSmileAppsEnabled = true
+        isReversiEnabled = true
     }
 
     private fun disableMainButtons() {
@@ -203,11 +201,11 @@ class MainCBallActivity : ComponentActivity() {
         isBarrierEnabled = false
         isBallsRemEnabled = false
         isDropCBallsEnabled = false
-        isSmileAppsEnabled = false
+        isReversiEnabled = false
     }
 
     private fun showInterstitialAd() {
-        LogUtil.i(TAG, "showInterstitialAd = $interstitialAd")
+        LogUtil.d(TAG, "showInterstitialAd = $interstitialAd")
         interstitialAd?.ShowAdThread()?.startShowAd(0) // AdMob first
     }
 
@@ -250,13 +248,40 @@ class MainCBallActivity : ComponentActivity() {
     }
 
     private fun startBallsRemoverActivity() {
-        AppLinkUtil.startAppLinkOnStore(this@MainCBallActivity,
-            AppLinkUtil.BALLS_REMOVER_LINK)
+        Intent(
+            this@MainCBallActivity,
+            BallsRemoverActivity::class.java
+        ).also {
+            disableMainButtons()
+            loadingMessage.value = getString(R.string.loadingStr)
+            barrierCBLauncher.launch(it)
+        }
+        // AppLinkUtil.startAppLinkOnStore(this@MainCBallActivity,
+        //     AppLinkUtil.BALLS_REMOVER_LINK)
     }
 
     private fun startDropCBallsActivity() {
-        AppLinkUtil.startAppLinkOnStore(this@MainCBallActivity,
-            AppLinkUtil.DROP_COLOR_BALLS_LINK)
+        Intent(
+            this@MainCBallActivity,
+            DropCBallsActivity::class.java
+        ).also {
+            disableMainButtons()
+            loadingMessage.value = getString(R.string.loadingStr)
+            barrierCBLauncher.launch(it)
+        }
+        // AppLinkUtil.startAppLinkOnStore(this@MainCBallActivity,
+        //     AppLinkUtil.DROP_COLOR_BALLS_LINK)
+    }
+
+    private fun startMainRevActivity() {
+        Intent(
+            this@MainCBallActivity,
+            MainRevActivity::class.java
+        ).also {
+            disableMainButtons()
+            loadingMessage.value = getString(R.string.loadingStr)
+            barrierCBLauncher.launch(it)
+        }
     }
 
     @Composable
@@ -295,8 +320,13 @@ class MainCBallActivity : ComponentActivity() {
                     disabledContentColor = buttonContentColor
                 )
             )
-            { Text(text = getString(R.string.noBarrierColorBall),
-                fontSize = CbComposable.mFontSize) }
+            {
+                Text(
+                    text = getString(R.string.noBarrierColorBall),
+                    lineHeight = textLineHeight,
+                    fontSize = CbComposable.mFontSize
+                )
+            }
         }
     }
 
@@ -336,8 +366,13 @@ class MainCBallActivity : ComponentActivity() {
                     disabledContentColor = buttonContentColor
                 )
             )
-            { Text(text = getString(R.string.barrierColorBall),
-                fontSize = CbComposable.mFontSize) }
+            {
+                Text(
+                    text = getString(R.string.barrierColorBall),
+                    lineHeight = textLineHeight,
+                    fontSize = CbComposable.mFontSize
+                )
+            }
         }
     }
 
@@ -377,8 +412,13 @@ class MainCBallActivity : ComponentActivity() {
                     disabledContentColor = buttonContentColor
                 )
             )
-            { Text(text = getString(R.string.balls_remover_name),
-                fontSize = CbComposable.mFontSize) }
+            {
+                Text(
+                    text = getString(R.string.balls_remover_name),
+                    lineHeight = textLineHeight,
+                    fontSize = CbComposable.mFontSize
+                )
+            }
         }
     }
 
@@ -393,7 +433,7 @@ class MainCBallActivity : ComponentActivity() {
             verticalArrangement = Arrangement.Center) {
             val isFcbClicked = remember { mutableStateOf(false) }
             Button(
-                enabled = isBallsRemEnabled,
+                enabled = isDropCBallsEnabled,
                 onClick = {
                     CoroutineScope(Dispatchers.Default).launch {
                         isFcbClicked.value = true
@@ -418,64 +458,171 @@ class MainCBallActivity : ComponentActivity() {
                     disabledContentColor = buttonContentColor
                 )
             )
-            { Text(text = getString(R.string.drop_cballs_name),
-                fontSize = CbComposable.mFontSize) }
+            {
+                Text(
+                    text = getString(R.string.drop_cballs_name),
+                    lineHeight = textLineHeight,
+                    fontSize = CbComposable.mFontSize
+                )
+            }
+        }
+    }
+
+    @Composable
+    fun ReversiButton(modifier: Modifier = Modifier,
+                         buttonWidth: Float,
+                         buttonHeight: Float,
+                         textLineHeight: TextUnit) {
+        LogUtil.d(TAG, "ReversiButton")
+        Column(modifier = modifier,
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Center) {
+            val isFcbClicked = remember { mutableStateOf(false) }
+            Button(
+                enabled = isReversiEnabled,
+                onClick = {
+                    CoroutineScope(Dispatchers.Default).launch {
+                        isFcbClicked.value = true
+                        delay(200)
+                        startMainRevActivity()
+                        isFcbClicked.value = false
+                    }
+                },
+                modifier = Modifier//.weight(1.0f)
+                    .width(width = buttonWidth.dp)
+                    .height(height = buttonHeight.dp)
+                    .background(color = buttonBackground),
+                colors = ButtonColors(
+                    containerColor =
+                        if (!isFcbClicked.value) buttonContainerColor
+                        else Color.Cyan,
+                    disabledContainerColor = buttonContainerColor,
+                    contentColor =
+                        if (!isFcbClicked.value)
+                            buttonContentColor
+                        else Color.Red ,
+                    disabledContentColor = buttonContentColor
+                )
+            )
+            {
+                Text(
+                    text = getString(R.string.reversi_name),
+                    lineHeight = textLineHeight,
+                    fontSize = CbComposable.mFontSize
+                )
+            }
         }
     }
 
     @Composable
     fun CreateMainUI() {
-        LogUtil.i(TAG, "CreateMainUI")
+        LogUtil.d(TAG, "CreateMainUI")
         if (loadingMessage.value.isNotEmpty()) return
         val maxWidth = ScreenUtil.pixelToDp(screenSize.x.toFloat())
         val maxHeight = ScreenUtil.pixelToDp(screenSize.y.toFloat())
         LogUtil.d(TAG, "CreateMainUI.maxHeight = $maxHeight")
         var verSpacerWeight = 1.0f
         var horSpacerWeight = 1.0f
+        /*
         if (resources.configuration.orientation
             == Configuration.ORIENTATION_LANDSCAPE) {
             verSpacerWeight = 0.2f
             horSpacerWeight = 2.5f
         }
-        val buttonWidth = maxWidth * ((10.0f - horSpacerWeight * 2.0f) / 10.0f)
-        LogUtil.i(TAG, "CreateMainUI.buttonWidth = $buttonWidth")
+        */
+        var buttonWidth = maxWidth * ((10.0f - horSpacerWeight * 2.0f) / 10.0f)
+        if (resources.configuration.orientation
+            == Configuration.ORIENTATION_LANDSCAPE) {
+            buttonWidth /= 2.0f
+        }
+        LogUtil.d(TAG, "CreateMainUI.buttonWidth = $buttonWidth")
         // 1 in 5
         val buttonHeight = maxHeight * ((10.0f - verSpacerWeight * 2.0f) / 10.0f) / 5.0f
-        LogUtil.i(TAG, "CreateMainUI.buttonHeight = $buttonHeight")
+        LogUtil.d(TAG, "CreateMainUI.buttonHeight = $buttonHeight")
         val textLineHeight = (CbComposable.toastFontSize.value + 5.0f).sp
-        Column(modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center) {
-            NoBarrierCBallButton(modifier = Modifier.weight(1.0f),
-                buttonWidth, buttonHeight, textLineHeight)
-            BarrierCBallButton(modifier = Modifier.weight(1.0f),
-                buttonWidth, buttonHeight, textLineHeight)
-            BallsRemoverButton(
-                modifier = Modifier.weight(1.0f),
-                buttonWidth, buttonHeight, textLineHeight)
-            DropCBallsButton(
-                modifier = Modifier.weight(1.0f),
-                buttonWidth, buttonHeight, textLineHeight)
-            /*
-            SmileAppsButton(modifier = Modifier.weight(1.0f),
-                buttonWidth, buttonHeight, textLineHeight)
-            */
+        val orientation = resources.configuration.orientation
+        LogUtil.d(TAG, "CreateMainUI.orientation = $orientation")
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                NoBarrierCBallButton(
+                    modifier = Modifier.weight(1.0f),
+                    buttonWidth, buttonHeight, textLineHeight
+                )
+                BarrierCBallButton(
+                    modifier = Modifier.weight(1.0f),
+                    buttonWidth, buttonHeight, textLineHeight
+                )
+                BallsRemoverButton(
+                    modifier = Modifier.weight(1.0f),
+                    buttonWidth, buttonHeight, textLineHeight
+                )
+                DropCBallsButton(
+                    modifier = Modifier.weight(1.0f),
+                    buttonWidth, buttonHeight, textLineHeight
+                )
+                ReversiButton(
+                    modifier = Modifier.weight(1.0f),
+                    buttonWidth, buttonHeight, textLineHeight
+                )
+            }
+        } else {
+            // Landscape orientation
+            Row(modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier.weight(1.0f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    NoBarrierCBallButton(
+                        modifier = Modifier.weight(1.0f),
+                        buttonWidth, buttonHeight, textLineHeight
+                    )
+                    BarrierCBallButton(
+                        modifier = Modifier.weight(1.0f),
+                        buttonWidth, buttonHeight, textLineHeight
+                    )
+                    BallsRemoverButton(
+                        modifier = Modifier.weight(1.0f),
+                        buttonWidth, buttonHeight, textLineHeight
+                    )
+                }
+                Column(
+                    modifier = Modifier.weight(1.0f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    DropCBallsButton(
+                        modifier = Modifier.weight(1.0f),
+                        buttonWidth, buttonHeight, textLineHeight
+                    )
+                    ReversiButton(
+                        modifier = Modifier.weight(1.0f),
+                        buttonWidth, buttonHeight, textLineHeight
+                    )
+                }
+            }
         }
     }
 
     override fun onResume() {
         super.onResume()
-        LogUtil.i(TAG, "onResume")
+        LogUtil.d(TAG, "onResume")
     }
 
     override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
         super.onSaveInstanceState(outState, outPersistentState)
-        LogUtil.i(TAG, "onSaveInstanceState()")
+        LogUtil.d(TAG, "onSaveInstanceState()")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        LogUtil.i(TAG, "onDestroy")
+        LogUtil.d(TAG, "onDestroy")
         interstitialAd?.releaseInterstitial()
     }
 }

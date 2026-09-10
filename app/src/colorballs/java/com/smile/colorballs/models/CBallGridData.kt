@@ -37,7 +37,7 @@ class CBallGridData(
     }
 
     fun randThreeCells() {
-        LogUtil.i(TAG, "randThreeCells")
+        LogUtil.d(TAG, "randThreeCells")
         mNextCellIndices.clear()
         generateNextCellIndices(0, null)
     }
@@ -47,7 +47,7 @@ class CBallGridData(
     }
 
     fun randomBarriersAndCells() {
-        LogUtil.i(TAG, "randomBarriersAndCells")
+        LogUtil.d(TAG, "randomBarriersAndCells")
         // randomly generate barriers in 9x9 grid
         val set: HashSet<Point> = HashSet()
         var row: Int
@@ -82,7 +82,7 @@ class CBallGridData(
     }
 
     fun copy(gData: CBallGridData): CBallGridData {
-        LogUtil.i(TAG, "copy")
+        LogUtil.d(TAG, "copy")
         val newGridData = CBallGridData()
         newGridData.copy(gData)
         newGridData.mNextCellIndices.clear()
@@ -379,7 +379,7 @@ class CBallGridData(
     }
 
     fun moreThan5VerHorDia(x: Int, y: Int): Boolean {
-        LogUtil.i(TAG, "moreThan5VerHorDia.x = $x, y = $y")
+        LogUtil.d(TAG, "moreThan5VerHorDia.x = $x, y = $y")
         return moreThanNumVerHorDia(x, y, 5)
     }
 }

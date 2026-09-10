@@ -10,7 +10,7 @@ class BarrierCBallActivity : CBallView() {
     }
 
     override fun setWhichGame() {
-        LogUtil.i(TAG, "setWhichGame")
+        LogUtil.d(TAG, "setWhichGame")
         viewModel.setWhichGame(WhichGame.HAS_BARRIER)
     }
 }

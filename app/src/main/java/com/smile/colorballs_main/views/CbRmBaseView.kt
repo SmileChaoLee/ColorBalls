@@ -22,7 +22,7 @@ abstract class CbRmBaseView: BaseView() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        LogUtil.i(TAG, "$TAG.onCreate")
+        LogUtil.d(TAG, "$TAG.onCreate")
         // Must be before super.onCreate(savedInstanceState)
         gameWidthRation = 1.0f
         if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -32,8 +32,8 @@ abstract class CbRmBaseView: BaseView() {
             menuBarWeight = 1.0f
             gameGridWeight = 9.0f
         }
-        LogUtil.i(TAG, "$TAG.onCreate.menuBarWeight = $menuBarWeight")
-        LogUtil.i(TAG, "$TAG.onCreate.gameGridWeight = $gameGridWeight")
+        LogUtil.d(TAG, "$TAG.onCreate.menuBarWeight = $menuBarWeight")
+        LogUtil.d(TAG, "$TAG.onCreate.gameGridWeight = $gameGridWeight")
 
         super.onCreate(savedInstanceState)
     }
@@ -41,7 +41,7 @@ abstract class CbRmBaseView: BaseView() {
     // implement abstract fun of BaseView
     @Composable
     override fun ToolBarMenu(modifier: Modifier) {
-        LogUtil.i(TAG, "ToolBarMenu.getOrientation()" +
+        LogUtil.d(TAG, "ToolBarMenu.getOrientation()" +
                 " = ${getOrientation()}")
         Row(modifier = modifier
             // .background(color = Color(getColor(R.color.colorPrimary)))) {
@@ -68,7 +68,7 @@ abstract class CbRmBaseView: BaseView() {
 
     @Composable
     override fun GameViewGrid() {
-        LogUtil.i(TAG, "GameViewGrid.getOrientation()" +
+        LogUtil.d(TAG, "GameViewGrid.getOrientation()" +
                 " = ${getOrientation()}")
         Column(modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,

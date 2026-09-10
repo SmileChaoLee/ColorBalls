@@ -32,7 +32,8 @@ class ColorBallsApp : BaseApp() {
     }
 
     override fun getInterstitial(): AdMobInterstitial? {
-        val admobInterstitialID = "ca-app-pub-8354869049759576/1276882569"
-        return AdMobInterstitial(applicationContext, admobInterstitialID)
+        // val admobInterstitialID = "ca-app-pub-8354869049759576/1276882569"
+        // return AdMobInterstitial(applicationContext, admobInterstitialID)
+        return null
     }
 }

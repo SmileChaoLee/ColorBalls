@@ -23,7 +23,7 @@ class BallsRemoverActivity: CbRmBaseView(), BallsRmPresentView {
     private lateinit var mPresenter: BallsRmPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        LogUtil.i(TAG, "$TAG.onCreate.savedInstanceState = $savedInstanceState")
+        LogUtil.d(TAG, "$TAG.onCreate.savedInstanceState = $savedInstanceState")
         // Must be before super.onCreate(savedInstanceState)
         mPresenter = BallsRmPresenter(this)
         viewModel = BallsRmViewModel(mPresenter)
@@ -37,7 +37,7 @@ class BallsRemoverActivity: CbRmBaseView(), BallsRmPresentView {
 
     // implement interface, GameOptions
     override fun setWhichGame() {
-        LogUtil.i(TAG, "setWhichGame")
+        LogUtil.d(TAG, "setWhichGame")
         viewModel.setWhichGame(WhichGame.REMOVE_BALLS)
     }
     // end of implementing interface, GameOptions
@@ -45,7 +45,7 @@ class BallsRemoverActivity: CbRmBaseView(), BallsRmPresentView {
     // implement abstract fun of BaseView
     @Composable
     override fun CreateNewGameDialog() {
-        LogUtil.i(TAG, "CreateNewGameDialog")
+        LogUtil.d(TAG, "CreateNewGameDialog")
         val dialogText = viewModel.getCreateNewGameText()
         if (dialogText.isNotEmpty()) {
             viewModel.setShowingCreateGameDialog(true)
@@ -77,7 +77,7 @@ class BallsRemoverActivity: CbRmBaseView(), BallsRmPresentView {
     }
 
     override fun ifInterstitialWhenSaveScore() {
-        LogUtil.i(TAG, "ifShowInterstitialAd")
+        LogUtil.d(TAG, "ifShowInterstitialAd")
         if (viewModel.timesPlayed >= BallsRmConstants.SHOW_ADS_AFTER_TIMES) {
             LogUtil.d(TAG, "ifShowInterstitialAd.showInterstitialAd")
             // showInterstitialAd()
@@ -86,7 +86,7 @@ class BallsRemoverActivity: CbRmBaseView(), BallsRmPresentView {
     }
 
     override fun ifInterstitialWhenNewGame() {
-        LogUtil.i(TAG, "ifInterstitialWhenNewGame")
+        LogUtil.d(TAG, "ifInterstitialWhenNewGame")
         viewModel.initGame(bundle = null)
     }
 

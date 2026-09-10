@@ -73,7 +73,7 @@ class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
     }
 
     init {
-        LogUtil.i(TAG, "DropBallsViewModel.init")
+        LogUtil.d(TAG, "DropBallsViewModel.init")
         dropGameProp = GameProp()
         dropGridData = DropCbGridData()
         setGameProp(dropGameProp)
@@ -82,18 +82,18 @@ class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
     }
 
     fun setDropGameLevel(gameLevel: Int) {
-        LogUtil.i(TAG, "setDropGameLevel")
+        LogUtil.d(TAG, "setDropGameLevel")
         super.setGameLevel(gameLevel, false)
         _mGameLevel.intValue = dropGameProp.gameLevel
     }
 
     override fun cellClickListener(i: Int, j: Int) {
-        LogUtil.i(TAG, "cellClickListener.($i, $j)")
+        LogUtil.d(TAG, "cellClickListener.($i, $j)")
         // do nothing
     }
 
     private fun setData(prop: GameProp, gData: DropCbGridData) {
-        LogUtil.i(TAG, "setData")
+        LogUtil.d(TAG, "setData")
         dropGameProp = prop
         dropGridData = gData
         // update mGameProp and mGridData in BaseViewModel
@@ -102,16 +102,16 @@ class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
     }
 
     private fun initData() {
-        LogUtil.i(TAG, "initData")
+        LogUtil.d(TAG, "initData")
         dropGameProp.initializeKeepSetting(getWhichGame())
         dropGridData.initialize()
     }
 
     override fun initGame(bundle: Bundle?) {
-        LogUtil.i(TAG, "initGame = $bundle")
+        LogUtil.d(TAG, "initGame = $bundle")
         setProcessingJob(true)
         val isNewGame = restoreState(bundle)
-        LogUtil.i(TAG, "initGame.isNewGame = $isNewGame")
+        LogUtil.d(TAG, "initGame.isNewGame = $isNewGame")
         _mGameLevel.intValue = dropGameProp.gameLevel
         setCurrentScore(dropGameProp.currentScore)
         displayGameGridView()
@@ -144,17 +144,17 @@ class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
     }
 
     fun startRunBalls(row: Int = 0) {
-        LogUtil.i(TAG,"startRunBalls")
+        LogUtil.d(TAG,"startRunBalls")
         runningBalls.clear()
         runningBalls.addAll(dropGridData.runningBalls)
         if (runningBalls.isEmpty()) {
-            LogUtil.i(TAG,"startRunBalls.runningBalls.size = 0")
+            LogUtil.d(TAG,"startRunBalls.runningBalls.size = 0")
             return
         }
         _next4Balls.clear()
         _next4Balls.addAll(dropGridData.next4Balls)
         if (next4Balls.isEmpty()) {
-            LogUtil.i(TAG,"startRunBalls.next4Balls.size = 0")
+            LogUtil.d(TAG,"startRunBalls.next4Balls.size = 0")
             return
         }
         isToEnd = false
@@ -165,7 +165,7 @@ class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
         val passTime = (System.currentTimeMillis() - gameStartTime) /
                 DropBallsConstants.INCREASE_SPEED_PERIOD
         setDroppingSpeed(DropBallsConstants.NORMAL_DROPPING_SPEED - passTime)
-        LogUtil.i(TAG,"startRunBalls.droppingSpeed = $droppingSpeed")
+        LogUtil.d(TAG,"startRunBalls.droppingSpeed = $droppingSpeed")
         isGameJustStarted = false
         runningBallsHandler.post(runBallsRunnable)
     }
@@ -288,7 +288,7 @@ class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
     }
 
     fun rotateRunningBalls() {
-        LogUtil.i(TAG,"rotateRunningBalls")
+        LogUtil.d(TAG,"rotateRunningBalls")
         if (isProcessingJob()) return
         val first = runningBalls[0]
         for (i in 0 until rbLastIndex) {
@@ -300,21 +300,21 @@ class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
     }
 
     fun startRunningHandler() {
-        LogUtil.i(TAG,"startRunningHandler")
+        LogUtil.d(TAG,"startRunningHandler")
         if (isGameJustStarted) {
-            LogUtil.i(TAG,"startRunningHandler.no start, return")
+            LogUtil.d(TAG,"startRunningHandler.no start, return")
             return
         }
         runningBallsHandler.post(runBallsRunnable)
     }
 
     fun stopRunningHandler() {
-        LogUtil.i(TAG,"stopRunningHandler")
+        LogUtil.d(TAG,"stopRunningHandler")
         runningBallsHandler.removeCallbacksAndMessages(null)
     }
 
     private fun restoreState(state: Bundle?): Boolean {
-        LogUtil.i(TAG,"restoreState.state = $state")
+        LogUtil.d(TAG,"restoreState.state = $state")
         var isNewGame = true
         var gameProp: GameProp? = null
         var gridData: DropCbGridData? = null
@@ -332,7 +332,7 @@ class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
                 else it.getParcelable(Constants.GRID_DATA_TAG)
             isNewGame = false
         }
-        LogUtil.i(TAG, "restoreState.isNewGame = $isNewGame")
+        LogUtil.d(TAG, "restoreState.isNewGame = $isNewGame")
         if (isNewGame) {
             initData()
         } else {
@@ -354,13 +354,13 @@ class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
     }
 
     override fun undoTheLast() {
-        LogUtil.i(TAG, "undoTheLast.undoEnable")
+        LogUtil.d(TAG, "undoTheLast.undoEnable")
         // do nothing
     }
 
     override fun newGame() {
         // creating a new game
-        LogUtil.i(TAG, "newGame")
+        LogUtil.d(TAG, "newGame")
         runningBallsHandler.removeCallbacksAndMessages(null)
         mGameAction = Constants.IS_CREATING_GAME
         setSaveScoreTitle(saveScoreStr)
@@ -368,17 +368,17 @@ class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
     }
 
     override fun startSavingGame(): Boolean {
-        LogUtil.i(TAG, "startSavingGame")
+        LogUtil.d(TAG, "startSavingGame")
         return true
     }
 
     override fun startLoadingGame(): Boolean {
-        LogUtil.i(TAG, "startLoadingGame")
+        LogUtil.d(TAG, "startLoadingGame")
         return true
     }
 
     override fun dealWithIsNextBalls(isNextBalls: Boolean) {
-        LogUtil.i(TAG, "dealWithIsNextBalls")
+        LogUtil.d(TAG, "dealWithIsNextBalls")
         // do nothing
     }
 

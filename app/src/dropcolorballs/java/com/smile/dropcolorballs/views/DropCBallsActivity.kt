@@ -51,20 +51,20 @@ class DropCBallsActivity: BaseView(),
     private var settingOrMenuClicked = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        LogUtil.i(TAG, "$TAG.onCreate")
+        LogUtil.d(TAG, "$TAG.onCreate")
         // Must be before super.onCreate(savedInstanceState)
         menuBarWeight = 0.0f
         if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            LogUtil.i(TAG, "$TAG.onCreate.PORTRAIT")
+            LogUtil.d(TAG, "$TAG.onCreate.PORTRAIT")
             gameGridWeight = 8.0f
             gameWidthRation = 0.8f
         } else {
-            LogUtil.i(TAG, "$TAG.onCreate.LANDSCAPE")
+            LogUtil.d(TAG, "$TAG.onCreate.LANDSCAPE")
             gameGridWeight = 10.0f
             gameWidthRation = 0.9f
         }
-        LogUtil.i(TAG, "$TAG.onCreate.menuBarWeight = $menuBarWeight")
-        LogUtil.i(TAG, "$TAG.onCreate.gameGridWeight = $gameGridWeight")
+        LogUtil.d(TAG, "$TAG.onCreate.menuBarWeight = $menuBarWeight")
+        LogUtil.d(TAG, "$TAG.onCreate.gameGridWeight = $gameGridWeight")
 
         mPresenter = DropBallsPresenter(this)
         viewModel = DropBallsViewModel(mPresenter)
@@ -74,31 +74,31 @@ class DropCBallsActivity: BaseView(),
 
     override fun onResume() {
         super.onResume()
-        LogUtil.i(TAG, "onResume")
+        LogUtil.d(TAG, "onResume")
         stopActionOnClick()
     }
     override fun onPause() {
         super.onPause()
-        LogUtil.i(TAG, "onPause")
+        LogUtil.d(TAG, "onPause")
         actionOnClick()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        LogUtil.i(TAG, "onDestroy")
+        LogUtil.d(TAG, "onDestroy")
         viewModel.release()
     }
 
     @Composable
     fun ShowNext4Balls(modifier: Modifier = Modifier) {
-        LogUtil.i(TAG, "ShowNext4Balls.getOrientation()" +
+        LogUtil.d(TAG, "ShowNext4Balls.getOrientation()" +
                 " = ${getOrientation()}")
         val next4 = viewModel.next4Balls
         if (next4.isEmpty()) {
-            LogUtil.i(TAG, "ShowNext4Balls.viewModel.next4Balls is empty")
+            LogUtil.d(TAG, "ShowNext4Balls.viewModel.next4Balls is empty")
             return
         }
-        LogUtil.i(TAG, "ShowNext4Balls.viewModel.next4Balls.size = ${next4.size}")
+        LogUtil.d(TAG, "ShowNext4Balls.viewModel.next4Balls.size = ${next4.size}")
         LazyColumn(modifier = modifier) {
             items(items = viewModel.next4Balls) {item ->
                 ShowBall(ColorBallInfo(item, WhichBall.BALL))
@@ -112,7 +112,7 @@ class DropCBallsActivity: BaseView(),
 
     // implement interface, GameOptions
     override fun setWhichGame() {
-        LogUtil.i(TAG, "setWhichGame")
+        LogUtil.d(TAG, "setWhichGame")
         viewModel.setWhichGame(WhichGame.DROP_BALLS)
     }
     // end of implementing interface, GameOptions
@@ -120,19 +120,19 @@ class DropCBallsActivity: BaseView(),
     // implement abstract fun of BaseView
     @Composable
     override fun ToolBarMenu(modifier: Modifier) {
-        LogUtil.i(TAG, "ToolBarMenu")
+        LogUtil.d(TAG, "ToolBarMenu")
         // do nothing
     }
 
     @Composable
     override fun GameViewGrid() {
-        LogUtil.i(TAG, "GameViewGrid.getOrientation()" +
+        LogUtil.d(TAG, "GameViewGrid.getOrientation()" +
                 " = ${getOrientation()}")
         val scoreFontSize = CbComposable.mFontSize * 1.0f
         val screenWidth = LocalWindowInfo.current.containerSize.width
-        LogUtil.i(TAG, "GameViewGrid.screenWidth = $screenWidth")
+        LogUtil.d(TAG, "GameViewGrid.screenWidth = $screenWidth")
         val pixelPerCol = (screenWidth*gameWidthRation) / viewModel.colCounts
-        LogUtil.i(TAG, "GameViewGrid.pixelPerCol = $pixelPerCol")
+        LogUtil.d(TAG, "GameViewGrid.pixelPerCol = $pixelPerCol")
         val diffStandard = 0.85
         val backColor = Color(0xFF00BCD4)
         Column(modifier = Modifier.fillMaxSize()
@@ -141,7 +141,7 @@ class DropCBallsActivity: BaseView(),
                 // Use the Initial pass to receive the event before the child's Main pass
                 // awaitPointerEventScope {
                 awaitEachGesture {
-                    LogUtil.i(TAG, "GameViewGrid.awaitEachGesture")
+                    LogUtil.d(TAG, "GameViewGrid.awaitEachGesture")
                     // Detects the ACTION_DOWN equivalent
                     // awaitFirstDown(pass = PointerEventPass.Initial) // starting from parent
                     // regardless if event is consumed by children
@@ -150,7 +150,7 @@ class DropCBallsActivity: BaseView(),
                     var isMoved = false
                     var upY = 0f
                     var tapX = 0f
-                    LogUtil.i(TAG, "GameViewGrid.awaitFirstDown")
+                    LogUtil.d(TAG, "GameViewGrid.awaitFirstDown")
                     do {
                         // val event = awaitPointerEvent(PointerEventPass.Initial)  // starting from parent
                         val event = awaitPointerEvent()
@@ -227,7 +227,7 @@ class DropCBallsActivity: BaseView(),
 
     @Composable
     fun ShowGameLevel(modifier: Modifier, scoreFontSize: TextUnit) {
-        LogUtil.i(TAG, "ShowGameLevel.getOrientation()" +
+        LogUtil.d(TAG, "ShowGameLevel.getOrientation()" +
                 " = ${getOrientation()}")
         val levelStr = when(viewModel.mGameLevel) {
             Constants.GAME_LEVEL_1 -> getString(R.string.level1Str)
@@ -245,7 +245,7 @@ class DropCBallsActivity: BaseView(),
 
     @Composable
     override fun CreateNewGameDialog() {
-        LogUtil.i(TAG, "CreateNewGameDialog")
+        LogUtil.d(TAG, "CreateNewGameDialog")
         // do nothing
     }
 
@@ -258,15 +258,15 @@ class DropCBallsActivity: BaseView(),
     }
 
     override fun ifInterstitialWhenSaveScore() {
-        LogUtil.i(TAG, "ifShowInterstitialAd")
+        LogUtil.d(TAG, "ifShowInterstitialAd")
         // do nothing
     }
 
     override fun ifCreatingNewGame(newGameLevel: Int, originalLevel: Int) {
-        LogUtil.i(TAG, "ifCreatingNewGame")
+        LogUtil.d(TAG, "ifCreatingNewGame")
         if (newGameLevel != originalLevel) {
             // create new game
-            LogUtil.i(TAG, "ifCreatingNewGame.create a new game")
+            LogUtil.d(TAG, "ifCreatingNewGame.create a new game")
             actionOnClick()
             viewModel.newGame()
         }
@@ -285,20 +285,20 @@ class DropCBallsActivity: BaseView(),
     }
 
     override fun ifInterstitialWhenNewGame() {
-        LogUtil.i(TAG, "ifInterstitialWhenNewGame")
+        LogUtil.d(TAG, "ifInterstitialWhenNewGame")
         viewModel.initGame(bundle = null)
     }
 
     override fun isDropBalls() = true
 
     override fun actionOnClick() {
-        LogUtil.i(TAG, "actionOnClick")
+        LogUtil.d(TAG, "actionOnClick")
         settingOrMenuClicked = true
         viewModel.stopRunningHandler()
     }
 
     override fun stopActionOnClick() {
-        LogUtil.i(TAG, "stopActionOnClick")
+        LogUtil.d(TAG, "stopActionOnClick")
         settingOrMenuClicked = false
         viewModel.startRunningHandler()
     }
