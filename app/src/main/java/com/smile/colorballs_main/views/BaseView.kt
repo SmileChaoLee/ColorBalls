@@ -755,39 +755,6 @@ abstract class BaseView: ComponentActivity(),
     }
 
     @Composable
-    fun ShowMessageOnScreenOLd() {
-        val logStr = "ShowMessageOnScreen"
-        LogUtil.d(TAG, "$logStr.getOrientation()" +
-                " = ${getOrientation()}")
-        val message = baseViewModel.getScreenMessage()
-        LogUtil.d(TAG, "$logStr.message = $message")
-        if (message.isEmpty()) return
-        baseViewModel.setShowingMessageDialog(true)
-        val gameViewLength = mImageSizeDp * baseViewModel.colCounts.toFloat()
-        var width = (gameViewLength/2f).dp
-        val widthStr = (message.length * ScreenUtil.pixelToDp(textFontSize)).dp
-        if (widthStr > width ) width = widthStr
-        val height = (gameViewLength/4f).dp
-        val modifier = Modifier.background(color = Color.Transparent)
-        Column(modifier = modifier) {
-            Box {
-                Image(
-                    painter = painterResource(id = R.drawable.dialog_board_image),
-                    contentDescription = "",
-                    contentScale = ContentScale.FillBounds,
-                    modifier = Modifier.size(width = width, height = height)
-                )
-                Text(
-                    modifier = Modifier.align(alignment = Alignment.Center),
-                    text = message,
-                    color = Color.Red, fontSize = textFontSize.sp
-                )
-            }
-        }
-        baseViewModel.setShowingMessageDialog(false)
-    }
-
-    @Composable
     fun ShowMessageOnScreen() {
         val logStr = "ShowMessageOnScreen"
         LogUtil.d(TAG, "$logStr.getOrientation()" +
@@ -834,9 +801,19 @@ abstract class BaseView: ComponentActivity(),
             verticalArrangement = Arrangement.Top) {
             mBaseApp?.let {
                 CbComposable.ShowAdmobBanner(modifier = Modifier.padding(top = 0.dp),
-                    it.getBannerID(), adWidth)
-                CbComposable.ShowAdmobBanner(modifier = Modifier.padding(top = 0.dp),
-                    it.getBannerID2(), adWidth)
+                    it.getAdMobBannerID(), adWidth)
+                val facebookBannerId = it.getFacebookBannerID()
+                if (facebookBannerId.isNotEmpty()) {
+                    CbComposable.ShowFacebookBanner(
+                        modifier = Modifier.padding(top = 0.dp),
+                        facebookBannerId
+                    )
+                } else {
+                    CbComposable.ShowAdmobBanner(
+                        modifier = Modifier.padding(top = 0.dp),
+                        it.getAdMobBannerID2(), adWidth
+                    )
+                }
             }
         }
     }
@@ -849,7 +826,7 @@ abstract class BaseView: ComponentActivity(),
         LaunchedEffect(Unit) {
             mBaseApp?.let {
                 object : GoogleNativeAd(
-                    this@BaseView,it.getNativeID()) {
+                    this@BaseView,it.getAdMobNativeID()) {
                     override fun setNativeAd(ad: NativeAd?) {
                         LogUtil.d(TAG, "ShowNativeAd.GoogleNativeAd.setNativeAd")
                         nativeAd = ad
@@ -930,9 +907,22 @@ abstract class BaseView: ComponentActivity(),
             verticalArrangement = Arrangement.Center) {
             ShowNativeAd(modifier = Modifier.weight(8.0f))
             mBaseApp?.let {
-                CbComposable.ShowAdmobBanner(
-                    modifier = Modifier.weight(2.0f),
-                    it.getBannerID())
+                val facebookBannerId = it.getFacebookBannerID()
+                Column(modifier = Modifier.weight(2.0f),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    if (facebookBannerId.isNotEmpty()) {
+                        CbComposable.ShowFacebookBanner(
+                            modifier = Modifier,
+                            facebookBannerId
+                        )
+                    } else {
+                        CbComposable.ShowAdmobBanner(
+                            modifier = Modifier,
+                            it.getAdMobBannerID()
+                        )
+                    }
+                }
             }
         }
     }

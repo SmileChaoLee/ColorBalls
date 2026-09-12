@@ -41,8 +41,8 @@ android {
     productFlavors {
         register("colorballs") {
             dimension = "product"
-            versionCode 8274
-            versionName "8.274"
+            versionCode 8275
+            versionName "8.275"
             applicationId = "com.smile.colorballs"
             isDefault = true
         }
@@ -60,8 +60,8 @@ android {
         }
         register("fivecolorballs") {
             dimension = "product"
-            versionCode 4000
-            versionName "4.000"
+            versionCode 4001
+            versionName "4.001"
             applicationId = "com.smile.fivecolorballs"
         }
         register("reversi") {

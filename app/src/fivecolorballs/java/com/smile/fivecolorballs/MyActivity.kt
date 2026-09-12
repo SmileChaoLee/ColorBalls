@@ -37,6 +37,7 @@ import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.widget.Toolbar
 import com.google.android.ads.nativetemplates.TemplateView
 import com.google.android.ump.ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA
+import com.smile.colorballs_main.BuildConfig
 import com.smile.colorballs_main.R
 import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.tools.LogUtil
@@ -97,35 +98,36 @@ class MyActivity : AppCompatActivity(), MyPresentView {
     override fun onCreate(savedInstanceState: Bundle?) {
         touchDisabled = true
         var bm = BitmapFactory.decodeResource(resources, R.drawable.redball)
-        mColorBallMap.put(Constants.COLOR_RED, bm)
+        mColorBallMap[Constants.COLOR_RED] = bm
         bm = BitmapFactory.decodeResource(resources, R.drawable.redball_o)
-        mColorOvalBallMap.put(Constants.COLOR_RED, bm)
+        mColorOvalBallMap[Constants.COLOR_RED] = bm
         bm = BitmapFactory.decodeResource(resources, R.drawable.greenball)
-        mColorBallMap.put(Constants.COLOR_GREEN, bm)
+        mColorBallMap[Constants.COLOR_GREEN] = bm
         bm = BitmapFactory.decodeResource(resources, R.drawable.greenball_o)
-        mColorOvalBallMap.put(Constants.COLOR_GREEN, bm)
+        mColorOvalBallMap[Constants.COLOR_GREEN] = bm
         bm = BitmapFactory.decodeResource(resources, R.drawable.blueball)
-        mColorBallMap.put(Constants.COLOR_BLUE, bm)
+        mColorBallMap[Constants.COLOR_BLUE] = bm
         bm = BitmapFactory.decodeResource(resources, R.drawable.blueball_o)
-        mColorOvalBallMap.put(Constants.COLOR_BLUE, bm)
+        mColorOvalBallMap[Constants.COLOR_BLUE] = bm
         bm = BitmapFactory.decodeResource(resources, R.drawable.magentaball)
-        mColorBallMap.put(Constants.COLOR_MAGENTA, bm)
+        mColorBallMap[Constants.COLOR_MAGENTA] = bm
         bm = BitmapFactory.decodeResource(resources, R.drawable.magentaball_o)
-        mColorOvalBallMap.put(Constants.COLOR_MAGENTA, bm)
+        mColorOvalBallMap[Constants.COLOR_MAGENTA] = bm
         bm = BitmapFactory.decodeResource(resources, R.drawable.yellowball)
-        mColorBallMap.put(Constants.COLOR_YELLOW, bm)
+        mColorBallMap[Constants.COLOR_YELLOW] = bm
         bm = BitmapFactory.decodeResource(resources, R.drawable.yellowball_o)
-        mColorOvalBallMap.put(Constants.COLOR_YELLOW, bm)
+        mColorOvalBallMap[Constants.COLOR_YELLOW] = bm
         bm = BitmapFactory.decodeResource(resources, R.drawable.cyanball)
-        mColorBallMap.put(Constants.COLOR_CYAN, bm)
+        mColorBallMap[Constants.COLOR_CYAN] = bm
         bm = BitmapFactory.decodeResource(resources, R.drawable.cyanball_o)
-        mColorOvalBallMap.put(Constants.COLOR_CYAN, bm)
+        mColorOvalBallMap[Constants.COLOR_CYAN] = bm
 
         mPresenter = MyPresenter(this)
 
         super.onCreate(savedInstanceState)
-
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+        if (!BuildConfig.DEBUG) {
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
 
         setContentView(R.layout.activity_my)
 
@@ -138,10 +140,8 @@ class MyActivity : AppCompatActivity(), MyPresentView {
             result: ActivityResult ->
             LogUtil.d(TAG, TAG + "onCreate.settingLauncher.result")
             if (result.resultCode != RESULT_OK) return@registerForActivityResult
-            val data = result.data
-            if (data == null) return@registerForActivityResult
-            val extras = data.extras
-            if (extras == null) return@registerForActivityResult
+            val data = result.data ?: return@registerForActivityResult
+            val extras = data.extras ?: return@registerForActivityResult
             val hasSound = extras.getBoolean(Constants.HAS_SOUND, true)
             mPresenter.setHasSound(hasSound)
             val hasNext = extras.getBoolean(Constants.HAS_NEXT, true)
@@ -397,10 +397,10 @@ class MyActivity : AppCompatActivity(), MyPresentView {
         for (i in 0..<nextBallsRow) {
             for (j in 0..<nextBallsColumn) {
                 imageView = ImageView(this)
-                imageView.setId(MyPresenter.NB_IMAGEVIEW_START_ID + (nextBallsColumn * i + j))
+                imageView.id = MyPresenter.NB_IMAGEVIEW_START_ID + (nextBallsColumn * i + j)
                 imageView.isClickable = false
-                imageView.setAdjustViewBounds(true)
-                imageView.setScaleType(ImageView.ScaleType.FIT_XY)
+                imageView.adjustViewBounds = true
+                imageView.scaleType = ImageView.ScaleType.FIT_XY
                 imageView.setBackgroundResource(R.drawable.next_ball_background_image)
                 nextBallsLayout.addView(imageView, oneNextBallLp)
             }
@@ -444,9 +444,9 @@ class MyActivity : AppCompatActivity(), MyPresentView {
                 // imId = i * colCounts + j;
                 imId = i * mRowCounts + j
                 imageView = ImageView(this)
-                imageView.setId(imId)
-                imageView.setAdjustViewBounds(true)
-                imageView.setScaleType(ImageView.ScaleType.FIT_XY)
+                imageView.id = imId
+                imageView.adjustViewBounds = true
+                imageView.scaleType = ImageView.ScaleType.FIT_XY
                 imageView.setBackgroundResource(R.drawable.box_image)
                 imageView.isClickable = true
                 imageView.setOnClickListener { v: View ->
@@ -458,7 +458,7 @@ class MyActivity : AppCompatActivity(), MyPresentView {
             }
         }
         scoreImageView = findViewById(R.id.scoreImageView)
-        scoreImageView?.setVisibility(View.GONE)
+        scoreImageView?.visibility = View.GONE
         createColorBallsGame(savedInstanceState)
     }
 
@@ -471,8 +471,7 @@ class MyActivity : AppCompatActivity(), MyPresentView {
 
     private fun setDialogStyle(dialog: DialogInterface?) {
         val dlg = dialog as AlertDialog
-        val win = dlg.window
-        if (win == null) return
+        val win = dlg.window ?: return
 
         win.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
         win.setDimAmount(0.0f) // no dim for background screen
@@ -489,13 +488,13 @@ class MyActivity : AppCompatActivity(), MyPresentView {
 
         val layoutParams = nBtn.layoutParams as LinearLayout.LayoutParams
         layoutParams.weight = 10f
-        nBtn.setLayoutParams(layoutParams)
+        nBtn.layoutParams = layoutParams
 
         val pBtn = dlg.getButton(DialogInterface.BUTTON_POSITIVE)
         ScreenUtil.resizeTextSize(pBtn, textFontSize)
         pBtn.setTypeface(Typeface.DEFAULT_BOLD)
         pBtn.setTextColor(Color.rgb(0x00, 0x64, 0x00))
-        pBtn.setLayoutParams(layoutParams)
+        pBtn.layoutParams = layoutParams
     }
 
     private fun quitOrNewGame(entryPoint: Int) {
@@ -539,7 +538,7 @@ class MyActivity : AppCompatActivity(), MyPresentView {
             val nativeAdTemplateView = findViewById<TemplateView>(R.id.nativeAdTemplateView)
             nativeAdTemplateView.visibility = View.VISIBLE
             nativeTemplate = GoogleAdMobNativeTemplate(
-                this, nativeAdsFrameLayout,
+                this@MyActivity, nativeAdsFrameLayout,
                 nativeAdvancedId0, nativeAdTemplateView
             )
             nativeTemplate?.showNativeAd()
@@ -634,13 +633,13 @@ class MyActivity : AppCompatActivity(), MyPresentView {
             resources,R.drawable.dialog_board_image)
         val showBitmap = FontAndBitmapUtil.getBitmapFromBitmapWithText(
             dialogBoardImage, message, Color.RED)
-        scoreImageView?.setVisibility(View.VISIBLE)
+        scoreImageView?.visibility = View.VISIBLE
         scoreImageView?.setImageBitmap(showBitmap)
     }
 
     override fun dismissShowMessageOnScreen() {
         scoreImageView?.setImageBitmap(null)
-        scoreImageView?.setVisibility(View.GONE)
+        scoreImageView?.visibility = View.GONE
     }
 
     override fun showSaveGameDialog() {
@@ -749,9 +748,9 @@ class MyActivity : AppCompatActivity(), MyPresentView {
         mPresenter.setSaveScoreAlertDialogState(entryPoint, true)
         val et = EditText(this)
         et.setTextColor(Color.BLUE)
-        et.setHint(getString(R.string.nameStr))
+        et.hint = getString(R.string.nameStr)
         ScreenUtil.resizeTextSize(et, textFontSize)
-        et.setGravity(Gravity.CENTER)
+        et.gravity = Gravity.CENTER
         saveScoreAlertDialog = AlertDialog.Builder(this).create()
         saveScoreAlertDialog?.setTitle(null)
         saveScoreAlertDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -770,7 +769,7 @@ class MyActivity : AppCompatActivity(), MyPresentView {
             DialogInterface.BUTTON_POSITIVE,
             getString(R.string.submitStr)
         ) { dialog: DialogInterface?, which: Int ->
-            mPresenter.saveScore(et.getText().toString())
+            mPresenter.saveScore(et.text.toString())
             dialog!!.dismiss()
             quitOrNewGame(entryPoint)
             mPresenter.setSaveScoreAlertDialogState(entryPoint, false)

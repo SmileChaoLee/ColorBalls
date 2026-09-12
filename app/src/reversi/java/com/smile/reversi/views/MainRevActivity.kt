@@ -89,7 +89,7 @@ class MainRevActivity : ComponentActivity() {
         LogUtil.d(TAG, "onCreate.interstitialAd")
         val mBaseApp = application as? BaseApp
         interstitialAd = ShowInterstitial(this, null,
-            mBaseApp?.getInterstitial())
+            mBaseApp?.getAdMobInterstitial())
 
         super.onCreate(savedInstanceState)
 

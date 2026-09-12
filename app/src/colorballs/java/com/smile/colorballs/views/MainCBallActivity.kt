@@ -98,7 +98,7 @@ class MainCBallActivity : ComponentActivity() {
         LogUtil.d(TAG, "onCreate.interstitialAd")
         val mBaseApp = application as? BaseApp
         interstitialAd = ShowInterstitial(this, null,
-            mBaseApp?.getInterstitial())
+            mBaseApp?.getAdMobInterstitial())
 
         super.onCreate(savedInstanceState)
 
@@ -521,8 +521,8 @@ class MainCBallActivity : ComponentActivity() {
         val maxWidth = ScreenUtil.pixelToDp(screenSize.x.toFloat())
         val maxHeight = ScreenUtil.pixelToDp(screenSize.y.toFloat())
         LogUtil.d(TAG, "CreateMainUI.maxHeight = $maxHeight")
-        var verSpacerWeight = 1.0f
-        var horSpacerWeight = 1.0f
+        val verSpacerWeight = 1.0f
+        val horSpacerWeight = 1.0f
         /*
         if (resources.configuration.orientation
             == Configuration.ORIENTATION_LANDSCAPE) {

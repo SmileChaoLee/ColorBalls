@@ -3,7 +3,6 @@ package com.smile.colorballs_main
 import androidx.multidex.MultiDexApplication
 import com.google.android.gms.ads.MobileAds
 import com.smile.colorballs_main.tools.LogUtil
-// import com.smile.smilelibraries.facebook_ads_util.FacebookInterstitial
 import com.smile.smilelibraries.google_ads_util.AdMobInterstitial
 
 abstract class BaseApp : MultiDexApplication() {
@@ -12,10 +11,12 @@ abstract class BaseApp : MultiDexApplication() {
         private const val TAG = "BaseApp"
     }
 
-    abstract fun getBannerID(): String
-    abstract fun getBannerID2(): String
-    abstract fun getNativeID(): String
-    abstract fun getInterstitial(): AdMobInterstitial?
+    abstract fun getAdMobBannerID(): String
+    abstract fun getAdMobBannerID2(): String
+    abstract fun getAdMobNativeID(): String
+    abstract fun getAdMobInterstitial(): AdMobInterstitial?
+    abstract fun getFacebookBannerID(): String
+    abstract fun getFacebookBannerID2(): String
 
     // var facebookAds: FacebookInterstitial? = null
     override fun onCreate() {
