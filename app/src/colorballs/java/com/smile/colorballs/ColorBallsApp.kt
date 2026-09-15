@@ -38,10 +38,10 @@ class ColorBallsApp : BaseApp() {
     }
 
     override fun getFacebookBannerID(): String {
-        return META_BANNER_ID
+        return ""   // META_BANNER_ID
     }
 
     override fun getFacebookBannerID2(): String {
-        return META_BANNER_ID2
+        return ""   // META_BANNER_ID2
     }
 }
