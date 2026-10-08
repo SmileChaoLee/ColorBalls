@@ -3,15 +3,15 @@ accompanistDrawablepainter = "0.37.3"
 agp = "9.2.1"
 appcompat = "1.8.0"
 billingKtx = "9.1.0"
-composeBomVersion = "2026.08.00"
+composeBomVersion = "2026.09.00"
 constraintlayout = "2.2.2"
 coreKtxVersion = "1.7.0"
-databindingRuntime = "9.4.0"
+databindingRuntime = "9.4.1"
 firebaseAds = "23.6.0"
 firebaseCore = "21.1.1"
-fragmentKtx = "1.9.0"
+fragmentKtx = "1.9.1"
 inferAnnotation = "0.18.0"
-coreKtx = "1.19.0"
+coreKtx = "1.19.1"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
@@ -21,26 +21,19 @@ kotlinxCoroutinesTest = "1.11.0"
 legacySupportV4 = "1.0.0"
 lifecycleRuntimeKtx = "2.11.0"
 activityCompose = "1.13.0"
-mockitoCore = "5.23.0"
+mockitoCore = "5.24.0"
 multidex = "2.0.1"
-playServicesAds = "25.4.0"
+playServicesAds = "25.5.0"
 recyclerview = "1.4.0"
 retrofit = "3.0.0"
 converterGson = "3.0.0"
-robolectric = "4.16.1"
+robolectric = "4.17"
 truth = "1.7.0"
 uiautomator = "2.4.0"
-roomRuntime = "2.8.4"
-roomCommonJvm = "2.8.4"
+roomRuntime = "2.8.5"
+roomCommonJvm = "2.8.5"
 
 audienceNetworkSdk = "6.22.0"
-mediation-facebook = "6.22.0.0"
-inmobiAdsKotlin = "11.4.1"
-mediation-inmobi = "11.4.1.1"
-mediationsdk = "9.6.0"
-mediation-ironsource = "9.6.0.0"
-applovinSdk = "13.6.4"
-mediation-applovin = "13.6.4.1"
 userMessagingPlatform = "4.0.0"
 
 [libraries]
@@ -93,18 +86,11 @@ play-services-ads = { module = "com.google.android.gms:play-services-ads", versi
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 
 audience-network-sdk = { module = "com.facebook.android:audience-network-sdk", version.ref = "audienceNetworkSdk" }
-google-ads-mediation-facebook = { module = "com.google.ads.mediation:facebook", version.ref = "mediation-facebook" }
-inmobi-ads-kotlin-sdk = { module = "com.inmobi.monetization:inmobi-ads-kotlin", version.ref = "inmobiAdsKotlin" }
-google-ads-mediation-inmobi = { module = "com.google.ads.mediation:inmobi", version.ref = "mediation-inmobi" }
-ironsource-mediation-sdk = { module = "com.unity3d.ads-mediation:mediation-sdk", version.ref = "mediationsdk" }
-google-ads-mediation-ironsource = { module = "com.google.ads.mediation:ironsource", version.ref = "mediation-ironsource" }
-applovin-sdk = { module = "com.applovin:applovin-sdk", version.ref = "applovinSdk" }
-google-ads-mediation-applovin = { module = "com.google.ads.mediation:applovin", version.ref = "mediation-applovin" }
 user-messaging-platform = { module = "com.google.android.ump:user-messaging-platform", version.ref = "userMessagingPlatform" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version = "2.4.10" }
-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version = "2.4.10" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version = "2.4.21" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version = "2.4.21" }
 

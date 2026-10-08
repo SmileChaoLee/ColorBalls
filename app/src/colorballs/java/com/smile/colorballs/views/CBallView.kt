@@ -35,12 +35,6 @@ abstract class CBallView: CbRmBaseView(), CBallPresentView {
     }
 
     // implementing PresentViewCompose
-    @Composable
-    override fun CreateNewGameDialog() {
-        // do nothing
-        LogUtil.d(TAG, "CreateNewGameDialog")
-    }
-
     override fun getGameOverStr() = getString(R.string.gameOverStr)
     // end of implementing
 

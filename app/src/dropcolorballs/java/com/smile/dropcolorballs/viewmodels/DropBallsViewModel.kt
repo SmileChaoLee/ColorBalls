@@ -7,7 +7,6 @@ import android.os.Handler
 import android.os.Looper
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
-import androidx.lifecycle.viewModelScope
 import com.smile.colorballs_main.constants.Constants
 import com.smile.colorballs_main.models.GameProp
 import com.smile.colorballs_main.tools.LogUtil
@@ -15,8 +14,6 @@ import com.smile.colorballs_main.viewmodel.BaseViewModel
 import com.smile.dropcolorballs.constants.DropBallsConstants
 import com.smile.dropcolorballs.models.DropCbGridData
 import com.smile.dropcolorballs.presenters.DropBallsPresenter
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
     : BaseViewModel(dropPresenter) {
@@ -230,7 +227,7 @@ class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
         dropGameProp.lastGotScore = calculateScore(tempLine)
         dropGameProp.currentScore += dropGameProp.lastGotScore
         setCurrentScore(dropGameProp.currentScore)
-        val showScore = ShowScore(
+        showScore(
             dropGridData,
             tempLine,
             dropGameProp.lastGotScore,
@@ -238,23 +235,19 @@ class DropBallsViewModel(private val dropPresenter: DropBallsPresenter)
             object : ShowScoreCallback {
                 override fun sCallback() {
                     LogUtil.d(TAG, "startCrashBalls.sCallback")
-                    viewModelScope.launch(Dispatchers.Default) {
-                        // Refresh the game view
-                        val canCrashAgain = dropGridData.canCrashAgain(mGameLevel)
-                        LogUtil.d(TAG, "startCrashBalls.sCallback.canCrashAgain = $canCrashAgain")
-                        displayGameGridView()
-                        if (canCrashAgain) {
-                            startCrashBalls()    // recursion
-                        } else {
-                            // check if game over
-                            dropGridData.setNextRunning()
-                            setProcessingJob(false)
-                            startRunBalls()
-                        }
+                    // Refresh the game view
+                    val canCrashAgain = dropGridData.canCrashAgain(mGameLevel)
+                    LogUtil.d(TAG, "startCrashBalls.sCallback.canCrashAgain = $canCrashAgain")
+                    displayGameGridView()
+                    if (canCrashAgain) {
+                        startCrashBalls()    // recursion
+                    } else {
+                        // check if game over
+                        dropGridData.setNextRunning()
+                        startRunBalls()
                     }
                 }
             })
-        showingScoreHandler.post(showScore)
     }
 
     fun shiftRunningCol(addValue: Int) {

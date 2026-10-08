@@ -4,7 +4,6 @@ import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.viewModelScope
 import com.smile.ballsremover.constants.BallsRmConstants
 import com.smile.colorballs_main.models.GridData
 import com.smile.ballsremover.presenters.BallsRmPresenter
@@ -13,8 +12,6 @@ import com.smile.colorballs_main.models.GameProp
 import com.smile.colorballs_main.tools.GameUtil
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.viewmodel.BaseViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.io.IOException
 import java.nio.ByteBuffer
 
@@ -65,7 +62,7 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
         brGameProp.lastGotScore = calculateScore(tempLine)
         brGameProp.currentScore += brGameProp.lastGotScore
         setCurrentScore(brGameProp.currentScore)
-        val showScore = ShowScore(
+        showScore(
             brGridData,
             tempLine,
             brGameProp.lastGotScore,
@@ -73,20 +70,16 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
             object : ShowScoreCallback {
                 override fun sCallback() {
                     LogUtil.d(TAG, "cellClickListener.sCallback")
-                    viewModelScope.launch(Dispatchers.Default) {
-                        // Refresh the game view
-                        brGridData.refreshColorBalls(hasNext())
-                        // delay(200)
-                        displayGameGridView()
-                        if (brGridData.isGameOver()) {
-                            LogUtil.d(TAG, "cellClickListener.sCallback.gameOver()")
-                            gameOver()
-                        }
-                        setProcessingJob(false)
+                    // Refresh the game view
+                    brGridData.refreshColorBalls(hasNext())
+                    // delay(200)
+                    displayGameGridView()
+                    if (brGridData.isGameOver()) {
+                        LogUtil.d(TAG, "cellClickListener.sCallback.gameOver()")
+                        gameOver()
                     }
                 }
             })
-        showingScoreHandler.post(showScore)
     }
 
     private fun setData(prop: GameProp, gData: GridData) {
@@ -349,73 +342,5 @@ class BallsRmViewModel(private val bRmPresenter: BallsRmPresenter)
         val numBalls = linkedLine.size
         val totalScore = (minScoreEach + (numBalls - minBalls) * plusScore) * numBalls
         return totalScore
-    }
-
-    private inner class ShowScore_old(
-        linkedPoint: HashSet<Point>,
-        val lastGotScore: Int,
-        val callback: ShowScoreCallback
-    ): Runnable {
-        private var pointSet: HashSet<Point>
-        private var mCounter = 0
-        init {
-            LogUtil.d(TAG, "ShowScore")
-            pointSet = HashSet(linkedPoint)
-        }
-
-        @Synchronized
-        private fun onProgressUpdate(status: Int) {
-            when (status) {
-                0 -> for (item in pointSet) {
-                    drawBall(item.x, item.y, brGridData.getCellValue(item.x, item.y))
-                }
-                1 -> for (item in pointSet) {
-                    drawOval(item.x, item.y, brGridData.getCellValue(item.x, item.y))
-                }
-                2 -> for (item in pointSet) {
-                    drawFirework(item.x, item.y)
-                }
-                3 -> {
-                    setScreenMessage(lastGotScore.toString())
-                    for (item in pointSet) {
-                        clearCell(item.x, item.y)
-                        drawBall(item.x, item.y, brGridData.getCellValue(item.x, item.y))
-                    }
-                }
-                4 -> {
-                    LogUtil.d(TAG, "ShowScore.onProgressUpdate.dismissShowMessageOnScreen.")
-                    setScreenMessage("")
-                }
-                else -> {}
-            }
-        }
-
-        @Synchronized
-        override fun run() {
-            val twinkleCountDown = 5
-            mCounter++
-            LogUtil.d(TAG, "ShowScore.run().mCounter = $mCounter")
-            showingScoreHandler.removeCallbacksAndMessages(null)
-            if (mCounter <= twinkleCountDown) {
-                val md = mCounter % 2 // modulus
-                onProgressUpdate(md)
-                showingScoreHandler.postDelayed(this, 100)
-            } else {
-                when (mCounter) {
-                    twinkleCountDown + 1 -> {
-                        onProgressUpdate(2) // show the flash
-                        showingScoreHandler.postDelayed(this, 100)
-                    }
-                    twinkleCountDown + 2 -> {
-                        onProgressUpdate(3) // show score
-                        showingScoreHandler.postDelayed(this, 500)
-                    }
-                    else -> {
-                        onProgressUpdate(4) // dismiss showing message
-                        callback.sCallback()
-                    }
-                }
-            }
-        }
     }
 }

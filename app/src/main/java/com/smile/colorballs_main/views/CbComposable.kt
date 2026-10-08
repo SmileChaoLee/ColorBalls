@@ -15,13 +15,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -42,11 +46,14 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.graphics.drawable.toDrawable
 import com.facebook.ads.AdSize
 import com.google.android.gms.ads.AdView
@@ -386,7 +393,8 @@ object CbComposable {
                             MenuItemText(
                                 modifier = Modifier
                                     .weight(1f)
-                                    .padding(all = 0.dp).clickable {
+                                    .padding(all = 0.dp)
+                                    .clickable {
                                         hasNext = !hasNext
                                         textListener.hasNextClick(hasNext)
                                     },
@@ -469,60 +477,84 @@ object CbComposable {
     ) {
         LogUtil.d(TAG, "DialogWithText")
         val lightRed = Color(0xffff4444)
-        AlertDialog(
-            icon = null, title = {
-                if (dialogTitle.isNotEmpty())
-                    Text(
-                        text = dialogTitle,
-                        fontWeight = FontWeight.Medium, fontSize = mFontSize
-                    )
-            },
-            text = {
-                if (dialogText.isNotEmpty())
-                    Text(
-                        text = dialogText, lineHeight = (fontSize.value + 10).sp,
-                        fontWeight = FontWeight.Medium, fontSize = fontSize
-                    )
-            },
-            containerColor = Color(0xffffa500),
-            titleContentColor = Color.White,
-            textContentColor = Color.Blue,
+        Dialog(
             onDismissRequest = { /* isOpen = false */ },
-            confirmButton = {
-                if (okStr.isNotEmpty()) {
-                    buttonListener?.let {
-                        Button(
-                            onClick = {
-                                // isOpen = false
-                                it.buttonOkClick()
-                            }, colors = ButtonColors(
-                                containerColor = ColorPrimary,
-                                disabledContainerColor = ColorPrimary,
-                                contentColor = Color.Yellow,
-                                disabledContentColor = Color.Yellow
-                            )
-                        ) { Text(text = okStr, fontSize = mFontSize) }
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Surface(
+                shape = RoundedCornerShape(28.dp),
+                color = Color(0xffffa500),
+                modifier = Modifier
+                    .wrapContentSize()
+                    .padding(horizontal = 24.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    if (dialogTitle.isNotEmpty()) {
+                        Text(
+                            text = dialogTitle,
+                            color = Color.White,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = mFontSize,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
                     }
-                }
-            },
-            dismissButton = {
-                if (noStr.isNotEmpty()) {
-                    buttonListener?.let {
-                        Button(
-                            onClick = {
-                                // isOpen = false
-                                it.buttonCancelClick()
-                            }, colors = ButtonColors(
-                                containerColor = ColorPrimary,
-                                disabledContainerColor = ColorPrimary,
-                                contentColor = lightRed,
-                                disabledContentColor = lightRed
-                            )
-                        ) { Text(text = noStr, fontSize = mFontSize) }
+                    if (dialogText.isNotEmpty()) {
+                        Text(
+                            text = dialogText,
+                            color = Color.Blue,
+                            lineHeight = (fontSize.value + 10).sp,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = fontSize,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                    }
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (noStr.isNotEmpty()) {
+                            buttonListener?.let { listener ->
+                                Button(
+                                    onClick = { listener.buttonCancelClick() },
+                                    colors = ButtonColors(
+                                        containerColor = ColorPrimary,
+                                        disabledContainerColor = ColorPrimary,
+                                        contentColor = lightRed,
+                                        disabledContentColor = lightRed
+                                    )
+                                ) {
+                                    Text(text = noStr, fontSize = mFontSize)
+                                }
+                            }
+                        }
+                        if (okStr.isNotEmpty() && noStr.isNotEmpty()) {
+                            Spacer(modifier = Modifier.width(12.dp))
+                        }
+                        if (okStr.isNotEmpty()) {
+                            buttonListener?.let { listener ->
+                                Button(
+                                    onClick = { listener.buttonOkClick() },
+                                    colors = ButtonColors(
+                                        containerColor = ColorPrimary,
+                                        disabledContainerColor = ColorPrimary,
+                                        contentColor = Color.Yellow,
+                                        disabledContentColor = Color.Yellow
+                                    )
+                                ) {
+                                    Text(text = okStr, fontSize = mFontSize)
+                                }
+                            }
+                        }
                     }
                 }
             }
-        )
+        }
     }
 
     @Composable
@@ -694,7 +726,7 @@ object CbComposable {
             verticalArrangement = Arrangement.Center) {
             Text(text = textContent,
                 color = Color.Blue, fontWeight = FontWeight.Bold,
-                fontSize = CbComposable.mFontSize.times(2.0f))
+                fontSize = mFontSize.times(2.0f))
         }
     }
 }

@@ -133,7 +133,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
             }
             if (isShowingScoreDialog()) {
                 LogUtil.d(TAG, "initGame.cbGameProp.isShowingScoreMessage() is true")
-                val showScore = ShowScore(
+                showScore(
                     cbGridData,
                     cbGridData.getLightLine(),
                     cbGameProp.lastGotScore,
@@ -141,11 +141,8 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
                     object : ShowScoreCallback {
                         override fun sCallback() {
                             lastPartOfInitialGame()
-                            setProcessingJob(false)
                         }
                     })
-                LogUtil.d(TAG, "initGame.showingScoreHandler.post().")
-                showingScoreHandler.post(showScore)
             } else {
                 lastPartOfInitialGame()
                 setProcessingJob(false)
@@ -621,19 +618,15 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
             cbGameProp.undoScore = cbGameProp.currentScore
             cbGameProp.currentScore += cbGameProp.lastGotScore
             setCurrentScore(cbGameProp.currentScore)
-            val showScore = ShowScore(
+            showScore(
                 cbGridData,
                 cbGridData.getLightLine(),
                 cbGameProp.lastGotScore,
                 true, object : ShowScoreCallback {
                     override fun sCallback() {
                         LogUtil.d(TAG, "ShowScoreCallback.sCallback")
-                        setProcessingJob(false)
                     }
                 })
-            LogUtil.d(TAG, "displayGridDataNextCells.post(showScore)")
-            setProcessingJob(true)
-            showingScoreHandler.post(showScore)
         } else {
             displayNextColorBalls()
         }
@@ -690,7 +683,7 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
                         cbGameProp.currentScore += cbGameProp.lastGotScore
                         setCurrentScore(cbGameProp.currentScore)
                         LogUtil.d(TAG, "drawBallAlongPath.showScore")
-                        val showScore = ShowScore(
+                        showScore(
                             cbGridData,
                             cbGridData.getLightLine(),
                             cbGameProp.lastGotScore,
@@ -698,12 +691,8 @@ class CBallViewModel(private val cbPresenter: CBallPresenter)
                                 override fun sCallback() {
                                     LogUtil.d(TAG, "drawBallAlongPath.ShowScoreCallback.sCallback")
                                     cbGameProp.isBallMoving = false
-                                    setProcessingJob(false)
-                                    LogUtil.d(TAG, "drawBallAlongPath.run() finished.")
                                 }
                             })
-                        LogUtil.d(TAG, "drawBallAlongPath.showingScoreHandler.post")
-                        showingScoreHandler.post(showScore)
                     } else {
                         cbGridData.regenerateNextCellIndices(Point(targetI, targetJ))
                         LogUtil.d(TAG, "drawBallAlongPath.run().displayGridDataNextCells")

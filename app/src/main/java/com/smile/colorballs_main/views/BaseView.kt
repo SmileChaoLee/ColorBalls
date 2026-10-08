@@ -108,8 +108,6 @@ abstract class BaseView: ComponentActivity(),
     abstract fun ToolBarMenu(modifier: Modifier)
     @Composable
     abstract fun GameViewGrid()
-    @Composable
-    abstract fun CreateNewGameDialog()
 
     abstract fun getCurrentPresenter(): BasePresenter?
     abstract fun getCurrentViewModel(): BaseViewModel?
@@ -294,7 +292,6 @@ abstract class BaseView: ComponentActivity(),
                         }
                     }
                     Box {
-                        CreateNewGameDialog()
                         SaveGameDialog()
                         LoadGameDialog()
                         SaveScoreDialog()
@@ -553,16 +550,6 @@ abstract class BaseView: ComponentActivity(),
         LogUtil.d(TAG, "$logStr.statusBarHeight = $statusBarHeight")
         val navigationBarHeight = ScreenUtil.getNavigationBarHeight(this@BaseView)
         LogUtil.d(TAG, "$logStr.navigationBarHeight = $navigationBarHeight")
-
-        /*
-        val screen = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            // >= API 35
-            ScreenUtil.getScreenSizeWithNavigationBar(this@BaseView)
-        } else {
-            ScreenUtil.getScreenSize(this@BaseView)
-        }
-        */
-
         val screen = ScreenUtil.getScreenSize(this@BaseView)
         LogUtil.d(TAG, "$logStr.screen.x = ${screen.x}")
         LogUtil.d(TAG, "$logStr.screen.y = ${screen.y}")
@@ -765,26 +752,6 @@ abstract class BaseView: ComponentActivity(),
         CbComposable.DialogWithText(null, "",
             message, "", "",
             toastTextSize.sp)
-        /*
-        val containerColor = Color(0xffffa500)
-        Dialog(
-            onDismissRequest = {
-                baseViewModel.setScreenMessage("")
-            },
-            properties = DialogProperties(usePlatformDefaultWidth = false),
-            content = {
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = containerColor)) {
-                    Text(
-                        modifier = Modifier.align(alignment = Alignment.Center),
-                        text = message,
-                        color = Color.Red, fontSize = CbComposable.mFontSize
-                    )
-                }
-            }
-        )
-        */
     }
 
     @Composable
@@ -802,18 +769,10 @@ abstract class BaseView: ComponentActivity(),
             mBaseApp?.let {
                 CbComposable.ShowAdmobBanner(modifier = Modifier.padding(top = 0.dp),
                     it.getAdMobBannerID(), adWidth)
-                val facebookBannerId = it.getFacebookBannerID()
-                if (facebookBannerId.isNotEmpty()) {
-                    CbComposable.ShowFacebookBanner(
-                        modifier = Modifier.padding(top = 0.dp),
-                        facebookBannerId
-                    )
-                } else {
-                    CbComposable.ShowAdmobBanner(
-                        modifier = Modifier.padding(top = 0.dp),
-                        it.getAdMobBannerID2(), adWidth
-                    )
-                }
+                CbComposable.ShowAdmobBanner(
+                    modifier = Modifier.padding(top = 0.dp),
+                    it.getAdMobBannerID2(), adWidth
+                )
             }
         }
     }
@@ -907,21 +866,13 @@ abstract class BaseView: ComponentActivity(),
             verticalArrangement = Arrangement.Center) {
             ShowNativeAd(modifier = Modifier.weight(8.0f))
             mBaseApp?.let {
-                val facebookBannerId = it.getFacebookBannerID()
                 Column(modifier = Modifier.weight(2.0f),
                     verticalArrangement = Arrangement.Center
                 ) {
-                    if (facebookBannerId.isNotEmpty()) {
-                        CbComposable.ShowFacebookBanner(
-                            modifier = Modifier,
-                            facebookBannerId
-                        )
-                    } else {
-                        CbComposable.ShowAdmobBanner(
-                            modifier = Modifier,
-                            it.getAdMobBannerID()
-                        )
-                    }
+                    CbComposable.ShowAdmobBanner(
+                        modifier = Modifier,
+                        it.getAdMobBannerID()
+                    )
                 }
             }
         }

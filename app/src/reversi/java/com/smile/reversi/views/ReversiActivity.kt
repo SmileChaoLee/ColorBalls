@@ -99,11 +99,6 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
     }
 
     // implement parent class, BaseView.kt
-    @Composable
-    override fun CreateNewGameDialog() {
-        LogUtil.d(TAG, "CreateNewGameDialog")
-    }
-
     override fun getFieldStrings(): Array<String> {
         return arrayOf(
             "",

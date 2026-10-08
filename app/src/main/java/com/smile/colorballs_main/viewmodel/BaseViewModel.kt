@@ -22,6 +22,7 @@ import com.smile.colorballs_main.tools.LogUtil
 import com.smile.smilelibraries.player_record_rest.httpUrl.PlayerRecordRest
 import com.smile.smilelibraries.utilities.SoundPoolUtil
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
@@ -367,6 +368,59 @@ abstract class BaseViewModel(
             }
         } catch (ex: java.lang.Exception) {
             LogUtil.e(TAG, "displayGameGridView.Exception: ", ex)
+        }
+    }
+
+    fun showScore(
+        gridData: GridData,
+        linkedPoint: HashSet<Point>,
+        lastGotScore: Int,
+        isNextBalls: Boolean,
+        callback: ShowScoreCallback
+    ) {
+        val logStr = "showScore"
+        LogUtil.d(TAG, logStr)
+        val pointSet = HashSet(linkedPoint)
+        mGameProp.isShowNextBallsAfterBlinking = isNextBalls
+        setProcessingJob(true)
+        setShowingScoreDialog(true)
+        viewModelScope.launch(Dispatchers.Main) {
+            for (counter in 0..5) {
+                LogUtil.d(TAG, "$logStr.counter = $counter")
+                val md = counter % 2 // modulus
+                when (md) {
+                    0 -> for (item in pointSet) {
+                        drawOval(item.x, item.y, gridData.getCellValue(item.x, item.y))
+                    }
+                    1 -> for (item in pointSet) {
+                        drawBall(item.x, item.y, gridData.getCellValue(item.x, item.y))
+                    }
+                }
+                delay(100L)
+            }
+            // 2 -->
+            for (item in pointSet) {
+                drawFirework(item.x, item.y)
+            }
+            delay(100L)
+            // 3 -->
+            val scoreStr = lastGotScore.toString().trim()
+            LogUtil.d(TAG, "ShowScore.scoreStr = $scoreStr")
+            LogUtil.d(TAG, "ShowScore.scoreStr.length = ${scoreStr.length}")
+            setScreenMessage(scoreStr)
+            for (item in pointSet) {
+                clearCell(item.x, item.y)
+                drawBall(item.x, item.y, gridData.getCellValue(item.x, item.y))
+            }
+            dealWithIsNextBalls(isNextBalls)
+            delay(300L)
+            // 4 -->
+            LogUtil.d(TAG, "ShowScore.dismissShowMessageOnScreen.")
+            delay(500L)
+            setScreenMessage("")
+            callback.sCallback()
+            setShowingScoreDialog(false)
+            setProcessingJob(false)
         }
     }
 

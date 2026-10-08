@@ -243,12 +243,6 @@ class DropCBallsActivity: BaseView(),
         }
     }
 
-    @Composable
-    override fun CreateNewGameDialog() {
-        LogUtil.d(TAG, "CreateNewGameDialog")
-        // do nothing
-    }
-
     override fun getCurrentPresenter(): DropBallsPresenter {
         return mPresenter
     }
