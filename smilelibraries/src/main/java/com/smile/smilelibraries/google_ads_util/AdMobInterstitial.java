@@ -58,7 +58,7 @@ public class AdMobInterstitial {
         @Override
         public void onAdDismissedFullScreenContent() {
             super.onAdDismissedFullScreenContent();
-            // Code to be executed when when the interstitial ad is closed.
+            // Code to be executed when the interstitial ad is closed.
             Log.d(TAG, "Interstitial ad dismissed.");
             isDismissed = true;
             timerHandler.removeCallbacksAndMessages(null);

@@ -36,12 +36,4 @@ class ColorBallsApp : BaseApp() {
         // return AdMobInterstitial(applicationContext, admobInterstitialID)
         return null
     }
-
-    override fun getFacebookBannerID(): String {
-        return ""   // META_BANNER_ID
-    }
-
-    override fun getFacebookBannerID2(): String {
-        return ""   // META_BANNER_ID2
-    }
 }

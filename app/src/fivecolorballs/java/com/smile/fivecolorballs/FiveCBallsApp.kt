@@ -1,8 +1,8 @@
 package com.smile.fivecolorballs
 
-import androidx.multidex.MultiDexApplication
+import android.app.Application
 
-class FiveCBallsApp : MultiDexApplication() {
+class FiveCBallsApp : Application() {
 
     companion object {
         const val ADMOB_BANNER_ID = "ca-app-pub-8354869049759576/7162646323"

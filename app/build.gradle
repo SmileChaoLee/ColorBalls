@@ -27,7 +27,6 @@ android {
     defaultConfig {
         minSdk = 24
         targetSdk = 37
-        multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -199,13 +198,8 @@ dependencies {
     implementation libs.androidx.constraintlayout
     implementation libs.androidx.recyclerview
     implementation libs.user.messaging.platform
-    // Meta Audience Network
-    implementation libs.audience.network.sdk
-
-    implementation libs.infer.annotation
     implementation libs.firebase.core
     implementation libs.firebase.ads
-    implementation libs.androidx.multidex
     implementation libs.core.ktx
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)

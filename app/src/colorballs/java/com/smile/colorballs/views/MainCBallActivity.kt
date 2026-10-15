@@ -97,7 +97,7 @@ class MainCBallActivity : ComponentActivity() {
 
         LogUtil.d(TAG, "onCreate.interstitialAd")
         val mBaseApp = application as? BaseApp
-        interstitialAd = ShowInterstitial(this, null,
+        interstitialAd = ShowInterstitial(this,
             mBaseApp?.getAdMobInterstitial())
 
         super.onCreate(savedInstanceState)
@@ -206,7 +206,7 @@ class MainCBallActivity : ComponentActivity() {
 
     private fun showInterstitialAd() {
         LogUtil.d(TAG, "showInterstitialAd = $interstitialAd")
-        interstitialAd?.ShowAdThread()?.startShowAd(0) // AdMob first
+        interstitialAd?.ShowAdThread()?.startShowAd() // AdMob first
     }
 
     private fun dataConsentRequest() {

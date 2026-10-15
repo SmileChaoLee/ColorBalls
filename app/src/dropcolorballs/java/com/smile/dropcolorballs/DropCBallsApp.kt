@@ -31,12 +31,4 @@ class DropCBallsApp : BaseApp() {
         val admobInterstitialID = "ca-app-pub-8354869049759576/4465092297"
         return AdMobInterstitial(applicationContext, admobInterstitialID)
     }
-
-    override fun getFacebookBannerID(): String {
-        return ""
-    }
-
-    override fun getFacebookBannerID2(): String {
-        return ""
-    }
 }

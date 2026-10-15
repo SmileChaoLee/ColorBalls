@@ -423,7 +423,7 @@ class MyActivity : AppCompatActivity(), MyPresentView {
         }
         val cellH = cellWidth
 
-        // added on 2018-10-02 to test and it works
+        // added on 2018-10-02 to test, and it works
         // setting the width and the height of GridLayout by using the FrameLayout that is on top of it
         frameLp.width = cellWidth * mColCounts
         frameLp.topMargin = 20
@@ -525,9 +525,9 @@ class MyActivity : AppCompatActivity(), MyPresentView {
         // bannerId = "ca-app-pub-3940256099942544/6300978111";   // test Banner ID
         myBannerAdView = SetBannerAdView(
             this, null,
-            bannerLinearLayout, bannerId, ""
+            bannerLinearLayout, bannerId,
         )
-        myBannerAdView?.showBannerAdView(0) // AdMob first
+        myBannerAdView?.showBannerAdView() // AdMob first
 
         // show AdMob native ad if the device is tablet
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {

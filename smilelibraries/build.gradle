@@ -70,8 +70,6 @@ dependencies {
     implementation libs.androidx.appcompat
     implementation libs.androidx.legacy.support.v4
     implementation libs.androidx.constraintlayout
-    implementation libs.audience.network.sdk
-    implementation libs.infer.annotation
     implementation libs.firebase.ads
     implementation libs.androidx.databinding.runtime
     implementation libs.user.messaging.platform

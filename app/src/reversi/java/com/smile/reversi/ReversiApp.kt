@@ -32,12 +32,4 @@ class ReversiApp : BaseApp() {
         // return AdMobInterstitial(applicationContext, admobInterstitialID)
         return null
     }
-
-    override fun getFacebookBannerID(): String {
-        return ""
-    }
-
-    override fun getFacebookBannerID2(): String {
-        return ""
-    }
 }

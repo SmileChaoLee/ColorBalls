@@ -55,7 +55,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.graphics.drawable.toDrawable
-import com.facebook.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdView
@@ -65,7 +64,6 @@ import com.smile.colorballs_main.models.TopPlayer
 import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.views.ui.theme.ColorPrimary
 import com.smile.smilelibraries.AdMobBanner
-import com.smile.smilelibraries.FacebookBanner
 
 object CbComposable {
 
@@ -689,23 +687,6 @@ object CbComposable {
                 adView.background = (-0x1).toDrawable()
                 adView.callToActionView = contentView
                 contentView.setContent { adContent(ad, contentView) }
-            }
-        )
-    }
-
-    @Composable
-    fun ShowFacebookBanner(modifier: Modifier = Modifier, adId: String) {
-        // val adId = ColorBallsApp.facebookBannerID
-        val pId = if (BuildConfig.DEBUG) "IMG_16_9_APP_INSTALL#$adId" else adId
-        LogUtil.d(TAG, "ShowFacebookBanner.adId = $adId")
-        AndroidView(
-            modifier = modifier,
-            factory = { context ->
-                com.facebook.ads.AdView(context, pId,
-                    AdSize.BANNER_HEIGHT_50)
-            },
-            update = { faceAdView ->
-                FacebookBanner(faceAdView)
             }
         )
     }
