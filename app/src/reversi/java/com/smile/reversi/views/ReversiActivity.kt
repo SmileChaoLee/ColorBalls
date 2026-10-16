@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import com.smile.colorballs_main.R
 import com.smile.colorballs_main.constants.WhichGame
 import com.smile.colorballs_main.tools.LogUtil
+import com.smile.colorballs_main.views.CbComposable
 import com.smile.colorballs_main.views.CbRmBaseView
 import com.smile.colorballs_main.views.CbSettingActivity
 import com.smile.reversi.constants.ReversiConstants
@@ -180,7 +181,7 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
                     !viewModel.isMyTurn() -> getString(R.string.notYourTurn)
                     else -> opponent
                 }
-                Text(text = status, maxLines = 2,
+                Text(text = status, maxLines = 2, fontSize = CbComposable.mFontSize,
                     modifier = Modifier.weight(2f).align(Alignment.CenterVertically))
             }
             // Right: Setting, Menu with equal weights

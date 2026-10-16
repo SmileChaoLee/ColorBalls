@@ -26,8 +26,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.smile.colorballs_main.views.CbComposable
 import com.smile.colorballs_main.views.ui.theme.ColorBallsTheme
 import com.smile.colorballs_main.R
 import com.smile.reversi.constants.ReversiConstants
@@ -125,29 +126,32 @@ class LobbyActivity : ComponentActivity() {
             launcher.launch(NetPermissions.nearby())
         }
 
-        Text(getString(R.string.nearbyPlay), fontSize = 22.sp)
+        Text(getString(R.string.nearbyPlay), fontSize = CbComposable.mFontSize)
         WatchState(transport, ReversiConstants.ONLINE_NEARBY, wantRole ?: Role.HOST) { error = it }
 
         val t = transport
         if (t == null) {
             Button(onClick = { request(Role.HOST) }, modifier = Modifier.fillMaxWidth()) {
-                Text(getString(R.string.hostGame))
+                Text(getString(R.string.hostGame), fontSize = CbComposable.mFontSize)
             }
             Button(onClick = { request(Role.GUEST) }, modifier = Modifier.fillMaxWidth()) {
-                Text(getString(R.string.findGame))
+                Text(getString(R.string.findGame), fontSize = CbComposable.mFontSize)
             }
         } else if (t.role == Role.HOST) {
-            Text(getString(R.string.waitingForOpponent))
+            Text(getString(R.string.waitingForOpponent), fontSize = CbComposable.mFontSize)
         } else {
-            Text(getString(R.string.searching))
+            Text(getString(R.string.searching), fontSize = CbComposable.mFontSize)
             val endpoints by t.endpoints.collectAsState()
             endpoints.forEach { e ->
                 Button(onClick = { t.connectTo(e) }, modifier = Modifier.fillMaxWidth()) {
-                    Text(e.name)
+                    Text(e.name, fontSize = CbComposable.mFontSize)
                 }
             }
         }
-        if (error.isNotEmpty()) Text("${getString(R.string.connectionFailed)}: $error")
+        if (error.isNotEmpty()) {
+            Text("${getString(R.string.connectionFailed)}: $error",
+                fontSize = CbComposable.mFontSize)
+        }
     }
 
     @Composable
@@ -159,7 +163,7 @@ class LobbyActivity : ComponentActivity() {
         val scope = rememberCoroutineScope()
         val notFound = getString(R.string.roomNotFound)
 
-        Text(getString(R.string.onlineRoom), fontSize = 22.sp)
+        Text(getString(R.string.onlineRoom), fontSize = CbComposable.mFontSize)
         WatchState(transport, ReversiConstants.ONLINE_ROOM, transport?.role ?: Role.HOST) {
             error = it
         }
@@ -167,10 +171,10 @@ class LobbyActivity : ComponentActivity() {
         val t = transport
         if (t != null) {
             if (t.role == Role.HOST) {
-                Text(getString(R.string.shareRoomCode))
-                Text(t.code, fontSize = 36.sp)
+                Text(getString(R.string.shareRoomCode), fontSize = CbComposable.mFontSize)
+                Text(t.code, fontSize = CbComposable.mFontSize * (36f / 22f))
             }
-            Text(getString(R.string.waitingForOpponent))
+            Text(getString(R.string.waitingForOpponent), fontSize = CbComposable.mFontSize)
         } else {
             Button(
                 enabled = !busy,
@@ -185,12 +189,13 @@ class LobbyActivity : ComponentActivity() {
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
-            ) { Text(getString(R.string.createRoom)) }
+            ) { Text(getString(R.string.createRoom), fontSize = CbComposable.mFontSize) }
 
             OutlinedTextField(
                 value = code,
                 onValueChange = { code = it.uppercase().take(8) },
-                label = { Text(getString(R.string.roomCode)) },
+                label = { Text(getString(R.string.roomCode), fontSize = CbComposable.mFontSize) },
+                textStyle = TextStyle(fontSize = CbComposable.mFontSize),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -207,9 +212,9 @@ class LobbyActivity : ComponentActivity() {
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
-            ) { Text(getString(R.string.joinRoom)) }
+            ) { Text(getString(R.string.joinRoom), fontSize = CbComposable.mFontSize) }
         }
-        if (error.isNotEmpty()) Text(error)
+        if (error.isNotEmpty()) Text(error, fontSize = CbComposable.mFontSize)
     }
 
     override fun onDestroy() {
