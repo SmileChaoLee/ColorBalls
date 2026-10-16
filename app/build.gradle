@@ -57,27 +57,27 @@ android {
     productFlavors {
         register("colorballs") {
             dimension = "product"
-            versionCode 8276
-            versionName "8.276"
+            versionCode 8277
+            versionName "8.277"
             applicationId = "com.smile.colorballs"
             isDefault = true
         }
         register("ballsremover") {
             dimension = "product"
-            versionCode 190
-            versionName "1.90"
+            versionCode 191
+            versionName "1.91"
             applicationId = "com.smile.ballsremover"
         }
         register("dropcolorballs") {
             dimension = "product"
-            versionCode 105
-            versionName "1.05"
+            versionCode 106
+            versionName "1.06"
             applicationId = "com.smile.dropcolorballs"
         }
         register("fivecolorballs") {
             dimension = "product"
-            versionCode 4001
-            versionName "4.001"
+            versionCode 4002
+            versionName "4.002"
             applicationId = "com.smile.fivecolorballs"
         }
         register("reversi") {
