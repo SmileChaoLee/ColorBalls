@@ -253,6 +253,11 @@ dependencies {
     implementation project(':smilelibraries')
     implementation project(':NativeTemplatesModels')
 
+    // Reversi online play (Nearby: Bluetooth / Wi-Fi Direct, and remote game room)
+    reversiImplementation libs.play.services.nearby
+    reversiImplementation libs.firebase.database
+    reversiImplementation libs.firebase.auth
+
     testImplementation libs.junit
     testImplementation libs.androidx.espresso.core
     testImplementation libs.robolectric

@@ -78,6 +78,29 @@ class ReversiGridData : GridData(ReversiConstants.ROW_COUNTS, ReversiConstants.C
         return true
     }
 
+    fun boardString(): String = buildString {
+        for (i in 0 until rowCounts) for (j in 0 until colCounts) {
+            append(when (mCellValues[i][j]) {
+                HUMAN_PLAYER -> 'R'
+                COMPUTER_PLAYER -> 'B'
+                else -> '.'
+            })
+        }
+    }
+
+    fun boardHash(): Int = boardString().hashCode()
+
+    fun loadBoard(board: String) {
+        if (board.length != rowCounts * colCounts) return
+        for (i in 0 until rowCounts) for (j in 0 until colCounts) {
+            mCellValues[i][j] = when (board[i * colCounts + j]) {
+                'R' -> HUMAN_PLAYER
+                'B' -> COMPUTER_PLAYER
+                else -> 0
+            }
+        }
+    }
+
     fun countPlayer(player: Int): Int {
         var c = 0
         for (i in 0 until rowCounts) for (j in 0 until colCounts) if (mCellValues[i][j] == player) c++

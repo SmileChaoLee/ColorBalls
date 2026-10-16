@@ -1,7 +1,10 @@
 package com.smile.reversi.views
 
 import android.os.Bundle
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -18,6 +21,8 @@ import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.views.CbRmBaseView
 import com.smile.colorballs_main.views.CbSettingActivity
 import com.smile.reversi.constants.ReversiConstants
+import com.smile.reversi.network.ConnectionState
+import com.smile.reversi.network.TransportHolder
 import com.smile.reversi.interfaces.ReversiPresentView
 import com.smile.reversi.presenters.ReversiPresenter
 import com.smile.reversi.viewmodels.ReversiViewModel
@@ -52,7 +57,20 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
         LogUtil.d(TAG, "onCreate.playMode = $playMode")
         mPresenter = ReversiPresenter(this)
         viewModel = ReversiViewModel(mPresenter, playMode)
+        if (ReversiConstants.isNetworkMode(playMode)) {
+            val t = TransportHolder.transport
+            if (t == null) {
+                finish()
+            } else {
+                viewModel.attachTransport(t, TransportHolder.role, TransportHolder.playerName)
+            }
+        }
         super.onCreate(savedInstanceState)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (isFinishing && ReversiConstants.isNetworkMode(playMode)) TransportHolder.clear()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -152,6 +170,18 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
                     Image(bitmap = it.asImageBitmap(), contentDescription = "",
                         modifier = Modifier.size((mImageSizeDp * 0.7f).dp).align(Alignment.CenterStart))
                 }
+            }
+            if (ReversiConstants.isNetworkMode(playMode)) {
+                val connState by viewModel.connectionState.collectAsState()
+                val opponent by viewModel.opponentName.collectAsState()
+                val status = when {
+                    connState is ConnectionState.Closed || connState is ConnectionState.Failed ->
+                        getString(R.string.opponentLeft)
+                    !viewModel.isMyTurn() -> getString(R.string.notYourTurn)
+                    else -> opponent
+                }
+                Text(text = status, maxLines = 2,
+                    modifier = Modifier.weight(2f).align(Alignment.CenterVertically))
             }
             // Right: Setting, Menu with equal weights
             SettingButton(modifier = Modifier

@@ -65,6 +65,7 @@ class MainRevActivity : ComponentActivity() {
     // the following are for ColorBallActivity
     private lateinit var playWithAiLauncher: ActivityResultLauncher<Intent>
     private lateinit var twoPlayersLauncher: ActivityResultLauncher<Intent>
+    private lateinit var lobbyLauncher: ActivityResultLauncher<Intent>
     //
     private val loadingMessage = mutableStateOf("")
     private val backgroundColor = Yellow3
@@ -75,6 +76,7 @@ class MainRevActivity : ComponentActivity() {
 
     private var isPlayWithAiEnabled by mutableStateOf(true)
     private var isTwoPlayersEnabled by mutableStateOf(true)
+    private var isLobbyEnabled by mutableStateOf(true)
     private var interstitialAd: ShowInterstitial? = null
 
     @SuppressLint("ConfigurationScreenWidthHeight",
@@ -106,6 +108,15 @@ class MainRevActivity : ComponentActivity() {
             ActivityResultContracts.StartActivityForResult()) {
                 result: ActivityResult ->
             LogUtil.d(TAG, "twoPlayersLauncher.result = $result")
+            loadingMessage.value = ""
+            showInterstitialAd()
+            enableMainButtons()
+        }
+
+        lobbyLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) {
+                result: ActivityResult ->
+            LogUtil.d(TAG, "lobbyLauncher.result = $result")
             loadingMessage.value = ""
             showInterstitialAd()
             enableMainButtons()
@@ -162,16 +173,18 @@ class MainRevActivity : ComponentActivity() {
     private fun enableMainButtons() {
         isPlayWithAiEnabled = true
         isTwoPlayersEnabled = true
+        isLobbyEnabled = true
     }
 
     private fun disableMainButtons() {
         isPlayWithAiEnabled = false
         isTwoPlayersEnabled = false
+        isLobbyEnabled = false
     }
 
     private fun showInterstitialAd() {
         LogUtil.d(TAG, "showInterstitialAd = $interstitialAd")
-        interstitialAd?.ShowAdThread()?.startShowAd() // AdMob first
+        interstitialAd?.ShowAdThread()?.startShowAd()
     }
 
     private fun dataConsentRequest() {
@@ -211,6 +224,18 @@ class MainRevActivity : ComponentActivity() {
             loadingMessage.value = getString(R.string.loadingStr)
             it.putExtra(ReversiConstants.PLAY_MODE, ReversiConstants.TWO_PLAYERS)
             twoPlayersLauncher.launch(it)
+        }
+    }
+
+    private fun startLobby(mode: Int) {
+        Intent(
+            this@MainRevActivity,
+            LobbyActivity::class.java
+        ).also {
+            disableMainButtons()
+            loadingMessage.value = getString(R.string.loadingStr)
+            it.putExtra(LobbyActivity.EXTRA_MODE, mode)
+            lobbyLauncher.launch(it)
         }
     }
 
@@ -307,6 +332,39 @@ class MainRevActivity : ComponentActivity() {
     }
 
     @Composable
+    fun LobbyButton(modifier: Modifier = Modifier,
+                    text: String,
+                    mode: Int,
+                    buttonWidth: Float,
+                    buttonHeight: Float,
+                    textLineHeight: TextUnit) {
+        Column(modifier = modifier,
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Center) {
+            Button(
+                enabled = isTwoPlayersEnabled,
+                onClick = { startLobby(mode) },
+                modifier = Modifier
+                    .width(width = buttonWidth.dp)
+                    .height(height = buttonHeight.dp)
+                    .background(color = buttonBackground),
+                colors = ButtonColors(
+                    containerColor = buttonContainerColor,
+                    disabledContainerColor = buttonContainerColor,
+                    contentColor = buttonContentColor,
+                    disabledContentColor = buttonContentColor
+                )
+            ) {
+                Text(
+                    text = text,
+                    lineHeight = textLineHeight,
+                    fontSize = CbComposable.mFontSize
+                )
+            }
+        }
+    }
+
+    @Composable
     fun CreateMainUI() {
         LogUtil.d(TAG, "CreateMainUI")
         if (loadingMessage.value.isNotEmpty()) return
@@ -323,15 +381,23 @@ class MainRevActivity : ComponentActivity() {
         val buttonWidth = maxWidth * ((10.0f - horSpacerWeight * 2.0f) / 10.0f)
         LogUtil.d(TAG, "CreateMainUI.buttonWidth = $buttonWidth")
         // 1 in 5
-        val buttonHeight = maxHeight * ((10.0f - verSpacerWeight * 2.0f) / 10.0f) / 5.0f
+        val buttonHeight = maxHeight * ((10.0f - verSpacerWeight * 2.0f) / 10.0f) / 6.0f
         LogUtil.d(TAG, "CreateMainUI.buttonHeight = $buttonHeight")
-        val textLineHeight = (CbComposable.toastFontSize.value + 5.0f).sp
+        val textLineHeight = (CbComposable.toastFontSize.value + 10.0f).sp
         Column(modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
             PlayWithAiButton(modifier = Modifier.weight(1.0f),
                 buttonWidth, buttonHeight, textLineHeight)
             TwoPlayersButton(modifier = Modifier.weight(1.0f),
+                buttonWidth, buttonHeight, textLineHeight)
+            LobbyButton(modifier = Modifier.weight(1.0f),
+                text = getString(R.string.nearbyPlay),
+                mode = ReversiConstants.ONLINE_NEARBY,
+                buttonWidth, buttonHeight, textLineHeight)
+            LobbyButton(modifier = Modifier.weight(1.0f),
+                text = getString(R.string.onlineRoom),
+                mode = ReversiConstants.ONLINE_ROOM,
                 buttonWidth, buttonHeight, textLineHeight)
         }
     }

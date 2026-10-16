@@ -12,4 +12,20 @@
     <string name="nextMoveTitle">Nexts</string>
     <string name="playWithAi">Play vs AI</string>
     <string name="twoPlayers">Two Players</string>
+    <string name="nearbyPlay">Nearby\n(Bluetooth / Wi-Fi)</string>
+    <string name="onlineRoom">Online Room</string>
+    <string name="hostGame">Host a game</string>
+    <string name="findGame">Find a game</string>
+    <string name="waitingForOpponent">Waiting for an opponent…</string>
+    <string name="searching">Searching for nearby games…</string>
+    <string name="createRoom">Create room</string>
+    <string name="joinRoom">Join room</string>
+    <string name="roomCode">Room code</string>
+    <string name="shareRoomCode">Share this room code with your opponent</string>
+    <string name="connectionFailed">Connection failed</string>
+    <string name="opponentLeft">Your opponent left the game</string>
+    <string name="connected">Connected</string>
+    <string name="notYourTurn">Wait for your opponent\'s move</string>
+    <string name="permissionDenied">Required permissions were denied</string>
+    <string name="roomNotFound">Room not found or already full</string>
 </resources>

@@ -12,4 +12,20 @@
     <string name="nextMoveTitle">下一步</string>
     <string name="playWithAi">與人工智慧對奕</string>
     <string name="twoPlayers">兩個玩家對奕</string>
+    <string name="nearbyPlay">附近对奕\n(蓝牙 / Wi-Fi)</string>
+    <string name="onlineRoom">在线房间</string>
+    <string name="hostGame">创建对局</string>
+    <string name="findGame">查找对局</string>
+    <string name="waitingForOpponent">正在等待对手…</string>
+    <string name="searching">正在搜索附近的对局…</string>
+    <string name="createRoom">创建房间</string>
+    <string name="joinRoom">加入房间</string>
+    <string name="roomCode">房间号</string>
+    <string name="shareRoomCode">将此房间号分享给对手</string>
+    <string name="connectionFailed">连接失败</string>
+    <string name="opponentLeft">对手已离开游戏</string>
+    <string name="connected">已连接</string>
+    <string name="notYourTurn">请等待对手落子</string>
+    <string name="permissionDenied">所需权限被拒绝</string>
+    <string name="roomNotFound">房间不存在或已满</string>
 </resources>

@@ -14,6 +14,12 @@ import com.smile.colorballs_main.tools.LogUtil
 import com.smile.colorballs_main.viewmodel.BaseViewModel
 import com.smile.reversi.constants.ReversiConstants
 import com.smile.reversi.models.ReversiGridData
+import com.smile.reversi.network.ConnectionState
+import com.smile.reversi.network.GameTransport
+import com.smile.reversi.network.Message
+import com.smile.reversi.network.Role
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
 import com.smile.reversi.presenters.ReversiPresenter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -48,6 +54,79 @@ class ReversiViewModel(
     }
 
     fun getCurrentPlayer() = currentPlayer.intValue
+
+    private var transport: GameTransport? = null
+    private var localPlayer = HUMAN_PLAYER
+    private var role = Role.HOST
+    private var moveSeq = 0
+    private var netJob: Job? = null
+    val connectionState = MutableStateFlow<ConnectionState>(ConnectionState.Idle)
+    val opponentName = MutableStateFlow("")
+
+    private fun isNetworkGame() = ReversiConstants.isNetworkMode(playMode) && transport != null
+
+    fun isMyTurn() = !isNetworkGame() || currentPlayer.intValue == localPlayer
+
+    /** Host plays Red and moves first; guest plays Blue. */
+    fun attachTransport(t: GameTransport, newRole: Role, myName: String) {
+        netJob?.cancel()
+        transport = t
+        role = newRole
+        localPlayer = if (newRole == Role.HOST) HUMAN_PLAYER else COMPUTER_PLAYER
+        moveSeq = 0
+        netJob = viewModelScope.launch {
+            launch { t.state.collect { connectionState.value = it } }
+            t.send(Message.Hello(Message.PROTOCOL_VERSION, myName))
+            t.incoming.collect { onRemoteMessage(it) }
+        }
+    }
+
+    private suspend fun onRemoteMessage(msg: Message) {
+        when (msg) {
+            is Message.Hello -> opponentName.value = msg.name
+            is Message.Move -> onRemoteMove(msg)
+            is Message.Sync -> {
+                if (role == Role.GUEST) applySync(msg)
+            }
+            Message.Resign -> {
+                setProcessingJob(false)
+                gameOver()
+            }
+            Message.Rematch, Message.Ping -> {}
+        }
+    }
+
+    private suspend fun onRemoteMove(msg: Message.Move) {
+        while (isProcessingJob()) delay(50L)
+        val valid = msg.player == currentPlayer.intValue &&
+                msg.player != localPlayer &&
+                rGridData.getValidMoves(msg.player).contains(Point(msg.x, msg.y))
+        if (!valid) {
+            if (role == Role.HOST) sendSync() else transport?.send(Message.Ping)
+            return
+        }
+        setProcessingJob(true)
+        handleMove(msg.x, msg.y, isRemote = true)
+        // wait for the move (and any pass handling) to finish, then verify
+        while (isProcessingJob()) delay(50L)
+        if (rGridData.boardHash() != msg.hash && role == Role.HOST) sendSync()
+    }
+
+    private suspend fun sendSync() {
+        transport?.send(Message.Sync(moveSeq, rGridData.boardString(), currentPlayer.intValue))
+    }
+
+    private fun applySync(msg: Message.Sync) {
+        rGridData.loadBoard(msg.board)
+        moveSeq = msg.seq
+        currentPlayer.intValue = msg.current
+        displayGameGridView()
+        displayEligibleMoves(msg.current)
+    }
+
+    fun resignGame() {
+        viewModelScope.launch { transport?.send(Message.Resign) }
+    }
 
     override fun initGame(bundle: Bundle?) {
         LogUtil.d(TAG, "initGame bundle=$bundle")
@@ -109,6 +188,7 @@ class ReversiViewModel(
         rGameProp.initializeKeepSetting(getWhichGame())
         rGridData.initialize()
         currentPlayer.intValue = Constants.COLOR_RED
+        moveSeq = 0
     }
 
     private fun nextPlayer(): Int {
@@ -169,6 +249,11 @@ class ReversiViewModel(
         // this function is only for HUMAN_PLAYER
         LogUtil.d(TAG, "cellClickListener.($i,$j)")
         if (isProcessingJob()) return
+        if (isNetworkGame() && currentPlayer.intValue != localPlayer) return
+        handleMove(i, j, isRemote = false)
+    }
+
+    private fun handleMove(i: Int, j: Int, isRemote: Boolean) {
         // If cell already occupied
         if (rGridData.getCellValue(i, j) != 0) {
             return
@@ -196,12 +281,18 @@ class ReversiViewModel(
             placePiece(i, j, curPlayer)
             displayGameGridView()
             displayEligibleMoves(nextPlayer())
+            if (isNetworkGame()) {
+                moveSeq++
+                if (!isRemote) {
+                    transport?.send(Message.Move(moveSeq, i, j, curPlayer, rGridData.boardHash()))
+                }
+            }
             if (rGridData.isGameOver()) {
                 setProcessingJob(false)
                 gameOver()
                 return@launch
             }
-            if (playMode == ReversiConstants.TWO_PLAYERS) {
+            if (playMode != ReversiConstants.PLAY_WIth_AI) {
                 currentPlayer.intValue = nextPlayer()
                 val validMoves = rGridData.getValidMoves(currentPlayer.intValue)
                 if (validMoves.isEmpty()) {
@@ -226,6 +317,7 @@ class ReversiViewModel(
 
     override fun startSavingGame(): Boolean {
         LogUtil.d(TAG, "startSavingGame")
+        if (isNetworkGame()) return false
         setProcessingJob(true)
         setScreenMessage(savingGameStr)
         var succeeded = true
@@ -265,6 +357,7 @@ class ReversiViewModel(
     }
 
     override fun startLoadingGame(): Boolean {
+        if (isNetworkGame()) return false
         LogUtil.d(TAG, "startLoadingGame")
         setProcessingJob(true)
         setScreenMessage(loadingGameStr)
@@ -526,6 +619,7 @@ class ReversiViewModel(
     override fun dealWithIsNextBalls(isNextBalls: Boolean) { /* no-op */ }
 
     override fun release() {
+        netJob?.cancel()
         super.release()
     }
 }

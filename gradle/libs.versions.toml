@@ -12,6 +12,9 @@ coreKtxVersion = "1.7.0"
 databindingRuntime = "9.4.1"
 firebaseAds = "23.6.0"
 firebaseCore = "21.1.1"
+firebaseDatabase = "23.0.0"
+firebaseAuth = "25.0.0"
+playServicesNearby = "19.5.1"
 fragmentKtx = "1.9.1"
 coreKtx = "1.19.1"
 junit = "4.13.2"
@@ -60,6 +63,9 @@ retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 core-ktx = { module = "androidx.test:core-ktx", version.ref = "coreKtxVersion" }
 firebase-ads = { module = "com.google.firebase:firebase-ads", version.ref = "firebaseAds" }
+firebase-database = { module = "com.google.firebase:firebase-database", version.ref = "firebaseDatabase" }
+firebase-auth = { module = "com.google.firebase:firebase-auth", version.ref = "firebaseAuth" }
+play-services-nearby = { module = "com.google.android.gms:play-services-nearby", version.ref = "playServicesNearby" }
 firebase-core = { module = "com.google.firebase:firebase-core", version.ref = "firebaseCore" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
