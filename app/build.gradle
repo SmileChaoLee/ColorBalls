@@ -1,15 +1,12 @@
 plugins {
     alias(libs.plugins.android.application)
-    // id 'com.android.application'
     alias(libs.plugins.kotlin.android)
-    // id 'org.jetbrains.kotlin.android'
     alias(libs.plugins.compose.compiler)
-    // id 'org.jetbrains.kotlin.plugin.compose'
-    id 'kotlin-parcelize'
-    id 'com.google.gms.google-services'
-    id 'kotlin-kapt'
-    id 'com.google.devtools.ksp'
-    id 'androidx.room'
+    alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
 }
 
 android {
