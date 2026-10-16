@@ -9,13 +9,36 @@ plugins {
     alias(libs.plugins.room)
 }
 
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withInputStream { localProperties.load(it) }
+}
+
+def getSecretProperty = { String key ->
+    println("System.getenv(key) = ${System.getenv(key)}")
+    def value = System.getenv(key) ?: findProperty(key) ?: localProperties.getProperty(key)
+    if (value != null) {
+        value = value.trim()
+        if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+            value = value.substring(1, value.length() - 1)
+        }
+    }
+    return value
+}
+
 android {
     signingConfigs {
-        config {
-            keyAlias 'chaolee'
-            keyPassword '86637971'
-            storeFile file('/home/chaolee/AndroidStudioProjects/keystore/key.jks')
-            storePassword '86637971'
+        release {
+            // Keystore credentials come from environment, gradle.properties, or local.properties
+            def storeFilePath = getSecretProperty("KEYSTORE_FILE")
+            def storeFileObj = storeFilePath ? file(storeFilePath) : null
+            if (storeFileObj != null && storeFileObj.exists()) {
+                storeFile storeFileObj
+                storePassword getSecretProperty("KEYSTORE_PASSWORD")
+                keyAlias getSecretProperty("KEY_ALIAS")
+                keyPassword getSecretProperty("KEY_PASSWORD")
+            }
         }
     }
 
@@ -24,10 +47,7 @@ android {
     defaultConfig {
         minSdk = 24
         targetSdk = 37
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
-        signingConfig signingConfigs.config
         vectorDrawables {
             useSupportLibrary true
         }
@@ -131,13 +151,21 @@ android {
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
                     'proguard-rules.pro'
-            // signingConfig signingConfigs.config
+            if (signingConfigs.release.storeFile != null) {
+                signingConfig signingConfigs.release
+            } else {
+                signingConfig signingConfigs.debug
+            }
         }
         debug {
             minifyEnabled false
-            // signingConfig signingConfigs.config
+            // shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
+                    'proguard-rules.pro'
         }
     }
+
+
 
     java {
         toolchain {
