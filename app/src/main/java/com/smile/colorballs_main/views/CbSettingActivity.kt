@@ -100,7 +100,7 @@ class CbSettingActivity : ComponentActivity() {
                 settingViewModel.settings.value?.let {
                     CbComposable.SettingCompose(buttonClick,
                         textClick,
-                        backgroundColor = Color(0xbb0000ff), it,
+                        backgroundColor = Color(0xff000080), it,
                         getString(R.string.settingStr),
                         hasSoundTitle,
                         gameLevelTitle,
