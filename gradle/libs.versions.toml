@@ -64,6 +64,7 @@ converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref
 core-ktx = { module = "androidx.test:core-ktx", version.ref = "coreKtxVersion" }
 firebase-ads = { module = "com.google.firebase:firebase-ads", version.ref = "firebaseAds" }
 firebase-database = { module = "com.google.firebase:firebase-database", version.ref = "firebaseDatabase" }
+#noinspection LoginCredentials
 firebase-auth = { module = "com.google.firebase:firebase-auth", version.ref = "firebaseAuth" }
 play-services-nearby = { module = "com.google.android.gms:play-services-nearby", version.ref = "playServicesNearby" }
 firebase-core = { module = "com.google.firebase:firebase-core", version.ref = "firebaseCore" }

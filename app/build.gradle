@@ -164,8 +164,7 @@ android {
                     'proguard-rules.pro'
         }
     }
-
-
+    
 
     java {
         toolchain {
@@ -178,23 +177,11 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
-    /*
-    kotlinOptions {
-        jvmTarget = '17'    // deprecated
-        // for default fun of Kotlin
-        freeCompilerArgs = ['-Xjvm-default=all']    // deprecated
-    }
-    */
-
     testOptions {
         unitTests {
             includeAndroidResources = true
             returnDefaultValues = true
         }
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion '1.5.15'
     }
 
     namespace 'com.smile.colorballs_main'
@@ -216,6 +203,12 @@ allprojects {
         }
     }
 }
+
+def onlineFlavors = ["colorballs", "reversi"]
+def allFlavors = ["colorballs", "ballsremover", "dropcolorballs", "fivecolorballs", "reversi"]
+def requestedTasks = gradle.startParameter.taskNames.collect { it.toLowerCase() }
+def requestedFlavors = allFlavors.findAll { f -> requestedTasks.any { it.contains(f) } }
+def needsOnlineLibs = requestedFlavors.isEmpty() || requestedFlavors.any { it in onlineFlavors }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
@@ -254,9 +247,14 @@ dependencies {
     implementation project(':NativeTemplatesModels')
 
     // Reversi online play (Nearby: Bluetooth / Wi-Fi Direct, and remote game room)
-    reversiImplementation libs.play.services.nearby
-    reversiImplementation libs.firebase.database
-    reversiImplementation libs.firebase.auth
+    // Only needed by the colorballs and reversi flavors; when the requested tasks name
+    // other flavors only, skip them. IDE sync (no flavor in task names) includes them.
+    if (needsOnlineLibs) {
+        implementation libs.play.services.nearby
+        implementation libs.firebase.database
+        //noinspection LoginCredentials
+        implementation libs.firebase.auth
+    }
 
     testImplementation libs.junit
     testImplementation libs.androidx.espresso.core
