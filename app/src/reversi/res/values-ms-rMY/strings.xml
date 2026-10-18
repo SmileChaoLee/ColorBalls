@@ -18,6 +18,7 @@
     <string name="findGame">Cari permainan</string>
     <string name="waitingForOpponent">Menunggu lawan…</string>
     <string name="searching">Mencari permainan berdekatan…</string>
+    <string name="searchingOnline">Mencari permainan dalam talian…</string>
     <string name="createRoom">Cipta bilik</string>
     <string name="joinRoom">Sertai bilik</string>
     <string name="roomCode">Kod bilik</string>
@@ -28,4 +29,17 @@
     <string name="notYourTurn">Tunggu langkah lawan anda</string>
     <string name="permissionDenied">Kebenaran yang diperlukan ditolak</string>
     <string name="roomNotFound">Bilik tidak dijumpai atau sudah penuh</string>
+    <string name="nearbyTwoPlayers">Dua Pemain Berdekatan</string>
+    <string name="onlineTwoPlayers">Dua Pemain Dalam Talian</string>
+    <string name="playerNameLabel">Nama pemain:</string>
+    <string name="createStr">Cipta</string>
+    <string name="joinStr">Sertai</string>
+    <string name="leaveStr">Keluar</string>
+    <string name="startStr">Mula</string>
+    <string name="refreshStr">Muat semula</string>
+    <string name="createNearbyGame">Cipta Permainan Berdekatan</string>
+    <string name="joinNearbyGame">Sertai Permainan Berdekatan</string>
+    <string name="createOnlineGame">Cipta Permainan Dalam Talian</string>
+    <string name="joinOnlineGame">Sertai Permainan Dalam Talian</string>
+    <string name="playerNameEmpty">Nama pemain tidak boleh kosong</string>
 </resources>

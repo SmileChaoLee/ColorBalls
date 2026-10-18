@@ -18,6 +18,7 @@
     <string name="findGame">Find a game</string>
     <string name="waitingForOpponent">Waiting for an opponent…</string>
     <string name="searching">Searching for nearby games…</string>
+    <string name="searchingOnline">Searching for online games…</string>
     <string name="createRoom">Create room</string>
     <string name="joinRoom">Join room</string>
     <string name="roomCode">Room code</string>
@@ -28,4 +29,17 @@
     <string name="notYourTurn">Wait for your opponent\'s move</string>
     <string name="permissionDenied">Required permissions were denied</string>
     <string name="roomNotFound">Room not found or already full</string>
+    <string name="nearbyTwoPlayers">Nearby Two Players</string>
+    <string name="onlineTwoPlayers">Online Two Players</string>
+    <string name="playerNameLabel">Player name:</string>
+    <string name="createStr">Create</string>
+    <string name="joinStr">Join</string>
+    <string name="leaveStr">Leave</string>
+    <string name="startStr">Start</string>
+    <string name="refreshStr">Refresh</string>
+    <string name="createNearbyGame">Create Nearby Game</string>
+    <string name="joinNearbyGame">Join Nearby Game</string>
+    <string name="createOnlineGame">Create Online Game</string>
+    <string name="joinOnlineGame">Join Online Game</string>
+    <string name="playerNameEmpty">Player name cannot be empty</string>
 </resources>

@@ -16,6 +16,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -82,6 +84,7 @@ class MainRevActivity : ComponentActivity() {
     @SuppressLint("ConfigurationScreenWidthHeight",
         "SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
+        lockPortraitOnPhones()
         textFontSize = ScreenUtil.getPxTextFontSizeNeeded(this@MainRevActivity)
         toastTextSize = textFontSize * 0.7f
         CbComposable.mFontSize = ScreenUtil.pixelToDp(textFontSize).sp
@@ -381,24 +384,52 @@ class MainRevActivity : ComponentActivity() {
         val buttonWidth = maxWidth * ((10.0f - horSpacerWeight * 2.0f) / 10.0f)
         LogUtil.d(TAG, "CreateMainUI.buttonWidth = $buttonWidth")
         // 1 in 5
-        val buttonHeight = maxHeight * ((10.0f - verSpacerWeight * 2.0f) / 10.0f) / 6.0f
+        val landscapeNow = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val buttonHeight = if (landscapeNow) maxHeight * 0.35f
+            else maxHeight * ((10.0f - verSpacerWeight * 2.0f) / 10.0f) / 6.0f
         LogUtil.d(TAG, "CreateMainUI.buttonHeight = $buttonHeight")
         val textLineHeight = (CbComposable.toastFontSize.value + 10.0f).sp
-        Column(modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center) {
-            PlayWithAiButton(modifier = Modifier.weight(1.0f),
-                buttonWidth, buttonHeight, textLineHeight)
-            TwoPlayersButton(modifier = Modifier.weight(1.0f),
-                buttonWidth, buttonHeight, textLineHeight)
-            LobbyButton(modifier = Modifier.weight(1.0f),
-                text = getString(R.string.nearbyPlay),
-                mode = ReversiConstants.ONLINE_NEARBY,
-                buttonWidth, buttonHeight, textLineHeight)
-            LobbyButton(modifier = Modifier.weight(1.0f),
-                text = getString(R.string.onlineRoom),
-                mode = ReversiConstants.ONLINE_ROOM,
-                buttonWidth, buttonHeight, textLineHeight)
+        val landscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val aiButton: @Composable (Modifier, Float) -> Unit = { m, w ->
+            PlayWithAiButton(m, w, buttonHeight, textLineHeight)
+        }
+        val twoButton: @Composable (Modifier, Float) -> Unit = { m, w ->
+            TwoPlayersButton(m, w, buttonHeight, textLineHeight)
+        }
+        val nearbyButton: @Composable (Modifier, Float) -> Unit = { m, w ->
+            LobbyButton(m, getString(R.string.nearbyPlay), ReversiConstants.ONLINE_NEARBY,
+                w, buttonHeight, textLineHeight)
+        }
+        val onlineButton: @Composable (Modifier, Float) -> Unit = { m, w ->
+            LobbyButton(m, getString(R.string.onlineRoom), ReversiConstants.ONLINE_ROOM,
+                w, buttonHeight, textLineHeight)
+        }
+        if (landscape) {
+            // two equal columns, two buttons each
+            val columnButtonWidth = maxWidth / 2.0f * 0.85f
+            Row(modifier = Modifier.fillMaxSize()) {
+                Column(modifier = Modifier.weight(1.0f).fillMaxHeight(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center) {
+                    aiButton(Modifier.weight(1.0f), columnButtonWidth)
+                    twoButton(Modifier.weight(1.0f), columnButtonWidth)
+                }
+                Column(modifier = Modifier.weight(1.0f).fillMaxHeight(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center) {
+                    nearbyButton(Modifier.weight(1.0f), columnButtonWidth)
+                    onlineButton(Modifier.weight(1.0f), columnButtonWidth)
+                }
+            }
+        } else {
+            Column(modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center) {
+                aiButton(Modifier.weight(1.0f), buttonWidth)
+                twoButton(Modifier.weight(1.0f), buttonWidth)
+                nearbyButton(Modifier.weight(1.0f), buttonWidth)
+                onlineButton(Modifier.weight(1.0f), buttonWidth)
+            }
         }
     }
 

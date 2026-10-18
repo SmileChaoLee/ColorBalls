@@ -49,6 +49,10 @@ class NearbyTransport(
     override val incoming: Flow<Message> = inbox.receiveAsFlow()
     val endpoints: StateFlow<List<Endpoint>> = _endpoints
 
+    /** Host side: guests that asked to join and wait for acceptance. */
+    private val _requests = MutableStateFlow<List<Endpoint>>(emptyList())
+    val requests: StateFlow<List<Endpoint>> = _requests
+
     private val payloadCallback = object : PayloadCallback() {
         override fun onPayloadReceived(endpointId: String, payload: Payload) {
             payload.asBytes()?.let { bytes -> Message.decode(bytes)?.let { inbox.trySend(it) } }
@@ -59,7 +63,12 @@ class NearbyTransport(
 
     private val connectionCallback = object : ConnectionLifecycleCallback() {
         override fun onConnectionInitiated(endpointId: String, info: ConnectionInfo) {
-            client.acceptConnection(endpointId, payloadCallback)
+            if (role == Role.HOST) {
+                _requests.value = _requests.value.filter { it.id != endpointId } +
+                        Endpoint(endpointId, info.endpointName)
+            } else {
+                client.acceptConnection(endpointId, payloadCallback)
+            }
         }
 
         override fun onConnectionResult(endpointId: String, result: ConnectionResolution) {
@@ -71,12 +80,18 @@ class NearbyTransport(
                     _state.value = ConnectionState.Connected
                 }
                 ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED ->
-                    _state.value = ConnectionState.Failed("rejected")
-                else -> _state.value = ConnectionState.Failed(result.status.statusMessage ?: "error")
+                    if (role == Role.GUEST) _state.value = ConnectionState.Failed("rejected")
+                    else startHosting()
+                else -> if (role == Role.HOST) {
+                    startHosting()
+                } else {
+                    _state.value = ConnectionState.Failed(result.status.statusMessage ?: "error")
+                }
             }
         }
 
         override fun onDisconnected(endpointId: String) {
+            _requests.value = _requests.value.filter { it.id != endpointId }
             if (endpointId == peerId) _state.value = ConnectionState.Closed
         }
     }
@@ -99,6 +114,30 @@ class NearbyTransport(
             localName, SERVICE_ID, connectionCallback,
             AdvertisingOptions.Builder().setStrategy(STRATEGY).build()
         ).addOnFailureListener { _state.value = ConnectionState.Failed(it.message ?: "advertise") }
+    }
+
+    /** Host: accept the chosen guest and turn the others down. */
+    fun acceptRequest(endpoint: Endpoint) {
+        _requests.value.filter { it.id != endpoint.id }.forEach { client.rejectConnection(it.id) }
+        _requests.value = emptyList()
+        // no longer listed for other guests while the game is starting
+        client.stopAdvertising()
+        client.acceptConnection(endpoint.id, payloadCallback)
+    }
+
+    /** Host: drop pending requests and advertise again. */
+    fun refreshHosting() {
+        _requests.value.forEach { client.rejectConnection(it.id) }
+        _requests.value = emptyList()
+        client.stopAdvertising()
+        startHosting()
+    }
+
+    /** Guest: clear the list and search again. */
+    fun refreshDiscovery() {
+        client.stopDiscovery()
+        _endpoints.value = emptyList()
+        startDiscovery()
     }
 
     /** Guest: look for hosts; pick one with [connectTo]. */

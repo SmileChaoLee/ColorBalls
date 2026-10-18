@@ -18,6 +18,7 @@
     <string name="findGame">尋找對局</string>
     <string name="waitingForOpponent">正在等待對手…</string>
     <string name="searching">正在搜尋附近的對局…</string>
+    <string name="searchingOnline">正在搜尋線上對局…</string>
     <string name="createRoom">建立房間</string>
     <string name="joinRoom">加入房間</string>
     <string name="roomCode">房間號碼</string>
@@ -28,4 +29,17 @@
     <string name="notYourTurn">請等待對手落子</string>
     <string name="permissionDenied">所需權限被拒絕</string>
     <string name="roomNotFound">房間不存在或已額滿</string>
+    <string name="nearbyTwoPlayers">附近雙人遊戲</string>
+    <string name="onlineTwoPlayers">線上雙人遊戲</string>
+    <string name="playerNameLabel">玩家名稱:</string>
+    <string name="createStr">創立</string>
+    <string name="joinStr">加入</string>
+    <string name="leaveStr">離開</string>
+    <string name="startStr">開始</string>
+    <string name="refreshStr">刷新</string>
+    <string name="createNearbyGame">創立附近遊戲</string>
+    <string name="joinNearbyGame">加入附近遊戲</string>
+    <string name="createOnlineGame">創立線上遊戲</string>
+    <string name="joinOnlineGame">加入線上遊戲</string>
+    <string name="playerNameEmpty">玩家名稱不能為空</string>
 </resources>

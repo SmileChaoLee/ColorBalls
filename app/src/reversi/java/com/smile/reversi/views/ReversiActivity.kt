@@ -42,6 +42,7 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
     override fun hasTop10Menu() = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        lockPortraitOnPhones()
         LogUtil.d(TAG, "$TAG.onCreate.savedInstanceState = $savedInstanceState")
         if (savedInstanceState == null) {
             intent?.let {
