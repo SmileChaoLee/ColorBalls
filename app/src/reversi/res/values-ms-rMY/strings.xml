@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="reversi_name">Reversi</string>
-    <string name="blue">Blue</string>
-    <string name="red">Red</string>
-    <string name="blueWinBy">Blue wins by</string>
-    <string name="redWinBy">Red wins by</string>
-    <string name="cells">cells</string>
-    <string name="tie">It is a tie</string>
-    <string name="bluePass">Blue Pass</string>
-    <string name="redPass">Red Pass</string>
-    <string name="nextMoveTitle">Nexts</string>
-    <string name="playWithAi">Play vs AI</string>
-    <string name="twoPlayers">Two Players</string>
+    <string name="blue">Biru</string>
+    <string name="red">Merah</string>
+    <string name="blueWinBy">Biru menang dengan</string>
+    <string name="redWinBy">Merah menang dengan</string>
+    <string name="cells">petak</string>
+    <string name="tie">Seri</string>
+    <string name="bluePass">Biru Langkau</string>
+    <string name="redPass">Merah Langkau</string>
+    <string name="nextMoveTitle">Seterusnya</string>
+    <string name="playWithAi">Main lawan AI</string>
+    <string name="twoPlayers">Dua Pemain</string>
     <string name="nearbyPlay">Berdekatan\n(Bluetooth / Wi-Fi)</string>
     <string name="onlineRoom">Bilik Dalam Talian</string>
     <string name="hostGame">Hos permainan</string>
