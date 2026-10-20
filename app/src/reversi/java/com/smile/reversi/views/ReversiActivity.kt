@@ -173,17 +173,21 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
                         modifier = Modifier.size((mImageSizeDp * 0.7f).dp).align(Alignment.CenterStart))
                 }
             }
-            if (ReversiConstants.isNetworkMode(playMode)) {
-                val connState by viewModel.connectionState.collectAsState()
-                val opponent by viewModel.opponentName.collectAsState()
-                val status = when {
-                    connState is ConnectionState.Closed || connState is ConnectionState.Failed ->
-                        getString(R.string.opponentLeft)
-                    !viewModel.isMyTurn() -> getString(R.string.notYourTurn)
-                    else -> opponent
+            Box(modifier = Modifier
+                .weight(2f)
+                .align(Alignment.CenterVertically)) {
+                if (ReversiConstants.isNetworkMode(playMode)) {
+                    val connState by viewModel.connectionState.collectAsState()
+                    val opponent by viewModel.opponentName.collectAsState()
+                    val status = when {
+                        connState is ConnectionState.Closed || connState is ConnectionState.Failed ->
+                            getString(R.string.opponentLeft)
+                        !viewModel.isMyTurn() -> getString(R.string.notYourTurn)
+                        else -> opponent
+                    }
+                    Text(text = status, maxLines = 2, fontSize = CbComposable.mFontSize,
+                        modifier = Modifier.align(Alignment.CenterStart))
                 }
-                Text(text = status, maxLines = 2, fontSize = CbComposable.mFontSize,
-                    modifier = Modifier.weight(2f).align(Alignment.CenterVertically))
             }
             // Keep the menu trigger at the right; settings is the first dropdown item.
             ReversiShowMenu(modifier = Modifier
