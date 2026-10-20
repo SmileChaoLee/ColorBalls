@@ -185,13 +185,20 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
                 Text(text = status, maxLines = 2, fontSize = CbComposable.mFontSize,
                     modifier = Modifier.weight(2f).align(Alignment.CenterVertically))
             }
-            // Right: Setting, Menu with equal weights
-            SettingButton(modifier = Modifier
+            // Keep the menu trigger at the right; settings is the first dropdown item.
+            ReversiShowMenu(modifier = Modifier
                 .weight(1f)
                 .align(Alignment.CenterVertically))
-            ShowMenu(modifier = Modifier
-                .weight(1f)
-                .align(Alignment.CenterVertically))
+        }
+    }
+
+    @Composable
+    private fun ReversiShowMenu(modifier: Modifier) {
+        ShowMenu(modifier) { closeMenu ->
+            SettingButton(
+                modifier = Modifier.align(Alignment.Start),
+                onClickAfterSetting = closeMenu
+            )
         }
     }
 

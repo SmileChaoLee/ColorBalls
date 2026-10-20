@@ -24,6 +24,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -957,13 +958,14 @@ abstract class BaseView: ComponentActivity(),
     }
 
     @Composable
-    fun SettingButton(modifier: Modifier) {
+    fun SettingButton(modifier: Modifier, onClickAfterSetting: () -> Unit = {}) {
         LogUtil.d(TAG, "SettingButton.getOrientation()" +
                 " = ${getOrientation()}")
         val isClicked = remember { mutableStateOf(false) }
         IconButton (onClick = {
             showColorWhenClick(isClicked)
             onClickSettingButton()
+            onClickAfterSetting()
         },
             modifier = modifier) {
             Icon(
@@ -975,7 +977,10 @@ abstract class BaseView: ComponentActivity(),
     }
 
     @Composable
-    fun ShowMenu(modifier: Modifier) {
+    fun ShowMenu(
+        modifier: Modifier,
+        topMenuContent: (@Composable ColumnScope.(closeMenu: () -> Unit) -> Unit)? = null
+    ) {
         LogUtil.d(TAG, "ShowMenu.getOrientation()" +
                 " = ${getOrientation()}")
         val dropdownWidth =
@@ -1014,6 +1019,11 @@ abstract class BaseView: ComponentActivity(),
                     )
                     .padding(all = 0.dp),
             ) {
+                if (topMenuContent != null) {
+                    topMenuContent.invoke(this) { expanded = false }
+                    CbComposable.HorDivider()
+                }
+
                 if (hasTop10Menu()) {
                     val isGlobalTop10Clicked = remember { mutableStateOf(false) }
                     CbComposable.DropdownMenuItem(
