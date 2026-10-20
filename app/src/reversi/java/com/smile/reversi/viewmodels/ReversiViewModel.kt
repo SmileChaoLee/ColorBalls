@@ -54,6 +54,7 @@ class ReversiViewModel(
     }
 
     fun getCurrentPlayer() = currentPlayer.intValue
+    fun getLocalPlayer() = localPlayer
 
     private var transport: GameTransport? = null
     private var localPlayer = HUMAN_PLAYER

@@ -1,16 +1,17 @@
 package com.smile.reversi.views
 
 import android.os.Bundle
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -18,11 +19,9 @@ import androidx.compose.ui.graphics.asImageBitmap
 import com.smile.colorballs_main.R
 import com.smile.colorballs_main.constants.WhichGame
 import com.smile.colorballs_main.tools.LogUtil
-import com.smile.colorballs_main.views.CbComposable
 import com.smile.colorballs_main.views.CbRmBaseView
 import com.smile.colorballs_main.views.CbSettingActivity
 import com.smile.reversi.constants.ReversiConstants
-import com.smile.reversi.network.ConnectionState
 import com.smile.reversi.network.TransportHolder
 import com.smile.reversi.interfaces.ReversiPresentView
 import com.smile.reversi.presenters.ReversiPresenter
@@ -154,45 +153,39 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
 
     @Composable
     override fun ToolBarMenu(modifier: Modifier) {
-        // Match BallsRemover toolbar layout: left area (2f), center area (2f), then three buttons (1f each)
-        Row(modifier = modifier.background(colorPrimary)) {
-            // Left placeholder
-            Box(modifier = Modifier
-                .weight(1f)
-                .align(Alignment.CenterVertically)) {
-                // intentionally empty to match layout
-            }
-            // current player indicator
-            Box(modifier = Modifier
-                .weight(2f)
-                .padding(start = 10.dp)
-                .align(Alignment.CenterVertically)) {
-                val bmp = colorBallMap[viewModel.getCurrentPlayer()]
-                bmp?.let {
-                    Image(bitmap = it.asImageBitmap(), contentDescription = "",
-                        modifier = Modifier.size((mImageSizeDp * 0.7f).dp).align(Alignment.CenterStart))
-                }
-            }
-            Box(modifier = Modifier
-                .weight(2f)
-                .align(Alignment.CenterVertically)) {
-                if (ReversiConstants.isNetworkMode(playMode)) {
-                    val connState by viewModel.connectionState.collectAsState()
-                    val opponent by viewModel.opponentName.collectAsState()
-                    val status = when {
-                        connState is ConnectionState.Closed || connState is ConnectionState.Failed ->
-                            getString(R.string.opponentLeft)
-                        !viewModel.isMyTurn() -> getString(R.string.notYourTurn)
-                        else -> opponent
+        Box(modifier = modifier.background(colorPrimary)) {
+            Row(modifier = Modifier.fillMaxSize()) {
+                Box(modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .padding(start = 8.dp),
+                    contentAlignment = Alignment.CenterStart) {
+                    colorBallMap[viewModel.getCurrentPlayer()]?.let { bmp ->
+                        Image(
+                            bitmap = bmp.asImageBitmap(),
+                            contentDescription = "",
+                            modifier = Modifier
+                                .fillMaxHeight(0.7f)
+                                .aspectRatio(1f)
+                        )
                     }
-                    Text(text = status, maxLines = 2, fontSize = CbComposable.mFontSize,
-                        modifier = Modifier.align(Alignment.CenterStart))
                 }
+                Spacer(modifier = Modifier.weight(1f))
+                if (ReversiConstants.isNetworkMode(playMode)) {
+                    colorBallMap[viewModel.getLocalPlayer()]?.let { bmp ->
+                        Image(
+                            bitmap = bmp.asImageBitmap(),
+                            contentDescription = "",
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .aspectRatio(1f)
+                        )
+                    }
+                }
+                ReversiShowMenu(modifier = Modifier
+                    .fillMaxHeight()
+                    .width(48.dp))
             }
-            // Keep the menu trigger at the right; settings is the first dropdown item.
-            ReversiShowMenu(modifier = Modifier
-                .weight(1f)
-                .align(Alignment.CenterVertically))
         }
     }
 
