@@ -1,24 +1,37 @@
 package com.smile.reversi.views
 
 import android.os.Bundle
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Text
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.asImageBitmap
 import com.smile.colorballs_main.R
 import com.smile.colorballs_main.constants.WhichGame
 import com.smile.colorballs_main.tools.LogUtil
+import com.smile.colorballs_main.views.CbComposable
 import com.smile.colorballs_main.views.CbRmBaseView
 import com.smile.colorballs_main.views.CbSettingActivity
 import com.smile.reversi.constants.ReversiConstants
@@ -156,7 +169,7 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
         Box(modifier = modifier.background(colorPrimary)) {
             Row(modifier = Modifier.fillMaxSize()) {
                 Box(modifier = Modifier
-                    .weight(1f)
+                    .width(48.dp)
                     .fillMaxHeight()
                     .padding(start = 8.dp),
                     contentAlignment = Alignment.CenterStart) {
@@ -170,7 +183,51 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
                         )
                     }
                 }
-                Spacer(modifier = Modifier.weight(1f))
+                BoxWithConstraints(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (ReversiConstants.isNetworkMode(playMode)) {
+                        val opponentName by viewModel.opponentName.collectAsState()
+                        val fontScale = LocalDensity.current.fontScale
+                        var fontSize by remember(opponentName, maxWidth, maxHeight) {
+                            mutableStateOf(CbComposable.mFontSize)
+                        }
+                        val lineHeight = (fontSize.value * 1.1f).sp
+                        val maxLines = (maxHeight.value /
+                            (lineHeight.value * fontScale))
+                            .toInt()
+                            .coerceAtLeast(1)
+                        Text(
+                            text = opponentName.replace("_", "\u200B_\u200B"),
+                            color = Color.White,
+                            fontSize = fontSize,
+                            lineHeight = lineHeight,
+                            textAlign = TextAlign.Center,
+                            maxLines = maxLines,
+                            softWrap = true,
+                            overflow = TextOverflow.Clip,
+                            modifier = Modifier.fillMaxWidth(),
+                            onTextLayout = { result ->
+                                val totalTextHeight = lineHeight.value *
+                                    fontScale * result.lineCount
+                                if ((result.didOverflowWidth || result.didOverflowHeight ||
+                                        totalTextHeight > maxHeight.value) &&
+                                    fontSize > 8.sp
+                                ) {
+                                    val heightScale = if (totalTextHeight > maxHeight.value) {
+                                        maxHeight.value / totalTextHeight
+                                    } else {
+                                        0.9f
+                                    }
+                                    fontSize = (fontSize.value * minOf(heightScale, 0.9f)).sp
+                                }
+                            }
+                        )
+                    }
+                }
                 if (ReversiConstants.isNetworkMode(playMode)) {
                     colorBallMap[viewModel.getLocalPlayer()]?.let { bmp ->
                         Image(
