@@ -1,6 +1,5 @@
 package com.smile.reversi.views
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,9 +23,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
@@ -38,7 +45,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.smile.colorballs_main.R
 import com.smile.colorballs_main.views.CbComposable
 import com.smile.colorballs_main.views.ui.theme.DarkGreen
@@ -47,6 +56,8 @@ import com.smile.colorballs_main.views.ui.theme.Yellow2
 
 private val TitleColor = Color(0xff0099cc)
 private val LabelColor = Color.Blue
+private val ActionButtonColor = Color.White
+private val ActionButtonTextColor = Color.White
 
 /** Page frame shared by the Nearby and Online two-player screens: title on top, content below. */
 @Composable
@@ -56,7 +67,7 @@ fun TwoPlayersFrame(title: String, content: @Composable ColumnScope.() -> Unit) 
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
-            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).weight(1f),
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).weight(1.6f),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -120,7 +131,7 @@ fun TwoPlayersTextField(
 }
 
 @Composable
-fun TwoPlayersImageButton(
+fun TwoPlayersButton(
     text: String,
     textColor: Color,
     onClick: () -> Unit,
@@ -129,36 +140,42 @@ fun TwoPlayersImageButton(
 ) {
     BoxWithConstraints(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         val w = minOf(maxWidth * 0.5f, 220.dp)
-        Box(
+        Button(
+            onClick = onClick,
+            enabled = enabled,
             modifier = Modifier
                 .width(w)
-                .aspectRatio(200f / 80f)
-                .clickable(enabled = enabled, onClick = onClick),
-            contentAlignment = Alignment.Center
+                .aspectRatio(200f / 80f),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = ActionButtonColor,
+                contentColor = ActionButtonTextColor,
+                disabledContainerColor = ActionButtonColor,
+                disabledContentColor = ActionButtonTextColor
+            ),
+            border = BorderStroke(2.dp, textColor),
+            contentPadding = PaddingValues(0.dp)
         ) {
-        Image(
-            painter = painterResource(R.drawable.reversi_button_normal),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            alpha = if (enabled) 1f else 0.5f,
-            modifier = Modifier.fillMaxSize()
-        )
-        Text(text = text, color = textColor, fontSize = CbComposable.mFontSize)
+            FitButtonText(text, textColor)
         }
     }
 }
 
 @Composable
 fun CreateButton(onClick: () -> Unit, enabled: Boolean = true) =
-    TwoPlayersImageButton(stringResource(R.string.createStr), DarkGreen, onClick, enabled = enabled)
+    TwoPlayersButton(
+        stringResource(R.string.createStr), DarkGreen, onClick, enabled = enabled
+    )
 
 @Composable
 fun JoinButton(onClick: () -> Unit, enabled: Boolean = true) =
-    TwoPlayersImageButton(stringResource(R.string.joinStr), DarkGreen, onClick, enabled = enabled)
+    TwoPlayersButton(
+        stringResource(R.string.joinStr), DarkGreen, onClick, enabled = enabled
+    )
 
 @Composable
 fun LeaveButton(onClick: () -> Unit) =
-    TwoPlayersImageButton(stringResource(R.string.leaveStr), DarkRed, onClick)
+    TwoPlayersButton(stringResource(R.string.leaveStr), DarkRed, onClick)
 
 /** First page: player name, then Create / Join / Leave. */
 @Composable
@@ -173,11 +190,11 @@ fun TwoPlayersEntry(
     onLeave: () -> Unit
 ) {
     TwoPlayersFrame(title) {
-      BoxWithConstraints(Modifier.fillMaxWidth().weight(1f)) {
+      BoxWithConstraints(Modifier.fillMaxWidth().weight(4.5f)) {
         Column(
             modifier = Modifier.fillMaxWidth().heightIn(min = maxHeight).verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
         TwoPlayersTextField(
             label = stringResource(R.string.playerNameLabel),
@@ -193,16 +210,36 @@ fun TwoPlayersEntry(
             JoinButton(onJoin, enabled = !busy)
             LeaveButton(onLeave)
         }
-        if (message.isNotEmpty()) {
-            Text(
-                text = message,
-                color = Color.Black,
-                fontSize = CbComposable.mFontSize,
-                modifier = Modifier.fillMaxWidth().padding(10.dp)
-            )
-        }
         }
       }
+      MessageArea(message, Modifier.weight(1.1f))
+    }
+}
+
+/** Centered message area; wraps cleanly with a clear line gap and shrinks the font to fit. */
+@Composable
+private fun MessageArea(message: String, modifier: Modifier = Modifier) {
+    BoxWithConstraints(
+        modifier = modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 4.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        if (message.isEmpty()) return@BoxWithConstraints
+        val text = message.replace("_", "_\u200B").replace(":", ":\u200B")
+        var scale by remember(text, maxWidth, maxHeight) { mutableStateOf(1f) }
+        val fontSize = (CbComposable.mFontSize.value * scale).sp
+        Text(
+            text = text,
+            color = Color.Black,
+            fontSize = fontSize,
+            lineHeight = fontSize * 1.3f,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+            onTextLayout = { r ->
+                val h = r.size.height
+                val maxPx = constraints.maxHeight
+                if ((r.didOverflowWidth || h > maxPx) && scale > 0.3f) scale *= 0.9f
+            }
+        )
     }
 }
 
@@ -216,23 +253,43 @@ fun RowScope.ListPageButton(
     onClick: () -> Unit,
     enabled: Boolean = true
 ) {
-    Box(
+    Button(
+        onClick = onClick,
+        enabled = enabled,
         modifier = Modifier
             .weight(1f)
             .padding(horizontal = 6.dp)
-            .height(52.dp)
-            .clickable(enabled = enabled, onClick = onClick),
-        contentAlignment = Alignment.Center
+            .height(52.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = ActionButtonColor,
+            contentColor = ActionButtonTextColor,
+            disabledContainerColor = ActionButtonColor,
+            disabledContentColor = ActionButtonTextColor
+        ),
+        border = BorderStroke(2.dp, textColor),
+        contentPadding = PaddingValues(0.dp)
     ) {
-        Image(
-            painter = painterResource(R.drawable.reversi_button_normal),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            alpha = if (enabled) 1f else 0.5f,
-            modifier = Modifier.fillMaxSize()
-        )
-        Text(text = text, color = textColor, fontSize = CbComposable.mFontSize)
+        FitButtonText(text, textColor)
     }
+}
+
+@Composable
+private fun FitButtonText(text: String, color: Color) {
+    var fontSize by remember(text) { mutableStateOf(CbComposable.mFontSize) }
+    Text(
+        text = text,
+        color = color,
+        fontSize = fontSize,
+        maxLines = 1,
+        softWrap = false,
+        overflow = TextOverflow.Ellipsis,
+        onTextLayout = { result ->
+            if ((result.didOverflowWidth || result.didOverflowHeight) && fontSize > 8.sp) {
+                fontSize = (fontSize.value * 0.9f).sp
+            }
+        }
+    )
 }
 
 /**
@@ -281,16 +338,8 @@ fun TwoPlayersListPage(
                 }
             }
         }
-        if (message.isNotEmpty()) {
-            Text(
-                text = message,
-                color = Color.Black,
-                fontSize = CbComposable.mFontSize,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().padding(10.dp)
-            )
-        }
-        Box(Modifier.weight(3f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+        MessageArea(message, Modifier.weight(1.2f))
+        Box(Modifier.weight(2f).fillMaxWidth(), contentAlignment = Alignment.Center) {
             CbComposable.ShowAdmobBanner(modifier = Modifier.padding(top = 0.dp), bannerId, 0)
         }
         Row(
