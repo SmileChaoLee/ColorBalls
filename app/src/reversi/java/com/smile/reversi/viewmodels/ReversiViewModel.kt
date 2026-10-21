@@ -197,6 +197,8 @@ class ReversiViewModel(
     }
 
     private fun displayEligibleMoves(player: Int) {
+        // in network games, only the local player's moves are shown (not the waiting opponent's)
+        if (isNetworkGame() && player != localPlayer) return
         val ball = if (hasNext()) WhichBall.PLUS else WhichBall.NO_BALL
         val validMoves = rGridData.getValidMoves(player)
         for (move in validMoves) {
