@@ -281,15 +281,17 @@ class ReversiViewModel(
         }
         rGridData.backupCells()
         viewModelScope.launch(Dispatchers.Main) {
-            placePiece(i, j, curPlayer)
-            displayGameGridView()
-            displayEligibleMoves(nextPlayer())
             if (isNetworkGame()) {
                 moveSeq++
                 if (!isRemote) {
-                    transport?.send(Message.Move(moveSeq, i, j, curPlayer, rGridData.boardHash()))
+                    // send before animating so the opponent's screen updates at the same time
+                    val hash = rGridData.hashAfterMove(i, j, curPlayer)
+                    transport?.send(Message.Move(moveSeq, i, j, curPlayer, hash))
                 }
             }
+            placePiece(i, j, curPlayer)
+            displayGameGridView()
+            displayEligibleMoves(nextPlayer())
             if (rGridData.isGameOver()) {
                 setProcessingJob(false)
                 gameOver()

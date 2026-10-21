@@ -88,6 +88,15 @@ class ReversiGridData : GridData(ReversiConstants.ROW_COUNTS, ReversiConstants.C
         }
     }
 
+    /** Hash of the board after the move, without changing the board. */
+    fun hashAfterMove(x: Int, y: Int, color: Int): Int {
+        val saved = boardString()
+        placePiece(x, y, color)
+        val h = boardHash()
+        loadBoard(saved)
+        return h
+    }
+
     fun boardHash(): Int = boardString().hashCode()
 
     fun loadBoard(board: String) {
