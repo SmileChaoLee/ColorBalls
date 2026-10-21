@@ -1,5 +1,6 @@
 package com.smile.reversi.views
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.Composable
@@ -35,6 +36,7 @@ import com.smile.colorballs_main.views.CbComposable
 import com.smile.colorballs_main.views.CbRmBaseView
 import com.smile.colorballs_main.views.CbSettingActivity
 import com.smile.reversi.constants.ReversiConstants
+import com.smile.reversi.network.ConnectionState
 import com.smile.reversi.network.TransportHolder
 import com.smile.reversi.interfaces.ReversiPresentView
 import com.smile.reversi.presenters.ReversiPresenter
@@ -85,6 +87,20 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
     override fun onDestroy() {
         super.onDestroy()
         if (isFinishing && ReversiConstants.isNetworkMode(playMode)) TransportHolder.clear()
+    }
+
+    private var lobbyLaunched = false
+
+    // open the lobby before closing so the main menu is never shown in between
+    override fun finish() {
+        if (!lobbyLaunched && ReversiConstants.isNetworkMode(playMode)
+            && TransportHolder.transport != null) {
+            lobbyLaunched = true
+            startActivity(Intent(this, LobbyActivity::class.java).also {
+                it.putExtra(LobbyActivity.EXTRA_MODE, playMode)
+            })
+        }
+        super.finish()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -162,6 +178,30 @@ class ReversiActivity: CbRmBaseView(), ReversiPresentView {
 
     override fun setHasNextForView(hasNext: Boolean) {
         viewModel.setHasNext(hasNext, true)
+    }
+
+    // hosted with the other screen-level dialogs
+    @Composable
+    override fun SaveScoreDialog() {
+        super.SaveScoreDialog()
+        OpponentLeftDialog()
+    }
+
+    @Composable
+    private fun OpponentLeftDialog() {
+        if (!ReversiConstants.isNetworkMode(playMode)) return
+        val connState by viewModel.connectionState.collectAsState()
+        if (connState is ConnectionState.Closed || connState is ConnectionState.Failed) {
+            CbComposable.DialogWithText(
+                buttonListener = object : CbComposable.ButtonClickListener {
+                    override fun buttonOkClick() { finish() }
+                },
+                dialogTitle = "",
+                dialogText = getString(R.string.opponentLeft),
+                okStr = getString(R.string.okStr),
+                noStr = ""
+            )
+        }
     }
 
     @Composable
