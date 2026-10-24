@@ -768,11 +768,15 @@ abstract class BaseView: ComponentActivity(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top) {
             mBaseApp?.let {
-                CbComposable.ShowAdmobBanner(modifier = Modifier.padding(top = 0.dp),
-                    it.getAdMobBannerID(), adWidth)
+                val bannerId = if (BuildConfig.DEBUG) {
+                    // Test banner id = "ca-app-pub-3940256099942544/6300978111"
+                    "ca-app-pub-3940256099942544/6300978111"
+                } else {
+                    it.getAdMobBannerID()
+                }
                 CbComposable.ShowAdmobBanner(
-                    modifier = Modifier.padding(top = 0.dp),
-                    it.getAdMobBannerID2(), adWidth
+                    modifier = Modifier.padding(top = 10.dp),
+                    bannerId, 0
                 )
             }
         }
