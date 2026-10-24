@@ -57,7 +57,6 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -542,33 +541,6 @@ abstract class BaseView: ComponentActivity(),
         return Point(screenWidth, screenHeight)
     }
 
-    fun getContentHeightNew(): Point {
-        val logStr = "getContentHeightNew"
-        val density = ScreenUtil.getDensity()
-        LogUtil.d(TAG, "$logStr.density = $density")
-
-        val statusBarHeight = ScreenUtil.getStatusBarHeight(this@BaseView)
-        LogUtil.d(TAG, "$logStr.statusBarHeight = $statusBarHeight")
-        val navigationBarHeight = ScreenUtil.getNavigationBarHeight(this@BaseView)
-        LogUtil.d(TAG, "$logStr.navigationBarHeight = $navigationBarHeight")
-        val screen = ScreenUtil.getScreenSize(this@BaseView)
-        LogUtil.d(TAG, "$logStr.screen.x = ${screen.x}")
-        LogUtil.d(TAG, "$logStr.screen.y = ${screen.y}")
-        val screenWidth = ScreenUtil.pixelToDp(screen.x.toFloat()).toInt()
-        LogUtil.d(TAG, "$logStr.screenWidth = $screenWidth")
-        val screenHeight = ScreenUtil.pixelToDp(screen.y.toFloat()).toInt()
-        LogUtil.d(TAG, "$logStr.screenHeight = $screenHeight")
-        // screenHeight -= navigationBarHeight
-        // Calculate the available content height
-        // WindowCompat.setDecorFitsSystemWindows(window, false)
-        // and     Scaffold {innerPadding ->
-        // removes the navigationBarHeight
-        // screenHeight -= statusBarHeight // - navigationBarHeight
-        LogUtil.d(TAG, "$logStr.screenHeight = $screenHeight")
-
-        return Point(screenWidth, screenHeight)
-    }
-
     // this fun will be override in com.smile.dropcolorballs
     @SuppressLint("ConfigurationScreenWidthHeight")
     @Composable
@@ -760,10 +732,12 @@ abstract class BaseView: ComponentActivity(),
         LogUtil.d(TAG, "SHowPortraitAds.getOrientation()" +
                 " = ${getOrientation()}")
 
+        /*
         val adWidth = with(LocalDensity.current) {
             (LocalWindowInfo.current.containerSize.width
                 .toDp().value*0.90f).toInt()
         }
+        */
         Column(modifier = modifier.fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top) {
